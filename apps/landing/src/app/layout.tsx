@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import ScrollToTop from "@/components/ScrollToTop";
+import EcosystemRewardListener from "@/components/EcosystemRewardListener";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -33,6 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#0f0f0f] text-white">
         <ScrollToTop />
+        <EcosystemRewardListener />
         {children}
       </body>
     </html>

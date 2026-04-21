@@ -7,6 +7,7 @@ import { SupabaseModule } from './modules/supabase/supabase.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { EventsModule } from './modules/events/events.module';
 import { SharedModule } from './modules/shared/shared.module';
+import { LinguisticsModule } from './modules/linguistics/linguistics.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { SharedModule } from './modules/shared/shared.module';
     RedisModule,
     EventsModule,
     SharedModule,
+    LinguisticsModule,
     ActionsModule,
   ],
   controllers: [AppController],
