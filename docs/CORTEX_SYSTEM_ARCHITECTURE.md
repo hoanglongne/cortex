@@ -9,7 +9,16 @@ CORTEX HUB là một hệ sinh thái EdTech đa nền tảng, tập trung vào v
 - **Solilo**: Luyện nói cá nhân, tập trung vào fluency và phát âm.
 - **Cortex Core API**: Trái tim của hệ thống, quản lý dữ liệu người dùng và tiến trình học tập tập trung.
 
-## 2. Kiến trúc Shared Types (`@cortex/types`)
+## 2. Hạ tầng Kỹ thuật (Technical Infrastructure)
+
+Hệ thống được xây dựng trên bộ khung hiện đại nhằm đảm bảo hiệu năng và khả năng mở rộng:
+
+- **Database**: PostgreSQL (qua Supabase) cho lưu trữ dữ liệu ổn định và JSONB linh hoạt.
+- **Cache & Queue**: Redis (ioredis) cho xử lý dữ liệu nóng và hàng đợi tác vụ ngầm.
+- **Real-time**: Socket.io cho kết nối tức thì giữa Server và các ứng dụng con.
+- **Logging**: Pino cho hệ thống giám sát và gỡ lỗi siêu tốc.
+
+## 3. Kiến trúc Shared Types (`@cortex/types`)
 
 Để đảm bảo tất cả các ứng dụng có thể "nói cùng một ngôn ngữ", chúng ta sử dụng gói `@cortex/types` làm chuẩn dữ liệu duy nhất.
 
