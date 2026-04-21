@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0f0f0f;
+  --foreground: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-space-grotesk);
+  --font-mono: var(--font-jetbrains-mono);
+
+  /* Design System Colors */
+  --color-void-black: #0f0f0f;
+  --color-pure-black: #000000;
+  --color-cobalt: #0007cd;
+  --color-signal-blue: #0089ff;
+  --color-ocean-blue: #0096ff;
+  --color-ghost-white: rgba(255, 255, 255, 0.6);
+  --color-whisper-white: rgba(255, 255, 255, 0.5);
+  --color-phantom-white: rgba(255, 255, 255, 0.2);
+  --color-border-12: rgba(255, 255, 255, 0.12);
+  --color-border-10: rgba(255, 255, 255, 0.10);
+  --color-border-08: rgba(255, 255, 255, 0.08);
+  --color-border-06: rgba(255, 255, 255, 0.06);
+  --color-border-04: rgba(255, 255, 255, 0.04);
+
+  /* Aurora Animation */
+  --animate-aurora: aurora 60s linear infinite;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Diagonal Grid Background */
+.diagonal-grid {
+  background-image:
+    repeating-linear-gradient(45deg,
+      transparent,
+      transparent 40px,
+      rgba(255, 255, 255, 0.04) 40px,
+      rgba(255, 255, 255, 0.04) 41px),
+    repeating-linear-gradient(-45deg,
+      transparent,
+      transparent 40px,
+      rgba(255, 255, 255, 0.04) 40px,
+      rgba(255, 255, 255, 0.04) 41px);
+}
+
+
+@theme inline {
+  --animate-aurora: aurora 60s linear infinite;
+
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
+}

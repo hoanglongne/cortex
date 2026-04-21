@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORATIO - Project Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        .hero .tagline {
+            font-size: 1.5rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .hero .date {
+            margin-top: 1rem;
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #f0f0f0;
+        }
+
+        .section-header .icon {
+            font-size: 2.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 2px solid #f0f0f0;
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-item .emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .feature-item p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-live {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-progress {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-planned {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 1rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.35rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+
+        .timeline-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .timeline-item .date {
+            font-size: 0.9rem;
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-item p {
+            color: #666;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin: 2rem 0;
+        }
+
+        .highlight-box h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .highlight-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .highlight-box li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .highlight-box li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .metric-bar {
+            margin: 1.5rem 0;
+        }
+
+        .metric-bar .label-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .metric-bar .bar-bg {
+            background: #f0f0f0;
+            height: 2rem;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .metric-bar .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 1rem;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: width 0.5s ease;
+        }
+
+        .competitor-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .competitor-table th {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .competitor-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .competitor-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .check {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .cross {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .cta-section {
+            background: #f8f9fa;
+            padding: 3rem;
+            border-radius: 1rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .cta-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 3rem;
+            border-radius: 3rem;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.2rem;
+            }
+
+            .two-column,
+            .feature-list,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                padding-left: 2rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+        }
+
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .risk-card {
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid;
+        }
+
+        .risk-high {
+            background: #fff5f5;
+            border-color: #e53e3e;
+        }
+
+        .risk-medium {
+            background: #fffaf0;
+            border-color: #dd6b20;
+        }
+
+        .risk-low {
+            background: #f0fff4;
+            border-color: #38a169;
+        }
+
+        .risk-card h4 {
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .risk-card p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>🎙️ ORATIO</h1>
+        <div class="tagline">Nền tảng luyện tập IELTS Speaking với partner thực tế</div>
+        <div class="date">Project Overview | Cập nhật: T3/2026</div>
+    </div>
+
+    <div class="container">
+        <!-- Executive Summary -->
+        <section class="section">
+            <div class="section-header">
+                <span class="icon">📋</span>
+                <h2>Tổng Quan Dự Án</h2>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🎯 Mission Statement</h3>
+                <p style="font-size: 1.1rem; line-height: 1.8;">
+                    ORATIO kết nối người học ngôn ngữ trên toàn thế giới để luyện tập Speaking cho các kỳ thi chứng chỉ quốc tế 
+                    thông qua cuộc gọi audio trực tiếp, giúp người học cải thiện kỹ năng giao tiếp thực tế với chi phí bằng 0.
+                </p>
+                <p style="font-size: 1rem; line-height: 1.8; margin-top: 1rem; opacity: 0.9;">
+                    <strong>Vision 2027:</strong> Trở thành nền tảng số 1 thế giới cho việc luyện tập Speaking đa ngôn ngữ, 
+                    hỗ trợ IELTS, TOEFL, DELF (Tiếng Pháp), DELE (Tiếng Tây Ban Nha), TOPIK (Tiếng Hàn), JLPT (Tiếng Nhật), 
+                    HSK (Tiếng Trung) và nhiều chứng chỉ khác.
+                </p>
+            </div>
+
+            <div class="two-column">
+                <div class="card">
+                    <h3>💡 Vấn Đề Cần Giải Quyết</h3>
+                    <p><strong>Pain Points của người học ngôn ngữ:</strong></p>
+                    <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+                        <li>Khó tìm partner để luyện Speaking (IELTS, TOEFL, DELE, DELF...)</li>
+                        <li>Chi phí gia sư 1-1 quá cao (300k-1M VNĐ/buổi)</li>
+                        <li>Thiếu môi trường thực tế để practice với người bản xứ/learners</li>
+                        <li>Ngại giao tiếp với người lạ, stress khi thi thật</li>
+                        <li>Không có feedback cụ thể về phát âm, ngữ pháp, fluency</li>
+                        <li>Các khóa học online thiếu tính interactive</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>✨ Giải Pháp Của ORATIO</h3>
+                    <p><strong>Value Proposition:</strong></p>
+                    <ul style="margin-left: 1.5rem; margin-top: 1rem;">
+                        <li><strong>Miễn phí 100%</strong> - không paywall</li>
+                        <li><strong>Instant matching</strong> - tìm partner trong 30s</li>
+                        <li><strong>Safe environment</strong> - có rating & feedback system</li>
+                        <li><strong>Real practice</strong> - người thật, tình huống thực</li>
+                        <li><strong>Progress tracking</strong> - theo dõi band score tăng</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market & Users -->
+        <section class="section">
+            <div class="section-header">
+                <span class="icon">👥</span>
+                <h2>Thị Trường & Đối Tượng</h2>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number">3M+</div>
+                    <div class="label">Thí sinh IELTS/năm (VN)</div>
+                </div>
+                <div class="stat-card">20M</div>
+                    <div class="label">Language learners toàn cầu/năm</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">18-35</div>
+                    <div class="label">Độ tuổi chính</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">$60B</div>
+                    <div class="label">Language learning market
+                    <div class="label">Target score phổ biến</div>
+                </div>
+            </div>
+
+            <div class="two-column" style="margin-top: 2rem;">
+                <div class="card">
+                    <h3>🎯 Target Users</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>Sinh viên & du học sinh:</strong> Cần IELTS/TOEFL/DELF để apply trường</li>
+                        <li><strong>Người đi làm:</strong> Yêu cầu chứng chỉ tiếng Anh/Nhật/Hàn từ công ty</li>
+                        <li><strong>Người định cư:</strong> Cần band score cao để PR/visa (Canada, Úc, EU)</li>
+                        <li><strong>Người tự học:</strong> Muốn practice miễn phí với native/learners</li>
+                        <li><strong>Trung tâm ngôn ngữ:</strong> Cần tool bổ trợ cho học viên practice</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🌏 Market Expansion Strategy</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li><strong>Phase 1 (2026):</strong> IELTS - Vietnam, Southeast Asia</li>
+                        <li><strong>Phase 2 (2027):</strong> TOEFL, IELTS - Global (India, China, Brazil)</li>
+                        <li><strong>Phase 3 (2028):</strong> DELF, DELE, TOPIK, JLPT - EU, Korea, Japan</li>
+                        <li><strong>Phase 4 (2029+):</strong> HSK, Goethe - China, Germany + B2B partnerships</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Core Features -->
+        <section class="section">
+            <div class="section-header">
+                <span class="icon">⚡</span>
+                <h2>Tính Năng Chính</h2>
+            </div>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="emoji">🎲</div>
+                    <h4>Random Matching</h4>
+                    <p>Ghép cặp tự động với partner cùng band score, tìm được người trong 30 giây</p>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">🎙️</div>
+                    <h4>Audio Call Thực Tế</h4>
+                    <p>Cuộc gọi audio chất lượng cao qua LiveKit, mute/unmute dễ dàng</p>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">💬</div>
+                    <h4>Chủ Đề Ngẫu Nhiên</h4>
+                    <p>Hệ thống tự động gợi ý topic IELTS Speaking, làm mới không giới hạn</p>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">⭐</div>
+                    <h4>Rating & Feedback</h4>
+                    <p>Đánh giá partner sau mỗi buổi, nhận feedback về điểm mạnh/yếu</p>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">📊</div>
+                    <h4>Progress Tracking</h4>
+                    <p>Theo dõi số buổi luyện, band score hiện tại, streak, total minutes</p>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">🏆</div>
+                    <h4>Leaderboard</h4>
+                    <p>Bảng xếp hạng toàn cầu/tuần, tạo động lực cạnh tranh lành mạnh</p>
+                    <span class="status-badge status-live">LIVE</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">🤖</div>
+                    <h4>AI Scoring (Coming Soon)</h4>
+                    <p>Phân tích pronunciation, grammar, fluency tự động bằng AI</p>
+                    <span class="status-badge status-planned">Q2 2026</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">📝</div>
+                    <h4>Transcript (Coming Soon)</h4>
+                    <p>Chuyển đổi cuộc hội thoại thành text để review và học từ vựng</p>
+                    <span class="status-badge status-planned">Q2 2026</span>
+                </div>
+
+                <div class="feature-item">
+                    <div class="emoji">👥</div>
+                    <h4>Friends System (Planned)</h4>
+                    <p>Kết bạn với partners tốt, book session riêng tư</p>
+                    <span class="status-badge status-planned">Q3 2026</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Current Status -->
+        <section class="section">
+            <div class="section-header">
+                <span class="icon">📈</span>
+                <h2>Tình Trạng Hiện Tại</h2>
+            </div>
+
+            <div class="metric-bar">
+                <div class="label-row">
+                    <span>Core Features Development</span>
+                    <span>85%</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width: 85%;">Complete</div>
+                </div>
+            </div>
+
+            <div class="metric-bar">
+                <div class="label-row">
+                    <span>UI/UX Design & Implementation</span>
+                    <span>90%</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width: 90%;">Complete</div>
+                </div>
+            </div>
+
+            <div class="metric-bar">
+                <div class="label-row">
+                    <span>Backend & Database</span>
+                    <span>80%</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width: 80%;">Complete</div>
+                </div>
+            </div>
+
+            <div class="metric-bar">
+                <div class="label-row">
+                    <span>Testing & Bug Fixes</span>
+                    <span>70%</span>
+                </div>
+                <div class="bar-bg">
+                    <div class="bar-fill" style="width: 70%;">In Progress</div>
+                </div>
+            </div>
+
+            <div class="two-column" style="margin-top: 2rem;">
+                <div class="card">
+                    <h3>✅ Đã Hoàn Thành</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Authentication & Authorization</li>
+                        <li>Real-time Matchmaking system</li>
+                        <li>LiveKit audio call integration</li>
+                        <li>Rating & Feedback system</li>
+                        <li>Profile & Stats tracking</li>
+                        <li>Leaderboard (3 tabs)</li>
+                        <li>Achievement system UI</li>
+                        <li>Call history UI</li>
+                        <li>Mobile responsive design</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🔨 Đang Làm / Sắp Làm</h3>
+                    <ul style="margin-left: 1.5rem;">
+                        <li>Fix critical bugs (race condition, rate limiting)</li>
+                        <li>Integrate real data cho Call History</li>
+                        <li>Integrate real data cho Achievements</li>
+                        <li>Streak calculation automation</li>
+                        <li>Performance optimization</li>
+                        <li>Accessibility improvements</li>
+                        <li>Final testing & QA</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section class="section">
+            <div class="section-header">
+                <span class="icon">🗓️</span>
+                <h2>Lộ Trình Phát Triển</h2>
+            </div>
+
+            <div class="timeline">-2/2026)</h4>
+                    <div class="date">1/1/2026 - 28/2/2026 (8 tuần)</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> Build core infrastructure & features<br>
+                        <strong>Deliverables:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>✓ Supabase auth & database setup</li>
+                            <li>✓ LiveKit integration (audio calls)</li>
+                            <li>✓ Real-time matchmaking system</li>
+                            <li>✓ Rating & feedback mechanism</li>
+                            <li>✓ 9 screens UI/UX design (Figma + implementation)</li>
+                            <li>✓ IELTS topic database (50+ topics)</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>🔨 Phase 1: Stability & Bug Fixes (T3/2026 - Week 1-2)</h4>
+                    <div class="date">1/3/2026 - 14/3/2026 (2 tuần)</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> Production-ready stability<br>
+                        <strong>Deliverables:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Fix race condition trong matchmaking queue</li>
+                            <li>Implement rate limiting (prevent spam)</li>
+                            <li>Dynamic band score matching tolerance</li>
+                            <li>Error handling & logging system</li>
+                            <li>Load testing (100 concurrent users)</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>🚀 Phase 2: Real Data Integration (T3/2026 - Week 3-4)</h4>
+                    <div class="date">15/3/2026 - 31/3/2026 (2 tuần)</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> Replace all mock data<br>
+                        <strong>Deliverables:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Call history với real database queries</li>
+                            <li>Call summary analytics (fluency, vocabulary, grammar metrics)</li>
+                            <li>Achievement system với unlock logic</li>
+                            <li>Streak calculation & automation</li>
+                            <li>Leaderboard với real-time ranking</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>🎨 Phase 3: Polish & MVP Launch (T4/2026)</h4>
+                    <div class="date">1/4/2026 - 30/4/2026 (4 tuần)</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> Public launch - <strong>Target: 1,000 users</strong><br>
+                        <strong>Deliverables:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>UX improvements (onboarding, tooltips, empty states)</li>
+                            <li>Performance optimization (bundle size, loading time)</li>
+                            <li>Mobile responsive testing (iOS, Android)</li>
+                            <li>Accessibility compliance (WCAG 2.1)</li>
+                            <li>Marketing: Landing page, demo video, social media</li>
+                            <li>Launch campaign: IELTS Facebook groups, Reddit, Discord</li>
+                            <li>Setup analytics (Mixpanel/Amplitude)</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>🤖 Phase 4: AI Integration (T5-7/2026)</h4>
+                    <div class="date">1/5/2026 - 31/7/2026 (12 tuần)</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> AI-powered insights - <strong>Target: 10,000 users</strong><br>
+                        <strong>Deliverables:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li><strong>Week 1-4:</strong> AssemblyAI transcription integration</li>
+                            <li><strong>Week 5-8:</strong> GPT-4 analysis (pronunciation, grammar, fluency scoring)</li>
+                            <li><strong>Week 9-10:</strong> Detailed feedback UI (strengths/weaknesses breakdown)</li>
+                            <li><strong>Week 11-12:</strong> Vocabulary suggestions, correction examples</li>
+                            <li>A/B testing AI features (impact on retention)</li>
+                            <li>Cost optimization (API usage monitoring)</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>🎯 Phase 5: Growth & Monetization (T8-12/2026)</h4>
+                    <div class="date">1/8/2026 - 31/12/2026 (20 tuần)</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> Scale to 100K users & revenue - <strong>Target: $10K MRR</strong><br>
+                        <strong>Deliverables:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li><strong>T8:</strong> Friends system (add, practice với friends)</li>
+                            <li><strong>T9:</strong> Scheduled sessions (book trước với partner)</li>
+                            <li><strong>T10:</strong> Study groups (3-5 người cùng practice)</li>
+                            <li><strong>T10:</strong> Launch Premium tier ($9.99/mo) - unlimited sessions, priority matching</li>
+                            <li><strong>T11:</strong> Referral program (invite friends → free premium)</li>
+                            <li><strong>T12:</strong> B2B pilot (partner với 3-5 trung tâm IELTS)</li>
+                            <li>Push notifications (reminders, streaks)</li>
+                            <li>In-app messaging system</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>🌍 Phase 6: Multi-Language Expansion (2027)</h4>
+                    <div class="date">Q1-Q4 2027 (12 tháng)</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> Beyond IELTS - <strong>Target: 500K users, $100K MRR</strong><br>
+                        <strong>Deliverables:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li><strong>Q1:</strong> TOEFL support (topics, scoring rubric)</li>
+                            <li><strong>Q2:</strong> DELF (Tiếng Pháp) - partner với Alliance Française</li>
+                            <li><strong>Q3:</strong> DELE (Tiếng Tây Ban Nha), TOPIK (Tiếng Hàn)</li>
+                            <li><strong>Q4:</strong> JLPT (Tiếng Nhật), HSK (Tiếng Trung)</li>
+                            <li>Multi-language UI (English, VN, KR, JP, CN, ES, FR)</li>
+                            <li>Native speaker marketplace (pay để practice với người bản xứ)</li>
+                            <li>Certification partnerships (official practice platform)</li>
+                        </ul>
+                    </p>
+                </div>
+
+                <div class="timeline-item">
+                    <h4>🏆 Phase 7: Platform Maturity (2028+)</h4>
+                    <div class="date">2028 onwards</div>
+                    <p>
+                        <strong>Mục tiêu:</strong> Market leader - <strong>Target: 5M users, $1M+ MRR</strong><br>
+                        <strong>Focus areas:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>White-label solution cho trường đại học, trung tâm ngôn ngữ</li>
+                            <li>Video call support (ngoài audio)</li>
+                            <li>AI virtual practice partner (khi không match được người)</li>
+                            <li>Course marketplace (instructors sell courses on platform)</li>
+                            <li>Corporate licensing (companies train employees)</li>
+                            <li>Mobile apps (iOS, Android native)</li>
+                            <li>Potential acquisition/IPO discussions</li>
+                        </ul>
+                        <strong>Mục tiêu:</strong> Tăng user retention & engagement<br>
+                        <strong>Key tasks:</strong> Friends system, scheduled sessions, study groups, gamification elements, premium tier
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competitioncard" style="background: #f8f9fa; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem;">
+                <h3 style="color: #667eea; font-size: 1.6rem; margin-bottom: 1.5rem;">💰 Revenue Streams - Mô Hình Đa Dạng</h3>
+                
+                <div class="two-column" style="margin-bottom: 2rem;">
+                    <div>
+                        <h4 style="color: #1a1a1a; margin-bottom: 1rem;">🎟️ 1. Freemium Subscription (4-Tier Model)</h4>
+                        
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border-left: 3px solid #cbd5e0;">
+                            <p><strong>🆓 FREE TIER</strong></p>
+                            <ul style="margin-left: 1.5rem; font-size: 0.95rem; margin-top: 0.5rem;">
+                                <li>3 sessions/day (20 mins each = 60 mins total)</li>
+                                <li>Standard matching (wait time 2-5 min)</li>
+                                <li>Basic AI feedback (band score estimate only)</li>
+                                <li>1 topic refresh/session</li>
+                                <li>Ads between sessions (skippable after 5s)</li>
+                                <li>Community features (leaderboard, achievements)</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem; color: #667eea; font-weight: 600;">
+                                💡 Perfect for: Người mới bắt đầu, students với budget hạn chế
+                            </p>
+                        </div>
+
+                        <div style="background: #e6f3ff; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border-left: 3px solid #667eea;">
+                            <p><strong>⭐ BASIC - $2.99/mo (₫69,000/tháng)</strong></p>
+                            <ul style="margin-left: 1.5rem; font-size: 0.95rem; margin-top: 0.5rem;">
+                                <li><strong>Everything in Free, PLUS:</strong></li>
+                                <li>✓ 10 sessions/day (30 mins each = 300 mins)</li>
+                                <li>✓ Faster matching (wait <1 min)</li>
+                                <li>✓ AI feedback với 3 metrics (pronunciation, fluency, grammar)</li>
+                                <li>✓ Unlimited topic refreshes</li>
+                                <li>✓ Remove ads</li>
+                                <li>✓ Session history (last 30 days)</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem; color: #667eea; font-weight: 600;">
+                                💡 Perfect for: Học sinh/sinh viên luyện đều đặn, budget-conscious
+                            </p>
+                        </div>
+
+                        <div style="background: #f3e8ff; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border-left: 3px solid #9f7aea;">
+                            <p><strong>💎 PRO - $5.99/mo (₫139,000/tháng)</strong></p>
+                            <ul style="margin-left: 1.5rem; font-size: 0.95rem; margin-top: 0.5rem;">
+                                <li><strong>Everything in Basic, PLUS:</strong></li>
+                                <li>✓ Unlimited sessions (no daily limit)</li>
+                                <li>✓ Priority matching (<30s guaranteed)</li>
+                                <li>✓ Detailed AI analysis (10+ metrics breakdown)</li>
+                                <li>✓ Download transcripts (text only)</li>
+                                <li>✓ Schedule sessions với partners (up to 3/week)</li>
+                                <li>✓ Session history (unlimited)</li>
+                                <li>✓ Weekly progress report email</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem; color: #9f7aea; font-weight: 600;">
+                                💡 Perfect for: Người đi làm có target score cụ thể, serious learners
+                            </p>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 0.5rem; color: white;">
+                            <p><strong>👑 PREMIUM - $9.99/mo (₫229,000/tháng)</strong></p>
+                            <ul style="margin-left: 1.5rem; font-size: 0.95rem; margin-top: 0.5rem;">
+                                <li><strong>Everything in Pro, PLUS:</strong></li>
+                                <li>✓ Download audio recordings + transcripts (PDF export)</li>
+                                <li>✓ Unlimited scheduled sessions</li>
+                                <li>✓ Private rooms với friends (no time limit)</li>
+                                <li>✓ Custom topics upload (import your own questions)</li>
+                                <li>✓ AI tutor chat (ask questions 24/7)</li>
+                                <li>✓ Priority support (response <24h)</li>
+                                <li>✓ Exclusive masterclasses (monthly live sessions)</li>
+                                <li>✓ "Premium" badge trong profile</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem; font-weight: 600;">
+                                💡 Perfect for: Test takers trong 1-2 tháng, power users, professionals
+                            </p>
+                        </div>
+
+                        <div style="margin-top: 1rem; padding: 1rem; background: #fffaf0; border-radius: 0.5rem; border: 1px dashed #dd6b20;">
+                            <p style="font-size: 0.95rem; margin-bottom: 0.5rem;"><strong>🌍 Regional Pricing Strategy:</strong></p>
+                            <ul style="margin-left: 1.5rem; font-size: 0.9rem; color: #666;">
+                                <li><strong>Tier 1 (VN, SEA, India):</strong> Standard pricing như trên</li>
+                                <li><strong>Tier 2 (US, EU, Australia):</strong> Basic $4.99 | Pro $9.99 | Premium $14.99</li>
+                                <li><strong>Tier 3 (Corporate/B2B):</strong> Custom pricing ($500-2,000/mo cho 50-500 users)</li>
+                            </ul>
+                        </div>
+
+                        <p style="margin-top: 1rem; color: #667eea; font-weight: 600; font-size: 1.05rem;">
+                            📊 <strong>Conversion Projections @ 100K users:</strong>
+                        </p>
+                        <ul style="margin-left: 1.5rem; font-size: 0.95rem; color: #666;">
+                            <li>Free: 85,000 users (85%)</li>
+                            <li>Basic ($2.99): 8,000 users (8%) → $23,920 MRR</li>
+                            <li>Pro ($5.99): 5,000 users (5%) → $29,950 MRR</li>
+                            <li>Premium ($9.99): 2,000 users (2%) → $19,980 MRR</li>
+                            <li><strong>Total: $73,850 MRR (~$886K ARR)</strong> - chỉ riêng subscription</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 style="color: #1a1a1a; margin-bottom: 1rem;">📺 2. In-App Advertising</h4>
+                        <p><strong>Non-intrusive ads cho free users:</strong></p>
+                        <ul style="margin-left: 1.5rem; font-size: 0.95rem;">
+                            <li>Banner ads giữa các session (skippable after 5s)</li>
+                            <li>Sponsored topics (từ publishers, test centers)</li>
+                            <li>Native ads trong Call History screen</li>
+                            <li>Rewarded video ads (xem ad → 2 extra sessions)</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem; color: #667eea;"><strong>Projected:</strong> $2-3 CPM → $15-25K/month @ 5M impressions</p>
+
+                        <h4 style="color: #1a1a1a; margin-bottom: 1rem; margin-top: 1.5rem;">🏫 3. B2B Licensing</h4>
+                        <p><strong>White-label solution cho institutions:</strong></p>
+                        <ul style="margin-left: 1.5rem; font-size: 0.95rem;">
+                            <li>Trung tâm IELTS/TOEFL: Custom branding, student tracking</li>
+                            <li>Trường đại học: Integrated vào LMS</li>
+                            <li>Doanh nghiệp: Employee training programs</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem; color: #667eea;"><strong>Pricing:</strong> $500-2,000/mo per institution (50-500 users)</p>
+                        <p style="color: #667eea;"><strong>Projected:</strong> 20-50 partners → $20-80K MRR by 2027</p>
+                    </div>
+                </div>
+
+                <div class="two-column">
+                    <div>
+                        <h4 style="color: #1a1a1a; margin-bottom: 1rem;">🎓 4. Marketplace & Courses</h4>
+                        <p><strong>Revenue share model:</strong></p>
+                        <ul style="margin-left: 1.5rem; font-size: 0.95rem;">
+                            <li><strong>Native speaker sessions:</strong> Users pay $5-15/30min, ORATIO takes 20% commission</li>
+                            <li><strong>Expert tutors:</strong> Certified teachers host group sessions ($10-30/session), 25% commission</li>
+                            <li><strong>Course bundles:</strong> Instructors sell structured courses ($50-200), 30% revenue share</li>
+                            <li><strong>Mock tests:</strong> Official practice tests ($20-50), 40% margin</li>
+                        </ul>
+                        <p style="margin-top: 0.5rem; color: #667eea;"><strong>Projected:</strong> $40-80K MRR @ 1,000 transactions/month</p>
+                    </div>
+
+                    <div>
+                        <h4 style="color: #1a1a1a; margin-bottom: 1rem;">🤝 5. Partnership & Affiliates</h4>
+                        <p><strong>Strategic collaborations:</strong></p>
+                        <ul style="margin-left: 1.5rem; font-size: 0.95rem;">
+                            <li><strong>Official practice partner:</strong> IELTS, TOEFL, Cambridge (licensing fee)</li>
+                        card" style="margin-bottom: 1.5rem; background: #fff5f5; border-left: 4px solid #e53e3e;">
+                <h4 style="color: #c53030; font-size: 1.3rem; margin-bottom: 1rem;">🔴 RISK #1: Cold-Start Network Effect</h4>
+                <p><strong>Mô tả chi tiết:</strong></p>
+                <p style="margin-left: 1rem; color: #666;">
+                    Đây là rủi ro lớn nhất: Nếu không có đủ users online cùng lúc, matching time sẽ dài (5-10 phút), 
+                    dẫn đến user frustration và churn rate cao. Cần critical mass ~500-1000 DAU để matching <30s.
+                </p>
+                
+                <p style="margin-top: 1rem;"><strong>Action Plan:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Tuần 1-2 (Pre-launch):</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Build waitlist (landing page + viral loop): Target 2,000-3,000 signups</li>
+                            <li>Partner với 3-5 IELTS Facebook groups lớn (50K-200K members) → admin posts</li>
+                            <li>Reach out tới IELTS influencers/bloggers (offer free premium)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Launch day (staggered launch):</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Invite-only beta (500 users from waitlist) → tạo scarcity</li>
+                            <li>Scheduled "Happy Hours" (8-10pm VN time) → concentrate users</li>
+                            <li>Launch announcement trên ProductHunt, Reddit r/IELTS</li>
+                        </ul>
+                    </li>
+                    <li><strong>Tuần 3-4 (Growth tactics):</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Referral program: Invite 3 friends → unlock 1 week premium</li>
+                            <li>Partner với 2-3 trung tâm IELTS (pilot program): 100-200 students/center</li>
+                            <li>Run Facebook Ads targeting "IELTS preparation" (budget: $2,000-3,000)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Contingency plan (nếu matching time >2min):</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Tạm thời mở rộng matching tolerance (Band 5 match với Band 7)</li>
+                            <li>Bot-assisted practice (AI partner) khi không có real user available</li>
+                            <li>Notification system: Notify khi có user matching band score online</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Success Metrics:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #667eea; font-weight: 600;">
+                    <li>Week 1: 500+ DAU, avg matching time <2min</li>
+                    <li>Week 4: 2,000+ DAU, avg matching time <1min</li>
+                    <li>Month 3: 10,000+ DAU, avg matching time <30s (target achieved)</li>
+                </ul>
+            </div>
+
+            <div class="card" style="margin-bottom: 1.5rem; background: #fff5f5; border-left: 4px solid #e53e3e;">
+                <h4 style="color: #c53030; font-size: 1.3rem; margin-bottom: 1rem;">🔴 RISK #2: User Misconduct & Safety</h4>
+                <p><strong>Mô tả chi tiết:</strong></p>
+                <p style="margin-left: 1rem; color: #666;">
+                    Người dùng có thể spam, harassment, nói tục, content không phù hợp trong audio calls. 
+                    Điều này phá hủy user experience và brand reputation, đặc biệt với audience học sinh/sinh viên.
+                </p>
+                
+                <p style="margin-top: 1rem;"><strong>Prevention System (Multi-layer):</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Layer 1 - Pre-call verification:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Email verification required (block disposable emails)</li>
+                            <li>Phone number verification (optional, cho premium users)</li>
+                            <li>Onboarding quiz (3 questions về IELTS) → filter spammers</li>
+                            <li>Trust score (0-100): Mới tạo account = 50, tăng sau mỗi successful session</li>
+                        </ul>
+                    </li>
+                    <li><strong>Layer 2 - During call protection:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>"Leave & Report" button (prominently displayed)</li>
+                            <li>Warning system: 1st offense = warning, 2nd = 7-day ban, 3rd = permanent ban</li>
+                            <li>Optional audio recording (với consent) cho disputed reports</li>
+                        </ul>
+                    </li>
+                    <li><strong>Layer 3 - Post-call moderation:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Mandatory rating (1-5 stars) + optional report</li>
+                            <li>Auto-flag users với <3.0 avg rating sau 10 sessions</li>
+                            <li>Manual review team (1-2 moderators) cho reported cases (target: <24h response)</li>
+                            <li>AI sentiment analysis trên feedback text (detect abusive patterns)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Layer 4 - Community guidelines:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Clear Community Standards page (before 1st session)</li>
+                            <li>In-app reminders: "Be respectful, focus on learning"</li>
+                            <li>Gamification: "Good Partner" badge cho users với >4.5 rating</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Escalation Protocol:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Severity 1 (Low):</strong> Boring partner, không tương tác → No action, chỉ low rating</li>
+                    <li><strong>Severity 2 (Medium):</strong> Spam, off-topic → 7-day ban, email warning</li>
+                    <li><strong>Severity 3 (High):</strong> Harassment, tục tĩu → Immediate permanent ban + IP block</li>
+                    <li><strong>Severity 4 (Critical):</strong> Illegal content, threats → Ban + report to authorities if applicable</li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Success Metrics:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #667eea; font-weight: 600;">
+                    <li>Report rate <2% of total sessions</li>
+                    <li>Average user rating >4.2/5</li>
+                    <li>Moderator response time <12 hours</li>
+                    <li>Repeat offender rate <0.1%</li>
+                </ul>
+            </div>
+
+            <div class="card" style="margin-bottom: 1.5rem; background: #fffaf0; border-left: 4px solid #dd6b20;">
+                <h4 style="color: #c05621; font-size: 1.3rem; margin-bottom: 1rem;">🟡 RISK #3: Technical Scalability & Costs</h4>
+                <p><strong>Mô tả chi tiết:</strong></p>
+                <p style="margin-left: 1rem; color: #666;">
+                    LiveKit audio costs scale linearly với số phút gọi (~$0.004/min/user). 
+                    At 100K users × 3 sessions/day × 30 min = 9M minutes/day → $36K/day = $1M+/month → unsustainable.
+                    Database queries có thể chậm khi >1M records.
+                </p>
+                
+                <p style="margin-top: 1rem;"><strong>Cost Optimization Strategy:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Phase 1 (0-10K users):</strong> LiveKit Cloud (managed service)
+                        <ul style="margin-left: 1rem;">
+                            <li>Cost: ~$500-1,000/month</li>
+                            <li>No infrastructure maintenance</li>
+                            <li>Monitor usage via analytics dashboard</li>
+                        </ul>
+                    </li>
+                    <li><strong>Phase 2 (10K-50K users):</strong> Hybrid approach
+                        <ul style="margin-left: 1rem;">
+                            <li>Premium users → LiveKit Cloud (better quality)</li>
+                            <li>Free users → Self-hosted LiveKit (AWS EC2 t3.large ~ $70/mo)</li>
+                            <li>Implement session time limits: Free = 30min/session, Premium = unlimited</li>
+                            <li>Cost: ~$5K-10K/month (70% reduction vs all-cloud)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Phase 3 (50K+ users):</strong> Fully self-hosted
+                        <ul style="margin-left: 1rem;">
+                            <li>Dedicated LiveKit cluster (Kubernetes on AWS/GCP)</li>
+                            <li>CDN caching cho static assets (CloudFlare)</li>
+                            <li>Cost per user giảm từ $0.30 → $0.05/month</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Database Performance:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Immediate actions:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Index optimization (add indexes trên user_id, created_at, band_score)</li>
+                            <li>Pagination (load 20 records at a time, không load all)</li>
+                            <li>Query caching (Redis) cho leaderboard, stats (TTL 5 minutes)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Medium-term (at 50K+ users):</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Database sharding (partition by region: Asia, Europe, Americas)</li>
+                            <li>Read replicas (3-5 replicas cho heavy queries)</li>
+                            <li>Archive old data (move sessions >6 months to cold storage)</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Monitoring & Alerts:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li>Setup cost alerts (AWS Budget, email khi >$1,000/week)</li>
+                    <li>APM monitoring (Sentry, New Relic) cho slow queries (>500ms)</li>
+                    <li>Weekly cost review meeting (every Friday)</li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Success Metrics:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #667eea; font-weight: 600;">
+                    <li>Cost per active user <$0.10/month by end of 2026</li>
+                    <li>API response time <200ms (p95)</li>
+                    <li>Database query time <100ms (p95)</li>
+                    <li>Uptime >99.5%</li>
+                </ul>
+            </div>
+
+            <div class="card" style="margin-bottom: 1.5rem; background: #fffaf0; border-left: 4px solid #dd6b20;">
+                <h4 style="color: #c05621; font-size: 1.3rem; margin-bottom: 1rem;">🟡 RISK #4: Match Quality & User Retention</h4>
+                <p><strong>Mô tả chi tiết:</strong></p>
+                <p style="margin-left: 1rem; color: #666;">
+                    Nếu matching algorithm kém, users sẽ match với partners không đúng level (Band 4 vs Band 8), 
+                    hoặc partner không nghiêm túc (chỉ chit-chat, không focus IELTS). 
+                    Dẫn đến bad experience → churn rate cao (>60% after first session).
+                </p>
+                
+                <p style="margin-top: 1rem;"><strong>Matching Algorithm Evolution:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>V1 (MVP - Current):</strong> Exact band score matching
+                        <ul style="margin-left: 1rem;">
+                            <li>Band 6.0 chỉ match với Band 6.0</li>
+                            <li>Issue: Matching time có thể >5 phút nếu ít users</li>
+                        </ul>
+                    </li>
+                    <li><strong>V2 (After 1,000 users):</strong> Dynamic tolerance
+                        <ul style="margin-left: 1rem;">
+                            <li>First 30s: Exact match (±0.0)</li>
+                            <li>After 30s: ±0.5 band (6.0 → 5.5-6.5)</li>
+                            <li>After 1min: ±1.0 band (6.0 → 5.0-7.0)</li>
+                            <li>Prioritize higher-rated partners first</li>
+                        </ul>
+                    </li>
+                    <li><strong>V3 (With AI - Q2 2026):</strong> Skill-based matching
+                        <ul style="margin-left: 1rem;">
+                            <li>Analyze previous sessions: pronunciation score, grammar, fluency</li>
+                            <li>Match users với similar weaknesses (cùng improve together)</li>
+                            <li>OR match opposite strengths (good grammar + good pronunciation)</li>
+                        </ul>
+                    </li>
+                    <li><strong>V4 (2027):</strong> Preference-based + machine learning
+                        <ul style="margin-left: 1rem;">
+                            <li>User preferences: Prefer native speakers, same country, certain accents</li>
+                            <li>ML model learns từ rating patterns (who matches well with whom)</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Quality Control Mechanisms:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Onboarding quality check:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>New users: 3-minute voice self-introduction (AI auto-assess band score)</li>
+                            <li>Alternative: 5-question IELTS quiz → estimate band score</li>
+                            <li>Block users claiming Band 8+ without verification</li>
+                        </ul>
+                    </li>
+                    <li><strong>Post-session feedback loop:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>"Was this session helpful?" (thumbs up/down)</li>
+                            <li>"Did partner's level match yours?" (Yes/No) → re-calibrate band score</li>
+                            <li>Auto-downgrade users với <50% "helpful" rate after 20 sessions</li>
+                        </ul>
+                    </li>
+                    <li><strong>"Serious learner" badges:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Users với >20 sessions + >4.5 rating → "Verified Learner" badge</li>
+                            <li>Premium users auto-get priority trong matching</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Retention Tactics:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li>Streak system (practice 7 days liên tiếp → badge + leaderboard boost)</li>
+                    <li>Weekly progress emails ("You improved 0.5 band in pronunciation!")</li>
+                    <li>Push notifications: "Your favorite partner is online" (for friends feature)</li>
+                    <li>Monthly challenges ("Complete 30 sessions → free 1-month premium")</li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Success Metrics:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #667eea; font-weight: 600;">
+                    <li>Day 1 retention >40%</li>
+                    <li>Day 7 retention >25%</li>
+                    <li>Day 30 retention >15%</li>
+                    <li>Avg session rating >4.0/5</li>
+                    <li>"Helpful session" rate >70%</li>
+                </ul>
+            </div>
+
+            <div class="card" style="margin-bottom: 1.5rem; background: #f0fff4; border-left: 4px solid #38a169;">
+                <h4 style="color: #2f855a; font-size: 1.3rem; margin-bottom: 1rem;">🟢 RISK #5: Competition & Market Saturation</h4>
+                <p><strong>Mô tả chi tiết:</strong></p>
+                <p style="margin-left: 1rem; color: #666;">
+                    Các competitors lớn (Cambly, iTalki) hoặc startups mới có thể copy features, 
+                    launch tính năng tương tự (random matching cho IELTS). 
+                    Risk level thấp vì network effect là moat mạnh, nhưng vẫn cần đề phòng.
+                </p>
+                
+                <p style="margin-top: 1rem;"><strong>Competitive Moats:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Network effect:</strong> Càng nhiều users → matching nhanh hơn → attracts more users (flywheel)</li>
+                    <li><strong>Data moat:</strong> Millions of session transcripts → train better AI models (proprietary)</li>
+                    <li><strong>Community moat:</strong> Active Discord, Telegram groups → user loyalty</li>
+                    <li><strong>Brand moat:</strong> First-mover advantage trong "random IELTS matching" category</li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Differentiation Strategy:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li>Focus vào UX simplicity (3 clicks from login → call started)</li>
+                    <li>AI insights depth (không chỉ band score, mà breakdown 20+ metrics)</li>
+                    <li>Gamification obsession (leaderboards, achievements, streaks)</li>
+                    <li>Multi-language roadmap (expand fast to non-English markets)</li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Monitoring:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li>Google Alerts cho "IELTS speaking practice app", "random language partner"</li>
+                    <li>ProductHunt/Hacker News daily checks</li>
+                    <li>Quarterly competitive analysis report</li>
+                </ul>
+            </div>
+
+            <div class="card" style="background: #f0fff4; border-left: 4px solid #38a169;">
+                <h4 style="color: #2f855a; font-size: 1.3rem; margin-bottom: 1rem;">🟢 RISK #6: Regulatory & Legal Compliance</h4>
+                <p><strong>Mô tả chi tiết:</strong></p>
+                <p style="margin-left: 1rem; color: #666;">
+                    GDPR (EU), CCPA (California), PDPA (Singapore) yêu cầu strict data handling. 
+                    Recording audio calls cần user consent. Risk thấp nếu comply đúng từ đầu.
+                </p>
+                
+                <p style="margin-top: 1rem;"><strong>Compliance Checklist:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li><strong>Privacy Policy & Terms:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Draft bởi legal counsel (budget: $1,000-2,000)</li>
+                            <li>Clear consent cho: audio recording (optional), data collection, cookies</li>
+                            <li>Right to deletion (users có thể xóa account + all data)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Data minimization:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Không store raw audio mặc định (chỉ store khi user opt-in cho transcript)</li>
+                            <li>Auto-delete transcripts sau 90 days (hoặc khi user deletes account)</li>
+                            <li>Encrypt sensitive data (email, phone) at rest và in transit</li>
+                        </ul>
+                    </li>
+                    <li><strong>Age restrictions:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Minimum age: 16+ (GDPR requirement for consent without parent)</li>
+                            <li>Age verification prompt during signup</li>
+                        </ul>
+                    </li>
+                    <li><strong>Cookie consent:</strong>
+                        <ul style="margin-left: 1rem;">
+                            <li>Cookie banner (especially for EU users)</li>
+                            <li>Essential cookies only by default, analytics opt-in</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p style="margin-top: 1rem;"><strong>Ongoing compliance:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #666;">
+                    <li>Annual privacy policy review</li>
+                    <li>Data breach response plan (notify within 72 hours if breach)</li>
+                    <li>Designate Data Protection Officer (DPO) when >50K EU users</li>
+                </ul/tr>
+                    <tr>
+                        <td><strong>AI Scoring</strong></td>
+                        <td><span class="check">✓ Coming Q2</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Progress Tracking</strong></td>
+                        <td><span class="check">✓ Detailed stats</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓ Basic</span></td>
+                        <td><span class="cross">✗</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gamification</strong></td>
+                        <td><span class="check">✓ Achievements, Leaderboard</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗ Minimal</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box" style="margin-top: 2rem;">
+                <h3>🎯 Competitive Advantages của ORATIO</h3>
+                <ul>
+                    <li><strong>Free forever (core features):</strong> Không paywall cho basic sessions, ad-supported model</li>
+                    <li><strong>Instant gratification:</strong> Match trong <30s (target), không cần book trước</li>
+                    <li><strong>Multi-certification focus:</strong> Không chỉ IELTS - roadmap cover 7+ language certifications</li>
+                    <li><strong>AI-powered insights:</strong> Detailed pronunciation, grammar, fluency analysis (Q2 2026)</li>
+                    <li><strong>Gamification obsession:</strong> Leaderboard, achievements, streaks → addictive engagement loop</li>
+                    <li><strong>Global network effect:</strong> Practice với người từ 50+ quốc gia, diverse accents</li>
+                    <li><strong>B2B ready:</strong> White-label solution cho institutions (unique positioning)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Business Model -->
+        <section class="section">
+            <div class="section-header">
+                <span class="icon">💰</span>
+                <h2>Business Model & Monetization</h2>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); padding: 2rem; border-radius: 1rem; margin-bottom: 2rem;">
+                <h3 style="color: #667eea; font-size: 1.5rem; margin-bottom: 1rem;">💡 Monetization Strategy Overview</h3>
+                <p style="line-height: 1.8; color: #444;">
+                    ORATIO áp dụng <strong>diversified revenue model</strong> với 5 streams chính, tối ưu cho cả B2C và B2B. 
+                    Chiến lược pricing được localized theo region để phù hợp với purchasing power của từng thị trường.
+                </p>
+                
+                <div style="margin-top: 1.5rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div style="background: white; padding: 1rem; border-radius: 0.5rem; border-left: 3px solid #667eea;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎟️</div>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Subscription (Multi-tier)</h4>
+                        <p style="font-size: 0.9rem; color: #666;">Free + 3 paid tiers (Basic $2.99, Pro $5.99, Premium $9.99)</p>
+                        <p style="font-size: 0.85rem; color: #667eea; margin-top: 0.5rem;"><strong>Target:</strong> 15% conversion → $74K MRR @ 100K users</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 1rem; border-radius: 0.5rem; border-left: 3px solid #764ba2;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📺</div>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Advertising</h4>
+                        <p style="font-size: 0.9rem; color: #666;">Banner ads, sponsored topics, rewarded videos (free users)</p>
+                        <p style="font-size: 0.85rem; color: #667eea; margin-top: 0.5rem;"><strong>Target:</strong> $2-3 CPM → $25K MRR</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 1rem; border-radius: 0.5rem; border-left: 3px solid #667eea;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🏫</div>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">B2B Licensing</h4>
+                        <p style="font-size: 0.9rem; color: #666;">White-label cho trường, trung tâm, doanh nghiệp</p>
+                        <p style="font-size: 0.85rem; color: #667eea; margin-top: 0.5rem;"><strong>Target:</strong> $500-2K/client → $50K MRR</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 1rem; border-radius: 0.5rem; border-left: 3px solid #764ba2;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🎓</div>
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">Marketplace</h4>
+                        <p style="font-size: 0.9rem; color: #666;">Native speakers, tutors, courses (20-30% commission)</p>
+                        <p style="font-size: 0.85rem; color: #667eea; margin-top: 0.5rem;"><strong>Target:</strong> $40-80K MRR</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: white; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 2rem; margin-bottom: 2rem;">
+                <h3 style="color: #1a1a1a; font-size: 1.4rem; margin-bottom: 1.5rem;">📈 Revenue Growth Roadmap</h3>
+                
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">2026 Q2-Q3 (MVP Launch)</span>
+                        <span style="color: #667eea; font-weight: 600;">$0 MRR</span>
+                    </div>
+                    <div style="background: #f7fafc; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #cbd5e0 0%, #cbd5e0 5%); height: 100%; width: 5%;"></div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                        <strong>Strategy:</strong> 100% growth-focused | <strong>Target:</strong> 1,000 users | <strong>Focus:</strong> Product-market fit
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">2026 Q4 (Basic Monetization)</span>
+                        <span style="color: #667eea; font-weight: 600;">$15K MRR</span>
+                    </div>
+                    <div style="background: #f7fafc; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 15%;"></div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                        <strong>Unlock:</strong> Basic + Pro tiers | <strong>Target:</strong> 10K users | <strong>Mix:</strong> Subscription $7K + Ads $8K
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">2027 Q2 (AI Launch)</span>
+                        <span style="color: #667eea; font-weight: 600;">$120K MRR</span>
+                    </div>
+                    <div style="background: #f7fafc; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 35%;"></div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                        <strong>Unlock:</strong> Premium tier + AI features | <strong>Target:</strong> 100K users | <strong>Mix:</strong> Sub $74K + Ads $25K + B2B $10K + Marketplace $11K
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">2027 Q4 (Multi-language)</span>
+                        <span style="color: #667eea; font-weight: 600;">$350K MRR</span>
+                    </div>
+                    <div style="background: #f7fafc; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 60%;"></div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                        <strong>Unlock:</strong> TOEFL, DELF support | <strong>Target:</strong> 500K users | <strong>Mix:</strong> Sub $200K + Ads $60K + B2B $50K + Marketplace $40K
+                    </p>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 600;">2028 Q4 (Platform Maturity)</span>
+                        <span style="color: #667eea; font-weight: 600; font-size: 1.2rem;">$1.2M MRR</span>
+                    </div>
+                    <div style="background: #f7fafc; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); height: 100%; width: 100%;"></div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                        <strong>Unlock:</strong> 7+ languages, Enterprise tier | <strong>Target:</strong> 5M users | <strong>Mix:</strong> Sub $750K + Ads $180K + B2B $150K + Marketplace $120K
+                    </p>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 0.75rem; color: white;">
+                    <p style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">🎯 End of 2028 Target</p>
+                    <p style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem;">ARR $14.4M+ (~₫332 tỷ VNĐ)</p>
+                    <p style="font-size: 0.95rem; opacity: 0.95;">
+                        💡 Valuation target: <strong>$120M+</strong> (8-10x revenue) → Series A ready<br>
+                        📊 Multi-tier pricing tăng overall conversion rate lên <strong>15%</strong> (vs 3-5% single-tier)
+                    </p>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>📊 Key Metrics to Track</h3>
+                <div class="two-column">
+                    <div>
+                        <h4 style="color: #667eea; margin-top: 1rem;">User Metrics</h4>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Daily Active Users (DAU)</li>
+                            <li>Monthly Active Users (MAU)</li>
+                            <li>User Retention (D1, D7, D30)</li>
+                            <li>Churn rate</li>
+                            <li>New user signups/day</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="color: #667eea; margin-top: 1rem;">Engagement Metrics</h4>
+                        <ul style="margin-left: 1.5rem;">
+                            <li>Average sessions per user</li>
+                            <li>Average session duration</li>
+                            <li>Match success rate</li>
+                            <li>Feedback completion rate</li>
+                            <li>Returning user rate</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <h2>🚀 Sẵn Sàng Thay Đổi Cách Học Ngôn Ngữ</h2>
+            <p>MVP Launch (IELTS) vào <strong>tháng 4/2026</strong> | Multi-language expansion bắt đầu <strong>2027</strong></p>
+            <p style="font-size: 1rem; margin-top: -1rem;">Hiện đang final testing - đạt 85% completion</p>
+            <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <span style="padding: 0.5rem 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 2rem; font-size: 0.9rem;">
+                    🇬🇧 IELTS (2026)
+                </span>
+                <span style="padding: 0.5rem 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 2rem; font-size: 0.9rem;">
+                    🇺🇸 TOEFL (2027)
+                </span>
+                <span style="padding: 0.5rem 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 2rem; font-size: 0.9rem;">
+                    🇫🇷 DELF (2027)
+                </span>
+                <span style="padding: 0.5rem 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 2rem; font-size: 0.9rem;">
+                    🇪🇸 DELE (2027)
+                </span>
+                <span style="padding: 0.5rem 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 2rem; font-size: 0.9rem;">
+                    🇰🇷 TOPIK (2028)
+                </span>
+                <span style="padding: 0.5rem 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 2rem; font-size: 0.9rem;">
+                    🇯🇵 JLPT (2028)
+                </span>
+                <span style="padding: 0.5rem 1rem; background: rgba(102, 126, 234, 0.1); border-radius: 2rem; font-size: 0.9rem;">
+                    🇨🇳 HSK (2028)
+                </span>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 2rem; color: #999; border-top: 2px solid #f0f0f0; margin-top: 4rem;">
+            <p style="margin-bottom: 0.5rem;"><strong>ORATIO</strong> - Multi-Language Speaking Practice Platform</p>
+            <p style="font-size: 0.9rem;">Practice speaking with real partners worldwide, for any language certification</p>
+            <p style="font-size: 0.85rem; color: #ccc; margin-top: 1rem;">Last updated: 28/03/2026 | Version 2.0</p>
+        </div>
+    </div>
+</body>
+</html>

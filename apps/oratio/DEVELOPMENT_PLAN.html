@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORATIO - Kế Hoạch Phát Triển</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #e4e4e7;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #80c0f4 0%, #add5f5 100%);
+            color: #000;
+            padding: 3rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        .header .date {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .nav {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .nav-header:hover {
+            background: #27272a;
+        }
+
+        .nav h3 {
+            font-size: 1.2rem;
+            margin: 0;
+            color: #80c0f4;
+        }
+
+        .nav-toggle {
+            font-size: 1.5rem;
+            color: #80c0f4;
+            transition: transform 0.3s;
+        }
+
+        .nav-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .nav-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .nav-content.open {
+            max-height: 1000px;
+        }
+
+        .nav ul {
+            list-style: none;
+            padding: 0 1.5rem 1rem 1.5rem;
+        }
+
+        .nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav a {
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: color 0.2s;
+            display: block;
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .nav a:hover {
+            color: #80c0f4;
+            background: #27272a;
+        }
+
+        .section {
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #80c0f4;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #27272a;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #add5f5;
+            margin: 2rem 0 1rem 0;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            color: #e4e4e7;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h5 {
+            font-size: 1rem;
+            color: #a1a1aa;
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: #d4d4d8;
+        }
+
+        ul, ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: #d4d4d8;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .badge-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .badge-warning {
+            background: rgba(251, 146, 60, 0.2);
+            color: #fb923c;
+        }
+
+        .badge-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .badge-info {
+            background: rgba(128, 192, 244, 0.2);
+            color: #80c0f4;
+        }
+
+        .code-block {
+            background: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #a1a1aa;
+        }
+
+        .highlight {
+            background: rgba(128, 192, 244, 0.1);
+            border-left: 3px solid #80c0f4;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .warning {
+            background: rgba(251, 146, 60, 0.1);
+            border-left: 3px solid #fb923c;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .success {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 3px solid #22c55e;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+
+        .task-card {
+            background: #09090b;
+            border: 1px solid #27272a;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .task-card h4 {
+            margin-top: 0;
+            color: #80c0f4;
+        }
+
+        .phase-header {
+            background: linear-gradient(90deg, #80c0f4 0%, #add5f5 100%);
+            color: #000;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th {
+            background: #27272a;
+            padding: 0.75rem;
+            text-align: left;
+            color: #80c0f4;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #27272a;
+        }
+
+        tr:hover {
+            background: #27272a;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .card {
+            background: #27272a;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid #3f3f46;
+        }
+
+        .card h4 {
+            margin-top: 0;
+            color: #80c0f4;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #80c0f4;
+            color: #000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .back-to-top:hover {
+            transform: scale(1.1);
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            color: #80c0f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📋 ORATIO - KẾ HOẠCH PHÁT TRIỂN</h1>
+            <div class="subtitle">Tài liệu lộ trình phát triển chi tiết cho ứng dụng luyện tập IELTS Speaking</div>
+            <div class="date">Ngày tạo: 25/03/2026 | Phiên bản: 1.0</div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <div class="nav-header" onclick="toggleNav()">
+                <h3>📑 Mục Lục</h3>
+                <span class="nav-toggle">▼</span>
+            </div>
+            <div class="nav-content" id="navContent">
+                <ul>
+                    <li><a href="#overview">📊 Tổng Quan Hiện Trạng</a></li>
+                    <li><a href="#phase1">⚡ Phase 1: Sửa Lỗi & Ổn Định</a></li>
+                    <li><a href="#phase2">🚀 Phase 2: Hoàn Thiện Tính Năng</a></li>
+                    <li><a href="#phase3">✨ Phase 3: Polish & Tối Ưu</a></li>
+                    <li><a href="#roadmap">📅 Lộ Trình Thực Hiện</a></li>
+                    <li><a href="#bonus">🎁 Bonus Features</a></li>
+                    <li><a href="#checklist">✅ Pre-Launch Checklist</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section: Overview -->
+        <section id="overview" class="section">
+            <h2>📊 TỔNG QUAN HIỆN TRẠNG</h2>
+
+            <h3><span class="emoji">✅</span>Các Tính Năng Đã Hoàn Thành</h3>
+            
+            <div class="task-card">
+                <h4>1. Hệ Thống Xác Thực (Authentication)</h4>
+                <ul>
+                    <li>Đăng ký/Đăng nhập/Đăng xuất hoạt động hoàn toàn qua Supabase Auth</li>
+                    <li>Xác thực email - gửi email confirmation khi đăng ký</li>
+                    <li>Quản lý phiên làm việc - sử dụng cookie-based session</li>
+                    <li>Middleware bảo mật - tự động refresh token, bảo vệ các route yêu cầu auth</li>
+                    <li>Row Level Security (RLS) - 4 bảng database đều có policies bảo vệ dữ liệu</li>
+                </ul>
+            </div>
+
+            <div class="task-card">
+                <h4>2. Hệ Thống Ghép Cặp (Matchmaking)</h4>
+                <ul>
+                    <li>Queue System - người dùng tham gia hàng đợi để tìm partner</li>
+                    <li>Ghép cặp theo Band Score - tìm partner cùng trình độ (±2.0 band)</li>
+                    <li>Realtime Detection - phát hiện match ngay lập tức qua Supabase Realtime</li>
+                    <li>Polling Fallback - nếu realtime fail, tự động chuyển sang polling mỗi 2 giây</li>
+                </ul>
+                <div class="success">
+                    <strong>Bug đã fix (20/03/2026):</strong>
+                    <ul>
+                        <li>✅ Polling không chạy do dependency array trong useEffect</li>
+                        <li>✅ Queue timestamp bị update liên tục làm xáo trộn thứ tự FIFO</li>
+                        <li>✅ User đầu tiên không detect được match do lỗi <code>.single()</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <h4>3. Cuộc Gọi Audio Thời Gian Thực (LiveKit Integration)</h4>
+                <div class="success">
+                    <strong>✅ HOÀN TOÀN FUNCTIONAL (21/03/2026)</strong>
+                </div>
+                <ul>
+                    <li>Token Generation - server-side tạo JWT token an toàn</li>
+                    <li>Room Connection - kết nối LiveKit room với roomId từ match</li>
+                    <li>Mute/Unmute thật - control microphone thực tế</li>
+                    <li>Audio Streaming - truyền âm thanh 2 chiều giữa partners</li>
+                    <li>Partner Detection - hiển thị khi partner join/leave phòng</li>
+                    <li>Room Authorization - chỉ user trong match mới lấy được token</li>
+                </ul>
+            </div>
+
+            <div class="task-card">
+                <h4>4. Phản Hồi Sau Cuộc Gọi (Feedback System)</h4>
+                <ul>
+                    <li><code>endCall()</code> - kết thúc cuộc gọi, cập nhật match status → "finished"</li>
+                    <li><code>submitFeedback()</code> - lưu đánh giá vào bảng <code>session_feedback</code></li>
+                    <li>Rating 5 sao - đánh giá tổng thể partner</li>
+                    <li>Feedback tags - các tag nhanh (helpful, friendly, patient, etc.)</li>
+                    <li>Comments - nhận xét chi tiết (optional)</li>
+                    <li>AI Scores storage - lưu điểm IELTS breakdown trong JSONB field</li>
+                </ul>
+            </div>
+
+            <div class="task-card">
+                <h4>5. Tích Hợp Dữ Liệu Thật</h4>
+                <ul>
+                    <li>✅ <strong>ProfileScreen</strong> - hiển thị thông tin user thật từ database</li>
+                    <li>✅ <strong>LeaderboardScreen</strong> - tính điểm composite real-time từ stats</li>
+                    <li>✅ <strong>HomeScreen Dashboard</strong> - tất cả metrics đều real</li>
+                    <li>✅ <strong>Auto-update Current Band</strong> - Database trigger tự động tính band score trung bình</li>
+                    <li>✅ <strong>Online learners count</strong> - số user đang chờ match (SWR 5s refresh)</li>
+                </ul>
+            </div>
+
+            <h3><span class="emoji">⚠️</span>Các Tính Năng Còn Dùng Mock Data</h3>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>1. Lịch Sử Cuộc Gọi</h4>
+                    <p><span class="badge badge-success">UI: Hoàn chỉnh</span></p>
+                    <p><span class="badge badge-error">Data: Mock</span></p>
+                    <p><strong>Cần làm:</strong> Kết nối với bảng <code>matches</code> và <code>session_feedback</code></p>
+                </div>
+
+                <div class="card">
+                    <h4>2. Tổng Kết Cuộc Gọi</h4>
+                    <p><span class="badge badge-success">UI: Chi tiết</span></p>
+                    <p><span class="badge badge-error">Data: Random scores</span></p>
+                    <p><strong>Cần làm:</strong> AI scoring hoặc hiển thị feedback từ partner</p>
+                </div>
+
+                <div class="card">
+                    <h4>3. Thành Tích</h4>
+                    <p><span class="badge badge-success">UI: 20+ cards</span></p>
+                    <p><span class="badge badge-error">Data: Mock</span></p>
+                    <p><strong>Cần làm:</strong> Viết hàm tính achievement dựa trên user stats</p>
+                </div>
+
+                <div class="card">
+                    <h4>4. Bạn Bè</h4>
+                    <p><span class="badge badge-success">UI: Hoàn chỉnh</span></p>
+                    <p><span class="badge badge-error">Data: Mock</span></p>
+                    <p><span class="badge badge-warning">Priority: THẤP</span></p>
+                </div>
+            </div>
+
+            <h3><span class="emoji">🐛</span>Các Bug Cần Sửa</h3>
+
+            <h4><span class="badge badge-error">🔴 MỨC ĐỘ CAO</span></h4>
+
+            <div class="warning">
+                <strong>1. Race Condition Khi Ghép Cặp</strong>
+                <p><strong>Vấn đề:</strong> Khi 2 user polling đồng thời, cả hai có thể tìm thấy nhau → tạo 2 match khác nhau → vào 2 phòng riêng biệt</p>
+                <p><strong>Nguyên nhân:</strong> Logic matchmaking không atomic, không có database-level locking</p>
+                <p><strong>Giải pháp:</strong> Tạo RPC function với transaction locking</p>
+            </div>
+
+            <div class="warning">
+                <strong>2. Thiếu Rate Limiting</strong>
+                <p><strong>Vấn đề:</strong> User có thể spam nút "Find Match" liên tục → overload server</p>
+                <p><strong>Giải pháp:</strong> Server-side cooldown 5s + client-side debounce</p>
+            </div>
+
+            <div class="warning">
+                <strong>3. Band Matching Quá Rộng</strong>
+                <p><strong>Vấn đề:</strong> Hiện tại cho phép ±2.0 band ngay từ đầu → user band 5.0 có thể ghép với band 7.0</p>
+                <p><strong>Giải pháp:</strong> Dynamic tolerance dựa trên thời gian chờ (bắt đầu ±0.5, max ±2.0)</p>
+            </div>
+        </section>
+
+        <!-- Phase 1 -->
+        <section id="phase1" class="section">
+            <h2>⚡ PHASE 1: SỬA LỖI VÀ ỔN ĐỊNH HỆ THỐNG</h2>
+            <p><strong>Thời gian ước tính:</strong> 2-3 ngày<br>
+            <strong>Mục tiêu:</strong> Fix tất cả bugs critical, đảm bảo app stable</p>
+
+            <div class="phase-header">Task 1.1: Fix Race Condition Trong Matchmaking</div>
+
+            <div class="highlight">
+                <strong>Tại sao quan trọng?</strong><br>
+                Đây là bug nghiêm trọng nhất hiện tại. Khi 2 user cùng tìm match, họ có thể bị đưa vào 2 phòng khác nhau → trải nghiệm tệ, user confusion.
+            </div>
+
+            <h4>Bước 1: Tạo Supabase RPC Function</h4>
+            <p><strong>File mới:</strong> <code>supabase/migrations/YYYYMMDD_atomic_matchmaking.sql</code></p>
+
+            <div class="code-block">
+<pre>CREATE OR REPLACE FUNCTION create_match_atomic(
+  p_user1_id uuid,
+  p_user2_id uuid
+) RETURNS TABLE(match_id uuid, room_id text) AS $$
+DECLARE
+  v_match_id uuid;
+  v_room_id text;
+  v_existing_match uuid;
+BEGIN
+  -- Step 1: Lock cả 2 queue entries
+  PERFORM * FROM match_queue 
+  WHERE user_id IN (p_user1_id, p_user2_id) 
+  AND status = 'waiting'
+  FOR UPDATE NOWAIT;
+  
+  -- Step 2: Check nếu đã có match pending
+  SELECT id INTO v_existing_match FROM matches
+  WHERE (user1_id = p_user1_id OR user2_id = p_user1_id 
+         OR user1_id = p_user2_id OR user2_id = p_user2_id)
+  AND status = 'pending'
+  LIMIT 1;
+  
+  IF v_existing_match IS NOT NULL THEN
+    RAISE EXCEPTION 'User already has pending match';
+  END IF;
+  
+  -- Step 3: Tạo match mới
+  v_match_id := gen_random_uuid();
+  v_room_id := 'room-' || v_match_id::text;
+  
+  INSERT INTO matches (id, user1_id, user2_id, room_id, status)
+  VALUES (v_match_id, p_user1_id, p_user2_id, v_room_id, 'pending');
+  
+  -- Step 4: Update queue status
+  UPDATE match_queue 
+  SET status = 'matched' 
+  WHERE user_id IN (p_user1_id, p_user2_id);
+  
+  -- Step 5: Return match info
+  RETURN QUERY SELECT v_match_id, v_room_id;
+END;
+$$ LANGUAGE plpgsql;</pre>
+            </div>
+
+            <h4>Bước 2: Update src/actions/matchmaking.ts</h4>
+            <div class="code-block">
+<pre>// Thay vì tạo match trong TypeScript, gọi RPC function
+const { data, error } = await supabase
+  .rpc('create_match_atomic', {
+    p_user1_id: currentUserId,
+    p_user2_id: partnerId
+  })
+  .single();
+
+if (error) {
+  console.error('Match creation failed:', error);
+  return { success: false, error: error.message };
+}
+
+return { 
+  success: true, 
+  matchId: data.match_id,
+  roomId: data.room_id 
+};</pre>
+            </div>
+
+            <h4>Bước 3: Test kỹ lưỡng</h4>
+            <ul>
+                <li>Mở 2 browsers (Chrome + Firefox)</li>
+                <li>Đăng nhập 2 accounts khác nhau</li>
+                <li>Click "Find Match" đồng thời</li>
+                <li>Verify: chỉ có 1 match được tạo, cả 2 user vào cùng phòng</li>
+            </ul>
+
+            <div class="phase-header">Task 1.2: Thêm Rate Limiting</div>
+
+            <h4>Server-side Rate Limiting trong findMatch()</h4>
+            <div class="code-block">
+<pre>export async function findMatch() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Unauthorized' };
+  
+  // Check last request timestamp
+  const { data: lastRequest } = await supabase
+    .from('match_queue')
+    .select('created_at')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+  
+  if (lastRequest) {
+    const timeSinceLastRequest = Date.now() - new Date(lastRequest.created_at).getTime();
+    const cooldownMs = 5000; // 5 seconds
+    
+    if (timeSinceLastRequest < cooldownMs) {
+      const remainingSeconds = Math.ceil((cooldownMs - timeSinceLastRequest) / 1000);
+      return { 
+        success: false, 
+        error: `Vui lòng đợi ${remainingSeconds}s trước khi thử lại` 
+      };
+    }
+  }
+  
+  // ... rest of matchmaking logic
+}</pre>
+            </div>
+
+            <div class="phase-header">Task 1.3: Dynamic Band Matching Tolerance</div>
+
+            <div class="highlight">
+                <strong>Công thức:</strong> Bắt đầu với ±0.5 band, tăng dần 0.5 mỗi 15s chờ, max ±2.0
+            </div>
+
+            <div class="code-block">
+<pre>// Calculate wait time
+const waitTimeSeconds = queueEntry.queue_joined_at 
+  ? (Date.now() - new Date(queueEntry.queue_joined_at).getTime()) / 1000
+  : 0;
+
+// Dynamic tolerance
+const baseTolerance = 0.5;
+const incrementInterval = 15; // seconds
+const maxTolerance = 2.0;
+
+const tolerance = Math.min(
+  baseTolerance + Math.floor(waitTimeSeconds / incrementInterval) * 0.5,
+  maxTolerance
+);</pre>
+            </div>
+        </section>
+
+        <!-- Phase 2 -->
+        <section id="phase2" class="section">
+            <h2>🚀 PHASE 2: HOÀN THIỆN CÁC TÍNH NĂNG CỐT LÕI</h2>
+            <p><strong>Thời gian ước tính:</strong> 1 tuần<br>
+            <strong>Mục tiêu:</strong> Thay thế tất cả mock data bằng dữ liệu thật</p>
+
+            <div class="phase-header">Task 2.1: Call History - Lịch Sử Cuộc Gọi</div>
+
+            <h4>Files cần tạo/sửa:</h4>
+            <ul>
+                <li>✅ <code>src/actions/callHistory.ts</code> (CREATE)</li>
+                <li>✅ <code>src/hooks/useCallHistory.ts</code> (UPDATE)</li>
+                <li>✅ <code>src/components/CallHistoryScreen.tsx</code> (UPDATE)</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Chức năng:</strong> Query bảng <code>matches</code> để lấy lịch sử cuộc gọi, join với <code>session_feedback</code> để lấy scores, hiển thị partner name, topic, duration, rating
+            </div>
+
+            <div class="phase-header">Task 2.2: Call Summary - Tổng Kết Cuộc Gọi</div>
+
+            <h4>Có 2 Options - Pick One:</h4>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>Option A: Partner Feedback</h4>
+                    <p><span class="badge badge-success">Nhanh</span> <span class="badge badge-success">Đơn giản</span></p>
+                    <p><strong>Thời gian:</strong> 1-2 giờ</p>
+                    <p><strong>Ưu điểm:</strong></p>
+                    <ul>
+                        <li>Không cần AI, không tốn chi phí</li>
+                        <li>Dữ liệu thật từ partner rating</li>
+                    </ul>
+                    <p><strong>Nhược điểm:</strong></p>
+                    <ul>
+                        <li>Phải đợi partner rate</li>
+                        <li>Không có transcript</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>Option B: AI Scoring</h4>
+                    <p><span class="badge badge-warning">Phức tạp</span> <span class="badge badge-error">Tốn phí</span></p>
+                    <p><strong>Thời gian:</strong> 2-3 ngày</p>
+                    <p><strong>Ưu điểm:</strong></p>
+                    <ul>
+                        <li>Scores tức thì</li>
+                        <li>Transcript chi tiết</li>
+                        <li>Impressive, professional</li>
+                    </ul>
+                    <p><strong>Chi phí:</strong> ~$0.015/phút</p>
+                </div>
+            </div>
+
+            <div class="phase-header">Task 2.3: Achievements System - Hệ Thống Thành Tích</div>
+
+            <h4>13 Achievements được thiết kế:</h4>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Achievement</th>
+                        <th>Requirement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Milestone</td>
+                        <td>🎉 Cuộc Gọi Đầu Tiên</td>
+                        <td>1 session</td>
+                    </tr>
+                    <tr>
+                        <td>Milestone</td>
+                        <td>🏆 Người Dày Dạn</td>
+                        <td>10 sessions</td>
+                    </tr>
+                    <tr>
+                        <td>Milestone</td>
+                        <td>👑 Bậc Thầy</td>
+                        <td>50 sessions</td>
+                    </tr>
+                    <tr>
+                        <td>Milestone</td>
+                        <td>🏃 Marathon Runner</td>
+                        <td>600 minutes (10 hours)</td>
+                    </tr>
+                    <tr>
+                        <td>Consistency</td>
+                        <td>🔥 Kiên Trì</td>
+                        <td>3 ngày liên tiếp</td>
+                    </tr>
+                    <tr>
+                        <td>Consistency</td>
+                        <td>⚡ Tận Tụy</td>
+                        <td>7 ngày liên tiếp</td>
+                    </tr>
+                    <tr>
+                        <td>Consistency</td>
+                        <td>🚀 Không Thể Ngăn Cản</td>
+                        <td>30 ngày liên tiếp</td>
+                    </tr>
+                    <tr>
+                        <td>Social</td>
+                        <td>🤝 Thân Thiện</td>
+                        <td>5 partners khác nhau</td>
+                    </tr>
+                    <tr>
+                        <td>Social</td>
+                        <td>🦋 Bướm Xã Hội</td>
+                        <td>20 partners khác nhau</td>
+                    </tr>
+                    <tr>
+                        <td>Social</td>
+                        <td>⭐ Được Đánh Giá Cao</td>
+                        <td>Average 4.5+ stars</td>
+                    </tr>
+                    <tr>
+                        <td>Improvement</td>
+                        <td>🌟 Ngôi Sao Đang Lên</td>
+                        <td>Band 6.0+</td>
+                    </tr>
+                    <tr>
+                        <td>Improvement</td>
+                        <td>💫 Trình Độ Cao</td>
+                        <td>Band 7.0+</td>
+                    </tr>
+                    <tr>
+                        <td>Improvement</td>
+                        <td>🎯 Chuyên Gia</td>
+                        <td>Band 8.0+</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Files cần tạo:</h4>
+            <ul>
+                <li>✅ <code>src/lib/achievements.ts</code> - Logic tính achievement</li>
+                <li>✅ <code>src/actions/achievements.ts</code> - Server action lấy stats</li>
+                <li>✅ <code>src/components/AchievementsScreen.tsx</code> - UI component</li>
+            </ul>
+
+            <div class="phase-header">Task 2.4: Streak Calculation - Tính Streak Tự Động</div>
+
+            <h4>2 Options:</h4>
+            <ul>
+                <li><strong>Option A:</strong> Supabase Edge Function + Cron Job (chạy mỗi ngày 00:00)</li>
+                <li><strong>Option B:</strong> Calculate on-demand khi load profile (đơn giản hơn, recommended)</li>
+            </ul>
+        </section>
+
+        <!-- Phase 3 -->
+        <section id="phase3" class="section">
+            <h2>✨ PHASE 3: HOÀN THIỆN & TỐI ƯU</h2>
+            <p><strong>Thời gian ước tính:</strong> 3-5 ngày<br>
+            <strong>Mục tiêu:</strong> Polish UX, performance, accessibility</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>Task 3.1: UX Improvements</h4>
+                    <ul>
+                        <li>Loading skeletons cho all screens</li>
+                        <li>Empty states với illustrations</li>
+                        <li>Error states với retry button</li>
+                        <li>Progress indicators</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>Task 3.2: Mobile Responsive</h4>
+                    <ul>
+                        <li>Test all screens trên mobile viewport</li>
+                        <li>Fix layout issues (text overflow, buttons)</li>
+                        <li>Touch-friendly hit areas (min 44x44px)</li>
+                        <li>Bottom navigation optimization</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>Task 3.3: Performance</h4>
+                    <ul>
+                        <li>Image optimization (next/image)</li>
+                        <li>Code splitting (lazy load screens)</li>
+                        <li>Reduce bundle size</li>
+                        <li>Lighthouse audit → score >90</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>Task 3.4: Accessibility</h4>
+                    <ul>
+                        <li>Keyboard navigation</li>
+                        <li>ARIA labels cho buttons/icons</li>
+                        <li>Screen reader testing</li>
+                        <li>Focus indicators</li>
+                        <li>Color contrast check (WCAG AA)</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>Task 3.5: Code Quality</h4>
+                    <ul>
+                        <li>Replace all <code>any</code> types</li>
+                        <li>Add JSDoc comments</li>
+                        <li>Extract magic numbers to constants</li>
+                        <li>Environment variable validation</li>
+                        <li>Input sanitization</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap" class="section">
+            <h2>📅 LỘ TRÌNH THỰC HIỆN ĐỀ XUẤT</h2>
+
+            <div class="phase-header">🎯 OPTION 1: MVP Launch Nhanh (3 Tuần)</div>
+
+            <h4>Tuần 1: Stability (5-7 ngày)</h4>
+            <ul>
+                <li>Day 1-2: Fix race condition matchmaking</li>
+                <li>Day 2-3: Thêm rate limiting</li>
+                <li>Day 3-4: Dynamic band matching tolerance</li>
+                <li>Day 4-5: Error handling cho LiveKit</li>
+                <li>Day 5-7: Testing & Bug fixes</li>
+            </ul>
+
+            <h4>Tuần 2: Core Data (5-7 ngày)</h4>
+            <ul>
+                <li>Day 1-2: Call History real data</li>
+                <li>Day 3-4: Call Summary với partner feedback</li>
+                <li>Day 5-6: Achievements system</li>
+                <li>Day 7: Streak calculation</li>
+            </ul>
+
+            <h4>Tuần 3: Polish (5-7 ngày)</h4>
+            <ul>
+                <li>Day 1-2: Loading/Empty/Error states</li>
+                <li>Day 3-4: Mobile responsiveness</li>
+                <li>Day 5: Final testing</li>
+                <li>Day 6-7: Deploy + monitoring</li>
+            </ul>
+
+            <div class="success">
+                <strong>Kết quả sau 3 tuần:</strong><br>
+                ✅ App stable, không có critical bugs<br>
+                ✅ Tất cả tính năng chính hoạt động với real data<br>
+                ✅ UX tốt, mobile-friendly<br>
+                ❌ Chưa có AI scoring<br>
+                ❌ Chưa có friends system
+            </div>
+
+            <div class="phase-header">🏆 OPTION 2: Quality Launch (5 Tuần)</div>
+
+            <ul>
+                <li><strong>Tuần 1-2:</strong> Phase 1 + Phase 2 Complete</li>
+                <li><strong>Tuần 3:</strong> AI Scoring Integration (AssemblyAI + GPT-4)</li>
+                <li><strong>Tuần 4:</strong> Polish + Friends System</li>
+                <li><strong>Tuần 5:</strong> Testing + Launch Prep</li>
+            </ul>
+
+            <div class="success">
+                <strong>Kết quả sau 5 tuần:</strong><br>
+                ✅ App hoàn chỉnh, professional<br>
+                ✅ AI scoring thật với transcript<br>
+                ✅ Friends system functional<br>
+                ✅ Performance tối ưu<br>
+                ✅ Accessibility compliant
+            </div>
+
+            <div class="phase-header">🚀 OPTION 3: Iterative Launch (RECOMMENDED)</div>
+
+            <div class="highlight">
+                <strong>Mục tiêu:</strong> Launch MVP sau 3 tuần, sau đó iterate thêm features
+            </div>
+
+            <h4>Phase 1: MVP Launch (Tuần 1-3)</h4>
+            <ul>
+                <li>Same as Option 1</li>
+                <li>Deploy lên production</li>
+                <li>Gather user feedback</li>
+            </ul>
+
+            <h4>Phase 2: Post-Launch Improvements (Tuần 4-6)</h4>
+            <ul>
+                <li>AI Scoring integration (dựa trên feedback)</li>
+                <li>Friends system (nếu users yêu cầu)</li>
+                <li>Advanced features (scheduled sessions, topic voting, etc.)</li>
+            </ul>
+
+            <div class="success">
+                <strong>Ưu điểm:</strong><br>
+                ✅ Sớm có product trên tay users<br>
+                ✅ Validate giả thuyết với real users<br>
+                ✅ Tránh over-engineering features không ai dùng<br>
+                ✅ Flexibility để pivot dựa trên feedback
+            </div>
+        </section>
+
+        <!-- Bonus Features -->
+        <section id="bonus" class="section">
+            <h2>🎁 BONUS FEATURES (Post-Launch)</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>1. AI Transcription & Analysis</h4>
+                    <ul>
+                        <li>Record audio calls</li>
+                        <li>Transcribe với Whisper/AssemblyAI</li>
+                        <li>Grammar corrections</li>
+                        <li>Vocabulary suggestions</li>
+                        <li>Pronunciation feedback</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>2. Smart Topic System</h4>
+                    <ul>
+                        <li>Topic database với categories</li>
+                        <li>Difficulty levels</li>
+                        <li>User preferences</li>
+                        <li>Vote system trước call</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>3. Scheduled Practice</h4>
+                    <ul>
+                        <li>Calendar integration</li>
+                        <li>Recurring sessions</li>
+                        <li>Timezone handling</li>
+                        <li>Email reminders</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>4. Social Features</h4>
+                    <ul>
+                        <li>Friend requests</li>
+                        <li>Private matches với friends</li>
+                        <li>Group practice rooms (3-4 người)</li>
+                        <li>Study groups</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>5. Gamification</h4>
+                    <ul>
+                        <li>XP & Leveling system</li>
+                        <li>Daily quests</li>
+                        <li>Weekly challenges</li>
+                        <li>Rewards shop</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>6. Analytics Dashboard</h4>
+                    <ul>
+                        <li>Practice time trends</li>
+                        <li>Band score progress chart</li>
+                        <li>Most practiced topics</li>
+                        <li>Heat map frequency</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h4>7. Premium Features</h4>
+                    <ul>
+                        <li>Unlimited practice</li>
+                        <li>Priority matching</li>
+                        <li>Advanced analytics</li>
+                        <li>Downloadable transcripts</li>
+                        <li>Custom topics</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checklist -->
+        <section id="checklist" class="section">
+            <h2>✅ PRE-LAUNCH CHECKLIST</h2>
+
+            <h3>Pre-Launch</h3>
+
+            <h4>Environment Variables</h4>
+            <ul class="checklist">
+                <li>Production Supabase credentials</li>
+                <li>LiveKit production keys</li>
+                <li>All secrets in Vercel dashboard</li>
+            </ul>
+
+            <h4>Database</h4>
+            <ul class="checklist">
+                <li>Run all migrations</li>
+                <li>Enable RLS on all tables</li>
+                <li>Test policies thoroughly</li>
+                <li>Backup strategy defined</li>
+            </ul>
+
+            <h4>Testing</h4>
+            <ul class="checklist">
+                <li>Manual testing all flows</li>
+                <li>Test với 2 users thật đồng thời</li>
+                <li>Mobile testing (iOS + Android)</li>
+                <li>Performance testing (Lighthouse score >90)</li>
+            </ul>
+
+            <h4>Monitoring</h4>
+            <ul class="checklist">
+                <li>Error tracking (Sentry hoặc tương tự)</li>
+                <li>Analytics (Google Analytics / Plausible)</li>
+                <li>Uptime monitoring</li>
+                <li>Database metrics</li>
+            </ul>
+
+            <h4>Legal</h4>
+            <ul class="checklist">
+                <li>Privacy Policy (recording audio)</li>
+                <li>Terms of Service</li>
+                <li>Cookie consent</li>
+                <li>GDPR compliance (nếu target EU)</li>
+            </ul>
+
+            <h3>Post-Launch</h3>
+            <ul class="checklist">
+                <li>Monitor errors real-time</li>
+                <li>Track user behavior</li>
+                <li>Collect feedback</li>
+                <li>Plan iteration based on data</li>
+            </ul>
+        </section>
+
+        <!-- Conclusion -->
+        <section class="section">
+            <h2>📞 LỜI KẾT</h2>
+
+            <div class="highlight">
+                <h3>Lộ trình được đề xuất: OPTION 3 - Iterative Launch</h3>
+            </div>
+
+            <h4>Lý do:</h4>
+            <ol>
+                <li>✅ Launch MVP nhanh (3 tuần) → validate idea sớm</li>
+                <li>✅ Có product trên tay users để test thực tế</li>
+                <li>✅ Tránh lãng phí effort vào features không ai dùng</li>
+                <li>✅ Flexibility để pivot dựa trên real feedback</li>
+            </ol>
+
+            <h4>Next Steps:</h4>
+            <ol>
+                <li>Review plan này, quyết định lộ trình</li>
+                <li>Setup project management (Trello/Notion/Linear)</li>
+                <li>Bắt đầu Phase 1, Task 1.1: Fix race condition</li>
+                <li>Daily standup để track progress</li>
+            </ol>
+
+            <h4>Câu hỏi cần trả lời:</h4>
+            <ul>
+                <li>Bạn có deadline cụ thể không?</li>
+                <li>Có ngân sách cho AI APIs không? (AssemblyAI ~$15/100 hours audio)</li>
+                <li>Team size? (làm một mình hay có developers khác?)</li>
+                <li>Priority nào là quan trọng nhất? (Stability vs Features vs Speed)</li>
+            </ul>
+
+            <div class="success" style="margin-top: 2rem; text-align: center; font-size: 1.2rem;">
+                <strong>Good luck với dự án! 🚀</strong><br>
+                <em style="font-size: 0.9rem;">Tài liệu này là living document - sẽ được update theo tiến độ thực tế.</em>
+            </div>
+        </section>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div clToggle navigation
+        function toggleNav() {
+            const navContent = document.getElementById('navContent');
+            const navToggle = document.querySelector('.nav-toggle');
+            navContent.classList.toggle('open');
+            navToggle.classList.toggle('open');
+        }
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('.nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Auto-close nav on mobile after clicking
+                if (window.innerWidth < 768) {
+                    toggleNav();
+                }
+        document.querySelectorAll('.nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Show/hide back to top button
+        const backToTop = document.querySelector('.back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+        backToTop.style.display = 'none';
+    </script>
+</body>
+</html>

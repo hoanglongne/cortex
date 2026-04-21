@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0f172a;
+  /* slate-900 */
+  --foreground: #f1f5f9;
+  /* slate-100 */
+  --cyber-cyan: #06b6d4;
+  --cyber-pink: #ec4899;
+  --cyber-purple: #a855f7;
+  --cyber-green: #10b981;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-space-grotesk);
+  --font-display: var(--font-orbitron);
+}
+
+/* Cyber-Arcade Global Styles */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-space-grotesk), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Touch optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Safe area padding for notched devices */
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Custom scrollbar styling */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Remove focus outline from SVG elements in charts */
+svg:focus,
+svg *:focus {
+  outline: none !important;
+}
