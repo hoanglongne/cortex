@@ -28,6 +28,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
                 cueCard: state.cueCard,
                 audioBlob: action.audioBlob,
                 ratings: { ...DEFAULT_RATINGS },
+                notes: state.notes,
             };
 
         case 'UPDATE_RATING':
@@ -45,6 +46,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
                 audioBlob: state.audioBlob,
                 ratings: state.ratings,
                 score: computeBandScore(state.ratings),
+                notes: state.notes,
             };
 
         case 'RESET':

@@ -2,6 +2,25 @@ export type AppStatus = 'Live' | 'Development' | 'Idea';
 export type Pillar = 'Biological' | 'Psychological' | 'Cognitive' | 'Combat' | 'Core';
 export type LanguageFocus = 'English' | 'Multilingual';
 
+export const pillarMap: Record<Pillar, string> = {
+    Biological: 'Sinh Học',
+    Psychological: 'Tâm Lý',
+    Cognitive: 'Nhận Thức',
+    Combat: 'Chiến Đấu',
+    Core: 'Cốt Lõi',
+};
+
+export const statusMap: Record<AppStatus, string> = {
+    Live: 'Trực Tuyến',
+    Development: 'Đang Phát Triển',
+    Idea: 'Ý Tưởng',
+};
+
+export const languageMap: Record<LanguageFocus, string> = {
+    English: 'Tiếng Anh',
+    Multilingual: 'Đa Ngôn Ngữ',
+};
+
 export interface EcosystemApp {
     id: string;
     name: string;
@@ -23,7 +42,7 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Live',
         pillar: 'Psychological',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Eliminating speaking anxiety through forced solo repetition drills.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Loại bỏ nỗi sợ nói tiếng Anh thông qua các bài tập lặp lại cưỡng bức.',
         colorAccent: '#0089ff',
         language: 'English',
         href: '/apps/solilo',
@@ -34,7 +53,7 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Live',
         pillar: 'Biological',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Rewiring vocabulary recall through spaced-repetition stress tests.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Tái cấu trúc khả năng ghi nhớ từ vựng thông qua các bài kiểm tra áp lực lặp lại ngắt quãng.',
         colorAccent: '#0089ff',
         language: 'English',
         href: '/apps/lexica',
@@ -45,7 +64,7 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Live',
         pillar: 'Cognitive',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Training real-time accent decoding across regional dialects.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Huấn luyện giải mã trọng âm theo thời gian thực trên các vùng miền khác nhau.',
         colorAccent: '#0096ff',
         language: 'English',
         href: '/apps/dialecta',
@@ -56,7 +75,7 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Live',
         pillar: 'Combat',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Building argumentative fluency under timed pressure.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Xây dựng sự trôi chảy trong tranh luận dưới áp lực thời gian.',
         colorAccent: '#0007cd',
         language: 'English',
         href: '/apps/oratio',
@@ -69,9 +88,9 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Idea',
         pillar: 'Biological',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Conditioning vocal muscle memory through shadowing loops.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Rèn luyện trí nhớ cơ bắp giọng nói thông qua các vòng lặp shadowing.',
         colorAccent: '#22d3ee',
-        targetLaunchDate: 'Q3 2026',
+        targetLaunchDate: 'Quý 3 2026',
         language: 'English',
         upvotes: 84,
     },
@@ -81,9 +100,9 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Idea',
         pillar: 'Cognitive',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Slicing complex sentences into parse-tree components for pattern drilling.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Phân tách các câu phức tạp thành các thành phần cây phân tích để luyện tập mẫu câu.',
         colorAccent: '#6366f1',
-        targetLaunchDate: 'Q4 2026',
+        targetLaunchDate: 'Quý 4 2026',
         language: 'English',
         upvotes: 127,
     },
@@ -93,9 +112,9 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Idea',
         pillar: 'Biological',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Training reading speed and comprehension via eye-tracking calibration.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Huấn luyện tốc độ đọc và hiểu thông qua hiệu chuẩn theo dõi ánh mắt.',
         colorAccent: '#a855f7',
-        targetLaunchDate: 'Q1 2027',
+        targetLaunchDate: 'Quý 1 2027',
         language: 'English',
         upvotes: 63,
     },
@@ -105,9 +124,9 @@ export const ecosystemApps: EcosystemApp[] = [
         status: 'Idea',
         pillar: 'Cognitive',
         pureFunctionDesc:
-            'Solves EXACTLY one problem: Forcing paraphrase generation under strict lexical constraints.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Ép buộc tạo ra các cách diễn đạt tương đương dưới các ràng buộc từ vựng nghiêm ngặt.',
         colorAccent: '#f43f5e',
-        targetLaunchDate: 'Q2 2027',
+        targetLaunchDate: 'Quý 2 2027',
         language: 'English',
         upvotes: 95,
     },

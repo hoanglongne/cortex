@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { EcosystemApp } from "@/data/ecosystem";
+import { type EcosystemApp, pillarMap, statusMap, languageMap } from "@/data/ecosystem";
 import { useState } from "react";
 
 interface AppCardProps {
@@ -52,7 +52,7 @@ export default function AppCard({ app, index }: AppCardProps) {
                             {app.name}
                         </h3>
                         <span className="mt-2 inline-block font-mono text-xs uppercase tracking-[0.2em] text-[rgba(255,255,255,0.5)]">
-                            {app.pillar}
+                            Trụ Cột: {pillarMap[app.pillar]}
                         </span>
                     </div>
 
@@ -87,11 +87,11 @@ export default function AppCard({ app, index }: AppCardProps) {
                                 backgroundColor: app.status === 'Live' ? '#0089ff' : 'rgba(255,255,255,0.6)'
                             }}
                         />
-                        {app.status}
+                        {statusMap[app.status]}
                     </span>
                     {app.language && (
-                        <span className="font-mono text-xs text-[rgba(255,255,255,0.4)]">
-                            • {app.language}
+                        <span className="font-mono text-xs text-[rgba(255,255,255,0.4)] uppercase">
+                            • {languageMap[app.language]}
                         </span>
                     )}
                 </div>

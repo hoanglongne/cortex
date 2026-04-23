@@ -65,7 +65,8 @@ export default function SwipeDeck() {
         setLastSwipeDirection(direction);
         setTimeout(() => setLastSwipeDirection(null), 1000);
 
-        analytics.swipe(direction, cardId, source);
+        const card = cards.find(c => c.id === cardId);
+        analytics.swipe(direction, cardId, source, card?.word);
 
         // flushSync forces a synchronous re-render with the correct exit direction
         // BEFORE swipeCard removes the card, so AnimatePresence snapshots the right values

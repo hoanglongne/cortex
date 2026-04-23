@@ -1,3 +1,4 @@
+import { analytics } from '../lib/analytics';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { VocabCardData, DifficultyLevel } from '../components/VocabCard';
@@ -289,6 +290,9 @@ export const useLexicaStore = create<LexicaStore>()(
                     highestElo: newHighestElo,
                     ...streakUpdate,
                 });
+
+                // analytics.swipe is already called in SwipeDeck.tsx, so we don't need it here
+                // to avoid double logging.
 
                 // Check if user should unlock a story (every 10 words)
                 get().checkStoryUnlock();

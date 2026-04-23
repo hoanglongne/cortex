@@ -25,20 +25,60 @@ interface EventProps {
 }
 
 function send(event: LexicaEvent, props?: EventProps): void {
-    // ── Swap this block to integrate with a real analytics service ──────────
     if (process.env.NODE_ENV === 'development') {
         console.log(`[analytics] ${event}`, props ?? {});
     }
-    // Example Plausible integration:
-    // if (typeof window !== 'undefined' && window.plausible) {
-    //     window.plausible(event, { props });
-    // }
-    // ────────────────────────────────────────────────────────────────────────
+
+    // CORTEX Integration: Send to Central API
+    const API_URL = 'http://localhost:3001';
+    
+    // Attempt to get userId from localStorage (set by Landing app if on same domain)
+    // or use a fallback for testing
+    let userId = 'ce99b943-f480-439e-a6f1-4adef7d56f57'; 
+    
+    if (typeof window !== 'undefined') {
+        const storedId = localStorage.getItem('cortex_user_id');
+        if (storedId) userId = storedId;
+    }
+
+    // Map Lexica events to Cortex ActionLogs
+    let actionType = 'ACTIVITY';
+    if (event === 'swipe' && props?.direction === 'right') actionType = 'LEARN_VOCABULARY';
+    if (event === 'story_finish') actionType = 'COMPLETE_STORY';
+    if (event === 'test_completed') actionType = 'COMPLETE_TEST';
+
+    // Get word from cardId (assuming cardId is the word itself or contains it)
+    // In Lexica, cardId is usually the word or a slug
+    const word = props?.cardId as string || props?.word as string || '';
+
+    // Only send relevant events to Cortex
+    if (['LEARN_VOCABULARY', 'COMPLETE_STORY', 'COMPLETE_TEST'].includes(actionType)) {
+        console.log(`[Cortex] Sending ${actionType} for user ${userId}...`);
+        fetch(`${API_URL}/actions/log`, {
+            method: 'POST',
+            mode: 'cors', // Explicitly set CORS
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId,
+                appSource: 'lexica',
+                actionType,
+                metadata: {
+                    ...props,
+                    words: actionType === 'LEARN_VOCABULARY' && word ? [word] : []
+                }
+            })
+        })
+        .then(res => {
+            if (!res.ok) console.error('[Cortex] API returned error:', res.status);
+            else console.log('[Cortex] Log sent successfully');
+        })
+        .catch(err => console.error('[Cortex] Failed to send log:', err));
+    }
 }
 
 export const analytics = {
-    swipe(direction: 'left' | 'right', cardId: string, source: 'manual' | 'voice' | 'quiz') {
-        send('swipe', { direction, cardId, source });
+    swipe(direction: 'left' | 'right', cardId: string, source: 'manual' | 'voice' | 'quiz', word?: string) {
+        send('swipe', { direction, cardId, source, word });
     },
 
     voiceSuccess(word: string, attempts: number) {

@@ -57,7 +57,7 @@ export default function ArsenalSection() {
                     variants={item}
                     className="inline-block font-mono text-xs uppercase tracking-[0.3em] text-[rgba(255,255,255,0.5)]"
                 >
-                    The Arsenal
+                    Kho Vũ Khí (The Arsenal)
                 </motion.span>
 
                 {/* Heading */}
@@ -77,8 +77,8 @@ export default function ArsenalSection() {
                 >
                     Mỗi app giải quyết{" "}
                     <span className="font-medium text-white">đúng một</span> điểm yếu cụ
-                    thể. Không bloatware. Không tính năng vô nghĩa. Pure function —
-                    surgical precision.
+                    thể. Không bloatware. Không tính năng vô nghĩa. Tính năng thuần túy —
+                    chính xác tuyệt đối.
                 </motion.p>
 
                 {/* Filter Bar */}

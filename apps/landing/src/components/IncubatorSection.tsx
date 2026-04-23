@@ -49,7 +49,7 @@ export default function IncubatorSection() {
                     variants={item}
                     className="inline-block font-mono text-xs uppercase tracking-[0.3em] text-[rgba(255,255,255,0.5)]"
                 >
-                    The Incubator
+                    Vườn Ươm Ý Tưởng
                 </motion.span>
 
                 {/* Heading */}
@@ -68,7 +68,7 @@ export default function IncubatorSection() {
                     Những app này chưa tồn tại — nhưng sẽ sớm ra mắt. Vote để cho chúng
                     tôi biết bạn muốn đối đầu với điểm yếu nào tiếp theo.{" "}
                     <span className="font-medium text-white">
-                        Community-driven development.
+                        Phát triển hướng tới cộng đồng.
                     </span>
                 </motion.p>
 
@@ -95,7 +95,7 @@ export default function IncubatorSection() {
                         thể. Nếu đủ votes, chúng tôi sẽ build.
                     </p>
                     <button className="group/cta relative mt-6 inline-flex items-center justify-center gap-2 overflow-hidden rounded-sm border border-[rgba(0,137,255,1)] bg-[rgba(0,137,255,0.12)] px-6 py-3 font-mono text-sm uppercase tracking-[0.15em] text-white transition-all hover:border-[rgba(0,137,255,1)]">
-                        <span className="relative z-10">Propose an Idea</span>
+                        <span className="relative z-10">Đề Xuất Ý Tưởng</span>
                         <motion.div
                             className="absolute inset-0 -z-[1] bg-[rgba(0,137,255,0.15)]"
                             initial={{ x: "-100%" }}

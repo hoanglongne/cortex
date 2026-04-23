@@ -14,8 +14,7 @@ export default function Footer() {
                             CORTEX HUB
                         </h3>
                         <p className="mt-3 text-sm leading-relaxed text-[rgba(255,255,255,0.5)]">
-                            The Adobe of EdTech. Surgical tools for specific linguistic
-                            weaknesses. No bloated apps — just pure functions.
+                            Nơi hội tụ công nghệ giáo dục. Những công cụ sắc bén cho từng điểm yếu ngôn ngữ cụ thể. Không ứng dụng cồng kềnh — chỉ có các tính năng thuần túy.
                         </p>
                     </div>
 
@@ -24,7 +23,7 @@ export default function Footer() {
                         {/* Products */}
                         <div>
                             <h4 className="font-mono text-xs uppercase tracking-[0.2em] text-[rgba(255,255,255,0.5)]">
-                                Products
+                                Sản Phẩm
                             </h4>
                             <ul className="mt-4 space-y-2">
                                 <li>
@@ -32,7 +31,7 @@ export default function Footer() {
                                         href="#ecosystem"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        The Arsenal
+                                        The Arsenal (Vũ Khí)
                                     </a>
                                 </li>
                                 <li>
@@ -40,7 +39,7 @@ export default function Footer() {
                                         href="#cortex"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        CORTEX
+                                        Hệ Điều Hành CORTEX
                                     </a>
                                 </li>
                                 <li>
@@ -48,7 +47,7 @@ export default function Footer() {
                                         href="#incubator"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        Incubator
+                                        The Incubator (Vườn Ươm)
                                     </a>
                                 </li>
                             </ul>
@@ -57,7 +56,7 @@ export default function Footer() {
                         {/* Company */}
                         <div>
                             <h4 className="font-mono text-xs uppercase tracking-[0.2em] text-[rgba(255,255,255,0.5)]">
-                                Company
+                                Hệ Sinh Thái
                             </h4>
                             <ul className="mt-4 space-y-2">
                                 <li>
@@ -65,7 +64,7 @@ export default function Footer() {
                                         href="#roadmap"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        Roadmap
+                                        Kế Hoạch Chinh Phục
                                     </a>
                                 </li>
                                 <li>
@@ -73,7 +72,7 @@ export default function Footer() {
                                         href="#partnership"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        Partnership
+                                        Hợp Tác B2B
                                     </a>
                                 </li>
                                 <li>
@@ -81,7 +80,7 @@ export default function Footer() {
                                         href="#"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        About
+                                        Về Chúng Tôi
                                     </a>
                                 </li>
                             </ul>
@@ -90,7 +89,7 @@ export default function Footer() {
                         {/* Legal */}
                         <div>
                             <h4 className="font-mono text-xs uppercase tracking-[0.2em] text-[rgba(255,255,255,0.5)]">
-                                Legal
+                                Pháp Lý
                             </h4>
                             <ul className="mt-4 space-y-2">
                                 <li>
@@ -98,7 +97,7 @@ export default function Footer() {
                                         href="#"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        Privacy
+                                        Chính Sách Bảo Mật
                                     </a>
                                 </li>
                                 <li>
@@ -106,7 +105,7 @@ export default function Footer() {
                                         href="#"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        Terms
+                                        Điều Khoản Dịch Vụ
                                     </a>
                                 </li>
                                 <li>
@@ -114,7 +113,7 @@ export default function Footer() {
                                         href="#"
                                         className="text-sm text-[rgba(255,255,255,0.6)] transition-colors hover:text-white"
                                     >
-                                        Contact
+                                        Liên Hệ
                                     </a>
                                 </li>
                             </ul>

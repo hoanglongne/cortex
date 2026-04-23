@@ -6,11 +6,13 @@ import { CueCard } from '@/components/ui/CueCard';
 import { getBandDescriptor } from '@/lib/scoring';
 import { useLanguage } from '@/components/LanguageProvider';
 import { ORATIO_BASE_URL } from '@/lib/constants';
+import { logSoliloAction } from '@/lib/cortex';
 
 interface ResultPanelProps {
     cueCard: CueCardType;
     ratings: Ratings;
     score: number;
+    notes?: string;
     onReset: () => void;
 }
 
@@ -39,12 +41,24 @@ function getScoreColor(score: number): string {
     return 'text-band-gold/80';
 }
 
-export function ResultPanel({ cueCard, ratings, score, onReset }: ResultPanelProps) {
+export function ResultPanel({ cueCard, ratings, score, notes, onReset }: ResultPanelProps) {
     const { t } = useLanguage();
     const descriptor = getBandDescriptor(score);
     const oratioUrl = `${ORATIO_BASE_URL}?topic=${encodeURIComponent(cueCard.id)}`;
     const displayScore = useCountUp(score);
     const colorClass = getScoreColor(score);
+
+    // Send log to Cortex on mount
+    useEffect(() => {
+        const userId = localStorage.getItem('cortex_user_id') || 'ce99b943-f480-439e-a6f1-4adef7d56f57';
+        logSoliloAction(userId, 'COMPLETE_SOLILO_SESSION', {
+            cueCardId: cueCard.id,
+            topic: cueCard.topic,
+            transcript: notes || cueCard.topic, // Use notes as transcript proxy
+            score,
+            ratings
+        });
+    }, [cueCard, score, ratings, notes]);
 
     return (
         <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8 stagger" suppressHydrationWarning>

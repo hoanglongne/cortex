@@ -46,7 +46,7 @@ export default function CortexSection() {
                     variants={item}
                     className="inline-block font-mono text-xs uppercase tracking-[0.3em] text-[rgba(255,255,255,0.5)]"
                 >
-                    The Operating System
+                    Hệ Điều Hành Ngôn Ngữ
                 </motion.span>
 
                 {/* Heading */}
@@ -247,12 +247,12 @@ export default function CortexSection() {
                     className="mx-auto mt-16 max-w-3xl rounded-[4px] border border-[rgba(255,255,255,0.15)] bg-[#000000] p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] md:p-12"
                 >
                     <h3 className="font-sans text-2xl font-normal leading-tight text-white md:text-3xl">
-                        "CORTEX nhớ sai lầm của bạn ở App A,
+                        &ldquo;CORTEX nhớ sai lầm của bạn ở App A,
                         <br />
-                        và ép bạn đối đầu lại chúng ở App B."
+                        và ép bạn đối đầu lại chúng ở App B.&rdquo;
                     </h3>
                     <p className="mt-4 font-mono text-sm uppercase tracking-[0.2em] text-[rgba(255,255,255,0.5)]">
-                        Centralized Linguistic Profile — No Escape Policy
+                        Hồ Sơ Ngôn Ngữ Tập Trung — Chính Sách Không Lối Thoát
                     </p>
                 </motion.div>
             </motion.div>

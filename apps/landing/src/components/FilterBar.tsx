@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { Pillar } from "@/data/ecosystem";
+import { type Pillar, pillarMap } from "@/data/ecosystem";
 
 interface FilterBarProps {
     activePillar: Pillar | "All";
@@ -24,6 +24,7 @@ export default function FilterBar({
         <div className="flex flex-wrap gap-3 justify-center">
             {filters.map((filter) => {
                 const isActive = activePillar === filter;
+                const label = filter === "All" ? "Tất Cả" : pillarMap[filter];
 
                 return (
                     <motion.button
@@ -47,7 +48,7 @@ export default function FilterBar({
                                 transition={{ type: "spring", stiffness: 380, damping: 32 }}
                             />
                         )}
-                        <span className="relative z-10">{filter}</span>
+                        <span className="relative z-10">{label}</span>
                     </motion.button>
                 );
             })}

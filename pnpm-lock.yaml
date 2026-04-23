@@ -165,6 +165,9 @@ importers:
 
   apps/landing:
     dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.90.1
+        version: 2.90.1
       canvas-confetti:
         specifier: ^1.9.4
         version: 1.9.4

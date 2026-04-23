@@ -58,7 +58,7 @@ export default function RoadmapSection() {
                     variants={item}
                     className="inline-block font-mono text-xs uppercase tracking-[0.3em] text-[rgba(255,255,255,0.5)]"
                 >
-                    The Roadmap
+                    Lộ Trình Phát Triển
                 </motion.span>
 
                 {/* Heading */}
@@ -82,7 +82,7 @@ export default function RoadmapSection() {
                 {/* Toggle Switch */}
                 <motion.div variants={item} className="mt-12 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
                     <span className="font-mono text-sm uppercase tracking-[0.15em] text-[rgba(255,255,255,0.5)]">
-                        View Phase:
+                        Xem Giai Đoạn:
                     </span>
                     <div className="relative inline-flex rounded-sm border border-[rgba(255,255,255,0.1)] bg-[rgba(0,0,0,0.6)] p-1">
                         <button
@@ -95,7 +95,7 @@ export default function RoadmapSection() {
                                 }
               `}
                         >
-                            2026: The English Foundation
+                            2026: Nền Tảng Tiếng Anh
                         </button>
                         <button
                             onClick={() => setActivePhase("2027")}
@@ -107,7 +107,7 @@ export default function RoadmapSection() {
                                 }
               `}
                         >
-                            2027: The Multilingual Pivot
+                            2027: Bước Ngoặt Đa Ngôn Ngữ
                         </button>
 
                         {/* Animated background */}

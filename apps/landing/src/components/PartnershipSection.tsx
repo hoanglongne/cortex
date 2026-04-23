@@ -27,7 +27,7 @@ const services = [
         id: "api-integration",
         title: "Tích Hợp API",
         description:
-            "Kết nối dữ liệu CORTEX và cơ chế \"Pure Function\" trực tiếp vào hệ thống LMS hiện tại của bạn.",
+            "Kết nối dữ liệu CORTEX và cơ chế &ldquo;Pure Function&rdquo; trực tiếp vào hệ thống LMS hiện tại của bạn.",
         features: [
             "Đồng bộ hồ sơ ngôn ngữ thời gian thực",
             "RESTful & GraphQL endpoints",
@@ -85,7 +85,7 @@ export default function PartnershipSection() {
                     variants={item}
                     className="inline-block font-mono text-xs uppercase tracking-[0.3em] text-[rgba(255,255,255,0.5)]"
                 >
-                    B2B Solutions
+                    Giải pháp Doanh nghiệp
                 </motion.span>
 
                 {/* Heading */}
@@ -105,7 +105,7 @@ export default function PartnershipSection() {
                     Cho dù bạn là trung tâm Anh ngữ, tổ chức giáo dục, hay nhà đầu tư —
                     chúng tôi có giải pháp phù hợp.{" "}
                     <span className="font-medium text-white">
-                        Let us build the engine for you.
+                        Hãy để chúng tôi xây dựng cỗ máy cho bạn.
                     </span>
                 </motion.p>
 
@@ -164,9 +164,9 @@ export default function PartnershipSection() {
                     className="mt-16 flex flex-wrap justify-center gap-4"
                 >
                     <span className="font-mono text-sm uppercase tracking-[0.15em] text-[rgba(255,255,255,0.4)]">
-                        For:
+                        Dành Cho:
                     </span>
-                    {["English Centers", "Educational Institutions", "Investors"].map(
+                    {["Trung Tâm Anh Ngữ", "Tổ Chức Giáo Dục", "Nhà Đầu Tư"].map(
                         (audience) => (
                             <span
                                 key={audience}
@@ -184,11 +184,10 @@ export default function PartnershipSection() {
                     className="mx-auto mt-16 max-w-3xl rounded-sm border border-[rgba(255,255,255,0.3)] bg-gradient-to-br from-[rgba(0,137,255,0.08)] to-transparent p-8 text-center shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] md:p-12"
                 >
                     <h3 className="font-sans text-3xl font-normal leading-tight text-white md:text-4xl">
-                        Become a Partner
+                        Trở Thành Đối Tác
                     </h3>
                     <p className="mt-4 text-base text-[rgba(255,255,255,0.6)]">
-                        Let's discuss how we can build the perfect EdTech solution for your
-                        organization.
+                        Hãy cùng thảo luận về cách chúng tôi có thể xây dựng giải pháp EdTech hoàn hảo cho tổ chức của bạn.
                     </p>
 
                     <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -196,7 +195,7 @@ export default function PartnershipSection() {
                             href="mailto:partnerships@cortexhub.edu"
                             className="inline-flex items-center justify-center gap-2 rounded-sm bg-white px-6 py-3 font-mono text-sm uppercase tracking-[0.15em] text-[#0a0a0a] transition-opacity hover:opacity-90"
                         >
-                            <span>Contact Sales</span>
+                            <span>Liên Hệ Hợp Tác</span>
                             <svg
                                 width="16"
                                 height="16"
@@ -217,7 +216,7 @@ export default function PartnershipSection() {
                             href="#"
                             className="inline-flex items-center justify-center gap-2 rounded-sm border border-[rgba(255,255,255,0.2)] bg-transparent px-6 py-3 font-mono text-sm uppercase tracking-[0.15em] text-white transition-all hover:border-[rgba(255,255,255,0.4)] hover:bg-[rgba(255,255,255,0.05)]"
                         >
-                            <span>Download Brochure</span>
+                            <span>Tải Hồ Sơ Năng Lực</span>
                         </a>
                     </div>
                 </motion.div>

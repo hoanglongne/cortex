@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { EcosystemApp } from "@/data/ecosystem";
+import { type EcosystemApp, pillarMap } from "@/data/ecosystem";
 import { useState } from "react";
 
 interface IdeaCardProps {
@@ -43,7 +43,7 @@ export default function IdeaCard({ app, index }: IdeaCardProps) {
                         </h3>
                         <div className="mt-2 flex items-center gap-2">
                             <span className="inline-block font-mono text-xs uppercase tracking-[0.2em] text-[rgba(255,255,255,0.5)]">
-                                {app.pillar}
+                                {pillarMap[app.pillar]}
                             </span>
                             {app.targetLaunchDate && (
                                 <>
@@ -52,7 +52,7 @@ export default function IdeaCard({ app, index }: IdeaCardProps) {
                                         className="font-mono text-xs tracking-wide"
                                         style={{ color: app.colorAccent }}
                                     >
-                                        {app.targetLaunchDate}
+                                        Dự Kiến: {app.targetLaunchDate}
                                     </span>
                                 </>
                             )}
@@ -78,7 +78,7 @@ export default function IdeaCard({ app, index }: IdeaCardProps) {
                 <div className="mt-6 flex items-center justify-between border-t border-[rgba(255,255,255,0.06)] pt-4">
                     <div className="flex items-center gap-2">
                         <span className="font-mono text-xs text-[rgba(255,255,255,0.4)]">
-                            Community Interest
+                            Sự Quan Tâm
                         </span>
                         <span className="font-mono text-lg font-medium text-white">
                             {upvotes}
@@ -96,7 +96,7 @@ export default function IdeaCard({ app, index }: IdeaCardProps) {
                             }
             `}
                     >
-                        {hasVoted ? "Voted" : "Vote"}
+                        {hasVoted ? "Đã Vote" : "Vote"}
                         {!hasVoted && (
                             <motion.div
                                 className="absolute inset-0 -z-10 bg-[rgba(0,255,255,0.05)]"

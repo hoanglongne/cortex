@@ -28,8 +28,8 @@ export type SessionState =
     | { phase: 'IDLE' }
     | { phase: 'PREPARATION'; cueCard: CueCard; notes: string }
     | { phase: 'RECORDING'; cueCard: CueCard; notes: string }
-    | { phase: 'EVALUATION'; cueCard: CueCard; audioBlob: Blob; ratings: Ratings }
-    | { phase: 'RESULT'; cueCard: CueCard; audioBlob: Blob; ratings: Ratings; score: number };
+    | { phase: 'EVALUATION'; cueCard: CueCard; audioBlob: Blob; ratings: Ratings; notes?: string }
+    | { phase: 'RESULT'; cueCard: CueCard; audioBlob: Blob; ratings: Ratings; score: number; notes?: string };
 
 export type SessionAction =
     | { type: 'START'; cueCard: CueCard }

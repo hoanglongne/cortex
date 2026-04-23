@@ -62,6 +62,7 @@ export function SessionController() {
                         cueCard={state.cueCard}
                         ratings={state.ratings}
                         score={state.score}
+                        notes={state.notes}
                         onReset={reset}
                     />
                 );

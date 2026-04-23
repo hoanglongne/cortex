@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const sections = [
-  { id: "hero", label: "Hero" },
+  { id: "hero", label: "Khởi Đầu" },
   { id: "cortex", label: "CORTEX" },
-  { id: "ecosystem", label: "Arsenal" },
-  { id: "incubator", label: "Incubator" },
-  { id: "roadmap", label: "Roadmap" },
-  { id: "partnership", label: "Partnership" },
+  { id: "ecosystem", label: "Vũ Khí" },
+  { id: "incubator", label: "Vườn Ươm" },
+  { id: "roadmap", label: "Lộ Trình" },
+  { id: "partnership", label: "Hợp Tác" },
 ];
 
 export default function SideNavigation() {

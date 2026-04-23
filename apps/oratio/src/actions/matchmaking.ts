@@ -1072,6 +1072,42 @@ export async function submitFeedback(
       };
     }
 
+    // --- CORTEX HUB INTEGRATION ---
+    try {
+      // Fetch match topic to enrich the log
+      const { data: matchData } = await adminClient
+        .from("matches")
+        .select("topic")
+        .eq("id", matchId)
+        .single();
+
+      const cortexPayload = {
+        userId: user.id,
+        appSource: 'oratio',
+        actionType: 'COMPLETE_ORATIO_SESSION',
+        metadata: {
+          matchId,
+          topic: matchData?.topic || 'IELTS Speaking Session',
+          tags: tags || [],
+          comments: comments || '',
+          scores: scores || {},
+          // We use topic + tags + comments as a proxy for the transcript 
+          // to trigger vocabulary activation in the bridge
+          transcript: `${matchData?.topic || ''}. ${tags.join(', ')}. ${comments || ''}`
+        }
+      };
+
+      console.log("[Cortex] Sending Oratio session log for activation...");
+      await fetch('http://localhost:3001/actions/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cortexPayload)
+      });
+    } catch (cortexError) {
+      console.error("[Cortex] Failed to sync session with Hub:", cortexError);
+    }
+    // -------------------------------
+
     revalidatePath("/");
     return { success: true };
   } catch (error) {
