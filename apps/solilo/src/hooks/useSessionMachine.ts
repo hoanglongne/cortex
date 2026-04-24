@@ -29,6 +29,8 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
                 audioBlob: action.audioBlob,
                 ratings: { ...DEFAULT_RATINGS },
                 notes: state.notes,
+                transcript: action.transcript,
+                fillerCount: action.fillerCount,
             };
 
         case 'UPDATE_RATING':
@@ -47,6 +49,8 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
                 ratings: state.ratings,
                 score: computeBandScore(state.ratings),
                 notes: state.notes,
+                transcript: state.transcript,
+                fillerCount: state.fillerCount,
             };
 
         case 'RESET':
@@ -67,7 +71,8 @@ export function useSessionMachine() {
     const updateNotes = useCallback((notes: string) => dispatch({ type: 'UPDATE_NOTES', notes }), []);
     const beginRecording = useCallback(() => dispatch({ type: 'BEGIN_RECORDING' }), []);
     const finishRecording = useCallback(
-        (audioBlob: Blob) => dispatch({ type: 'FINISH_RECORDING', audioBlob }),
+        (audioBlob: Blob, transcript?: string, fillerCount?: number) =>
+            dispatch({ type: 'FINISH_RECORDING', audioBlob, transcript, fillerCount }),
         [],
     );
     const updateRating = useCallback(

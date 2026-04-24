@@ -16,7 +16,7 @@ import { RECORD_DURATION_S } from '@/lib/constants';
 interface RecordingPanelProps {
     cueCard: CueCardType;
     notes: string;
-    onComplete: (audioBlob: Blob) => void;
+    onComplete: (audioBlob: Blob, transcript?: string, fillerCount?: number) => void;
 }
 
 export function RecordingPanel({ cueCard, notes, onComplete }: RecordingPanelProps) {
@@ -92,10 +92,10 @@ export function RecordingPanel({ cueCard, notes, onComplete }: RecordingPanelPro
     // When audioBlob is ready after stopping, transition
     useEffect(() => {
         if (audioBlob) {
-            onComplete(audioBlob);
+            onComplete(audioBlob, transcript, fillerCount);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [audioBlob]);
+    }, [audioBlob, transcript, fillerCount]);
 
     // Spacebar to add filler
     useEffect(() => {

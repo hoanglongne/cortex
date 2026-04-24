@@ -28,14 +28,36 @@ export type SessionState =
     | { phase: 'IDLE' }
     | { phase: 'PREPARATION'; cueCard: CueCard; notes: string }
     | { phase: 'RECORDING'; cueCard: CueCard; notes: string }
-    | { phase: 'EVALUATION'; cueCard: CueCard; audioBlob: Blob; ratings: Ratings; notes?: string }
-    | { phase: 'RESULT'; cueCard: CueCard; audioBlob: Blob; ratings: Ratings; score: number; notes?: string };
+    | {
+        phase: 'EVALUATION';
+        cueCard: CueCard;
+        audioBlob: Blob;
+        ratings: Ratings;
+        notes?: string;
+        transcript?: string;
+        fillerCount?: number;
+    }
+    | {
+        phase: 'RESULT';
+        cueCard: CueCard;
+        audioBlob: Blob;
+        ratings: Ratings;
+        score: number;
+        notes?: string;
+        transcript?: string;
+        fillerCount?: number;
+    };
 
 export type SessionAction =
     | { type: 'START'; cueCard: CueCard }
     | { type: 'UPDATE_NOTES'; notes: string }
     | { type: 'BEGIN_RECORDING' }
-    | { type: 'FINISH_RECORDING'; audioBlob: Blob }
+    | {
+        type: 'FINISH_RECORDING';
+        audioBlob: Blob;
+        transcript?: string;
+        fillerCount?: number;
+    }
     | { type: 'UPDATE_RATING'; criterion: RatingCriterion; value: number }
     | { type: 'SUBMIT_EVALUATION' }
     | { type: 'RESET' };

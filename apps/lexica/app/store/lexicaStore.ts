@@ -100,6 +100,9 @@ interface LexicaStore {
     closeStory: () => void;
     markStoryAsRead: (storyId: string) => void;
 
+    // Cortex Integration
+    syncAllToCortex: () => Promise<void>;
+
     // Helpers
     getLearnedWordsCount: () => number;
     getLearnedWordsList: () => string[];
@@ -489,6 +492,11 @@ export const useLexicaStore = create<LexicaStore>()(
                     cardProgress: { ...cardProgress, [cardId]: updated },
                     studyHistory: updatedStudyHistory,
                 });
+
+                // CORTEX Integration: Send to Hub automatically
+                if (correct) {
+                    analytics.swipe('right', cardId, 'quiz');
+                }
             },
 
             markAsMastered: (cardId) => {
@@ -520,6 +528,9 @@ export const useLexicaStore = create<LexicaStore>()(
                     learnedWords: updatedLearnedWords,
                     currentDeck: updatedDeck,
                 });
+
+                // CORTEX Integration: Send to Hub automatically
+                analytics.swipe('right', cardId, 'manual');
 
                 // Load new deck if empty
                 if (updatedDeck.length === 0) {
@@ -572,6 +583,58 @@ export const useLexicaStore = create<LexicaStore>()(
                     set({
                         readStories: [...readStories, storyId],
                     });
+                    // CORTEX Integration: Send to Hub automatically
+                    analytics.storyFinish(storyId);
+                }
+            },
+
+            syncAllToCortex: async () => {
+                const { learnedWords } = get();
+                if (!learnedWords) {
+                    console.error('[Cortex] learnedWords is undefined');
+                    return;
+                }
+                
+                const wordIds = Array.from(learnedWords);
+                console.log(`[Cortex] Attempting to sync ${wordIds.length} words...`);
+                
+                if (wordIds.length === 0) {
+                    console.warn('[Cortex] No learned words to sync');
+                    return;
+                }
+
+                const userId = localStorage.getItem('cortex_user_id');
+                if (!userId) {
+                    console.error('[Cortex] No userId found in localStorage. Sync aborted.');
+                    return;
+                }
+
+                const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
+
+                try {
+                    console.log(`[Cortex] Sending bulk sync to ${API_URL} for user ${userId}...`);
+                    const response = await fetch(`${API_URL}/actions/log`, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId,
+                            appSource: 'lexica',
+                            actionType: 'LEARN_VOCABULARY',
+                            metadata: {
+                                words: wordIds,
+                                isBulkSync: true
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API responded with ${response.status}`);
+                    }
+
+                    console.log('[Cortex] Full sync complete');
+                } catch (err) {
+                    console.error('[Cortex] Sync failed:', err);
                 }
             },
         }),

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { ThemeSwitcher } from "@/components/ui/ThemeSwitcher";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
+import CortexWidget from "@/components/ui/CortexWidget";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -38,6 +39,7 @@ export default function RootLayout({
           <ThemeProvider>
             {children}
             <div className="fixed top-4 right-4 flex items-center gap-3 z-30">
+              <CortexWidget />
               <LanguageSwitcher />
               <ThemeSwitcher />
             </div>

@@ -13,6 +13,8 @@ interface ResultPanelProps {
     ratings: Ratings;
     score: number;
     notes?: string;
+    transcript?: string;
+    fillerCount?: number;
     onReset: () => void;
 }
 
@@ -41,7 +43,7 @@ function getScoreColor(score: number): string {
     return 'text-band-gold/80';
 }
 
-export function ResultPanel({ cueCard, ratings, score, notes, onReset }: ResultPanelProps) {
+export function ResultPanel({ cueCard, ratings, score, notes, transcript, fillerCount, onReset }: ResultPanelProps) {
     const { t } = useLanguage();
     const descriptor = getBandDescriptor(score);
     const oratioUrl = `${ORATIO_BASE_URL}?topic=${encodeURIComponent(cueCard.id)}`;
@@ -54,11 +56,12 @@ export function ResultPanel({ cueCard, ratings, score, notes, onReset }: ResultP
         logSoliloAction(userId, 'COMPLETE_SOLILO_SESSION', {
             cueCardId: cueCard.id,
             topic: cueCard.topic,
-            transcript: notes || cueCard.topic, // Use notes as transcript proxy
+            transcript: transcript || notes || cueCard.topic,
+            fillerCount: fillerCount || 0,
             score,
             ratings
         });
-    }, [cueCard, score, ratings, notes]);
+    }, [cueCard, score, ratings, notes, transcript, fillerCount]);
 
     return (
         <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8 stagger" suppressHydrationWarning>

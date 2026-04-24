@@ -63,6 +63,8 @@ export function SessionController() {
                         ratings={state.ratings}
                         score={state.score}
                         notes={state.notes}
+                        transcript={state.transcript}
+                        fillerCount={state.fillerCount}
                         onReset={reset}
                     />
                 );

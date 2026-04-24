@@ -55,13 +55,15 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <AuroraBackground className="min-h-screen py-24 px-6">
-      <Link 
-        href="/"
-        className="absolute top-8 left-8 text-sm font-mono uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity flex items-center gap-2"
-      >
-        <span>←</span> Quay lại Hub
-      </Link>
+    <AuroraBackground className="min-h-screen py-24 px-6 w-full items-center">
+      <div className="fixed top-8 left-8 flex items-center gap-8 z-50">
+        <Link 
+          href="/"
+          className="text-sm font-mono uppercase tracking-widest text-white hover:text-white/80 transition-all flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+        >
+          <span>←</span> Quay lại Hub
+        </Link>
+      </div>
 
       <motion.div 
         variants={container}
@@ -76,9 +78,6 @@ export default function ProfilePage() {
           <h1 className="text-5xl md:text-6xl font-normal tracking-tighter text-white">
             {user.email?.split('@')[0]}
           </h1>
-          <p className="mt-4 font-mono text-[10px] uppercase tracking-widest opacity-30">
-            Node ID: {user.id}
-          </p>
         </motion.div>
 
         <motion.div variants={item}>

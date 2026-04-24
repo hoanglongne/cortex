@@ -30,15 +30,19 @@ function send(event: LexicaEvent, props?: EventProps): void {
     }
 
     // CORTEX Integration: Send to Central API
-    const API_URL = 'http://localhost:3001';
+    const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
     
-    // Attempt to get userId from localStorage (set by Landing app if on same domain)
-    // or use a fallback for testing
-    let userId = 'ce99b943-f480-439e-a6f1-4adef7d56f57'; 
+    let userId = ''; 
     
     if (typeof window !== 'undefined') {
-        const storedId = localStorage.getItem('cortex_user_id');
-        if (storedId) userId = storedId;
+        userId = localStorage.getItem('cortex_user_id') || '';
+    }
+
+    if (!userId) {
+        if (process.env.NODE_ENV === 'development') {
+            console.warn('[Cortex] No userId found, skipping log');
+        }
+        return;
     }
 
     // Map Lexica events to Cortex ActionLogs

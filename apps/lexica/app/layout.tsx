@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import CortexWidget from "./components/CortexWidget";
 
 // Cyberpunk-style fonts
 const orbitron = Orbitron({
@@ -54,6 +55,7 @@ export default function RootLayout({
       className={`${orbitron.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-900 text-white overflow-x-hidden" suppressHydrationWarning>
+        <CortexWidget />
         {children}
       </body>
     </html>

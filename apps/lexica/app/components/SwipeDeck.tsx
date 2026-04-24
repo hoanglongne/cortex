@@ -51,12 +51,13 @@ export default function SwipeDeck() {
             return;
         }
 
-        if (!isReviewCard && energy <= 0) {
-            alert('No energy left! Come back tomorrow.');
-            return;
-        }
-
-        if (!isReviewCard) {
+        // ENERGY LOGIC: Only consume energy for NEW cards (not reviews) 
+        // AND only when swiping RIGHT (learning). Swiping LEFT (skipping) is free.
+        if (!isReviewCard && direction === 'right') {
+            if (energy <= 0) {
+                alert('Hết năng lượng rồi! Hãy quay lại vào ngày mai nhé.');
+                return;
+            }
             const hasEnergy = consumeEnergy();
             if (!hasEnergy) return;
         }
