@@ -75,6 +75,9 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 REDIS_HOST=localhost
 REDIS_PORT=6379
+# Option: REDIS_URL=redis://...
+# Option: REDIS_PASSWORD=...
+# Option: REDIS_TLS=true
 ```
 
 ---
