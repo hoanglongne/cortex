@@ -51,38 +51,23 @@ export default function CortexWidget() {
 
         const handleMessage = async (event: MessageEvent) => {
             // Check if the message is from our expected Hub URL
-            // We use .startsWith to handle cases with/without trailing slashes
-            const isAuthorizedOrigin = event.origin === HUB_URL || 
-                                      event.origin === 'http://localhost:3000' || 
-                                      event.origin === 'http://localhost:3005';
+            const isAuthorizedOrigin = [
+                HUB_URL,
+                'http://localhost:3000',
+                'http://localhost:3005',
+                'https://cortex-landing.vercel.app',
+            ].includes(event.origin);
 
-            if (!isAuthorizedOrigin) {
-                // Only log if it's clearly a Cortex message but from wrong origin
-                if (event.data?.type?.startsWith('CORTEX_')) {
-                    console.warn(`[CortexBridge] Ignoring message from unauthorized origin: ${event.origin}. Expected: ${HUB_URL}`);
-                }
-                return;
-            }
+            if (!isAuthorizedOrigin) return;
 
-            if (event.data.type === 'CORTEX_USER_ID_RESPONSE') {
+            if (event.data.type === 'CORTEX_SESSION_RESPONSE') {
                 const newUserId = event.data.userId;
-                console.log(`[CortexBridge] Received userId from Hub (${event.origin}): ${newUserId}`);
+                const token = event.data.token;
                 
                 if (newUserId) {
-                    const oldUserId = localStorage.getItem('cortex_user_id');
                     localStorage.setItem('cortex_user_id', newUserId);
-                    
-                    // If it's a new connection, sync all words
-                    if (newUserId !== oldUserId) {
-                        console.log('[CortexBridge] New user detected, triggering bulk sync...');
-                        setIsSyncing(true);
-                        await syncAllToCortex();
-                        setIsSyncing(false);
-                    }
-                    
+                    if (token) localStorage.setItem('sb-token', token);
                     fetchProfile(newUserId);
-                } else {
-                    console.warn('[CortexBridge] Hub returned empty userId. Are you logged in to the Hub?');
                 }
             }
         };
@@ -90,7 +75,7 @@ export default function CortexWidget() {
         window.addEventListener('message', handleMessage);
 
         iframe.onload = () => {
-            iframe.contentWindow?.postMessage({ type: 'GET_CORTEX_USER_ID' }, HUB_URL);
+            iframe.contentWindow?.postMessage({ type: 'GET_CORTEX_SESSION' }, HUB_URL);
         };
 
         // 2. Initial fetch if we already have it
