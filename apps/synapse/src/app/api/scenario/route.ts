@@ -5,8 +5,15 @@ const DEFAULT_CORE_API_URL = "http://localhost:3001";
 export async function POST(req: Request) {
   try {
     const rawUrl = process.env.CORTEX_CORE_API_URL || DEFAULT_CORE_API_URL;
-    // Remove trailing slash if exists to avoid double slashes
-    const coreApiUrl = rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
+    
+    // Add https:// if protocol is missing
+    let normalizedUrl = rawUrl;
+    if (!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://")) {
+      normalizedUrl = `https://${rawUrl}`;
+    }
+    
+    // Remove trailing slash if exists
+    const coreApiUrl = normalizedUrl.endsWith("/") ? normalizedUrl.slice(0, -1) : normalizedUrl;
     
     const body = await req.json();
     const { sessionId, stage, loreId, missionId, sessionHistory } = body;
