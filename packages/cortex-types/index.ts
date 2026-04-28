@@ -5,12 +5,23 @@
 /**
  * Apps in the CORTEX HUB ecosystem
  */
-export type AppSource = 'lexica' | 'solilo' | 'dialecta' | 'oratio' | 'landing' | 'cortex-core-api';
+export type AppSource =
+  | 'lexica'
+  | 'solilo'
+  | 'dialecta'
+  | 'oratio'
+  | 'landing'
+  | 'synapse'
+  | 'cortex-core-api';
 
 /**
  * Standard proficiency levels used across the ecosystem
  */
-export type ProficiencyLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
+export type ProficiencyLevel =
+  | 'beginner'
+  | 'intermediate'
+  | 'advanced'
+  | 'expert';
 
 /**
  * Standard assessment metrics for language performance
@@ -22,7 +33,7 @@ export interface AssessmentMetrics {
   pronunciation: number;
   overall: number;
   // Support for specific scoring systems like IELTS
-  bandScore?: number; 
+  bandScore?: number;
 }
 
 /**
@@ -98,5 +109,25 @@ export interface SessionAssessment {
   metrics: AssessmentMetrics;
   feedbackTags?: string[];
   comments?: string;
-  timestamp: Date;
 }
+
+/**
+ * Synapse-specific types for Cyberpunk Survival Scenarios
+ */
+export interface SynapseChoice {
+  particle: string;
+  meaning: string;
+  outcome: string;
+  isCorrect: boolean;
+  effect?: 'restore_life' | 'integrity_boost' | 'data_leak'; // Gameplay effects
+}
+
+export interface SynapseScenario {
+  missionCode: string;
+  baseVerb: string;
+  narrative: string;
+  choices: SynapseChoice[];
+  technicalHint: string;
+  isFinalBoss?: boolean; // Indicate last stage
+}
+

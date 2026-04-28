@@ -8,6 +8,7 @@ import { RedisModule } from './modules/redis/redis.module';
 import { EventsModule } from './modules/events/events.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { LinguisticsModule } from './modules/linguistics/linguistics.module';
+import { SynapseModule } from './modules/synapse/synapse.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LinguisticsModule } from './modules/linguistics/linguistics.module';
     SharedModule,
     LinguisticsModule,
     ActionsModule,
+    SynapseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
