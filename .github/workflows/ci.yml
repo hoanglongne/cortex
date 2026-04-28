@@ -29,4 +29,10 @@ jobs:
         run: pnpm install
 
       - name: Build all apps
-        run: pnpm turbo run build --filter=!@cortex/api # API often fails build without env vars, can be added later
+        run: pnpm turbo run build --filter=!@cortex/api
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key"
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "placeholder-key"
+          NEXT_PUBLIC_CORTEX_API_URL: "http://localhost:3001"
+          NEXT_PUBLIC_CORTEX_HUB_URL: "http://localhost:3000"
