@@ -23,10 +23,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Build all apps
-        run: pnpm turbo run build --filter=!cortex-core-api # API often fails build without env vars, can be added later
+        run: pnpm turbo run build --filter=!@cortex/api # API often fails build without env vars, can be added later
