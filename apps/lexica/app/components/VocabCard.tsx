@@ -20,6 +20,22 @@ export interface VocabCardData {
     translationHint: string;
     state: CardState;
     isBossCard?: boolean;
+
+    upgradeModule?: {
+        simpleSentence: string;
+        targetSlot: string;
+        academicOptions: { 
+            text: string; 
+            nuance: string; 
+            formalityScore: number; 
+        }[];
+    };
+
+    surgeryModule?: {
+        prefix?: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
+        root: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
+        suffix?: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
+    };
 }
 
 interface VocabCardProps {
@@ -66,7 +82,6 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
         stopListening,
         setHolding,
         lastSpokenWord,
-        lastWasCorrect,
         canStartListening,
     } = useVocalSwipe({
         targetWord: card.word,
@@ -120,6 +135,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                             ÔN TẬP
                         </div>
                     )}
+                    
                     <div className={`${isBossCard ? 'mt-16' : 'mt-12'} mb-8 text-center`}>
                         <p className="text-lg text-slate-200 leading-relaxed">{card.scenario}</p>
                     </div>

@@ -495,13 +495,15 @@ function HomeContent() {
                 <Settings className="w-4 h-4" />
                 Đổi level
               </button>
-              <button
-                onClick={resetProgress}
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-400 text-sm font-medium transition-colors border border-slate-600/30 hover:border-slate-600 flex items-center justify-center gap-2"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Reset Progress
-              </button>
+              {process.env.NODE_ENV === 'development' && (
+                <button
+                  onClick={resetProgress}
+                  className="w-full px-4 py-2.5 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-400 text-sm font-medium transition-colors border border-slate-600/30 hover:border-slate-600 flex items-center justify-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset Progress
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -607,16 +609,18 @@ function HomeContent() {
                     <Settings className="w-4 h-4" />
                     Đổi level
                   </button>
-                  <button
-                    onClick={() => {
-                      resetProgress();
-                      setShowMobileStats(false);
-                    }}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-400 text-sm font-medium transition-colors border border-slate-600/30 hover:border-slate-600 flex items-center justify-center gap-2"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    Reset Progress
-                  </button>
+                  {process.env.NODE_ENV === 'development' && (
+                    <button
+                      onClick={() => {
+                        resetProgress();
+                        setShowMobileStats(false);
+                      }}
+                      className="w-full px-4 py-2.5 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-400 text-sm font-medium transition-colors border border-slate-600/30 hover:border-slate-600 flex items-center justify-center gap-2"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Reset Progress
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>

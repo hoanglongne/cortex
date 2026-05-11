@@ -13,14 +13,28 @@ import { VocabCardData } from '../components/VocabCard';
  */
 export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     // ELO 800-900: Easier words (BEGINNER)
-{
+  {
     "id": "v001",
     "word": "ABUNDANT",
     "ipa": "əˈbʌndənt",
     "elo": 850,
     "level": "beginner",
     "scenario": "Lương chưa về mà bill thì ABUNDANT vãi, nhìn cái app ngân hàng mà muốn trầm cảm.",
-    "translationHint": "Dư thừa, nhiều hơn cần thiết"
+    "translationHint": "Dư thừa, nhiều hơn cần thiết",
+    "upgradeModule": {
+      "simpleSentence": "There is a very big amount of food in the fridge.",
+      "targetSlot": "very big amount",
+      "academicOptions": [
+        { "text": "abundant supply", "nuance": "Nhấn mạnh sự dư dả, đầy đủ vượt mức cần thiết.", "formalityScore": 9 },
+        { "text": "excessive quantity", "nuance": "Nhấn mạnh số lượng quá nhiều, đôi khi mang nghĩa tiêu cực.", "formalityScore": 8 },
+        { "text": "surplus", "nuance": "Dùng trong ngữ cảnh kinh tế hoặc khi nói về phần dư thừa.", "formalityScore": 7 }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": { "text": "ab-", "meaning": "rời đi/từ đâu đó", "relatedWords": [{ "word": "abnormal", "meaning": "bất thường" }, { "word": "absent", "meaning": "vắng mặt" }, { "word": "abstract", "meaning": "trừu tượng" }] },
+      "root": { "text": "und-", "meaning": "sóng (trào dâng như sóng)", "relatedWords": [{ "word": "undulate", "meaning": "gợn sóng" }, { "word": "redundant", "meaning": "dư thừa" }, { "word": "inundate", "meaning": "tràn ngập" }] },
+      "suffix": { "text": "-ant", "meaning": "hậu tố tạo tính từ", "relatedWords": [{ "word": "brilliant", "meaning": "rực rỡ" }, { "word": "distant", "meaning": "xa xôi" }, { "word": "elegant", "meaning": "thanh lịch" }] }
+    }
   },
   {
     "id": "v002",
@@ -29,7 +43,21 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "elo": 870,
     "level": "beginner",
     "scenario": "Sáng thứ Hai mà chưa có cà phê thì khả năng COGNITIVE của tôi chỉ bằng con tôm luộc.",
-    "translationHint": "Liên quan đến nhận thức, tri giác"
+    "translationHint": "Liên quan đến nhận thức, tri giác",
+    "upgradeModule": {
+      "simpleSentence": "The patient's thinking ability is being tested.",
+      "targetSlot": "thinking ability",
+      "academicOptions": [
+        { "text": "cognitive function", "nuance": "Thuật ngữ chuyên môn để chỉ các hoạt động tư duy, nhận thức của não bộ.", "formalityScore": 9 },
+        { "text": "mental capacity", "nuance": "Chỉ khả năng tinh thần nói chung, thường dùng trong pháp lý hoặc y khoa.", "formalityScore": 8 },
+        { "text": "intellectual power", "nuance": "Nhấn mạnh vào sức mạnh trí tuệ, ít mang tính y học hơn.", "formalityScore": 7 }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": { "text": "co-", "meaning": "cùng nhau", "relatedWords": [{ "word": "cooperate", "meaning": "hợp tác" }, { "word": "coexist", "meaning": "cùng tồn tại" }, { "word": "cohesion", "meaning": "sự gắn kết" }] },
+      "root": { "text": "gnosc-", "meaning": "biết/hiểu", "relatedWords": [{ "word": "recognize", "meaning": "công nhận" }, { "word": "ignore", "meaning": "phớt lờ" }, { "word": "agnostic", "meaning": "thuyết bất khả tri" }] },
+      "suffix": { "text": "-itive", "meaning": "hậu tố liên quan đến...", "relatedWords": [{ "word": "positive", "meaning": "tích cực" }, { "word": "sensitive", "meaning": "nhạy cảm" }, { "word": "primitive", "meaning": "nguyên thủy" }] }
+    }
   },
   {
     "id": "v003",
@@ -38,7 +66,11 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "elo": 820,
     "level": "beginner",
     "scenario": "Đứng trước cái DILEMMA: Fix tiếp cái bug này hay đi ngủ để mai còn có sức mà bị sếp chửi?",
-    "translationHint": "Tình huống khó xử, lưỡng nan"
+    "translationHint": "Tình huống khó xử, lưỡng nan",
+    "surgeryModule": {
+      "prefix": { "text": "di-", "meaning": "hai/gấp đôi", "relatedWords": [{ "word": "diverge", "meaning": "phân tách" }, { "word": "dimorphism", "meaning": "lưỡng hình" }, { "word": "dioxide", "meaning": "đioxit" }] },
+      "root": { "text": "lemma", "meaning": "giả thuyết/đề mục", "relatedWords": [{ "word": "lemma", "meaning": "bổ đề" }, { "word": "dilemmatic", "meaning": "tiến thoái lưỡng nan" }] }
+    }
   },
   {
     "id": "v004",

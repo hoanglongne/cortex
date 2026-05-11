@@ -1,11 +1,14 @@
 'use client';
 
-import { useMemo, useCallback, useState } from 'react';
-import { HandHeart, Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useMemo, useCallback, useState, useEffect } from 'react';
+import { HandHeart, Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import { type VocabCardData as BaseCardData } from './VocabCard';
 import { type UserCardProgress } from '../lib/eloAlgorithm';
+import SurgeryLab from './SurgeryLab';
+import UpgradeLab from './UpgradeLab';
+import { AnimatePresence } from 'framer-motion';
 
 type CardWithProgress = Omit<BaseCardData, 'state'> & { progress?: UserCardProgress };
 
@@ -60,7 +63,13 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
     const state = card.progress?.state || 'seed';
     const StateIcon = STATE_ICON[state];
     const stateColor = STATE_COLOR[state];
-    const now = Date.now();
+    const [labMode, setLabMode] = useState<'none' | 'surgery' | 'upgrade'>('none');
+    const [now, setNow] = useState<number>(() => Date.now());
+
+    useEffect(() => {
+        const interval = setInterval(() => setNow(Date.now()), 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     const speakWord = () => {
         if ('speechSynthesis' in window) {
@@ -74,7 +83,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 pb-6 sm:pb-4"
             onClick={onClose}
         >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
@@ -130,11 +139,73 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                 <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-500">Lịch ôn tập</span>
                     <span className={card.progress?.state === 'mastered' ? 'text-amber-400' :
-                        (card.progress?.nextReviewAt && card.progress.nextReviewAt <= now ? 'text-amber-400' : 'text-slate-400')}>
+                        (card.progress?.nextReviewAt && card.progress.nextReviewAt <= (now || 0) ? 'text-amber-400' : 'text-slate-400')}>
                         {formatNextReviewFull(card.progress?.nextReviewAt, card.progress?.state === 'mastered')}
                     </span>
                 </div>
+
+                {/* Deep Dive Labs */}
+                {(card.surgeryModule || card.upgradeModule) && (
+                    <div className="mt-8 pt-6 border-t border-slate-800">
+                        <div className="flex items-center gap-2 text-cyan-400 font-mono text-[10px] tracking-widest uppercase mb-4">
+                            <FlaskConical className="w-3 h-3" />
+                            Deep Dive Training
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            {card.surgeryModule && (
+                                <button
+                                    onClick={() => setLabMode('surgery')}
+                                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 hover:bg-cyan-500/10 hover:border-cyan-500/40 transition-all group"
+                                >
+                                    <Scissors className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+                                    <span className="text-[10px] font-bold text-cyan-300 uppercase tracking-tight">Surgery Lab</span>
+                                </button>
+                            )}
+                            {card.upgradeModule && (
+                                <button
+                                    onClick={() => setLabMode('upgrade')}
+                                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 hover:border-amber-500/40 transition-all group"
+                                >
+                                    <TrendingUp className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />
+                                    <span className="text-[10px] font-bold text-amber-300 uppercase tracking-tight">Upgrade Lab</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Lab Overlays */}
+            <AnimatePresence>
+                {labMode === 'surgery' && card.surgeryModule && (
+                    <div 
+                        className="fixed inset-0 z-[120] bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-center p-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <SurgeryLab 
+                            word={card.word} 
+                            module={card.surgeryModule} 
+                            onSuccess={() => setLabMode('none')} 
+                            onFail={() => {}} 
+                            onClose={() => setLabMode('none')}
+                        />
+                    </div>
+                )}
+                {labMode === 'upgrade' && card.upgradeModule && (
+                    <div 
+                        className="fixed inset-0 z-[120] bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-center p-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <UpgradeLab 
+                            word={card.word} 
+                            module={card.upgradeModule} 
+                            onSuccess={() => setLabMode('none')} 
+                            onFail={() => {}} 
+                            onClose={() => setLabMode('none')}
+                        />
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
@@ -144,6 +215,12 @@ export default function LearnedWordsList() {
     const cardProgress = useLexicaStore(state => state.cardProgress);
     const [page, setPage] = useState(0);
     const [selectedCard, setSelectedCard] = useState<CardWithProgress | null>(null);
+    const [now, setNow] = useState<number>(() => Date.now());
+
+    useEffect(() => {
+        const interval = setInterval(() => setNow(Date.now()), 60000);
+        return () => clearInterval(interval);
+    }, []);
 
     const learnedWords = useMemo(() => {
         return useLexicaStore.getState().getLearnedWordsList();
@@ -199,27 +276,41 @@ export default function LearnedWordsList() {
                     const StateIcon = STATE_ICON[state];
                     const stateColor = STATE_COLOR[state];
                     const reviewLabel = formatNextReview(card.progress?.nextReviewAt, state === 'mastered');
-                    const isDue = state !== 'mastered' && card.progress?.nextReviewAt && card.progress.nextReviewAt <= Date.now();
+                    const isDue = state !== 'mastered' && card.progress?.nextReviewAt && card.progress.nextReviewAt <= (now || 0);
 
                     return (
                         <button
                             key={card.id}
                             onClick={() => setSelectedCard(card)}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700/60 hover:border-slate-600 hover:bg-slate-700/50 transition-colors text-left cursor-pointer"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700/60 hover:border-cyan-500/40 hover:bg-slate-700/50 transition-all text-left cursor-pointer group"
                         >
                             <StateIcon className={`w-3.5 h-3.5 shrink-0 ${stateColor}`} />
-                            <span className="font-semibold text-slate-200 text-sm">{card.word}</span>
-                            <button
-                                onClick={(e) => speakWord(e, card.word)}
-                                className="text-slate-600 hover:text-cyan-400 transition-colors shrink-0"
-                                title="Nghe phát âm"
-                            >
-                                <Volume2 className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="text-slate-500 text-xs truncate flex-1">{card.translationHint}</span>
-                            <span className={`text-xs shrink-0 ${isDue ? 'text-amber-400' : 'text-slate-600'}`}>
-                                {reviewLabel}
-                            </span>
+                            <div className="flex flex-col min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-bold text-slate-200 text-sm group-hover:text-white transition-colors">{card.word}</span>
+                                    <button
+                                        onClick={(e) => speakWord(e, card.word)}
+                                        className="text-slate-600 hover:text-cyan-400 transition-colors shrink-0"
+                                        title="Nghe phát âm"
+                                    >
+                                        <Volume2 className="w-3 h-3" />
+                                    </button>
+                                    {(card.surgeryModule || card.upgradeModule) && (
+                                        <div className="flex gap-1 shrink-0">
+                                            {card.surgeryModule && <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.5)]" title="Có Surgery Lab" />}
+                                            {card.upgradeModule && <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_5px_rgba(245,158,11,0.5)]" title="Có Upgrade Lab" />}
+                                        </div>
+                                    )}
+                                </div>
+                                <span className="text-slate-500 text-[10px] md:text-xs truncate">{card.translationHint}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 shrink-0">
+                                <span className={`text-[10px] md:text-xs ${isDue ? 'text-amber-400' : 'text-slate-600'}`}>
+                                    {reviewLabel}
+                                </span>
+                                <ChevronRight className="w-3.5 h-3.5 text-slate-700 group-hover:text-cyan-500 group-hover:translate-x-0.5 transition-all" />
+                            </div>
                         </button>
                     );
                 })}
