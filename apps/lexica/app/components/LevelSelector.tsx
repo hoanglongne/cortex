@@ -15,9 +15,6 @@ interface LevelOption {
     description: string;
     eloRange: string;
     cardCount: string;
-    color: string;
-    borderColor: string;
-    hoverColor: string;
 }
 
 const LEVEL_OPTIONS: LevelOption[] = [
@@ -28,9 +25,6 @@ const LEVEL_OPTIONS: LevelOption[] = [
         description: 'Từ vựng dễ, phù hợp người mới bắt đầu',
         eloRange: 'ELO 800-950',
         cardCount: '40 từ',
-        color: 'bg-slate-50/4',
-        borderColor: 'border-slate-100/10',
-        hoverColor: 'hover:border-slate-100/18 hover:bg-slate-50/7',
     },
     {
         value: 'intermediate',
@@ -39,9 +33,6 @@ const LEVEL_OPTIONS: LevelOption[] = [
         description: 'Từ vựng phổ biến trong IELTS',
         eloRange: 'ELO 950-1200',
         cardCount: '72 từ',
-        color: 'bg-slate-50/4',
-        borderColor: 'border-slate-100/10',
-        hoverColor: 'hover:border-slate-100/18 hover:bg-slate-50/7',
     },
     {
         value: 'advanced',
@@ -50,9 +41,6 @@ const LEVEL_OPTIONS: LevelOption[] = [
         description: 'Từ vựng học thuật phức tạp hơn',
         eloRange: 'ELO 1100-1400',
         cardCount: '98 từ',
-        color: 'bg-slate-50/4',
-        borderColor: 'border-slate-100/10',
-        hoverColor: 'hover:border-slate-100/18 hover:bg-slate-50/7',
     },
     {
         value: 'expert',
@@ -61,9 +49,6 @@ const LEVEL_OPTIONS: LevelOption[] = [
         description: 'Từ vựng advanced cho band 8+',
         eloRange: 'ELO 1350-1500',
         cardCount: '90 từ',
-        color: 'bg-slate-50/4',
-        borderColor: 'border-slate-100/10',
-        hoverColor: 'hover:border-slate-100/18 hover:bg-slate-50/7',
     },
     {
         value: 'all',
@@ -72,9 +57,6 @@ const LEVEL_OPTIONS: LevelOption[] = [
         description: 'Học hết 300 từ, hệ thống sẽ adaptive theo khả năng',
         eloRange: 'ELO 800-1500',
         cardCount: '300 từ',
-        color: 'bg-slate-50/4',
-        borderColor: 'border-slate-100/10',
-        hoverColor: 'hover:border-slate-100/18 hover:bg-slate-50/7',
     },
 ];
 
@@ -89,13 +71,13 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
             </div>
 
             {/* Content */}
-            <div className="w-full max-w-4xl mx-auto pt-20 md:pt-24 space-y-6">
-                <div className="text-center space-y-2">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white">
+            <div className="w-full max-w-4xl mx-auto pt-20 md:pt-28 space-y-10">
+                <div className="text-center space-y-3">
+                    <h2 className="text-3xl md:text-4xl font-semibold text-white tracking-tight">
                         Chọn độ khó
                     </h2>
-                    <p className="text-slate-400 text-sm md:text-base">
-                        Chọn level phù hợp với trình độ của bạn. Bạn có thể đổi level bất cứ lúc nào.
+                    <p className="text-slate-400 max-w-lg mx-auto">
+                        Chọn level phù hợp với trình độ của bạn. Bạn có thể đổi bất cứ lúc nào.
                     </p>
                 </div>
 
@@ -108,46 +90,62 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                                 key={option.value}
                                 onClick={() => onSelect(option.value)}
                                 className={`
-                                relative p-6 rounded-2xl border-2 text-left
-                                transition-all duration-300
-                                ${option.color}
-                                ${option.borderColor}
-                                ${option.hoverColor}
-                                transform hover:scale-105
-                                ${isSelected ? 'ring-4 ring-cyan-400/50 scale-105' : 'hover:shadow-xl'}
+                                p-6 rounded-xl border text-left transition-all
+                                ${isSelected 
+                                    ? 'bg-cyan-500/10 border-cyan-500/50' 
+                                    : 'bg-white/[0.02] border-white/20 hover:bg-white/[0.04] hover:border-white/30'
+                                }
                             `}
                             >
                                 {/* Selected indicator */}
                                 {isSelected && (
-                                    <div className="absolute top-2 right-2">
-                                        <CheckCircle className="w-6 h-6 text-cyan-400" />
+                                    <div className="absolute top-3 right-3">
+                                        <CheckCircle className="w-5 h-5 text-cyan-400" />
                                     </div>
                                 )}
 
                                 {/* Icon */}
-                                <div className="flex justify-center mb-3">
-                                    <option.icon className="w-10 h-10 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
+                                <div className="flex justify-center mb-4">
+                                    <div className={`p-3 rounded-lg ${
+                                        isSelected 
+                                            ? 'bg-cyan-500/10 border border-cyan-500/20' 
+                                            : 'bg-white/5'
+                                    }`}>
+                                        <option.icon className={`w-8 h-8 ${
+                                            isSelected ? 'text-cyan-400' : 'text-slate-400'
+                                        }`} />
+                                    </div>
                                 </div>
 
                                 {/* Label */}
-                                <div className="text-xl font-bold text-white mb-2">
+                                <div className={`text-xl font-semibold mb-2 ${
+                                    isSelected ? 'text-white' : 'text-slate-200'
+                                }`}>
                                     {option.label}
                                 </div>
 
                                 {/* Description */}
-                                <p className="text-sm text-slate-300 mb-4 min-h-10">
+                                <p className={`text-sm mb-4 min-h-10 leading-relaxed ${
+                                    isSelected ? 'text-slate-300' : 'text-slate-400'
+                                }`}>
                                     {option.description}
                                 </p>
 
                                 {/* Stats */}
-                                <div className="space-y-1 text-xs text-slate-400">
+                                <div className={`space-y-1.5 text-xs border-t pt-3 ${
+                                    isSelected ? 'border-cyan-500/20' : 'border-white/5'
+                                }`}>
                                     <div className="flex items-center justify-between">
-                                        <span>Độ khó:</span>
-                                        <span className="font-mono">{option.eloRange}</span>
+                                        <span className="text-slate-500">Độ khó:</span>
+                                        <span className={`font-mono text-xs ${
+                                            isSelected ? 'text-cyan-400' : 'text-slate-400'
+                                        }`}>{option.eloRange}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span>Số lượng:</span>
-                                        <span className="font-semibold text-cyan-400">{option.cardCount}</span>
+                                        <span className="text-slate-500">Số lượng:</span>
+                                        <span className={`font-semibold ${
+                                            isSelected ? 'text-cyan-400' : 'text-slate-300'
+                                        }`}>{option.cardCount}</span>
                                     </div>
                                 </div>
                             </button>
@@ -155,9 +153,8 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                     })}
                 </div>
 
-                <div className="text-center text-xs text-slate-500 space-y-1">
-                    <p>Hệ thống sẽ tự động điều chỉnh độ khó dựa trên performance của bạn</p>
-                    <p>ELO routing đảm bảo bạn luôn ở flow state tối ưu</p>
+                <div className="text-center text-xs text-slate-500 pt-6">
+                    <p>Hệ thống sẽ tự động điều chỉnh độ khó theo performance của bạn</p>
                 </div>
             </div>
         </div>

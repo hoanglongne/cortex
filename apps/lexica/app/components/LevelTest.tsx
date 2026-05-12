@@ -200,23 +200,23 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
             </div>
 
             {/* Content */}
-            <div className="w-full max-w-2xl mx-auto pt-20 md:pt-24 space-y-4 md:space-y-6">
+            <div className="w-full max-w-2xl mx-auto pt-20 md:pt-24 space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <button
                         onClick={onBack}
-                        className="text-slate-400 hover:text-white transition-colors flex items-center gap-1 md:gap-2 group text-sm md:text-base"
+                        className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm"
                     >
-                        <span className="group-hover:-translate-x-1 transition-transform">←</span>
+                        <span>←</span>
                         <span className="hidden sm:inline">Quay lại</span>
                     </button>
-                    <div className="text-xs md:text-sm text-slate-400">
-                        Câu {currentQuestionIndex + 1} / {TEST_QUESTIONS.length}
+                    <div className="text-sm text-slate-400">
+                        <span className="text-white font-medium">{currentQuestionIndex + 1}</span> / {TEST_QUESTIONS.length}
                     </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
                     <div
                         className="h-full bg-cyan-500 transition-all duration-300"
                         style={{ width: `${progress}%` }}
@@ -224,26 +224,26 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                 </div>
 
                 {/* Question Card */}
-                <div className="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-xl md:rounded-2xl p-5 md:p-8 space-y-6 md:space-y-8">
+                <div className="bg-white/[0.02] border border-white/20 rounded-xl p-8 md:p-10 space-y-8">
                     {/* Word and IPA */}
-                    <div className="text-center space-y-3 md:space-y-4">
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white wrap-break-word">
+                    <div className="text-center space-y-3">
+                        <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white tracking-tight">
                             {currentQuestion.word}
                         </h2>
-                        <p className="text-slate-400 font-mono text-base md:text-lg">
+                        <p className="text-slate-400 font-mono text-sm">
                             /{currentQuestion.ipa}/
                         </p>
                     </div>
 
                     {/* Question */}
-                    <div className="text-center py-2 md:py-4">
-                        <p className="text-lg md:text-xl text-slate-300 font-semibold">
+                    <div className="text-center py-4">
+                        <p className="text-lg text-slate-300">
                             Từ này có nghĩa là gì?
                         </p>
                     </div>
 
                     {/* Options */}
-                    <div className="space-y-2 md:space-y-3">
+                    <div className="space-y-2.5">
                         {currentQuestion.options.map((option, index) => {
                             const isSelected = selectedOption === index;
                             return (
@@ -251,29 +251,30 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                                     key={index}
                                     onClick={() => handleSelectOption(index)}
                                     className={`
-                                    w-full p-3 md:p-4 rounded-lg md:rounded-xl text-left transition-all
+                                    w-full p-4 rounded-lg text-left transition-all
                                     ${isSelected
-                                            ? 'bg-cyan-500/20 border-2 border-cyan-400 scale-[1.02]'
-                                            : 'bg-slate-700/30 border-2 border-slate-600/30 hover:border-slate-500 hover:bg-slate-700/50'
+                                            ? 'bg-cyan-500/10 border border-cyan-500/50'
+                                            : 'bg-white/[0.02] border border-white/20 hover:bg-white/[0.04] hover:border-white/30'
                                         }
                                 `}
                                 >
-                                    <div className="flex items-start md:items-center gap-2 md:gap-3">
+                                    <div className="flex items-center gap-3">
                                         <div className={`
-                                        w-5 h-5 md:w-6 md:h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 md:mt-0
+                                        w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
                                         ${isSelected
                                                 ? 'border-cyan-400 bg-cyan-400'
-                                                : 'border-slate-500'
+                                                : 'border-slate-600'
                                             }
                                     `}>
                                             {isSelected && (
-                                                <div className="w-2 h-2 bg-white rounded-full"></div>
+                                                <svg className="w-3 h-3 text-slate-900 font-bold" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                </svg>
                                             )}
                                         </div>
-                                        <span className={`
-                                        text-sm md:text-base leading-tight md:leading-normal
-                                        ${isSelected ? 'text-white font-semibold' : 'text-slate-300'}
-                                    `}>
+                                        <span className={`text-sm leading-relaxed ${
+                                            isSelected ? 'text-white font-medium' : 'text-slate-300'
+                                        }`}>
                                             {option}
                                         </span>
                                     </div>
@@ -283,28 +284,30 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                     </div>
 
                     {/* Next / Skip Buttons */}
-                    <div className="space-y-2">
+                    <div className="space-y-2 pt-4">
                         <button
                             onClick={handleNext}
                             disabled={selectedOption === null}
                             className={`
-                            w-full py-3 md:py-4 rounded-lg md:rounded-xl font-bold text-base md:text-lg transition-all
+                            w-full py-4 rounded-lg font-semibold transition-all
                             ${selectedOption !== null
-                                    ? 'bg-cyan-500 text-white hover:scale-[1.02] active:scale-95'
-                                    : 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
+                                    ? 'bg-cyan-500 text-white hover:bg-cyan-600'
+                                    : 'bg-white/5 text-slate-600 cursor-not-allowed'
                                 }
                         `}
                         >
-                            {currentQuestionIndex < TEST_QUESTIONS.length - 1 ? 'Câu tiếp theo →' : (
+                            {currentQuestionIndex < TEST_QUESTIONS.length - 1 ? (
+                                'Câu tiếp theo →'
+                            ) : (
                                 <span className="flex items-center justify-center gap-2">
                                     Xem kết quả
-                                    <TargetIcon className="w-4 h-4" />
+                                    <TargetIcon className="w-5 h-5" />
                                 </span>
                             )}
                         </button>
                         <button
                             onClick={handleSkip}
-                            className="w-full py-2 rounded-lg text-sm text-slate-500 hover:text-slate-300 transition-colors"
+                            className="w-full py-2.5 rounded-lg text-sm text-slate-500 hover:text-slate-300 transition-colors"
                         >
                             Bỏ qua câu này
                         </button>

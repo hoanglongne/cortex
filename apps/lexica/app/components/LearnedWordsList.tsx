@@ -288,13 +288,13 @@ export default function LearnedWordsList() {
                             <div className="flex flex-col min-w-0 flex-1">
                                 <div className="flex items-center gap-2">
                                     <span className="font-bold text-slate-200 text-sm group-hover:text-white transition-colors">{card.word}</span>
-                                    <button
+                                    <span
                                         onClick={(e) => speakWord(e, card.word)}
-                                        className="text-slate-600 hover:text-cyan-400 transition-colors shrink-0"
+                                        className="text-slate-600 hover:text-cyan-400 transition-colors shrink-0 cursor-pointer"
                                         title="Nghe phát âm"
                                     >
                                         <Volume2 className="w-3 h-3" />
-                                    </button>
+                                    </span>
                                     {(card.surgeryModule || card.upgradeModule) && (
                                         <div className="flex gap-1 shrink-0">
                                             {card.surgeryModule && <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.5)]" title="Có Surgery Lab" />}

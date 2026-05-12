@@ -96,32 +96,20 @@ function HomeContent() {
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case 'very-hard':
-        return {
-          icon: AlertCircle,
-          color: 'text-red-400',
-          bgColor: 'bg-red-500/10',
-          borderColor: 'border-red-500/30',
-        };
       case 'challenging':
         return {
           icon: TrendingDown,
-          color: 'text-orange-400',
-          bgColor: 'bg-orange-500/10',
-          borderColor: 'border-orange-500/30',
+          color: 'text-slate-300',
+          bgColor: 'bg-slate-700/50',
+          borderColor: 'border-slate-600',
         };
       case 'too-easy':
-        return {
-          icon: TrendingUp,
-          color: 'text-green-400',
-          bgColor: 'bg-green-500/10',
-          borderColor: 'border-green-500/30',
-        };
       case 'easy':
         return {
           icon: TrendingUp,
-          color: 'text-yellow-400',
-          bgColor: 'bg-yellow-500/10',
-          borderColor: 'border-yellow-500/30',
+          color: 'text-cyan-400',
+          bgColor: 'bg-cyan-500/10',
+          borderColor: 'border-cyan-500/30',
         };
       case 'perfect':
         return {
@@ -134,8 +122,8 @@ function HomeContent() {
         return {
           icon: Check,
           color: 'text-slate-400',
-          bgColor: 'bg-slate-500/10',
-          borderColor: 'border-slate-500/30',
+          bgColor: 'bg-slate-700/50',
+          borderColor: 'border-slate-600',
         };
     }
   };
@@ -321,74 +309,74 @@ function HomeContent() {
       <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-4 pt-16 pb-4 lg:pt-20 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
 
         {/* Left Column - Swipe Deck */}
-        <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-between h-full lg:min-h-150">
+        <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-center h-full lg:min-h-150">
           {/* Swipe Deck */}
-          <div className="w-full max-w-md flex-1 flex items-center justify-center">
+          <div className="w-full max-w-md flex items-center justify-center">
             <ErrorBoundary>
               <SwipeDeck />
             </ErrorBoundary>
           </div>
-
-          {/* Difficulty Status Notification */}
-          <AnimatePresence>
-            {showDifficultyStatus && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 20 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                className="w-full max-w-md mt-6"
-              >
-                <div className={`flex items-start gap-3 p-4 rounded-xl border-2 ${statusDisplay.bgColor} ${statusDisplay.borderColor} shadow-lg backdrop-blur-sm`}>
-                  <statusDisplay.icon className={`w-6 h-6 ${statusDisplay.color} shrink-0 mt-0.5`} />
-                  <div className="flex-1">
-                    <p className={`text-base font-bold ${statusDisplay.color}`}>
-                      {analysis.message.split(' - ')[0]}
-                    </p>
-                    <p className="text-sm text-slate-300 mt-1">
-                      {analysis.message.split(' - ')[1]}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowDifficultyStatus(false)}
-                    className="p-1 hover:bg-slate-700/50 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-slate-400" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
+
+        {/* Difficulty Status Notification - Fixed to avoid layout shift */}
+        <AnimatePresence>
+          {showDifficultyStatus && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40"
+            >
+              <div className={`flex items-start gap-3 p-4 rounded-xl border-2 ${statusDisplay.bgColor} ${statusDisplay.borderColor} shadow-lg backdrop-blur-sm`}>
+                <statusDisplay.icon className={`w-6 h-6 ${statusDisplay.color} shrink-0 mt-0.5`} />
+                <div className="flex-1">
+                  <p className={`text-base font-bold ${statusDisplay.color}`}>
+                    {analysis.message.split(' - ')[0]}
+                  </p>
+                  <p className="text-sm text-slate-300 mt-1">
+                    {analysis.message.split(' - ')[1]}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowDifficultyStatus(false)}
+                  className="p-1 hover:bg-slate-700/50 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Right Column - Stats Sidebar */}
         <div className="w-full lg:w-72 xl:w-80 shrink-0">
           {/* Mobile Action Bar */}
-          <div className="lg:hidden flex items-center justify-center gap-2 mb-4">
+          <div className="lg:hidden flex items-center justify-center gap-1.5 mb-4">
             {/* Stats Modal Toggle */}
             <button
               onClick={() => setShowMobileStats(true)}
-              className="flex-1 p-2 px-3 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-cyan-500 transition-colors active:scale-95 flex items-center justify-center gap-2"
+              className="flex-1 p-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-cyan-500 transition-colors active:scale-95 flex items-center justify-center gap-1.5"
             >
               <BarChart3 className="w-4 h-4 text-cyan-400" />
-              <span className="text-slate-300 text-sm font-medium">Cài đặt</span>
+              <span className="text-slate-300 text-xs font-medium">Cài đặt</span>
             </button>
 
             {/* Learned Words Link */}
             <Link href="/learned" className="flex-1">
-              <div className="p-2 px-3 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-cyan-500 transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-1.5">
+              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-cyan-500 transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-1">
                 <BookOpen className="w-4 h-4 text-cyan-400" />
-                <span className="text-slate-300 text-sm font-medium whitespace-nowrap">Đã học</span>
-                <span className="text-cyan-400 text-sm font-semibold">({learnedCount})</span>
+                <span className="text-slate-300 text-xs font-medium whitespace-nowrap">Đã học</span>
+                <span className="text-cyan-400 text-xs font-semibold">({learnedCount})</span>
               </div>
             </Link>
 
             {/* Review Link */}
             {dueToday > 0 && (
               <Link href="/review" className="shrink-0">
-                <div className="p-2 px-3 rounded-lg bg-amber-500/15 border border-amber-500/30 hover:border-amber-400 transition-colors active:scale-95 cursor-pointer flex items-center gap-1.5">
+                <div className="p-2 rounded-lg bg-amber-500/15 border border-amber-500/30 hover:border-amber-400 transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-1">
                   <RotateCcw className="w-4 h-4 text-amber-400" />
-                  <span className="text-amber-300 text-sm font-medium whitespace-nowrap">Ôn ({dueToday})</span>
+                  <span className="text-amber-300 text-xs font-medium whitespace-nowrap">Ôn ({dueToday})</span>
                 </div>
               </Link>
             )}

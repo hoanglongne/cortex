@@ -77,7 +77,7 @@ export default function LearnedPage() {
                 ?
             </button>
             {/* Header */}
-            <div className="max-w-2xl mx-auto mb-8">
+            <div className="max-w-5xl mx-auto mb-8">
                 <Link
                     href="/"
                     className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-6 group"
@@ -135,7 +135,7 @@ export default function LearnedPage() {
             </div>
 
             {/* SRS Calendar */}
-            <div className="max-w-2xl mx-auto mb-8">
+            <div className="max-w-5xl mx-auto mb-8">
                 <SRSCalendar cardProgress={cardProgress} />
                 {progressStats.dueToday > 0 && (
                     <Link href="/review" className="mt-3 flex items-center justify-between p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 hover:border-amber-400 transition-all hover:scale-[1.01] active:scale-95">
@@ -155,7 +155,7 @@ export default function LearnedPage() {
 
             {/* Stories Section */}
             {visibleStories.length > 0 && (
-                <div className="max-w-2xl mx-auto mb-8 bg-slate-800/30 border border-slate-700 rounded-xl p-6">
+                <div className="max-w-5xl mx-auto mb-8 bg-slate-800/30 border border-slate-700 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <BookMarked className="w-6 h-6 text-cyan-400" />
                         <h2 className="text-2xl font-bold text-white">Story Packs</h2>
@@ -216,7 +216,7 @@ export default function LearnedPage() {
                                                         </span>
                                                     )}
                                                     {unlocked && alreadyAnnounced && (
-                                                        <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
+                                                        <span className="px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-medium">
                                                             10/10
                                                         </span>
                                                     )}
@@ -251,12 +251,12 @@ export default function LearnedPage() {
             )}
 
             {/* Learned Words List */}
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-5xl mx-auto">
                 <LearnedWordsList />
             </div>
 
             {/* Footer Info */}
-            <div className="max-w-2xl mx-auto mt-12 text-center space-y-2">
+            <div className="max-w-5xl mx-auto mt-12 text-center space-y-2">
                 <p className="text-xs text-slate-500 flex items-center justify-center gap-1.5">
                     <Save className="w-3.5 h-3.5" />
                     Dữ liệu được lưu an toàn trong localStorage

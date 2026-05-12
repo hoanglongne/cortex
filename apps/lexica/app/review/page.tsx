@@ -132,9 +132,9 @@ function RevealPanel({ question, onContinue }: { question: Question; onContinue:
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-4 rounded-2xl border border-red-500/25 bg-slate-800/80 p-5"
+            className="mt-4 rounded-xl border border-white/20 bg-white/[0.03] p-4"
         >
-            <p className="text-[10px] text-red-400 uppercase tracking-widest font-semibold mb-3">Đáp án đúng</p>
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold mb-3">Đáp án đúng</p>
             <div className="flex items-baseline gap-2.5 mb-1">
                 <p className="text-2xl font-bold text-white tracking-wide">{question.word}</p>
                 {question.ipa && <p className="text-slate-500 text-sm font-mono">/{question.ipa}/</p>}
@@ -145,7 +145,7 @@ function RevealPanel({ question, onContinue }: { question: Question; onContinue:
             </p>
             <button
                 onClick={onContinue}
-                className="mt-4 w-full py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium transition-colors active:scale-95"
+                className="mt-4 w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-semibold transition-colors active:scale-95"
             >
                 Tiếp tục →
             </button>
@@ -220,10 +220,10 @@ function QuestionCard({
     };
 
     const timerPct = (timeLeft / TIMER_SECONDS) * 100;
-    const timerColor = timeLeft <= 5 ? 'bg-red-400' : timeLeft <= 9 ? 'bg-yellow-400' : 'bg-cyan-400';
+    const timerColor = 'bg-cyan-400';
     const promptBorder = answered
-        ? isCorrect ? 'bg-green-500/5 border-green-500/30' : 'bg-red-500/5 border-red-500/20'
-        : 'bg-slate-800/50 border-slate-700';
+        ? 'bg-white/[0.03] border-white/30'
+        : 'bg-white/[0.02] border-white/20';
 
     return (
         <motion.div
@@ -231,17 +231,17 @@ function QuestionCard({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.22 }}
-            className="w-full max-w-lg mx-auto"
+            className="w-full max-w-2xl mx-auto"
         >
             {/* Progress bar + counter + streak badge */}
-            <div className="flex items-center gap-3 mb-2">
-                <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+            <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1 h-1 bg-white/5 border border-white/10 rounded-full overflow-hidden">
                     <div
                         className="h-full bg-cyan-500 rounded-full transition-all duration-500"
                         style={{ width: `${(index / total) * 100}%` }}
                     />
                 </div>
-                <span className="text-slate-500 text-xs shrink-0">{index + 1}/{total}</span>
+                <span className="text-slate-400 text-xs font-medium shrink-0">{index + 1}/{total}</span>
                 <AnimatePresence>
                     {streak >= 3 && (
                         <motion.span
@@ -249,7 +249,7 @@ function QuestionCard({
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0, opacity: 0 }}
-                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-300 text-xs font-bold shrink-0"
+                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold shrink-0"
                         >
                             <Flame className="w-3 h-3" /> {streak}
                         </motion.span>
@@ -258,10 +258,10 @@ function QuestionCard({
             </div>
 
             {/* Timer bar */}
-            <div className="h-1 bg-slate-800 rounded-full overflow-hidden mb-5">
+            <div className="h-1 bg-white/5 rounded-full overflow-hidden mb-5">
                 {!answered && (
                     <motion.div
-                        className={`h-full rounded-full transition-colors duration-300 ${timerColor}`}
+                        className="h-full bg-cyan-400 rounded-full"
                         animate={{ width: `${timerPct}%` }}
                         transition={{ duration: 0.95, ease: 'linear' }}
                     />
@@ -269,8 +269,8 @@ function QuestionCard({
             </div>
 
             {/* Question prompt */}
-            <div className={`border rounded-2xl p-6 mb-4 transition-colors duration-300 ${promptBorder}`}>
-                <p className="text-[11px] text-slate-500 uppercase tracking-wider font-medium mb-3">{TYPE_LABEL[question.type]}</p>
+            <div className={`border rounded-xl p-5 mb-4 transition-colors duration-300 ${promptBorder}`}>
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-2.5">{TYPE_LABEL[question.type]}</p>
 
                 {question.type === 'fill-in' ? (
                     <p className="text-slate-200 text-base leading-relaxed italic">
@@ -286,7 +286,7 @@ function QuestionCard({
                     <motion.div
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`mt-3 flex items-center gap-1.5 text-sm font-medium ${isCorrect ? 'text-green-400' : 'text-red-400'}`}
+                        className={`mt-3 flex items-center gap-1.5 text-sm font-medium ${isCorrect ? 'text-cyan-400' : 'text-slate-400'}`}
                     >
                         {isCorrect ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         {isCorrect ? 'Chính xác!' : timeLeft <= 0 ? 'Hết giờ!' : 'Sai rồi'}
@@ -296,14 +296,14 @@ function QuestionCard({
 
             {/* MCQ options (all types except meaning-to-word) */}
             {question.type !== 'meaning-to-word' && (
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                     {question.options.map((option, i) => {
                         const isSelected = selected === option;
                         const isCorrectOpt = option === question.answer;
-                        let cls = 'bg-slate-800/60 border-slate-700 text-slate-300 hover:border-cyan-500/50 hover:bg-slate-700/60 active:scale-[0.99]';
-                        if (answered && isCorrectOpt) cls = 'bg-green-500/15 border-green-500/50 text-green-200';
-                        else if (answered && isSelected && !isCorrectOpt) cls = 'bg-red-500/15 border-red-500/50 text-red-200';
-                        else if (answered) cls = 'bg-slate-800/30 border-slate-800 text-slate-600';
+                        let cls = 'bg-white/[0.02] border-white/20 text-slate-300 hover:border-cyan-500/50 hover:bg-white/[0.04] active:scale-[0.99]';
+                        if (answered && isCorrectOpt) cls = 'bg-cyan-500/10 border-cyan-500/50 text-white';
+                        else if (answered && isSelected && !isCorrectOpt) cls = 'bg-white/[0.03] border-white/30 text-slate-400';
+                        else if (answered) cls = 'bg-white/[0.01] border-white/5 text-slate-600';
 
                         const isLong = question.type === 'context-pick';
                         return (
@@ -311,7 +311,7 @@ function QuestionCard({
                                 key={i}
                                 onClick={() => handleSelect(option)}
                                 disabled={answered}
-                                className={`w-full px-4 py-3 rounded-xl border text-sm text-left transition-all flex items-start gap-3 ${cls}`}
+                                className={`w-full px-4 py-2.5 rounded-xl border text-sm text-left transition-all flex items-start gap-3 ${cls}`}
                             >
                                 <span className="w-5 h-5 rounded-full border border-current flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
                                     {answered && isCorrectOpt ? <Check className="w-3 h-3" /> :
@@ -333,8 +333,8 @@ function QuestionCard({
             {question.type === 'meaning-to-word' && (
                 <div className="space-y-3">
                     <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 transition-colors ${answered
-                        ? isCorrect ? 'border-green-500/50 bg-green-500/5' : 'border-red-500/50 bg-red-500/5'
-                        : 'border-slate-600 bg-slate-800/60 focus-within:border-cyan-500'
+                        ? isCorrect ? 'border-cyan-500/50 bg-cyan-500/5' : 'border-white/30 bg-white/[0.03]'
+                        : 'border-white/20 bg-white/[0.02] focus-within:border-cyan-500'
                         }`}>
                         <input
                             ref={inputRef}
@@ -348,14 +348,14 @@ function QuestionCard({
                             autoComplete="off"
                             spellCheck={false}
                         />
-                        {answered && isCorrect && <Check className="w-5 h-5 text-green-400 shrink-0" />}
-                        {answered && !isCorrect && <X className="w-5 h-5 text-red-400 shrink-0" />}
+                        {answered && isCorrect && <Check className="w-5 h-5 text-cyan-400 shrink-0" />}
+                        {answered && !isCorrect && <X className="w-5 h-5 text-slate-400 shrink-0" />}
                     </div>
                     {!answered ? (
                         <button
                             onClick={handleTypeSubmit}
                             disabled={typedInput.trim().length === 0}
-                            className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-bold text-sm transition-colors active:scale-95"
+                            className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 disabled:bg-white/5 disabled:text-slate-600 disabled:cursor-not-allowed text-white font-semibold text-sm transition-colors active:scale-95"
                         >
                             Kiểm tra →
                         </button>
@@ -393,57 +393,57 @@ function ResultScreen({
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-lg mx-auto"
+            className="w-full max-w-2xl mx-auto"
         >
             {/* Score */}
             <div className="text-center mb-6">
-                <div className="w-20 h-20 rounded-full bg-cyan-500/15 border-2 border-cyan-500/40 flex items-center justify-center mx-auto mb-4">
-                    <Trophy className="w-9 h-9 text-cyan-400" />
+                <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto mb-3">
+                    <Trophy className="w-8 h-8 text-cyan-400" />
                 </div>
-                <p className="text-5xl font-bold text-white mb-1">{accuracy}%</p>
+                <p className="text-4xl font-bold text-white mb-1">{accuracy}%</p>
                 <p className="text-slate-400 text-sm">{correct}/{total} câu đúng</p>
             </div>
 
             {/* Stats row */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 text-center">
-                    <p className="text-xs text-slate-500 mb-1">Độ chính xác</p>
-                    <p className={`text-2xl font-bold ${accuracy >= 80 ? 'text-green-400' : accuracy >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>{accuracy}%</p>
+            <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="bg-white/[0.02] border border-white/20 rounded-xl p-3.5 text-center">
+                    <p className="text-xs text-slate-500 font-medium mb-1">Độ chính xác</p>
+                    <p className="text-2xl font-bold text-white">{accuracy}%</p>
                 </div>
-                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 text-center">
-                    <p className="text-xs text-slate-500 mb-1">Combo cao nhất</p>
-                    <p className="text-2xl font-bold text-orange-400 flex items-center justify-center gap-1">
-                        {maxStreak >= 3 && <Flame className="w-5 h-5" />}{maxStreak}
+                <div className="bg-white/[0.02] border border-white/20 rounded-xl p-3.5 text-center">
+                    <p className="text-xs text-slate-500 font-medium mb-1">Combo cao nhất</p>
+                    <p className="text-2xl font-bold text-cyan-400 flex items-center justify-center gap-1">
+                        {maxStreak >= 3 && <Flame className="w-4 h-4" />}{maxStreak}
                     </p>
                 </div>
             </div>
 
             {/* Accuracy bar */}
-            <div className="h-2 bg-slate-800 rounded-full overflow-hidden mb-6">
+            <div className="h-1.5 bg-white/5 border border-white/10 rounded-full overflow-hidden mb-5">
                 <div
-                    className={`h-full rounded-full transition-all duration-700 ${accuracy >= 80 ? 'bg-green-400' : accuracy >= 50 ? 'bg-yellow-400' : 'bg-red-400'}`}
+                    className="h-full bg-cyan-400 rounded-full transition-all duration-700"
                     style={{ width: `${accuracy}%` }}
                 />
             </div>
 
             {/* Wrong answers review */}
             {wrong.length > 0 && (
-                <div className="mb-6">
-                    <p className="text-slate-400 text-xs uppercase tracking-wider font-medium mb-3">Xem lại từ sai ({wrong.length})</p>
+                <div className="mb-5">
+                    <p className="text-slate-400 text-xs uppercase tracking-widest font-semibold mb-2.5">Xem lại từ sai ({wrong.length})</p>
                     <div className="space-y-2">
                         {wrong.map(r => {
                             const card = VOCAB_DATABASE.find(c => c.id === r.cardId);
                             return (
-                                <div key={r.cardId} className="px-4 py-3 rounded-xl bg-red-500/8 border border-red-500/20 space-y-1.5">
+                                <div key={r.cardId} className="px-3.5 py-2.5 rounded-xl bg-white/[0.02] border border-white/20 space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <X className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                                        <X className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                         <span className="text-white font-bold tracking-wide text-sm">{r.word}</span>
                                         {card?.ipa && <span className="text-slate-500 text-xs font-mono">/{card.ipa}/</span>}
                                     </div>
                                     {card && (
                                         <>
-                                            <p className="text-cyan-300/80 text-xs pl-5">{card.translationHint}</p>
-                                            <p className="text-slate-500 text-xs italic pl-5 leading-relaxed">
+                                            <p className="text-cyan-400 text-xs pl-5">{card.translationHint}</p>
+                                            <p className="text-slate-500 text-xs italic pl-5 leading-snug">
                                                 &ldquo;{highlightWord(card.scenario, r.word)}&rdquo;
                                             </p>
                                         </>
@@ -460,7 +460,7 @@ function ResultScreen({
                 {wrong.length > 0 && (
                     <button
                         onClick={onRetry}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-600 text-slate-300 hover:border-cyan-500 hover:text-white transition-colors text-sm font-medium active:scale-95"
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-white/20 bg-white/[0.02] text-slate-300 hover:border-cyan-500/50 hover:text-white hover:bg-white/[0.04] transition-all text-sm font-semibold active:scale-95"
                     >
                         <RotateCcw className="w-4 h-4" />
                         Ôn lại từ sai ({wrong.length})
@@ -468,14 +468,14 @@ function ResultScreen({
                 )}
                 <Link
                     href="/"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm transition-colors active:scale-95"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold text-sm transition-colors active:scale-95"
                 >
                     <Zap className="w-4 h-4" />
                     Học tiếp
                 </Link>
                 <Link
                     href="/learned"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-white/20 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/30 text-slate-300 hover:text-white text-sm font-medium transition-all"
                 >
                     <BookOpen className="w-4 h-4" />
                     Xem từ đã học
@@ -560,14 +560,14 @@ function ReviewPageContent() {
     if (dueCardIds.length === 0 && questions.length === 0 && !done) {
         return (
             <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center px-4 text-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-green-500/15 border border-green-500/30 flex items-center justify-center mb-2">
+                <div className="w-16 h-16 rounded-xl bg-green-500/10 border border-green-500/30 flex items-center justify-center mb-2">
                     <Check className="w-8 h-8 text-green-400" />
                 </div>
                 <h1 className="text-2xl font-bold text-white">Không có từ cần ôn!</h1>
                 <p className="text-slate-400 text-sm max-w-xs">Bạn đã ôn hết tất cả từ đến hạn. Tiếp tục học từ mới nhé.</p>
                 <Link
                     href="/"
-                    className="mt-4 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm transition-colors"
+                    className="mt-4 px-6 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white font-semibold text-sm transition-colors"
                 >
                     Học từ mới
                 </Link>
@@ -577,7 +577,7 @@ function ReviewPageContent() {
 
     return (
         <div className="min-h-screen bg-slate-900 px-4 py-8">
-            <div className="max-w-lg mx-auto">
+            <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <Link

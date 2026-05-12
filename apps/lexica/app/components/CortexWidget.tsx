@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Activity, TrendingUp, User, RefreshCw } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -18,6 +19,7 @@ interface CortexProfile {
 }
 
 export default function CortexWidget() {
+    const pathname = usePathname();
     const [profile, setProfile] = useState<CortexProfile | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -27,6 +29,9 @@ export default function CortexWidget() {
 
     const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3000';
     const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
+
+    // Ẩn widget ở trang chính trên mobile
+    const isHomePage = pathname === '/';
 
     const fetchProfile = useCallback(async (userId: string) => {
         try {
@@ -104,7 +109,7 @@ export default function CortexWidget() {
     // Remove the blocking return null
 
     return (
-        <div className="fixed top-3 right-3 md:top-4 md:right-4 z-[100] font-space-grotesk">
+        <div className={`fixed top-16 right-3 md:top-4 md:right-4 z-[100] font-space-grotesk ${isHomePage ? 'hidden md:block' : ''}`}>
             <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
