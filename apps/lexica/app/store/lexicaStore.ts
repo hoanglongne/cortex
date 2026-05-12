@@ -53,11 +53,22 @@ interface LexicaStore {
     recommendedLevel: DifficultyLevel | null; // AI recommended level from test
 
     // Story Mode
-    unlockedStories: string[]; // IDs of stories user has unlocked
-    readStories: string[]; // IDs of stories user has read
+    unlockedStories: string[]; // IDs of stories user has unlocked (Part 2 / Full)
+    unlockedStoryPart1: string[]; // IDs of stories where Part 1 is unlocked
+    readStories: string[]; // IDs of stories user has read (full)
+    readStoryPart1: string[]; // IDs of stories where Part 1 has been read
     currentStoryId: string | null; // Currently viewing story
+    currentStoryPart: 'part1' | 'part2' | 'full' | null; // Which part viewing
     showStoryUnlock: boolean; // Show "Story Unlocked!" modal
     showStoryMode: boolean; // Show story reading screen
+    showStoryQuiz: boolean; // Show quiz modal
+    storyQuizPart: 1 | 2 | null; // Which part quiz is for
+    storyQuizAttempts: Record<string, {
+        part1Passed?: boolean;
+        part1LastAttempt?: number;
+        part2Passed?: boolean;
+        part2LastAttempt?: number;
+    }>; // Track quiz attempts and cooldowns
 
     // Streak
     currentStreak: number;
@@ -94,11 +105,16 @@ interface LexicaStore {
 
     // Story Mode actions
     checkStoryUnlock: () => void; // Check if user should unlock a new story
-    openStoryUnlockModal: (storyId: string) => void;
+    unlockStoryPart1: (storyId: string) => void; // Unlock Part 1 of a story
+    unlockStoryPart2: (storyId: string) => void; // Unlock Part 2 (full story)
+    openStoryUnlockModal: (storyId: string, part: 1 | 2) => void; // Open unlock modal
     closeStoryUnlockModal: () => void;
-    openStory: (storyId: string) => void;
+    openStory: (storyId: string, part: 'part1' | 'part2' | 'full') => void; // Open story reader
     closeStory: () => void;
-    markStoryAsRead: (storyId: string) => void;
+    markStoryAsRead: (storyId: string, part: 'part1' | 'full') => void; // Mark story/part as read
+    openStoryQuizModal: (storyId: string, part: 1 | 2) => void; // Open quiz modal
+    closeStoryQuizModal: () => void;
+    submitStoryQuiz: (storyId: string, part: 1 | 2, score: number) => void; // Submit quiz (5 questions, need 4+ correct)
 
     // Cortex Integration
     syncAllToCortex: () => Promise<void>;
@@ -223,10 +239,16 @@ export const useLexicaStore = create<LexicaStore>()(
 
             // Story Mode state
             unlockedStories: [],
+            unlockedStoryPart1: [],
             readStories: [],
+            readStoryPart1: [],
             currentStoryId: null,
+            currentStoryPart: null,
             showStoryUnlock: false,
             showStoryMode: false,
+            showStoryQuiz: false,
+            storyQuizPart: null,
+            storyQuizAttempts: {},
 
 
             // Swipe card action
@@ -358,10 +380,16 @@ export const useLexicaStore = create<LexicaStore>()(
                     recommendedLevel: null,
                     // Reset Story Mode state
                     unlockedStories: [],
+                    unlockedStoryPart1: [],
                     readStories: [],
+                    readStoryPart1: [],
                     currentStoryId: null,
+                    currentStoryPart: null,
                     showStoryUnlock: false,
                     showStoryMode: false,
+                    showStoryQuiz: false,
+                    storyQuizPart: null,
+                    storyQuizAttempts: {},
                     // Reset streak
                     currentStreak: 0,
                     longestStreak: 0,
@@ -538,33 +566,86 @@ export const useLexicaStore = create<LexicaStore>()(
                 }
             },
 
-            // Story Mode: Check if user should unlock a new story
+            // Story Mode: Check if user should unlock a new story part
             checkStoryUnlock: () => {
-                const { learnedWords, unlockedStories } = get();
+                const { learnedWords, unlockedStories, unlockedStoryPart1, storyQuizAttempts } = get();
                 const learnedWordsList = Array.from(learnedWords);
 
-                const availableStory = getUnlockableStory(learnedWordsList, unlockedStories);
+                // Import here to avoid circular dependency
+                const { STORIES } = require('../data/stories');
+                const { canUnlockPart1Naturally, canUnlockPart2Naturally } = require('../data/stories');
 
-                if (availableStory) {
-                    get().openStoryUnlockModal(availableStory.id);
+                // Check each story for Part 1 or Part 2 unlock
+                for (const story of STORIES) {
+                    const storyId = story.id;
+
+                    // Check Part 2 unlock (full story) - higher priority
+                    if (!unlockedStories.includes(storyId) &&
+                        !storyQuizAttempts[storyId]?.part2Passed &&
+                        canUnlockPart2Naturally(story, learnedWordsList)) {
+                        get().unlockStoryPart2(storyId);
+                        return; // Only unlock one at a time
+                    }
+
+                    // Check Part 1 unlock (only if Part 2 not already unlocked)
+                    if (!unlockedStories.includes(storyId) && // Part 2 not unlocked yet
+                        !unlockedStoryPart1.includes(storyId) &&
+                        !storyQuizAttempts[storyId]?.part1Passed &&
+                        canUnlockPart1Naturally(story, learnedWordsList)) {
+                        get().unlockStoryPart1(storyId);
+                        return; // Only unlock one at a time
+                    }
                 }
             },
 
-            openStoryUnlockModal: (storyId) => {
+            unlockStoryPart1: (storyId) => {
+                const { unlockedStoryPart1 } = get();
+                if (!unlockedStoryPart1.includes(storyId)) {
+                    set({
+                        unlockedStoryPart1: [...unlockedStoryPart1, storyId],
+                    });
+                    get().openStoryUnlockModal(storyId, 1);
+                    analytics.storyPart1Unlocked(storyId, 'natural');
+                }
+            },
+
+            unlockStoryPart2: (storyId) => {
+                const { unlockedStories, unlockedStoryPart1 } = get();
+                if (!unlockedStories.includes(storyId)) {
+                    // Auto-unlock Part 1 if not already
+                    const newPart1List = unlockedStoryPart1.includes(storyId)
+                        ? unlockedStoryPart1
+                        : [...unlockedStoryPart1, storyId];
+
+                    set({
+                        unlockedStoryPart1: newPart1List,
+                        unlockedStories: [...unlockedStories, storyId],
+                    });
+                    get().openStoryUnlockModal(storyId, 2);
+                    analytics.storyPart2Unlocked(storyId, 'natural');
+                }
+            },
+
+            openStoryUnlockModal: (storyId, part) => {
                 set({
                     currentStoryId: storyId,
+                    currentStoryPart: part === 1 ? 'part1' : 'part2',
                     showStoryUnlock: true,
-                    unlockedStories: [...get().unlockedStories, storyId],
                 });
             },
 
             closeStoryUnlockModal: () => {
-                set({ showStoryUnlock: false });
+                set({
+                    showStoryUnlock: false,
+                    currentStoryId: null, // Clear this to prevent modal showing on reload
+                    currentStoryPart: null,
+                });
             },
 
-            openStory: (storyId) => {
+            openStory: (storyId, part) => {
                 set({
                     currentStoryId: storyId,
+                    currentStoryPart: part,
                     showStoryMode: true,
                     showStoryUnlock: false,
                 });
@@ -574,18 +655,106 @@ export const useLexicaStore = create<LexicaStore>()(
                 set({
                     showStoryMode: false,
                     currentStoryId: null,
+                    currentStoryPart: null,
                 });
             },
 
-            markStoryAsRead: (storyId) => {
-                const { readStories } = get();
-                if (!readStories.includes(storyId)) {
-                    set({
-                        readStories: [...readStories, storyId],
-                    });
-                    // CORTEX Integration: Send to Hub automatically
-                    analytics.storyFinish(storyId);
+            markStoryAsRead: (storyId, part) => {
+                if (part === 'part1') {
+                    const { readStoryPart1 } = get();
+                    if (!readStoryPart1.includes(storyId)) {
+                        set({
+                            readStoryPart1: [...readStoryPart1, storyId],
+                        });
+                        analytics.storyPart1Read(storyId);
+                    }
+                } else if (part === 'full') {
+                    const { readStories, readStoryPart1 } = get();
+                    if (!readStories.includes(storyId)) {
+                        // Auto-mark Part 1 as read too
+                        const newPart1List = readStoryPart1.includes(storyId)
+                            ? readStoryPart1
+                            : [...readStoryPart1, storyId];
+
+                        set({
+                            readStoryPart1: newPart1List,
+                            readStories: [...readStories, storyId],
+                        });
+                        analytics.storyFullRead(storyId);
+                    }
                 }
+            },
+
+            openStoryQuizModal: (storyId, part) => {
+                set({
+                    currentStoryId: storyId,
+                    storyQuizPart: part,
+                    showStoryQuiz: true,
+                });
+            },
+
+            closeStoryQuizModal: () => {
+                set({
+                    showStoryQuiz: false,
+                    currentStoryId: null,
+                    storyQuizPart: null,
+                });
+            },
+
+            submitStoryQuiz: (storyId, part, score) => {
+                const passed = score >= 4; // Need 4/5 correct
+                const { storyQuizAttempts, unlockedStoryPart1, unlockedStories } = get();
+                const now = Date.now();
+
+                // Update quiz attempts
+                const updated = {
+                    ...storyQuizAttempts,
+                    [storyId]: {
+                        ...storyQuizAttempts[storyId],
+                        ...(part === 1 ? {
+                            part1Passed: passed || storyQuizAttempts[storyId]?.part1Passed,
+                            part1LastAttempt: now,
+                        } : {
+                            part2Passed: passed || storyQuizAttempts[storyId]?.part2Passed,
+                            part2LastAttempt: now,
+                        }),
+                    },
+                };
+
+                set({ storyQuizAttempts: updated });
+
+                // Analytics
+                if (passed) {
+                    analytics.storyQuizAttempt(storyId, part, score, true);
+                } else {
+                    analytics.storyQuizFailed(storyId, part, score);
+                }
+
+                // If passed, unlock the part
+                if (passed) {
+                    if (part === 1 && !unlockedStoryPart1.includes(storyId)) {
+                        set({
+                            unlockedStoryPart1: [...unlockedStoryPart1, storyId],
+                        });
+                        analytics.storyPart1Unlocked(storyId, 'quiz');
+                        get().openStoryUnlockModal(storyId, 1);
+                    } else if (part === 2 && !unlockedStories.includes(storyId)) {
+                        // Auto-unlock Part 1 too
+                        const newPart1List = unlockedStoryPart1.includes(storyId)
+                            ? unlockedStoryPart1
+                            : [...unlockedStoryPart1, storyId];
+
+                        set({
+                            unlockedStoryPart1: newPart1List,
+                            unlockedStories: [...unlockedStories, storyId],
+                        });
+                        analytics.storyPart2Unlocked(storyId, 'quiz');
+                        get().openStoryUnlockModal(storyId, 2);
+                    }
+                }
+
+                // Close quiz modal
+                get().closeStoryQuizModal();
             },
 
             syncAllToCortex: async () => {
@@ -594,10 +763,10 @@ export const useLexicaStore = create<LexicaStore>()(
                     console.error('[Cortex] learnedWords is undefined');
                     return;
                 }
-                
+
                 const wordIds = Array.from(learnedWords);
                 console.log(`[Cortex] Attempting to sync ${wordIds.length} words...`);
-                
+
                 if (wordIds.length === 0) {
                     console.warn('[Cortex] No learned words to sync');
                     return;

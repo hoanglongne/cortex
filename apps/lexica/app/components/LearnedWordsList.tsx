@@ -178,29 +178,29 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
             {/* Lab Overlays */}
             <AnimatePresence>
                 {labMode === 'surgery' && card.surgeryModule && (
-                    <div 
+                    <div
                         className="fixed inset-0 z-[120] bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-center p-4"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <SurgeryLab 
-                            word={card.word} 
-                            module={card.surgeryModule} 
-                            onSuccess={() => setLabMode('none')} 
-                            onFail={() => {}} 
+                        <SurgeryLab
+                            word={card.word}
+                            module={card.surgeryModule}
+                            onSuccess={() => setLabMode('none')}
+                            onFail={() => { }}
                             onClose={() => setLabMode('none')}
                         />
                     </div>
                 )}
                 {labMode === 'upgrade' && card.upgradeModule && (
-                    <div 
+                    <div
                         className="fixed inset-0 z-[120] bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-center p-4"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <UpgradeLab 
-                            word={card.word} 
-                            module={card.upgradeModule} 
-                            onSuccess={() => setLabMode('none')} 
-                            onFail={() => {}} 
+                        <UpgradeLab
+                            word={card.word}
+                            module={card.upgradeModule}
+                            onSuccess={() => setLabMode('none')}
+                            onFail={() => { }}
                             onClose={() => setLabMode('none')}
                         />
                     </div>
@@ -304,7 +304,7 @@ export default function LearnedWordsList() {
                                 </div>
                                 <span className="text-slate-500 text-[10px] md:text-xs truncate">{card.translationHint}</span>
                             </div>
-                            
+
                             <div className="flex items-center gap-3 shrink-0">
                                 <span className={`text-[10px] md:text-xs ${isDue ? 'text-amber-400' : 'text-slate-600'}`}>
                                     {reviewLabel}

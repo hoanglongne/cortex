@@ -14,6 +14,12 @@ export type LexicaEvent =
     | 'voice_hit'
     | 'story_open'
     | 'story_finish'
+    | 'story_part1_unlocked'
+    | 'story_part1_read'
+    | 'story_part2_unlocked'
+    | 'story_full_read'
+    | 'story_quiz_attempt'
+    | 'story_quiz_failed'
     | 'oratio_cta_click'
     | 'level_selected'
     | 'test_completed'
@@ -31,9 +37,9 @@ function send(event: LexicaEvent, props?: EventProps): void {
 
     // CORTEX Integration: Send to Central API
     const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
-    
-    let userId = ''; 
-    
+
+    let userId = '';
+
     if (typeof window !== 'undefined') {
         userId = localStorage.getItem('cortex_user_id') || '';
     }
@@ -72,11 +78,11 @@ function send(event: LexicaEvent, props?: EventProps): void {
                 }
             })
         })
-        .then(res => {
-            if (!res.ok) console.error('[Cortex] API returned error:', res.status);
-            else console.log('[Cortex] Log sent successfully');
-        })
-        .catch(err => console.error('[Cortex] Failed to send log:', err));
+            .then(res => {
+                if (!res.ok) console.error('[Cortex] API returned error:', res.status);
+                else console.log('[Cortex] Log sent successfully');
+            })
+            .catch(err => console.error('[Cortex] Failed to send log:', err));
     }
 }
 
@@ -103,6 +109,31 @@ export const analytics = {
 
     storyFinish(storyId: string) {
         send('story_finish', { storyId });
+    },
+
+    // Progressive Story Unlock Events
+    storyPart1Unlocked(storyId: string, method: 'natural' | 'quiz') {
+        send('story_part1_unlocked', { storyId, method });
+    },
+
+    storyPart1Read(storyId: string) {
+        send('story_part1_read', { storyId });
+    },
+
+    storyPart2Unlocked(storyId: string, method: 'natural' | 'quiz') {
+        send('story_part2_unlocked', { storyId, method });
+    },
+
+    storyFullRead(storyId: string) {
+        send('story_full_read', { storyId });
+    },
+
+    storyQuizAttempt(storyId: string, part: number, score: number, passed: boolean) {
+        send('story_quiz_attempt', { storyId, part, score, passed });
+    },
+
+    storyQuizFailed(storyId: string, part: number, score: number) {
+        send('story_quiz_failed', { storyId, part, score });
     },
 
     oratioCTAClick(storyId: string) {

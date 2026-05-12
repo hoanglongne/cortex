@@ -1,14 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Zap } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { STORIES, getStoryLearnedCount, isStoryPreviewVisible, isStoryUnlocked } from '../data/stories';
+import {
+    STORIES,
+    getStoryLearnedCount,
+    isStoryPreviewVisible,
+    canUnlockPart1Naturally,
+    canTakePart1Quiz,
+    isStoryPart1Unlocked,
+    canUnlockPart2Naturally,
+    canTakePart2Quiz,
+    isStoryPart2Unlocked
+} from '../data/stories';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import LearnedWordsList from '../components/LearnedWordsList';
 import SRSCalendar from '../components/SRSCalendar';
 import StoryUnlockModal from '../components/StoryUnlockModal';
-import StoryMode from '../components/StoryMode';
 import OnboardingModal from '../components/OnboardingModal';
 import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -44,19 +54,21 @@ function getLevelBadgeClasses(level: string) {
 }
 
 export default function LearnedPage() {
+    const router = useRouter();
     const [showHelp, setShowHelp] = useState(false);
     const learnedCount = useLexicaStore(state => state.learnedWords.size);
     const learnedWords = useLexicaStore(state => state.learnedWords);
     const masteredCount = useLexicaStore(state => state.getMasteredWordsCount());
     const unlockedStories = useLexicaStore(state => state.unlockedStories);
+    const unlockedStoryPart1 = useLexicaStore(state => state.unlockedStoryPart1);
     const readStories = useLexicaStore(state => state.readStories);
-    const openStory = useLexicaStore(state => state.openStory);
+    const readStoryPart1 = useLexicaStore(state => state.readStoryPart1);
+    const storyQuizAttempts = useLexicaStore(state => state.storyQuizAttempts);
+    const openStoryQuizModal = useLexicaStore(state => state.openStoryQuizModal);
     const showStoryUnlock = useLexicaStore(state => state.showStoryUnlock);
-    const showStoryMode = useLexicaStore(state => state.showStoryMode);
     const currentStoryId = useLexicaStore(state => state.currentStoryId);
-    const closeStory = useLexicaStore(state => state.closeStory);
+    const currentStoryPart = useLexicaStore(state => state.currentStoryPart);
     const closeStoryUnlockModal = useLexicaStore(state => state.closeStoryUnlockModal);
-    const markStoryAsRead = useLexicaStore(state => state.markStoryAsRead);
     const learnedWordIds = Array.from(learnedWords);
     const cardProgress = useLexicaStore(state => state.cardProgress);
     const userStats = useLexicaStore(state => state.userStats);
@@ -167,29 +179,30 @@ export default function LearnedPage() {
                     <div className="space-y-3 max-h-100 overflow-y-auto pr-1">
                         {visibleStories.map((story) => {
                             const storyId = story.id;
-                            const isRead = readStories.includes(storyId);
                             const learnedCountForStory = getStoryLearnedCount(story, learnedWordIds);
-                            const unlocked = isStoryUnlocked(story, learnedWordIds);
-                            const alreadyAnnounced = unlockedStories.includes(storyId);
+
+                            // Check unlock status for both parts
+                            const part1Unlocked = isStoryPart1Unlocked(story, learnedWordIds, unlockedStoryPart1, storyQuizAttempts);
+                            const part2Unlocked = isStoryPart2Unlocked(story, learnedWordIds, unlockedStories, storyQuizAttempts);
+
+                            // Check quiz eligibility
+                            const canQuizPart1 = canTakePart1Quiz(story, learnedWordIds);
+                            const canQuizPart2 = canTakePart2Quiz(story, learnedWordIds);
+
+                            // Check if parts have been read
+                            const part1Read = readStoryPart1.includes(storyId);
+                            const fullRead = readStories.includes(storyId);
 
                             return (
-                                <button
+                                <div
                                     key={storyId}
-                                    onClick={() => {
-                                        if (unlocked) {
-                                            openStory(storyId);
-                                        }
-                                    }}
-                                    className={`w-full px-4 py-4 rounded-lg border transition-all text-left group ${unlocked
-                                        ? 'bg-slate-700/30 hover:bg-slate-700/50 border-slate-600/30 hover:border-cyan-500/50'
-                                        : 'bg-slate-800/40 border-slate-700/50 cursor-default'
-                                        }`}
+                                    className="w-full px-4 py-4 rounded-lg border bg-slate-700/30 border-slate-600/30 transition-all"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-2">
-                                                <BookMarked className={`w-5 h-5 ${unlocked ? (isRead ? 'text-slate-500' : 'text-cyan-400') : 'text-slate-500'}`} />
-                                                <span className={`text-lg font-semibold ${unlocked ? (isRead ? 'text-slate-400' : 'text-white') : 'text-slate-300'}`}>
+                                                <BookMarked className={`w-5 h-5 ${part2Unlocked ? 'text-cyan-400' : part1Unlocked ? 'text-cyan-500/70' : 'text-slate-500'}`} />
+                                                <span className="text-lg font-semibold text-white">
                                                     {story.title}
                                                 </span>
                                             </div>
@@ -199,49 +212,122 @@ export default function LearnedPage() {
                                                         {getLevelLabel(story.difficultyLevel)}
                                                     </span>
                                                     <span className="text-sm text-slate-500">
-                                                        {learnedCountForStory}/10
+                                                        {learnedCountForStory}/7
                                                     </span>
                                                     <span className="text-slate-600">•</span>
                                                     <span className="text-sm text-slate-500">
                                                         {story.darkComedyLevel === 'extreme' ? 'Dark comedy cực mạnh' : story.darkComedyLevel === 'high' ? 'Dark comedy cao' : 'Dark comedy vừa'}
                                                     </span>
-                                                    {unlocked && !isRead && (
+
+                                                    {/* Status badges */}
+                                                    {part2Unlocked && !fullRead && (
                                                         <span className="px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-medium">
-                                                            Unread
+                                                            Full Unread
                                                         </span>
                                                     )}
-                                                    {!unlocked && learnedCountForStory >= 2 && (
+                                                    {part1Unlocked && !part1Read && !part2Unlocked && (
+                                                        <span className="px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-medium">
+                                                            Part 1 Unread
+                                                        </span>
+                                                    )}
+                                                    {fullRead && (
+                                                        <span className="px-2 py-1 rounded-full bg-slate-700 text-slate-400 text-xs font-medium">
+                                                            ✓ Completed
+                                                        </span>
+                                                    )}
+                                                    {!part1Unlocked && learnedCountForStory >= 2 && (
                                                         <span className="px-2 py-1 rounded-full bg-slate-700 text-slate-300 text-xs font-medium">
                                                             Preview
-                                                        </span>
-                                                    )}
-                                                    {unlocked && alreadyAnnounced && (
-                                                        <span className="px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-medium">
-                                                            10/10
                                                         </span>
                                                     )}
                                                 </div>
 
                                                 <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden mb-3">
                                                     <div
-                                                        className={`h-full transition-all duration-500 ${unlocked ? 'bg-cyan-400' : 'bg-slate-500'}`}
-                                                        style={{ width: `${(learnedCountForStory / 10) * 100}%` }}
+                                                        className={`h-full transition-all duration-500 ${part2Unlocked ? 'bg-cyan-400' : part1Unlocked ? 'bg-cyan-500/70' : 'bg-slate-500'}`}
+                                                        style={{ width: `${(learnedCountForStory / 7) * 100}%` }}
                                                     />
                                                 </div>
 
-                                                <p className="text-sm text-slate-400 leading-relaxed">
+                                                <p className="text-sm text-slate-400 leading-relaxed mb-3">
                                                     {story.teaser}
                                                 </p>
 
-                                                {!unlocked && (
-                                                    <p className="mt-2 text-xs text-slate-500 leading-relaxed">
-                                                        Thu thập thêm {10 - learnedCountForStory} từ trong pack này để mở khóa story.
-                                                    </p>
-                                                )}
+                                                {/* Action buttons - 6 states */}
+                                                <div className="flex flex-wrap gap-2">
+                                                    {/* State 1: Locked (0-1 words) */}
+                                                    {learnedCountForStory < 2 && (
+                                                        <p className="text-xs text-slate-500">
+                                                            Thu thập thêm {2 - learnedCountForStory} từ để xem preview
+                                                        </p>
+                                                    )}
+
+                                                    {/* State 2: Preview (2-3 words) */}
+                                                    {learnedCountForStory >= 2 && !part1Unlocked && !canQuizPart1 && (
+                                                        <p className="text-xs text-slate-500">
+                                                            Thu thập thêm {story.part1QuizRequirement - learnedCountForStory} từ để unlock Part 1
+                                                        </p>
+                                                    )}
+
+                                                    {/* State 3: Quiz Available (3+ words, Part 1 locked) */}
+                                                    {!part1Unlocked && canQuizPart1 && learnedCountForStory < 4 && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => openStoryQuizModal(storyId, 1)}
+                                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 text-amber-400 rounded-lg text-xs font-medium transition-all"
+                                                            >
+                                                                <Zap className="w-3.5 h-3.5" />
+                                                                Unlock Part 1 (Quiz)
+                                                            </button>
+                                                            <span className="text-xs text-slate-500 self-center">hoặc học thêm {4 - learnedCountForStory} từ</span>
+                                                        </>
+                                                    )}
+
+                                                    {/* State 4: Part 1 Unlocked */}
+                                                    {part1Unlocked && !part2Unlocked && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => router.push(`/story/${storyId}?part=part1`)}
+                                                                className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-400 rounded-lg text-sm font-medium transition-all"
+                                                            >
+                                                                <BookOpen className="w-4 h-4" />
+                                                                {part1Read ? 'Đọc lại Part 1' : 'Đọc Part 1'}
+                                                            </button>
+                                                            {canQuizPart2 && learnedCountForStory < 7 && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => openStoryQuizModal(storyId, 2)}
+                                                                        className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 text-amber-400 rounded-lg text-sm font-medium transition-all"
+                                                                    >
+                                                                        <Zap className="w-4 h-4" />
+                                                                        Unlock Ending (Quiz)
+                                                                    </button>
+                                                                    <span className="text-xs text-slate-500 self-center">hoặc học thêm {7 - learnedCountForStory} từ</span>
+                                                                </>
+                                                            )}
+                                                            {!canQuizPart2 && learnedCountForStory < 7 && (
+                                                                <p className="text-xs text-slate-500 self-center">
+                                                                    Thu thập thêm {Math.max(story.part2QuizRequirement - learnedCountForStory, 7 - learnedCountForStory)} từ để tiếp tục
+                                                                </p>
+                                                            )}
+                                                        </>
+                                                    )}
+
+                                                    {/* State 6: Full Story Unlocked */}
+                                                    {part2Unlocked && (
+                                                        <button
+                                                            onClick={() => router.push(`/story/${storyId}?part=full`)}
+                                                            className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-lg text-sm font-bold transition-all"
+                                                        >
+                                                            <BookOpen className="w-4 h-4" />
+                                                            {fullRead ? 'Đọc lại Full Story' : 'Đọc Full Story'}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </button>
+                                </div>
                             );
                         })}
                     </div>
@@ -269,32 +355,19 @@ export default function LearnedPage() {
 
             {/* Story Unlock Modal */}
             <AnimatePresence>
-                {showStoryUnlock && currentStoryId && (
+                {showStoryUnlock && currentStoryId && currentStoryPart && (
                     <StoryUnlockModal
                         storyId={currentStoryId}
+                        part={currentStoryPart === 'part1' ? 1 : 2}
                         onReadNow={() => {
-                            if (currentStoryId) {
-                                openStory(currentStoryId);
+                            if (currentStoryId && currentStoryPart) {
+                                router.push(`/story/${currentStoryId}?part=${currentStoryPart}`);
                             }
                         }}
                         onClose={closeStoryUnlockModal}
                     />
                 )}
             </AnimatePresence>
-
-            {/* Story Mode */}
-            {showStoryMode && currentStoryId && (
-                <StoryMode
-                    storyId={currentStoryId}
-                    onClose={closeStory}
-                    onFinish={() => {
-                        if (currentStoryId) {
-                            markStoryAsRead(currentStoryId);
-                        }
-                        closeStory();
-                    }}
-                />
-            )}
         </div>
     );
 }

@@ -91,10 +91,10 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                                 onClick={() => onSelect(option.value)}
                                 className={`
                                 p-6 rounded-xl border text-left transition-all
-                                ${isSelected 
-                                    ? 'bg-cyan-500/10 border-cyan-500/50' 
-                                    : 'bg-white/[0.02] border-white/20 hover:bg-white/[0.04] hover:border-white/30'
-                                }
+                                ${isSelected
+                                        ? 'bg-cyan-500/10 border-cyan-500/50'
+                                        : 'bg-white/[0.02] border-white/20 hover:bg-white/[0.04] hover:border-white/30'
+                                    }
                             `}
                             >
                                 {/* Selected indicator */}
@@ -106,46 +106,39 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
 
                                 {/* Icon */}
                                 <div className="flex justify-center mb-4">
-                                    <div className={`p-3 rounded-lg ${
-                                        isSelected 
-                                            ? 'bg-cyan-500/10 border border-cyan-500/20' 
+                                    <div className={`p-3 rounded-lg ${isSelected
+                                            ? 'bg-cyan-500/10 border border-cyan-500/20'
                                             : 'bg-white/5'
-                                    }`}>
-                                        <option.icon className={`w-8 h-8 ${
-                                            isSelected ? 'text-cyan-400' : 'text-slate-400'
-                                        }`} />
+                                        }`}>
+                                        <option.icon className={`w-8 h-8 ${isSelected ? 'text-cyan-400' : 'text-slate-400'
+                                            }`} />
                                     </div>
                                 </div>
 
                                 {/* Label */}
-                                <div className={`text-xl font-semibold mb-2 ${
-                                    isSelected ? 'text-white' : 'text-slate-200'
-                                }`}>
+                                <div className={`text-xl font-semibold mb-2 ${isSelected ? 'text-white' : 'text-slate-200'
+                                    }`}>
                                     {option.label}
                                 </div>
 
                                 {/* Description */}
-                                <p className={`text-sm mb-4 min-h-10 leading-relaxed ${
-                                    isSelected ? 'text-slate-300' : 'text-slate-400'
-                                }`}>
+                                <p className={`text-sm mb-4 min-h-10 leading-relaxed ${isSelected ? 'text-slate-300' : 'text-slate-400'
+                                    }`}>
                                     {option.description}
                                 </p>
 
                                 {/* Stats */}
-                                <div className={`space-y-1.5 text-xs border-t pt-3 ${
-                                    isSelected ? 'border-cyan-500/20' : 'border-white/5'
-                                }`}>
+                                <div className={`space-y-1.5 text-xs border-t pt-3 ${isSelected ? 'border-cyan-500/20' : 'border-white/5'
+                                    }`}>
                                     <div className="flex items-center justify-between">
                                         <span className="text-slate-500">Độ khó:</span>
-                                        <span className={`font-mono text-xs ${
-                                            isSelected ? 'text-cyan-400' : 'text-slate-400'
-                                        }`}>{option.eloRange}</span>
+                                        <span className={`font-mono text-xs ${isSelected ? 'text-cyan-400' : 'text-slate-400'
+                                            }`}>{option.eloRange}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <span className="text-slate-500">Số lượng:</span>
-                                        <span className={`font-semibold ${
-                                            isSelected ? 'text-cyan-400' : 'text-slate-300'
-                                        }`}>{option.cardCount}</span>
+                                        <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-slate-300'
+                                            }`}>{option.cardCount}</span>
                                     </div>
                                 </div>
                             </button>

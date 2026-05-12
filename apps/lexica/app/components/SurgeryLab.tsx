@@ -14,7 +14,9 @@ interface SurgeryPart {
 
 interface SurgeryModule {
   prefix?: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
+  prefix2?: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
   root: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
+  root2?: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
   suffix?: { text: string; meaning: string; relatedWords?: { word: string; meaning: string }[] };
 }
 
@@ -35,7 +37,9 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
   const [parts] = useState<SurgeryPart[]>(() => {
     const allParts: SurgeryPart[] = [
       ...(module.prefix ? [{ id: 'p', text: module.prefix.text, type: 'Prefix', meaning: module.prefix.meaning, relatedWords: module.prefix.relatedWords }] : []),
+      ...(module.prefix2 ? [{ id: 'p2', text: module.prefix2.text, type: 'Prefix 2', meaning: module.prefix2.meaning, relatedWords: module.prefix2.relatedWords }] : []),
       { id: 'r', text: module.root.text, type: 'Root', meaning: module.root.meaning, relatedWords: module.root.relatedWords },
+      ...(module.root2 ? [{ id: 'r2', text: module.root2.text, type: 'Root 2', meaning: module.root2.meaning, relatedWords: module.root2.relatedWords }] : []),
       ...(module.suffix ? [{ id: 's', text: module.suffix.text, type: 'Suffix', meaning: module.suffix.meaning, relatedWords: module.suffix.relatedWords }] : []),
     ];
     return [...allParts].sort(() => 0.5 - Math.random());
@@ -43,10 +47,10 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
 
   const togglePart = (id: string) => {
     if (status !== 'idle') return;
-    setSelected(prev => 
+    setSelected(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
-    
+
     // Show info for the last selected part
     const part = parts.find(p => p.id === id);
     if (part) setActiveInfo(part);
@@ -55,7 +59,9 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
   const checkSequence = () => {
     const correctOrder = [
       ...(module.prefix ? ['p'] : []),
+      ...(module.prefix2 ? ['p2'] : []),
       'r',
+      ...(module.root2 ? ['r2'] : []),
       ...(module.suffix ? ['s'] : []),
     ];
 
@@ -75,7 +81,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
   return (
     <div className="relative flex flex-col items-center justify-center gap-4 p-5 md:p-8 bg-slate-900 rounded-3xl border border-slate-700 w-full max-w-3xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
       {onClose && (
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 transition-all z-50 sm:-top-2 sm:-right-2 sm:bg-slate-800"
         >
@@ -84,7 +90,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
       )}
 
       <div className="relative z-20 flex flex-col items-center w-full">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center gap-3 text-cyan-400 font-bold text-[10px] md:text-xs uppercase mb-4 md:mb-8 tracking-wider"
@@ -106,11 +112,10 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => togglePart(part.id)}
-                  className={`relative px-3 py-3 md:px-6 md:py-5 rounded-xl md:rounded-2xl border-2 transition-all flex flex-col items-center min-w-[80px] md:min-w-[120px] ${
-                    selected.includes(part.id)
+                  className={`relative px-3 py-3 md:px-6 md:py-5 rounded-xl md:rounded-2xl border-2 transition-all flex flex-col items-center min-w-[80px] md:min-w-[120px] ${selected.includes(part.id)
                       ? 'border-cyan-500 bg-cyan-500/10 shadow-lg'
                       : 'border-slate-700 bg-slate-800 hover:bg-slate-750'
-                  }`}
+                    }`}
                 >
                   <span className={`text-[8px] md:text-[9px] font-bold uppercase mb-1 tracking-widest ${selected.includes(part.id) ? 'text-cyan-400' : 'text-slate-500'}`}>
                     {part.type}
@@ -118,9 +123,9 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
                   <span className={`text-lg md:text-2xl font-bold ${selected.includes(part.id) ? 'text-white' : 'text-slate-400'}`}>
                     {part.text}
                   </span>
-                  
+
                   {selected.includes(part.id) && (
-                    <motion.div 
+                    <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       className="absolute -top-1.5 -right-1.5 w-4 h-4 md:w-5 md:h-5 bg-cyan-500 rounded-full flex items-center justify-center text-[9px] md:text-[10px] font-black text-slate-900 shadow-xl border-2 border-slate-900"
@@ -135,7 +140,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
             <div className="w-full h-16 md:h-28 flex flex-col items-center justify-center rounded-xl md:rounded-2xl border-2 border-dashed border-slate-800 bg-slate-800/20 relative overflow-hidden">
               <AnimatePresence mode="wait">
                 {selected.length > 0 ? (
-                  <motion.div 
+                  <motion.div
                     key={selected.join('-')}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -169,7 +174,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
                     <Info className="w-3 md:w-3.5 h-3 md:h-3.5" />
                     <span>Ý nghĩa của {activeInfo.type}</span>
                   </div>
-                  
+
                   <h3 className="text-xl md:text-3xl font-black text-white mb-1 md:mb-2">{activeInfo.text}</h3>
                   <p className="text-slate-300 text-[11px] md:text-sm leading-relaxed mb-3 md:mb-6">
                     {activeInfo.meaning}
@@ -213,17 +218,16 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
           disabled={selected.length === 0 || status !== 'idle'}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className={`w-full mt-6 md:mt-10 py-3.5 md:py-5 rounded-xl md:rounded-2xl font-black text-xs md:text-sm tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all ${
-            status === 'success' ? 'bg-green-500 text-slate-900' :
-            status === 'fail' ? 'bg-red-500 text-white' :
-            'bg-cyan-600 hover:bg-cyan-500 text-white disabled:opacity-30'
-          }`}
+          className={`w-full mt-6 md:mt-10 py-3.5 md:py-5 rounded-xl md:rounded-2xl font-black text-xs md:text-sm tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all ${status === 'success' ? 'bg-green-500 text-slate-900' :
+              status === 'fail' ? 'bg-red-500 text-white' :
+                'bg-cyan-600 hover:bg-cyan-500 text-white disabled:opacity-30'
+            }`}
         >
           {status === 'success' ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : status === 'fail' ? <X className="w-4 h-4 md:w-5 md:h-5" /> : <Activity className="w-3.5 h-3.5 md:w-4 md:h-4" />}
           <span>
-            {status === 'success' ? 'CHÍNH XÁC RỒI!' : 
-             status === 'fail' ? 'THỬ LẠI NHÉ' : 
-             'KIỂM TRA ĐÁP ÁN'}
+            {status === 'success' ? 'CHÍNH XÁC RỒI!' :
+              status === 'fail' ? 'THỬ LẠI NHÉ' :
+                'KIỂM TRA ĐÁP ÁN'}
           </span>
         </motion.button>
       </div>

@@ -17,6 +17,7 @@ const LevelTest = dynamic(() => import('./components/LevelTest'));
 const LevelTestResult = dynamic(() => import('./components/LevelTestResult'));
 const StoryUnlockModal = dynamic(() => import('./components/StoryUnlockModal'));
 const StoryMode = dynamic(() => import('./components/StoryMode'));
+const StoryQuizModal = dynamic(() => import('./components/StoryQuizModal'));
 const OnboardingModal = dynamic(() => import('./components/OnboardingModal'));
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
@@ -48,10 +49,14 @@ function HomeContent() {
   // Story Mode state
   const showStoryUnlock = useLexicaStore(state => state.showStoryUnlock);
   const showStoryMode = useLexicaStore(state => state.showStoryMode);
+  const showStoryQuiz = useLexicaStore(state => state.showStoryQuiz);
   const currentStoryId = useLexicaStore(state => state.currentStoryId);
+  const currentStoryPart = useLexicaStore(state => state.currentStoryPart);
+  const storyQuizPart = useLexicaStore(state => state.storyQuizPart);
   const openStory = useLexicaStore(state => state.openStory);
   const closeStory = useLexicaStore(state => state.closeStory);
   const closeStoryUnlockModal = useLexicaStore(state => state.closeStoryUnlockModal);
+  const closeStoryQuizModal = useLexicaStore(state => state.closeStoryQuizModal);
   const markStoryAsRead = useLexicaStore(state => state.markStoryAsRead);
 
   const router = useRouter();
@@ -618,12 +623,13 @@ function HomeContent() {
 
       {/* Story Unlock Modal */}
       <AnimatePresence>
-        {showStoryUnlock && currentStoryId && (
+        {showStoryUnlock && currentStoryId && currentStoryPart && (
           <StoryUnlockModal
             storyId={currentStoryId}
+            part={currentStoryPart === 'part1' ? 1 : 2}
             onReadNow={() => {
-              if (currentStoryId) {
-                openStory(currentStoryId);
+              if (currentStoryId && currentStoryPart) {
+                router.push(`/story/${currentStoryId}?part=${currentStoryPart}`);
               }
             }}
             onClose={closeStoryUnlockModal}
@@ -631,19 +637,16 @@ function HomeContent() {
         )}
       </AnimatePresence>
 
-      {/* Story Mode */}
-      {showStoryMode && currentStoryId && (
-        <StoryMode
-          storyId={currentStoryId}
-          onClose={closeStory}
-          onFinish={() => {
-            if (currentStoryId) {
-              markStoryAsRead(currentStoryId);
-            }
-            closeStory();
-          }}
-        />
-      )}
+      {/* Story Quiz Modal */}
+      <AnimatePresence>
+        {showStoryQuiz && currentStoryId && storyQuizPart && (
+          <StoryQuizModal
+            storyId={currentStoryId}
+            part={storyQuizPart}
+            onClose={closeStoryQuizModal}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

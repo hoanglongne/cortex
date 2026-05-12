@@ -272,9 +272,8 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                                                 </svg>
                                             )}
                                         </div>
-                                        <span className={`text-sm leading-relaxed ${
-                                            isSelected ? 'text-white font-medium' : 'text-slate-300'
-                                        }`}>
+                                        <span className={`text-sm leading-relaxed ${isSelected ? 'text-white font-medium' : 'text-slate-300'
+                                            }`}>
                                             {option}
                                         </span>
                                     </div>

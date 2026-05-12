@@ -6,6 +6,7 @@ import { STORIES } from '../data/stories';
 
 interface StoryUnlockModalProps {
     storyId: string;
+    part: 1 | 2; // Which part was unlocked
     onReadNow: () => void;
     onClose: () => void;
 }
@@ -20,10 +21,17 @@ const SPARKLE_POSITIONS = Array.from({ length: 20 }).map((_, i) => ({
     left: (i * 13) % 100,
 }));
 
-export default function StoryUnlockModal({ storyId, onReadNow, onClose }: StoryUnlockModalProps) {
+export default function StoryUnlockModal({ storyId, part, onReadNow, onClose }: StoryUnlockModalProps) {
     const story = STORIES.find(s => s.id === storyId);
 
     if (!story) return null;
+
+    const isPart1 = part === 1;
+    const title = isPart1 ? '📖 Part 1 Unlocked!' : '🎉 Ending Unlocked!';
+    const description = isPart1
+        ? 'Bạn đã mở khóa 60% đầu của câu chuyện'
+        : 'Bạn đã hoàn thành full story!';
+    const wordCount = isPart1 ? '4/7 từ' : '7/7 từ';
 
     return (
         <>
@@ -101,7 +109,7 @@ export default function StoryUnlockModal({ storyId, onReadNow, onClose }: StoryU
                                 className="text-2xl font-bold text-white mb-2 flex items-center justify-center gap-2"
                             >
                                 <Sparkles className="w-6 h-6 text-cyan-400" />
-                                Story Unlocked!
+                                {title}
                                 <Sparkles className="w-6 h-6 text-cyan-400" />
                             </motion.h2>
                             <motion.p
@@ -110,7 +118,7 @@ export default function StoryUnlockModal({ storyId, onReadNow, onClose }: StoryU
                                 transition={{ delay: 0.4 }}
                                 className="text-slate-400 text-sm"
                             >
-                                Bạn đã hoàn thành 10/10 từ trong pack này và mở khóa story mới
+                                {description}
                             </motion.p>
                         </div>
 
@@ -123,7 +131,7 @@ export default function StoryUnlockModal({ storyId, onReadNow, onClose }: StoryU
                         >
                             <h3 className="text-xl font-bold text-cyan-400 mb-2">{story.title}</h3>
                             <p className="text-slate-400 text-sm">
-                                {story.vocabularyIds.length} từ vựng • {story.darkComedyLevel === 'extreme' ? 'Cực kỳ' : story.darkComedyLevel === 'high' ? 'Rất' : 'Khá'} hài hước đen
+                                {wordCount} • {story.darkComedyLevel === 'extreme' ? 'Cực kỳ' : story.darkComedyLevel === 'high' ? 'Rất' : 'Khá'} hài hước đen
                             </p>
                         </motion.div>
 

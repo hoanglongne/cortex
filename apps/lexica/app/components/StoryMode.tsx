@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, BookOpen, Trophy, Volume2 } from 'lucide-react';
+import { X, ExternalLink, BookOpen, Trophy, Volume2, ArrowRight } from 'lucide-react';
 import { STORIES, parseStoryContentWithIds } from '../data/stories';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import { analytics } from '../lib/analytics';
+import { useLexicaStore } from '../store/lexicaStore';
 
 const VOCAB_ID_BY_WORD = new Map(
     VOCAB_DATABASE.map(vocab => [vocab.word.trim().toLowerCase(), vocab.id])
@@ -25,18 +26,33 @@ interface StoryVocabDialogData {
 
 interface StoryModeProps {
     storyId: string;
+    part: 'part1' | 'part2' | 'full'; // Which part to display
     onClose: () => void;
-    onFinish: () => void;
+    onFinish: (partRead: 'part1' | 'full') => void;
+    onNavigateToPart2?: () => void; // Optional callback for Part 2 navigation (for routing context)
 }
 
-export default function StoryMode({ storyId, onClose, onFinish }: StoryModeProps) {
+export default function StoryMode({ storyId, part, onClose, onFinish, onNavigateToPart2 }: StoryModeProps) {
     const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
     const [selectedVocab, setSelectedVocab] = useState<StoryVocabDialogData | null>(null);
     const story = STORIES.find(s => s.id === storyId);
+    const unlockedStories = useLexicaStore(state => state.unlockedStories);
+    const unlockedStoryPart1 = useLexicaStore(state => state.unlockedStoryPart1);
+    const openStory = useLexicaStore(state => state.openStory);
 
     if (!story) return null;
 
-    const contentSegments = parseStoryContentWithIds(story.content, story.vocabularyIds);
+    // Determine which content to show
+    const contentToShow = part === 'part1'
+        ? story.part1Content
+        : part === 'full'
+            ? story.content // Full story (part1 + part2)
+            : story.content; // Default to full
+
+    const contentSegments = parseStoryContentWithIds(contentToShow, story.vocabularyIds);
+    const isPart1Only = part === 'part1';
+    const isPart2Unlocked = unlockedStories.includes(storyId);
+    const showContinueCTA = isPart1Only && isPart2Unlocked;
 
     // Track scroll to show CTA
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -55,7 +71,10 @@ export default function StoryMode({ storyId, onClose, onFinish }: StoryModeProps
                     <div className="flex items-center gap-3">
                         <BookOpen className="w-6 h-6 text-cyan-400" />
                         <div>
-                            <h1 className="text-lg font-bold text-white">{story.title}</h1>
+                            <h1 className="text-lg font-bold text-white">
+                                {story.title}
+                                {isPart1Only && <span className="ml-2 text-sm text-cyan-400">• Part 1</span>}
+                            </h1>
                             <p className="text-xs text-slate-500">
                                 {story.vocabularyIds.length} từ vựng
                             </p>
@@ -144,40 +163,79 @@ export default function StoryMode({ storyId, onClose, onFinish }: StoryModeProps
                         </p>
                     </motion.div>
 
-                    {/* ORATIO Funnel CTA */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{
-                            opacity: hasScrolledToEnd ? 1 : 0.3,
-                            scale: hasScrolledToEnd ? 1 : 0.95,
-                        }}
-                        transition={{ duration: 0.5 }}
-                        className="bg-cyan-500/10 border-2 border-cyan-500/50 rounded-2xl p-6 space-y-4"
-                    >
-                        <div className="text-center space-y-2">
-                            <h3 className="text-xl lg:text-2xl font-bold text-white">
-                                Vocabulary is dead until spoken.
-                            </h3>
-                            <p className="text-slate-300 text-sm lg:text-base">
-                                Hãy lấy câu chuyện vô lý này và tranh luận nó với một người thật trên ORATIO ngay bây giờ.
-                            </p>
-                        </div>
-
-                        <a
-                            href="https://oratio-new.vercel.app/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => { analytics.oratioCTAClick(storyId); onFinish(); }}
-                            className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-center py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                    {/* Continue to Part 2 CTA (only show if viewing Part 1 and Part 2 is unlocked) */}
+                    {showContinueCTA && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-2 border-cyan-500/50 rounded-2xl p-6 space-y-4"
                         >
-                            <span className="text-lg">Thử ORATIO miễn phí</span>
-                            <ExternalLink className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        </a>
+                            <div className="text-center space-y-2">
+                                <h3 className="text-xl font-bold text-white">
+                                    🎉 Part 2 Ready!
+                                </h3>
+                                <p className="text-slate-300 text-sm">
+                                    Bạn đã hoàn thành 60% câu chuyện. Tiếp tục đọc phần kết?
+                                </p>
+                            </div>
 
-                        <p className="text-center text-xs text-slate-500">
-                            100% miễn phí • Luyện speaking IELTS với người thật • Không quảng cáo
-                        </p>
-                    </motion.div>
+                            <button
+                                onClick={() => {
+                                    onFinish('part1'); // Mark Part 1 as read
+                                    if (onNavigateToPart2) {
+                                        onNavigateToPart2(); // Use callback for routing context
+                                    } else {
+                                        openStory(storyId, 'full'); // Fallback for modal context
+                                    }
+                                }}
+                                className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                            >
+                                <span>Đọc Part 2</span>
+                                <ArrowRight className="w-5 h-5" />
+                            </button>
+                        </motion.div>
+                    )}
+
+                    {/* ORATIO Funnel CTA (only show if reading full story) */}
+                    {!isPart1Only && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{
+                                opacity: hasScrolledToEnd ? 1 : 0.3,
+                                scale: hasScrolledToEnd ? 1 : 0.95,
+                            }}
+                            transition={{ duration: 0.5 }}
+                            className="bg-cyan-500/10 border-2 border-cyan-500/50 rounded-2xl p-6 space-y-4"
+                        >
+                            <div className="text-center space-y-2">
+                                <h3 className="text-xl lg:text-2xl font-bold text-white">
+                                    Vocabulary is dead until spoken.
+                                </h3>
+                                <p className="text-slate-300 text-sm lg:text-base">
+                                    Hãy lấy câu chuyện vô lý này và tranh luận nó với một người thật trên ORATIO ngay bây giờ.
+                                </p>
+                            </div>
+
+                            <a
+                                href="https://oratio-new.vercel.app/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => {
+                                    analytics.oratioCTAClick(storyId);
+                                    onFinish('full');
+                                }}
+                                className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-center py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 group"
+                            >
+                                <span className="text-lg">Thử ORATIO miễn phí</span>
+                                <ExternalLink className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                            </a>
+
+                            <p className="text-center text-xs text-slate-500">
+                                100% miễn phí • Luyện speaking IELTS với người thật • Không quảng cáo
+                            </p>
+                        </motion.div>
+                    )}
 
                     {/* Bottom padding for mobile */}
                     <div className="h-20 lg:h-8" />

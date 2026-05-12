@@ -68,7 +68,7 @@ export default function CortexWidget() {
             if (event.data.type === 'CORTEX_SESSION_RESPONSE') {
                 const newUserId = event.data.userId;
                 const token = event.data.token;
-                
+
                 if (newUserId) {
                     localStorage.setItem('cortex_user_id', newUserId);
                     if (token) localStorage.setItem('sb-token', token);
@@ -114,11 +114,10 @@ export default function CortexWidget() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`flex items-center gap-2 px-2 py-2 md:px-3 md:py-2 rounded-full border shadow-lg transition-all ${
-                    profile 
-                    ? 'bg-slate-900/60 md:bg-slate-900/80 border-cyan-500/30 md:border-cyan-500/50 text-cyan-400 backdrop-blur-md' 
-                    : 'bg-slate-900/40 md:bg-slate-900/50 border-slate-700 text-slate-400'
-                }`}
+                className={`flex items-center gap-2 px-2 py-2 md:px-3 md:py-2 rounded-full border shadow-lg transition-all ${profile
+                        ? 'bg-slate-900/60 md:bg-slate-900/80 border-cyan-500/30 md:border-cyan-500/50 text-cyan-400 backdrop-blur-md'
+                        : 'bg-slate-900/40 md:bg-slate-900/50 border-slate-700 text-slate-400'
+                    }`}
             >
                 <Brain className={`w-4 h-4 md:w-[18px] md:h-[18px] ${profile ? 'animate-pulse' : ''}`} />
                 <span className="hidden md:inline text-xs font-bold tracking-wider uppercase">
@@ -147,7 +146,7 @@ export default function CortexWidget() {
                         <div className="space-y-4">
                             <div className="flex justify-between items-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/50">
                                 <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Dữ liệu cục bộ</span>
-                                <button 
+                                <button
                                     onClick={async () => {
                                         setIsSyncing(true);
                                         await syncAllToCortex();
@@ -180,7 +179,7 @@ export default function CortexWidget() {
                                     <span className="text-sm font-bold text-emerald-400">{Math.round(profile.fluency_score)}%</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${profile.fluency_score}%` }}
                                         className="h-full bg-emerald-400"
@@ -195,14 +194,14 @@ export default function CortexWidget() {
                                         <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Gợi ý AI</span>
                                     </div>
                                     <p className="text-[11px] text-slate-300 leading-relaxed italic">
-                                    &quot;{profile.difficulty_recommendation.message}&quot;
+                                        &quot;{profile.difficulty_recommendation.message}&quot;
                                     </p>
                                 </div>
                             )}
                         </div>
-                        
+
                         <div className="mt-4 pt-4 border-t border-slate-800 flex justify-center">
-                            <button 
+                            <button
                                 onClick={() => window.open(`${HUB_URL}/profile`, '_blank')}
                                 className="text-[10px] text-slate-500 hover:text-cyan-400 transition-colors uppercase font-bold tracking-widest flex items-center gap-1"
                             >
