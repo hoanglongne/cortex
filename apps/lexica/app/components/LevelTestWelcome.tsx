@@ -1,6 +1,7 @@
 'use client';
 
 import { FlaskConical, Gamepad2, Zap } from 'lucide-react';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface LevelTestWelcomeProps {
     onStartTest: () => void;
@@ -8,6 +9,8 @@ interface LevelTestWelcomeProps {
 }
 
 export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelTestWelcomeProps) {
+    const { buttonPress, click } = useSoundEffects();
+
     return (
         <div className="w-full h-full px-4 relative">
             {/* Logo - Top Left */}
@@ -38,7 +41,10 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                 <div className="space-y-3">
                     {/* Test Option - Recommended */}
                     <button
-                        onClick={onStartTest}
+                        onClick={() => {
+                            buttonPress();
+                            onStartTest();
+                        }}
                         className="w-full p-6 rounded-xl bg-white/[0.03] border border-white/20 hover:bg-white/[0.05] hover:border-cyan-500/50 transition-all group text-left"
                     >
                         <div className="flex items-start gap-4">
@@ -63,7 +69,10 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
 
                     {/* Manual Option */}
                     <button
-                        onClick={onSkipToManual}
+                        onClick={() => {
+                            click();
+                            onSkipToManual();
+                        }}
                         className="w-full p-6 rounded-xl bg-white/[0.02] border border-white/20 hover:bg-white/[0.04] hover:border-white/30 transition-all group text-left"
                     >
                         <div className="flex items-start gap-4">

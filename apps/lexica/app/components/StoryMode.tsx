@@ -8,6 +8,7 @@ import { VOCAB_DATABASE } from '../data/vocabCards';
 import { analytics } from '../lib/analytics';
 import { useLexicaStore } from '../store/lexicaStore';
 import StoryComprehensionQuiz from './StoryComprehensionQuiz';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 const VOCAB_ID_BY_WORD = new Map(
     VOCAB_DATABASE.map(vocab => [vocab.word.trim().toLowerCase(), vocab.id])
@@ -34,6 +35,7 @@ interface StoryModeProps {
 }
 
 export default function StoryMode({ storyId, part, onClose, onFinish, onNavigateToPart2 }: StoryModeProps) {
+    const { buttonPress, click } = useSoundEffects();
     const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
     const [selectedVocab, setSelectedVocab] = useState<StoryVocabDialogData | null>(null);
     const [showComprehensionQuiz, setShowComprehensionQuiz] = useState(false);
@@ -124,7 +126,10 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                         </div>
                     </div>
                     <button
-                        onClick={onClose}
+                        onClick={() => {
+                            click();
+                            onClose();
+                        }}
                         className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
                     >
                         <X className="w-6 h-6 text-slate-400" />
@@ -225,6 +230,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
 
                             <button
                                 onClick={() => {
+                                    buttonPress();
                                     setShowComprehensionQuiz(true); // Show quiz instead of proceeding
                                 }}
                                 className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
@@ -254,6 +260,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
 
                             <button
                                 onClick={() => {
+                                    buttonPress();
                                     setShowComprehensionQuiz(true);
                                 }}
                                 className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
@@ -289,6 +296,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={() => {
+                                    buttonPress();
                                     analytics.oratioCTAClick(storyId);
                                 }}
                                 className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-center py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 group"
@@ -341,7 +349,10 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                         >
                             {/* Close button */}
                             <button
-                                onClick={() => setSelectedVocab(null)}
+                                onClick={() => {
+                                    click();
+                                    setSelectedVocab(null);
+                                }}
                                 className="absolute top-4 right-4 p-1.5 hover:bg-slate-700 rounded-lg transition-colors"
                             >
                                 <X className="w-5 h-5 text-slate-400" />
@@ -360,6 +371,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                     )}
                                     <button
                                         onClick={() => {
+                                            click();
                                             const utterance = new SpeechSynthesisUtterance(selectedVocab.word);
                                             utterance.lang = 'en-US';
                                             utterance.rate = 0.8;

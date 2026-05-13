@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick } from 'lucide-react';
+import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import ActivityHeatmap from '../components/ActivityHeatmap';
@@ -10,6 +10,7 @@ import ELOChart from '../components/ELOChart';
 import AccuracyChart from '../components/AccuracyChart';
 import CardStatesPieChart from '../components/CardStatesPieChart';
 import CountUp from '../components/CountUp';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 function StatsPageContent() {
     const learnedCount = useLexicaStore(state => state.learnedWords.size);
@@ -21,6 +22,11 @@ function StatsPageContent() {
     const cardProgress = useLexicaStore(state => state.cardProgress);
     const studyHistory = useLexicaStore(state => state.studyHistory);
     const getStudyStats = useLexicaStore(state => state.getStudyStats);
+    const soundEnabled = useLexicaStore(state => state.soundEnabled);
+    const toggleSound = useLexicaStore(state => state.toggleSound);
+    const swipeMode = useLexicaStore(state => state.swipeMode);
+    const setSwipeMode = useLexicaStore(state => state.setSwipeMode);
+    const { click } = useSoundEffects();
 
     const progressStats = getProgressStats(cardProgress);
     const studyStats = getStudyStats();
@@ -42,6 +48,88 @@ function StatsPageContent() {
                     </Link>
                     <h1 className="text-2xl font-bold text-white">Thống kê & Phân tích</h1>
                     <div className="w-20" /> {/* spacer */}
+                </div>
+
+                {/* Settings Section */}
+                <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-8">
+                    <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Cài đặt
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Sound Toggle */}
+                        <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${
+                                    soundEnabled ? 'bg-cyan-500/15' : 'bg-slate-700/60'
+                                }`}>
+                                    {soundEnabled ? (
+                                        <Volume2 className="w-5 h-5 text-cyan-400" />
+                                    ) : (
+                                        <VolumeX className="w-5 h-5 text-slate-500" />
+                                    )}
+                                </div>
+                                <div>
+                                    <p className="text-white font-medium text-sm">Âm thanh</p>
+                                    <p className="text-slate-500 text-xs">Hiệu ứng âm thanh khi học</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    click();
+                                    toggleSound();
+                                }}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                    soundEnabled ? 'bg-cyan-500' : 'bg-slate-600'
+                                }`}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                        soundEnabled ? 'translate-x-6' : 'translate-x-1'
+                                    }`}
+                                />
+                            </button>
+                        </div>
+
+                        {/* Swipe Mode Toggle */}
+                        <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${
+                                    swipeMode === 'voice' ? 'bg-purple-500/15' : 'bg-cyan-500/15'
+                                }`}>
+                                    {swipeMode === 'voice' ? (
+                                        <Mic className="w-5 h-5 text-purple-400" />
+                                    ) : (
+                                        <Hand className="w-5 h-5 text-cyan-400" />
+                                    )}
+                                </div>
+                                <div>
+                                    <p className="text-white font-medium text-sm">Chế độ học</p>
+                                    <p className="text-slate-500 text-xs">
+                                        {swipeMode === 'voice' ? 'Voice (nói để học)' : 'Touch (vuốt thẻ)'}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    click();
+                                    setSwipeMode(swipeMode === 'touch' ? 'voice' : 'touch');
+                                }}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                    swipeMode === 'voice' ? 'bg-purple-500' : 'bg-cyan-500'
+                                }`}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                        swipeMode === 'voice' ? 'translate-x-6' : 'translate-x-1'
+                                    }`}
+                                />
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Featured Streak Card */}

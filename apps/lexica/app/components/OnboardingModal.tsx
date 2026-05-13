@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X, Zap, Mic, BookOpen, Trophy, Sprout, Leaf, Sparkles, Flame } from 'lucide-react';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface OnboardingModalProps {
     onComplete: () => void;
@@ -73,6 +74,7 @@ const STEPS = [
 export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
     const [step, setStep] = useState(0);
     const [direction, setDirection] = useState(1);
+    const { click } = useSoundEffects();
 
     const currentStep = STEPS[step];
     const Icon = currentStep.icon;
@@ -107,7 +109,10 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
             >
                 {/* Skip button */}
                 <button
-                    onClick={onComplete}
+                    onClick={() => {
+                        click();
+                        onComplete();
+                    }}
                     className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-700 transition-colors text-slate-400 hover:text-slate-200"
                 >
                     <X className="w-4 h-4" />
@@ -172,7 +177,10 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                 {/* Navigation */}
                 <div className="flex items-center justify-between mt-6 gap-3">
                     <button
-                        onClick={goPrev}
+                        onClick={() => {
+                            click();
+                            goPrev();
+                        }}
                         disabled={step === 0}
                         className="p-2.5 rounded-xl border border-slate-600 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
@@ -180,7 +188,10 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                     </button>
 
                     <button
-                        onClick={goNext}
+                        onClick={() => {
+                            click();
+                            goNext();
+                        }}
                         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm transition-colors active:scale-95"
                     >
                         {isLast ? 'Bắt đầu học!' : 'Tiếp theo'}

@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Sparkles, X } from 'lucide-react';
 import { STORIES } from '../data/stories';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface StoryUnlockModalProps {
     storyId: string;
@@ -23,6 +25,12 @@ const SPARKLE_POSITIONS = Array.from({ length: 20 }).map((_, i) => ({
 
 export default function StoryUnlockModal({ storyId, part, onReadNow, onClose }: StoryUnlockModalProps) {
     const story = STORIES.find(s => s.id === storyId);
+    const { unlock, buttonPress, click } = useSoundEffects();
+
+    // Play unlock sound when modal appears
+    useEffect(() => {
+        unlock();
+    }, [unlock]);
 
     if (!story) return null;
 
@@ -143,13 +151,19 @@ export default function StoryUnlockModal({ storyId, part, onReadNow, onClose }: 
                             className="flex gap-3"
                         >
                             <button
-                                onClick={onClose}
+                                onClick={() => {
+                                    click();
+                                    onClose();
+                                }}
                                 className="flex-1 px-4 py-3 bg-slate-700/50 hover:bg-slate-700 text-slate-300 rounded-lg font-medium transition-colors"
                             >
                                 Để sau
                             </button>
                             <button
-                                onClick={onReadNow}
+                                onClick={() => {
+                                    buttonPress();
+                                    onReadNow();
+                                }}
                                 className="flex-1 px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-lg font-bold transition-colors active:scale-95"
                             >
                                 Đọc ngay

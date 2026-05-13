@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scissors, Activity, Check, X, Info, Plus } from 'lucide-react';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface SurgeryPart {
   id: string;
@@ -29,6 +30,7 @@ interface SurgeryLabProps {
 }
 
 export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }: SurgeryLabProps) {
+  const { click, buttonPress, quizCorrect, quizWrong } = useSoundEffects();
   const [selected, setSelected] = useState<string[]>([]);
   const [status, setStatus] = useState<'idle' | 'success' | 'fail'>('idle');
   const [activeInfo, setActiveInfo] = useState<SurgeryPart | null>(null);
@@ -47,6 +49,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
 
   const togglePart = (id: string) => {
     if (status !== 'idle') return;
+    click();
     setSelected(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
@@ -57,6 +60,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
   };
 
   const checkSequence = () => {
+    buttonPress();
     const correctOrder = [
       ...(module.prefix ? ['p'] : []),
       ...(module.prefix2 ? ['p2'] : []),
@@ -66,9 +70,11 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
     ];
 
     if (JSON.stringify(selected) === JSON.stringify(correctOrder)) {
+      quizCorrect();
       setStatus('success');
       setTimeout(onSuccess, 2000);
     } else {
+      quizWrong();
       setStatus('fail');
       setTimeout(() => {
         setStatus('idle');
@@ -82,7 +88,10 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
     <div className="relative flex flex-col items-center justify-center gap-4 p-5 md:p-8 bg-slate-900 rounded-3xl border border-slate-700 w-full max-w-3xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
       {onClose && (
         <button
-          onClick={onClose}
+          onClick={() => {
+            click();
+            onClose();
+          }}
           className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 transition-all z-50 sm:-top-2 sm:-right-2 sm:bg-slate-800"
         >
           <X className="w-4 h-4 md:w-5 md:h-5" />

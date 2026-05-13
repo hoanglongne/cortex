@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Sprout, Leaf, Sparkles, Trophy, Lightbulb, Target as TargetIcon, CheckCircle } from 'lucide-react';
 import { DifficultyLevel } from './VocabCard';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface LevelTestResultProps {
     score: number;
@@ -65,6 +67,12 @@ export default function LevelTestResult({
 }: LevelTestResultProps) {
     const levelInfo = LEVEL_INFO[recommendedLevel];
     const percentage = Math.round((score / totalQuestions) * 100);
+    const { levelUp, buttonPress, click } = useSoundEffects();
+
+    // Play celebration sound on mount
+    useEffect(() => {
+        levelUp();
+    }, [levelUp]);
 
     return (
         <div className="w-full h-full px-4">
@@ -158,7 +166,10 @@ export default function LevelTestResult({
                     {/* Action Buttons */}
                     <div className="space-y-2 md:space-y-3">
                         <button
-                            onClick={onAccept}
+                            onClick={() => {
+                                buttonPress();
+                                onAccept();
+                            }}
                             className="w-full py-3 md:py-4 rounded-lg md:rounded-xl bg-cyan-500 text-white font-bold text-base md:text-lg hover:scale-[1.02] active:scale-95 transition-all"
                         >
                             <span className="flex items-center justify-center gap-2">
@@ -168,7 +179,10 @@ export default function LevelTestResult({
                         </button>
 
                         <button
-                            onClick={onChooseManually}
+                            onClick={() => {
+                                click();
+                                onChooseManually();
+                            }}
                             className="w-full py-2.5 md:py-3 rounded-lg md:rounded-xl bg-slate-700/30 border border-slate-600/30 text-slate-300 text-sm md:text-base hover:border-slate-500 hover:bg-slate-700/50 transition-all"
                         >
                             Hoặc tự chọn level khác

@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Check, X } from 'lucide-react';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import { VocabCardData } from './VocabCard';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface ReviewQuizProps {
     card: VocabCardData;
@@ -13,6 +14,8 @@ interface ReviewQuizProps {
 export default function ReviewQuiz({ card, onSwipe }: ReviewQuizProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const [answered, setAnswered] = useState(false);
+
+    const { quizCorrect, quizWrong } = useSoundEffects();
 
     const options = useMemo(() => {
         const others = VOCAB_DATABASE.filter(c => c.id !== card.id);
@@ -27,6 +30,14 @@ export default function ReviewQuiz({ card, onSwipe }: ReviewQuizProps) {
         setSelected(option);
         setAnswered(true);
         const isCorrect = option === card.translationHint;
+        
+        // Play sound feedback
+        if (isCorrect) {
+            quizCorrect();
+        } else {
+            quizWrong();
+        }
+        
         setTimeout(() => {
             onSwipe(isCorrect ? 'right' : 'left', 'quiz');
         }, 700);

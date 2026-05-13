@@ -21,6 +21,7 @@ import SRSCalendar from '../components/SRSCalendar';
 import OnboardingModal from '../components/OnboardingModal';
 import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 function getLevelLabel(level: string) {
     switch (level) {
@@ -55,6 +56,7 @@ function getLevelBadgeClasses(level: string) {
 export default function LearnedPage() {
     const router = useRouter();
     const [showHelp, setShowHelp] = useState(false);
+    const { buttonPress, click } = useSoundEffects();
     const learnedCount = useLexicaStore(state => state.learnedWords.size);
     const learnedWords = useLexicaStore(state => state.learnedWords);
     const masteredCount = useLexicaStore(state => state.getMasteredWordsCount());
@@ -77,7 +79,10 @@ export default function LearnedPage() {
             )}
             {/* Help Button */}
             <button
-                onClick={() => setShowHelp(true)}
+                onClick={() => {
+                    click();
+                    setShowHelp(true);
+                }}
                 className="fixed bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-slate-700 border border-slate-600 hover:border-cyan-500 hover:bg-slate-600 transition-colors flex items-center justify-center text-slate-400 hover:text-cyan-400 text-sm font-bold"
                 aria-label="Hướng dẫn"
             >
@@ -268,7 +273,10 @@ export default function LearnedPage() {
                                                     {!part1Unlocked && canQuizPart1 && learnedCountForStory < 4 && (
                                                         <>
                                                             <button
-                                                                onClick={() => router.push(`/story/${storyId}/unlock-quiz?part=1`)}
+                                                                onClick={() => {
+                                                                    buttonPress();
+                                                                    router.push(`/story/${storyId}/unlock-quiz?part=1`);
+                                                                }}
                                                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 text-amber-400 rounded-lg text-xs font-medium transition-all"
                                                             >
                                                                 <Zap className="w-3.5 h-3.5" />
@@ -282,7 +290,10 @@ export default function LearnedPage() {
                                                     {part1Unlocked && !part2Unlocked && (
                                                         <>
                                                             <button
-                                                                onClick={() => router.push(`/story/${storyId}?part=part1`)}
+                                                                onClick={() => {
+                                                                    buttonPress();
+                                                                    router.push(`/story/${storyId}?part=part1`);
+                                                                }}
                                                                 className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-400 rounded-lg text-sm font-medium transition-all"
                                                             >
                                                                 <BookOpen className="w-4 h-4" />
@@ -291,7 +302,10 @@ export default function LearnedPage() {
                                                             {canQuizPart2 && learnedCountForStory < 7 && (
                                                                 <>
                                                                     <button
-                                                                        onClick={() => router.push(`/story/${storyId}/unlock-quiz?part=2`)}
+                                                                        onClick={() => {
+                                                                            buttonPress();
+                                                                            router.push(`/story/${storyId}/unlock-quiz?part=2`);
+                                                                        }}
                                                                         className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 text-amber-400 rounded-lg text-sm font-medium transition-all"
                                                                     >
                                                                         <Zap className="w-4 h-4" />
@@ -311,7 +325,10 @@ export default function LearnedPage() {
                                                     {/* State 6: Full Story Unlocked */}
                                                     {part2Unlocked && (
                                                         <button
-                                                            onClick={() => router.push(`/story/${storyId}?part=full`)}
+                                                            onClick={() => {
+                                                                buttonPress();
+                                                                router.push(`/story/${storyId}?part=full`);
+                                                            }}
                                                             className="flex items-center gap-1.5 px-3 py-2 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-lg text-sm font-bold transition-all"
                                                         >
                                                             <BookOpen className="w-4 h-4" />

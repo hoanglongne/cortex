@@ -14,6 +14,7 @@ import SwipeDeck from './components/SwipeDeck';
 // Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
+import { useSoundEffects } from './hooks/useSoundEffects';
 
 function HomeContent() {
   const energy = useLexicaStore(state => state.energy);
@@ -44,6 +45,7 @@ function HomeContent() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { buttonPress, click } = useSoundEffects();
 
   // Helper function to change level - ensures proper redirect to /level-select
   const handleChangeLevel = () => {
@@ -228,13 +230,20 @@ function HomeContent() {
               </p>
               <div className="flex gap-3">
                 <button
-                  onClick={() => setShowReviewPrompt(false)}
+                  onClick={() => {
+                    click();
+                    setShowReviewPrompt(false);
+                  }}
                   className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition-colors"
                 >
                   Để sau
                 </button>
                 <button
-                  onClick={() => { setShowReviewPrompt(false); router.push('/review'); }}
+                  onClick={() => {
+                    buttonPress();
+                    setShowReviewPrompt(false);
+                    router.push('/review');
+                  }}
                   className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold transition-colors"
                 >
                   Ôn ngay →
@@ -253,14 +262,20 @@ function HomeContent() {
 
       {/* Help Button - top-left on mobile, bottom-right on desktop */}
       <button
-        onClick={() => setShowOnboarding(true)}
+        onClick={() => {
+          click();
+          setShowOnboarding(true);
+        }}
         className="lg:hidden fixed top-25.5 left-4 z-50 w-8 h-8 rounded-full bg-slate-700 border border-slate-600 hover:border-cyan-500 hover:bg-slate-600 transition-colors flex items-center justify-center text-slate-400 hover:text-cyan-400 text-sm font-bold"
         aria-label="Hướng dẫn"
       >
         ?
       </button>
       <button
-        onClick={() => setShowOnboarding(true)}
+        onClick={() => {
+          click();
+          setShowOnboarding(true);
+        }}
         className="hidden lg:flex fixed bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-slate-700 border border-slate-600 hover:border-cyan-500 hover:bg-slate-600 transition-colors items-center justify-center text-slate-400 hover:text-cyan-400 text-sm font-bold"
         aria-label="Hướng dẫn"
       >
@@ -273,7 +288,10 @@ function HomeContent() {
       {/* Mobile Quick Level Switch */}
       <div className="lg:hidden fixed top-25.5 right-4 z-40">
         <button
-          onClick={handleChangeLevel}
+          onClick={() => {
+            click();
+            handleChangeLevel();
+          }}
           className="px-3 py-2 rounded-lg bg-slate-800/90 border border-slate-700 hover:border-cyan-500 text-slate-200 text-xs font-medium transition-colors flex items-center gap-1.5"
         >
           <Settings className="w-3.5 h-3.5" />
@@ -315,7 +333,10 @@ function HomeContent() {
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowDifficultyStatus(false)}
+                  onClick={() => {
+                    click();
+                    setShowDifficultyStatus(false);
+                  }}
                   className="p-1 hover:bg-slate-700/50 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5 text-slate-400" />
@@ -331,7 +352,10 @@ function HomeContent() {
           <div className="lg:hidden flex items-center justify-center gap-1.5 mb-4">
             {/* Stats Modal Toggle */}
             <button
-              onClick={() => setShowMobileStats(true)}
+              onClick={() => {
+                click();
+                setShowMobileStats(true);
+              }}
               className="flex-1 p-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-cyan-500 transition-colors active:scale-95 flex items-center justify-center gap-1.5"
             >
               <BarChart3 className="w-4 h-4 text-cyan-400" />
@@ -366,7 +390,10 @@ function HomeContent() {
               <div className="flex items-center justify-between">
                 <span className="text-slate-400 text-sm">Chế độ swipe</span>
                 <button
-                  onClick={() => setSwipeMode(isVoiceMode ? 'touch' : 'voice')}
+                  onClick={() => {
+                    click();
+                    setSwipeMode(isVoiceMode ? 'touch' : 'voice');
+                  }}
                   className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${isVoiceMode
                     ? 'bg-cyan-500/12 border-cyan-400/35 text-cyan-200'
                     : 'bg-slate-700/40 border-slate-600/50 text-slate-200 hover:border-slate-400/60'
@@ -453,7 +480,10 @@ function HomeContent() {
             {/* Action Buttons */}
             <div className="space-y-2 pt-4 border-t border-slate-700">
               <button
-                onClick={handleChangeLevel}
+                onClick={() => {
+                  click();
+                  handleChangeLevel();
+                }}
                 className="w-full px-4 py-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-600/50 hover:border-slate-500 flex items-center justify-center gap-2"
               >
                 <Settings className="w-4 h-4" />
@@ -461,7 +491,10 @@ function HomeContent() {
               </button>
               {process.env.NODE_ENV === 'development' && (
                 <button
-                  onClick={resetProgress}
+                  onClick={() => {
+                    click();
+                    resetProgress();
+                  }}
                   className="w-full px-4 py-2.5 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-400 text-sm font-medium transition-colors border border-slate-600/30 hover:border-slate-600 flex items-center justify-center gap-2"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -498,7 +531,10 @@ function HomeContent() {
               <div className="sticky top-0 bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between">
                 <h3 className="text-lg font-bold text-white">Thống kê</h3>
                 <button
-                  onClick={() => setShowMobileStats(false)}
+                  onClick={() => {
+                    click();
+                    setShowMobileStats(false);
+                  }}
                   className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5 text-slate-400" />
@@ -512,7 +548,10 @@ function HomeContent() {
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400 text-sm">Chế độ swipe</span>
                     <button
-                      onClick={() => setSwipeMode(isVoiceMode ? 'touch' : 'voice')}
+                      onClick={() => {
+                        click();
+                        setSwipeMode(isVoiceMode ? 'touch' : 'voice');
+                      }}
                       className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${isVoiceMode
                         ? 'bg-cyan-500/12 border-cyan-400/35 text-cyan-200'
                         : 'bg-slate-700/40 border-slate-600/50 text-slate-200 hover:border-slate-400/60'
@@ -565,6 +604,7 @@ function HomeContent() {
                 <div className="space-y-2 pt-4 border-t border-slate-700">
                   <button
                     onClick={() => {
+                      click();
                       handleChangeLevel();
                       setShowMobileStats(false);
                     }}
@@ -576,6 +616,7 @@ function HomeContent() {
                   {process.env.NODE_ENV === 'development' && (
                     <button
                       onClick={() => {
+                        click();
                         resetProgress();
                         setShowMobileStats(false);
                       }}

@@ -92,6 +92,10 @@ interface LexicaStore {
     swipeMode: 'touch' | 'voice';
     setSwipeMode: (mode: 'touch' | 'voice') => void;
 
+    // Sound Effects
+    soundEnabled: boolean;
+    toggleSound: () => void;
+
     // Actions
     swipeCard: (cardId: string, direction: 'left' | 'right') => void;
     consumeEnergy: () => boolean; // Returns false if not enough energy
@@ -233,6 +237,10 @@ export const useLexicaStore = create<LexicaStore>()(
             studyHistory: generateMockStudyHistory(), // MOCK DATA - Replace with {} for production
             swipeMode: 'touch',
             setSwipeMode: (mode) => set({ swipeMode: mode }),
+
+            // Sound effects (enabled by default)
+            soundEnabled: true,
+            toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
 
             completeOnboarding: () => set({ hasSeenOnboarding: true }),
 
@@ -817,7 +825,8 @@ export const useLexicaStore = create<LexicaStore>()(
                 learnedWords: Array.from(state.learnedWords), // Convert Set to Array for JSON
                 energy: state.energy,
                 lastEnergyReset: state.lastEnergyReset,
-                swipeMode: state.swipeMode, // Persist voice/touch preference
+                swipeMode: state.swipeMode,
+                soundEnabled: state.soundEnabled, // Persist voice/touch preference
                 selectedLevel: state.selectedLevel, // Persist user's level choice
                 hasSeenWelcome: state.hasSeenWelcome, // Persist welcome screen state
                 hasSeenOnboarding: state.hasSeenOnboarding,

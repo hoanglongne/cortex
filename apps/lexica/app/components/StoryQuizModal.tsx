@@ -6,6 +6,7 @@ import { X, Brain, CheckCircle, XCircle, Sparkles } from 'lucide-react';
 import { STORIES } from '../data/stories';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import { useLexicaStore } from '../store/lexicaStore';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface StoryQuizModalProps {
     storyId: string;
@@ -26,6 +27,8 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
     const learnedWords = useLexicaStore(state => state.learnedWords);
     const submitStoryQuiz = useLexicaStore(state => state.submitStoryQuiz);
     const storyQuizAttempts = useLexicaStore(state => state.storyQuizAttempts);
+
+    const { quizCorrect, quizWrong } = useSoundEffects();
 
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
@@ -89,6 +92,14 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
     const handleAnswer = (answer: string) => {
         const newAnswers = [...selectedAnswers, answer];
         setSelectedAnswers(newAnswers);
+
+        // Play sound feedback
+        const isCorrect = answer === currentQ.correctAnswer;
+        if (isCorrect) {
+            quizCorrect();
+        } else {
+            quizWrong();
+        }
 
         if (isLastQuestion) {
             // Calculate score

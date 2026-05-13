@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, XCircle, BookOpen, Trophy, ArrowRight, RotateCcw } from 'lucide-react';
 import { ComprehensionQuestion } from '../data/stories';
 import { analytics } from '../lib/analytics';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface StoryComprehensionQuizProps {
     storyId: string;
@@ -25,12 +26,22 @@ export default function StoryComprehensionQuiz({
     const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
     const [showResults, setShowResults] = useState(false);
 
+    const { quizCorrect, quizWrong, buttonPress, click } = useSoundEffects();
+
     const totalQuestions = questions.length;
     const passThreshold = Math.ceil(totalQuestions * 0.7); // 70% to pass
 
     const handleAnswer = (optionIndex: number) => {
         const newAnswers = [...selectedAnswers, optionIndex];
         setSelectedAnswers(newAnswers);
+
+        // Play sound feedback
+        const isCorrect = optionIndex === questions[currentQuestion].correctAnswer;
+        if (isCorrect) {
+            quizCorrect();
+        } else {
+            quizWrong();
+        }
 
         if (currentQuestion < totalQuestions - 1) {
             // Move to next question
@@ -163,7 +174,10 @@ export default function StoryComprehensionQuiz({
                         <div className="flex gap-3 pb-8">
                             {!passed && (
                                 <button
-                                    onClick={onRetry}
+                                    onClick={() => {
+                                        click();
+                                        onRetry();
+                                    }}
                                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
                                 >
                                     <RotateCcw className="w-4 h-4" />
@@ -171,7 +185,10 @@ export default function StoryComprehensionQuiz({
                                 </button>
                             )}
                             <button
-                                onClick={() => onComplete(correctCount, passed)}
+                                onClick={() => {
+                                    buttonPress();
+                                    onComplete(correctCount, passed);
+                                }}
                                 className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-xl font-bold transition-colors"
                             >
                                 Tiếp tục

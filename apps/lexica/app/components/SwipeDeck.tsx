@@ -7,6 +7,7 @@ import { PartyPopper, Check, X, RotateCcw, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import VocabCard from './VocabCard';
 import { useLexicaStore } from '../store/lexicaStore';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 import { analytics } from '../lib/analytics';
 import { getDueCards } from '../lib/eloAlgorithm';
 
@@ -18,6 +19,8 @@ export default function SwipeDeck() {
     const energy = useLexicaStore(state => state.energy);
 
     const swipeMode = useLexicaStore(state => state.swipeMode);
+
+    const { swipeRight, swipeLeft, buttonPress } = useSoundEffects();
 
     const dueCount = getDueCards(cardProgress).length;
 
@@ -68,6 +71,13 @@ export default function SwipeDeck() {
 
         const card = cards.find(c => c.id === cardId);
         analytics.swipe(direction, cardId, source, card?.word);
+
+        // Play sound effect
+        if (direction === 'right') {
+            swipeRight();
+        } else {
+            swipeLeft();
+        }
 
         // flushSync forces a synchronous re-render with the correct exit direction
         // BEFORE swipeCard removes the card, so AnimatePresence snapshots the right values
@@ -151,7 +161,10 @@ export default function SwipeDeck() {
                     )}
 
                     <button
-                        onClick={() => useLexicaStore.getState().loadNewDeck()}
+                        onClick={() => {
+                            buttonPress();
+                            useLexicaStore.getState().loadNewDeck();
+                        }}
                         className="w-full px-6 py-3 bg-cyan-600 hover:bg-cyan-700 rounded-xl font-bold text-white text-sm transition-colors flex items-center justify-center gap-2"
                     >
                         HỌC TIẾP →

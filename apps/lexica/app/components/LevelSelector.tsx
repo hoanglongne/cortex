@@ -2,6 +2,7 @@
 
 import { Sprout, Leaf, Sparkles, Trophy, Target, CheckCircle } from 'lucide-react';
 import { DifficultyLevel } from './VocabCard';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface LevelSelectorProps {
     onSelect: (level: DifficultyLevel | 'all') => void;
@@ -61,6 +62,8 @@ const LEVEL_OPTIONS: LevelOption[] = [
 ];
 
 export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorProps) {
+    const { buttonPress } = useSoundEffects();
+
     return (
         <div className="w-full h-full px-4">
             {/* Logo - Top Left */}
@@ -88,7 +91,10 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                         return (
                             <button
                                 key={option.value}
-                                onClick={() => onSelect(option.value)}
+                                onClick={() => {
+                                    buttonPress();
+                                    onSelect(option.value);
+                                }}
                                 className={`
                                 p-6 rounded-xl border text-left transition-all
                                 ${isSelected

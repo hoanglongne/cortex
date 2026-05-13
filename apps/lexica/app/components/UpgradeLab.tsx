@@ -1,6 +1,7 @@
 import { useState} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, TrendingUp, Check, X } from 'lucide-react';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface UpgradeOption {
   text: string;
@@ -23,6 +24,7 @@ interface UpgradeLabProps {
 }
 
 export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }: UpgradeLabProps) {
+  const { click, buttonPress, quizCorrect, quizWrong } = useSoundEffects();
   const [status, setStatus] = useState<'idle' | 'success' | 'fail'>('idle');
   const [selectedOption, setSelectedOption] = useState<UpgradeOption | null>(null);
 
@@ -34,12 +36,15 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
 
   const handleSelect = (option: UpgradeOption) => {
     if (status === 'success') return; // Don't allow re-selection after success
+    click();
     setSelectedOption(option);
     
     if (option.text.toLowerCase().includes(word.toLowerCase())) {
+      quizCorrect();
       setStatus('success');
       // Remove auto-exit: user will click a "Continue" button
     } else {
+      quizWrong();
       setStatus('fail');
       // Don't clear immediately, let user read nuance
       onFail();
@@ -52,7 +57,10 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
     <div className="relative flex flex-col items-center justify-center gap-4 md:gap-6 p-5 md:p-8 bg-slate-900 rounded-3xl border border-slate-700 w-full max-w-4xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
       {onClose && (
         <button 
-          onClick={onClose}
+          onClick={() => {
+            click();
+            onClose();
+          }}
           className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white border border-slate-700 transition-all z-50 sm:-top-2 sm:-right-2 sm:bg-slate-800"
         >
           <X className="w-4 h-4 md:w-5 md:h-5" />
@@ -166,7 +174,10 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
                   <motion.button
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    onClick={onSuccess}
+                    onClick={() => {
+                      buttonPress();
+                      onSuccess();
+                    }}
                     className="w-full py-4 md:py-5 rounded-xl md:rounded-2xl bg-green-500 text-slate-900 font-black text-xs md:text-sm tracking-[0.1em] md:tracking-[0.2em] uppercase hover:bg-green-400 transition-colors shadow-lg shadow-green-500/20"
                   >
                     Hoàn thành

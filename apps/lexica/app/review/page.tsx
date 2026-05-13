@@ -8,6 +8,7 @@ import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame } from 'lucide-react'
 import { useLexicaStore } from '../store/lexicaStore';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import { getDueCards } from '../lib/eloAlgorithm';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -128,6 +129,8 @@ const TYPE_LABEL: Record<QuestionType, string> = {
 };
 
 function RevealPanel({ question, onContinue }: { question: Question; onContinue: () => void }) {
+    const { buttonPress } = useSoundEffects();
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -144,7 +147,10 @@ function RevealPanel({ question, onContinue }: { question: Question; onContinue:
                 &ldquo;{highlightWord(question.scenario, question.word)}&rdquo;
             </p>
             <button
-                onClick={onContinue}
+                onClick={() => {
+                    buttonPress();
+                    onContinue();
+                }}
                 className="mt-4 w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-semibold transition-colors active:scale-95"
             >
                 Tiếp tục →
@@ -166,6 +172,7 @@ function QuestionCard({
     streak: number;
     onAnswer: (correct: boolean) => void;
 }) {
+    const { click, quizCorrect, quizWrong } = useSoundEffects();
     const [selected, setSelected] = useState<string | null>(null);
     const [answered, setAnswered] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
@@ -196,6 +203,7 @@ function QuestionCard({
 
     const handleSelect = (option: string) => {
         if (answered) return;
+        click();
         setSelected(option);
         setAnswered(true);
         const correct = option === question.answer;
@@ -209,6 +217,7 @@ function QuestionCard({
 
     const handleTypeSubmit = () => {
         if (answered || typedInput.trim().length === 0) return;
+        click();
         const correct = typedInput.trim().toUpperCase() === question.answer;
         setAnswered(true);
         setIsCorrect(correct);
@@ -384,6 +393,7 @@ function ResultScreen({
     maxStreak: number;
     onRetry: () => void;
 }) {
+    const { buttonPress } = useSoundEffects();
     const correct = results.filter(r => r.correct).length;
     const total = results.length;
     const accuracy = Math.round((correct / total) * 100);
@@ -459,7 +469,10 @@ function ResultScreen({
             <div className="space-y-3">
                 {wrong.length > 0 && (
                     <button
-                        onClick={onRetry}
+                        onClick={() => {
+                            buttonPress();
+                            onRetry();
+                        }}
                         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-white/20 bg-white/[0.02] text-slate-300 hover:border-cyan-500/50 hover:text-white hover:bg-white/[0.04] transition-all text-sm font-semibold active:scale-95"
                     >
                         <RotateCcw className="w-4 h-4" />

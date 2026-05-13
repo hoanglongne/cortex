@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Lightbulb, Target as TargetIcon } from 'lucide-react';
 import { DifficultyLevel } from './VocabCard';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface TestQuestion {
     id: string;
@@ -124,6 +125,7 @@ interface LevelTestProps {
 }
 
 export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
+    const { click, buttonPress, quizCorrect, quizWrong } = useSoundEffects();
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState<number[]>([]);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -132,11 +134,19 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
     const progress = ((currentQuestionIndex + 1) / TEST_QUESTIONS.length) * 100;
 
     const handleSelectOption = (optionIndex: number) => {
+        click();
         setSelectedOption(optionIndex);
     };
 
     const handleNext = () => {
         if (selectedOption === null) return;
+
+        const isCorrect = selectedOption === currentQuestion.correctAnswer;
+        if (isCorrect) {
+            quizCorrect();
+        } else {
+            quizWrong();
+        }
 
         const newAnswers = [...answers, selectedOption];
         setAnswers(newAnswers);
@@ -153,6 +163,7 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
     };
 
     const handleSkip = () => {
+        click();
         // -1 = skipped, treated as wrong
         const newAnswers = [...answers, -1];
         setAnswers(newAnswers);
@@ -204,7 +215,10 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <button
-                        onClick={onBack}
+                        onClick={() => {
+                            click();
+                            onBack();
+                        }}
                         className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm"
                     >
                         <span>←</span>
