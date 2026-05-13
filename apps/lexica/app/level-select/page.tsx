@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useLexicaStore } from '../store/lexicaStore';
 import LevelSelector from '../components/LevelSelector';
 import InstallPWAPrompt from '../components/InstallPWAPrompt';
+import { DifficultyLevel } from '../components/VocabCard';
 import { ArrowLeft } from 'lucide-react';
 
 export default function LevelSelectPage() {
@@ -11,7 +12,7 @@ export default function LevelSelectPage() {
     const selectedLevel = useLexicaStore(state => state.selectedLevel);
     const setSelectedLevel = useLexicaStore(state => state.setSelectedLevel);
 
-    const handleSelectLevel = (level: string) => {
+    const handleSelectLevel = (level: DifficultyLevel | 'all') => {
         setSelectedLevel(level);
         router.push('/');
     };
@@ -32,7 +33,7 @@ export default function LevelSelectPage() {
                 onSelect={handleSelectLevel}
                 currentLevel={selectedLevel}
             />
-            
+
             {/* PWA Install Prompt */}
             <InstallPWAPrompt />
         </div>

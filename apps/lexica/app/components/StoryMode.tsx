@@ -69,7 +69,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
             if (onNavigateToPart2) {
                 onNavigateToPart2();
             } else {
-                openStory(storyId, 'full');
+                openStory?.(storyId, 'full');
             }
         } else {
             // Full story complete - just mark as read

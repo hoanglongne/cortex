@@ -35,7 +35,7 @@ export default function TestPage() {
                 </button>
             )}
             <LevelTestWelcome onStartTest={handleStartTest} onSkipToManual={handleSkipToManual} />
-            
+
             {/* PWA Install Prompt */}
             <InstallPWAPrompt />
         </div>
