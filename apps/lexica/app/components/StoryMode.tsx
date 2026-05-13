@@ -7,6 +7,7 @@ import { STORIES, parseStoryContentWithIds } from '../data/stories';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import { analytics } from '../lib/analytics';
 import { useLexicaStore } from '../store/lexicaStore';
+import StoryComprehensionQuiz from './StoryComprehensionQuiz';
 
 const VOCAB_ID_BY_WORD = new Map(
     VOCAB_DATABASE.map(vocab => [vocab.word.trim().toLowerCase(), vocab.id])
@@ -35,6 +36,7 @@ interface StoryModeProps {
 export default function StoryMode({ storyId, part, onClose, onFinish, onNavigateToPart2 }: StoryModeProps) {
     const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
     const [selectedVocab, setSelectedVocab] = useState<StoryVocabDialogData | null>(null);
+    const [showComprehensionQuiz, setShowComprehensionQuiz] = useState(false);
     const story = STORIES.find(s => s.id === storyId);
     const unlockedStories = useLexicaStore(state => state.unlockedStories);
     const unlockedStoryPart1 = useLexicaStore(state => state.unlockedStoryPart1);
@@ -53,6 +55,47 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
     const isPart1Only = part === 'part1';
     const isPart2Unlocked = unlockedStories.includes(storyId);
     const showContinueCTA = isPart1Only && isPart2Unlocked;
+
+    // Get appropriate questions
+    const quizQuestions = isPart1Only ? story.part1Questions : story.fullStoryQuestions;
+
+    // Handle quiz completion
+    const handleQuizComplete = (score: number, passed: boolean) => {
+        setShowComprehensionQuiz(false);
+
+        // Continue with original flow
+        if (isPart1Only) {
+            onFinish('part1');
+            if (onNavigateToPart2) {
+                onNavigateToPart2();
+            } else {
+                openStory(storyId, 'full');
+            }
+        } else {
+            // Full story complete - just mark as read
+            onFinish('full');
+        }
+    };
+
+    const handleRetryReading = () => {
+        setShowComprehensionQuiz(false);
+        setHasScrolledToEnd(false);
+        // Scroll back to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Show quiz instead of proceeding
+    if (showComprehensionQuiz) {
+        return (
+            <StoryComprehensionQuiz
+                storyId={storyId}
+                part={isPart1Only ? 'part1' : 'full'}
+                questions={quizQuestions}
+                onComplete={handleQuizComplete}
+                onRetry={handleRetryReading}
+            />
+        );
+    }
 
     // Track scroll to show CTA
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -182,16 +225,40 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
 
                             <button
                                 onClick={() => {
-                                    onFinish('part1'); // Mark Part 1 as read
-                                    if (onNavigateToPart2) {
-                                        onNavigateToPart2(); // Use callback for routing context
-                                    } else {
-                                        openStory(storyId, 'full'); // Fallback for modal context
-                                    }
+                                    setShowComprehensionQuiz(true); // Show quiz instead of proceeding
                                 }}
                                 className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 <span>Đọc Part 2</span>
+                                <ArrowRight className="w-5 h-5" />
+                            </button>
+                        </motion.div>
+                    )}
+
+                    {/* Full Story Completion CTA (only show if reading full story and scrolled to end) */}
+                    {!isPart1Only && hasScrolledToEnd && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-2 border-cyan-500/50 rounded-2xl p-6 space-y-4"
+                        >
+                            <div className="text-center space-y-2">
+                                <h3 className="text-xl font-bold text-white">
+                                    🎉 Hoàn thành câu chuyện!
+                                </h3>
+                                <p className="text-slate-300 text-sm">
+                                    Hãy làm quiz để test comprehension và vocabulary của bạn
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setShowComprehensionQuiz(true);
+                                }}
+                                className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                            >
+                                <span>Làm Comprehension Quiz</span>
                                 <ArrowRight className="w-5 h-5" />
                             </button>
                         </motion.div>
@@ -223,7 +290,6 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                 rel="noopener noreferrer"
                                 onClick={() => {
                                     analytics.oratioCTAClick(storyId);
-                                    onFinish('full');
                                 }}
                                 className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-center py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 group"
                             >

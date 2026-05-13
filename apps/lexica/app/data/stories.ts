@@ -1,6 +1,13 @@
 import { DifficultyLevel } from '../components/VocabCard';
 import { VOCAB_DATABASE } from './vocabCards';
 
+export interface ComprehensionQuestion {
+    question: string;
+    options: string[];
+    correctAnswer: number; // index of correct option (0-3)
+    explanation?: string;
+}
+
 export interface Story {
     id: string;
     title: string;
@@ -16,6 +23,10 @@ export interface Story {
     // Quiz unlock requirements
     part1QuizRequirement: number;  // Min words to take Part 1 quiz (default: 3)
     part2QuizRequirement: number;  // Min words to take Part 2 quiz (default: 5)
+
+    // Comprehension quiz (post-reading)
+    part1Questions: ComprehensionQuestion[];     // 3 questions for Part 1
+    fullStoryQuestions: ComprehensionQuestion[]; // 4-5 questions for Full story
 
     difficultyLevel: DifficultyLevel | 'mixed';
     darkComedyLevel: 'medium' | 'high' | 'extreme';
@@ -60,6 +71,87 @@ Trying to look {pragmatic}, you explain that you're "auditing their night securi
 The guard, somehow {resilient} after years of nonsense, asks you to leave for the third time. You keep talking about economic freedom until he opens the door just to get rid of you.
 
 As you walk out, you notice one detail: your "master plan" was written on a pizza box in glitter pen.`,
+        part1Questions: [
+            {
+                question: "What does 'cognitive' mean in the context of this story?",
+                options: [
+                    "Physical strength and endurance",
+                    "Mental process of thinking and understanding",
+                    "Emotional reactions to danger",
+                    "Legal knowledge about banks"
+                ],
+                correctAnswer: 1,
+                explanation: "Cognitive refers to mental processes - the character's 'cognitive process' is their way of thinking."
+            },
+            {
+                question: "Why couldn't the character enter the bank?",
+                options: [
+                    "The bank was closed for renovation",
+                    "The front door was locked at 3 AM",
+                    "They forgot their ID card",
+                    "The guard blocked the entrance"
+                ],
+                correctAnswer: 1,
+                explanation: "The story clearly states 'the front door is locked' because they tried to rob a bank at 3 AM."
+            },
+            {
+                question: "What does the story imply about the character's plan?",
+                options: [
+                    "It was carefully researched and professional",
+                    "It was based on unrealistic movie expectations",
+                    "It had a high chance of success",
+                    "It was approved by experts"
+                ],
+                correctAnswer: 1,
+                explanation: "The story says 'if the movie made it look easy, it must be real life' - showing their plan was based on movies, not reality."
+            }
+        ],
+        fullStoryQuestions: [
+            {
+                question: "What does 'resilient' mean in this context?",
+                options: [
+                    "Angry and aggressive",
+                    "Confused and scared",
+                    "Able to withstand and recover from difficulties",
+                    "Completely giving up hope"
+                ],
+                correctAnswer: 2,
+                explanation: "Resilient means being able to handle difficult situations - the guard remained patient despite years of dealing with nonsense."
+            },
+            {
+                question: "How did the guard finally get rid of the character?",
+                options: [
+                    "Called the police to arrest them",
+                    "Used force to push them out",
+                    "Opened the door so they would leave voluntarily",
+                    "Ignored them until they got bored"
+                ],
+                correctAnswer: 2,
+                explanation: "The guard 'opens the door just to get rid of you' - suggesting opening it was the easiest way to make them leave."
+            },
+            {
+                question: "What detail revealed how unprepared the character was?",
+                options: [
+                    "They forgot their mask at home",
+                    "Their plan was written on a pizza box in glitter pen",
+                    "They arrived during the day instead of night",
+                    "They brought the wrong tools"
+                ],
+                correctAnswer: 1,
+                explanation: "The final detail: 'your master plan was written on a pizza box in glitter pen' - showing complete lack of seriousness."
+            },
+            {
+                question: "What was the character's excuse when caught?",
+                options: [
+                    "They were testing the security system",
+                    "They were auditing their night security",
+                    "They worked there as a cleaner",
+                    "They were lost and needed directions"
+                ],
+                correctAnswer: 1,
+                explanation: "They explained they were 'auditing their night security' - an excuse so bad even they didn't understand it."
+            }
+        ],
     },
     {
         id: 'story_002',
@@ -99,6 +191,87 @@ He pauses, then asks why you want this role. "Because my previous life was too b
 He nods. "Adaptability is essential to this company culture. You're hired if you survive the exit interview."
 
 The exit interview is just running to the helicopter while signing tax forms.`,
+        part1Questions: [
+            {
+                question: "What does 'ubiquitous' mean in this story?",
+                options: [
+                    "Rare and hard to find",
+                    "Present everywhere or very common",
+                    "Dangerous and aggressive",
+                    "Temporary and fleeting"
+                ],
+                correctAnswer: 1,
+                explanation: "Ubiquitous means present everywhere - panic is everywhere in the zombie apocalypse."
+            },
+            {
+                question: "What happens during the interview?",
+                options: [
+                    "The interviewer compliments their answer while his eye falls out",
+                    "Zombies break into the interview room",
+                    "The character runs away immediately",
+                    "The interview is canceled due to danger"
+                ],
+                correctAnswer: 0,
+                explanation: "The interviewer compliments the answer 'though his left eye falls into his coffee mid-sentence' - dark comedy at its peak."
+            },
+            {
+                question: "How does the character react to the apocalypse?",
+                options: [
+                    "They panic and try to escape",
+                    "They stay unusually calm and continue the interview",
+                    "They call for help from outside",
+                    "They hide under the desk"
+                ],
+                correctAnswer: 1,
+                explanation: "They 'stay calm' and bring a meticulous resume despite zombies in the parking lot - absurdly professional."
+            }
+        ],
+        fullStoryQuestions: [
+            {
+                question: "What does 'candid' mean when the character remains candid?",
+                options: [
+                    "Dishonest and deceptive",
+                    "Nervous and hesitant",
+                    "Honest and straightforward",
+                    "Confused and unclear"
+                ],
+                correctAnswer: 2,
+                explanation: "Candid means honest and direct - they honestly admit all their references were eaten."
+            },
+            {
+                question: "What was the character's answer about their references?",
+                options: [
+                    "They forgot to bring the references",
+                    "All their references were eaten ten minutes ago",
+                    "Their references were waiting outside",
+                    "They didn't need references"
+                ],
+                correctAnswer: 1,
+                explanation: "They remain candid: 'All my references were eaten ten minutes ago' - darkly humorous and honest."
+            },
+            {
+                question: "What is the 'exit interview' in this story?",
+                options: [
+                    "A formal meeting in a conference room",
+                    "Running to the helicopter while signing tax forms",
+                    "Answering final questions about benefits",
+                    "Shaking hands with the CEO"
+                ],
+                correctAnswer: 1,
+                explanation: "The absurd detail: 'The exit interview is just running to the helicopter while signing tax forms' - bureaucracy meets apocalypse."
+            },
+            {
+                question: "Why does the character want this job?",
+                options: [
+                    "For the high salary and benefits",
+                    "To escape the zombies",
+                    "Because their previous life was too boring",
+                    "To save humanity"
+                ],
+                correctAnswer: 2,
+                explanation: "They reply 'Because my previous life was too boring' - showing absurd priorities during an apocalypse."
+            }
+        ],
     },
     {
         id: 'story_003',
@@ -134,6 +307,87 @@ To stay hidden, you remove all {redundant} gadgets and keep only one {tangible} 
 At the peak of your speech, you deliver a perfectly composed warning about the future. The inventor smiles and calls your logic "beautifully arbitrary."
 
 Then he invents the dangerous sandwich anyway. By sunset, the timeline has forked into 47 cursed realities where everyone debates condiments for eternity.`,
+        part1Questions: [
+            {
+                question: "What does 'conundrum' mean in this context?",
+                options: [
+                    "An easy decision with obvious answers",
+                    "A confusing and difficult problem",
+                    "A celebration or party",
+                    "A type of time machine"
+                ],
+                correctAnswer: 1,
+                explanation: "Conundrum means a confusing problem - choosing between fixing the timeline or avoiding arrest."
+            },
+            {
+                question: "What does the character do to avoid suspicion in 1920?",
+                options: [
+                    "Runs away and hides in the forest",
+                    "Uses advanced technology openly",
+                    "Pretends to be a quiet accountant",
+                    "Tells everyone they're from the future"
+                ],
+                correctAnswer: 2,
+                explanation: "They try to 'mitigate chaos by pretending to be a quiet accountant' - attempting to blend in."
+            },
+            {
+                question: "What gives away that the character is from the future?",
+                options: [
+                    "Their modern clothing style",
+                    "Their accent when speaking",
+                    "Their watch has a touchscreen",
+                    "They mention future events"
+                ],
+                correctAnswer: 2,
+                explanation: "Someone asks 'why your watch has a touchscreen' - clearly not something from 1920."
+            }
+        ],
+        fullStoryQuestions: [
+            {
+                question: "What does 'prolific' mean when describing the character's lies?",
+                options: [
+                    "Very honest and truthful",
+                    "Producing many things (lies in this case)",
+                    "Simple and easy to understand",
+                    "Rare and occasional"
+                ],
+                correctAnswer: 1,
+                explanation: "Prolific means producing a lot - their lies are 'too prolific' because every answer creates more questions."
+            },
+            {
+                question: "What is the character's main objective?",
+                options: [
+                    "Become rich in the past",
+                    "Stop the inventor before lunch",
+                    "Steal historical artifacts",
+                    "Change their own history"
+                ],
+                correctAnswer: 1,
+                explanation: "They keep 'only one tangible objective: stop the inventor before lunch.'"
+            },
+            {
+                question: "How does the inventor respond to the time traveler's warning?",
+                options: [
+                    "He believes them completely and stops",
+                    "He calls the police immediately",
+                    "He calls their logic 'beautifully arbitrary'",
+                    "He ignores them entirely"
+                ],
+                correctAnswer: 2,
+                explanation: "The inventor 'smiles and calls your logic beautifully arbitrary' - showing he doesn't take it seriously."
+            },
+            {
+                question: "What is the result of the failed mission?",
+                options: [
+                    "The timeline is perfectly fixed",
+                    "The character is arrested",
+                    "The timeline forks into 47 cursed realities about condiments",
+                    "Nothing changes at all"
+                ],
+                correctAnswer: 2,
+                explanation: "By sunset, 'the timeline has forked into 47 cursed realities where everyone debates condiments for eternity' - absurdly catastrophic."
+            }
+        ],
     },
 ];
 

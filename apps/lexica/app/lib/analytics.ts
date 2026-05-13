@@ -20,6 +20,7 @@ export type LexicaEvent =
     | 'story_full_read'
     | 'story_quiz_attempt'
     | 'story_quiz_failed'
+    | 'story_comprehension_quiz'
     | 'oratio_cta_click'
     | 'level_selected'
     | 'test_completed'
@@ -134,6 +135,10 @@ export const analytics = {
 
     storyQuizFailed(storyId: string, part: number, score: number) {
         send('story_quiz_failed', { storyId, part, score });
+    },
+
+    storyComprehensionQuiz(storyId: string, part: 'part1' | 'full', correctCount: number, totalQuestions: number, passed: boolean) {
+        send('story_comprehension_quiz', { storyId, part, correctCount, totalQuestions, passed });
     },
 
     oratioCTAClick(storyId: string) {
