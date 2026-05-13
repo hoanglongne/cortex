@@ -9,7 +9,7 @@ import { DifficultyLevel } from '../../components/VocabCard';
 function TestResultContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    
+
     const score = parseInt(searchParams.get('score') || '0');
     const recommendedLevel = (searchParams.get('level') || 'beginner') as DifficultyLevel;
     const calibratedElo = searchParams.get('elo') ? parseInt(searchParams.get('elo')!) : undefined;

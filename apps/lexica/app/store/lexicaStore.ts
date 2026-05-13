@@ -57,7 +57,7 @@ interface LexicaStore {
     unlockedStoryPart1: string[]; // IDs of stories where Part 1 is unlocked
     readStories: string[]; // IDs of stories user has read (full)
     readStoryPart1: string[]; // IDs of stories where Part 1 has been read
-    
+
     // DEPRECATED: Modal states migrated to routes - kept for backwards compat during transition
     // currentStoryId: string | null; // Currently viewing story
     // currentStoryPart: 'part1' | 'part2' | 'full' | null; // Which part viewing
@@ -65,7 +65,7 @@ interface LexicaStore {
     // showStoryMode: boolean; // Show story reading screen -> now /story/[id]
     // showStoryQuiz: boolean; // Show quiz modal -> now /story/[id]/unlock-quiz
     // storyQuizPart: 1 | 2 | null; // Which part quiz is for
-    
+
     storyQuizAttempts: Record<string, {
         part1Passed?: boolean;
         part1LastAttempt?: number;
@@ -110,7 +110,7 @@ interface LexicaStore {
     checkStoryUnlock: () => void; // Check if user should unlock a new story
     unlockStoryPart1: (storyId: string) => void; // Unlock Part 1 of a story
     unlockStoryPart2: (storyId: string) => void; // Unlock Part 2 (full story)
-    
+
     // DEPRECATED: Modal actions migrated to routes - kept for fallback during transition
     openStoryUnlockModal?: (storyId: string, part: 1 | 2) => void; // -> now router.push(/story/${id}/unlock?part=${part})
     closeStoryUnlockModal?: () => void; // -> now router.back()
@@ -118,7 +118,7 @@ interface LexicaStore {
     closeStory?: () => void; // -> now router.back()
     openStoryQuizModal?: (storyId: string, part: 1 | 2) => void; // -> now router.push(/story/${id}/unlock-quiz?part=${part})
     closeStoryQuizModal?: () => void; // -> now router.back()
-    
+
     markStoryAsRead: (storyId: string, part: 'part1' | 'full') => void; // Mark story/part as read
     submitStoryQuiz: (storyId: string, part: 1 | 2, score: number) => void; // Submit quiz (5 questions, need 4+ correct)
 
@@ -612,7 +612,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     set({
                         unlockedStoryPart1: [...unlockedStoryPart1, storyId],
                     });
-                    get().openStoryUnlockModal(storyId, 1);
+                    get().openStoryUnlockModal?.(storyId, 1);
                     analytics.storyPart1Unlocked(storyId, 'natural');
                 }
             },
@@ -629,7 +629,7 @@ export const useLexicaStore = create<LexicaStore>()(
                         unlockedStoryPart1: newPart1List,
                         unlockedStories: [...unlockedStories, storyId],
                     });
-                    get().openStoryUnlockModal(storyId, 2);
+                    get().openStoryUnlockModal?.(storyId, 2);
                     analytics.storyPart2Unlocked(storyId, 'natural');
                 }
             },

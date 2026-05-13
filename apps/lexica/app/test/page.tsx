@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useLexicaStore } from '../store/lexicaStore';
 import LevelTestWelcome from '../components/LevelTestWelcome';
+import InstallPWAPrompt from '../components/InstallPWAPrompt';
 import { ArrowLeft } from 'lucide-react';
 
 export default function TestPage() {
@@ -34,6 +35,9 @@ export default function TestPage() {
                 </button>
             )}
             <LevelTestWelcome onStartTest={handleStartTest} onSkipToManual={handleSkipToManual} />
+            
+            {/* PWA Install Prompt */}
+            <InstallPWAPrompt />
         </div>
     );
 }

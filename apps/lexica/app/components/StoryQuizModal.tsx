@@ -96,7 +96,7 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
             const passed = score >= 4; // Need 4/5 correct
             submitStoryQuiz(storyId, part, score);
             setShowResults(true);
-            
+
             // Call onSuccess callback if quiz passed (will trigger navigation to unlock page)
             if (passed && onSuccess) {
                 onSuccess(storyId, part);
@@ -206,8 +206,8 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                                     <div
                                         key={idx}
                                         className={`p-3 rounded-lg border ${correct
-                                                ? 'bg-cyan-500/10 border-cyan-500/30'
-                                                : 'bg-red-500/10 border-red-500/30'
+                                            ? 'bg-cyan-500/10 border-cyan-500/30'
+                                            : 'bg-red-500/10 border-red-500/30'
                                             }`}
                                     >
                                         <div className="flex items-center gap-2">
@@ -274,10 +274,10 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                                 <div
                                     key={idx}
                                     className={`h-1.5 flex-1 rounded-full ${idx < currentQuestion
-                                            ? 'bg-cyan-400'
-                                            : idx === currentQuestion
-                                                ? 'bg-cyan-500/50'
-                                                : 'bg-slate-700'
+                                        ? 'bg-cyan-400'
+                                        : idx === currentQuestion
+                                            ? 'bg-cyan-500/50'
+                                            : 'bg-slate-700'
                                         }`}
                                 />
                             ))}

@@ -50,7 +50,7 @@ export default function StoryComprehensionQuiz({
 
                 // Track analytics
                 analytics.storyComprehensionQuiz(storyId, part, correctCount, totalQuestions, passed);
-                
+
                 // Don't call onComplete here - let user review results first
             }, 300);
         }
@@ -82,8 +82,8 @@ export default function StoryComprehensionQuiz({
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             className={`rounded-xl p-6 border-2 ${passed
-                                    ? 'bg-cyan-500/10 border-cyan-500/50'
-                                    : 'bg-amber-500/10 border-amber-500/50'
+                                ? 'bg-cyan-500/10 border-cyan-500/50'
+                                : 'bg-amber-500/10 border-amber-500/50'
                                 }`}
                         >
                             <div className="text-center space-y-3">
@@ -121,8 +121,8 @@ export default function StoryComprehensionQuiz({
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         className={`rounded-xl p-4 border ${isCorrect
-                                                ? 'bg-slate-800/50 border-cyan-500/30'
-                                                : 'bg-slate-800/50 border-amber-500/30'
+                                            ? 'bg-slate-800/50 border-cyan-500/30'
+                                            : 'bg-slate-800/50 border-amber-500/30'
                                             }`}
                                     >
                                         <div className="flex items-start gap-3 mb-3">
