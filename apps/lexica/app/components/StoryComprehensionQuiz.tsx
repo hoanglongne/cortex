@@ -50,9 +50,8 @@ export default function StoryComprehensionQuiz({
 
                 // Track analytics
                 analytics.storyComprehensionQuiz(storyId, part, correctCount, totalQuestions, passed);
-
-                // Call completion callback
-                onComplete(correctCount, passed);
+                
+                // Don't call onComplete here - let user review results first
             }, 300);
         }
     };

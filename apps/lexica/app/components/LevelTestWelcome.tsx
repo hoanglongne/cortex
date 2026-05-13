@@ -83,9 +83,9 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                 </div>
 
                 {/* Footer Info */}
-                <div className="text-center pt-4">
+                <div className="text-center pt-4 pb-8">
                     <p className="text-xs text-slate-500">
-                        Hệ thống sẽ tự động điều chỉnh độ khó theo performance
+                        Hệ thống sẽ tự động điều chỉnh độ khó theo performance của bạn
                     </p>
                 </div>
             </div>

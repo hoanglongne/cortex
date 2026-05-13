@@ -57,12 +57,15 @@ interface LexicaStore {
     unlockedStoryPart1: string[]; // IDs of stories where Part 1 is unlocked
     readStories: string[]; // IDs of stories user has read (full)
     readStoryPart1: string[]; // IDs of stories where Part 1 has been read
-    currentStoryId: string | null; // Currently viewing story
-    currentStoryPart: 'part1' | 'part2' | 'full' | null; // Which part viewing
-    showStoryUnlock: boolean; // Show "Story Unlocked!" modal
-    showStoryMode: boolean; // Show story reading screen
-    showStoryQuiz: boolean; // Show quiz modal
-    storyQuizPart: 1 | 2 | null; // Which part quiz is for
+    
+    // DEPRECATED: Modal states migrated to routes - kept for backwards compat during transition
+    // currentStoryId: string | null; // Currently viewing story
+    // currentStoryPart: 'part1' | 'part2' | 'full' | null; // Which part viewing
+    // showStoryUnlock: boolean; // Show "Story Unlocked!" modal -> now /story/[id]/unlock
+    // showStoryMode: boolean; // Show story reading screen -> now /story/[id]
+    // showStoryQuiz: boolean; // Show quiz modal -> now /story/[id]/unlock-quiz
+    // storyQuizPart: 1 | 2 | null; // Which part quiz is for
+    
     storyQuizAttempts: Record<string, {
         part1Passed?: boolean;
         part1LastAttempt?: number;
@@ -107,13 +110,16 @@ interface LexicaStore {
     checkStoryUnlock: () => void; // Check if user should unlock a new story
     unlockStoryPart1: (storyId: string) => void; // Unlock Part 1 of a story
     unlockStoryPart2: (storyId: string) => void; // Unlock Part 2 (full story)
-    openStoryUnlockModal: (storyId: string, part: 1 | 2) => void; // Open unlock modal
-    closeStoryUnlockModal: () => void;
-    openStory: (storyId: string, part: 'part1' | 'part2' | 'full') => void; // Open story reader
-    closeStory: () => void;
+    
+    // DEPRECATED: Modal actions migrated to routes - kept for fallback during transition
+    openStoryUnlockModal?: (storyId: string, part: 1 | 2) => void; // -> now router.push(/story/${id}/unlock?part=${part})
+    closeStoryUnlockModal?: () => void; // -> now router.back()
+    openStory?: (storyId: string, part: 'part1' | 'part2' | 'full') => void; // -> now router.push(/story/${id}?part=${part})
+    closeStory?: () => void; // -> now router.back()
+    openStoryQuizModal?: (storyId: string, part: 1 | 2) => void; // -> now router.push(/story/${id}/unlock-quiz?part=${part})
+    closeStoryQuizModal?: () => void; // -> now router.back()
+    
     markStoryAsRead: (storyId: string, part: 'part1' | 'full') => void; // Mark story/part as read
-    openStoryQuizModal: (storyId: string, part: 1 | 2) => void; // Open quiz modal
-    closeStoryQuizModal: () => void;
     submitStoryQuiz: (storyId: string, part: 1 | 2, score: number) => void; // Submit quiz (5 questions, need 4+ correct)
 
     // Cortex Integration
@@ -242,12 +248,13 @@ export const useLexicaStore = create<LexicaStore>()(
             unlockedStoryPart1: [],
             readStories: [],
             readStoryPart1: [],
-            currentStoryId: null,
-            currentStoryPart: null,
-            showStoryUnlock: false,
-            showStoryMode: false,
-            showStoryQuiz: false,
-            storyQuizPart: null,
+            // DEPRECATED: Modal states commented out (migrated to routes)
+            // currentStoryId: null,
+            // currentStoryPart: null,
+            // showStoryUnlock: false,
+            // showStoryMode: false,
+            // showStoryQuiz: false,
+            // storyQuizPart: null,
             storyQuizAttempts: {},
 
 
@@ -383,12 +390,13 @@ export const useLexicaStore = create<LexicaStore>()(
                     unlockedStoryPart1: [],
                     readStories: [],
                     readStoryPart1: [],
-                    currentStoryId: null,
-                    currentStoryPart: null,
-                    showStoryUnlock: false,
-                    showStoryMode: false,
-                    showStoryQuiz: false,
-                    storyQuizPart: null,
+                    // DEPRECATED: Modal states removed (migrated to routes)
+                    // currentStoryId: null,
+                    // currentStoryPart: null,
+                    // showStoryUnlock: false,
+                    // showStoryMode: false,
+                    // showStoryQuiz: false,
+                    // storyQuizPart: null,
                     storyQuizAttempts: {},
                     // Reset streak
                     currentStreak: 0,
@@ -626,37 +634,31 @@ export const useLexicaStore = create<LexicaStore>()(
                 }
             },
 
+            // DEPRECATED: Modal actions - kept for backwards compat but should use router instead
             openStoryUnlockModal: (storyId, part) => {
-                set({
-                    currentStoryId: storyId,
-                    currentStoryPart: part === 1 ? 'part1' : 'part2',
-                    showStoryUnlock: true,
-                });
+                console.warn('[DEPRECATED] openStoryUnlockModal: Use router.push(/story/${storyId}/unlock?part=${part}) instead');
+                // No-op: Modal state removed, navigation should use router
             },
 
             closeStoryUnlockModal: () => {
-                set({
-                    showStoryUnlock: false,
-                    currentStoryId: null, // Clear this to prevent modal showing on reload
-                    currentStoryPart: null,
-                });
+                console.warn('[DEPRECATED] closeStoryUnlockModal: Use router.back() instead');
+                // No-op: Modal state removed
             },
 
             openStory: (storyId, part) => {
-                set({
-                    currentStoryId: storyId,
-                    currentStoryPart: part,
-                    showStoryMode: true,
-                    showStoryUnlock: false,
-                });
+                console.warn('[DEPRECATED] openStory: Use router.push(/story/${storyId}?part=${part}) instead');
+                // Fallback for components not yet migrated: redirect via window.location
+                if (typeof window !== 'undefined') {
+                    window.location.href = `/story/${storyId}?part=${part}`;
+                }
             },
 
             closeStory: () => {
-                set({
-                    showStoryMode: false,
-                    currentStoryId: null,
-                    currentStoryPart: null,
-                });
+                console.warn('[DEPRECATED] closeStory: Use router.back() instead');
+                // Fallback: go back
+                if (typeof window !== 'undefined') {
+                    window.history.back();
+                }
             },
 
             markStoryAsRead: (storyId, part) => {
@@ -686,19 +688,19 @@ export const useLexicaStore = create<LexicaStore>()(
             },
 
             openStoryQuizModal: (storyId, part) => {
-                set({
-                    currentStoryId: storyId,
-                    storyQuizPart: part,
-                    showStoryQuiz: true,
-                });
+                console.warn('[DEPRECATED] openStoryQuizModal: Use router.push(/story/${storyId}/unlock-quiz?part=${part}) instead');
+                // Fallback: redirect via window.location
+                if (typeof window !== 'undefined') {
+                    window.location.href = `/story/${storyId}/unlock-quiz?part=${part}`;
+                }
             },
 
             closeStoryQuizModal: () => {
-                set({
-                    showStoryQuiz: false,
-                    currentStoryId: null,
-                    storyQuizPart: null,
-                });
+                console.warn('[DEPRECATED] closeStoryQuizModal: Use router.back() instead');
+                // Fallback: go back
+                if (typeof window !== 'undefined') {
+                    window.history.back();
+                }
             },
 
             submitStoryQuiz: (storyId, part, score) => {
@@ -737,7 +739,7 @@ export const useLexicaStore = create<LexicaStore>()(
                             unlockedStoryPart1: [...unlockedStoryPart1, storyId],
                         });
                         analytics.storyPart1Unlocked(storyId, 'quiz');
-                        get().openStoryUnlockModal(storyId, 1);
+                        // Navigation to unlock page handled by component via onSuccess callback
                     } else if (part === 2 && !unlockedStories.includes(storyId)) {
                         // Auto-unlock Part 1 too
                         const newPart1List = unlockedStoryPart1.includes(storyId)
@@ -749,12 +751,11 @@ export const useLexicaStore = create<LexicaStore>()(
                             unlockedStories: [...unlockedStories, storyId],
                         });
                         analytics.storyPart2Unlocked(storyId, 'quiz');
-                        get().openStoryUnlockModal(storyId, 2);
+                        // Navigation to unlock page handled by component via onSuccess callback
                     }
                 }
 
-                // Close quiz modal
-                get().closeStoryQuizModal();
+                // Note: Modal close and navigation now handled by component
             },
 
             syncAllToCortex: async () => {

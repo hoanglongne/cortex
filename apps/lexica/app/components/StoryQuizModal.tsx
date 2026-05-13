@@ -11,6 +11,7 @@ interface StoryQuizModalProps {
     storyId: string;
     part: 1 | 2; // Which part to unlock
     onClose: () => void;
+    onSuccess?: (storyId: string, part: 1 | 2) => void; // Called when quiz is passed
 }
 
 interface QuizQuestion {
@@ -20,7 +21,7 @@ interface QuizQuestion {
     options: string[];
 }
 
-export default function StoryQuizModal({ storyId, part, onClose }: StoryQuizModalProps) {
+export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: StoryQuizModalProps) {
     const story = STORIES.find(s => s.id === storyId);
     const learnedWords = useLexicaStore(state => state.learnedWords);
     const submitStoryQuiz = useLexicaStore(state => state.submitStoryQuiz);
@@ -92,8 +93,14 @@ export default function StoryQuizModal({ storyId, part, onClose }: StoryQuizModa
         if (isLastQuestion) {
             // Calculate score
             const score = newAnswers.filter((ans, idx) => ans === questions[idx].correctAnswer).length;
+            const passed = score >= 4; // Need 4/5 correct
             submitStoryQuiz(storyId, part, score);
             setShowResults(true);
+            
+            // Call onSuccess callback if quiz passed (will trigger navigation to unlock page)
+            if (passed && onSuccess) {
+                onSuccess(storyId, part);
+            }
         } else {
             setTimeout(() => {
                 setCurrentQuestion(currentQuestion + 1);

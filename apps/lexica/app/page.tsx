@@ -10,15 +10,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import EnergyBar from './components/EnergyBar';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
-import LevelSelector from './components/LevelSelector';
-
-const LevelTestWelcome = dynamic(() => import('./components/LevelTestWelcome'));
-const LevelTest = dynamic(() => import('./components/LevelTest'));
-const LevelTestResult = dynamic(() => import('./components/LevelTestResult'));
-const StoryUnlockModal = dynamic(() => import('./components/StoryUnlockModal'));
-const StoryMode = dynamic(() => import('./components/StoryMode'));
-const StoryQuizModal = dynamic(() => import('./components/StoryQuizModal'));
-const OnboardingModal = dynamic(() => import('./components/OnboardingModal'));
+// Story modals now handled by routes: /story/[id], /story/[id]/unlock-quiz, /story/[id]/unlock
+// Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
 
@@ -46,21 +39,21 @@ function HomeContent() {
   const resetProgress = useLexicaStore(state => state.resetProgress);
   const setSwipeMode = useLexicaStore(state => state.setSwipeMode);
 
-  // Story Mode state
-  const showStoryUnlock = useLexicaStore(state => state.showStoryUnlock);
-  const showStoryMode = useLexicaStore(state => state.showStoryMode);
-  const showStoryQuiz = useLexicaStore(state => state.showStoryQuiz);
-  const currentStoryId = useLexicaStore(state => state.currentStoryId);
-  const currentStoryPart = useLexicaStore(state => state.currentStoryPart);
-  const storyQuizPart = useLexicaStore(state => state.storyQuizPart);
-  const openStory = useLexicaStore(state => state.openStory);
-  const closeStory = useLexicaStore(state => state.closeStory);
-  const closeStoryUnlockModal = useLexicaStore(state => state.closeStoryUnlockModal);
-  const closeStoryQuizModal = useLexicaStore(state => state.closeStoryQuizModal);
+  // Removed: Story modal states - now using routes (/story/[id], /story/[id]/unlock-quiz, /story/[id]/unlock)
   const markStoryAsRead = useLexicaStore(state => state.markStoryAsRead);
 
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Helper function to change level - ensures proper redirect to /level-select
+  const handleChangeLevel = () => {
+    // Set hasSeenWelcome to true to skip test welcome screen
+    const store = useLexicaStore.getState();
+    if (!store.hasSeenWelcome) {
+      store.skipToManual(); // This sets hasSeenWelcome: true
+    }
+    setSelectedLevel(null);
+  };
   const previewDue = Number(searchParams.get('reviewPreview') ?? 0);
 
   // Mobile stats modal state
@@ -76,6 +69,41 @@ function HomeContent() {
   useEffect(() => {
     initializeLexicaStore();
   }, []);
+
+  // Redirect to onboarding or test if needed
+  useEffect(() => {
+    // First time user → Onboarding
+    if (!hasSeenOnboarding) {
+      router.replace('/onboarding');
+      return;
+    }
+
+    // Onboarding done but no level selected AND hasn't seen test welcome → Test
+    // If user has seen welcome (clicked "Tự chọn level"), let them choose manually
+    if (!selectedLevel && !isInTest && testScore === null && !hasSeenWelcome) {
+      router.replace('/test');
+      return;
+    }
+
+    // In test flow → Navigate to test pages
+    if (isInTest && !selectedLevel) {
+      router.replace('/test/quiz');
+      return;
+    }
+
+    // Test completed but not accepted → Show result
+    if (testScore !== null && !selectedLevel) {
+      router.replace('/test/result');
+      return;
+    }
+
+    // User has completed onboarding, seen test welcome, but no level selected → Level Select
+    // This happens when user clicks "Tự chọn level" or "Đổi level"
+    if (!selectedLevel && hasSeenWelcome && !isInTest && testScore === null) {
+      router.replace('/level-select');
+      return;
+    }
+  }, [hasSeenOnboarding, selectedLevel, isInTest, testScore, hasSeenWelcome, router]);
 
   // Debug: Get difficulty analysis
   const analysis = getDifficultyAnalysis(userStats);
@@ -167,65 +195,8 @@ function HomeContent() {
     }
   }, [analysis.status]);
 
-  // FLOW: Welcome Screen (first time only)
-  if (!hasSeenWelcome && selectedLevel === null) {
-    return (
-      <div className="relative min-h-screen flex flex-col items-center justify-center bg-slate-900 px-4 py-8">
-        <LevelTestWelcome
-          onStartTest={startTest}
-          onSkipToManual={skipToManual}
-        />
-      </div>
-    );
-  }
-
-  // FLOW: Taking Test
-  if (isInTest) {
-    return (
-      <div className="relative min-h-screen flex flex-col items-center justify-center bg-slate-900 px-4 py-8">
-        <LevelTest
-          onComplete={completeTest}
-          onBack={() => skipToManual()}
-        />
-      </div>
-    );
-  }
-
-  // FLOW: Test Result Screen
-  if (testScore !== null && recommendedLevel && selectedLevel === null) {
-    return (
-      <div className="relative min-h-screen flex flex-col items-center justify-center bg-slate-900 px-4 py-8">
-        <LevelTestResult
-          score={testScore}
-          totalQuestions={10}
-          recommendedLevel={recommendedLevel}
-          calibratedElo={userStats.currentElo}
-          onAccept={acceptRecommendedLevel}
-          onChooseManually={skipToManual}
-        />
-      </div>
-    );
-  }
-
-  // FLOW: Manual Level Selection (if user skipped test or wants to change)
-  if (selectedLevel === null) {
-    return (
-      <div className="relative min-h-screen flex flex-col items-center justify-center bg-slate-900">
-        <LevelSelector
-          onSelect={setSelectedLevel}
-          currentLevel={selectedLevel}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="relative h-screen flex flex-col bg-slate-900 overflow-hidden">
-      {/* Onboarding — shown on first visit or when user clicks ? */}
-      {(!hasSeenOnboarding || showOnboarding) && (
-        <OnboardingModal onComplete={() => { completeOnboarding(); setShowOnboarding(false); }} />
-      )}
-
       {/* Review Prompt Modal */}
       <AnimatePresence>
         {showReviewPrompt && (
@@ -302,7 +273,7 @@ function HomeContent() {
       {/* Mobile Quick Level Switch */}
       <div className="lg:hidden fixed top-25.5 right-4 z-40">
         <button
-          onClick={() => setSelectedLevel(null)}
+          onClick={handleChangeLevel}
           className="px-3 py-2 rounded-lg bg-slate-800/90 border border-slate-700 hover:border-cyan-500 text-slate-200 text-xs font-medium transition-colors flex items-center gap-1.5"
         >
           <Settings className="w-3.5 h-3.5" />
@@ -482,7 +453,7 @@ function HomeContent() {
             {/* Action Buttons */}
             <div className="space-y-2 pt-4 border-t border-slate-700">
               <button
-                onClick={() => setSelectedLevel(null)}
+                onClick={handleChangeLevel}
                 className="w-full px-4 py-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-600/50 hover:border-slate-500 flex items-center justify-center gap-2"
               >
                 <Settings className="w-4 h-4" />
@@ -594,7 +565,7 @@ function HomeContent() {
                 <div className="space-y-2 pt-4 border-t border-slate-700">
                   <button
                     onClick={() => {
-                      setSelectedLevel(null);
+                      handleChangeLevel();
                       setShowMobileStats(false);
                     }}
                     className="w-full px-4 py-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-600/50 hover:border-slate-500 flex items-center justify-center gap-2"
@@ -621,32 +592,7 @@ function HomeContent() {
         )}
       </AnimatePresence>
 
-      {/* Story Unlock Modal */}
-      <AnimatePresence>
-        {showStoryUnlock && currentStoryId && currentStoryPart && (
-          <StoryUnlockModal
-            storyId={currentStoryId}
-            part={currentStoryPart === 'part1' ? 1 : 2}
-            onReadNow={() => {
-              if (currentStoryId && currentStoryPart) {
-                router.push(`/story/${currentStoryId}?part=${currentStoryPart}`);
-              }
-            }}
-            onClose={closeStoryUnlockModal}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Story Quiz Modal */}
-      <AnimatePresence>
-        {showStoryQuiz && currentStoryId && storyQuizPart && (
-          <StoryQuizModal
-            storyId={currentStoryId}
-            part={storyQuizPart}
-            onClose={closeStoryQuizModal}
-          />
-        )}
-      </AnimatePresence>
+      {/* Story modals now handled by dedicated routes */}
     </div>
   );
 }

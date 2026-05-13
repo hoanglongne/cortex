@@ -18,7 +18,6 @@ import {
 import { getProgressStats } from '../lib/eloAlgorithm';
 import LearnedWordsList from '../components/LearnedWordsList';
 import SRSCalendar from '../components/SRSCalendar';
-import StoryUnlockModal from '../components/StoryUnlockModal';
 import OnboardingModal from '../components/OnboardingModal';
 import { AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
@@ -64,11 +63,7 @@ export default function LearnedPage() {
     const readStories = useLexicaStore(state => state.readStories);
     const readStoryPart1 = useLexicaStore(state => state.readStoryPart1);
     const storyQuizAttempts = useLexicaStore(state => state.storyQuizAttempts);
-    const openStoryQuizModal = useLexicaStore(state => state.openStoryQuizModal);
-    const showStoryUnlock = useLexicaStore(state => state.showStoryUnlock);
-    const currentStoryId = useLexicaStore(state => state.currentStoryId);
-    const currentStoryPart = useLexicaStore(state => state.currentStoryPart);
-    const closeStoryUnlockModal = useLexicaStore(state => state.closeStoryUnlockModal);
+    // Removed: openStoryQuizModal, showStoryUnlock, closeStoryUnlockModal - now using routes
     const learnedWordIds = Array.from(learnedWords);
     const cardProgress = useLexicaStore(state => state.cardProgress);
     const userStats = useLexicaStore(state => state.userStats);
@@ -273,7 +268,7 @@ export default function LearnedPage() {
                                                     {!part1Unlocked && canQuizPart1 && learnedCountForStory < 4 && (
                                                         <>
                                                             <button
-                                                                onClick={() => openStoryQuizModal(storyId, 1)}
+                                                                onClick={() => router.push(`/story/${storyId}/unlock-quiz?part=1`)}
                                                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 text-amber-400 rounded-lg text-xs font-medium transition-all"
                                                             >
                                                                 <Zap className="w-3.5 h-3.5" />
@@ -296,7 +291,7 @@ export default function LearnedPage() {
                                                             {canQuizPart2 && learnedCountForStory < 7 && (
                                                                 <>
                                                                     <button
-                                                                        onClick={() => openStoryQuizModal(storyId, 2)}
+                                                                        onClick={() => router.push(`/story/${storyId}/unlock-quiz?part=2`)}
                                                                         className="flex items-center gap-1.5 px-3 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 hover:border-amber-500/50 text-amber-400 rounded-lg text-sm font-medium transition-all"
                                                                     >
                                                                         <Zap className="w-4 h-4" />
@@ -353,21 +348,7 @@ export default function LearnedPage() {
                 </p>
             </div>
 
-            {/* Story Unlock Modal */}
-            <AnimatePresence>
-                {showStoryUnlock && currentStoryId && currentStoryPart && (
-                    <StoryUnlockModal
-                        storyId={currentStoryId}
-                        part={currentStoryPart === 'part1' ? 1 : 2}
-                        onReadNow={() => {
-                            if (currentStoryId && currentStoryPart) {
-                                router.push(`/story/${currentStoryId}?part=${currentStoryPart}`);
-                            }
-                        }}
-                        onClose={closeStoryUnlockModal}
-                    />
-                )}
-            </AnimatePresence>
+            {/* Story unlock now handled by /story/[id]/unlock route */}
         </div>
     );
 }
