@@ -30,14 +30,14 @@ export default function ReviewQuiz({ card, onSwipe }: ReviewQuizProps) {
         setSelected(option);
         setAnswered(true);
         const isCorrect = option === card.translationHint;
-        
+
         // Play sound feedback
         if (isCorrect) {
             quizCorrect();
         } else {
             quizWrong();
         }
-        
+
         setTimeout(() => {
             onSwipe(isCorrect ? 'right' : 'left', 'quiz');
         }, 700);

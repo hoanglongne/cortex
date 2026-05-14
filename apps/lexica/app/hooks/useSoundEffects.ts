@@ -26,8 +26,9 @@ export function useSoundEffects() {
     useEffect(() => {
         if (typeof window !== 'undefined' && !audioContextRef.current) {
             try {
-                audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-            } catch (e) {
+                const WindowWithWebkit = window as typeof window & { webkitAudioContext?: typeof AudioContext };
+                audioContextRef.current = new (window.AudioContext || WindowWithWebkit.webkitAudioContext)();
+            } catch {
                 console.warn('Web Audio API not supported');
             }
         }
@@ -162,7 +163,7 @@ export function useSoundEffects() {
         levelUp,
         click,
         buttonPress,
-        
+
         // State
         soundEnabled,
     };

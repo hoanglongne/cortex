@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Sprout, Leaf, Sparkles, Trophy, Target, CheckCircle } from 'lucide-react';
 import { DifficultyLevel } from './VocabCard';
 import { useSoundEffects } from '../hooks/useSoundEffects';
@@ -63,24 +64,34 @@ const LEVEL_OPTIONS: LevelOption[] = [
 
 export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorProps) {
     const { buttonPress } = useSoundEffects();
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
-        <div className="w-full h-full px-4">
-            {/* Logo - Top Left */}
-            <div className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
+        <div className="w-full px-4">
+            {/* Logo - Top Left - Hidden on mobile when scrolled */}
+            <div className={`fixed top-4 left-4 md:top-6 md:left-6 z-50 transition-opacity duration-300 ${isScrolled ? 'opacity-0 md:opacity-100' : 'opacity-100'}`}>
                 <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     LEXICA
                 </h1>
             </div>
 
             {/* Content */}
-            <div className="w-full max-w-4xl mx-auto pt-20 md:pt-28 space-y-10">
-                <div className="text-center space-y-3">
+            <div className="w-full max-w-4xl mx-auto pt-14 md:pt-20 space-y-5 pb-8">
+                <div className="text-center space-y-2">
                     <h2 className="text-3xl md:text-4xl font-semibold text-white tracking-tight">
                         Chọn độ khó
                     </h2>
-                    <p className="text-slate-400 max-w-lg mx-auto">
-                        Chọn level phù hợp với trình độ của bạn. Bạn có thể đổi bất cứ lúc nào.
+                    <p className="text-slate-400 max-w-2xl mx-auto">
+                        Chọn level phù hợp với trình độ của bạn. Bạn có thể đổi bất cứ lúc nào. Hệ thống sẽ tự động điều chỉnh độ khó theo performance của bạn.
                     </p>
                 </div>
 
@@ -113,8 +124,8 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                                 {/* Icon */}
                                 <div className="flex justify-center mb-4">
                                     <div className={`p-3 rounded-lg ${isSelected
-                                            ? 'bg-cyan-500/10 border border-cyan-500/20'
-                                            : 'bg-white/5'
+                                        ? 'bg-cyan-500/10 border border-cyan-500/20'
+                                        : 'bg-white/5'
                                         }`}>
                                         <option.icon className={`w-8 h-8 ${isSelected ? 'text-cyan-400' : 'text-slate-400'
                                             }`} />
@@ -152,9 +163,6 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                     })}
                 </div>
 
-                <div className="text-center text-xs text-slate-500 pt-6">
-                    <p>Hệ thống sẽ tự động điều chỉnh độ khó theo performance của bạn</p>
-                </div>
             </div>
         </div>
     );

@@ -20,7 +20,7 @@ export default function LevelSelectPage() {
     };
 
     return (
-        <div className="relative min-h-screen flex flex-col items-center justify-center bg-slate-900">
+        <div className="relative min-h-screen flex flex-col bg-slate-900">
             {/* Back button if user already has a level */}
             {selectedLevel && (
                 <button

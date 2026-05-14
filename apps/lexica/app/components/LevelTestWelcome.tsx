@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { FlaskConical, Gamepad2, Zap } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
@@ -10,20 +11,30 @@ interface LevelTestWelcomeProps {
 
 export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelTestWelcomeProps) {
     const { buttonPress, click } = useSoundEffects();
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 50);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     return (
-        <div className="w-full h-full px-4 relative">
-            {/* Logo - Top Left */}
-            <div className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
+        <div className="w-full px-4 relative">
+            {/* Logo - Top Left - Hidden on mobile when scrolled */}
+            <div className={`fixed top-4 left-4 md:top-6 md:left-6 z-50 transition-opacity duration-300 ${isScrolled ? 'opacity-0 md:opacity-100' : 'opacity-100'}`}>
                 <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                     LEXICA
                 </h1>
             </div>
 
             {/* Content */}
-            <div className="w-full max-w-xl mx-auto pt-24 md:pt-32 space-y-12">
+            <div className="w-full max-w-xl mx-auto pt-16 md:pt-32 space-y-8 pb-8">
                 {/* Header */}
-                <div className="text-center space-y-4">
+                <div className="text-center space-y-3">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
                         <Zap className="w-8 h-8 text-cyan-400" />
                     </div>
@@ -84,18 +95,11 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                                     Tự chọn level
                                 </h3>
                                 <p className="text-sm text-slate-400 leading-relaxed">
-                                    Chọn level phù hợp với trình độ của bạn
+                                    Chọn level phù hợp với trình độ của bạn. Hệ thống sẽ tự động điều chỉnh độ khó theo performance của bạn.
                                 </p>
                             </div>
                         </div>
                     </button>
-                </div>
-
-                {/* Footer Info */}
-                <div className="text-center pt-4 pb-8">
-                    <p className="text-xs text-slate-500">
-                        Hệ thống sẽ tự động điều chỉnh độ khó theo performance của bạn
-                    </p>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { useState} from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, TrendingUp, Check, X } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
@@ -38,7 +38,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
     if (status === 'success') return; // Don't allow re-selection after success
     click();
     setSelectedOption(option);
-    
+
     if (option.text.toLowerCase().includes(word.toLowerCase())) {
       quizCorrect();
       setStatus('success');
@@ -56,7 +56,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
   return (
     <div className="relative flex flex-col items-center justify-center gap-4 md:gap-6 p-5 md:p-8 bg-slate-900 rounded-3xl border border-slate-700 w-full max-w-4xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
       {onClose && (
-        <button 
+        <button
           onClick={() => {
             click();
             onClose();
@@ -92,7 +92,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
 
             <div className="flex-1 p-4 md:p-6 pb-6 md:pb-8 bg-amber-500/5 rounded-xl md:rounded-2xl border border-amber-500/20 relative flex flex-col group">
               <div className="text-[9px] md:text-[10px] font-bold text-amber-500 uppercase mb-4 md:mb-6 flex items-center gap-2">
-                <motion.div 
+                <motion.div
                   animate={{ scale: [1, 1.2, 1] }}
                   transition={{ repeat: Infinity, duration: 2 }}
                   className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-amber-500"
@@ -106,10 +106,10 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
                 </span>
                 {sentenceParts[1]}&quot;
               </p>
-              
+
               <AnimatePresence mode="wait">
                 {selectedOption && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
@@ -141,19 +141,17 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
                   whileTap={status !== 'success' ? { scale: 0.98 } : {}}
                   onClick={() => handleSelect(option)}
                   disabled={status === 'success'}
-                  className={`relative p-4 md:p-5 rounded-xl border transition-all text-left group ${
-                    selectedOption?.text === option.text
+                  className={`relative p-4 md:p-5 rounded-xl border transition-all text-left group ${selectedOption?.text === option.text
                       ? status === 'success'
                         ? 'border-green-500 bg-green-500/10'
                         : 'border-red-500 bg-red-500/10'
                       : 'border-slate-700 bg-slate-800 hover:border-slate-600 disabled:opacity-50'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 md:gap-4">
-                      <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg border flex items-center justify-center font-bold text-[10px] md:text-xs ${
-                        selectedOption?.text === option.text ? 'border-current' : 'border-slate-700 text-slate-500'
-                      }`}>
+                      <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg border flex items-center justify-center font-bold text-[10px] md:text-xs ${selectedOption?.text === option.text ? 'border-current' : 'border-slate-700 text-slate-500'
+                        }`}>
                         {String.fromCharCode(65 + idx)}
                       </div>
                       <span className={`font-bold tracking-tight uppercase text-xs md:text-sm ${selectedOption?.text === option.text ? 'text-white' : 'text-slate-400'}`}>

@@ -96,6 +96,11 @@ interface LexicaStore {
     soundEnabled: boolean;
     toggleSound: () => void;
 
+    // Auto-Review Settings
+    autoReviewInDeck: boolean; // Auto-inject review cards into main deck
+    reviewCardsInjectedThisSession: boolean; // Track if review cards already injected (to prevent spam)
+    toggleAutoReview: () => void;
+
     // Actions
     swipeCard: (cardId: string, direction: 'left' | 'right') => void;
     consumeEnergy: () => boolean; // Returns false if not enough energy
@@ -242,6 +247,18 @@ export const useLexicaStore = create<LexicaStore>()(
             soundEnabled: true,
             toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
 
+            // Auto-Review (enabled by default, but only injects once per session)
+            autoReviewInDeck: true,
+            reviewCardsInjectedThisSession: false,
+            toggleAutoReview: () => {
+                const newValue = !get().autoReviewInDeck;
+                set({ 
+                    autoReviewInDeck: newValue,
+                    // Reset session flag so it can inject again on next load if re-enabled
+                    reviewCardsInjectedThisSession: false 
+                });
+            },
+
             completeOnboarding: () => set({ hasSeenOnboarding: true }),
 
             // Test flow state
@@ -369,14 +386,24 @@ export const useLexicaStore = create<LexicaStore>()(
 
             // Load new deck
             loadNewDeck: () => {
-                const { userStats, cardProgress, selectedLevel, learnedWords } = get();
+                const { userStats, cardProgress, selectedLevel, learnedWords, autoReviewInDeck, reviewCardsInjectedThisSession } = get();
                 const learnedWordIds = Array.from(learnedWords);
 
                 // If any story pack is at 7-9/10, inject missing words regardless of ELO.
                 const forcedCardIds = getStoryCatchUpWordIds(learnedWordIds, 3);
-                const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds);
+                
+                // Only inject review cards if:
+                // 1. Auto-review is enabled
+                // 2. Haven't injected review cards yet this session
+                const shouldInjectReview = autoReviewInDeck && !reviewCardsInjectedThisSession;
+                const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview);
 
-                set({ currentDeck: newDeck });
+                // Mark that we've injected review cards (so it won't happen again on next loadNewDeck)
+                if (shouldInjectReview) {
+                    set({ currentDeck: newDeck, reviewCardsInjectedThisSession: true });
+                } else {
+                    set({ currentDeck: newDeck });
+                }
             },
 
             // Reset all progress (debug only)
@@ -827,6 +854,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 lastEnergyReset: state.lastEnergyReset,
                 swipeMode: state.swipeMode,
                 soundEnabled: state.soundEnabled, // Persist voice/touch preference
+                autoReviewInDeck: state.autoReviewInDeck, // Persist auto-review setting
                 selectedLevel: state.selectedLevel, // Persist user's level choice
                 hasSeenWelcome: state.hasSeenWelcome, // Persist welcome screen state
                 hasSeenOnboarding: state.hasSeenOnboarding,
@@ -840,10 +868,15 @@ export const useLexicaStore = create<LexicaStore>()(
                 highestElo: state.highestElo,
                 // Story Mode persistence
                 unlockedStories: state.unlockedStories,
+                unlockedStoryPart1: state.unlockedStoryPart1,
                 readStories: state.readStories,
+                readStoryPart1: state.readStoryPart1,
+                storyQuizAttempts: state.storyQuizAttempts,
+                studyHistory: state.studyHistory,
                 // Don't persist currentDeck (will be regenerated)
                 // Don't persist isInTest (transient state)
                 // Don't persist showStoryUnlock, showStoryMode (transient UI state)
+                // Don't persist reviewCardsInjectedThisSession (session flag only)
             }),
             // Custom merge to handle Set serialization
             merge: (persistedState: unknown, currentState) => {
@@ -873,6 +906,9 @@ export function initializeLexicaStore() {
 
     // Check and reset energy if new day
     store.checkAndResetEnergy();
+
+    // Reset session flag so review cards can be injected again on this new page load
+    useLexicaStore.setState({ reviewCardsInjectedThisSession: false });
 
     // Load initial deck if empty
     if (store.currentDeck.length === 0) {

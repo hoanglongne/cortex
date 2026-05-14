@@ -472,7 +472,7 @@ function HomeContent() {
               <Link href="/stats">
                 <div className="w-full px-4 py-2.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/15 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-300 hover:text-cyan-200 text-sm font-medium transition-all flex items-center justify-center gap-2 cursor-pointer">
                   <BarChart3 className="w-4 h-4" />
-                  Xem thống kê chi tiết
+                  Cài đặt
                 </div>
               </Link>
             </div>

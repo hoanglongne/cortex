@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic } from 'lucide-react';
+import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic, RotateCcw } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import ActivityHeatmap from '../components/ActivityHeatmap';
@@ -26,6 +26,8 @@ function StatsPageContent() {
     const toggleSound = useLexicaStore(state => state.toggleSound);
     const swipeMode = useLexicaStore(state => state.swipeMode);
     const setSwipeMode = useLexicaStore(state => state.setSwipeMode);
+    const autoReviewInDeck = useLexicaStore(state => state.autoReviewInDeck);
+    const toggleAutoReview = useLexicaStore(state => state.toggleAutoReview);
     const { click } = useSoundEffects();
 
     const progressStats = getProgressStats(cardProgress);
@@ -46,7 +48,7 @@ function StatsPageContent() {
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
                         Trang chủ
                     </Link>
-                    <h1 className="text-2xl font-bold text-white">Thống kê & Phân tích</h1>
+                    <h1 className="text-2xl font-bold text-white">Cài đặt & Thống kê</h1>
                     <div className="w-20" /> {/* spacer */}
                 </div>
 
@@ -63,9 +65,8 @@ function StatsPageContent() {
                         {/* Sound Toggle */}
                         <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700">
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${
-                                    soundEnabled ? 'bg-cyan-500/15' : 'bg-slate-700/60'
-                                }`}>
+                                <div className={`p-2 rounded-lg ${soundEnabled ? 'bg-cyan-500/15' : 'bg-slate-700/60'
+                                    }`}>
                                     {soundEnabled ? (
                                         <Volume2 className="w-5 h-5 text-cyan-400" />
                                     ) : (
@@ -82,14 +83,12 @@ function StatsPageContent() {
                                     click();
                                     toggleSound();
                                 }}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                    soundEnabled ? 'bg-cyan-500' : 'bg-slate-600'
-                                }`}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${soundEnabled ? 'bg-cyan-500' : 'bg-slate-600'
+                                    }`}
                             >
                                 <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                        soundEnabled ? 'translate-x-6' : 'translate-x-1'
-                                    }`}
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${soundEnabled ? 'translate-x-6' : 'translate-x-1'
+                                        }`}
                                 />
                             </button>
                         </div>
@@ -97,9 +96,8 @@ function StatsPageContent() {
                         {/* Swipe Mode Toggle */}
                         <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700">
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${
-                                    swipeMode === 'voice' ? 'bg-purple-500/15' : 'bg-cyan-500/15'
-                                }`}>
+                                <div className={`p-2 rounded-lg ${swipeMode === 'voice' ? 'bg-purple-500/15' : 'bg-cyan-500/15'
+                                    }`}>
                                     {swipeMode === 'voice' ? (
                                         <Mic className="w-5 h-5 text-purple-400" />
                                     ) : (
@@ -118,14 +116,43 @@ function StatsPageContent() {
                                     click();
                                     setSwipeMode(swipeMode === 'touch' ? 'voice' : 'touch');
                                 }}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                    swipeMode === 'voice' ? 'bg-purple-500' : 'bg-cyan-500'
-                                }`}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${swipeMode === 'voice' ? 'bg-purple-500' : 'bg-cyan-500'
+                                    }`}
                             >
                                 <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                        swipeMode === 'voice' ? 'translate-x-6' : 'translate-x-1'
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${swipeMode === 'voice' ? 'translate-x-6' : 'translate-x-1'
+                                        }`}
+                                />
+                            </button>
+                        </div>
+
+                        {/* Auto-Review Toggle */}
+                        <div className="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700 md:col-span-2">
+                            <div className="flex items-center gap-3">
+                                <div className={`p-2 rounded-lg ${autoReviewInDeck ? 'bg-amber-500/15' : 'bg-slate-700/60'
+                                    }`}>
+                                    <RotateCcw className={`w-5 h-5 ${autoReviewInDeck ? 'text-amber-400' : 'text-slate-500'}`} />
+                                </div>
+                                <div>
+                                    <p className="text-white font-medium text-sm">Tự động ôn tập trong deck</p>
+                                    <p className="text-slate-500 text-xs">
+                                        {autoReviewInDeck 
+                                            ? 'Tự động thêm từ cần ôn vào deck học (1 lần/phiên)' 
+                                            : 'Tắt - chỉ ôn tập qua trang /review riêng'}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    click();
+                                    toggleAutoReview();
+                                }}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${autoReviewInDeck ? 'bg-amber-500' : 'bg-slate-600'
                                     }`}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoReviewInDeck ? 'translate-x-6' : 'translate-x-1'
+                                        }`}
                                 />
                             </button>
                         </div>
@@ -149,20 +176,20 @@ function StatsPageContent() {
 
                     return (
                         <div className={`rounded-xl border p-6 mb-8 ${currentStreak >= 7
-                                ? 'bg-orange-500/8 border-orange-500/30'
-                                : currentStreak >= 3
-                                    ? 'bg-amber-500/8 border-amber-500/20'
-                                    : 'bg-slate-800/40 border-slate-700'
+                            ? 'bg-orange-500/8 border-orange-500/30'
+                            : currentStreak >= 3
+                                ? 'bg-amber-500/8 border-amber-500/20'
+                                : 'bg-slate-800/40 border-slate-700'
                             }`}>
                             <div className="flex items-center justify-between mb-5">
                                 <div className="flex items-center gap-4">
                                     <div className={`p-3 rounded-xl ${currentStreak >= 7 ? 'bg-orange-500/20' : 'bg-slate-700/60'
                                         }`}>
                                         <Flame className={`w-7 h-7 ${currentStreak >= 7
-                                                ? 'text-orange-400'
-                                                : currentStreak >= 3
-                                                    ? 'text-amber-400'
-                                                    : 'text-slate-500'
+                                            ? 'text-orange-400'
+                                            : currentStreak >= 3
+                                                ? 'text-amber-400'
+                                                : 'text-slate-500'
                                             }`} />
                                     </div>
                                     <div>
@@ -170,10 +197,10 @@ function StatsPageContent() {
                                             Streak
                                         </div>
                                         <div className={`text-3xl font-bold ${currentStreak >= 7
-                                                ? 'text-orange-400'
-                                                : currentStreak >= 3
-                                                    ? 'text-amber-400'
-                                                    : 'text-slate-300'
+                                            ? 'text-orange-400'
+                                            : currentStreak >= 3
+                                                ? 'text-amber-400'
+                                                : 'text-slate-300'
                                             }`}>
                                             {currentStreak} <span className="text-lg font-normal text-slate-400">
                                                 ngày liên tiếp
@@ -195,10 +222,10 @@ function StatsPageContent() {
                                     {/* Fill bar */}
                                     <div
                                         className={`absolute left-0 top-0 h-full rounded-full transition-all duration-700 ${currentStreak >= 30
-                                                ? 'bg-linear-to-r from-orange-500 to-red-400'
-                                                : currentStreak >= 7
-                                                    ? 'bg-linear-to-r from-amber-400 to-orange-500'
-                                                    : 'bg-amber-500'
+                                            ? 'bg-linear-to-r from-orange-500 to-red-400'
+                                            : currentStreak >= 7
+                                                ? 'bg-linear-to-r from-amber-400 to-orange-500'
+                                                : 'bg-amber-500'
                                             }`}
                                         style={{ width: `${fillPct}%` }}
                                     />
@@ -210,8 +237,8 @@ function StatsPageContent() {
                                             style={{ left: `${(m / MAX_TRACK) * 100}%` }}
                                         >
                                             <div className={`w-3 h-3 rounded-full border-2 transition-colors duration-500 ${currentStreak >= m
-                                                    ? 'bg-orange-400 border-orange-300'
-                                                    : 'bg-slate-700 border-slate-600'
+                                                ? 'bg-orange-400 border-orange-300'
+                                                : 'bg-slate-700 border-slate-600'
                                                 }`} />
                                         </div>
                                     ))}

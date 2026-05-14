@@ -30,8 +30,8 @@ export default function CortexWidget() {
     const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3000';
     const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
 
-    // Ẩn widget ở trang chính trên mobile
-    const isHomePage = pathname === '/';
+    // Ẩn widget hoàn toàn ở trang level select và welcome
+    const shouldHideWidget = pathname === '/level-select' || pathname === '/test';
 
     const fetchProfile = useCallback(async (userId: string) => {
         try {
@@ -106,10 +106,13 @@ export default function CortexWidget() {
         };
     }, [fetchProfile, HUB_URL, syncAllToCortex]);
 
-    // Remove the blocking return null
+    // Ẩn widget hoàn toàn ở các trang cần thiết
+    if (shouldHideWidget) {
+        return null;
+    }
 
     return (
-        <div className={`fixed top-16 right-3 md:top-4 md:right-4 z-[100] font-space-grotesk ${isHomePage ? 'hidden md:block' : ''}`}>
+        <div className="fixed top-16 right-3 md:top-4 md:right-4 z-[100] font-space-grotesk">
             <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

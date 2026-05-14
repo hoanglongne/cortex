@@ -173,12 +173,14 @@ export function selectNextCard(
  * - Priority 2: New cards based on ELO routing
  * 
  * @param selectedLevel - Filter cards by difficulty level
+ * @param shouldInjectReview - Whether to inject review cards (default true)
  */
 export function generateInitialDeck(
     userStats: UserStats,
     cardProgress: Record<string, UserCardProgress>,
     selectedLevel?: DifficultyLevel | 'all' | null,
-    forcedCardIds: string[] = []
+    forcedCardIds: string[] = [],
+    shouldInjectReview: boolean = true
 ): VocabCardData[] {
     const deck: VocabCardData[] = [];
     const DECK_SIZE = 10;
@@ -216,26 +218,29 @@ export function generateInitialDeck(
 
     // Step 2: Add due cards to deck (up to a LIMIT, e.g., 3)
     // Only include due cards that match the selected level filter
+    // ONLY if shouldInjectReview is true (controlled by user settings)
     const MAX_REVIEW_CARDS_IN_DECK = 3;
     let reviewCardsAdded = 0;
 
-    for (const progress of dueCardProgresses) {
-        if (deck.length >= DECK_SIZE) break;
-        if (reviewCardsAdded >= MAX_REVIEW_CARDS_IN_DECK) break;
+    if (shouldInjectReview) {
+        for (const progress of dueCardProgresses) {
+            if (deck.length >= DECK_SIZE) break;
+            if (reviewCardsAdded >= MAX_REVIEW_CARDS_IN_DECK) break;
 
-        // Find card in database
-        const cardData = filteredDatabase.find((c: Omit<VocabCardData, 'state'>) => c.id === progress.cardId);
-        if (cardData) {
-            deck.push({
-                ...cardData,
-                state: progress.state, // Use saved state
-            });
-            reviewCardsAdded++;
+            // Find card in database
+            const cardData = filteredDatabase.find((c: Omit<VocabCardData, 'state'>) => c.id === progress.cardId);
+            if (cardData) {
+                deck.push({
+                    ...cardData,
+                    state: progress.state, // Use saved state
+                });
+                reviewCardsAdded++;
 
-            // Add to seen list
-            seenCardIds.push(cardData.id);
-            if (seenCardIds.length > 20) {
-                seenCardIds.shift();
+                // Add to seen list
+                seenCardIds.push(cardData.id);
+                if (seenCardIds.length > 20) {
+                    seenCardIds.shift();
+                }
             }
         }
     }
@@ -247,8 +252,16 @@ export function generateInitialDeck(
     const now = Date.now();
     const newCardsOnly = filteredDatabase.filter(card => {
         const progress = cardProgress[card.id];
+        
+        // If auto-review is DISABLED, exclude ALL cards with progress (even if due)
+        // User must go to /review page to practice due cards
+        if (!shouldInjectReview && progress) {
+            return false;
+        }
+        
+        // If auto-review is ENABLED (or card never seen):
         // No progress → brand new card, eligible.
-        // Has progress but due right now → already handled in Step 1 above.
+        // Has progress but due right now → already handled in Step 1 above, but allow as fallback.
         // Has progress with future nextReviewAt → exclude until review date.
         return !progress || progress.nextReviewAt <= now;
     });

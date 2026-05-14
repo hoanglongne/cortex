@@ -122,8 +122,8 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
                   whileTap={{ scale: 0.95 }}
                   onClick={() => togglePart(part.id)}
                   className={`relative px-3 py-3 md:px-6 md:py-5 rounded-xl md:rounded-2xl border-2 transition-all flex flex-col items-center min-w-[80px] md:min-w-[120px] ${selected.includes(part.id)
-                      ? 'border-cyan-500 bg-cyan-500/10 shadow-lg'
-                      : 'border-slate-700 bg-slate-800 hover:bg-slate-750'
+                    ? 'border-cyan-500 bg-cyan-500/10 shadow-lg'
+                    : 'border-slate-700 bg-slate-800 hover:bg-slate-750'
                     }`}
                 >
                   <span className={`text-[8px] md:text-[9px] font-bold uppercase mb-1 tracking-widest ${selected.includes(part.id) ? 'text-cyan-400' : 'text-slate-500'}`}>
@@ -228,8 +228,8 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className={`w-full mt-6 md:mt-10 py-3.5 md:py-5 rounded-xl md:rounded-2xl font-black text-xs md:text-sm tracking-widest flex items-center justify-center gap-2 md:gap-3 transition-all ${status === 'success' ? 'bg-green-500 text-slate-900' :
-              status === 'fail' ? 'bg-red-500 text-white' :
-                'bg-cyan-600 hover:bg-cyan-500 text-white disabled:opacity-30'
+            status === 'fail' ? 'bg-red-500 text-white' :
+              'bg-cyan-600 hover:bg-cyan-500 text-white disabled:opacity-30'
             }`}
         >
           {status === 'success' ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : status === 'fail' ? <X className="w-4 h-4 md:w-5 md:h-5" /> : <Activity className="w-3.5 h-3.5 md:w-4 md:h-4" />}
