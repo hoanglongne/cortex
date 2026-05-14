@@ -34,6 +34,8 @@ interface LexicaStore {
 
     // Learned Words (words user has seen and practiced)
     learnedWords: Set<string>; // Set of card IDs that have been learned
+    todayLearnedWords: Set<string>; // Words learned today (resets daily)
+    lastLearnedWordsReset: string; // Date string for today's learned words reset
 
     // Energy System
     energy: number;
@@ -230,6 +232,8 @@ export const useLexicaStore = create<LexicaStore>()(
             userStats: INITIAL_USER_STATS,
             cardProgress: {}, // Empty at start, will populate as user learns
             learnedWords: new Set<string>(), // Empty set at start
+            todayLearnedWords: new Set<string>(),
+            lastLearnedWordsReset: getTodayDateString(),
             energy: 30,
             maxEnergy: 30,
             lastEnergyReset: getMidnightTimestamp(),
@@ -300,15 +304,23 @@ export const useLexicaStore = create<LexicaStore>()(
 
                 // Only count as "learned" when user swipes Right (Nhớ)
                 const updatedLearnedWords = new Set(learnedWords);
+                const updatedTodayLearnedWords = new Set(get().todayLearnedWords);
+                const today = getTodayDateString();
+
+                // Reset today's learned words if it's a new day
+                if (get().lastLearnedWordsReset !== today) {
+                    updatedTodayLearnedWords.clear();
+                }
+
                 if (direction === 'right') {
                     updatedLearnedWords.add(cardId);
+                    updatedTodayLearnedWords.add(cardId);
                 }
 
                 // Remove swiped card from deck
                 const updatedDeck = currentDeck.filter(card => card.id !== cardId);
 
                 // Update streak
-                const today = getTodayDateString();
                 const { currentStreak, longestStreak, lastActivityDate, studyHistory } = get();
                 let streakUpdate = {};
                 if (lastActivityDate !== today) {
@@ -342,6 +354,8 @@ export const useLexicaStore = create<LexicaStore>()(
                     userStats: updatedStats,
                     cardProgress: updatedCardProgress,
                     learnedWords: updatedLearnedWords,
+                    todayLearnedWords: updatedTodayLearnedWords,
+                    lastLearnedWordsReset: today,
                     currentDeck: updatedDeck,
                     studyHistory: updatedStudyHistory,
                     highestElo: newHighestElo,
@@ -870,6 +884,9 @@ export const useLexicaStore = create<LexicaStore>()(
                 readStoryPart1: state.readStoryPart1,
                 storyQuizAttempts: state.storyQuizAttempts,
                 studyHistory: state.studyHistory,
+                // Speed Quiz - today's learned words
+                todayLearnedWords: Array.from(state.todayLearnedWords),
+                lastLearnedWordsReset: state.lastLearnedWordsReset,
                 // Don't persist currentDeck (will be regenerated)
                 // Don't persist isInTest (transient state)
                 // Don't persist showStoryUnlock, showStoryMode (transient UI state)
@@ -877,7 +894,10 @@ export const useLexicaStore = create<LexicaStore>()(
             }),
             // Custom merge to handle Set serialization
             merge: (persistedState: unknown, currentState) => {
-                const persisted = persistedState as Partial<LexicaStore> & { learnedWords?: string[] | Set<string> };
+                const persisted = persistedState as Partial<LexicaStore> & {
+                    learnedWords?: string[] | Set<string>;
+                    todayLearnedWords?: string[] | Set<string>;
+                };
                 return {
                     ...currentState,
                     ...persisted,
@@ -886,6 +906,13 @@ export const useLexicaStore = create<LexicaStore>()(
                             ? persisted.learnedWords
                             : persisted?.learnedWords instanceof Set
                                 ? Array.from(persisted.learnedWords)
+                                : []
+                    ),
+                    todayLearnedWords: new Set(
+                        Array.isArray(persisted?.todayLearnedWords)
+                            ? persisted.todayLearnedWords
+                            : persisted?.todayLearnedWords instanceof Set
+                                ? Array.from(persisted.todayLearnedWords)
                                 : []
                     ),
                 };
