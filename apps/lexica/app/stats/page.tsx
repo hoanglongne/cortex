@@ -1,8 +1,8 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic, RotateCcw } from 'lucide-react';
+import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic, RotateCcw, Trash2, X } from 'lucide-react';
 import CortexSection from '../components/CortexSection';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
@@ -29,7 +29,10 @@ function StatsPageContent() {
     const setSwipeMode = useLexicaStore(state => state.setSwipeMode);
     const autoReviewInDeck = useLexicaStore(state => state.autoReviewInDeck);
     const toggleAutoReview = useLexicaStore(state => state.toggleAutoReview);
+    const resetProgress = useLexicaStore(state => state.resetProgress);
     const { click } = useSoundEffects();
+
+    const [showResetDialog, setShowResetDialog] = useState(false);
 
     const progressStats = getProgressStats(cardProgress);
     const studyStats = getStudyStats();
@@ -155,6 +158,22 @@ function StatsPageContent() {
                                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${autoReviewInDeck ? 'translate-x-6' : 'translate-x-1'
                                         }`}
                                 />
+                            </button>
+                        </div>
+
+                        {/* Hidden Reset Button */}
+                        <div className="md:col-span-2 mt-4 pt-4 border-t border-slate-700/50">
+                            <button
+                                onClick={() => {
+                                    click();
+                                    setShowResetDialog(true);
+                                }}
+                                className="w-full p-3 bg-red-500/5 hover:bg-red-500/10 rounded-lg border border-red-500/20 hover:border-red-500/40 transition-all group"
+                            >
+                                <div className="flex items-center justify-center gap-2 text-red-400/60 group-hover:text-red-400 transition-colors">
+                                    <Trash2 className="w-4 h-4" />
+                                    <span className="text-xs font-medium">Reset toàn bộ tiến trình</span>
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -382,6 +401,67 @@ function StatsPageContent() {
                     <AccuracyChart studyHistory={studyHistory} />
                 </div>
             </div>
+
+            {/* Reset Confirmation Dialog */}
+            {showResetDialog && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowResetDialog(false)}>
+                    <div className="bg-slate-800 border-2 border-red-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-start gap-4 mb-6">
+                            <div className="p-3 rounded-xl bg-red-500/20 border border-red-500/30">
+                                <Trash2 className="w-6 h-6 text-red-400" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-lg font-bold text-white mb-2">Xác nhận Reset</h3>
+                                <p className="text-sm text-slate-300 leading-relaxed">
+                                    Bạn có chắc chắn muốn reset toàn bộ tiến trình? Hành động này sẽ xóa:
+                                </p>
+                                <ul className="mt-3 space-y-1.5 text-xs text-slate-400">
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1 h-1 rounded-full bg-red-400" />
+                                        Tất cả từ vựng đã học ({learnedCount} từ)
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1 h-1 rounded-full bg-red-400" />
+                                        Streak hiện tại ({currentStreak} ngày)
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1 h-1 rounded-full bg-red-400" />
+                                        Thống kê và lịch sử học tập
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1 h-1 rounded-full bg-red-400" />
+                                        Level đã chọn và Story Mode progress
+                                    </li>
+                                </ul>
+                                <p className="mt-4 text-xs text-red-400 font-medium">
+                                    ⚠️ Không thể hoàn tác!
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowResetDialog(false)}
+                                className="flex-1 py-3 px-4 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium text-sm transition-colors"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                onClick={() => {
+                                    click();
+                                    resetProgress();
+                                    setShowResetDialog(false);
+                                    // Optionally redirect to home
+                                    window.location.href = '/';
+                                }}
+                                className="flex-1 py-3 px-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-sm transition-colors shadow-lg shadow-red-500/20"
+                            >
+                                Xác nhận Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

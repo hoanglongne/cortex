@@ -24,7 +24,7 @@ export class ActionsController {
     private rewardHelper: RewardHelper,
     private supabaseService: SupabaseService,
     private linguisticRefiner: LinguisticRefinerService,
-  ) {}
+  ) { }
 
   @Post('log')
   async createLog(@Body() logData: Record<string, any>): Promise<any> {

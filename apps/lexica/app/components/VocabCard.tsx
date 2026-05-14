@@ -69,8 +69,19 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
     const speakWord = () => {
         if ('speechSynthesis' in window) {
             const utterance = new SpeechSynthesisUtterance(card.word);
+
+            // Get available voices and find an English one
+            const voices = window.speechSynthesis.getVoices();
+            const englishVoice = voices.find(voice =>
+                voice.lang.startsWith('en-') && voice.lang !== 'en-VI'
+            );
+
+            if (englishVoice) {
+                utterance.voice = englishVoice;
+            }
             utterance.lang = 'en-US';
             utterance.rate = 0.8;
+
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
         }

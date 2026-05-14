@@ -8663,9 +8663,9 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
       "simpleSentence": "The movie was not interesting at all.",
       "targetSlot": "not interesting",
       "academicOptions": [
+        { "text": "boring", "nuance": "Thiếu sự hấp dẫn, gây buồn chán.", "formalityScore": 6 },
         { "text": "monotonous", "nuance": "Đơn điệu, đều đều gây buồn chán.", "formalityScore": 9 },
-        { "text": "tedious", "nuance": "Nhàm chán vì quá dài và chi tiết.", "formalityScore": 8 },
-        { "text": "insipid", "nuance": "Nhạt nhẽo, thiếu sức sống.", "formalityScore": 10 }
+        { "text": "tedious", "nuance": "Nhàm chán vì quá dài và chi tiết.", "formalityScore": 8 }
       ]
     },
     "surgeryModule": {

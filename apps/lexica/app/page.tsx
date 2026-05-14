@@ -443,7 +443,7 @@ function HomeContent() {
         </AnimatePresence>
 
         {/* Mobile Bottom Navigation Bar - Fixed */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-700 px-3 py-2.5 safe-area-inset-bottom">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-700 px-3 py-3 pb-safe">
           <div className="flex items-center justify-center gap-1.5 max-w-md mx-auto">
             {/* Stats Modal Toggle */}
             <button
