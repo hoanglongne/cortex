@@ -55,27 +55,27 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <AuroraBackground className="min-h-screen py-24 px-6 w-full items-center">
-      <div className="fixed top-8 left-8 flex items-center gap-8 z-50">
-        <Link 
+    <AuroraBackground className="min-h-screen py-12 sm:py-24 px-4 sm:px-6 w-full items-center">
+      <div className="fixed top-4 left-4 sm:top-8 sm:left-8 flex items-center gap-8 z-50">
+        <Link
           href="/"
-          className="text-sm font-mono uppercase tracking-widest text-white hover:text-white/80 transition-all flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+          className="text-xs sm:text-sm font-mono uppercase tracking-widest text-white hover:text-white/80 transition-all flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
         >
-          <span>←</span> Quay lại Hub
+          <span>←</span> <span className="hidden xs:inline">Quay lại Hub</span><span className="xs:hidden">Hub</span>
         </Link>
       </div>
 
-      <motion.div 
+      <motion.div
         variants={container}
         initial="hidden"
         animate="show"
         className="max-w-6xl mx-auto"
       >
-        <motion.div variants={item} className="mb-16 text-center">
-          <span className="inline-block font-mono text-xs uppercase tracking-[0.4em] text-[rgba(255,255,255,0.4)] mb-4">
+        <motion.div variants={item} className="mb-10 sm:mb-16 text-center">
+          <span className="inline-block font-mono text-[10px] sm:text-xs uppercase tracking-[0.3em] sm:tracking-[0.4em] text-[rgba(255,255,255,0.4)] mb-3 sm:mb-4">
             Hồ Sơ DNA Ngôn Ngữ
           </span>
-          <h1 className="text-5xl md:text-6xl font-normal tracking-tighter text-white">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-normal tracking-tighter text-white">
             {user.email?.split('@')[0]}
           </h1>
         </motion.div>

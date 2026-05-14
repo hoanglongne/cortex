@@ -61,6 +61,35 @@ export class SupabaseService {
     }
   }
 
+  async insertData(table: string, data: any): Promise<any[]> {
+    if (!this.client) {
+      throw new Error('Supabase client not initialized');
+    }
+
+    try {
+      this.logger.log(`Inserting data into ${table}...`);
+      const { data: result, error } = await this.client
+        .from(table)
+        .insert(data)
+        .select();
+
+      if (error) {
+        this.logger.error(
+          `Supabase insert error in ${table}: ${error.message}`,
+        );
+        throw error;
+      }
+      this.logger.log(
+        `Successfully inserted ${result?.length || 0} rows into ${table}`,
+      );
+      return result ?? [];
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to insert data into ${table}: ${message}`);
+      throw error;
+    }
+  }
+
   async getData(
     table: string,
     query: { userId?: string; user_id?: string } = {},

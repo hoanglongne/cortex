@@ -52,40 +52,41 @@ export default function Home() {
       {/* Side Navigation */}
       <SideNavigation />
 
+      {/* Auth Button - Fixed at top */}
+      <motion.div variants={item} initial="hidden" animate="show" className="fixed top-6 right-6 sm:top-8 sm:right-8 z-50">
+        {user ? (
+          <div className="flex flex-col xs:flex-row items-end xs:items-center gap-2 xs:gap-4">
+            <span className="text-xs sm:text-sm font-medium text-white truncate max-w-[150px] sm:max-w-none">{user.email}</span>
+            <button
+              onClick={() => supabase.auth.signOut()}
+              className="text-xs sm:text-sm border text-white border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/5 transition-all whitespace-nowrap"
+            >
+              Đăng Xuất
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/auth"
+            className="text-xs sm:text-sm border text-white border-white/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/5 transition-all whitespace-nowrap"
+          >
+            Đăng Nhập / Đăng Ký
+          </Link>
+        )}
+      </motion.div>
+
       {/* Hero Section */}
       <AuroraBackground id="hero" className="min-h-screen flex flex-col items-center justify-center">
         <motion.section
           variants={container}
           initial="hidden"
           animate="show"
-          className="relative z-10 mx-10 flex min-w-6xl flex-col items-center px-6 py-32 text-center md:py-48"
+          className="relative z-10 w-full max-w-6xl flex flex-col items-center px-6 sm:px-8 md:px-10 py-24 sm:py-32 md:py-48 text-center"
         >
-          {/* Auth Button */}
-          <motion.div variants={item} className="absolute top-8 right-0">
-            {user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-white">{user.email}</span>
-                <button 
-                  onClick={() => supabase.auth.signOut()}
-                  className="text-sm border text-white border-white/20 px-4 py-2 rounded-full hover:bg-white/5 transition-all"
-                >
-                  Đăng Xuất
-                </button>
-              </div>
-            ) : (
-              <Link
-                href="/auth"
-                className="text-sm border text-white border-white/20 px-4 py-2 rounded-full hover:bg-white/5 transition-all"
-              >
-                Đăng Nhập / Đăng Ký
-              </Link>
-            )}
-          </motion.div>
 
           {/* Overline tag */}
           <motion.span
             variants={item}
-            className="mb-8 inline-block font-mono text-xs uppercase tracking-[0.3em] text-[rgba(255,255,255,0.5)]"
+            className="mb-4 sm:mb-6 md:mb-8 inline-block font-mono text-[9px] sm:text-[10px] md:text-xs uppercase tracking-[0.15em] sm:tracking-[0.2em] md:tracking-[0.3em] text-[rgba(255,255,255,0.5)]"
           >
             Cortex Hub — Language Tech Ecosystem
           </motion.span>
@@ -93,7 +94,7 @@ export default function Home() {
           {/* Headline */}
           <motion.h1
             variants={item}
-            className="font-sans text-5xl font-normal leading-[0.87] tracking-tight text-white md:text-7xl"
+            className="font-sans text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-normal leading-tight sm:leading-tight md:leading-[0.87] tracking-tight text-white max-w-4xl"
           >
             Ngừng Nhồi Nhét.
             <br />
@@ -103,7 +104,7 @@ export default function Home() {
           {/* Sub-headline */}
           <motion.p
             variants={item}
-            className="mt-8 max-w-xl text-lg leading-relaxed text-[rgba(255,255,255,0.6)]"
+            className="mt-5 sm:mt-6 md:mt-8 max-w-xs sm:max-w-md md:max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-[rgba(255,255,255,0.6)]"
           >
             Không app cồng kềnh. Không tính năng thừa. Mỗi công cụ giải quyết{" "}
             <span className="font-medium text-white">đúng một</span> điểm yếu
@@ -111,17 +112,17 @@ export default function Home() {
           </motion.p>
 
           {/* CTA */}
-          <motion.div variants={item} className="mt-12 flex gap-4">
+          <motion.div variants={item} className="mt-7 sm:mt-8 md:mt-12 flex flex-col xs:flex-row gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none">
             <a
               href="#ecosystem"
-              className="inline-flex items-center justify-center rounded-[4px] bg-white px-6 py-3 text-sm font-medium text-[#0a0a0a] transition-opacity hover:opacity-90"
+              className="inline-flex items-center justify-center rounded-[4px] bg-white px-5 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm font-medium text-[#0a0a0a] transition-opacity hover:opacity-90"
             >
               Truy Cập Hệ Sinh Thái
             </a>
             {user && (
               <Link
                 href="/profile"
-                className="inline-flex items-center justify-center rounded-[4px] border border-[rgba(255,255,255,0.3)] bg-transparent px-6 py-3 text-sm font-medium text-white transition-all hover:border-white hover:bg-[rgba(255,255,255,0.05)] shadow-lg shadow-white/5"
+                className="inline-flex items-center justify-center rounded-[4px] border border-[rgba(255,255,255,0.3)] bg-transparent px-4 py-2.5 sm:px-6 sm:py-3 text-xs sm:text-sm font-medium text-white transition-all hover:border-white hover:bg-[rgba(255,255,255,0.05)] shadow-lg shadow-white/5"
               >
                 Xem Dashboard
               </Link>

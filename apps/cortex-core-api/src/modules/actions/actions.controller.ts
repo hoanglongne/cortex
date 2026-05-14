@@ -47,9 +47,9 @@ export class ActionsController {
 
     const metadata = (newLog.metadata || {}) as LogMetadata;
 
-    // 1. Persist to Supabase
+    // 1. Persist to Supabase (use INSERT for append-only logs)
     try {
-      await this.supabaseService.upsertData('action_logs', [
+      await this.supabaseService.insertData('action_logs', [
         {
           user_id: userId,
           app_source: newLog.appSource,

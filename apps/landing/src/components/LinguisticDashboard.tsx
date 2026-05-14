@@ -87,17 +87,17 @@ export default function LinguisticDashboard({ userId }: { userId: string }) {
   const activationRate = totalVocab > 0 ? (activeCount / totalVocab) * 100 : 0;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl mx-auto p-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl mx-auto p-4">
       {/* Fluency Card */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/[0.03] border border-white/10 p-8 rounded-sm"
+        className="bg-white/[0.03] border border-white/10 p-5 sm:p-8 rounded-sm"
       >
-        <h3 className="text-xs font-mono uppercase tracking-[0.3em] mb-8 text-[rgba(255,255,255,0.4)]">Chỉ Số Trôi Chảy</h3>
-        <div className="text-6xl font-normal tracking-tighter mb-4 text-white">{Math.round(profile.fluency_score || 0)}%</div>
+        <h3 className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-6 sm:mb-8 text-[rgba(255,255,255,0.4)]">Chỉ Số Trôi Chảy</h3>
+        <div className="text-5xl sm:text-6xl font-normal tracking-tighter mb-3 sm:mb-4 text-white">{Math.round(profile.fluency_score || 0)}%</div>
         <div className="w-full bg-white/5 h-[2px] overflow-hidden">
-          <motion.div 
+          <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${profile.fluency_score || 0}%` }}
             className="h-full bg-white"
@@ -106,21 +106,21 @@ export default function LinguisticDashboard({ userId }: { userId: string }) {
       </motion.div>
 
       {/* Vocab Bridge Card */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white/[0.03] border border-white/10 p-8 rounded-sm"
+        className="bg-white/[0.03] border border-white/10 p-5 sm:p-8 rounded-sm"
       >
-        <h3 className="text-xs font-mono uppercase tracking-[0.3em] mb-8 text-[rgba(255,255,255,0.4)]">Kích Hoạt Từ Vựng</h3>
-        <div className="flex flex-col gap-1 mb-4">
-          <div className="text-6xl font-normal tracking-tighter text-white">{Math.round(activationRate)}%</div>
+        <h3 className="text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-6 sm:mb-8 text-[rgba(255,255,255,0.4)]">Kích Hoạt Từ Vựng</h3>
+        <div className="flex flex-col gap-1 mb-3 sm:mb-4">
+          <div className="text-5xl sm:text-6xl font-normal tracking-tighter text-white">{Math.round(activationRate)}%</div>
           <div className="text-[10px] font-mono uppercase tracking-widest text-[rgba(255,255,255,0.3)] mt-2">
             {activeCount} Sống / {passiveCount} Chết
           </div>
         </div>
         <div className="w-full bg-white/5 h-[2px] overflow-hidden">
-          <motion.div 
+          <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${activationRate}%` }}
             className="h-full bg-white/60"
@@ -130,28 +130,27 @@ export default function LinguisticDashboard({ userId }: { userId: string }) {
 
       {/* Recommendation Card */}
       {profile.difficulty_recommendation && profile.difficulty_recommendation.recommendation && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="md:col-span-2 bg-white/[0.03] border border-white/10 p-8 rounded-sm"
+          className="md:col-span-2 bg-white/[0.03] border border-white/10 p-5 sm:p-8 rounded-sm"
         >
-          <div className="flex flex-col gap-4">
-            <div className={`w-fit px-3 py-1 rounded-sm font-mono text-[10px] font-bold tracking-widest border ${
-              profile.difficulty_recommendation.recommendation === 'HARD' ? 'border-red-500/50 text-red-500' : 
-              profile.difficulty_recommendation.recommendation === 'EASY' ? 'border-blue-500/50 text-blue-500' : 'border-white/20 text-white/60'
-            }`}>
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <div className={`w-fit px-3 py-1 rounded-sm font-mono text-[10px] font-bold tracking-widest border ${profile.difficulty_recommendation.recommendation === 'HARD' ? 'border-red-500/50 text-red-500' :
+                profile.difficulty_recommendation.recommendation === 'EASY' ? 'border-blue-500/50 text-blue-500' : 'border-white/20 text-white/60'
+              }`}>
               {profile.difficulty_recommendation.recommendation} MODE
             </div>
-            <p className="text-xl font-normal tracking-tight text-white/90 italic">&ldquo;{profile.difficulty_recommendation.message}&rdquo;</p>
+            <p className="text-base sm:text-xl font-normal tracking-tight text-white/90 italic">&ldquo;{profile.difficulty_recommendation.message}&rdquo;</p>
           </div>
         </motion.div>
       )}
 
       {/* Topics Card */}
-      <div className="md:col-span-2 mt-12">
-        <h3 className="text-sm font-mono uppercase tracking-[0.3em] mb-6 text-white font-bold">Chủ Đề Thế Mạnh</h3>
-        <div className="flex flex-wrap gap-3">
+      <div className="md:col-span-2 mt-8 sm:mt-12">
+        <h3 className="text-xs sm:text-sm font-mono uppercase tracking-[0.2em] sm:tracking-[0.3em] mb-4 sm:mb-6 text-white font-bold">Chủ Đề Thế Mạnh</h3>
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           {profile.top_topics && profile.top_topics.length > 0 ? (
             profile.top_topics.map((topic, i) => (
               <span key={i} className="bg-white/[0.05] border border-white/10 px-4 py-2 rounded-sm text-xs font-mono text-white/70 tracking-wider">
@@ -165,18 +164,18 @@ export default function LinguisticDashboard({ userId }: { userId: string }) {
       </div>
 
       {/* Vocabulary Vault */}
-      <div className="md:col-span-2 mt-16 border-t border-white/10 pt-16">
-        <div className="flex justify-between items-end mb-10">
-          <h3 className="text-sm font-mono uppercase tracking-[0.3em] text-white font-bold">Kho Từ Vựng Toàn Diện</h3>
+      <div className="md:col-span-2 mt-10 sm:mt-16 border-t border-white/10 pt-10 sm:pt-16">
+        <div className="flex justify-between items-end mb-6 sm:mb-10">
+          <h3 className="text-xs sm:text-sm font-mono uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white font-bold">Kho Từ Vựng Toàn Diện</h3>
           <span className="text-[10px] font-mono text-white/50 uppercase tracking-widest">{profile.vocabulary_size} từ trong hệ thống</span>
         </div>
-        
-        <div className="space-y-10">
+
+        <div className="space-y-6 sm:space-y-10">
           {/* Active Words Section */}
           <div>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]" />
-              <h4 className="text-xs font-mono uppercase tracking-widest text-white/80 font-semibold">Từ Vựng Sống (Active) — {profile.active_vocab_count}</h4>
+              <h4 className="text-[10px] sm:text-xs font-mono uppercase tracking-wider sm:tracking-widest text-white/80 font-semibold">Từ Vựng Sống (Active) — {profile.active_vocab_count}</h4>
             </div>
             <div className="flex flex-wrap gap-2">
               {profile.refined_insights?.active_vocab_samples && profile.refined_insights.active_vocab_samples.length > 0 ? (
@@ -193,9 +192,9 @@ export default function LinguisticDashboard({ userId }: { userId: string }) {
 
           {/* Passive Words Section */}
           <div>
-            <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 mb-4 sm:mb-6">
               <div className="w-2 h-2 rounded-full bg-white/40 shadow-[0_0_8px_rgba(255,255,255,0.2)]" />
-              <h4 className="text-xs font-mono uppercase tracking-widest text-white/80 font-semibold">Từ Vựng Đang Chờ (Passive) — {profile.passive_vocab_count}</h4>
+              <h4 className="text-[10px] sm:text-xs font-mono uppercase tracking-wider sm:tracking-widest text-white/80 font-semibold">Từ Vựng Đang Chờ (Passive) — {profile.passive_vocab_count}</h4>
             </div>
             <div className="flex flex-wrap gap-2">
               {profile.passive_vocab_samples && profile.passive_vocab_samples.length > 0 ? (

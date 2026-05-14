@@ -4,7 +4,6 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, AlertCircle, TrendingDown, Zap, Check, Mic, Hand, Brain } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import EnergyBar from './components/EnergyBar';
@@ -397,10 +396,10 @@ function HomeContent() {
       </div>
 
       {/* Main Content Area - Two Column Layout on Desktop */}
-      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-4 pt-16 pb-20 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-4 pt-4 pb-16 lg:pt-8 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
 
         {/* Left Column - Swipe Deck */}
-        <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-center h-full lg:min-h-150">
+        <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-center lg:h-full lg:min-h-150">
           {/* Swipe Deck */}
           <div className="w-full max-w-md flex items-center justify-center">
             <ErrorBoundary>
@@ -446,13 +445,17 @@ function HomeContent() {
         {/* Mobile Bottom Navigation Bar - Fixed */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-700 px-3 py-2.5 safe-area-inset-bottom">
           <div className="flex items-center justify-center gap-1.5 max-w-md mx-auto">
-            {/* Stats/Settings Link */}
-            <Link href="/stats" className="flex-1">
-              <div className="py-2 bg-slate-800/60 border border-slate-700 rounded-lg hover:border-cyan-500 transition-colors active:scale-95 flex items-center justify-center gap-1.5">
-                <BarChart3 className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span className="text-slate-300 text-xs font-medium whitespace-nowrap">Cài đặt</span>
-              </div>
-            </Link>
+            {/* Stats Modal Toggle */}
+            <button
+              onClick={() => {
+                click();
+                setShowMobileStats(true);
+              }}
+              className="flex-1 py-2 bg-slate-800/60 border border-slate-700 rounded-lg hover:border-cyan-500 transition-colors active:scale-95 flex items-center justify-center gap-1.5"
+            >
+              <BarChart3 className="w-4 h-4 text-cyan-400 shrink-0" />
+              <span className="text-slate-300 text-xs font-medium whitespace-nowrap">Cài đặt</span>
+            </button>
 
             {/* Learned Words Link */}
             <Link href="/learned" className="flex-1">
@@ -697,6 +700,18 @@ function HomeContent() {
 
                 {/* Action Buttons */}
                 <div className="space-y-2 pt-4 border-t border-slate-700">
+                  <Link href="/stats">
+                    <button
+                      onClick={() => {
+                        click();
+                        setShowMobileStats(false);
+                      }}
+                      className="w-full mb-2 px-4 py-2.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/15 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-300 hover:text-cyan-200 text-sm font-medium transition-all flex items-center justify-center gap-2"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      Xem thống kê chi tiết
+                    </button>
+                  </Link>
                   <button
                     onClick={() => {
                       click();

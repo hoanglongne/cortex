@@ -24,7 +24,7 @@ export default function CortexSection() {
 
     const { syncAllToCortex } = useLexicaStore();
 
-    const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3000';
+    const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3002';
     const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
 
     const fetchProfile = useCallback(async (userId: string) => {
@@ -153,17 +153,27 @@ export default function CortexSection() {
                 </div>
                 <button
                     onClick={async () => {
-                        setIsSyncing(true);
-                        await syncAllToCortex();
-                        const id = localStorage.getItem('cortex_user_id');
-                        if (id) fetchProfile(id);
-                        setIsSyncing(false);
+                        try {
+                            setIsSyncing(true);
+                            console.log('[CortexSection] Starting manual sync...');
+                            await syncAllToCortex();
+                            console.log('[CortexSection] Sync completed, fetching profile...');
+                            const id = localStorage.getItem('cortex_user_id');
+                            if (id) {
+                                await fetchProfile(id);
+                                console.log('[CortexSection] Profile refreshed');
+                            }
+                        } catch (error) {
+                            console.error('[CortexSection] Sync error:', error);
+                        } finally {
+                            setIsSyncing(false);
+                        }
                     }}
                     disabled={isSyncing}
-                    className="flex items-center gap-2 px-3 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-xs font-medium rounded-lg transition-all disabled:opacity-50"
+                    className="flex items-center gap-2 px-3 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-400 text-xs font-medium rounded-lg transition-all disabled:opacity-50 active:scale-95"
                 >
                     <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                    Đồng bộ
+                    {isSyncing ? 'Đang đồng bộ...' : 'Đồng bộ'}
                 </button>
             </div>
 
@@ -198,7 +208,7 @@ export default function CortexSection() {
                         initial={{ width: 0 }}
                         animate={{ width: `${profile.fluency_score}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400"
+                        className="h-full bg-emerald-400"
                     />
                 </div>
             </div>

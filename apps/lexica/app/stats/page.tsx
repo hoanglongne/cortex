@@ -49,8 +49,8 @@ function StatsPageContent() {
                         <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
                         Trang chủ
                     </Link>
-                    <h1 className="text-2xl font-bold text-white">Cài đặt & Thống kê</h1>
-                    <div className="w-20" /> {/* spacer */}
+                    <h1 className="text-md md:text-2xl font-bold text-white ">Cài đặt & Thống kê</h1>
+                    <div className="w-10 md:w-20" /> {/* spacer */}
                 </div>
 
                 {/* Settings Section */}
