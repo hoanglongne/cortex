@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic, RotateCcw } from 'lucide-react';
+import CortexSection from '../components/CortexSection';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import ActivityHeatmap from '../components/ActivityHeatmap';
@@ -136,8 +137,8 @@ function StatsPageContent() {
                                 <div>
                                     <p className="text-white font-medium text-sm">Tự động ôn tập trong deck</p>
                                     <p className="text-slate-500 text-xs">
-                                        {autoReviewInDeck 
-                                            ? 'Tự động thêm từ cần ôn vào deck học (1 lần/phiên)' 
+                                        {autoReviewInDeck
+                                            ? 'Tự động thêm từ cần ôn vào deck học (1 lần/phiên)'
                                             : 'Tắt - chỉ ôn tập qua trang /review riêng'}
                                     </p>
                                 </div>
@@ -158,6 +159,9 @@ function StatsPageContent() {
                         </div>
                     </div>
                 </div>
+
+                {/* Cortex Hub Section */}
+                <CortexSection />
 
                 {/* Featured Streak Card */}
                 {(() => {

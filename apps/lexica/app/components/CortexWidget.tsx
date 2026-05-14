@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Activity, TrendingUp, User, RefreshCw } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -19,7 +18,6 @@ interface CortexProfile {
 }
 
 export default function CortexWidget() {
-    const pathname = usePathname();
     const [profile, setProfile] = useState<CortexProfile | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -29,9 +27,6 @@ export default function CortexWidget() {
 
     const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3000';
     const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
-
-    // Ẩn widget hoàn toàn ở trang level select và welcome
-    const shouldHideWidget = pathname === '/level-select' || pathname === '/test';
 
     const fetchProfile = useCallback(async (userId: string) => {
         try {
@@ -106,11 +101,6 @@ export default function CortexWidget() {
         };
     }, [fetchProfile, HUB_URL, syncAllToCortex]);
 
-    // Ẩn widget hoàn toàn ở các trang cần thiết
-    if (shouldHideWidget) {
-        return null;
-    }
-
     return (
         <div className="fixed top-16 right-3 md:top-4 md:right-4 z-[100] font-space-grotesk">
             <motion.button
@@ -118,8 +108,8 @@ export default function CortexWidget() {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
                 className={`flex items-center gap-2 px-2 py-2 md:px-3 md:py-2 rounded-full border shadow-lg transition-all ${profile
-                        ? 'bg-slate-900/60 md:bg-slate-900/80 border-cyan-500/30 md:border-cyan-500/50 text-cyan-400 backdrop-blur-md'
-                        : 'bg-slate-900/40 md:bg-slate-900/50 border-slate-700 text-slate-400'
+                    ? 'bg-slate-900/60 md:bg-slate-900/80 border-cyan-500/30 md:border-cyan-500/50 text-cyan-400 backdrop-blur-md'
+                    : 'bg-slate-900/40 md:bg-slate-900/50 border-slate-700 text-slate-400'
                     }`}
             >
                 <Brain className={`w-4 h-4 md:w-[18px] md:h-[18px] ${profile ? 'animate-pulse' : ''}`} />

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, AlertCircle, TrendingDown, Zap, Check, Mic, Hand } from 'lucide-react';
+import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, AlertCircle, TrendingDown, Zap, Check, Mic, Hand, Brain } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import EnergyBar from './components/EnergyBar';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -57,11 +57,13 @@ function HomeContent() {
     setSelectedLevel(null);
   };
   const previewDue = Number(searchParams.get('reviewPreview') ?? 0);
+  const forceCortexReminder = searchParams.get('cortexReminder') === '1';
 
   // Mobile stats modal state
   const [showMobileStats, setShowMobileStats] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showReviewPrompt, setShowReviewPrompt] = useState(() => false);
+  const [showCortexReminder, setShowCortexReminder] = useState(false);
 
   // Difficulty status notification state
   const [showDifficultyStatus, setShowDifficultyStatus] = useState(false);
@@ -74,6 +76,11 @@ function HomeContent() {
 
   // Redirect to onboarding or test if needed
   useEffect(() => {
+    // Skip redirects if we're in preview mode (for testing modals)
+    if (forceCortexReminder || previewDue > 0) {
+      return;
+    }
+
     // First time user → Onboarding
     if (!hasSeenOnboarding) {
       router.replace('/onboarding');
@@ -105,7 +112,7 @@ function HomeContent() {
       router.replace('/level-select');
       return;
     }
-  }, [hasSeenOnboarding, selectedLevel, isInTest, testScore, hasSeenWelcome, router]);
+  }, [hasSeenOnboarding, selectedLevel, isInTest, testScore, hasSeenWelcome, router, forceCortexReminder, previewDue]);
 
   // Debug: Get difficulty analysis
   const analysis = getDifficultyAnalysis(userStats);
@@ -126,6 +133,38 @@ function HomeContent() {
       return () => clearTimeout(t);
     }
   }, [progressStats.dueToday, previewDue]);
+
+  // Show Cortex Hub reminder after every 25 words learned (if not connected)
+  useEffect(() => {
+    // ?cortexReminder=1 forces the modal instantly (dev/preview only)
+    if (forceCortexReminder) {
+      const t = setTimeout(() => setShowCortexReminder(true), 0);
+      return () => clearTimeout(t);
+    }
+
+    // Check if already connected
+    const cortexUserId = localStorage.getItem('cortex_user_id');
+    if (cortexUserId) return; // Already connected, no need to remind
+
+    // Check when last dismissed
+    const lastDismissedStr = localStorage.getItem('cortex_reminder_dismissed');
+    if (lastDismissedStr) {
+      const lastDismissed = new Date(lastDismissedStr);
+      const now = new Date();
+      const hoursSinceDismiss = (now.getTime() - lastDismissed.getTime()) / (1000 * 60 * 60);
+      if (hoursSinceDismiss < 24) return; // Dismissed within last 24 hours
+    }
+
+    // Check learned count - show every 25 words
+    const lastShownCount = parseInt(localStorage.getItem('cortex_reminder_last_count') || '0');
+    if (learnedCount >= lastShownCount + 25 && learnedCount > 0) {
+      const t = setTimeout(() => {
+        setShowCortexReminder(true);
+        localStorage.setItem('cortex_reminder_last_count', learnedCount.toString());
+      }, 1500); // Show after 1.5s delay
+      return () => clearTimeout(t);
+    }
+  }, [learnedCount, forceCortexReminder]);
 
   // Get status icon and color
   const getStatusDisplay = (status: string) => {
@@ -253,6 +292,64 @@ function HomeContent() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Cortex Hub Reminder Modal */}
+      <AnimatePresence>
+        {showCortexReminder && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 8 }}
+              transition={{ type: 'spring', stiffness: 340, damping: 28 }}
+              className="w-full max-w-sm bg-slate-800 border border-cyan-500/30 rounded-2xl p-6 shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 rounded-xl bg-cyan-500/20">
+                  <Brain className="w-6 h-6 text-cyan-400" />
+                </div>
+                <h2 className="text-lg font-bold text-white">Kết nối Cortex Hub</h2>
+              </div>
+              <p className="text-slate-300 text-sm mb-1">
+                Bạn đã học được <span className="text-cyan-400 font-bold">{learnedCount} từ</span>! 🎉
+              </p>
+              <p className="text-slate-400 text-xs mb-6">
+                Kết nối Cortex Hub để đồng bộ tiến độ học tập của bạn qua tất cả ứng dụng trong hệ sinh thái Cortex. Dữ liệu được phân tích bằng AI để cải thiện hiệu quả học tập.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    click();
+                    setShowCortexReminder(false);
+                    localStorage.setItem('cortex_reminder_dismissed', new Date().toISOString());
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition-colors"
+                >
+                  Để sau
+                </button>
+                <button
+                  onClick={() => {
+                    buttonPress();
+                    setShowCortexReminder(false);
+                    const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3000';
+                    window.open(HUB_URL, '_blank');
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white text-sm font-bold transition-colors"
+                >
+                  Kết nối ngay →
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Logo - Top Left */}
       <div className="hidden lg:block fixed top-4 left-4 md:top-6 md:left-6 z-50">
         <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
@@ -300,7 +397,7 @@ function HomeContent() {
       </div>
 
       {/* Main Content Area - Two Column Layout on Desktop */}
-      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-4 pt-16 pb-4 lg:pt-20 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-4 pt-16 pb-20 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
 
         {/* Left Column - Swipe Deck */}
         <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-center h-full lg:min-h-150">
@@ -346,26 +443,21 @@ function HomeContent() {
           )}
         </AnimatePresence>
 
-        {/* Right Column - Stats Sidebar */}
-        <div className="w-full lg:w-72 xl:w-80 shrink-0">
-          {/* Mobile Action Bar */}
-          <div className="lg:hidden flex items-center justify-center gap-1.5 mb-4">
-            {/* Stats Modal Toggle */}
-            <button
-              onClick={() => {
-                click();
-                setShowMobileStats(true);
-              }}
-              className="flex-1 p-2 bg-slate-800/50 border border-slate-700 rounded-lg hover:border-cyan-500 transition-colors active:scale-95 flex items-center justify-center gap-1.5"
-            >
-              <BarChart3 className="w-4 h-4 text-cyan-400" />
-              <span className="text-slate-300 text-xs font-medium">Cài đặt</span>
-            </button>
+        {/* Mobile Bottom Navigation Bar - Fixed */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-700 px-3 py-2.5 safe-area-inset-bottom">
+          <div className="flex items-center justify-center gap-1.5 max-w-md mx-auto">
+            {/* Stats/Settings Link */}
+            <Link href="/stats" className="flex-1">
+              <div className="py-2 bg-slate-800/60 border border-slate-700 rounded-lg hover:border-cyan-500 transition-colors active:scale-95 flex items-center justify-center gap-1.5">
+                <BarChart3 className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span className="text-slate-300 text-xs font-medium whitespace-nowrap">Cài đặt</span>
+              </div>
+            </Link>
 
             {/* Learned Words Link */}
             <Link href="/learned" className="flex-1">
-              <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-cyan-500 transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-1">
-                <BookOpen className="w-4 h-4 text-cyan-400" />
+              <div className="py-2 rounded-lg bg-slate-800/60 border border-slate-700 hover:border-cyan-500 transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-1">
+                <BookOpen className="w-4 h-4 text-cyan-400 shrink-0" />
                 <span className="text-slate-300 text-xs font-medium whitespace-nowrap">Đã học</span>
                 <span className="text-cyan-400 text-xs font-semibold">({learnedCount})</span>
               </div>
@@ -374,16 +466,19 @@ function HomeContent() {
             {/* Review Link */}
             {dueToday > 0 && (
               <Link href="/review" className="shrink-0">
-                <div className="p-2 rounded-lg bg-amber-500/15 border border-amber-500/30 hover:border-amber-400 transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-1">
-                  <RotateCcw className="w-4 h-4 text-amber-400" />
+                <div className="py-2 px-2.5 rounded-lg bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 transition-colors active:scale-95 cursor-pointer flex items-center justify-center gap-1">
+                  <RotateCcw className="w-4 h-4 text-amber-400 shrink-0" />
                   <span className="text-amber-300 text-xs font-medium whitespace-nowrap">Ôn ({dueToday})</span>
                 </div>
               </Link>
             )}
           </div>
+        </div>
 
+        {/* Right Column - Stats Sidebar */}
+        <div className="hidden lg:block w-full lg:w-72 xl:w-80 shrink-0">
           {/* Desktop Full Stats Card */}
-          <div className="hidden lg:block bg-slate-800/50 border border-slate-700 rounded-xl p-5 lg:p-6 space-y-4 lg:space-y-5">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 lg:p-6 space-y-4 lg:space-y-5">
 
             {/* Voice/Touch Mode Toggle */}
             <div className="space-y-3 pb-4 border-b border-slate-700">

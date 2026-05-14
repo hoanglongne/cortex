@@ -26,7 +26,7 @@ const LEVEL_OPTIONS: LevelOption[] = [
         icon: Sprout,
         description: 'Từ vựng dễ, phù hợp người mới bắt đầu',
         eloRange: 'ELO 800-950',
-        cardCount: '40 từ',
+        cardCount: '243 từ',
     },
     {
         value: 'intermediate',
@@ -34,7 +34,7 @@ const LEVEL_OPTIONS: LevelOption[] = [
         icon: Leaf,
         description: 'Từ vựng phổ biến trong IELTS',
         eloRange: 'ELO 950-1200',
-        cardCount: '72 từ',
+        cardCount: '139 từ',
     },
     {
         value: 'advanced',
@@ -56,9 +56,9 @@ const LEVEL_OPTIONS: LevelOption[] = [
         value: 'all',
         label: 'Tất cả',
         icon: Target,
-        description: 'Học hết 300 từ, hệ thống sẽ adaptive theo khả năng',
+        description: 'Học hết 570 từ, hệ thống sẽ adaptive theo khả năng',
         eloRange: 'ELO 800-1500',
-        cardCount: '300 từ',
+        cardCount: '570 từ',
     },
 ];
 

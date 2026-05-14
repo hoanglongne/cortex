@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { VocabCardData, DifficultyLevel } from '../components/VocabCard';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
-import { getStoryCatchUpWordIds, getUnlockableStory } from '../data/stories';
+import { getStoryCatchUpWordIds, STORIES, canUnlockPart1Naturally, canUnlockPart2Naturally } from '../data/stories';
 
 /**
  * LEXICA Global State Store (Zustand + localStorage persistence)
@@ -252,10 +252,10 @@ export const useLexicaStore = create<LexicaStore>()(
             reviewCardsInjectedThisSession: false,
             toggleAutoReview: () => {
                 const newValue = !get().autoReviewInDeck;
-                set({ 
+                set({
                     autoReviewInDeck: newValue,
                     // Reset session flag so it can inject again on next load if re-enabled
-                    reviewCardsInjectedThisSession: false 
+                    reviewCardsInjectedThisSession: false
                 });
             },
 
@@ -391,7 +391,7 @@ export const useLexicaStore = create<LexicaStore>()(
 
                 // If any story pack is at 7-9/10, inject missing words regardless of ELO.
                 const forcedCardIds = getStoryCatchUpWordIds(learnedWordIds, 3);
-                
+
                 // Only inject review cards if:
                 // 1. Auto-review is enabled
                 // 2. Haven't injected review cards yet this session
@@ -614,10 +614,6 @@ export const useLexicaStore = create<LexicaStore>()(
                 const { learnedWords, unlockedStories, unlockedStoryPart1, storyQuizAttempts } = get();
                 const learnedWordsList = Array.from(learnedWords);
 
-                // Import here to avoid circular dependency
-                const { STORIES } = require('../data/stories');
-                const { canUnlockPart1Naturally, canUnlockPart2Naturally } = require('../data/stories');
-
                 // Check each story for Part 1 or Part 2 unlock
                 for (const story of STORIES) {
                     const storyId = story.id;
@@ -670,7 +666,8 @@ export const useLexicaStore = create<LexicaStore>()(
             },
 
             // DEPRECATED: Modal actions - kept for backwards compat but should use router instead
-            openStoryUnlockModal: (storyId, part) => {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            openStoryUnlockModal: (..._args: unknown[]) => {
                 console.warn('[DEPRECATED] openStoryUnlockModal: Use router.push(/story/${storyId}/unlock?part=${part}) instead');
                 // No-op: Modal state removed, navigation should use router
             },

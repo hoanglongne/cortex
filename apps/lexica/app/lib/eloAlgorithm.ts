@@ -252,13 +252,13 @@ export function generateInitialDeck(
     const now = Date.now();
     const newCardsOnly = filteredDatabase.filter(card => {
         const progress = cardProgress[card.id];
-        
+
         // If auto-review is DISABLED, exclude ALL cards with progress (even if due)
         // User must go to /review page to practice due cards
         if (!shouldInjectReview && progress) {
             return false;
         }
-        
+
         // If auto-review is ENABLED (or card never seen):
         // No progress → brand new card, eligible.
         // Has progress but due right now → already handled in Step 1 above, but allow as fallback.
