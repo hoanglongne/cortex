@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Zap, Trophy, X, Clock, Flame, Target, Star } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { VOCAB_DATABASE } from '../data/vocabCards';
@@ -39,17 +39,13 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose }
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
-    // High scores from localStorage
-    const [highScoreAll, setHighScoreAll] = useState(0);
-    const [highScoreToday, setHighScoreToday] = useState(0);
-
-    // Load high scores on mount
-    useEffect(() => {
-        const allScore = parseInt(localStorage.getItem('speedquiz_highscore_all') || '0');
-        const todayScore = parseInt(localStorage.getItem('speedquiz_highscore_today') || '0');
-        setHighScoreAll(allScore);
-        setHighScoreToday(todayScore);
-    }, []);
+    // High scores from localStorage (lazy initialization)
+    const [highScoreAll, setHighScoreAll] = useState(() => 
+        parseInt(localStorage.getItem('speedquiz_highscore_all') || '0')
+    );
+    const [highScoreToday, setHighScoreToday] = useState(() => 
+        parseInt(localStorage.getItem('speedquiz_highscore_today') || '0')
+    );
 
     // Generate random question
     const generateQuestion = useCallback((wordIds: string[]): QuizQuestion | null => {
@@ -99,6 +95,33 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose }
         setCurrentQuestion(question);
     };
 
+    // End game
+    const endGame = useCallback(() => {
+        setGameState('gameover');
+
+        // Save high score
+        if (mode === 'all' && score > highScoreAll) {
+            localStorage.setItem('speedquiz_highscore_all', score.toString());
+            setHighScoreAll(score);
+            levelUp();
+        } else if (mode === 'today' && score > highScoreToday) {
+            localStorage.setItem('speedquiz_highscore_today', score.toString());
+            setHighScoreToday(score);
+            levelUp();
+        }
+    }, [mode, score, highScoreAll, highScoreToday, levelUp]);
+
+    // Handle timeout
+    const handleTimeout = useCallback(() => {
+        quizWrong();
+        setIsCorrect(false);
+        setStreak(0);
+
+        setTimeout(() => {
+            endGame();
+        }, 1500);
+    }, [quizWrong, endGame]);
+
     // Timer countdown
     useEffect(() => {
         if (gameState !== 'playing' || isCorrect !== null) return;
@@ -115,18 +138,7 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose }
         }, 100);
 
         return () => clearInterval(timer);
-    }, [gameState, isCorrect]);
-
-    // Handle timeout
-    const handleTimeout = () => {
-        quizWrong();
-        setIsCorrect(false);
-        setStreak(0);
-
-        setTimeout(() => {
-            endGame();
-        }, 1500);
-    };
+    }, [gameState, isCorrect, handleTimeout]);
 
     // Handle answer selection
     const handleAnswer = (answer: string) => {
@@ -169,22 +181,6 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose }
             setTimeout(() => {
                 endGame();
             }, 1500);
-        }
-    };
-
-    // End game
-    const endGame = () => {
-        setGameState('gameover');
-
-        // Save high score
-        if (mode === 'all' && score > highScoreAll) {
-            localStorage.setItem('speedquiz_highscore_all', score.toString());
-            setHighScoreAll(score);
-            levelUp();
-        } else if (mode === 'today' && score > highScoreToday) {
-            localStorage.setItem('speedquiz_highscore_today', score.toString());
-            setHighScoreToday(score);
-            levelUp();
         }
     };
 
@@ -353,12 +349,12 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose }
                                             onClick={() => handleAnswer(option)}
                                             disabled={showResult}
                                             className={`p-3 sm:p-4 rounded-xl text-left text-sm sm:text-base font-medium transition-all border ${showResult
-                                                    ? isCorrectOption
-                                                        ? 'bg-green-500/20 border-green-500 text-green-300'
-                                                        : isSelected
-                                                            ? 'bg-red-500/20 border-red-500 text-red-300'
-                                                            : 'bg-slate-700/30 border-slate-600 text-slate-400'
-                                                    : 'bg-slate-700/50 border-slate-600 hover:border-cyan-500 text-white'
+                                                ? isCorrectOption
+                                                    ? 'bg-green-500/20 border-green-500 text-green-300'
+                                                    : isSelected
+                                                        ? 'bg-red-500/20 border-red-500 text-red-300'
+                                                        : 'bg-slate-700/30 border-slate-600 text-slate-400'
+                                                : 'bg-slate-700/50 border-slate-600 hover:border-cyan-500 text-white'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-2 sm:gap-3">
