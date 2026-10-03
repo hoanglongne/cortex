@@ -23,9 +23,9 @@ _Mục tiêu: Thiết lập kết nối và tạo hưng phấn cho người dùn
 - [ ] **Supabase Core Setup**: Cài đặt `@supabase/supabase-js`, cấu hình các bảng `users`, `app_backups`, `action_logs`.
 - [ ] **Shared Reward System (RewardHelper)**: Triển khai `canvas-confetti` & `howler.js` cho hiệu ứng Milestone toàn monorepo.
 - [ ] **Health & Presence**:
-  - [ ] Endpoint `/health` kiểm tra Redis/Supabase.
-  - [ ] Tích hợp **Supabase Presence** để hiển thị số người đang học online xuyên ứng dụng.
-- [ ] **Lightweight Sync API**: Endpoint `POST /v1/sync/backup` để lưu JSON thô.
+  - [x] Endpoint `/health` kiểm tra Redis/Supabase.
+  - [ ] (Backend xong qua Socket.io `identify` / `presence:update`, còn UI) Tích hợp **Supabase Presence** để hiển thị số người đang học online xuyên ứng dụng.
+- [x] **Lightweight Sync API**: Endpoint `POST /v1/sync/backup` để lưu JSON thô.
 - [ ] **Ecosystem Banners/Toasts**: Tạo shared component để thông báo sự kiện (ví dụ: "Người dùng X vừa đạt 50 XP ở Lexica!").
 
 ### 🟡 GIAI ĐOẠN 2: BỘ NÃO CƠ BẢN (MEDIUM - ANALYTICAL CORE)

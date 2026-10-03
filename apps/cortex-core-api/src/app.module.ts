@@ -9,6 +9,8 @@ import { EventsModule } from './modules/events/events.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { LinguisticsModule } from './modules/linguistics/linguistics.module';
 import { SynapseModule } from './modules/synapse/synapse.module';
+import { HealthModule } from './modules/health/health.module';
+import { SyncModule } from './modules/sync/sync.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { SynapseModule } from './modules/synapse/synapse.module';
     LinguisticsModule,
     ActionsModule,
     SynapseModule,
+    HealthModule,
+    SyncModule,
   ],
   controllers: [AppController],
   providers: [AppService],

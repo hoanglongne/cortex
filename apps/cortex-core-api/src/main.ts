@@ -1,8 +1,11 @@
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Sync backups can exceed express's 100kb default (see MAX_BACKUP_BYTES).
+  app.useBodyParser('json', { limit: '1mb' });
   app.enableCors({
     origin: (
       origin: string | undefined,
