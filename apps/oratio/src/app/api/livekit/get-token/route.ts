@@ -51,8 +51,16 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. Parse request body
-    const body = await request.json();
-    const { roomName, participantName } = body;
+    let body: { roomName?: unknown; participantName?: unknown };
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Request body must be valid JSON" },
+        { status: 400 }
+      );
+    }
+    const { roomName, participantName } = body ?? {};
 
     if (!roomName || typeof roomName !== "string") {
       return NextResponse.json(

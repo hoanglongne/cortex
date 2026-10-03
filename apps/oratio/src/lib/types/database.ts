@@ -46,6 +46,8 @@ export interface MatchQueueEntry {
   target_band_max: number;
   status: MatchQueueStatus;
   created_at: string;
+  /** Heartbeat updated on every findMatch poll */
+  last_seen_at: string;
 }
 
 export interface Match {
@@ -157,6 +159,7 @@ export interface ProfileUpdate {
 
 export interface MatchQueueUpdate {
   status?: MatchQueueStatus;
+  last_seen_at?: string;
 }
 
 export interface MatchUpdate {

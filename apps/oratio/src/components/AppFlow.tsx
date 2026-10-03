@@ -64,8 +64,11 @@ interface SessionData {
   myComments: string;
 }
 
-// Demo mode flag - set to true to skip auth during development
-const DEMO_MODE = !process.env.NEXT_PUBLIC_SUPABASE_URL;
+// Demo mode skips auth and matchmaking. Opt-in only (NEXT_PUBLIC_DEMO_MODE=true)
+// and never in production, so a missing Supabase env var can't bypass auth.
+const DEMO_MODE =
+  process.env.NEXT_PUBLIC_DEMO_MODE === "true" &&
+  process.env.NODE_ENV !== "production";
 
 export default function AppFlow() {
   const [currentScreen, setCurrentScreen] = useState<Screen>(DEMO_MODE ? "home" : "auth");

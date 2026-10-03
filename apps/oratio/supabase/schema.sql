@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS public.match_queue (
     target_band_max DECIMAL(2,1) DEFAULT 7.5 CHECK (target_band_max >= 1 AND target_band_max <= 9),
     status match_queue_status DEFAULT 'waiting',
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    last_seen_at TIMESTAMPTZ DEFAULT NOW(), -- heartbeat, updated on every poll
     UNIQUE(user_id) -- User can only be in queue once
 );
 
@@ -108,6 +109,7 @@ CREATE INDEX IF NOT EXISTS idx_ielts_questions_difficulty ON public.ielts_questi
 CREATE INDEX IF NOT EXISTS idx_match_queue_status ON public.match_queue(status);
 CREATE INDEX IF NOT EXISTS idx_match_queue_waiting ON public.match_queue(status, created_at) WHERE status = 'waiting';
 CREATE INDEX IF NOT EXISTS idx_match_queue_user ON public.match_queue(user_id);
+CREATE INDEX IF NOT EXISTS idx_match_queue_waiting_seen ON public.match_queue(status, last_seen_at) WHERE status = 'waiting';
 
 -- Matches indexes
 CREATE INDEX IF NOT EXISTS idx_matches_user1 ON public.matches(user1_id);
