@@ -1,159 +1,50 @@
-# Turborepo starter
+# CORTEX HUB
 
-This Turborepo starter is maintained by the Turborepo core team.
+Hệ sinh thái EdTech luyện IELTS gồm nhiều app chuyên biệt, dùng chung một backend và một bộ type dữ liệu. Kiến trúc chi tiết: [`docs/CORTEX_SYSTEM_ARCHITECTURE.md`](docs/CORTEX_SYSTEM_ARCHITECTURE.md).
 
-## Using this example
+## Cấu trúc monorepo
 
-Run the following command:
+| Đường dẫn | Package | Mô tả |
+|---|---|---|
+| `apps/cortex-core-api` | `@cortex/api` | Backend NestJS: action log, tiến trình người dùng, WebSocket (Socket.io), Redis, Supabase |
+| `apps/landing` | `@cortex/landing` | Trang giới thiệu hệ sinh thái (Next.js) |
+| `apps/lexica` | `@cortex/lexica` | Học từ vựng qua truyện, thuật toán ELO + SRS, PWA |
+| `apps/oratio` | `@cortex/oratio` | Luyện nói P2P theo thời gian thực (LiveKit), giả lập phòng thi |
+| `apps/solilo` | `@cortex/solilo` | Luyện nói cá nhân, tập trung fluency và phát âm |
+| `apps/synapse` | `@cortex/synapse` | Game kịch bản giao diện terminal |
+| `packages/cortex-types` | `@cortex/types` | Type dùng chung giữa các app và API ([hướng dẫn](docs/SHARED_TYPES_GUIDE.md)) |
+| `packages/ui` | `@repo/ui` | Component React dùng chung |
+| `packages/eslint-config`, `packages/typescript-config` | | Cấu hình ESLint / TypeScript dùng chung |
+| `scripts/` | | Script `curl` giả lập luồng dữ liệu tới API local |
 
-```sh
-npx create-turbo@latest
-```
+## Bắt đầu
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Yêu cầu: Node.js >= 20, pnpm 9.
 
 ```sh
-cd my-turborepo
-turbo build
+pnpm install
+pnpm dev                              # chạy tất cả app
+pnpm dev --filter=@cortex/lexica      # chỉ chạy một app
 ```
 
-Without global `turbo`, use your package manager:
+Mỗi app cần file env riêng (Supabase, URL API...). Xem `.env*.example` và README trong từng app; hướng dẫn deploy ở [`DEPLOYMENT.md`](DEPLOYMENT.md).
+
+## Lệnh thường dùng
 
 ```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+pnpm build         # build toàn bộ
+pnpm lint          # ESLint
+pnpm check-types   # tsc --noEmit
+pnpm test          # unit test (Vitest cho Lexica, Jest cho API)
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+CI (`.github/workflows/ci.yml`) chạy lint, type check, test và build cho mọi PR vào `main`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Knowledge graph
+
+`graphify-out/` chứa đồ thị code sinh bởi [graphify](https://pypi.org/project/graphifyy/) (`GRAPH_REPORT.md`, `graph.html`). Cập nhật sau khi đổi code:
 
 ```sh
-turbo build --filter=docs
+pip install graphifyy
+graphify update .
 ```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
