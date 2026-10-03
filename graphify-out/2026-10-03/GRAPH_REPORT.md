@@ -1,35 +1,35 @@
 # Graph Report - cortex  (2026-10-03)
 
 ## Corpus Check
-- 364 files · ~298,890 words
+- 363 files · ~297,360 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 18 file(s) not represented in the graph (top: .ico 5, .css 5, (none) 4)
+- Unclassified: 15 file(s) not represented in the graph (top: .ico 5, .css 5, (none) 4)
 
 ## Summary
-- 2887 nodes · 4748 edges · 179 communities (160 shown, 19 thin omitted)
-- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 119 edges (avg confidence: 0.91)
+- 2801 nodes · 4540 edges · 189 communities (165 shown, 24 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 114 edges (avg confidence: 0.91)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `16cde610`
+- Built from commit: `10fbfe58`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- workbox-01fd22c6.js
+- createAdminClient
 - ref_next
-- useSoundEffects
+- ref_lucide_react
 - stories.ts
 - cortex-core-api/package.json
 - buddy/page.tsx
 - Design System & Styling
+- LearnedWordsList.tsx
+- Design System Inspired by Composio
+- Design System Inspired by Composio
+- stats/page.tsx
 - useLexicaStore
-- Design System Inspired by Composio
-- Design System Inspired by Composio
-- ref_react
-- lexicaStore.ts
 - solilo/package.json
-- lexica/app/page.tsx
+- SwipeDeck
 - Features & User Flows
 - SpeakMate Backend Implementation
 - SynapseScenario
@@ -42,8 +42,8 @@
 - Story Progressive Unlock - Technical Specification
 - InCallScreen.tsx
 - Template Brainstorm App Mới - CORTEX HUB
-- VocabCard.tsx
-- createAdminClient
+- ref_react
+- createClient
 - ui/package.json
 - cortex-types/index.ts
 - LoreSelection.tsx
@@ -84,7 +84,7 @@
 - LeaderboardScreen.tsx
 - useLanguage
 - landing/src/app/page.tsx
-- ref_lucide_react
+- vocab.ts
 - Do lech: master context vs code hien tai
 - 2.2. Chi tiết từng Route
 - helpers.ts
@@ -102,7 +102,7 @@
 - Page: Màn hình Terminal (Synapse)
 - ref_eslint
 - dependencies
-- auth/page.tsx
+- profile/page.tsx
 - landing/src/app/layout.tsx
 - LEXICA - Architecture Overview
 - Product Context
@@ -119,12 +119,12 @@
 - 📅 LỘ TRÌNH CHI TIẾT (PHASED ROADMAP)
 - cortex-core-api/README.md
 - devDependencies
-- profile/page.tsx
+- ProfileScreen.tsx
 - ArsenalSection.tsx
 - Core Components
 - LEXICA Context Documentation
 - FriendsScreen.tsx
-- What's inside?
+- TerminalBoard
 - Hướng dẫn Hạ tầng Core API (INFRASTRUCTURE_GUIDE.md)
 - jest
 - world-bibles.ts
@@ -135,10 +135,10 @@
 - RatingScreen.tsx
 - CORTEX HUB - Hướng dẫn Hoàn tất Cài đặt (SETUP_GUIDE.md)
 - app.e2e-spec.ts
-- LinguisticsController
+- ErrorBoundary
 - 6. GAME MODES
 - ResultPanel.tsx
-- CORTEX HUB System Architecture & Shared Context
+- supabase/middleware.ts
 - ui/tsconfig.json
 - synapse-technical-architecture.md
 - Core Data Structures
@@ -146,7 +146,7 @@
 - 2. CORE GAMEPLAY LOOP & MECHANICS
 - lexicaStore.test.ts
 - AchievementsScreen.tsx
-- CallSummaryScreen.tsx
+- 1. Hệ thống Phần thưởng (Reward System)
 - useFillerTracker.ts
 - synapse/src/app/layout.tsx
 - SYNAPSE: PROJECT CONTEXT & ARCHITECTURE
@@ -157,7 +157,7 @@
 - 4.1. Core Components
 - 5. DATA MODELS & STORE
 - To remove mock data and restore production state:
-- Hướng dẫn Sử dụng Shared Types (`@cortex/types`)
+- oratio/src/app/layout.tsx
 - react-library.json
 - synapse-prd.md
 - scripts
@@ -186,6 +186,17 @@
 - AGENTS.md
 - synapse/postcss.config.mjs
 - eslint-config/README.md
+- oratio/layout.tsx
+- lexica/page.tsx
+- metamorph/page.tsx
+- syntaxis/page.tsx
+- visage/page.tsx
+- dialecta/layout.tsx
+- echo/layout.tsx
+- lexica/layout.tsx
+- metamorph/layout.tsx
+- solilo/layout.tsx
+- syntaxis/layout.tsx
 - simulate_full_flow.sh
 - simulate_text_only.sh
 - test_overwrite.sh
@@ -199,8 +210,8 @@
 6. `compilerOptions` - 23 edges
 7. `@nestjs/common` - 22 edges
 8. `getSupabaseClient()` - 20 edges
-9. `s` - 19 edges
-10. `InCallContent()` - 19 edges
+9. `InCallContent()` - 19 edges
+10. `useLanguage()` - 19 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Các Model Dữ liệu Chính:` --references--> `UserProgress`  [INFERRED]
@@ -211,31 +222,29 @@
   docs/SHARED_TYPES_GUIDE.md → packages/cortex-types/index.ts
 - `2. Redis (Xử lý hàng đợi & Cache)` --references--> `EventsGateway`  [INFERRED]
   apps/cortex-core-api/SETUP_GUIDE.md → apps/cortex-core-api/src/modules/events/events.gateway.ts
-- `3. Manual level selection` --references--> `LevelSelector()`  [INFERRED]
-  apps/lexica/docs/context/flows.md → apps/lexica/app/components/LevelSelector.tsx
+- `3. Luồng hoạt động của ActionLog` --references--> `RewardHelper`  [INFERRED]
+  apps/cortex-core-api/docs/REALTIME_EVENTS_GUIDE.md → apps/cortex-core-api/src/modules/shared/reward-helper.service.ts
 
 ## Import Cycles
-- 3-file cycle: `apps/lexica/app/components/VocabCard.tsx -> apps/lexica/app/store/lexicaStore.ts -> apps/lexica/app/data/stories.ts -> apps/lexica/app/components/VocabCard.tsx`
-- 3-file cycle: `apps/lexica/app/components/VocabCard.tsx -> apps/lexica/app/store/lexicaStore.ts -> apps/lexica/app/lib/eloAlgorithm.ts -> apps/lexica/app/components/VocabCard.tsx`
-- 4-file cycle: `apps/lexica/app/components/VocabCard.tsx -> apps/lexica/app/store/lexicaStore.ts -> apps/lexica/app/lib/eloAlgorithm.ts -> apps/lexica/app/data/vocabCards.ts -> apps/lexica/app/components/VocabCard.tsx`
+- None detected.
 
-## Communities (179 total, 19 thin omitted)
+## Communities (189 total, 24 thin omitted)
 
-### Community 0 - "workbox-01fd22c6.js"
-Cohesion: 0.06
-Nodes (25): a, b(), constructor(), deleteCacheAndMetadata(), et, F, G, get() (+17 more)
+### Community 0 - "createAdminClient"
+Cohesion: 0.17
+Nodes (22): Bugs & Issues, ~~Critical~~ — Fixed, High Priority, Low Priority, Medium Priority, cancelMatch(), checkMatchStatus(), debugAnalyzeMatchmaking() (+14 more)
 
 ### Community 1 - "ref_next"
-Cohesion: 0.03
-Nodes (32): nextConfig, metadata, metadata, metadata, container, features, item, metadata (+24 more)
+Cohesion: 0.13
+Nodes (5): nextConfig, nextConfig, POST(), nextConfig, nextConfig
 
-### Community 2 - "useSoundEffects"
+### Community 2 - "ref_lucide_react"
 Cohesion: 0.08
 Nodes (51): ALL_WORD_IDS, ChallengePage(), ChallengePageProps, GameComponent(), ChallengeButton(), ChallengeButtonProps, ComboChain(), ComboChainProps (+43 more)
 
 ### Community 3 - "stories.ts"
-Cohesion: 0.09
-Nodes (36): StoryComprehensionQuiz(), StoryComprehensionQuizProps, StoryMode(), StoryModeProps, StoryVocabDialogData, VOCAB_BY_ID, VOCAB_ID_BY_WORD, StoryQuizModal() (+28 more)
+Cohesion: 0.10
+Nodes (35): StoryComprehensionQuiz(), StoryComprehensionQuizProps, StoryMode(), StoryModeProps, StoryVocabDialogData, VOCAB_BY_ID, VOCAB_ID_BY_WORD, StoryQuizModal() (+27 more)
 
 ### Community 4 - "cortex-core-api/package.json"
 Cohesion: 0.04
@@ -249,9 +258,9 @@ Nodes (34): BuddyCard(), BuddyPage(), StatPill(), AuthGate(), AuthGateProps, Aut
 Cohesion: 0.05
 Nodes (42): Accessibility, Animations, Badges, Base Scale, Buttons, Cards, Color Contrast, Color Palette (+34 more)
 
-### Community 7 - "useLexicaStore"
-Cohesion: 0.08
-Nodes (32): CortexProfile, CortexWidget(), LearnedWordsCounter(), CardWithProgress, formatNextReview(), formatNextReviewFull(), highlightWord(), LearnedWordsList() (+24 more)
+### Community 7 - "LearnedWordsList.tsx"
+Cohesion: 0.13
+Nodes (19): CardWithProgress, formatNextReview(), formatNextReviewFull(), highlightWord(), LearnedWordsList(), LEVEL_COLOR, LEVEL_LABEL, STATE_COLOR (+11 more)
 
 ### Community 8 - "Design System Inspired by Composio"
 Cohesion: 0.05
@@ -261,21 +270,21 @@ Nodes (39): 1. Visual Theme & Atmosphere, 2. Color Palette & Roles, 3. Typograph
 Cohesion: 0.05
 Nodes (39): 1. Visual Theme & Atmosphere, 2. Color Palette & Roles, 3. Typography Rules, 4. Component Stylings, 5. Layout Principles, 6. Depth & Elevation, 7. Do's and Don'ts, 8. Responsive Behavior (+31 more)
 
-### Community 10 - "ref_react"
-Cohesion: 0.09
-Nodes (23): AccuracyChart(), AccuracyChartProps, Period, ActivityHeatmap(), ActivityHeatmapProps, Period, CardStatesPieChart(), CardStatesPieChartProps (+15 more)
+### Community 10 - "stats/page.tsx"
+Cohesion: 0.12
+Nodes (22): AccuracyChart(), AccuracyChartProps, Period, ActivityHeatmap(), ActivityHeatmapProps, Period, CardStatesPieChart(), CardStatesPieChartProps (+14 more)
 
-### Community 11 - "lexicaStore.ts"
-Cohesion: 0.09
-Nodes (29): DAY_LABELS, MONTH_LABELS, SRSCalendarProps, UserArchetype, analytics, EventProps, LexicaEvent, calculateNextReview() (+21 more)
+### Community 11 - "useLexicaStore"
+Cohesion: 0.07
+Nodes (50): CortexProfile, CortexWidget(), LearnedWordsCounter(), OnboardingModal(), OnboardingModalProps, PERSONA_OPTIONS, STEPS, getGreeting() (+42 more)
 
 ### Community 12 - "solilo/package.json"
 Cohesion: 0.05
-Nodes (39): dependencies, @cortex/types, framer-motion, lucide-react, next, @radix-ui/react-slider, react, react-dom (+31 more)
+Nodes (40): dependencies, @cortex/types, framer-motion, lucide-react, next, @radix-ui/react-slider, react, react-dom (+32 more)
 
-### Community 13 - "lexica/app/page.tsx"
-Cohesion: 0.07
-Nodes (28): EnergyBar(), EnergyBarProps, ErrorBoundary, Props, State, getGreeting(), getTodayDateString(), SmartEntry() (+20 more)
+### Community 13 - "SwipeDeck"
+Cohesion: 0.15
+Nodes (14): EnergyBar(), EnergyBarProps, SwipeDeck(), 1. First-time entry, 2. Placement test, 3. Manual level selection, 4. Main learning loop, 5. Input modes (+6 more)
 
 ### Community 14 - "Features & User Flows"
 Cohesion: 0.05
@@ -286,32 +295,32 @@ Cohesion: 0.05
 Nodes (37): 10. **Speaking Part Simulator**, 1. `profiles`, 1. **Smart Matching Algorithm**, 2. `match_queue`, 2. **Scheduled Practice Sessions**, 3. `matches`, 3. **Topic Voting**, 4. **AI Speaking Analysis** (Future) (+29 more)
 
 ### Community 16 - "SynapseScenario"
-Cohesion: 0.12
-Nodes (9): GeminiProvider, GemmaProvider, GroqProvider, LlmProvider, SynapseController, SynapseService, Backend (NestJS - cortex-core-api), ActionLog (+1 more)
+Cohesion: 0.11
+Nodes (11): GeminiProvider, GemmaProvider, GroqProvider, LlmProvider, SynapseController, SynapseService, 2. Core Architecture, Backend (NestJS - cortex-core-api) (+3 more)
 
 ### Community 17 - "synapse/package.json"
 Cohesion: 0.05
-Nodes (36): dependencies, @cortex/types, lucide-react, next, react, react-dom, devDependencies, eslint (+28 more)
+Nodes (37): dependencies, @cortex/types, lucide-react, next, react, react-dom, devDependencies, eslint (+29 more)
 
 ### Community 18 - "TerminalBoard.tsx"
-Cohesion: 0.14
-Nodes (24): makeId(), nowIso(), TerminalBoard(), loadStageFromArc(), onChoose(), onContinue(), onRestart(), onRetry() (+16 more)
+Cohesion: 0.18
+Nodes (14): TerminalHeader(), TerminalOptions(), TerminalMode, TerminalOutput(), ThemeContext, useTheme(), useTypewriter(), apiClient (+6 more)
 
 ### Community 19 - "database.ts"
-Cohesion: 0.08
-Nodes (29): MatchQueueWithProfile, HomeScreenProps, ProfileScreenProps, MatchDetails, UseMatchmakingOptions, UseMatchmakingReturn, useIsAuthenticated(), UseSupabaseAuthReturn (+21 more)
+Cohesion: 0.09
+Nodes (20): MatchQueueWithProfile, IeltsQuestion, Json, LiveKitTokenResult, Match, MatchInsert, MatchQueueEntry, MatchQueueInsert (+12 more)
 
 ### Community 20 - "AppFlow.tsx"
-Cohesion: 0.11
-Nodes (29): Home(), AchievementsScreen, AppFlow(), CallHistoryScreen, CallSummaryScreen, FriendsScreen, InCallScreen, LeaderboardScreen (+21 more)
+Cohesion: 0.10
+Nodes (29): Home(), AppFlow(), CallHistoryScreen, CallSummaryScreen, InCallScreen, LeaderboardScreen, MatchInfo, MatchmakingScreen (+21 more)
 
 ### Community 21 - "EventsGateway"
-Cohesion: 0.07
-Nodes (16): 🔄 1. Luồng Ghi nhận Hoạt động & Phần thưởng (Action & Reward Flow), 💾 2. Luồng Sao lưu & Tinh chỉnh (Backup & Refinement Flow), 🧠 3. Luồng Gợi ý Thích ứng (Adaptive Recommendation Flow), 📡 4. Sơ đồ các thành phần, CORTEX HUB - Luồng Dữ liệu Hệ thống (DATA_FLOW.md), 1. Hệ thống Phần thưởng (Reward System), 2. Kết nối từ Frontend (Client), 3. Luồng hoạt động của ActionLog (+8 more)
+Cohesion: 0.09
+Nodes (10): 🔄 1. Luồng Ghi nhận Hoạt động & Phần thưởng (Action & Reward Flow), 💾 2. Luồng Sao lưu & Tinh chỉnh (Backup & Refinement Flow), 🧠 3. Luồng Gợi ý Thích ứng (Adaptive Recommendation Flow), 📡 4. Sơ đồ các thành phần, CORTEX HUB - Luồng Dữ liệu Hệ thống (DATA_FLOW.md), EventsGateway, RewardHelper, SharedModule (+2 more)
 
 ### Community 22 - "SupabaseService"
-Cohesion: 0.11
-Nodes (7): ActionsController, LogMetadata, BridgeResult, LinguisticRefinerService, SupabaseService, compromise, natural
+Cohesion: 0.10
+Nodes (4): ActionsController, LinguisticRefinerService, LinguisticsController, SupabaseService
 
 ### Community 23 - "Story Progressive Unlock - Technical Specification"
 Cohesion: 0.06
@@ -319,31 +328,31 @@ Nodes (31): 1. Story Card States (on /learned page), 1. Update Story Interface, 
 
 ### Community 24 - "InCallScreen.tsx"
 Cohesion: 0.15
-Nodes (29): assignMatchRoles(), cancelSwapRequest(), getMatchState(), getNextQuestion(), getPartForCount(), getQuestionById(), getRandomQuestion(), requestSwapRoles() (+21 more)
+Nodes (28): assignMatchRoles(), cancelSwapRequest(), getMatchState(), getNextQuestion(), getPartForCount(), getQuestionById(), getRandomQuestion(), requestSwapRoles() (+20 more)
 
 ### Community 25 - "Template Brainstorm App Mới - CORTEX HUB"
 Cohesion: 0.06
 Nodes (30): 1.1 Tên App, 1.2 Pure Function, 1.3 Trụ Cột (Pillar), 1. ĐỊNH NGHĨA CỐT LÕI, 2.1 Tagline, 2.2 How It Works - 3 Bước, 2.3 Đoạn Giải Thích Cơ Chế, 2. CƠ CHẾ HOẠT ĐỘNG (+22 more)
 
-### Community 26 - "VocabCard.tsx"
-Cohesion: 0.11
-Nodes (24): LEVEL_OPTIONS, LevelOption, LevelSelectorProps, LevelTest(), LevelTestProps, TEST_QUESTIONS, TestQuestion, LEVEL_INFO (+16 more)
+### Community 26 - "ref_react"
+Cohesion: 0.08
+Nodes (25): InstallPWAPrompt(), LEVEL_OPTIONS, LevelOption, LevelSelector(), LevelSelectorProps, LevelTest(), LevelTestProps, TEST_QUESTIONS (+17 more)
 
-### Community 27 - "createAdminClient"
-Cohesion: 0.16
-Nodes (23): getCurrentProfile(), getCurrentUser(), resetPasswordRequest(), signIn(), signOut(), signUp(), updateProfile(), cancelMatch() (+15 more)
+### Community 27 - "createClient"
+Cohesion: 0.23
+Nodes (11): getCurrentProfile(), getCurrentUser(), resetPasswordRequest(), signIn(), signOut(), signUp(), updateProfile(), POST() (+3 more)
 
 ### Community 28 - "ui/package.json"
 Cohesion: 0.07
 Nodes (28): dependencies, react, react-dom, devDependencies, eslint, @repo/eslint-config, @repo/typescript-config, @types/node (+20 more)
 
 ### Community 29 - "cortex-types/index.ts"
-Cohesion: 0.11
-Nodes (17): LEXICA_SOURCE, SessionScores, ORATIO_SOURCE, calculateOverall(), mapSoliloRatingsToMetrics(), SOLILO_SOURCE, 3. Kiến trúc Shared Types (`@cortex/types`), Các Model Dữ liệu Chính: (+9 more)
+Cohesion: 0.14
+Nodes (14): LEXICA_SOURCE, calculateOverall(), mapSoliloRatingsToMetrics(), SOLILO_SOURCE, Các Model Dữ liệu Chính:, 4. Danh sách các Types quan trọng, AppSource, AssessmentMetrics (+6 more)
 
 ### Community 30 - "LoreSelection.tsx"
 Cohesion: 0.13
-Nodes (21): Home(), LORE_ICONS, LoreSelection(), LoreSelectionProps, MISSION_ICONS, SYNAPSE_FACTION_ICONS, SynapseLoreSelection(), UrbanLoreSelection() (+13 more)
+Nodes (20): Home(), LORE_ICONS, LoreSelection(), LoreSelectionProps, MISSION_ICONS, SYNAPSE_FACTION_ICONS, SynapseLoreSelection(), UrbanLoreSelection() (+12 more)
 
 ### Community 31 - "lexica/package.json"
 Cohesion: 0.07
@@ -362,8 +371,8 @@ Cohesion: 0.08
 Nodes (25): Bonus Features (Not in Original Roadmap) ✅ COMPLETE, LEXICA DEVELOPMENT ROADMAP, Phase 10: Design System & Animations, Phase 1: App Router Setup, PWA Config & Global Layout ✅ COMPLETE, Phase 2: Framer Motion Swipe Deck Implementation ✅ COMPLETE, Phase 3: The useVocalSwipe Hook (Web Speech API) ✅ COMPLETE, Phase 4: Mock Database Setup & ELO Routing ✅ COMPLETE, Phase 5: Story Mode UI & ORATIO Funnel ✅ COMPLETE (+17 more)
 
 ### Community 35 - "HomeScreen.tsx"
-Cohesion: 0.14
-Nodes (21): getCallHistory(), getGlobalStats(), getOnlineLearnersCount(), CallSession, FeedbackData, HomeScreen(), NavLink(), SessionRow() (+13 more)
+Cohesion: 0.20
+Nodes (15): getCallHistory(), getGlobalStats(), getOnlineLearnersCount(), CallSession, FeedbackData, HomeScreen(), NavLink(), SessionRow() (+7 more)
 
 ### Community 36 - "dependencies"
 Cohesion: 0.08
@@ -375,7 +384,7 @@ Nodes (25): devDependencies, eslint, eslint-config-prettier, @eslint/eslintrc, @
 
 ### Community 38 - "app.module.ts"
 Cohesion: 0.16
-Nodes (7): ActionsModule, LinguisticsModule, SharedModule, SupabaseModule, SynapseModule, @nestjs/common, @nestjs/config
+Nodes (10): LogMetadata, ActionsModule, BridgeResult, LinguisticsModule, SupabaseModule, SynapseModule, compromise, natural (+2 more)
 
 ### Community 39 - "compilerOptions"
 Cohesion: 0.08
@@ -395,11 +404,11 @@ Nodes (21): clsx, eslint, eslint-config-next, framer-motion, lucide-react, next,
 
 ### Community 43 - "package.json"
 Cohesion: 0.09
-Nodes (21): devDependencies, prettier, turbo, typescript, engines, node, prettier, typescript (+13 more)
+Nodes (22): devDependencies, prettier, turbo, typescript, engines, node, prettier, typescript (+14 more)
 
 ### Community 44 - "LiveKitRoom.tsx"
 Cohesion: 0.16
-Nodes (16): AuthScreen(), AuthScreenProps, AudioConference(), AudioIndicator(), LiveKitRoom(), LiveKitRoomProps, LoadingSpinner(), LoadingSpinnerProps (+8 more)
+Nodes (17): AuthScreen(), AuthScreenProps, AudioConference(), AudioIndicator(), LiveKitRoom(), LiveKitRoomProps, LoadingSpinner(), LoadingSpinnerProps (+9 more)
 
 ### Community 45 - "types/index.ts"
 Cohesion: 0.19
@@ -478,8 +487,8 @@ Cohesion: 0.12
 Nodes (16): devDependencies, eslint, eslint-config-next, jsdom, @playwright/test, tailwindcss, @tailwindcss/postcss, @testing-library/jest-dom (+8 more)
 
 ### Community 64 - "SpeakMate (Oratio) — Project Status & Issues Tracker"
-Cohesion: 0.14
-Nodes (15): Bugs & Issues, ~~Critical~~ — Fixed, Database Schema, Environment Variables Required, Features — Implemented & Working, Features — Not Started, Features — UI Only (Mock Data), High Priority (+7 more)
+Cohesion: 0.20
+Nodes (9): Database Schema, Environment Variables Required, Features — Implemented & Working, Features — Not Started, Features — UI Only (Mock Data), LiveKit Integration Details (2026-03-21), SpeakMate (Oratio) — Project Status & Issues Tracker, Tech Stack (+1 more)
 
 ### Community 65 - "LeaderboardScreen.tsx"
 Cohesion: 0.21
@@ -493,9 +502,9 @@ Nodes (12): useLanguage(), IdlePanel(), IdlePanelProps, PreparationPanel(), Prep
 Cohesion: 0.20
 Nodes (11): container, Home(), item, CortexSection(), Footer(), container, item, PartnershipSection() (+3 more)
 
-### Community 68 - "ref_lucide_react"
-Cohesion: 0.25
-Nodes (9): InstallPWAPrompt(), LevelSelector(), LevelTestWelcome(), LevelTestWelcomeProps, BeforeInstallPromptEvent, InstallPromptState, useInstallPrompt(), LevelSelectPage() (+1 more)
+### Community 68 - "vocab.ts"
+Cohesion: 0.15
+Nodes (13): ReviewQuiz(), ReviewQuizProps, VocabCard(), VocabCardProps, useVocalSwipe(), UseVocalSwipeProps, UseVocalSwipeReturn, VocalSwipeState (+5 more)
 
 ### Community 69 - "Do lech: master context vs code hien tai"
 Cohesion: 0.13
@@ -542,8 +551,8 @@ Cohesion: 0.15
 Nodes (3): 2. Redis (Caching & Queue Layer), RedisModule, RedisService
 
 ### Community 80 - "scripts"
-Cohesion: 0.15
-Nodes (13): scripts, build, format, lint, start, start:debug, start:dev, start:prod (+5 more)
+Cohesion: 0.14
+Nodes (14): scripts, build, check-types, format, lint, start, start:debug, start:dev (+6 more)
 
 ### Community 81 - "4.6. Other UI Components"
 Cohesion: 0.15
@@ -565,9 +574,9 @@ Nodes (5): eslintConfig, eslintConfig, eslintConfig, eslintConfig, eslintConfig
 Cohesion: 0.17
 Nodes (12): dependencies, canvas-confetti, clsx, framer-motion, lucide-react, motion, next, react (+4 more)
 
-### Community 86 - "auth/page.tsx"
-Cohesion: 0.24
-Nodes (6): AuthPage(), container, item, AuroraBackground(), AuroraBackgroundProps, cn()
+### Community 86 - "profile/page.tsx"
+Cohesion: 0.16
+Nodes (12): AuthPage(), container, item, container, item, ProfilePage(), AuroraBackground(), AuroraBackgroundProps (+4 more)
 
 ### Community 87 - "landing/src/app/layout.tsx"
 Cohesion: 0.23
@@ -590,8 +599,8 @@ Cohesion: 0.17
 Nodes (12): devDependencies, eslint, eslint-config-next, @next/bundle-analyzer, tailwindcss, @tailwindcss/postcss, tw-animate-css, @types/node (+4 more)
 
 ### Community 92 - "Cortex Ecosystem Deployment Strategy"
-Cohesion: 0.17
-Nodes (11): 1. Kiến trúc tổng thể (Architecture), 2. Triển khai Frontend (Vercel - Khuyên dùng), 3. Triển khai Backend (Railway / Render / Fly.io), 4. Cơ sở hạ tầng phụ trợ (Infrastructure), 5. Quy trình CI/CD (GitHub Actions), 6. Lưu ý về Auth Bridge (Cực kỳ quan trọng), 7. Môi trường Staging, Chiến lược Domain (Phương án Miễn phí): (+3 more)
+Cohesion: 0.06
+Nodes (29): 1. Kiến trúc tổng thể (Architecture), 2. Triển khai Frontend (Vercel - Khuyên dùng), 3. Triển khai Backend (Railway / Render / Fly.io), 4. Cơ sở hạ tầng phụ trợ (Infrastructure), 5. Quy trình CI/CD (GitHub Actions), 6. Lưu ý về Auth Bridge (Cực kỳ quan trọng), 7. Môi trường Staging, Chiến lược Domain (Phương án Miễn phí): (+21 more)
 
 ### Community 93 - "devDependencies"
 Cohesion: 0.17
@@ -602,8 +611,8 @@ Cohesion: 0.18
 Nodes (11): 3.10. Sound Effects, 3.1. Energy System (Scarcity Mechanic), 3.2. ELO Routing & Adaptive Difficulty, 3.3. Card Evolution System (Mastery States), 3.4. Vocal Swipe (Killer Feature), 3.5. Story Mode (Progressive Unlock), 3.6. Spaced Repetition System (SRS), 3.7. Level System (+3 more)
 
 ### Community 96 - "scripts"
-Cohesion: 0.18
-Nodes (11): scripts, build, dev, lint, start, test, test:coverage, test:e2e (+3 more)
+Cohesion: 0.17
+Nodes (12): scripts, build, check-types, dev, lint, start, test, test:coverage (+4 more)
 
 ### Community 97 - "LanguageProvider.tsx"
 Cohesion: 0.33
@@ -629,9 +638,9 @@ Nodes (9): Compile and run the project, Deployment, Description, License, Projec
 Cohesion: 0.20
 Nodes (10): devDependencies, eslint, eslint-config-next, tailwindcss, @tailwindcss/postcss, @types/canvas-confetti, @types/node, @types/react (+2 more)
 
-### Community 103 - "profile/page.tsx"
-Cohesion: 0.33
-Nodes (6): container, item, ProfilePage(), LinguisticDashboard(), LinguisticProfile, supabase
+### Community 103 - "ProfileScreen.tsx"
+Cohesion: 0.18
+Nodes (15): HomeScreenProps, BandScoreDisplay(), MenuItem(), ProfileScreen(), ProfileScreenProps, ProfileStatCard(), ScoreBreakdownMini(), UserProfile (+7 more)
 
 ### Community 104 - "ArsenalSection.tsx"
 Cohesion: 0.31
@@ -646,12 +655,12 @@ Cohesion: 0.20
 Nodes (10): Be Concise, Be Specific, ✅ Best Practices, 📝 Context File Maintenance Log, 🔄 Cách Update Context Files, Keep It Sync, 📌 Key Conventions, LEXICA Context Documentation (+2 more)
 
 ### Community 107 - "FriendsScreen.tsx"
-Cohesion: 0.31
-Nodes (9): Friend, FriendCard(), FriendRequest, FriendRequestCard(), FriendsScreen(), FriendsScreenProps, StatusBadge(), SuggestedFriendCard() (+1 more)
+Cohesion: 0.27
+Nodes (10): FriendsScreen, Friend, FriendCard(), FriendRequest, FriendRequestCard(), FriendsScreen(), FriendsScreenProps, StatusBadge() (+2 more)
 
-### Community 108 - "What's inside?"
-Cohesion: 0.20
-Nodes (9): Apps and Packages, Build, Develop, Remote Caching, Turborepo starter, Useful Links, Using this example, Utilities (+1 more)
+### Community 108 - "TerminalBoard"
+Cohesion: 0.33
+Nodes (10): makeId(), nowIso(), TerminalBoard(), loadStageFromArc(), onChoose(), onContinue(), onRestart(), onRetry() (+2 more)
 
 ### Community 109 - "Hướng dẫn Hạ tầng Core API (INFRASTRUCTURE_GUIDE.md)"
 Cohesion: 0.22
@@ -670,7 +679,7 @@ Cohesion: 0.28
 Nodes (7): container, item, RoadmapSection(), timelineItem, roadmapData, RoadmapMilestone, RoadmapPhase
 
 ### Community 114 - "lexica/context/README.md"
-Cohesion: 0.22
+Cohesion: 0.20
 Nodes (4): Component Hierarchy, Components Reference, Icon Usage (Lucide React), Styling Conventions
 
 ### Community 115 - "Data Models & Types"
@@ -682,8 +691,8 @@ Cohesion: 0.22
 Nodes (9): 8.1. PWA Configuration, 8.2. Touch Gestures, 8.3. Web Speech API, 8.4. Analytics, 8.5. Performance Optimizations, 8.6. Accessibility, 8.7. Error Handling, 8.8. Security (+1 more)
 
 ### Community 117 - "RatingScreen.tsx"
-Cohesion: 0.28
-Nodes (8): BAND_LABELS, BandSelector(), CRITERIA, CRITERION_TAGS, IELTSScores, RatingScreen(), RatingScreenProps, TagButton()
+Cohesion: 0.24
+Nodes (9): RatingScreen, BAND_LABELS, BandSelector(), CRITERIA, CRITERION_TAGS, IELTSScores, RatingScreen(), RatingScreenProps (+1 more)
 
 ### Community 118 - "CORTEX HUB - Hướng dẫn Hoàn tất Cài đặt (SETUP_GUIDE.md)"
 Cohesion: 0.25
@@ -693,6 +702,10 @@ Nodes (7): 1. Supabase (Cơ sở dữ liệu), 2. Redis (Xử lý hàng đợi &
 Cohesion: 0.25
 Nodes (4): AppModule, @nestjs/core, @nestjs/testing, supertest
 
+### Community 120 - "ErrorBoundary"
+Cohesion: 0.22
+Nodes (3): ErrorBoundary, Props, State
+
 ### Community 121 - "6. GAME MODES"
 Cohesion: 0.25
 Nodes (8): 6.1. Memory Match, 6.2. Speed Quiz, 6.3. Type Challenge, 6.4. Word Scramble, 6.5. True/False Blitz, 6.6. Word Bingo, 6.7. Combo Chain, 6. GAME MODES
@@ -701,9 +714,9 @@ Nodes (8): 6.1. Memory Match, 6.2. Speed Quiz, 6.3. Type Challenge, 6.4. Word Sc
 Cohesion: 0.43
 Nodes (5): getScoreColor(), ResultPanel(), useCountUp(), logSoliloAction(), getBandDescriptor()
 
-### Community 123 - "CORTEX HUB System Architecture & Shared Context"
-Cohesion: 0.25
-Nodes (7): 1. Tầm nhìn Hệ sinh thái (Ecosystem Vision), 2. Hạ tầng Kỹ thuật (Technical Infrastructure), 3. Chiến lược Tích hợp (Integration Strategy), 4. Danh mục Ứng dụng & Vai trò, 5. Hướng dẫn Mở rộng, CORTEX HUB System Architecture & Shared Context, Quy trình trao đổi dữ liệu:
+### Community 123 - "supabase/middleware.ts"
+Cohesion: 0.28
+Nodes (4): updateSession(), config, middleware(), @supabase/ssr
 
 ### Community 124 - "ui/tsconfig.json"
 Cohesion: 0.25
@@ -730,12 +743,12 @@ Cohesion: 0.33
 Nodes (4): getMidnightTimestamp(), resetToKnownState(), @vitejs/plugin-react, vitest
 
 ### Community 130 - "AchievementsScreen.tsx"
-Cohesion: 0.43
-Nodes (6): Achievement, AchievementCard(), AchievementsScreen(), AchievementsScreenProps, CategoryButton(), StatsOverview()
+Cohesion: 0.36
+Nodes (7): Achievement, AchievementCard(), AchievementsScreen(), AchievementsScreenProps, CategoryButton(), StatsOverview(), AchievementsScreen
 
-### Community 131 - "CallSummaryScreen.tsx"
-Cohesion: 0.43
-Nodes (6): CallSummaryScreen(), CallSummaryScreenProps, ExpandableSection(), ScoreBar(), SessionData, StatCard()
+### Community 131 - "1. Hệ thống Phần thưởng (Reward System)"
+Cohesion: 0.25
+Nodes (7): 1. Hệ thống Phần thưởng (Reward System), 2. Kết nối từ Frontend (Client), 3. Luồng hoạt động của ActionLog, Các sự kiện được phát ra:, Cách sử dụng trong Core API:, Hướng dẫn Real-time & Rewards (REALTIME_EVENTS_GUIDE.md), Ví dụ nhận hiệu ứng pháo hoa:
 
 ### Community 132 - "useFillerTracker.ts"
 Cohesion: 0.29
@@ -746,8 +759,8 @@ Cohesion: 0.33
 Nodes (5): metadata, monoFont, RootLayout(), sansFont, ThemeProvider()
 
 ### Community 134 - "SYNAPSE: PROJECT CONTEXT & ARCHITECTURE"
-Cohesion: 0.29
-Nodes (6): 1. Project Overview, 2. Core Architecture, 3. UI/UX Style Guidelines, 4. Pending Tasks & Future Ideas, 5. Current State (2026-04-28), SYNAPSE: PROJECT CONTEXT & ARCHITECTURE
+Cohesion: 0.33
+Nodes (5): 1. Project Overview, 3. UI/UX Style Guidelines, 4. Pending Tasks & Future Ideas, 5. Current State (2026-04-28), SYNAPSE: PROJECT CONTEXT & ARCHITECTURE
 
 ### Community 135 - "typescript-config/package.json"
 Cohesion: 0.29
@@ -777,9 +790,9 @@ Nodes (6): 5.1. Zustand Store Structure, 5.2. Persistence, 5.3. Data Files, 5. D
 Cohesion: 0.33
 Nodes (5): 1. Delete the mock function (lines ~153-188):, 2. Change line ~200:, 3. Rebuild:, Revert Mock Data Instructions, To remove mock data and restore production state:
 
-### Community 142 - "Hướng dẫn Sử dụng Shared Types (`@cortex/types`)"
-Cohesion: 0.33
-Nodes (5): 1. Cài đặt cho một App mới, 2. Sử dụng Mappers (Cầu nối dữ liệu), 3. Mở rộng Shared Types, Hướng dẫn Sử dụng Shared Types (`@cortex/types`), Ví dụ: Chuyển đổi điểm số từ Local sang Shared
+### Community 142 - "oratio/src/app/layout.tsx"
+Cohesion: 0.29
+Nodes (4): geistMono, geistSans, gugi, metadata
 
 ### Community 143 - "react-library.json"
 Cohesion: 0.33
@@ -790,8 +803,8 @@ Cohesion: 0.33
 Nodes (5): 1. Product Overview, 2.1 Feature Module, 2.3 Page Details, 2. Core Features, 3. Core Process
 
 ### Community 145 - "scripts"
-Cohesion: 0.40
-Nodes (5): scripts, build, dev, lint, start
+Cohesion: 0.33
+Nodes (6): scripts, build, check-types, dev, lint, start
 
 ### Community 146 - "dialecta/page.tsx"
 Cohesion: 0.40
@@ -818,8 +831,8 @@ Cohesion: 0.40
 Nodes (5): 4.5. Chart Components, **AccuracyChart.tsx**, **ActivityHeatmap.tsx**, **CardStatesPieChart.tsx**, **ELOChart.tsx**
 
 ### Community 152 - "scripts"
-Cohesion: 0.40
-Nodes (5): scripts, build, dev, lint, start
+Cohesion: 0.33
+Nodes (6): scripts, build, check-types, dev, lint, start
 
 ### Community 153 - "ORATIO"
 Cohesion: 0.40
@@ -861,25 +874,41 @@ Nodes (3): Deploy on Vercel, Getting Started, Learn More
 Cohesion: 0.50
 Nodes (4): exports, ./base, ./next-js, ./react-internal
 
+### Community 172 - "lexica/page.tsx"
+Cohesion: 0.40
+Nodes (3): container, features, item
+
+### Community 173 - "metamorph/page.tsx"
+Cohesion: 0.40
+Nodes (3): container, features, item
+
+### Community 177 - "syntaxis/page.tsx"
+Cohesion: 0.40
+Nodes (3): container, features, item
+
+### Community 179 - "visage/page.tsx"
+Cohesion: 0.40
+Nodes (3): container, features, item
+
 ## Knowledge Gaps
-- **1466 isolated node(s):** `$schema`, `collection`, `sourceRoot`, `deleteOutDir`, `name` (+1461 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1651 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **19 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **1469 isolated node(s):** `$schema`, `collection`, `sourceRoot`, `deleteOutDir`, `name` (+1464 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1634 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `@nestjs/common` connect `app.module.ts` to `cortex-core-api/package.json`, `SynapseScenario`, `EventsGateway`, `SupabaseService`, `app.e2e-spec.ts`, `AppService`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
-- **Why does `recharts` connect `ref_react` to `lexica/package.json`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
-- **Why does `@nestjs/config` connect `app.module.ts` to `SynapseScenario`, `cortex-core-api/package.json`?**
-  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `@nestjs/common` connect `app.module.ts` to `cortex-core-api/package.json`, `SynapseScenario`, `EventsGateway`, `app.e2e-spec.ts`, `AppService`?**
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
+- **Why does `SynapseScenario` connect `SynapseScenario` to `TerminalBoard.tsx`, `cortex-types/index.ts`, `app.module.ts`?**
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **Why does `@nestjs/config` connect `app.module.ts` to `cortex-core-api/package.json`?**
+  _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **What connects `$schema`, `collection`, `sourceRoot` to the rest of the system?**
-  _1466 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `workbox-01fd22c6.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.05541368743615935 - nodes in this community are weakly interconnected._
+  _1469 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ref_next` be split into smaller, more focused modules?**
-  _Cohesion score 0.0289193302891933 - nodes in this community are weakly interconnected._
-- **Should `useSoundEffects` be split into smaller, more focused modules?**
-  _Cohesion score 0.08344988344988345 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.1323529411764706 - nodes in this community are weakly interconnected._
+- **Should `ref_lucide_react` be split into smaller, more focused modules?**
+  _Cohesion score 0.08397271952259165 - nodes in this community are weakly interconnected._
+- **Should `stories.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.09619450317124736 - nodes in this community are weakly interconnected._

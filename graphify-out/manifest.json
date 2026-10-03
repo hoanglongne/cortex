@@ -30,9 +30,9 @@
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/app.module.ts": {
-    "mtime": 1791018617.7368722,
-    "seen": 1791018684.8989475,
-    "ast_hash": "4a833a4ce1bedd513107ba7a7c239c71",
+    "mtime": 1791021671.790337,
+    "seen": 1791022173.2800658,
+    "ast_hash": "e9f833150a6133a7bb6b87b0de93859a",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/app.service.ts": {
@@ -42,9 +42,9 @@
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/main.ts": {
-    "mtime": 1791018617.7368722,
-    "seen": 1791018684.8989625,
-    "ast_hash": "48d84be3f9c6ec690a8f434e09e5beaa",
+    "mtime": 1791021671.7906458,
+    "seen": 1791022173.2801266,
+    "ast_hash": "22f8ac4e36d08ae9b553e9df8430c1a3",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/modules/actions/actions.controller.ts": {
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/modules/events/events.gateway.ts": {
-    "mtime": 1791018617.7371542,
-    "seen": 1791018684.8989692,
-    "ast_hash": "584f599554761b0060489d0458f15ead",
+    "mtime": 1791021691.5050375,
+    "seen": 1791022173.2802546,
+    "ast_hash": "bc7fba046417209a8b453148986cf1ea",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/modules/events/events.module.ts": {
@@ -996,8 +996,8 @@
     "semantic_hash": ""
   },
   "apps/oratio/next-env.d.ts": {
-    "mtime": 1791019933.784179,
-    "seen": 1791019979.4810975,
+    "mtime": 1791022087.25215,
+    "seen": 1791022173.2857418,
     "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
     "semantic_hash": ""
   },
@@ -1008,9 +1008,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/package.json": {
-    "mtime": 1791019720.5601664,
-    "seen": 1791019979.4811385,
-    "ast_hash": "f7c8770369db378efc8092cdfb83bc15",
+    "mtime": 1791021945.0041416,
+    "seen": 1791022173.28579,
+    "ast_hash": "b59efff9dc24452ddf62464c7fbf59bd",
     "semantic_hash": ""
   },
   "apps/oratio/postcss.config.mjs": {
@@ -1032,9 +1032,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/src/actions/matchmaking.ts": {
-    "mtime": 1791018617.7662373,
-    "seen": 1791018684.8991323,
-    "ast_hash": "bcd45d5b8444027ba0c8aab1c467365e",
+    "mtime": 1791021966.8270285,
+    "seen": 1791022173.285949,
+    "ast_hash": "24bca7508eee9ac6de0dd3f84041ff61",
     "semantic_hash": ""
   },
   "apps/oratio/src/actions/questions.ts": {
@@ -1062,9 +1062,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/src/app/api/livekit/get-token/route.ts": {
-    "mtime": 1791018617.7668965,
-    "seen": 1791018684.899136,
-    "ast_hash": "d1fec5a238e68147ea538c24d6ce2164",
+    "mtime": 1791021916.472438,
+    "seen": 1791022173.286188,
+    "ast_hash": "c9464c63e4b8f75153744930f6e9f75c",
     "semantic_hash": ""
   },
   "apps/oratio/src/app/auth/callback/route.ts": {
@@ -1098,9 +1098,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/src/components/AppFlow.tsx": {
-    "mtime": 1791018617.767554,
-    "seen": 1791018684.8991408,
-    "ast_hash": "0148c3a9bec831bc607d9edf7e47208d",
+    "mtime": 1791021916.4719594,
+    "seen": 1791022173.2864823,
+    "ast_hash": "a728e4e429aed55af463822cc3f94176",
     "semantic_hash": ""
   },
   "apps/oratio/src/components/AuthScreen.tsx": {
@@ -1236,9 +1236,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/src/lib/types/database.ts": {
-    "mtime": 1791018617.76968,
-    "seen": 1791018684.8991587,
-    "ast_hash": "cfdaedc3dc7156160e699d5fc6878d76",
+    "mtime": 1791021900.710249,
+    "seen": 1791022173.2878633,
+    "ast_hash": "00a8025b8ff8b1a3eacd25c434ec3757",
     "semantic_hash": ""
   },
   "apps/oratio/src/lib/utils.ts": {
@@ -1788,9 +1788,9 @@
     "semantic_hash": ""
   },
   "TODO.md": {
-    "mtime": 1791018617.7361941,
-    "seen": 1791018684.899241,
-    "ast_hash": "84ceee680539c752da711d65ad6500d8",
+    "mtime": 1791021777.744037,
+    "seen": 1791022173.2930975,
+    "ast_hash": "8aa7ac752b750da3617a2dde382fc03e",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/DATA_FLOW.md": {
@@ -1806,9 +1806,9 @@
     "semantic_hash": ""
   },
   "apps/cortex-core-api/SETUP_GUIDE.md": {
-    "mtime": 1791018617.736479,
-    "seen": 1791018684.8992434,
-    "ast_hash": "6b1e2b8eb175a8baec2e23ab7b3206e7",
+    "mtime": 1791021777.7297971,
+    "seen": 1791022173.2931957,
+    "ast_hash": "e8486e934c93b685abab73b9bae5cb3b",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/docs/INFRASTRUCTURE_GUIDE.md": {
@@ -2004,9 +2004,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/PROJECT_STATUS.md": {
-    "mtime": 1791018617.7648847,
-    "seen": 1791018684.8992703,
-    "ast_hash": "08d57e93c631f1254c994148fd43216e",
+    "mtime": 1791022012.5742853,
+    "seen": 1791022173.2944791,
+    "ast_hash": "a6707fcb8427ae986342fb05c8e5985b",
     "semantic_hash": ""
   },
   "apps/oratio/README.md": {
@@ -2271,6 +2271,96 @@
     "mtime": 1791018617.7826667,
     "seen": 1791019979.484997,
     "ast_hash": "f1cc25173de1af5f0afc31a92b3357f4",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/events/events.gateway.spec.ts": {
+    "mtime": 1791021742.2505255,
+    "seen": 1791022173.280252,
+    "ast_hash": "da1cdca1be068c99ca0ec99e5bbcd125",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/health/health.controller.ts": {
+    "mtime": 1791021645.959877,
+    "seen": 1791022173.2802978,
+    "ast_hash": "8de353ce5ea5844f097b5173cbd03d30",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/health/health.module.ts": {
+    "mtime": 1791021645.9613657,
+    "seen": 1791022173.2802997,
+    "ast_hash": "234bb2ddc968b2931e6db022d2a68704",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/health/health.service.spec.ts": {
+    "mtime": 1791021747.4481297,
+    "seen": 1791022173.2803009,
+    "ast_hash": "459266bfc28e2e28d2f63c7a6a7c91e1",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/health/health.service.ts": {
+    "mtime": 1791021710.2041276,
+    "seen": 1791022173.2803025,
+    "ast_hash": "f33e2f1e71e7a361c022b966decfd739",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/sync/sync.controller.ts": {
+    "mtime": 1791021671.7480583,
+    "seen": 1791022173.2808776,
+    "ast_hash": "1d583b8769859f563a0908ef9ef05938",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/sync/sync.module.ts": {
+    "mtime": 1791021671.7495742,
+    "seen": 1791022173.2808793,
+    "ast_hash": "d374d2207a0bb95fb6fc102b78e072ee",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/sync/sync.service.spec.ts": {
+    "mtime": 1791021742.248986,
+    "seen": 1791022173.2808807,
+    "ast_hash": "18e100ef2d083d7d922aab505d215a97",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/sync/sync.service.ts": {
+    "mtime": 1791021710.2041276,
+    "seen": 1791022173.2808816,
+    "ast_hash": "8e27ff56366b01159fa04c1ed25539ad",
+    "semantic_hash": ""
+  },
+  "apps/oratio/__tests__/matchmaking-claim.test.ts": {
+    "mtime": 1791021985.544144,
+    "seen": 1791022173.2856398,
+    "ast_hash": "186ca06e1e2ada53b12af148c0471377",
+    "semantic_hash": ""
+  },
+  "apps/oratio/__tests__/matchmaking-rules.test.ts": {
+    "mtime": 1791021945.0133085,
+    "seen": 1791022173.285642,
+    "ast_hash": "82048808e72a586dd846bd85939086d9",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/matchmaking/claim.ts": {
+    "mtime": 1791021985.5439498,
+    "seen": 1791022173.2876246,
+    "ast_hash": "8cf1115343a48b12e8d28e0f759492f0",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/matchmaking/rules.ts": {
+    "mtime": 1791021997.7580135,
+    "seen": 1791022173.2876272,
+    "ast_hash": "1bc35f47dbb1f50c3596952c403e7d1f",
+    "semantic_hash": ""
+  },
+  "apps/oratio/vitest.config.ts": {
+    "mtime": 1791021944.988232,
+    "seen": 1791022173.288079,
+    "ast_hash": "ae255f7478ce641e7fcf9569b7f6982c",
+    "semantic_hash": ""
+  },
+  "apps/lexica/docs/PRELAUNCH_PLAN.md": {
+    "mtime": 1791022166.9804006,
+    "seen": 1791022173.2942305,
+    "ast_hash": "c971a0a8d18ad1861cf63d66e2035d4a",
     "semantic_hash": ""
   }
 }
