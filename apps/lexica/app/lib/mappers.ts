@@ -4,7 +4,7 @@ import {
   AppSource 
 } from '@cortex/types';
 import { UserStats } from './eloAlgorithm';
-import { DifficultyLevel } from '../components/VocabCard';
+import { DifficultyLevel } from '../types/vocab';
 
 /**
  * LEXICA Mapper Utility

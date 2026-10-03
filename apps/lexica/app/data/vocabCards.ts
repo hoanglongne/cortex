@@ -1,4 +1,4 @@
-import { VocabCardData } from '../components/VocabCard';
+import { VocabCardData } from '../types/vocab';
 
 /**
  * LEXICA Vocabulary Database

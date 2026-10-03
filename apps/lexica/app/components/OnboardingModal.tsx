@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, X, Zap, Mic, BookOpen, Trophy, Sprout, Leaf, Sparkles, Flame, User, Briefcase, Laptop, GraduationCap } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { useLexicaStore } from '../store/lexicaStore';
-import type { UserArchetype } from './VocabCard';
+import type { UserArchetype } from '../types/vocab';
 
 interface OnboardingModalProps {
     onComplete: () => void;

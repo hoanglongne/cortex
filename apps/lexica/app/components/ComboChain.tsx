@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Flame, Trophy, X, Zap } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { VOCAB_DATABASE } from '../data/vocabCards';
-import { VocabCardData } from '../components/VocabCard';
+import { VocabCardData } from '../types/vocab';
 
 interface ComboChainProps {
     learnedWordIds: string[];

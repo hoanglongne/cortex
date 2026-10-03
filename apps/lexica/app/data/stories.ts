@@ -1,4 +1,4 @@
-import { DifficultyLevel } from '../components/VocabCard';
+import { DifficultyLevel } from '../types/vocab';
 
 export interface ComprehensionQuestion {
     question: string;
