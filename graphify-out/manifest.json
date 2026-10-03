@@ -1,0 +1,2282 @@
+{
+  "apps/cortex-core-api/eslint.config.mjs": {
+    "mtime": 1791018617.7367136,
+    "seen": 1791018684.8989353,
+    "ast_hash": "d7647004fcd6fc51a724065fc878a559",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/nest-cli.json": {
+    "mtime": 1791018617.7367136,
+    "seen": 1791018684.8989391,
+    "ast_hash": "b6c9c4b64b7092bea720263a47b574cf",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/package.json": {
+    "mtime": 1791018617.7367136,
+    "seen": 1791018684.8989415,
+    "ast_hash": "b321e47675d9bda72f6b5c6321e7a673",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/app.controller.spec.ts": {
+    "mtime": 1791018617.7367136,
+    "seen": 1791018684.8989432,
+    "ast_hash": "4a1c0e1133dbda6f6e8f3e60d984eddf",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/app.controller.ts": {
+    "mtime": 1791018617.7368722,
+    "seen": 1791018684.8989453,
+    "ast_hash": "3ab0e83b7d93b85ea489ab994ec79ea1",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/app.module.ts": {
+    "mtime": 1791018617.7368722,
+    "seen": 1791018684.8989475,
+    "ast_hash": "4a833a4ce1bedd513107ba7a7c239c71",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/app.service.ts": {
+    "mtime": 1791018617.7368722,
+    "seen": 1791018684.8989499,
+    "ast_hash": "cd3fb7836f10de08a725ee1fd4ab36fe",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/main.ts": {
+    "mtime": 1791018617.7368722,
+    "seen": 1791018684.8989625,
+    "ast_hash": "48d84be3f9c6ec690a8f434e09e5beaa",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/actions/actions.controller.ts": {
+    "mtime": 1791018617.7369986,
+    "seen": 1791018684.8989658,
+    "ast_hash": "ccec69a6397d9f0bd01a34eb0cfbfcb2",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/actions/actions.module.ts": {
+    "mtime": 1791018617.7371542,
+    "seen": 1791018684.8989673,
+    "ast_hash": "6859d48f81665a0f4f516a85159823f4",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/events/events.gateway.ts": {
+    "mtime": 1791018617.7371542,
+    "seen": 1791018684.8989692,
+    "ast_hash": "584f599554761b0060489d0458f15ead",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/events/events.module.ts": {
+    "mtime": 1791018617.737246,
+    "seen": 1791018684.898971,
+    "ast_hash": "13a48dca6140209e6d013317eccde036",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/linguistics/linguistic-refiner.service.ts": {
+    "mtime": 1791018617.737246,
+    "seen": 1791018684.898973,
+    "ast_hash": "96d0ea7b8efefbd11cdbbe0161b82cce",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/linguistics/linguistics.controller.ts": {
+    "mtime": 1791018617.737459,
+    "seen": 1791018684.8989744,
+    "ast_hash": "55110c724c82dba4f6df24261d81e5a5",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/linguistics/linguistics.module.ts": {
+    "mtime": 1791018617.737459,
+    "seen": 1791018684.898976,
+    "ast_hash": "5bb8457693efd03280a3b3dd1391e919",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/redis/redis.module.ts": {
+    "mtime": 1791018617.737459,
+    "seen": 1791018684.8989775,
+    "ast_hash": "0856864a521a862369a89de9b2d3c9f0",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/redis/redis.service.ts": {
+    "mtime": 1791018617.7375593,
+    "seen": 1791018684.8989794,
+    "ast_hash": "908f50e72a3a23b93dfddf136861fedb",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/shared/reward-helper.service.ts": {
+    "mtime": 1791018617.7375593,
+    "seen": 1791018684.898981,
+    "ast_hash": "d25fb2efcb9786c6582b95fc7ef80d73",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/shared/shared.module.ts": {
+    "mtime": 1791018617.7376554,
+    "seen": 1791018684.898983,
+    "ast_hash": "7c9211160cbd00a8e9a24b29304e8d0b",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/supabase/supabase.module.ts": {
+    "mtime": 1791018617.7376554,
+    "seen": 1791018684.8989847,
+    "ast_hash": "1297509e1331d23cccb022ccfc4bd003",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/supabase/supabase.service.ts": {
+    "mtime": 1791018617.737725,
+    "seen": 1791018684.898986,
+    "ast_hash": "90d535cfc915ed0fe998f8ea08b9be02",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/synapse/llm.provider.ts": {
+    "mtime": 1791018617.737725,
+    "seen": 1791018684.8989875,
+    "ast_hash": "d3a1006871b9b8452243fc8ec0d54706",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/synapse/synapse.controller.ts": {
+    "mtime": 1791018617.737868,
+    "seen": 1791018684.8989897,
+    "ast_hash": "9a4dcf6710457b489145840a6f1a9de4",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/synapse/synapse.module.ts": {
+    "mtime": 1791018617.737868,
+    "seen": 1791018684.898991,
+    "ast_hash": "406667ba8db08386046e4b1a21da8339",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/synapse/synapse.service.ts": {
+    "mtime": 1791018617.737868,
+    "seen": 1791018684.8989925,
+    "ast_hash": "31e23b4d96f70936f8183170302e09b1",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/src/modules/synapse/world-bibles.ts": {
+    "mtime": 1791018617.737868,
+    "seen": 1791018684.898994,
+    "ast_hash": "501eeaec686fbb8dfb01ce1ef20b2f22",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/test/app.e2e-spec.ts": {
+    "mtime": 1791018617.737868,
+    "seen": 1791018684.8989952,
+    "ast_hash": "c2f4c06eeefc65ea9c39ca69f66962bf",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/test/jest-e2e.json": {
+    "mtime": 1791018617.738639,
+    "seen": 1791018684.8989966,
+    "ast_hash": "9f2f5b0e1da31d7b04e205c944e85e8d",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/tsconfig.build.json": {
+    "mtime": 1791018617.738639,
+    "seen": 1791018684.8989985,
+    "ast_hash": "f73d0f011ee462dcdf7f02bbdcde284b",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/tsconfig.json": {
+    "mtime": 1791018617.738639,
+    "seen": 1791018684.8989997,
+    "ast_hash": "af7729ee680ed15d02e2694b68073c99",
+    "semantic_hash": ""
+  },
+  "apps/landing/eslint.config.mjs": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8990011,
+    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "semantic_hash": ""
+  },
+  "apps/landing/next-env.d.ts": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.899002,
+    "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
+    "semantic_hash": ""
+  },
+  "apps/landing/next.config.ts": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.899003,
+    "ast_hash": "9b77af189a21a7a64e4bd7a426f64176",
+    "semantic_hash": ""
+  },
+  "apps/landing/package.json": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8990042,
+    "ast_hash": "f6e08f13dd291b3c12b2b84bfce561df",
+    "semantic_hash": ""
+  },
+  "apps/landing/postcss.config.mjs": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8990052,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/dialecta/layout.tsx": {
+    "mtime": 1791018617.7397954,
+    "seen": 1791018684.8990061,
+    "ast_hash": "2143e679c1c463e4c9b0286762e77f84",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/dialecta/page.tsx": {
+    "mtime": 1791018617.739832,
+    "seen": 1791018684.899007,
+    "ast_hash": "973371e48ad416b319e228ca6cbf1a84",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/echo/layout.tsx": {
+    "mtime": 1791018617.739832,
+    "seen": 1791018684.899008,
+    "ast_hash": "e661a6e964ba0c041cb2fa1a63404c63",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/echo/page.tsx": {
+    "mtime": 1791018617.7400737,
+    "seen": 1791018684.899009,
+    "ast_hash": "2c002e0bb942c59482be62346e0f9db3",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/lexica/layout.tsx": {
+    "mtime": 1791018617.7400737,
+    "seen": 1791018684.8990097,
+    "ast_hash": "8bab04e6ca8e10a7f20d601837b6dd17",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/lexica/page.tsx": {
+    "mtime": 1791018617.7404451,
+    "seen": 1791018684.899011,
+    "ast_hash": "f310961c67b273ec0b840e86e692d462",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/metamorph/layout.tsx": {
+    "mtime": 1791018617.7404451,
+    "seen": 1791018684.8990116,
+    "ast_hash": "97b935bf21a75382ac2eb0f8f80edb14",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/metamorph/page.tsx": {
+    "mtime": 1791018617.7406397,
+    "seen": 1791018684.8990128,
+    "ast_hash": "73910519c1cac3f8c7c713e4d830933c",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/oratio/layout.tsx": {
+    "mtime": 1791018617.7406397,
+    "seen": 1791018684.8990164,
+    "ast_hash": "3ae4e94305e863d26f06b4859aa7caea",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/oratio/page.tsx": {
+    "mtime": 1791018617.740806,
+    "seen": 1791018684.8990173,
+    "ast_hash": "9ca32775baea56133531ad18602060d1",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/solilo/layout.tsx": {
+    "mtime": 1791018617.740806,
+    "seen": 1791018684.899018,
+    "ast_hash": "3d328b432c3e27e0a70e31c300cf1945",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/solilo/page.tsx": {
+    "mtime": 1791018617.7410107,
+    "seen": 1791018684.8990192,
+    "ast_hash": "91eee371058d5c2e08993dc1e1535352",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/syntaxis/layout.tsx": {
+    "mtime": 1791018617.7410107,
+    "seen": 1791018684.8990202,
+    "ast_hash": "9dbd420db0209de76303ea95473866e6",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/syntaxis/page.tsx": {
+    "mtime": 1791018617.7411287,
+    "seen": 1791018684.8990214,
+    "ast_hash": "57f3aabab8ca22a758f9a3696f80d316",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/visage/layout.tsx": {
+    "mtime": 1791018617.7411287,
+    "seen": 1791018684.8990223,
+    "ast_hash": "19ddcec34cb62790734e276cea471f8f",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/apps/visage/page.tsx": {
+    "mtime": 1791018617.7412636,
+    "seen": 1791018684.899023,
+    "ast_hash": "0a3e27a04850cf46a57381b733686dab",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/auth-bridge/page.tsx": {
+    "mtime": 1791018617.7412636,
+    "seen": 1791018684.899024,
+    "ast_hash": "c812229c11c0bab5e99407e55ea6dc0b",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/auth/page.tsx": {
+    "mtime": 1791018617.7412636,
+    "seen": 1791018684.8990252,
+    "ast_hash": "6924fb8ec080b503660eafe6324e8019",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/layout.tsx": {
+    "mtime": 1791018617.7412636,
+    "seen": 1791018684.899026,
+    "ast_hash": "7b5f2c41385c1b1b26450672d2671db8",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/page.tsx": {
+    "mtime": 1791018617.7412636,
+    "seen": 1791018684.8990269,
+    "ast_hash": "bc5b8d6df4b12c7920a0d1832592407c",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/app/profile/page.tsx": {
+    "mtime": 1791018617.7412636,
+    "seen": 1791018684.899028,
+    "ast_hash": "cfb5cd21f3dfcce5685e17e25a4253e2",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/AppCard.tsx": {
+    "mtime": 1791018617.7412636,
+    "seen": 1791018684.899029,
+    "ast_hash": "aad73e305e37210f8ef5a100c93b5ac0",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/ArsenalSection.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990297,
+    "ast_hash": "d6d919aac9aaa5805176f8ce10904812",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/AuroraBackground.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990307,
+    "ast_hash": "800bf425f70aa66c1b28a289ebf428fc",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/CortexSection.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990316,
+    "ast_hash": "ff1de11e7eae95b8ed585d98b874b46e",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/EcosystemRewardListener.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990326,
+    "ast_hash": "841920e3f8bb10701efe5175093575c3",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/FilterBar.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990333,
+    "ast_hash": "99a75db58c29cb80d654660e9d9195d8",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/Footer.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.899034,
+    "ast_hash": "d143ea37a149f07aa2e9e53af3be0abd",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/IdeaCard.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990355,
+    "ast_hash": "e9b28aaec211fd99843eaf819887407e",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/IncubatorSection.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990362,
+    "ast_hash": "61b2219b759ef82a8f1458e56d3dff05",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/LinguisticDashboard.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990371,
+    "ast_hash": "deeccb05f346adf9ecde23072c4bfc22",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/PartnershipSection.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990378,
+    "ast_hash": "470721b7b76ab15d6be1073ce1e9af0e",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/RoadmapSection.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.899039,
+    "ast_hash": "19ea9c419da48b7b9b8eee84d4dd451d",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/ScrollToTop.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.89904,
+    "ast_hash": "efafb0c45f3646243f684e7458d64ecf",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/components/SideNavigation.tsx": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990405,
+    "ast_hash": "edb7e8f098c17cef44ca9d8721fde875",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/data/ecosystem.ts": {
+    "mtime": 1791018617.7420502,
+    "seen": 1791018684.8990421,
+    "ast_hash": "0eb2f61cde1adc6ce2c76207f45652d8",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/data/roadmap.ts": {
+    "mtime": 1791018617.74299,
+    "seen": 1791018684.899043,
+    "ast_hash": "1347f27513a6b1fffe622171f5a74d7b",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/lib/supabase.ts": {
+    "mtime": 1791018617.74299,
+    "seen": 1791018684.899044,
+    "ast_hash": "9154b7469b768a969777fc5fbb330c72",
+    "semantic_hash": ""
+  },
+  "apps/landing/src/lib/utils.ts": {
+    "mtime": 1791018617.74306,
+    "seen": 1791018684.8990448,
+    "ast_hash": "03ac4a2ea8a147a26c1741565f4b7f4e",
+    "semantic_hash": ""
+  },
+  "apps/landing/tsconfig.json": {
+    "mtime": 1791018617.74306,
+    "seen": 1791018684.8990462,
+    "ast_hash": "8f213f05bd9b2ef71fd1299de07e36f1",
+    "semantic_hash": ""
+  },
+  "apps/lexica/__tests__/e2e/core-flow.spec.ts": {
+    "mtime": 1791018617.7465446,
+    "seen": 1791018684.899047,
+    "ast_hash": "5c7010322f0f9f9243ebf8a603013571",
+    "semantic_hash": ""
+  },
+  "apps/lexica/__tests__/e2e/dead-end.spec.ts": {
+    "mtime": 1791018617.746634,
+    "seen": 1791018684.8990476,
+    "ast_hash": "19de4742e67111abdc597a5a84c9dafb",
+    "semantic_hash": ""
+  },
+  "apps/lexica/__tests__/e2e/helpers.ts": {
+    "mtime": 1791018617.746634,
+    "seen": 1791018684.8990488,
+    "ast_hash": "807a6472d907321bb462c298a8adc552",
+    "semantic_hash": ""
+  },
+  "apps/lexica/__tests__/e2e/onboarding.spec.ts": {
+    "mtime": 1791018617.746634,
+    "seen": 1791018684.8990498,
+    "ast_hash": "83e07164b4a726fb9889393391bf421d",
+    "semantic_hash": ""
+  },
+  "apps/lexica/__tests__/unit/eloAlgorithm.test.ts": {
+    "mtime": 1791018617.746634,
+    "seen": 1791018684.8990507,
+    "ast_hash": "eacec29f86881d4f1d8dab95c9ccc867",
+    "semantic_hash": ""
+  },
+  "apps/lexica/__tests__/unit/lexicaStore.test.ts": {
+    "mtime": 1791018617.7470086,
+    "seen": 1791018684.8990514,
+    "ast_hash": "21a9490955f5733129de2352fa2a27bf",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/buddy/page.tsx": {
+    "mtime": 1791018617.7470984,
+    "seen": 1791018684.8990526,
+    "ast_hash": "c516b6c855991602a83c7cc945332949",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/challenge/[id]/page.tsx": {
+    "mtime": 1791018617.7473042,
+    "seen": 1791018684.8990533,
+    "ast_hash": "30d4ec1b5431c3bf6f9d86351910f74d",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/AccuracyChart.tsx": {
+    "mtime": 1791018617.7473042,
+    "seen": 1791018684.899054,
+    "ast_hash": "f14e59b656890115c0267b41048fe792",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/ActivityHeatmap.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.899055,
+    "ast_hash": "44e614c9242d765317fd847f381f51eb",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/AuthGate.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.899056,
+    "ast_hash": "f72488ce11e4bff66086265ea863099f",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/CardStatesPieChart.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990576,
+    "ast_hash": "87a79e6c358380c3fe83b8e42194f80c",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/ChallengeButton.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990586,
+    "ast_hash": "490df309bff54af716f1a29d6dd31728",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/ComboChain.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990595,
+    "ast_hash": "84cd757a180703de6e58f40bddb66cd0",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/CortexSection.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990602,
+    "ast_hash": "4d9205f15a0406e6f22a88e8a742e2cb",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/CortexWidget.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990612,
+    "ast_hash": "bc4b6c9ea55e4c649e4e1ec039814e7a",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/CountUp.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.899062,
+    "ast_hash": "b63b99f2a8d494e237c032449959c7d0",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/ELOChart.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990629,
+    "ast_hash": "9db779318befdb4ab7a78c07bce28e54",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/EnergyBar.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990638,
+    "ast_hash": "cbdf30b56ce209288d990114edddc8e4",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/ErrorBoundary.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990645,
+    "ast_hash": "4369a42d9c5b7c7ad62c96ea7f4f23b5",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/GameHub.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990653,
+    "ast_hash": "4eb230b505fdbf5ff0e124aeb2231a77",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/InstallPWAPrompt.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990662,
+    "ast_hash": "48a295ede63766c0f9514ae069dd457e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/LearnedWordsCounter.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990672,
+    "ast_hash": "6ecffccb79cf21087be7e86f07cdaf05",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/LearnedWordsList.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990679,
+    "ast_hash": "d916ef1af358a1a73556b0845042d1b9",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/LevelSelector.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990686,
+    "ast_hash": "cbdcec8dd54a5cd353fe366e7dc9a493",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/LevelTest.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990695,
+    "ast_hash": "e142798b1a5faedab02d7afcc3faf30e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/LevelTestResult.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990705,
+    "ast_hash": "d8d139ec0cc28d4b9e92c24aee3868eb",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/LevelTestWelcome.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990712,
+    "ast_hash": "0b4072bd2ee21aff4b20d829f7a7ecb5",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/MemoryMatch.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.899072,
+    "ast_hash": "da5e067f238046e007218e25a04187e5",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/OnboardingModal.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.899073,
+    "ast_hash": "e83aa64bd3b2817dbe1c9424c59fcc2d",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/PeriodSelector.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990738,
+    "ast_hash": "d1f5a4556cbf9fafe8a741f6a117a1ea",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/ReviewQuiz.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990746,
+    "ast_hash": "e526edbc7788c81e91090d536a8b5ca4",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/SRSCalendar.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990753,
+    "ast_hash": "52aa85492676b4697ea610b8cde4dc57",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/SmartEntry.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990767,
+    "ast_hash": "85f66bdc482193a5fc984460782d9896",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/SpeedQuiz.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990774,
+    "ast_hash": "7492c3034b938db68b29b029c2438c85",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/StoryComprehensionQuiz.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990781,
+    "ast_hash": "a195ea261de8754213461ab9a5bcf35f",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/StoryMode.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990788,
+    "ast_hash": "33c06e2b19c07a59bef98ae31f7b61de",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/StoryQuizModal.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990796,
+    "ast_hash": "b93af6d45f331e052f53a35d3043ec0e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/StoryUnlockModal.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990808,
+    "ast_hash": "0c1ed2fc89cbfe492303a19d2db89c4b",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/SurgeryLab.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990812,
+    "ast_hash": "058ee9d19909683b753c35a2db2d2e04",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/SwipeDeck.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990822,
+    "ast_hash": "b6dd39af8cccb2247121c0e29468bba9",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/TrueFalseBlitz.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.899083,
+    "ast_hash": "306f884bed1945de26521a0b4b804caf",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/TypeChallenge.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990839,
+    "ast_hash": "c12809c6fd0dbd757cb6e5449b6d4649",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/UpgradeLab.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990846,
+    "ast_hash": "0f4a526a6aac79556e204f0273bca76e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/VocabCard.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990853,
+    "ast_hash": "cc3981648d9347061e0b4a7327fb8d28",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/WordBingo.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.899086,
+    "ast_hash": "db0bd12be1001ca9a981795592539c71",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/components/WordScramble.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990872,
+    "ast_hash": "5e2544b90335a67c506f43f852c39a22",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/context/AuthContext.tsx": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990881,
+    "ast_hash": "25d8b868e0977d4d80cf93f9e82a28de",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/data/stories.ts": {
+    "mtime": 1791018617.7476144,
+    "seen": 1791018684.8990889,
+    "ast_hash": "c220de008ab4dc0b00860d585d03d97a",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/data/vocabCards.ts": {
+    "mtime": 1791018617.7521312,
+    "seen": 1791018684.8990896,
+    "ast_hash": "abb1f01679f594248c084228b43c03fd",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/hooks/useActivitySync.ts": {
+    "mtime": 1791018617.7521312,
+    "seen": 1791018684.8990905,
+    "ast_hash": "c24cb6a60bf8a335ce2d616e59a64450",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/hooks/useInstallPrompt.ts": {
+    "mtime": 1791018617.7546668,
+    "seen": 1791018684.8990912,
+    "ast_hash": "95591895696b09d881a43d6907c91e62",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/hooks/useSoundEffects.ts": {
+    "mtime": 1791018617.7546668,
+    "seen": 1791018684.8990922,
+    "ast_hash": "49d974e671ff014280c9b05009d845be",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/hooks/useVocalSwipe.ts": {
+    "mtime": 1791018617.7546668,
+    "seen": 1791018684.8990932,
+    "ast_hash": "ff2e32d2f37433adece212ad9657a4fb",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/layout.tsx": {
+    "mtime": 1791018617.7546668,
+    "seen": 1791018684.899094,
+    "ast_hash": "e96dd766e4e0fcbb795af30782039e69",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/learned/page.tsx": {
+    "mtime": 1791018617.7546668,
+    "seen": 1791018684.8990948,
+    "ast_hash": "3baab3d5930359fc4f620f797c60f64f",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/level-select/page.tsx": {
+    "mtime": 1791018617.7546668,
+    "seen": 1791018684.8990958,
+    "ast_hash": "9deafbcaadebf59ff2b242d2ca5c3f5b",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/analytics.ts": {
+    "mtime": 1791018617.7546668,
+    "seen": 1791018684.8990965,
+    "ast_hash": "5ba0b0931c3f727862ad2280370e6b50",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/auth.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8990974,
+    "ast_hash": "3e01b4fabb270b4207f252865b167122",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/buddy.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8990982,
+    "ast_hash": "6aaa287b7f487bacd3706d741b0cff25",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/challenges.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8990989,
+    "ast_hash": "271350560dc02e49160be43484d9fc51",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/eloAlgorithm.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8990996,
+    "ast_hash": "449ccf012b209f5901a14321e02d8eb7",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/mappers.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8991008,
+    "ast_hash": "ec8a329b852752c866d5be9823628ba8",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/pushNotifications.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8991015,
+    "ast_hash": "525715c77f0946c7df91b537abe784bd",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/lib/supabase.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8991024,
+    "ast_hash": "e842402eee9bcac11609b57f35b182eb",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/onboarding/page.tsx": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8991032,
+    "ast_hash": "84c8dc15a62bbe94b8d6278e87b810a7",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/page.tsx": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8991044,
+    "ast_hash": "3ec17ac6d6c0c28e762f05e93763a2e3",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/review/page.tsx": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.899105,
+    "ast_hash": "0a6a536fd5ae503458264c9da876b71a",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/stats/page.tsx": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.899106,
+    "ast_hash": "7078848e276733f444ad6e011d5c00d4",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/store/lexicaStore.ts": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8991067,
+    "ast_hash": "ab5461f66783ef967e8ef3b3e252dc47",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/stories/page.tsx": {
+    "mtime": 1791018617.7593763,
+    "seen": 1791018684.8991077,
+    "ast_hash": "814d556a9fda5d8412d64bd8621d40a2",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/story/[id]/page.tsx": {
+    "mtime": 1791018617.7613332,
+    "seen": 1791018684.8991086,
+    "ast_hash": "71998ebaeb051f8edf616f655292d9c0",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/story/[id]/unlock-quiz/page.tsx": {
+    "mtime": 1791018617.7614937,
+    "seen": 1791018684.8991094,
+    "ast_hash": "286d21458b6aa13ced5acdfc32a10f74",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/story/[id]/unlock/page.tsx": {
+    "mtime": 1791018617.7614937,
+    "seen": 1791018684.89911,
+    "ast_hash": "ba1653615709684ebbf92a76e1379364",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/test/page.tsx": {
+    "mtime": 1791018617.7614937,
+    "seen": 1791018684.8991108,
+    "ast_hash": "6aa468c70e638f0edcce040761c24c8e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/test/quiz/page.tsx": {
+    "mtime": 1791018617.7616088,
+    "seen": 1791018684.899112,
+    "ast_hash": "2ccfe22be1bd1db06380821e62abbad8",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/test/result/page.tsx": {
+    "mtime": 1791018617.7616088,
+    "seen": 1791018684.8991127,
+    "ast_hash": "f99d78cf47031ac9a8feff9c9bd25d78",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/types/speech-recognition.d.ts": {
+    "mtime": 1791018617.7616088,
+    "seen": 1791018684.8991132,
+    "ast_hash": "c84a6db5173d338809c3513e7bd1cb41",
+    "semantic_hash": ""
+  },
+  "apps/lexica/eslint.config.mjs": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.899114,
+    "ast_hash": "f1702979d2e1b64fec17a6f855185d9b",
+    "semantic_hash": ""
+  },
+  "apps/lexica/next-env.d.ts": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8991148,
+    "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
+    "semantic_hash": ""
+  },
+  "apps/lexica/next.config.ts": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8991156,
+    "ast_hash": "0ce5af5a5621e7057352d4c2df24b2ef",
+    "semantic_hash": ""
+  },
+  "apps/lexica/package.json": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8991163,
+    "ast_hash": "f2ff4f6b9302c55a22e3c836b551a267",
+    "semantic_hash": ""
+  },
+  "apps/lexica/playwright.config.ts": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.899117,
+    "ast_hash": "362f244398b92abf7e11b42bca1bd89c",
+    "semantic_hash": ""
+  },
+  "apps/lexica/postcss.config.mjs": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8991177,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/manifest.json": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.8991187,
+    "ast_hash": "ac72765770223cd2b3daf5ec21af81d6",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/sw.js": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.8991194,
+    "ast_hash": "4e1d5c834dc67fc6ace6a5e4cfd583dc",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/workbox-01fd22c6.js": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.89912,
+    "ast_hash": "98d58f6ba4bb37cd18d746933f6b0ed4",
+    "semantic_hash": ""
+  },
+  "apps/lexica/tsconfig.json": {
+    "mtime": 1791018617.7632234,
+    "seen": 1791018684.8991208,
+    "ast_hash": "e9fee62cb6973a4be971aaf83c4b7187",
+    "semantic_hash": ""
+  },
+  "apps/lexica/vercel.json": {
+    "mtime": 1791018617.7632234,
+    "seen": 1791018684.899122,
+    "ast_hash": "6da770c09e918b851cdc7fe379a037bd",
+    "semantic_hash": ""
+  },
+  "apps/lexica/vitest.config.ts": {
+    "mtime": 1791018617.7632234,
+    "seen": 1791018684.8991227,
+    "ast_hash": "e00445ef5e809b7bd1127c5d4e8ae4be",
+    "semantic_hash": ""
+  },
+  "apps/lexica/vitest.setup.ts": {
+    "mtime": 1791018617.7632234,
+    "seen": 1791018684.8991234,
+    "ast_hash": "00e47f7b9836e8f731101981fa2bb2de",
+    "semantic_hash": ""
+  },
+  "apps/oratio/components.json": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8991241,
+    "ast_hash": "e9f64ed73f55abdf3d74ae4a99b565b6",
+    "semantic_hash": ""
+  },
+  "apps/oratio/eslint.config.mjs": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8991253,
+    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "semantic_hash": ""
+  },
+  "apps/oratio/next-env.d.ts": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.899126,
+    "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
+    "semantic_hash": ""
+  },
+  "apps/oratio/next.config.ts": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8991268,
+    "ast_hash": "55a1407c2fd8e76e47c1ff799726ee68",
+    "semantic_hash": ""
+  },
+  "apps/oratio/package.json": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8991275,
+    "ast_hash": "5c7673432b12e32a813ba5355a683b6d",
+    "semantic_hash": ""
+  },
+  "apps/oratio/postcss.config.mjs": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8991299,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/actions/auth.ts": {
+    "mtime": 1791018617.766157,
+    "seen": 1791018684.8991306,
+    "ast_hash": "99c8e8838752fd14369530290b6f090b",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/actions/leaderboard.ts": {
+    "mtime": 1791018617.7662373,
+    "seen": 1791018684.8991313,
+    "ast_hash": "fb0cb147ea2f3a176d5aab7d5971e08f",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/actions/matchmaking.ts": {
+    "mtime": 1791018617.7662373,
+    "seen": 1791018684.8991323,
+    "ast_hash": "bcd45d5b8444027ba0c8aab1c467365e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/actions/questions.ts": {
+    "mtime": 1791018617.7662373,
+    "seen": 1791018684.899133,
+    "ast_hash": "5215341c0316bed70a682f62634e6f9d",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/actions/stats.ts": {
+    "mtime": 1791018617.7662373,
+    "seen": 1791018684.899134,
+    "ast_hash": "d138b98ee090e62839907998602404b8",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/app/api/assign-roles/route.ts": {
+    "mtime": 1791018617.7666945,
+    "seen": 1791018684.8991346,
+    "ast_hash": "eafcb6d54f2a9731564fe6dda0f42d7c",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/app/api/cleanup-queue/route.ts": {
+    "mtime": 1791018617.7666945,
+    "seen": 1791018684.8991354,
+    "ast_hash": "fdd00691a7c9e599a7f7b323ce10410e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/app/api/livekit/get-token/route.ts": {
+    "mtime": 1791018617.7668965,
+    "seen": 1791018684.899136,
+    "ast_hash": "d1fec5a238e68147ea538c24d6ce2164",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/app/auth/callback/route.ts": {
+    "mtime": 1791018617.766985,
+    "seen": 1791018684.8991368,
+    "ast_hash": "de05b4b97d94d4eda3b863b6c1f8f262",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/app/debug/page.tsx": {
+    "mtime": 1791018617.766985,
+    "seen": 1791018684.8991375,
+    "ast_hash": "befdc28dd17a27c4430cda985ecef6da",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/app/layout.tsx": {
+    "mtime": 1791018617.766985,
+    "seen": 1791018684.8991382,
+    "ast_hash": "062de85e238d4cc3b461127c8e888ba3",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/app/page.tsx": {
+    "mtime": 1791018617.766985,
+    "seen": 1791018684.8991394,
+    "ast_hash": "b50d366b00c028b676f5d1e2337b575f",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/AchievementsScreen.tsx": {
+    "mtime": 1791018617.766985,
+    "seen": 1791018684.8991401,
+    "ast_hash": "c9bce386b4699d2019f0eefa888a9e7e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/AppFlow.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991408,
+    "ast_hash": "0148c3a9bec831bc607d9edf7e47208d",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/AuthScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991416,
+    "ast_hash": "7fdbf4ae51e6c7b16ca63d50ad887fff",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/CallHistoryScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.899142,
+    "ast_hash": "4b36f4bb31a40139e9f6021d84124033",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/CallSummaryScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.899143,
+    "ast_hash": "495e07808233cd887568fcbffe91b0e3",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/FriendsScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991437,
+    "ast_hash": "232d409272fb7b6e810ff66e246f9854",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/HomeScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991444,
+    "ast_hash": "7e68b5660724111a29ba25a76fa561bb",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/InCallScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991451,
+    "ast_hash": "30054e5bdb48dc003be095c3f6690a0e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/LeaderboardScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.899146,
+    "ast_hash": "91fe52bc567ea04ba6876da61a9caa48",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/LiveKitRoom.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991466,
+    "ast_hash": "261a803e6730be0b095fce1fbd8b1af9",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/LoadingSpinner.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991473,
+    "ast_hash": "63a8a548af3a58e4ad08ee574b022042",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/MatchmakingScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.899148,
+    "ast_hash": "1c8f9a5e22a3492571b859d23845ba09",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/PartnerFoundScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991487,
+    "ast_hash": "a5e6aabe38783cf3bd0a85d9331bf0ed",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/ProfileScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.89915,
+    "ast_hash": "790f7a2265c4d5170a6887c0891bb5a3",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/RatingScreen.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991506,
+    "ast_hash": "9aea950aff620c32fe4fd07fd3cf25e0",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/components/ui/button.tsx": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991513,
+    "ast_hash": "7e1b8d2215587c9ea334242b2afa4a40",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/hooks/useCallHistory.ts": {
+    "mtime": 1791018617.767554,
+    "seen": 1791018684.8991518,
+    "ast_hash": "aaf655442fa364fc22cda31682d2637a",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/hooks/useMatchmaking.ts": {
+    "mtime": 1791018617.7694168,
+    "seen": 1791018684.899153,
+    "ast_hash": "88eb14a4ba6c4cadbc755c5e0ca2aea1",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/hooks/useOnlineCount.ts": {
+    "mtime": 1791018617.7694168,
+    "seen": 1791018684.8991537,
+    "ast_hash": "0be0ae4fe6c94640af9fdee35b242231",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/hooks/useSupabase.ts": {
+    "mtime": 1791018617.7694168,
+    "seen": 1791018684.8991544,
+    "ast_hash": "2cb85b5775711e6086fc24c78bce094e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/question-utils.ts": {
+    "mtime": 1791018617.7694168,
+    "seen": 1791018684.8991554,
+    "ast_hash": "3c8bae4a05debbcc3c9d647ca2dbf20f",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/supabase/client.ts": {
+    "mtime": 1791018617.769649,
+    "seen": 1791018684.8991563,
+    "ast_hash": "945e451163b0c566ec72fc231f1e85ab",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/supabase/middleware.ts": {
+    "mtime": 1791018617.76968,
+    "seen": 1791018684.899157,
+    "ast_hash": "83c75b41bc922feb46eef3f5bd3f591e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/supabase/server.ts": {
+    "mtime": 1791018617.76968,
+    "seen": 1791018684.899158,
+    "ast_hash": "c178ec7c8800d3ad1d5b6df95b4f3ee0",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/types/database.ts": {
+    "mtime": 1791018617.76968,
+    "seen": 1791018684.8991587,
+    "ast_hash": "cfdaedc3dc7156160e699d5fc6878d76",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/utils.ts": {
+    "mtime": 1791018617.76968,
+    "seen": 1791018684.8991597,
+    "ast_hash": "5a6fd53fdcf2be529e9cc0b718fde352",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/lib/utils/mappers.ts": {
+    "mtime": 1791018617.76968,
+    "seen": 1791018684.8991604,
+    "ast_hash": "9e77935e5da9cc7dbf3712318dddf34d",
+    "semantic_hash": ""
+  },
+  "apps/oratio/src/middleware.ts": {
+    "mtime": 1791018617.76968,
+    "seen": 1791018684.8991613,
+    "ast_hash": "64fca1c0ce6d423be9c32ceab97c2798",
+    "semantic_hash": ""
+  },
+  "apps/oratio/tsconfig.json": {
+    "mtime": 1791018617.770165,
+    "seen": 1791018684.8991623,
+    "ast_hash": "a8b6af916d5bef6ebec2bfdb330c5287",
+    "semantic_hash": ""
+  },
+  "apps/solilo/eslint.config.mjs": {
+    "mtime": 1791018617.7721617,
+    "seen": 1791018684.8991635,
+    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "semantic_hash": ""
+  },
+  "apps/solilo/next-env.d.ts": {
+    "mtime": 1791018617.7721617,
+    "seen": 1791018684.8991642,
+    "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
+    "semantic_hash": ""
+  },
+  "apps/solilo/next.config.ts": {
+    "mtime": 1791018617.7721617,
+    "seen": 1791018684.8991652,
+    "ast_hash": "9b77af189a21a7a64e4bd7a426f64176",
+    "semantic_hash": ""
+  },
+  "apps/solilo/package.json": {
+    "mtime": 1791018617.7721617,
+    "seen": 1791018684.8991656,
+    "ast_hash": "156938abf40b8fb092f94c4e45a64471",
+    "semantic_hash": ""
+  },
+  "apps/solilo/postcss.config.mjs": {
+    "mtime": 1791018617.7721617,
+    "seen": 1791018684.8991668,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/app/layout.tsx": {
+    "mtime": 1791018617.7729604,
+    "seen": 1791018684.8991675,
+    "ast_hash": "2d2f730871b845703f8428f5748e948f",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/app/page.tsx": {
+    "mtime": 1791018617.7729604,
+    "seen": 1791018684.8991683,
+    "ast_hash": "dc426a2d6f88ad8d133f12771527ef24",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/LanguageProvider.tsx": {
+    "mtime": 1791018617.7729604,
+    "seen": 1791018684.8991692,
+    "ast_hash": "d6f851c6d1973a2bdb602326fcf2f982",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/SessionController.tsx": {
+    "mtime": 1791018617.7731712,
+    "seen": 1791018684.8991702,
+    "ast_hash": "044d32e9251cc041a3a815c990708963",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ThemeProvider.tsx": {
+    "mtime": 1791018617.7731712,
+    "seen": 1791018684.8991709,
+    "ast_hash": "e3428d33c5e815241b8e30fcac06fa31",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/panels/EvaluationPanel.tsx": {
+    "mtime": 1791018617.7731712,
+    "seen": 1791018684.8991718,
+    "ast_hash": "a5b5f871e9a512fdf7724daf0a6f5634",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/panels/IdlePanel.tsx": {
+    "mtime": 1791018617.7733634,
+    "seen": 1791018684.8991725,
+    "ast_hash": "e9adfe78ac8d55b1bb11b4fb3ef6e1ee",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/panels/PreparationPanel.tsx": {
+    "mtime": 1791018617.7733634,
+    "seen": 1791018684.8991737,
+    "ast_hash": "c967a850821aa53473a45b22aa3cc648",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/panels/RecordingPanel.tsx": {
+    "mtime": 1791018617.7733634,
+    "seen": 1791018684.8991745,
+    "ast_hash": "19955443d6746525b734731be56f820c",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/panels/ResultPanel.tsx": {
+    "mtime": 1791018617.7733634,
+    "seen": 1791018684.8991752,
+    "ast_hash": "22af2c743dbdaf6912f783c4ac41cab8",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/AudioVisualizer.tsx": {
+    "mtime": 1791018617.7733634,
+    "seen": 1791018684.8991761,
+    "ast_hash": "6499e67ac90b7bbf82c814c0f6dc0fe7",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/CortexWidget.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.899177,
+    "ast_hash": "eb8877f56cdc4eb3ae2c1efab246647d",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/CountdownTimer.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991778,
+    "ast_hash": "2e023e2351cbaa5ad863622d636b89ed",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/CueCard.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991787,
+    "ast_hash": "91b1abb8a82d294751ae58b8b2bd2f17",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/CustomAudioPlayer.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991795,
+    "ast_hash": "6cf127588e3c9ab66558e420f4bd6900",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/FillerFlash.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.899181,
+    "ast_hash": "89d33dc80f2a68d66d763bd983e19f1a",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/GuidedRatingSlider.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991818,
+    "ast_hash": "8f5608dfd70f2642f4e929793d652e31",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/LanguageSwitcher.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991826,
+    "ast_hash": "5116bc5af21d4ee0ba4b39830a0c24f9",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/PhaseIndicator.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991835,
+    "ast_hash": "00170de228fa13027937940dffa5855e",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/RatingSlider.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991845,
+    "ast_hash": "2af9fa5b1129df069546b7778cb58632",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/ThemeSwitcher.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991854,
+    "ast_hash": "a1c39d014c8a9b326059f1c15380b4b5",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/components/ui/UserGuide.tsx": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991866,
+    "ast_hash": "4a2a7099ddea97e513a953a23e1e6c42",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/hooks/useAudioVisualizer.ts": {
+    "mtime": 1791018617.773713,
+    "seen": 1791018684.8991876,
+    "ast_hash": "4e87655bf5f8569115c48df2cf63376b",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/hooks/useCountdown.ts": {
+    "mtime": 1791018617.7745574,
+    "seen": 1791018684.8991885,
+    "ast_hash": "bccaf2cade115d6ba84566290e68f932",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/hooks/useFillerTracker.ts": {
+    "mtime": 1791018617.7745574,
+    "seen": 1791018684.8991895,
+    "ast_hash": "2d3da1127cb5b7b75a688c2340ed9b83",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/hooks/useMediaRecorder.ts": {
+    "mtime": 1791018617.7745574,
+    "seen": 1791018684.8991902,
+    "ast_hash": "3f62530f3ae264e10e0ce1655370039e",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/hooks/useSessionMachine.ts": {
+    "mtime": 1791018617.7745574,
+    "seen": 1791018684.8991914,
+    "ast_hash": "56281e60ce4306e36e6312678067cde4",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/lib/constants.ts": {
+    "mtime": 1791018617.7745574,
+    "seen": 1791018684.899192,
+    "ast_hash": "de4ac7e6b261e7917563f6fe25a619f8",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/lib/cortex.ts": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.8991928,
+    "ast_hash": "eae4cf0076fe5bb161d9fa7d87249c87",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/lib/cueCards.ts": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.8991935,
+    "ast_hash": "a96a1533a1a6d13cd4871a81f55ae560",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/lib/mappers.ts": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.8991945,
+    "ast_hash": "60541ed1a8115c1a2f615360ad74197a",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/lib/rubric.ts": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.8991952,
+    "ast_hash": "a3e8206bbe95858727df8c4263518903",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/lib/scoring.ts": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.899196,
+    "ast_hash": "52fad38606fceef67df03b54bf8d9350",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/lib/translations.ts": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.8991969,
+    "ast_hash": "8a343064ebcc5df1d77ddd2ff1020d5c",
+    "semantic_hash": ""
+  },
+  "apps/solilo/src/types/index.ts": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.8991976,
+    "ast_hash": "050ee9d8bf9b519633cf0c5ed7126d0e",
+    "semantic_hash": ""
+  },
+  "apps/solilo/tsconfig.json": {
+    "mtime": 1791018617.7748961,
+    "seen": 1791018684.8991988,
+    "ast_hash": "e51f9937d9530dc44d976c10fe18acad",
+    "semantic_hash": ""
+  },
+  "apps/synapse/eslint.config.mjs": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.8991995,
+    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "semantic_hash": ""
+  },
+  "apps/synapse/next.config.ts": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.8992004,
+    "ast_hash": "28e5998c28e859c14501646e8bc8cfed",
+    "semantic_hash": ""
+  },
+  "apps/synapse/package.json": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.8992016,
+    "ast_hash": "65b044563ad05b9e1bc7a968966d9e2b",
+    "semantic_hash": ""
+  },
+  "apps/synapse/postcss.config.mjs": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.899202,
+    "ast_hash": "239f3ebf717465dc636818a1a619398d",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/app/api/scenario/route.ts": {
+    "mtime": 1791018617.7760186,
+    "seen": 1791018684.899203,
+    "ast_hash": "d27a828de4fb00ec5ccde19cdc1ba31e",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/app/api/story-arc/route.ts": {
+    "mtime": 1791018617.7760186,
+    "seen": 1791018684.8992038,
+    "ast_hash": "16e85d96c838f67de69dd4e7dfbb408c",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/app/layout.tsx": {
+    "mtime": 1791018617.7760186,
+    "seen": 1791018684.8992045,
+    "ast_hash": "3cee7b0c4711749c15c208e5fc8a7b5e",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/app/page.tsx": {
+    "mtime": 1791018617.7760186,
+    "seen": 1791018684.8992054,
+    "ast_hash": "e8a326d82cd4749d3789a5e392bab936",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/components/LoreSelection.tsx": {
+    "mtime": 1791018617.7760186,
+    "seen": 1791018684.8992062,
+    "ast_hash": "f809c7c812f33ddc3001dc1f3515d10c",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/components/TerminalBoard.tsx": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.899207,
+    "ast_hash": "56d0a3cf43ddfc9426aa233b2cef627a",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/components/TerminalHeader.tsx": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.8992078,
+    "ast_hash": "c18abbea96ebb1a7ff375cae932f6689",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/components/TerminalHistory.tsx": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.8992088,
+    "ast_hash": "d01a7c5112dd91894839bd529c838809",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/components/TerminalOptions.tsx": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.8992095,
+    "ast_hash": "c9cd2a9a5d1e276b8d1a6e8d43f68d21",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/components/TerminalOutput.tsx": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.8992102,
+    "ast_hash": "3d72f627bb30c685c107778b28e779e0",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/components/ThemePicker.tsx": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.899211,
+    "ast_hash": "79ad6b9ac151662ce14c8ac0cf8f4d1e",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/context/ThemeContext.tsx": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.899212,
+    "ast_hash": "0c50b75cb87456d73a92587b0ecf82de",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/hooks/useTypewriter.ts": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.8992126,
+    "ast_hash": "1d8b2cd67cb96886140179cfd229be36",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/lib/apiClient.ts": {
+    "mtime": 1791018617.7768698,
+    "seen": 1791018684.8992136,
+    "ast_hash": "542134cb77171439624475ad77bcda21",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/lib/synapseTypes.ts": {
+    "mtime": 1791018617.7776616,
+    "seen": 1791018684.8992143,
+    "ast_hash": "76cdc65266e7c359735984a566d846eb",
+    "semantic_hash": ""
+  },
+  "apps/synapse/src/lib/themes.ts": {
+    "mtime": 1791018617.7776616,
+    "seen": 1791018684.8992152,
+    "ast_hash": "12582290c65c68ce3618abebdf73ce61",
+    "semantic_hash": ""
+  },
+  "apps/synapse/tsconfig.json": {
+    "mtime": 1791018617.7776616,
+    "seen": 1791018684.899216,
+    "ast_hash": "a8b6af916d5bef6ebec2bfdb330c5287",
+    "semantic_hash": ""
+  },
+  "package.json": {
+    "mtime": 1791018617.777967,
+    "seen": 1791018684.8992167,
+    "ast_hash": "47e4115e75fa6c29f36c508996fa28e1",
+    "semantic_hash": ""
+  },
+  "packages/cortex-types/index.ts": {
+    "mtime": 1791018617.7780857,
+    "seen": 1791018684.8992174,
+    "ast_hash": "b1d5f97cac088f5c04a29d150720fd46",
+    "semantic_hash": ""
+  },
+  "packages/cortex-types/package.json": {
+    "mtime": 1791018617.7781503,
+    "seen": 1791018684.8992183,
+    "ast_hash": "79922c0d9bcc6e4106f6583b37935bd8",
+    "semantic_hash": ""
+  },
+  "packages/cortex-types/tsconfig.json": {
+    "mtime": 1791018617.7781503,
+    "seen": 1791018684.8992193,
+    "ast_hash": "9f949f53d586bcb6597a6bd769815964",
+    "semantic_hash": ""
+  },
+  "packages/eslint-config/base.js": {
+    "mtime": 1791018617.7783916,
+    "seen": 1791018684.89922,
+    "ast_hash": "5f62d96dff562381ba4f76c608ced0d2",
+    "semantic_hash": ""
+  },
+  "packages/eslint-config/next.js": {
+    "mtime": 1791018617.7783916,
+    "seen": 1791018684.899221,
+    "ast_hash": "cfde5f660603b14f3433463a68a3ea0f",
+    "semantic_hash": ""
+  },
+  "packages/eslint-config/package.json": {
+    "mtime": 1791018617.7783916,
+    "seen": 1791018684.8992214,
+    "ast_hash": "b04e10e0b5d94d4f67cdca2f42738be9",
+    "semantic_hash": ""
+  },
+  "packages/eslint-config/react-internal.js": {
+    "mtime": 1791018617.7783916,
+    "seen": 1791018684.8992226,
+    "ast_hash": "04b25c7326a394c2f604880d42d8c37b",
+    "semantic_hash": ""
+  },
+  "packages/typescript-config/base.json": {
+    "mtime": 1791018617.7783916,
+    "seen": 1791018684.8992233,
+    "ast_hash": "cba1ac504004ffd7a202c09b8fa58f09",
+    "semantic_hash": ""
+  },
+  "packages/typescript-config/nextjs.json": {
+    "mtime": 1791018617.778603,
+    "seen": 1791018684.899224,
+    "ast_hash": "419d0717abcf3b97c7ec3638e55f8ec8",
+    "semantic_hash": ""
+  },
+  "packages/typescript-config/package.json": {
+    "mtime": 1791018617.778603,
+    "seen": 1791018684.8992248,
+    "ast_hash": "1e99369b75db4546af4ac4a79eb5f2dd",
+    "semantic_hash": ""
+  },
+  "packages/typescript-config/react-library.json": {
+    "mtime": 1791018617.778603,
+    "seen": 1791018684.899226,
+    "ast_hash": "42fa007069bd205e7d2762f34a1545ae",
+    "semantic_hash": ""
+  },
+  "packages/ui/eslint.config.mjs": {
+    "mtime": 1791018617.778603,
+    "seen": 1791018684.8992267,
+    "ast_hash": "c787dc302a8cbd0911ae8aaa979aa991",
+    "semantic_hash": ""
+  },
+  "packages/ui/package.json": {
+    "mtime": 1791018617.7787423,
+    "seen": 1791018684.8992276,
+    "ast_hash": "49b24569639203365600e93f7d7163ca",
+    "semantic_hash": ""
+  },
+  "packages/ui/src/button.tsx": {
+    "mtime": 1791018617.7787423,
+    "seen": 1791018684.8992283,
+    "ast_hash": "7d9123e4a929c973692314670228d7b5",
+    "semantic_hash": ""
+  },
+  "packages/ui/src/card.tsx": {
+    "mtime": 1791018617.7788591,
+    "seen": 1791018684.8992288,
+    "ast_hash": "ca56fa8d993ddc64362abe2ef07481f2",
+    "semantic_hash": ""
+  },
+  "packages/ui/src/code.tsx": {
+    "mtime": 1791018617.7788591,
+    "seen": 1791018684.8992298,
+    "ast_hash": "dd8ba0d572b4682c869f343cc7cad209",
+    "semantic_hash": ""
+  },
+  "packages/ui/tsconfig.json": {
+    "mtime": 1791018617.7788591,
+    "seen": 1791018684.8992305,
+    "ast_hash": "cd930e468869b06ed4f308a34c9cde9a",
+    "semantic_hash": ""
+  },
+  "simulate_full_flow.sh": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791018684.8992312,
+    "ast_hash": "c7f78ff11a6528bb956d2cdd2d77c90f",
+    "semantic_hash": ""
+  },
+  "simulate_text_only.sh": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791018684.899232,
+    "ast_hash": "8fbd61eda31933974c404d15fea0e878",
+    "semantic_hash": ""
+  },
+  "test_overwrite.sh": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791018684.8992329,
+    "ast_hash": "f1cc25173de1af5f0afc31a92b3357f4",
+    "semantic_hash": ""
+  },
+  "turbo.json": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791018684.8992336,
+    "ast_hash": "c36f0f9ea8e4712193222e72d6821fc8",
+    "semantic_hash": ""
+  },
+  ".github/workflows/ci.yml": {
+    "mtime": 1791018617.7358477,
+    "seen": 1791018684.8992345,
+    "ast_hash": "efcb1c7da3cc6b1afd02e4016780d027",
+    "semantic_hash": ""
+  },
+  ".trae/documents/synapse-page-design.md": {
+    "mtime": 1791018617.7361305,
+    "seen": 1791018684.8992357,
+    "ast_hash": "a4765c250f0062f60b4794b6bb190d28",
+    "semantic_hash": ""
+  },
+  ".trae/documents/synapse-prd.md": {
+    "mtime": 1791018617.7361941,
+    "seen": 1791018684.8992372,
+    "ast_hash": "e4cffb8abe2fdb2fccb0a42f86abdd8e",
+    "semantic_hash": ""
+  },
+  ".trae/documents/synapse-technical-architecture.md": {
+    "mtime": 1791018617.7361941,
+    "seen": 1791018684.8992383,
+    "ast_hash": "741294ca3443992ac429483029003029",
+    "semantic_hash": ""
+  },
+  "DEPLOYMENT.md": {
+    "mtime": 1791018617.7361941,
+    "seen": 1791018684.899239,
+    "ast_hash": "2679cdfddcc723440ff624e438de8f3c",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1791018617.7361941,
+    "seen": 1791018684.89924,
+    "ast_hash": "e70b52ac9621750e39d55ceff6d2c3da",
+    "semantic_hash": ""
+  },
+  "TODO.md": {
+    "mtime": 1791018617.7361941,
+    "seen": 1791018684.899241,
+    "ast_hash": "84ceee680539c752da711d65ad6500d8",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/DATA_FLOW.md": {
+    "mtime": 1791018617.736479,
+    "seen": 1791018684.8992417,
+    "ast_hash": "84273008dfbe27ad0b0effda919ca388",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/README.md": {
+    "mtime": 1791018617.736479,
+    "seen": 1791018684.8992424,
+    "ast_hash": "8e8d8363582979f3debdc321fd7dbe4a",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/SETUP_GUIDE.md": {
+    "mtime": 1791018617.736479,
+    "seen": 1791018684.8992434,
+    "ast_hash": "6b1e2b8eb175a8baec2e23ab7b3206e7",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/docs/INFRASTRUCTURE_GUIDE.md": {
+    "mtime": 1791018617.736479,
+    "seen": 1791018684.899244,
+    "ast_hash": "070af336860a89b90a82b2fea82d9b04",
+    "semantic_hash": ""
+  },
+  "apps/cortex-core-api/docs/REALTIME_EVENTS_GUIDE.md": {
+    "mtime": 1791018617.7367136,
+    "seen": 1791018684.8992448,
+    "ast_hash": "37472add4c222aea61c9dfc9a864e67d",
+    "semantic_hash": ""
+  },
+  "apps/landing/APP_BRAINSTORM_TEMPLATE.md": {
+    "mtime": 1791018617.738639,
+    "seen": 1791018684.8992455,
+    "ast_hash": "4bf542e0319a2da02f119f2f96074718",
+    "semantic_hash": ""
+  },
+  "apps/landing/DESIGN_SYSTEM.md": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8992465,
+    "ast_hash": "196329592a89b75260e36c7012603abf",
+    "semantic_hash": ""
+  },
+  "apps/landing/MASTER_PLAN.md": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8992474,
+    "ast_hash": "e277aade1c434544bed7293e6c49f07f",
+    "semantic_hash": ""
+  },
+  "apps/landing/README.md": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8992481,
+    "ast_hash": "f15aaa42d5d299d091b1171097ea56ad",
+    "semantic_hash": ""
+  },
+  "apps/landing/TODO.md": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8992488,
+    "ast_hash": "610890627f9ab2e98e3f61b2e93d0f54",
+    "semantic_hash": ""
+  },
+  "apps/landing/spec/DESIGN_SYSTEM.md": {
+    "mtime": 1791018617.7393556,
+    "seen": 1791018684.8992493,
+    "ast_hash": "196329592a89b75260e36c7012603abf",
+    "semantic_hash": ""
+  },
+  "apps/landing/spec/MASTER_PLAN.md": {
+    "mtime": 1791018617.7396426,
+    "seen": 1791018684.8992503,
+    "ast_hash": "e277aade1c434544bed7293e6c49f07f",
+    "semantic_hash": ""
+  },
+  "apps/lexica/LEXICA_MASTER_CONTEXT.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.8992512,
+    "ast_hash": "a027b83c5740385956731fc346ebc1df",
+    "semantic_hash": ""
+  },
+  "apps/lexica/LEXICA_SITEMAP_AND_FEATURES.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.899252,
+    "ast_hash": "67e40ecd9eb9ffacac9dc1c459e94a8d",
+    "semantic_hash": ""
+  },
+  "apps/lexica/PLAN.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.8992527,
+    "ast_hash": "3aa369a469890c00eae818279561b7c0",
+    "semantic_hash": ""
+  },
+  "apps/lexica/README.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.8992536,
+    "ast_hash": "f15aaa42d5d299d091b1171097ea56ad",
+    "semantic_hash": ""
+  },
+  "apps/lexica/REVERT_MOCK_DATA.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.8992543,
+    "ast_hash": "e2b8f1a4b5328d323c27040dabef582f",
+    "semantic_hash": ""
+  },
+  "apps/lexica/STORY_PROGRESSIVE_UNLOCK_SPEC.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.899255,
+    "ast_hash": "41a213b492392b02082def4f556265e7",
+    "semantic_hash": ""
+  },
+  "apps/lexica/TODO.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.8992558,
+    "ast_hash": "3affc433cf7ee7dce118fd686b6a14c2",
+    "semantic_hash": ""
+  },
+  "apps/lexica/__tests__/TESTS_SUMMARY.md": {
+    "mtime": 1791018617.7453573,
+    "seen": 1791018684.8992565,
+    "ast_hash": "84cdfc9382974288f83164d894bb267d",
+    "semantic_hash": ""
+  },
+  "apps/lexica/context/ARCHITECTURE.md": {
+    "mtime": 1791018617.7616088,
+    "seen": 1791018684.8992574,
+    "ast_hash": "461ead68d2277d2d9b5ed54c08468b7a",
+    "semantic_hash": ""
+  },
+  "apps/lexica/context/COMPONENTS.md": {
+    "mtime": 1791018617.7618144,
+    "seen": 1791018684.8992581,
+    "ast_hash": "a9847d9f589fbe94586af0e9402b6703",
+    "semantic_hash": ""
+  },
+  "apps/lexica/context/DATA_MODELS.md": {
+    "mtime": 1791018617.7618144,
+    "seen": 1791018684.899259,
+    "ast_hash": "663b5687d6e3a78bbbdfcd3f84ddfd78",
+    "semantic_hash": ""
+  },
+  "apps/lexica/context/FEATURES.md": {
+    "mtime": 1791018617.7618144,
+    "seen": 1791018684.89926,
+    "ast_hash": "e93a100db44dd0aabff7b3fc8f241666",
+    "semantic_hash": ""
+  },
+  "apps/lexica/context/README.md": {
+    "mtime": 1791018617.7618144,
+    "seen": 1791018684.899261,
+    "ast_hash": "ead46b65075780adba36164751e0861a",
+    "semantic_hash": ""
+  },
+  "apps/lexica/context/STATE_MANAGEMENT.md": {
+    "mtime": 1791018617.7618144,
+    "seen": 1791018684.8992617,
+    "ast_hash": "90b12716dc48c91e99a8745b243206e7",
+    "semantic_hash": ""
+  },
+  "apps/lexica/context/STYLING.md": {
+    "mtime": 1791018617.7618144,
+    "seen": 1791018684.8992627,
+    "ast_hash": "5013f28ad3f95a3ac069501925ac7b2e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/docs/context/README.md": {
+    "mtime": 1791018617.7622502,
+    "seen": 1791018684.8992634,
+    "ast_hash": "d99958237c89ccac75c652dfbb35c3d0",
+    "semantic_hash": ""
+  },
+  "apps/lexica/docs/context/architecture.md": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8992643,
+    "ast_hash": "f4f93a07c7430752e4baa0e2c7148365",
+    "semantic_hash": ""
+  },
+  "apps/lexica/docs/context/flows.md": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.899265,
+    "ast_hash": "3284bcdcbf4e83db1af1134b7ba911c5",
+    "semantic_hash": ""
+  },
+  "apps/lexica/docs/context/product.md": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8992658,
+    "ast_hash": "c1f2f985994cfcbc19f0cda90dcd3c56",
+    "semantic_hash": ""
+  },
+  "apps/lexica/docs/context/source-of-truth.md": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8992662,
+    "ast_hash": "5153cfcc731957684bc07cbd0be80773",
+    "semantic_hash": ""
+  },
+  "apps/oratio/BACKEND_IMPLEMENTATION.md": {
+    "mtime": 1791018617.7632234,
+    "seen": 1791018684.899267,
+    "ast_hash": "704ac6b3352795e19cd0968679f1416c",
+    "semantic_hash": ""
+  },
+  "apps/oratio/DEVELOPMENT_PLAN.html": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8992682,
+    "ast_hash": "dbc28d6efd048848548cda2abe0b06d0",
+    "semantic_hash": ""
+  },
+  "apps/oratio/PROJECT_OVERVIEW.html": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8992689,
+    "ast_hash": "e9f9ec436d8b0d64326bef654983953f",
+    "semantic_hash": ""
+  },
+  "apps/oratio/PROJECT_STATUS.md": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8992703,
+    "ast_hash": "08d57e93c631f1254c994148fd43216e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/README.md": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8992715,
+    "ast_hash": "a2cbd16715b5a929602f46687698c4c3",
+    "semantic_hash": ""
+  },
+  "apps/oratio/SPEAKMATE_ROADMAP.md": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8992722,
+    "ast_hash": "8c17f1976514ff9ad006bb3c6d05ebdf",
+    "semantic_hash": ""
+  },
+  "apps/oratio/TESTING.md": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.899276,
+    "ast_hash": "70606225b001728745e65946f35e4eae",
+    "semantic_hash": ""
+  },
+  "apps/solilo/README.md": {
+    "mtime": 1791018617.770165,
+    "seen": 1791018684.8992767,
+    "ast_hash": "f15aaa42d5d299d091b1171097ea56ad",
+    "semantic_hash": ""
+  },
+  "apps/solilo/SOLILO_PLAN.md": {
+    "mtime": 1791018617.7721617,
+    "seen": 1791018684.899278,
+    "ast_hash": "522e7f21bbae284ee2a1df0d02cd1cb7",
+    "semantic_hash": ""
+  },
+  "apps/synapse/AGENTS.md": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.8992786,
+    "ast_hash": "9e09241799026ac05be315a2f0b50055",
+    "semantic_hash": ""
+  },
+  "apps/synapse/CLAUDE.md": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.8992794,
+    "ast_hash": "5c27369b226fcf2be8a6cfe52224e767",
+    "semantic_hash": ""
+  },
+  "apps/synapse/README.md": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.89928,
+    "ast_hash": "f15aaa42d5d299d091b1171097ea56ad",
+    "semantic_hash": ""
+  },
+  "apps/synapse/SYNAPSE_CONTEXT.md": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.8992808,
+    "ast_hash": "354dc6b90a548e60ebd23f774802d823",
+    "semantic_hash": ""
+  },
+  "docs/CORTEX_SYSTEM_ARCHITECTURE.md": {
+    "mtime": 1791018617.7776616,
+    "seen": 1791018684.8992817,
+    "ast_hash": "eb7d8b246d85f67a188b23552a904314",
+    "semantic_hash": ""
+  },
+  "docs/SHARED_TYPES_GUIDE.md": {
+    "mtime": 1791018617.777967,
+    "seen": 1791018684.899283,
+    "ast_hash": "f5d5e1f9b54a237fb0c10ae42734c125",
+    "semantic_hash": ""
+  },
+  "packages/eslint-config/README.md": {
+    "mtime": 1791018617.7781503,
+    "seen": 1791018684.8992836,
+    "ast_hash": "3f4915336e7c54df90f5b12b527b8b87",
+    "semantic_hash": ""
+  },
+  "pnpm-workspace.yaml": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791018684.8992848,
+    "ast_hash": "de6b9e7bb156f8dc12f68dc3d1a0b649",
+    "semantic_hash": ""
+  },
+  "apps/landing/public/file.svg": {
+    "mtime": 1791018617.7388575,
+    "seen": 1791018684.8992858,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "apps/landing/public/globe.svg": {
+    "mtime": 1791018617.7393556,
+    "seen": 1791018684.8992865,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "apps/landing/public/next.svg": {
+    "mtime": 1791018617.7393556,
+    "seen": 1791018684.8992872,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "apps/landing/public/vercel.svg": {
+    "mtime": 1791018617.7393556,
+    "seen": 1791018684.8992884,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "apps/landing/public/window.svg": {
+    "mtime": 1791018617.7393556,
+    "seen": 1791018684.8992891,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/file.svg": {
+    "mtime": 1791018617.7623022,
+    "seen": 1791018684.8992898,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/globe.svg": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.8992906,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/icon-192.svg": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.8992918,
+    "ast_hash": "cbc1d42f60da3305d7d81b53a0e180ea",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/icon-512.svg": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.8992922,
+    "ast_hash": "ce3a2ba6490976fe84ee44b098127c87",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/next.svg": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.8992932,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/vercel.svg": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.899294,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "apps/lexica/public/window.svg": {
+    "mtime": 1791018617.762724,
+    "seen": 1791018684.8992946,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "apps/oratio/public/file.svg": {
+    "mtime": 1791018617.7648847,
+    "seen": 1791018684.8992956,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "apps/oratio/public/globe.svg": {
+    "mtime": 1791018617.766062,
+    "seen": 1791018684.8992963,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "apps/oratio/public/next.svg": {
+    "mtime": 1791018617.766062,
+    "seen": 1791018684.899297,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/public/vercel.svg": {
+    "mtime": 1791018617.766062,
+    "seen": 1791018684.8992977,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "apps/oratio/public/window.svg": {
+    "mtime": 1791018617.766062,
+    "seen": 1791018684.8992987,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "apps/solilo/public/file.svg": {
+    "mtime": 1791018617.7721617,
+    "seen": 1791018684.8992994,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "apps/solilo/public/globe.svg": {
+    "mtime": 1791018617.7725008,
+    "seen": 1791018684.8993,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "apps/solilo/public/next.svg": {
+    "mtime": 1791018617.7725008,
+    "seen": 1791018684.8993008,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "apps/solilo/public/vercel.svg": {
+    "mtime": 1791018617.7725008,
+    "seen": 1791018684.8993015,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "apps/solilo/public/window.svg": {
+    "mtime": 1791018617.7725008,
+    "seen": 1791018684.8993025,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "apps/synapse/public/file.svg": {
+    "mtime": 1791018617.7754567,
+    "seen": 1791018684.8993032,
+    "ast_hash": "d09f95206c3fa0bb9bd9fefabfd0ea71",
+    "semantic_hash": ""
+  },
+  "apps/synapse/public/globe.svg": {
+    "mtime": 1791018617.7757971,
+    "seen": 1791018684.8993042,
+    "ast_hash": "2aaafa6a49b6563925fe440891e32717",
+    "semantic_hash": ""
+  },
+  "apps/synapse/public/next.svg": {
+    "mtime": 1791018617.7757971,
+    "seen": 1791018684.899305,
+    "ast_hash": "8e061864f388b47f33a1c3780831193e",
+    "semantic_hash": ""
+  },
+  "apps/synapse/public/vercel.svg": {
+    "mtime": 1791018617.7757971,
+    "seen": 1791018684.899306,
+    "ast_hash": "c0af2f507b369b085b35ef4bbe3bcf1e",
+    "semantic_hash": ""
+  },
+  "apps/synapse/public/window.svg": {
+    "mtime": 1791018617.7757971,
+    "seen": 1791018684.8993068,
+    "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  }
+}
