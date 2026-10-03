@@ -130,12 +130,12 @@ export default function PartnerFoundScreen({
           <div className="relative bg-gradient-to-r from-blue-500 to-violet-500 rounded-full px-12 py-6 hover:scale-105 transition-transform">
             <div className="flex items-center gap-3">
               <Mic className="w-6 h-6 text-white" />
-              <span className="text-xl font-semibold text-white">I'm Ready!</span>
+              <span className="text-xl font-semibold text-white">I&apos;m Ready!</span>
             </div>
           </div>
         </button>
 
-        <p className="text-zinc-400 mt-6 text-sm">Click when you're ready to start the call</p>
+        <p className="text-zinc-400 mt-6 text-sm">Click when you&apos;re ready to start the call</p>
         {/* Decline Button (optional) */}
         {onDecline && (
           <button

@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Check, X } from 'lucide-react';
 import { VOCAB_DATABASE } from '../data/vocabCards';
-import { VocabCardData } from './VocabCard';
+import { VocabCardData } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface ReviewQuizProps {

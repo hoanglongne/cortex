@@ -1,5 +1,5 @@
 import { VOCAB_DATABASE } from '../data/vocabCards';
-import { VocabCardData, DifficultyLevel } from '../components/VocabCard';
+import { VocabCardData, DifficultyLevel } from '../types/vocab';
 
 /**
  * LEXICA ELO ROUTING & ADAPTIVE DIFFICULTY ALGORITHM

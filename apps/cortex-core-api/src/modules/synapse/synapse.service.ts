@@ -13,7 +13,7 @@ export class SynapseService {
     private geminiProvider: GeminiProvider,
     private groqProvider: GroqProvider,
     private gemmaProvider: GemmaProvider,
-  ) { }
+  ) {}
 
   async generateScenario(
     sessionId: string,

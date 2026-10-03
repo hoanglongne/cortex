@@ -131,12 +131,12 @@ export default function EchoPage() {
 
                     {/* Vote CTA */}
                     <motion.div variants={item} className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                        <a
+                        <Link
                             href="/#incubator"
                             className="inline-flex items-center justify-center gap-2 rounded-sm bg-white px-8 py-4 font-mono text-sm uppercase tracking-[0.15em] text-[#0a0a0a] transition-opacity hover:opacity-90"
                         >
                             Vote Cho Echo
-                        </a>
+                        </Link>
                         <a
                             href="#concept"
                             className="inline-flex items-center justify-center gap-2 rounded-sm border border-phantom-white bg-transparent px-8 py-4 font-mono text-sm uppercase tracking-[0.15em] text-white transition-all hover:border-white hover:bg-[rgba(255,255,255,0.05)]"
@@ -308,12 +308,12 @@ export default function EchoPage() {
                         Vote để đẩy Echo lên đầu hàng đợi phát triển.
                     </p>
                     <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                        <a
+                        <Link
                             href="/#incubator"
                             className="inline-flex items-center justify-center gap-2 rounded-sm bg-white px-8 py-4 font-mono text-sm uppercase tracking-[0.15em] text-[#0a0a0a] transition-opacity hover:opacity-90"
                         >
                             Vote Cho Echo
-                        </a>
+                        </Link>
                         <Link
                             href="/"
                             className="inline-flex items-center justify-center gap-2 rounded-sm border border-phantom-white bg-transparent px-8 py-4 font-mono text-sm uppercase tracking-[0.15em] text-white transition-all hover:border-white hover:bg-[rgba(255,255,255,0.05)]"

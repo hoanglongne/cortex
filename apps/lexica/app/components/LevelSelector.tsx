@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Sprout, Leaf, Sparkles, Trophy, Target, CheckCircle } from 'lucide-react';
-import { DifficultyLevel } from './VocabCard';
+import { DifficultyLevel } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface LevelSelectorProps {

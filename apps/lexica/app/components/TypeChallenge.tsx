@@ -7,7 +7,7 @@ import { useSoundEffects } from '../hooks/useSoundEffects';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import ChallengeButton from './ChallengeButton';
 
-import { VocabCardData } from './VocabCard';
+import { VocabCardData } from '../types/vocab';
 
 interface TypeChallengeProps {
     learnedWordIds: string[];

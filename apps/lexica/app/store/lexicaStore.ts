@@ -1,7 +1,7 @@
 import { analytics } from '../lib/analytics';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { VocabCardData, DifficultyLevel, UserArchetype } from '../components/VocabCard';
+import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
 import { getStoryCatchUpWordIds, STORIES, canUnlockPart1Naturally, canUnlockPart2Naturally } from '../data/stories';
 

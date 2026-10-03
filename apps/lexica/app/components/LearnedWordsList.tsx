@@ -4,7 +4,7 @@ import { useMemo, useCallback, useState, useEffect } from 'react';
 import { HandHeart, Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { VOCAB_DATABASE } from '../data/vocabCards';
-import { type VocabCardData as BaseCardData } from './VocabCard';
+import { type VocabCardData as BaseCardData } from '../types/vocab';
 import { type UserCardProgress } from '../lib/eloAlgorithm';
 import SurgeryLab from './SurgeryLab';
 import UpgradeLab from './UpgradeLab';

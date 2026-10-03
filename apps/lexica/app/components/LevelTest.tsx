@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Lightbulb, Target as TargetIcon } from 'lucide-react';
-import { DifficultyLevel } from './VocabCard';
+import { DifficultyLevel } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
 interface TestQuestion {

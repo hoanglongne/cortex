@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useLexicaStore } from '../../store/lexicaStore';
 import LevelTest from '../../components/LevelTest';
-import { DifficultyLevel } from '../../components/VocabCard';
+import { DifficultyLevel } from '../../types/vocab';
 
 export default function TestQuizPage() {
     const router = useRouter();
