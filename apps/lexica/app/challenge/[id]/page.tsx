@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { Trophy, Swords, Copy, Check, User, ArrowLeft, Flame } from 'lucide-react';
 import { fetchChallenge, getSavedNickname, saveNickname, saveResponse, createChallenge, GAME_LABELS, SCORE_LABELS, type GameChallenge, type GameType } from '../../lib/challenges';
 import { VOCAB_DATABASE } from '../../data/vocabCards';
@@ -106,9 +107,9 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                 <Swords className="w-12 h-12 text-slate-500" />
                 <h1 className="text-2xl font-bold text-white">Challenge không tồn tại</h1>
                 <p className="text-slate-400 text-sm">Link đã hết hạn hoặc không hợp lệ.</p>
-                <a href="/" className="mt-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-medium transition-all">
+                <Link href="/" className="mt-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-medium transition-all">
                     Về trang chủ
-                </a>
+                </Link>
             </div>
         );
     }
@@ -159,9 +160,9 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                         {counterLink && (
                             <p className="text-green-400 text-xs text-center">Link đã copy! Gửi cho bạn bè nhé 🎯</p>
                         )}
-                        <a href="/" className="w-full py-2 text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors">
+                        <Link href="/" className="w-full py-2 text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors">
                             <ArrowLeft className="w-4 h-4" />Về trang chủ
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -330,13 +331,13 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                         {copied ? 'Đã copy!' : 'Gửi kết quả cho người thách đấu'}
                                     </button>
 
-                                    <a
+                                    <Link
                                         href="/"
                                         className="w-full py-2 text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors"
                                     >
                                         <ArrowLeft className="w-4 h-4" />
                                         Về trang chủ
-                                    </a>
+                                    </Link>
                                 </div>
                             </motion.div>
                         )}
