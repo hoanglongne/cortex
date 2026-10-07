@@ -4,6 +4,14 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 import { initializeRoles } from "@/actions/questions";
+import { claimAll, releaseQueueEntries } from "@/lib/matchmaking/claim";
+import {
+  CLAIM_IN_PROGRESS_MS,
+  MIN_POLL_INTERVAL_MS,
+  QUEUE_STALE_AFTER_MS,
+  isBandCompatible,
+  msSince,
+} from "@/lib/matchmaking/rules";
 import type {
   FindMatchResult,
   Profile,
@@ -553,8 +561,27 @@ export async function findMatch(
 
     if (existingEntry) {
       if (existingEntry.status === 'waiting') {
+        // Server-side rate limit: the client polls every 2s, anything much
+        // faster is a duplicate or spam and gets no extra work.
+        if (msSince(existingEntry.last_seen_at) < MIN_POLL_INTERVAL_MS) {
+          log("findMatch: Polled too soon, skipping this cycle");
+          return { status: "waiting", logs };
+        }
         log(`findMatch: User already in queue (waiting), continuing to search for match... ${existingEntry.id}`);
+        // Heartbeat: others only see queue entries that polled recently.
+        await adminClient
+          .from("match_queue")
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq("id", existingEntry.id);
         // Do NOT return here. We must continue to search for a partner!
+      } else if (
+        existingEntry.status === 'matched' &&
+        msSince(existingEntry.last_seen_at) < CLAIM_IN_PROGRESS_MS
+      ) {
+        // Another request just claimed us and is creating the match; the
+        // next poll will pick it up in step 2.
+        log("findMatch: Queue entry claimed by a partner, waiting for match");
+        return { status: "waiting", logs };
       } else {
         // User has a stale entry (e.g. 'matched' or 'cancelled' but trying to search again)
         log(`findMatch: Found stale queue entry with status ${existingEntry.status}. Deleting...`);
@@ -607,20 +634,20 @@ export async function findMatch(
     // Using admin client to bypass RLS for the matching query
     log(`findMatch: Searching for match for user ${user.id} with band ${currentUserBand}`);
 
-    // Step 4a: Get queue entries first (without join to be safe)
-    // Filter out stale entries (older than 30 seconds) to prevent matching with offline users
-    // Short window ensures users are actively waiting
-    const thirtySecondsAgo = new Date(Date.now() - 30 * 1000).toISOString();
+    // Step 4a: Get queue entries first (without join to be safe).
+    // Only users who polled recently (heartbeat in last_seen_at) are online;
+    // created_at stays fixed so FIFO order is preserved.
+    const onlineSince = new Date(Date.now() - QUEUE_STALE_AFTER_MS).toISOString();
     const { data: queueData, error: queueError } = await adminClient
       .from("match_queue")
       .select("*")
       .eq("status", "waiting")
       .neq("user_id", user.id)
-      .gte("created_at", thirtySecondsAgo)
+      .gte("last_seen_at", onlineSince)
       .order("created_at", { ascending: true })
       .limit(50);
 
-    log(`findMatch: Filtering queue entries created after ${thirtySecondsAgo} (last 30 seconds only)`);
+    log(`findMatch: Filtering queue entries seen after ${onlineSince}`);
 
     if (queueError) {
       log(`findMatch: Error querying match queue: ${queueError.message}`);
@@ -653,8 +680,9 @@ export async function findMatch(
       }
     }
 
-    // 5. Find best match based on band compatibility
-    let bestMatch: MatchQueueWithProfile | null = null;
+    // 5. Collect band-compatible candidates in FIFO order
+    const waitedMs = existingEntry?.status === "waiting" ? msSince(existingEntry.created_at) : 0;
+    const candidates: MatchQueueWithProfile[] = [];
 
     for (const entry of queueEntries) {
       const profile = profilesMap[entry.user_id];
@@ -667,33 +695,43 @@ export async function findMatch(
       // Construct the object expected by logic
       const entryWithProfile: MatchQueueWithProfile = { ...entry, profile };
 
-      // Check if bands are compatible
-      const theirBand = profile.current_band;
-      const theyWantMin = entry.target_band_min;
-      const theyWantMax = entry.target_band_max;
+      log(`findMatch: Checking compatibility with ${entry.user_id}: TheirBand=${profile.current_band}, TheyWant=[${entry.target_band_min},${entry.target_band_max}], WeBand=${currentUserBand}, WeWant=[${bandMin},${bandMax}], Waited=${Math.round(waitedMs / 1000)}s`);
 
-      // Check mutual compatibility
-      const weWantThem = theirBand >= bandMin && theirBand <= bandMax;
-      const theyWantUs =
-        currentUserBand >= theyWantMin && currentUserBand <= theyWantMax;
+      // Exact mutual range match, or a band gap that widens with wait time
+      const { compatible, perfect } = isBandCompatible(
+        { band: currentUserBand, wantMin: bandMin, wantMax: bandMax, waitedMs },
+        { band: profile.current_band, targetMin: entry.target_band_min, targetMax: entry.target_band_max }
+      );
 
-      log(`findMatch: Checking compatibility with ${entry.user_id}: TheirBand=${theirBand}, TheyWant=[${theyWantMin},${theyWantMax}], WeBand=${currentUserBand}, WeWant=[${bandMin},${bandMax}]`);
-
-      // DEBUG: Force compatibility for now if bands are close enough
-      // Allow +/- 2.0 band difference as a fallback if exact range fails
-      // Using 2.0 to match debug tool logic
-      const looseMatch = Math.abs(theirBand - currentUserBand) <= 2.0;
-
-      if ((weWantThem && theyWantUs) || looseMatch) {
-        log(`findMatch: Compatible match found! (Perfect: ${weWantThem && theyWantUs}, Loose: ${looseMatch})`);
-        bestMatch = entryWithProfile;
-        break;
+      if (compatible) {
+        log(`findMatch: Compatible candidate (Perfect: ${perfect})`);
+        candidates.push(entryWithProfile);
       } else {
         log(`findMatch: Not compatible. Reason: Band mismatch`);
       }
     }
 
-    // 6. If match found, create the match
+    // 6. Claim our own entry (if queued) and the partner's atomically, so
+    // two users polling at the same moment can't create two matches.
+    let bestMatch: MatchQueueWithProfile | null = null;
+    let claimedIds: string[] = [];
+    const ownEntryId = existingEntry?.status === "waiting" ? existingEntry.id : null;
+
+    for (const candidate of candidates) {
+      const ids = ownEntryId ? [ownEntryId, candidate.id] : [candidate.id];
+      const result = await claimAll(adminClient, ids);
+      if (result.ok) {
+        bestMatch = candidate;
+        claimedIds = ids;
+        break;
+      }
+      if (result.failedId === ownEntryId) {
+        log("findMatch: Another user claimed us first, waiting for their match");
+        return { status: "waiting", logs };
+      }
+      log(`findMatch: Candidate ${candidate.user_id} was taken, trying next`);
+    }
+
     if (bestMatch) {
       log(`findMatch: Match found! Creating match with ${bestMatch.user_id}`);
       const roomId = `room_${uuidv4()}`;
@@ -719,6 +757,7 @@ export async function findMatch(
 
       if (matchError) {
         log(`findMatch: Error creating match: ${matchError.message}`);
+        await releaseQueueEntries(adminClient, claimedIds);
         return {
           status: "error",
           error: "Failed to create match",
@@ -729,13 +768,7 @@ export async function findMatch(
       const newMatch = newMatchData as Match;
       log(`findMatch: Match created with roles: interviewer=${newMatch.interviewer_id}, candidate=${newMatch.candidate_id}`);
 
-      // Step 2: Update both queue entries to matched
-      await adminClient
-        .from("match_queue")
-        .update({ status: "matched" })
-        .eq("id", bestMatch.id);
-
-      // Step 3: Delete the queue entries
+      // Both entries are claimed; remove them from the queue
       await adminClient
         .from("match_queue")
         .delete()
@@ -767,7 +800,8 @@ export async function findMatch(
           target_band_min: bandMin,
           target_band_max: bandMax,
           status: "waiting",
-          created_at: new Date().toISOString(), // Update timestamp to show activity
+          created_at: new Date().toISOString(),
+          last_seen_at: new Date().toISOString(),
         });
 
       if (insertError) {

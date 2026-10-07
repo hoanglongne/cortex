@@ -78,27 +78,31 @@
 
 ### High Priority
 
-- [ ] **Race condition khi 2 user poll đồng thời**
+- [x] **User chờ quá 30s không ai thấy** *(Fixed 2026-10-03)*
+  - **Root cause**: Queue chỉ lấy entry có `created_at` trong 30s, nhưng fix "Queue timestamp churn" đã ngừng cập nhật `created_at` → ai chờ > 30s bị ẩn khỏi người khác.
+  - **Fix**: Cột heartbeat `last_seen_at` cập nhật mỗi lần poll, lọc online theo nó (15s). Cần chạy `supabase/migration_queue_heartbeat.sql` **trước khi deploy**.
+
+- [x] **Race condition khi 2 user poll đồng thời** *(Fixed 2026-10-03: claim cả 2 queue entry bằng conditional update theo thứ tự id, `src/lib/matchmaking/claim.ts`)*
   - Cả hai có thể tìm thấy nhau cùng lúc → tạo 2 match → 2 phòng khác nhau
   - Fix: Cần database-level locking hoặc atomic match creation (Supabase RPC function)
 
-- [ ] **Demo Mode hardcoded**
+- [x] **Demo Mode hardcoded** *(Fixed 2026-10-03: chỉ bật khi `NEXT_PUBLIC_DEMO_MODE=true` và không phải production)*
   - File: `src/components/AppFlow.tsx`
   - `const DEMO_MODE = !process.env.NEXT_PUBLIC_SUPABASE_URL` → nếu thiếu env var, app bỏ qua auth
   - Fix: Dùng explicit feature flag
 
-- [ ] **Loose band matching ±2.0**
+- [x] **Loose band matching ±2.0** *(Fixed 2026-10-03: ngưỡng 0.5 → 2.0 tăng dần theo thời gian chờ, `src/lib/matchmaking/rules.ts`)*
   - File: `src/actions/matchmaking.ts`
   - Cho phép ghép user chênh lệch lớn về trình độ
   - Fix: Tăng dần loose threshold theo thời gian chờ, không mặc định 2.0
 
-- [ ] **Không có rate limiting trên matchmaking**
+- [x] **Không có rate limiting trên matchmaking** *(Fixed 2026-10-03: bỏ qua poll cách nhau < 1s dựa trên `last_seen_at`; client poll mỗi 2s)*
   - User có thể spam `findMatch()` liên tục
   - Fix: Cooldown server-side (1 request / 5 giây)
 
 ### Medium Priority
 
-- [ ] **LiveKit token route thiếu try-catch**
+- [x] **LiveKit token route thiếu try-catch** *(Fixed 2026-10-03: route đã có try-catch; thêm 400 khi body không phải JSON)*
   - File: `src/app/api/livekit/get-token/route.ts`
   - Lỗi token signing → 500 không rõ ràng
 
@@ -110,7 +114,7 @@
   - Auth check chạy ngoài useEffect → potential hydration mismatch
   - Fix: Wrap trong useEffect
 
-- [ ] **Profile auto-creation silent failure**
+- [x] **Profile auto-creation silent failure** *(Fixed 2026-10-03: code hiện tại đã trả lỗi khi tạo profile thất bại)*
   - File: `findMatch()` — nếu profile insert fail, continues with defaults
 
 - [ ] **Mock scores random**

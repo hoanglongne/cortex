@@ -15,6 +15,8 @@ Bạn cần truy cập vào [Supabase Dashboard](https://supabase.com/) và th�
 
 ### B. Tạo các bảng dữ liệu (SQL):
 
+Cách nhanh nhất: chạy file [`supabase/migration_phase1_core.sql`](supabase/migration_phase1_core.sql) (tạo `action_logs`, `app_backups`, có thể chạy lại nhiều lần). Các câu lệnh tham khảo:
+
 Chạy các câu lệnh SQL sau trong bộ SQL Editor của Supabase:
 
 ```sql
@@ -92,3 +94,20 @@ REDIS_PORT=6379
       -d '{"userId": "test-user", "appSource": "lexica", "actionType": "COMPLETE_LESSON", "metadata": {"xpEarned": 100}}'
     ```
 3.  Nếu thấy log `[ActionLog] New activity...` và không có lỗi kết nối Supabase/Redis nghĩa là bạn đã thành công!
+
+---
+
+## Endpoints Giai đoạn 1
+
+| Endpoint | Mô tả |
+|---|---|
+| `GET /health` | Kiểm tra Supabase + Redis. `200` khi `status: "ok"`, `503` khi `"degraded"` — dùng cho uptime monitor. |
+| `POST /v1/sync/backup` | Body `{ userId (UUID), appSource, data }`. Lưu snapshot JSON thô, mỗi user + app một dòng (ghi sau đè ghi trước), tối đa 512 KB. |
+| `GET /v1/sync/backup/:userId/:appSource` | Lấy snapshot đã lưu, `404` nếu chưa có. |
+
+### Presence (Socket.io, namespace `/events`)
+
+1. Sau khi kết nối, client gửi `identify` với `{ userId, appSource }`. Socket sẽ vào room `userId` (để nhận `user:milestone_reward`) và được tính là online.
+2. Server phát `presence:update` với `{ onlineUsers, byApp }` mỗi khi có người vào/ra. Gửi `presence:get` để lấy số hiện tại.
+
+Presence lưu trong bộ nhớ, đúng khi API chạy **một instance**. Nếu scale nhiều instance cần chuyển sang Redis adapter.

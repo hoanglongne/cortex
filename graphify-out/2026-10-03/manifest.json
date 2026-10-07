@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "apps/cortex-core-api/package.json": {
-    "mtime": 1791018617.7367136,
-    "seen": 1791018684.8989415,
-    "ast_hash": "b321e47675d9bda72f6b5c6321e7a673",
+    "mtime": 1791019720.6201088,
+    "seen": 1791019979.4763355,
+    "ast_hash": "531581dce75887240f151fde5dbb4d16",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/app.controller.spec.ts": {
@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/modules/actions/actions.controller.ts": {
-    "mtime": 1791018617.7369986,
-    "seen": 1791018684.8989658,
-    "ast_hash": "ccec69a6397d9f0bd01a34eb0cfbfcb2",
+    "mtime": 1791019670.5761635,
+    "seen": 1791019979.476501,
+    "ast_hash": "3734fb7d4b31465dc39a342016c725e0",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/modules/actions/actions.module.ts": {
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/modules/synapse/synapse.service.ts": {
-    "mtime": 1791018617.737868,
-    "seen": 1791018684.8989925,
-    "ast_hash": "31e23b4d96f70936f8183170302e09b1",
+    "mtime": 1791019670.5761635,
+    "seen": 1791019979.4770265,
+    "ast_hash": "f1ebae4c9b210fbf8b82edda3b417097",
     "semantic_hash": ""
   },
   "apps/cortex-core-api/src/modules/synapse/world-bibles.ts": {
@@ -180,14 +180,14 @@
     "semantic_hash": ""
   },
   "apps/landing/eslint.config.mjs": {
-    "mtime": 1791018617.7388575,
-    "seen": 1791018684.8990011,
-    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "mtime": 1791019681.0605006,
+    "seen": 1791019979.4771872,
+    "ast_hash": "d505e9f5fcb1d69cf90ad67ea410ba93",
     "semantic_hash": ""
   },
   "apps/landing/next-env.d.ts": {
-    "mtime": 1791018617.7388575,
-    "seen": 1791018684.899002,
+    "mtime": 1791019933.784179,
+    "seen": 1791019979.4771886,
     "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
     "semantic_hash": ""
   },
@@ -198,9 +198,9 @@
     "semantic_hash": ""
   },
   "apps/landing/package.json": {
-    "mtime": 1791018617.7388575,
-    "seen": 1791018684.8990042,
-    "ast_hash": "f6e08f13dd291b3c12b2b84bfce561df",
+    "mtime": 1791019720.5121665,
+    "seen": 1791019979.477217,
+    "ast_hash": "f40e3de740fb831a5742bb2a59c5f1d1",
     "semantic_hash": ""
   },
   "apps/landing/postcss.config.mjs": {
@@ -228,9 +228,9 @@
     "semantic_hash": ""
   },
   "apps/landing/src/app/apps/echo/page.tsx": {
-    "mtime": 1791018617.7400737,
-    "seen": 1791018684.899009,
-    "ast_hash": "2c002e0bb942c59482be62346e0f9db3",
+    "mtime": 1791019694.060793,
+    "seen": 1791019979.4773974,
+    "ast_hash": "063b3ef78719aeae98f8b5306f326035",
     "semantic_hash": ""
   },
   "apps/landing/src/app/apps/lexica/layout.tsx": {
@@ -252,9 +252,9 @@
     "semantic_hash": ""
   },
   "apps/landing/src/app/apps/metamorph/page.tsx": {
-    "mtime": 1791018617.7406397,
-    "seen": 1791018684.8990128,
-    "ast_hash": "73910519c1cac3f8c7c713e4d830933c",
+    "mtime": 1791019694.0580394,
+    "seen": 1791019979.4775088,
+    "ast_hash": "83d1eb5f399f2ed5f83a783563074685",
     "semantic_hash": ""
   },
   "apps/landing/src/app/apps/oratio/layout.tsx": {
@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "apps/landing/src/app/apps/syntaxis/page.tsx": {
-    "mtime": 1791018617.7411287,
-    "seen": 1791018684.8990214,
-    "ast_hash": "57f3aabab8ca22a758f9a3696f80d316",
+    "mtime": 1791019694.0590796,
+    "seen": 1791019979.477693,
+    "ast_hash": "2c2b230e2fa7357870af635e02e359b8",
     "semantic_hash": ""
   },
   "apps/landing/src/app/apps/visage/layout.tsx": {
@@ -300,9 +300,9 @@
     "semantic_hash": ""
   },
   "apps/landing/src/app/apps/visage/page.tsx": {
-    "mtime": 1791018617.7412636,
-    "seen": 1791018684.899023,
-    "ast_hash": "0a3e27a04850cf46a57381b733686dab",
+    "mtime": 1791019694.0600033,
+    "seen": 1791019979.47773,
+    "ast_hash": "65885627762003d07bebff08d64297ee",
     "semantic_hash": ""
   },
   "apps/landing/src/app/auth-bridge/page.tsx": {
@@ -492,9 +492,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/challenge/[id]/page.tsx": {
-    "mtime": 1791018617.7473042,
-    "seen": 1791018684.8990533,
-    "ast_hash": "30d4ec1b5431c3bf6f9d86351910f74d",
+    "mtime": 1791019694.061746,
+    "seen": 1791019979.47874,
+    "ast_hash": "4d3da15d1ba605ac965d1addb69526d4",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/AccuracyChart.tsx": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/components/ComboChain.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990595,
-    "ast_hash": "84cd757a180703de6e58f40bddb66cd0",
+    "mtime": 1791019950.4202478,
+    "seen": 1791019979.478896,
+    "ast_hash": "bf5ee4e627944113ba9746caa530f8e0",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/CortexSection.tsx": {
@@ -588,27 +588,27 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/components/LearnedWordsList.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990679,
-    "ast_hash": "d916ef1af358a1a73556b0845042d1b9",
+    "mtime": 1791019950.422204,
+    "seen": 1791019979.4791765,
+    "ast_hash": "7e2e7f4c96cbf01cc69dae61c01b7112",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/LevelSelector.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990686,
-    "ast_hash": "cbdcec8dd54a5cd353fe366e7dc9a493",
+    "mtime": 1791019950.421766,
+    "seen": 1791019979.479178,
+    "ast_hash": "6de5bb33cac123db42e6a54f2586188e",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/LevelTest.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990695,
-    "ast_hash": "e142798b1a5faedab02d7afcc3faf30e",
+    "mtime": 1791019950.423082,
+    "seen": 1791019979.4791799,
+    "ast_hash": "f7579d9e0cb7028fa9dafa73a671ee3e",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/LevelTestResult.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990705,
-    "ast_hash": "d8d139ec0cc28d4b9e92c24aee3868eb",
+    "mtime": 1791019950.4237304,
+    "seen": 1791019979.4791806,
+    "ast_hash": "df96c547fbbcc02cc2fe3b3ddd312f6a",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/LevelTestWelcome.tsx": {
@@ -624,9 +624,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/components/OnboardingModal.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.899073,
-    "ast_hash": "e83aa64bd3b2817dbe1c9424c59fcc2d",
+    "mtime": 1791019950.4208977,
+    "seen": 1791019979.4792438,
+    "ast_hash": "e4660e6058d6f3dd2eb0e72c3a1a93d8",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/PeriodSelector.tsx": {
@@ -636,9 +636,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/components/ReviewQuiz.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990746,
-    "ast_hash": "e526edbc7788c81e91090d536a8b5ca4",
+    "mtime": 1791019950.4227393,
+    "seen": 1791019979.479295,
+    "ast_hash": "df28d23a46103976cfe72169c48f237c",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/SRSCalendar.tsx": {
@@ -702,9 +702,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/components/TypeChallenge.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990839,
-    "ast_hash": "c12809c6fd0dbd757cb6e5449b6d4649",
+    "mtime": 1791019950.4234319,
+    "seen": 1791019979.4796484,
+    "ast_hash": "950db87b85071093f28675e166a7e506",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/UpgradeLab.tsx": {
@@ -714,9 +714,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/components/VocabCard.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990853,
-    "ast_hash": "cc3981648d9347061e0b4a7327fb8d28",
+    "mtime": 1791019950.3868299,
+    "seen": 1791019979.479716,
+    "ast_hash": "a5ea96d01f53db04167f7f7ff622f7ea",
     "semantic_hash": ""
   },
   "apps/lexica/app/components/WordBingo.tsx": {
@@ -726,9 +726,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/components/WordScramble.tsx": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990872,
-    "ast_hash": "5e2544b90335a67c506f43f852c39a22",
+    "mtime": 1791019950.4213836,
+    "seen": 1791019979.479767,
+    "ast_hash": "4f8710a2e5f333c6e07bff3a9d622fb7",
     "semantic_hash": ""
   },
   "apps/lexica/app/context/AuthContext.tsx": {
@@ -738,15 +738,15 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/data/stories.ts": {
-    "mtime": 1791018617.7476144,
-    "seen": 1791018684.8990889,
-    "ast_hash": "c220de008ab4dc0b00860d585d03d97a",
+    "mtime": 1791019950.4247942,
+    "seen": 1791019979.4798164,
+    "ast_hash": "c2ed144f6e7f12c619d345b28b7c0167",
     "semantic_hash": ""
   },
   "apps/lexica/app/data/vocabCards.ts": {
-    "mtime": 1791018617.7521312,
-    "seen": 1791018684.8990896,
-    "ast_hash": "abb1f01679f594248c084228b43c03fd",
+    "mtime": 1791019950.4312499,
+    "seen": 1791019979.4798183,
+    "ast_hash": "5afef02dd72eea1d3a4527d92a635b84",
     "semantic_hash": ""
   },
   "apps/lexica/app/hooks/useActivitySync.ts": {
@@ -786,9 +786,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/level-select/page.tsx": {
-    "mtime": 1791018617.7546668,
-    "seen": 1791018684.8990958,
-    "ast_hash": "9deafbcaadebf59ff2b242d2ca5c3f5b",
+    "mtime": 1791019950.4243624,
+    "seen": 1791019979.4801025,
+    "ast_hash": "880f8722ec626d9b345b167439874a4a",
     "semantic_hash": ""
   },
   "apps/lexica/app/lib/analytics.ts": {
@@ -816,15 +816,15 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/lib/eloAlgorithm.ts": {
-    "mtime": 1791018617.7593763,
-    "seen": 1791018684.8990996,
-    "ast_hash": "449ccf012b209f5901a14321e02d8eb7",
+    "mtime": 1791019950.4335241,
+    "seen": 1791019979.480326,
+    "ast_hash": "2ddea2feedb1d1233b597aaa52cae386",
     "semantic_hash": ""
   },
   "apps/lexica/app/lib/mappers.ts": {
-    "mtime": 1791018617.7593763,
-    "seen": 1791018684.8991008,
-    "ast_hash": "ec8a329b852752c866d5be9823628ba8",
+    "mtime": 1791019950.4330456,
+    "seen": 1791019979.4803276,
+    "ast_hash": "f6704fc83e74a0683fae141c3f9e2019",
     "semantic_hash": ""
   },
   "apps/lexica/app/lib/pushNotifications.ts": {
@@ -864,9 +864,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/store/lexicaStore.ts": {
-    "mtime": 1791018617.7593763,
-    "seen": 1791018684.8991067,
-    "ast_hash": "ab5461f66783ef967e8ef3b3e252dc47",
+    "mtime": 1791019950.4325726,
+    "seen": 1791019979.480572,
+    "ast_hash": "7ee4f89653838275c43cdde4420104c5",
     "semantic_hash": ""
   },
   "apps/lexica/app/stories/page.tsx": {
@@ -900,9 +900,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/app/test/quiz/page.tsx": {
-    "mtime": 1791018617.7616088,
-    "seen": 1791018684.899112,
-    "ast_hash": "2ccfe22be1bd1db06380821e62abbad8",
+    "mtime": 1791019950.424059,
+    "seen": 1791019979.4807494,
+    "ast_hash": "9d90b13f92680374b4af9e5255371366",
     "semantic_hash": ""
   },
   "apps/lexica/app/test/result/page.tsx": {
@@ -918,14 +918,14 @@
     "semantic_hash": ""
   },
   "apps/lexica/eslint.config.mjs": {
-    "mtime": 1791018617.7623022,
-    "seen": 1791018684.899114,
-    "ast_hash": "f1702979d2e1b64fec17a6f855185d9b",
+    "mtime": 1791019681.0734,
+    "seen": 1791019979.4808204,
+    "ast_hash": "709302c73ec78298c193af416aabfc40",
     "semantic_hash": ""
   },
   "apps/lexica/next-env.d.ts": {
-    "mtime": 1791018617.7623022,
-    "seen": 1791018684.8991148,
+    "mtime": 1791019933.784179,
+    "seen": 1791019979.4808216,
     "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
     "semantic_hash": ""
   },
@@ -936,9 +936,9 @@
     "semantic_hash": ""
   },
   "apps/lexica/package.json": {
-    "mtime": 1791018617.7623022,
-    "seen": 1791018684.8991163,
-    "ast_hash": "f2ff4f6b9302c55a22e3c836b551a267",
+    "mtime": 1791019720.5361664,
+    "seen": 1791019979.4808488,
+    "ast_hash": "78bf7c08f16f9c97d965eca5d01f40db",
     "semantic_hash": ""
   },
   "apps/lexica/playwright.config.ts": {
@@ -957,18 +957,6 @@
     "mtime": 1791018617.762724,
     "seen": 1791018684.8991187,
     "ast_hash": "ac72765770223cd2b3daf5ec21af81d6",
-    "semantic_hash": ""
-  },
-  "apps/lexica/public/sw.js": {
-    "mtime": 1791018617.762724,
-    "seen": 1791018684.8991194,
-    "ast_hash": "4e1d5c834dc67fc6ace6a5e4cfd583dc",
-    "semantic_hash": ""
-  },
-  "apps/lexica/public/workbox-01fd22c6.js": {
-    "mtime": 1791018617.762724,
-    "seen": 1791018684.89912,
-    "ast_hash": "98d58f6ba4bb37cd18d746933f6b0ed4",
     "semantic_hash": ""
   },
   "apps/lexica/tsconfig.json": {
@@ -1002,14 +990,14 @@
     "semantic_hash": ""
   },
   "apps/oratio/eslint.config.mjs": {
-    "mtime": 1791018617.7648847,
-    "seen": 1791018684.8991253,
-    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "mtime": 1791019681.0854812,
+    "seen": 1791019979.4810953,
+    "ast_hash": "d505e9f5fcb1d69cf90ad67ea410ba93",
     "semantic_hash": ""
   },
   "apps/oratio/next-env.d.ts": {
-    "mtime": 1791018617.7648847,
-    "seen": 1791018684.899126,
+    "mtime": 1791019933.784179,
+    "seen": 1791019979.4810975,
     "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
     "semantic_hash": ""
   },
@@ -1020,9 +1008,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/package.json": {
-    "mtime": 1791018617.7648847,
-    "seen": 1791018684.8991275,
-    "ast_hash": "5c7673432b12e32a813ba5355a683b6d",
+    "mtime": 1791019720.5601664,
+    "seen": 1791019979.4811385,
+    "ast_hash": "f7c8770369db378efc8092cdfb83bc15",
     "semantic_hash": ""
   },
   "apps/oratio/postcss.config.mjs": {
@@ -1176,9 +1164,9 @@
     "semantic_hash": ""
   },
   "apps/oratio/src/components/PartnerFoundScreen.tsx": {
-    "mtime": 1791018617.767554,
-    "seen": 1791018684.8991487,
-    "ast_hash": "a5e6aabe38783cf3bd0a85d9331bf0ed",
+    "mtime": 1791019685.2124197,
+    "seen": 1791019979.482023,
+    "ast_hash": "cd190f3e7172bcdf97b45abd22a377f7",
     "semantic_hash": ""
   },
   "apps/oratio/src/components/ProfileScreen.tsx": {
@@ -1278,14 +1266,14 @@
     "semantic_hash": ""
   },
   "apps/solilo/eslint.config.mjs": {
-    "mtime": 1791018617.7721617,
-    "seen": 1791018684.8991635,
-    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "mtime": 1791019681.0970547,
+    "seen": 1791019979.4825907,
+    "ast_hash": "d505e9f5fcb1d69cf90ad67ea410ba93",
     "semantic_hash": ""
   },
   "apps/solilo/next-env.d.ts": {
-    "mtime": 1791018617.7721617,
-    "seen": 1791018684.8991642,
+    "mtime": 1791019933.784179,
+    "seen": 1791019979.4825923,
     "ast_hash": "d0f8375ae1199dc7acd3977fc33b78b8",
     "semantic_hash": ""
   },
@@ -1296,9 +1284,9 @@
     "semantic_hash": ""
   },
   "apps/solilo/package.json": {
-    "mtime": 1791018617.7721617,
-    "seen": 1791018684.8991656,
-    "ast_hash": "156938abf40b8fb092f94c4e45a64471",
+    "mtime": 1791019720.5841665,
+    "seen": 1791019979.4826214,
+    "ast_hash": "20656135de77363ef9c17b6277931c86",
     "semantic_hash": ""
   },
   "apps/solilo/postcss.config.mjs": {
@@ -1524,9 +1512,9 @@
     "semantic_hash": ""
   },
   "apps/synapse/eslint.config.mjs": {
-    "mtime": 1791018617.7754567,
-    "seen": 1791018684.8991995,
-    "ast_hash": "dfa1f5f6a7037bf39dc510f30b180002",
+    "mtime": 1791019681.1092458,
+    "seen": 1791019979.48391,
+    "ast_hash": "d505e9f5fcb1d69cf90ad67ea410ba93",
     "semantic_hash": ""
   },
   "apps/synapse/next.config.ts": {
@@ -1536,9 +1524,9 @@
     "semantic_hash": ""
   },
   "apps/synapse/package.json": {
-    "mtime": 1791018617.7754567,
-    "seen": 1791018684.8992016,
-    "ast_hash": "65b044563ad05b9e1bc7a968966d9e2b",
+    "mtime": 1791019720.6121664,
+    "seen": 1791019979.4839382,
+    "ast_hash": "0ace3420fc9a68c4c8a51bd7f33b6318",
     "semantic_hash": ""
   },
   "apps/synapse/postcss.config.mjs": {
@@ -1650,9 +1638,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1791018617.777967,
-    "seen": 1791018684.8992167,
-    "ast_hash": "47e4115e75fa6c29f36c508996fa28e1",
+    "mtime": 1791019720.6361663,
+    "seen": 1791019979.484544,
+    "ast_hash": "68660eabd58fff5781e1d1705d50e327",
     "semantic_hash": ""
   },
   "packages/cortex-types/index.ts": {
@@ -1757,24 +1745,6 @@
     "ast_hash": "cd930e468869b06ed4f308a34c9cde9a",
     "semantic_hash": ""
   },
-  "simulate_full_flow.sh": {
-    "mtime": 1791018617.7826667,
-    "seen": 1791018684.8992312,
-    "ast_hash": "c7f78ff11a6528bb956d2cdd2d77c90f",
-    "semantic_hash": ""
-  },
-  "simulate_text_only.sh": {
-    "mtime": 1791018617.7826667,
-    "seen": 1791018684.899232,
-    "ast_hash": "8fbd61eda31933974c404d15fea0e878",
-    "semantic_hash": ""
-  },
-  "test_overwrite.sh": {
-    "mtime": 1791018617.7826667,
-    "seen": 1791018684.8992329,
-    "ast_hash": "f1cc25173de1af5f0afc31a92b3357f4",
-    "semantic_hash": ""
-  },
   "turbo.json": {
     "mtime": 1791018617.7826667,
     "seen": 1791018684.8992336,
@@ -1782,9 +1752,9 @@
     "semantic_hash": ""
   },
   ".github/workflows/ci.yml": {
-    "mtime": 1791018617.7358477,
-    "seen": 1791018684.8992345,
-    "ast_hash": "efcb1c7da3cc6b1afd02e4016780d027",
+    "mtime": 1791019732.68589,
+    "seen": 1791019979.4850214,
+    "ast_hash": "819ecb0dc49cfc2b85387e82c585b42d",
     "semantic_hash": ""
   },
   ".trae/documents/synapse-page-design.md": {
@@ -1812,9 +1782,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1791018617.7361941,
-    "seen": 1791018684.89924,
-    "ast_hash": "e70b52ac9621750e39d55ceff6d2c3da",
+    "mtime": 1791019908.3441775,
+    "seen": 1791019979.4851327,
+    "ast_hash": "3fc9aba1a274d4134c7859b235f2d746",
     "semantic_hash": ""
   },
   "TODO.md": {
@@ -2277,6 +2247,30 @@
     "mtime": 1791018617.7757971,
     "seen": 1791018684.8993068,
     "ast_hash": "a2760511c65806022ad20adf74370ff3",
+    "semantic_hash": ""
+  },
+  "apps/lexica/app/types/vocab.ts": {
+    "mtime": 1791019950.3819704,
+    "seen": 1791019979.4808185,
+    "ast_hash": "e377a63a7f8f388a59330748647a9e71",
+    "semantic_hash": ""
+  },
+  "scripts/simulate_full_flow.sh": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791019979.4849944,
+    "ast_hash": "c7f78ff11a6528bb956d2cdd2d77c90f",
+    "semantic_hash": ""
+  },
+  "scripts/simulate_text_only.sh": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791019979.4849958,
+    "ast_hash": "8fbd61eda31933974c404d15fea0e878",
+    "semantic_hash": ""
+  },
+  "scripts/test_overwrite.sh": {
+    "mtime": 1791018617.7826667,
+    "seen": 1791019979.484997,
+    "ast_hash": "f1cc25173de1af5f0afc31a92b3357f4",
     "semantic_hash": ""
   }
 }
