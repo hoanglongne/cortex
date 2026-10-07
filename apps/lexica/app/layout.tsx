@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
+import CloudSync from "./components/CloudSync";
 
 // Cyberpunk-style fonts
 const orbitron = Orbitron({
@@ -59,6 +60,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-slate-900 text-white overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
+          <CloudSync />
           {children}
         </AuthProvider>
       </body>

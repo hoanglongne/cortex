@@ -206,39 +206,6 @@ function shouldResetEnergy(lastResetTimestamp: number): boolean {
     return lastResetTimestamp < currentMidnight;
 }
 
-// ============================================
-// MOCK DATA GENERATOR (TEMPORARY - FOR TESTING)
-// ============================================
-function generateMockStudyHistory(): Record<string, StudyHistoryEntry> {
-    const history: Record<string, StudyHistoryEntry> = {};
-    const today = new Date();
-
-    // Generate 100 days of mock data
-    for (let i = 99; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-
-        // Random activity with some variance
-        const swipes = Math.floor(Math.random() * 25) + 5; // 5-30 swipes
-        const correctRate = 0.6 + Math.random() * 0.3; // 60-90% accuracy
-        const correct = Math.floor(swipes * correctRate);
-        const wrong = swipes - correct;
-
-        // ELO change varies (-20 to +30)
-        const eloChange = Math.floor(Math.random() * 50) - 20;
-
-        history[dateString] = {
-            swipes,
-            correct,
-            wrong,
-            eloChange,
-        };
-    }
-
-    return history;
-}
-
 export const useLexicaStore = create<LexicaStore>()(
     persist(
         (set, get) => ({
@@ -257,7 +224,7 @@ export const useLexicaStore = create<LexicaStore>()(
             longestStreak: 0,
             lastActivityDate: null,
             highestElo: 1000, // Initialize with starting ELO
-            studyHistory: generateMockStudyHistory(), // MOCK DATA - Replace with {} for production
+            studyHistory: {},
             swipeMode: 'touch',
             setSwipeMode: (mode) => set({ swipeMode: mode }),
 

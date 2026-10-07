@@ -42,11 +42,16 @@ Phát hiện khi rà code, phải xử lý trước khi có người dùng thậ
 
 ## Giai đoạn 1 – Hoàn thiện trải nghiệm cốt lõi (nên làm)
 
-- [ ] **Dữ liệu chỉ nằm trong `localStorage`**: đổi máy hoặc xoá dữ liệu trình duyệt là mất hết tiến trình. Cortex API giờ đã có `POST /v1/sync/backup` (xem `apps/cortex-core-api/SETUP_GUIDE.md`). Với người đã đăng nhập, backup trạng thái `lexica-storage` sau mỗi phiên và khôi phục khi đăng nhập trên máy mới.
+- [x] **Dữ liệu chỉ nằm trong `localStorage`**: đổi máy hoặc xoá dữ liệu trình duyệt là mất hết tiến trình. Cortex API giờ đã có `POST /v1/sync/backup` (xem `apps/cortex-core-api/SETUP_GUIDE.md`). Với người đã đăng nhập, backup trạng thái `lexica-storage` sau mỗi phiên và khôi phục khi đăng nhập trên máy mới.
+  - _Đã làm: `app/lib/cloudSync.ts`. Backup khi tiến trình học thay đổi (sau 10s, hoặc ngay khi rời trang), khôi phục khi mở app/kết nối Cortex trên máy khác. Xung đột: bản lưu mới hơn thắng. Chỉ chạy với người đã kết nối Cortex. **Lưu ý bảo mật:** API sync chưa xác thực người gọi, ai biết `userId` có thể đọc/ghi bản backup; cần thêm kiểm tra Supabase JWT trước khi mở rộng._
 - [ ] **Voice mode trên iOS Safari**: test thật trên iPhone. Nếu Web Speech API không chạy, phải có lối thoát rõ ràng về chế độ swipe tay.
+  - _Đã sửa lối thoát: trước đây trình duyệt không hỗ trợ giọng nói hoặc bị chặn micro thì ở chế độ voice **không thể swipe phải**. Giờ tự chuyển sang vuốt thẻ kèm thông báo (`app/lib/speechAvailability.ts`). **Vẫn cần test tay trên iPhone thật.**_
 - [ ] **Kiểm tra lại nội dung**: khoảng 570 thẻ (~240 beginner, ~140 intermediate, ~100 advanced, ~90 expert) và 3 story pack. Rà chính tả, IPA và nghĩa; nhờ 1 người dạy IELTS xem nhanh 50 thẻ ngẫu nhiên.
 - [ ] **Cân bằng nội dung**: phần expert/advanced mỏng hơn beginner. Người dùng trình độ cao có thể học hết sau 3–4 ngày (30 swipe/ngày). Cần quyết định: thêm thẻ, hoặc chỉ nhắm tới band 5–6.5 cho đợt này.
-- [ ] **Chọn hướng cho boss card**: hoặc làm hẳn thành hệ thống, hoặc ẩn đi cho launch (`docs/context/source-of-truth.md` ghi là mới làm một phần).
+- [x] **Chọn hướng cho boss card**: hoặc làm hẳn thành hệ thống, hoặc ẩn đi cho launch (`docs/context/source-of-truth.md` ghi là mới làm một phần).
+  - _Thực tế đã ẩn: không thẻ nào trong `vocabCards.ts` có `isBossCard: true`. Không cần làm gì cho launch._
+- [x] **Lịch sử học giả cho người dùng mới**: `studyHistory` khởi tạo bằng `generateMockStudyHistory()` (100 ngày số ngẫu nhiên) nên biểu đồ ELO/thống kê của mọi người dùng mới hiện dữ liệu giả.
+  - _Đã sửa: khởi tạo rỗng. Người đã cài từ trước vẫn còn dữ liệu giả cũ trong máy._
 
 ## Giai đoạn 2 – Vận hành và pháp lý
 

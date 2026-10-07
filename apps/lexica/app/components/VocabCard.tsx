@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, Mic, RotateCcw } from 'lucide-react';
 import { useVocalSwipe } from '../hooks/useVocalSwipe';
 import { useLexicaStore } from '../store/lexicaStore';
+import { useVoiceAvailable } from '../lib/speechAvailability';
 import ReviewQuiz from './ReviewQuiz';
 import type { VocabCardData } from '../types/vocab';
 
@@ -27,7 +28,10 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
     const handleReveal = onReveal ?? (() => setInternalRevealed(true));
 
     const isBossCard = card.isBossCard || false;
-    const isVoiceSwipeRequired = isBossCard || (swipeMode === 'voice' && index === 0);
+    const voiceAvailable = useVoiceAvailable();
+    const wantsVoice = isBossCard || (swipeMode === 'voice' && index === 0);
+    // Fall back to touch when the browser can't do speech or the mic is blocked
+    const isVoiceSwipeRequired = wantsVoice && voiceAvailable;
     const isReviewCard = Boolean(cardProgress);
 
     // Personalized scenario selection with fallback
@@ -128,6 +132,11 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     <div className={`${isBossCard ? 'mt-14 sm:mt-16' : 'mt-10 sm:mt-12'} mb-6 sm:mb-8 text-center`}>
                         <p className="text-base sm:text-lg text-slate-200 leading-relaxed">{displayScenario}</p>
                     </div>
+                    {wantsVoice && !voiceAvailable && index === 0 && (
+                        <p className="-mt-4 mb-4 text-center text-xs text-amber-300/80">
+                            Không dùng được micro trên trình duyệt này, tạm chuyển sang vuốt thẻ.
+                        </p>
+                    )}
                     <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6">
                         {isVoiceSwipeRequired ? (
                             /* Voice mode: word info always visible + mic controls */
