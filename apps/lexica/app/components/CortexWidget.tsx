@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Activity, TrendingUp, User, RefreshCw } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
+import { CORTEX_API_URL, CORTEX_HUB_URL } from '../lib/cortexConfig';
 
 interface CortexProfile {
     user_id: string;
@@ -18,15 +19,18 @@ interface CortexProfile {
 }
 
 export default function CortexWidget() {
+    // Hidden when Cortex isn't configured (e.g. env vars missing in production)
+    if (!CORTEX_HUB_URL || !CORTEX_API_URL) return null;
+    return <CortexWidgetInner hubUrl={CORTEX_HUB_URL} apiUrl={CORTEX_API_URL} />;
+}
+
+function CortexWidgetInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: string; apiUrl: string }) {
     const [profile, setProfile] = useState<CortexProfile | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [, setLoading] = useState(true);
     const [isSyncing, setIsSyncing] = useState(false);
 
     const { syncAllToCortex } = useLexicaStore();
-
-    const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3000';
-    const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
 
     const fetchProfile = useCallback(async (userId: string) => {
         try {

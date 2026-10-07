@@ -1,4 +1,5 @@
 import { analytics } from '../lib/analytics';
+import { CORTEX_API_URL } from '../lib/cortexConfig';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
@@ -885,7 +886,11 @@ export const useLexicaStore = create<LexicaStore>()(
                     return;
                 }
 
-                const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
+                const API_URL = CORTEX_API_URL;
+                if (!API_URL) {
+                    console.warn('[Cortex] NEXT_PUBLIC_CORTEX_API_URL not set. Sync skipped.');
+                    return;
+                }
 
                 try {
                     console.log(`[Cortex] Sending bulk sync to ${API_URL} for user ${userId}...`);
