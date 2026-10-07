@@ -1,13 +1,16 @@
 /**
  * LEXICA Analytics Module
  *
- * Thin event-tracking layer. Currently logs to console.
- * To wire to a real provider (Plausible, Mixpanel, Umami):
- *   1. Replace the `send` function body below.
- *   2. No call-site changes needed.
+ * Every event goes to product analytics (PostHog, all users incl. anonymous,
+ * see productAnalytics.ts) and, for signed-in Cortex users, a subset is
+ * logged to Cortex Core API.
  */
 
+import { CORTEX_API_URL } from './cortexConfig';
+import { capture } from './productAnalytics';
+
 export type LexicaEvent =
+    | 'app_open'
     | 'swipe'
     | 'voice_success'
     | 'voice_fail'
@@ -36,8 +39,11 @@ function send(event: LexicaEvent, props?: EventProps): void {
         console.log(`[analytics] ${event}`, props ?? {});
     }
 
+    capture(event, props);
+
     // CORTEX Integration: Send to Central API
-    const API_URL = process.env.NEXT_PUBLIC_CORTEX_API_URL || 'http://localhost:3001';
+    const API_URL = CORTEX_API_URL;
+    if (!API_URL) return;
 
     let userId = '';
 
@@ -88,6 +94,10 @@ function send(event: LexicaEvent, props?: EventProps): void {
 }
 
 export const analytics = {
+    appOpen() {
+        send('app_open');
+    },
+
     swipe(direction: 'left' | 'right', cardId: string, source: 'manual' | 'voice' | 'quiz', word?: string) {
         send('swipe', { direction, cardId, source, word });
     },

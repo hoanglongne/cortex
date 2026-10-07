@@ -11,10 +11,16 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================
 
 -- Match queue status enum
-CREATE TYPE match_queue_status AS ENUM ('waiting', 'matched', 'cancelled');
+DO $$ BEGIN
+    CREATE TYPE match_queue_status AS ENUM ('waiting', 'matched', 'cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Match status enum
-CREATE TYPE match_status AS ENUM ('pending', 'active', 'finished', 'cancelled');
+DO $$ BEGIN
+    CREATE TYPE match_status AS ENUM ('pending', 'active', 'finished', 'cancelled');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- ============================================
 -- TABLES
@@ -134,46 +140,56 @@ ALTER TABLE public.matches ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.session_feedback ENABLE ROW LEVEL SECURITY;
 
 -- IELTS questions policies (read-only for all authenticated users)
+DROP POLICY IF EXISTS "IELTS questions are viewable by authenticated users" ON public.ielts_questions;
 CREATE POLICY "IELTS questions are viewable by authenticated users"
     ON public.ielts_questions FOR SELECT
     USING (auth.role() = 'authenticated');
 
 -- Profiles policies
+DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
 CREATE POLICY "Profiles are viewable by everyone"
     ON public.profiles FOR SELECT
     USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile"
     ON public.profiles FOR INSERT
     WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
 
 -- Match queue policies
+DROP POLICY IF EXISTS "Users can view their own queue entry" ON public.match_queue;
 CREATE POLICY "Users can view their own queue entry"
     ON public.match_queue FOR SELECT
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert themselves into queue" ON public.match_queue;
 CREATE POLICY "Users can insert themselves into queue"
     ON public.match_queue FOR INSERT
     WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own queue entry" ON public.match_queue;
 CREATE POLICY "Users can update their own queue entry"
     ON public.match_queue FOR UPDATE
     USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own queue entry" ON public.match_queue;
 CREATE POLICY "Users can delete their own queue entry"
     ON public.match_queue FOR DELETE
     USING (auth.uid() = user_id);
 
 -- Matches policies
+DROP POLICY IF EXISTS "Users can view matches they are part of" ON public.matches;
 CREATE POLICY "Users can view matches they are part of"
     ON public.matches FOR SELECT
     USING (auth.uid() = user1_id OR auth.uid() = user2_id);
 
+DROP POLICY IF EXISTS "Users can update matches they are part of" ON public.matches;
 CREATE POLICY "Users can update matches they are part of"
     ON public.matches FOR UPDATE
     USING (auth.uid() = user1_id OR auth.uid() = user2_id);
@@ -182,10 +198,12 @@ CREATE POLICY "Users can update matches they are part of"
 -- This prevents race conditions in matchmaking
 
 -- Session feedback policies
+DROP POLICY IF EXISTS "Users can view feedback they gave or received" ON public.session_feedback;
 CREATE POLICY "Users can view feedback they gave or received"
     ON public.session_feedback FOR SELECT
     USING (auth.uid() = from_user_id OR auth.uid() = to_user_id);
 
+DROP POLICY IF EXISTS "Users can insert feedback for matches they participated in" ON public.session_feedback;
 CREATE POLICY "Users can insert feedback for matches they participated in"
     ON public.session_feedback FOR INSERT
     WITH CHECK (
@@ -197,6 +215,7 @@ CREATE POLICY "Users can insert feedback for matches they participated in"
         )
     );
 
+DROP POLICY IF EXISTS "Users can update their own feedback" ON public.session_feedback;
 CREATE POLICY "Users can update their own feedback"
     ON public.session_feedback FOR UPDATE
     USING (auth.uid() = from_user_id);
@@ -354,13 +373,6 @@ DROP TRIGGER IF EXISTS on_feedback_received ON public.session_feedback;
 CREATE TRIGGER on_feedback_received
     AFTER INSERT ON public.session_feedback
     FOR EACH ROW EXECUTE FUNCTION public.update_current_band_from_feedback();
-
--- ============================================
--- REALTIME SUBSCRIPTIONS
--- ============================================
-
--- Enable realtime for matches table (for async matching)
-ALTER PUBLICATION supabase_realtime ADD TABLE public.matches;
 
 -- ============================================
 -- SAMPLE DATA (Optional - for testing)

@@ -26,14 +26,19 @@ Lexica là **funnel miễn phí dẫn sang Oratio** (xem `docs/context/product.m
 
 Phát hiện khi rà code, phải xử lý trước khi có người dùng thật.
 
-- [ ] **Push notification đang hỏng và gây phiền.** `app/page.tsx` gọi `registerPushNotifications()` ngay khi mở app, tức là xin quyền thông báo ở lần đầu tiên, trước khi người dùng hiểu app làm gì (trình duyệt sẽ nhớ lựa chọn "Chặn"). Hàm này gửi subscription tới `/api/push/subscribe`, **route không tồn tại** (404). `NEXT_PUBLIC_VAPID_PUBLIC_KEY` không có trong `.env.local.example`, và `sw.js` do next-pwa sinh ra không xử lý sự kiện `push`.
+- [x] **Push notification đang hỏng và gây phiền.** `app/page.tsx` gọi `registerPushNotifications()` ngay khi mở app, tức là xin quyền thông báo ở lần đầu tiên, trước khi người dùng hiểu app làm gì (trình duyệt sẽ nhớ lựa chọn "Chặn"). Hàm này gửi subscription tới `/api/push/subscribe`, **route không tồn tại** (404). `NEXT_PUBLIC_VAPID_PUBLIC_KEY` không có trong `.env.local.example`, và `sw.js` do next-pwa sinh ra không xử lý sự kiện `push`.
+  - _Đã tắt: bỏ lời gọi và xoá `pushNotifications.ts`._
   - Đề xuất: **tắt hẳn push cho soft launch**. Sau này làm lại: xin quyền sau phiên học thứ 2, có route lưu subscription và service worker xử lý `push`.
-- [ ] **Analytics và Cortex sync trỏ về `localhost` khi thiếu env.** Các file `app/lib/analytics.ts`, `app/store/lexicaStore.ts`, `CortexSection.tsx` và `CortexWidget.tsx` mặc định dùng `http://localhost:3001`. Trên production, nếu quên set env thì mọi event bị mất mà không có thông báo nào.
+- [x] **Analytics và Cortex sync trỏ về `localhost` khi thiếu env.** Các file `app/lib/analytics.ts`, `app/store/lexicaStore.ts`, `CortexSection.tsx` và `CortexWidget.tsx` mặc định dùng `http://localhost:3001`. Trên production, nếu quên set env thì mọi event bị mất mà không có thông báo nào.
+  - _Đã sửa: `app/lib/cortexConfig.ts`; production thiếu env thì tắt tích hợp Cortex._
   - Đề xuất: không có `NEXT_PUBLIC_CORTEX_API_URL` thì không gửi gì (không dùng localhost làm fallback), và kiểm tra env trên Vercel trước khi launch.
-- [ ] **Chưa đo được gì.** `analytics.ts` chỉ gửi event về Cortex API, và chỉ khi có `cortex_user_id`, tức là người dùng **chưa đăng nhập thì không có event nào**. Đây lại chính là nhóm cần đo nhất trong funnel.
+- [x] **Chưa đo được gì.** `analytics.ts` chỉ gửi event về Cortex API, và chỉ khi có `cortex_user_id`, tức là người dùng **chưa đăng nhập thì không có event nào**. Đây lại chính là nhóm cần đo nhất trong funnel.
+  - _Đã có code: `app/lib/productAnalytics.ts` gửi mọi event (kèm `app_open`) tới PostHog với anonymous id. **Còn lại: set `NEXT_PUBLIC_POSTHOG_KEY` trên Vercel.**_
   - Đề xuất: thay phần thân hàm `send()` bằng một nhà cung cấp analytics có funnel và retention sẵn (PostHog free tier, hoặc Plausible/Umami nếu chỉ cần đếm), dùng anonymous id. Vẫn giữ việc gửi về Cortex cho người đã đăng nhập.
-- [ ] **`manifest.json` khai báo `share_target` tới `/share`, nhưng route này không tồn tại.** Hoặc bỏ khai báo đi, hoặc làm trang `/share`.
-- [ ] **Icon PWA chỉ có SVG.** iOS cần `apple-touch-icon` dạng PNG (180×180); Android cần PNG 192 và 512, cộng một bản maskable riêng. Thiếu những file này thì icon "Thêm vào màn hình chính" sẽ xấu hoặc không hiện.
+- [x] **`manifest.json` khai báo `share_target` tới `/share`, nhưng route này không tồn tại.** Hoặc bỏ khai báo đi, hoặc làm trang `/share`.
+  - _Đã gỡ `share_target`; bỏ shortcut `/challenge` và đổi `/progress` thành `/stats` (hai trang cũ không tồn tại)._
+- [x] **Icon PWA chỉ có SVG.** iOS cần `apple-touch-icon` dạng PNG (180×180); Android cần PNG 192 và 512, cộng một bản maskable riêng. Thiếu những file này thì icon "Thêm vào màn hình chính" sẽ xấu hoặc không hiện.
+  - _Đã thêm PNG 192/512, maskable 512 và `apple-touch-icon.png`. Icon vẫn là chữ "L" tạm, nên thay bằng logo thật._
 
 ## Giai đoạn 1 – Hoàn thiện trải nghiệm cốt lõi (nên làm)
 
@@ -48,7 +53,7 @@ Phát hiện khi rà code, phải xử lý trước khi có người dùng thậ
 - [ ] **Trang Privacy Policy + Terms.** App thu email (đăng nhập OTP qua Supabase) và dùng **micro**. Đây là yêu cầu tối thiểu, và cũng cần khi muốn đưa lên store sau này.
 - [ ] **Theo dõi lỗi**: thêm Sentry (free tier) cho Lexica. Hiện lỗi chỉ được `console.error`.
 - [ ] **Uptime**: trỏ một uptime monitor (UptimeRobot hoặc Better Stack, đều có bản free) vào `GET /health` của Cortex API. Endpoint này trả về 503 khi Supabase hoặc Redis down.
-- [ ] **Supabase**: chạy `apps/cortex-core-api/supabase/migration_phase1_core.sql`. Kiểm tra lại RLS cho `action_logs`, `app_backups` và `user_vocabulary`: Cortex API đang dùng **publishable key**, nên phải chắc người dùng không đọc được dữ liệu của người khác qua chính key đó.
+- [ ] **Supabase**: chạy `supabase/restore_all.sql` (xem `supabase/README.md`). Kiểm tra lại RLS cho `action_logs`, `app_backups` và `user_vocabulary`: Cortex API đang dùng **publishable key**, nên phải chắc người dùng không đọc được dữ liệu của người khác qua chính key đó.
 - [ ] **Biến môi trường trên Vercel** (project `cortex-lexica`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_CORTEX_API_URL`, `NEXT_PUBLIC_CORTEX_HUB_URL`, cùng key analytics.
 - [ ] **Domain riêng + OG image** để link chia sẻ trông đáng tin (hiện chỉ có metadata title trong `app/layout.tsx`).
 

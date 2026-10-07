@@ -1,7 +1,5 @@
 'use client';
 
-import { registerPushNotifications } from './lib/pushNotifications';
-
 import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -17,6 +15,8 @@ import OnboardingModal from './components/OnboardingModal';
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
 import { useSoundEffects } from './hooks/useSoundEffects';
+import { CORTEX_HUB_URL } from './lib/cortexConfig';
+import { analytics } from './lib/analytics';
 
 function HomeContent() {
   const userStats = useLexicaStore(state => state.userStats);
@@ -74,11 +74,9 @@ function HomeContent() {
   // Initialize store on mount
   useEffect(() => {
     initializeLexicaStore();
-
-    if (typeof window !== 'undefined') {
-      // Register push notifications
-      registerPushNotifications();
-    }
+    analytics.appOpen();
+    // Push notifications are off until there is a subscribe route and a
+    // service worker push handler; see docs/PRELAUNCH_PLAN.md.
   }, []);
 
 
@@ -156,6 +154,9 @@ function HomeContent() {
       const t = setTimeout(() => setShowCortexReminder(true), 0);
       return () => clearTimeout(t);
     }
+
+    // Nothing to connect to when Cortex isn't configured
+    if (!CORTEX_HUB_URL) return;
 
     // Check if already connected
     const cortexUserId = localStorage.getItem('cortex_user_id');
@@ -393,8 +394,7 @@ function HomeContent() {
                   onClick={() => {
                     buttonPress();
                     setShowCortexReminder(false);
-                    const HUB_URL = process.env.NEXT_PUBLIC_CORTEX_HUB_URL || 'http://localhost:3000';
-                    window.open(HUB_URL, '_blank');
+                    if (CORTEX_HUB_URL) window.open(CORTEX_HUB_URL, '_blank');
                   }}
                   className="flex-1 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-colors"
                 >
