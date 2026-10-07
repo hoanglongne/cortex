@@ -16,10 +16,12 @@ CREATE TABLE IF NOT EXISTS public.game_challenges (
 -- Public read/insert (no auth needed for anonymous challenges)
 ALTER TABLE public.game_challenges ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can read challenges" ON public.game_challenges;
 CREATE POLICY "Anyone can read challenges"
     ON public.game_challenges FOR SELECT
     USING (true);
 
+DROP POLICY IF EXISTS "Anyone can create challenges" ON public.game_challenges;
 CREATE POLICY "Anyone can create challenges"
     ON public.game_challenges FOR INSERT
     WITH CHECK (true);

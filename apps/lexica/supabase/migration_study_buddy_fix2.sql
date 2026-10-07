@@ -51,6 +51,7 @@ ALTER TABLE public.buddy_invites  ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users manage own activity"           ON public.daily_activity;
 DROP POLICY IF EXISTS "Buddies can read each other activity" ON public.daily_activity;
 
+DROP POLICY IF EXISTS "Users manage own activity" ON public.daily_activity;
 CREATE POLICY "Users manage own activity"
     ON public.daily_activity FOR ALL USING (auth.uid() = user_id);
 
@@ -71,18 +72,22 @@ DROP POLICY IF EXISTS "Anyone authenticated can insert pair" ON public.buddy_pai
 DROP POLICY IF EXISTS "Members can update duo streak"      ON public.buddy_pairs;
 DROP POLICY IF EXISTS "Members can delete own pair"        ON public.buddy_pairs;
 
+DROP POLICY IF EXISTS "Buddy members can read pairs" ON public.buddy_pairs;
 CREATE POLICY "Buddy members can read pairs"
     ON public.buddy_pairs FOR SELECT
     USING (user_a_id = auth.uid() OR user_b_id = auth.uid());
 
+DROP POLICY IF EXISTS "Anyone authenticated can insert pair" ON public.buddy_pairs;
 CREATE POLICY "Anyone authenticated can insert pair"
     ON public.buddy_pairs FOR INSERT
     WITH CHECK (auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Members can update duo streak" ON public.buddy_pairs;
 CREATE POLICY "Members can update duo streak"
     ON public.buddy_pairs FOR UPDATE
     USING (user_a_id = auth.uid() OR user_b_id = auth.uid());
 
+DROP POLICY IF EXISTS "Members can delete own pair" ON public.buddy_pairs;
 CREATE POLICY "Members can delete own pair"
     ON public.buddy_pairs FOR DELETE
     USING (user_a_id = auth.uid() OR user_b_id = auth.uid());
@@ -92,12 +97,14 @@ DROP POLICY IF EXISTS "Owner manages invite"                ON public.buddy_invi
 DROP POLICY IF EXISTS "Anyone authenticated can read invite" ON public.buddy_invites;
 DROP POLICY IF EXISTS "Anyone authenticated can accept invite" ON public.buddy_invites;
 
+DROP POLICY IF EXISTS "Owner manages invite" ON public.buddy_invites;
 CREATE POLICY "Owner manages invite"
     ON public.buddy_invites FOR ALL USING (from_user_id = auth.uid());
 
 CREATE POLICY "Anyone authenticated can read invite"
     ON public.buddy_invites FOR SELECT USING (auth.uid() IS NOT NULL);
 
+DROP POLICY IF EXISTS "Anyone authenticated can accept invite" ON public.buddy_invites;
 CREATE POLICY "Anyone authenticated can accept invite"
     ON public.buddy_invites FOR UPDATE USING (auth.uid() IS NOT NULL);
 

@@ -11,6 +11,7 @@ DROP POLICY IF EXISTS "Buddies can read each other profiles" ON public.profiles;
 
 -- Policy mới: mọi user đã xác thực đều đọc được nickname của nhau
 -- (nickname không phải dữ liệu nhạy cảm)
+DROP POLICY IF EXISTS "Authenticated users can read profiles" ON public.profiles;
 CREATE POLICY "Authenticated users can read profiles"
     ON public.profiles FOR SELECT
     USING (auth.uid() IS NOT NULL);

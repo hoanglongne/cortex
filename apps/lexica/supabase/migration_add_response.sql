@@ -8,6 +8,7 @@ ALTER TABLE public.game_challenges
     ADD COLUMN IF NOT EXISTS response_nickname TEXT;
 
 -- Cho phép update để lưu kết quả của người được thách đấu
+DROP POLICY IF EXISTS "Anyone can update response" ON public.game_challenges;
 CREATE POLICY "Anyone can update response"
     ON public.game_challenges FOR UPDATE
     USING (true)
