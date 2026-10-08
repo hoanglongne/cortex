@@ -9,11 +9,13 @@ import VocabCard from './VocabCard';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { analytics } from '../lib/analytics';
+import { useVoiceAvailable } from '../lib/speechAvailability';
 
 export default function SwipeDeck() {
     const cards = useLexicaStore(state => state.currentDeck);
     const swipeCard = useLexicaStore(state => state.swipeCard);
     const swipeMode = useLexicaStore(state => state.swipeMode);
+    const voiceAvailable = useVoiceAvailable();
 
     const { swipeRight, swipeLeft, buttonPress } = useSoundEffects();
 
@@ -34,7 +36,7 @@ export default function SwipeDeck() {
         source: 'manual' | 'voice' | 'quiz' = 'manual'
     ) => {
         // Voice mode requires voice input for swiping right
-        if (swipeMode === 'voice' && direction === 'right' && source !== 'voice') {
+        if (swipeMode === 'voice' && voiceAvailable && direction === 'right' && source !== 'voice') {
             return;
         }
 
@@ -58,7 +60,7 @@ export default function SwipeDeck() {
         });
 
         swipeCard(cardId, direction);
-    }, [swipeCard, swipeMode, cards, swipeRight, swipeLeft]);
+    }, [swipeCard, swipeMode, voiceAvailable, cards, swipeRight, swipeLeft]);
 
     // Keyboard controls (desktop)
     useEffect(() => {
@@ -85,7 +87,7 @@ export default function SwipeDeck() {
 
             if (e.key === 'ArrowRight') {
                 e.preventDefault();
-                if (swipeMode === 'voice') {
+                if (swipeMode === 'voice' && voiceAvailable) {
                     return;
                 }
                 handleSwipe('right', topCardId);
@@ -94,7 +96,7 @@ export default function SwipeDeck() {
 
         document.addEventListener('keydown', handleKeyDown, true);
         return () => document.removeEventListener('keydown', handleKeyDown, true);
-    }, [topCardId, handleSwipe, swipeMode, setTopCardRevealed]);
+    }, [topCardId, handleSwipe, swipeMode, voiceAvailable, setTopCardRevealed]);
 
     if (cards.length === 0) {
         return (

@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { Brain, Activity, TrendingUp, User, RefreshCw, ExternalLink } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { CORTEX_API_URL, CORTEX_HUB_URL } from '../lib/cortexConfig';
+import { syncNow } from '../lib/cloudSync';
+import { authHeaders, getCortexAuth } from '../lib/cortexAuth';
 
 interface CortexProfile {
     user_id: string;
@@ -33,7 +35,9 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
     const fetchProfile = useCallback(async (userId: string) => {
         try {
-            const res = await fetch(`${API_URL}/insights/${userId}`);
+            const auth = await getCortexAuth();
+            if (!auth || auth.userId !== userId) return;
+            const res = await fetch(`${API_URL}/insights/${userId}`, { headers: authHeaders(auth) });
             const data = await res.json();
             if (data && !data.error) setProfile(data);
         } catch (err) {
@@ -68,6 +72,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
                 if (newUserId) {
                     localStorage.setItem('cortex_user_id', newUserId);
+                    void syncNow(); // first connect: restore or back up progress
                     if (token) localStorage.setItem('sb-token', token);
                     fetchProfile(newUserId);
                 }

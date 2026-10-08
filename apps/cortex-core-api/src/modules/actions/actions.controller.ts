@@ -1,6 +1,16 @@
-import { Controller, Get, Post, Body, Param, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Logger,
+  UseGuards,
+} from '@nestjs/common';
 import type { ActionLog } from '@cortex/types';
 import { RewardHelper } from '../shared/reward-helper.service';
+import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
+import { CurrentUserId, assertSameUser } from '../auth/current-user';
 import { SupabaseService } from '../supabase/supabase.service';
 import {
   LinguisticRefinerService,
@@ -16,6 +26,7 @@ interface LogMetadata {
 }
 
 @Controller('actions')
+@UseGuards(SupabaseAuthGuard)
 export class ActionsController {
   private readonly logger = new Logger(ActionsController.name);
   private readonly actionLogs: ActionLog[] = [];
@@ -27,16 +38,12 @@ export class ActionsController {
   ) {}
 
   @Post('log')
-  async createLog(@Body() logData: Record<string, any>): Promise<any> {
-    const isUuid = (id: string): boolean =>
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        id,
-      );
-
-    const rawUserId = (logData.userId as string) || 'test_user_cortex';
-    const userId: string = isUuid(rawUserId)
-      ? rawUserId
-      : '00000000-0000-0000-0000-000000000000';
+  async createLog(
+    @CurrentUserId() userId: string,
+    @Body() logData: Record<string, any>,
+  ): Promise<any> {
+    // The log always belongs to the authenticated caller
+    if (logData.userId !== undefined) assertSameUser(userId, logData.userId);
 
     const newLog: ActionLog = {
       ...logData,
@@ -311,23 +318,30 @@ export class ActionsController {
     return newLog;
   }
 
-  @Get()
-  getAllLogs(): ActionLog[] {
-    return this.actionLogs;
-  }
-
   @Get('user/:userId')
-  getUserLogs(@Param('userId') userId: string): ActionLog[] {
+  getUserLogs(
+    @CurrentUserId() callerId: string,
+    @Param('userId') userId: string,
+  ): ActionLog[] {
+    assertSameUser(callerId, userId);
     return this.actionLogs.filter((log) => log.userId === userId);
   }
 
   @Get('vocab/:userId')
-  async getUserVocab(@Param('userId') userId: string): Promise<any[]> {
+  async getUserVocab(
+    @CurrentUserId() callerId: string,
+    @Param('userId') userId: string,
+  ): Promise<any[]> {
+    assertSameUser(callerId, userId);
     return this.supabaseService.getData('user_vocabulary', { userId });
   }
 
   @Post('cleanup-ghost-data/:userId')
-  async cleanupGhostData(@Param('userId') userId: string) {
+  async cleanupGhostData(
+    @CurrentUserId() callerId: string,
+    @Param('userId') userId: string,
+  ) {
+    assertSameUser(callerId, userId);
     this.logger.log(`Performing TOTAL VOCAB RESET for user ${userId}`);
 
     try {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { markMicPermissionDenied } from '../lib/speechAvailability';
 
 export type VocalSwipeState = 'INIT' | 'LISTENING' | 'HIT_1' | 'HIT_2' | 'SUCCESS' | 'FAIL';
 
@@ -171,6 +172,7 @@ export function useVocalSwipe({
 
             if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
                 setPermissionDenied(true);
+                markMicPermissionDenied();
                 setState('INIT');
             } else if (event.error === 'no-speech') {
                 setState('INIT');
