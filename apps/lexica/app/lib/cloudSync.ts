@@ -1,6 +1,7 @@
 /**
  * Backs up Lexica progress to Cortex Core API (/v1/sync/backup) for users
- * connected to Cortex, and restores it on a new device.
+ * signed in to Lexica (Supabase session; the API checks the token), and
+ * restores it on a new device.
  *
  * The backup is the exact zustand-persisted blob in localStorage
  * ('lexica-storage'), so no store fields need to be mapped by hand.
@@ -9,10 +10,11 @@
 
 import { CORTEX_API_URL } from './cortexConfig';
 import { useLexicaStore } from '../store/lexicaStore';
+import { authHeaders, getCortexAuth, type CortexAuth } from './cortexAuth';
+import { getSupabaseClient } from './supabase';
 
 const STORE_KEY = 'lexica-storage';
 const META_KEY = 'lexica_sync_meta';
-const USER_KEY = 'cortex_user_id';
 const UPLOAD_DEBOUNCE_MS = 10_000;
 /** Browsers cap keepalive request bodies at 64 KB. */
 const KEEPALIVE_LIMIT = 60_000;
@@ -135,16 +137,18 @@ function writeMeta(meta: SyncMeta) {
     write(META_KEY, JSON.stringify(meta));
 }
 
-function endpoint(): { base: string; userId: string } | null {
-    const userId = read(USER_KEY);
-    if (!CORTEX_API_URL || !userId) return null;
-    return { base: CORTEX_API_URL, userId };
+type Target = CortexAuth & { base: string };
+
+/** Signed-in user + API base, or null when sync can't run. */
+async function getTarget(): Promise<Target | null> {
+    if (!CORTEX_API_URL) return null;
+    const auth = await getCortexAuth();
+    return auth ? { ...auth, base: CORTEX_API_URL } : null;
 }
 
-async function upload(opts: { keepalive?: boolean } = {}): Promise<void> {
-    const target = endpoint();
+async function upload(target: Target, opts: { keepalive?: boolean } = {}): Promise<void> {
     const raw = read(STORE_KEY);
-    if (!target || !raw) return;
+    if (!raw) return;
 
     const savedAt = readMeta().localModifiedAt ?? new Date().toISOString();
     const body = JSON.stringify({
@@ -155,7 +159,7 @@ async function upload(opts: { keepalive?: boolean } = {}): Promise<void> {
 
     const res = await fetch(`${target.base}/v1/sync/backup`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders(target) },
         body,
         keepalive: Boolean(opts.keepalive) && body.length < KEEPALIVE_LIMIT,
     });
@@ -163,11 +167,10 @@ async function upload(opts: { keepalive?: boolean } = {}): Promise<void> {
     writeMeta({ ...readMeta(), userId: target.userId, lastSyncedAt: savedAt });
 }
 
-async function fetchRemote(): Promise<BackupData | null> {
-    const target = endpoint();
-    if (!target) return null;
+async function fetchRemote(target: Target): Promise<BackupData | null> {
     const res = await fetch(
         `${target.base}/v1/sync/backup/${encodeURIComponent(target.userId)}/lexica`,
+        { headers: authHeaders(target) },
     );
     if (res.status === 404) return null;
     if (!res.ok) throw new Error(`Fetch backup failed: ${res.status}`);
@@ -210,10 +213,10 @@ export function syncNow(): Promise<void> {
 }
 
 async function syncOnce(): Promise<void> {
-    const target = endpoint();
-    if (!target) return;
     try {
-        const remote = await fetchRemote();
+        const target = await getTarget();
+        if (!target) return;
+        const remote = await fetchRemote(target);
         const action = decideSync({
             userId: target.userId,
             remoteSavedAt: remote?.savedAt ?? null,
@@ -221,7 +224,7 @@ async function syncOnce(): Promise<void> {
             localHasProgress: hasProgress(read(STORE_KEY)),
         });
         if (action === 'restore' && remote) await restore(remote, target.userId);
-        else if (action === 'upload') await upload();
+        else if (action === 'upload') await upload(target);
     } catch (err) {
         if (process.env.NODE_ENV === 'development') console.warn('[CloudSync]', err);
     }
@@ -231,7 +234,9 @@ function scheduleUpload() {
     if (uploadTimer) clearTimeout(uploadTimer);
     uploadTimer = setTimeout(() => {
         uploadTimer = null;
-        if (endpoint()) upload().catch(() => {});
+        void getTarget()
+            .then((target) => target && upload(target))
+            .catch(() => {});
     }, UPLOAD_DEBOUNCE_MS);
 }
 
@@ -254,14 +259,28 @@ export function startCloudSync(): () => void {
     const onVisibility = () => {
         if (document.visibilityState === 'visible') {
             void syncNow();
-        } else if (uploadTimer && endpoint()) {
+        } else if (uploadTimer) {
             // Leaving the page with an upload pending: flush it now
             clearTimeout(uploadTimer);
             uploadTimer = null;
-            upload({ keepalive: true }).catch(() => {});
+            void getTarget()
+                .then((target) => target && upload(target, { keepalive: true }))
+                .catch(() => {});
         }
     };
     document.addEventListener('visibilitychange', onVisibility);
+
+    // Signing in on this device: restore or back up right away
+    const authSub = getSupabaseClient()?.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_IN') void syncNow();
+        if (event === 'SIGNED_OUT') {
+            try {
+                localStorage.removeItem('cortex_user_id');
+            } catch {
+                // ignore
+            }
+        }
+    });
 
     void syncNow();
 
@@ -269,6 +288,7 @@ export function startCloudSync(): () => void {
         started = false;
         unsubscribe();
         document.removeEventListener('visibilitychange', onVisibility);
+        authSub?.data.subscription.unsubscribe();
         if (uploadTimer) clearTimeout(uploadTimer);
     };
 }

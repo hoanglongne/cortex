@@ -9,9 +9,11 @@ interface AuthGateProps {
     reason?: string;
     /** Callback khi user đã đăng nhập (auth state change xử lý tự động qua AuthProvider) */
     onSent?: () => void;
+    /** Trang quay lại sau khi bấm link trong email */
+    redirectPath?: string;
 }
 
-export default function AuthGate({ reason, onSent }: AuthGateProps) {
+export default function AuthGate({ reason, onSent, redirectPath = '/buddy' }: AuthGateProps) {
     const [email, setEmail] = useState('');
     const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
     const [errorMsg, setErrorMsg] = useState('');
@@ -19,7 +21,7 @@ export default function AuthGate({ reason, onSent }: AuthGateProps) {
     const handleSubmit = async () => {
         if (!email.trim() || status === 'sending') return;
         setStatus('sending');
-        const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}/buddy` : '';
+        const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}${redirectPath}` : '';
         const { error } = await signInWithEmail(email, redirectTo);
         if (error) {
             setErrorMsg(error);

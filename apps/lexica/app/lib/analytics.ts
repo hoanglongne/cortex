@@ -8,6 +8,7 @@
 
 import { CORTEX_API_URL } from './cortexConfig';
 import { capture } from './productAnalytics';
+import { authHeaders, getCortexAuth } from './cortexAuth';
 
 export type LexicaEvent =
     | 'app_open'
@@ -41,22 +42,9 @@ function send(event: LexicaEvent, props?: EventProps): void {
 
     capture(event, props);
 
-    // CORTEX Integration: Send to Central API
+    // CORTEX Integration: Send to Central API (signed-in users only)
     const API_URL = CORTEX_API_URL;
     if (!API_URL) return;
-
-    let userId = '';
-
-    if (typeof window !== 'undefined') {
-        userId = localStorage.getItem('cortex_user_id') || '';
-    }
-
-    if (!userId) {
-        if (process.env.NODE_ENV === 'development') {
-            console.warn('[Cortex] No userId found, skipping log');
-        }
-        return;
-    }
 
     // Map Lexica events to Cortex ActionLogs
     let actionType = 'ACTIVITY';
@@ -69,14 +57,16 @@ function send(event: LexicaEvent, props?: EventProps): void {
     const word = props?.cardId as string || props?.word as string || '';
 
     // Only send relevant events to Cortex
-    if (['LEARN_VOCABULARY', 'COMPLETE_STORY', 'COMPLETE_TEST'].includes(actionType)) {
-        console.log(`[Cortex] Sending ${actionType} for user ${userId}...`);
-        fetch(`${API_URL}/actions/log`, {
+    if (!['LEARN_VOCABULARY', 'COMPLETE_STORY', 'COMPLETE_TEST'].includes(actionType)) return;
+
+    void getCortexAuth().then((auth) => {
+        if (!auth) return;
+        return fetch(`${API_URL}/actions/log`, {
             method: 'POST',
             mode: 'cors', // Explicitly set CORS
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...authHeaders(auth) },
             body: JSON.stringify({
-                userId,
+                userId: auth.userId,
                 appSource: 'lexica',
                 actionType,
                 metadata: {
@@ -87,10 +77,8 @@ function send(event: LexicaEvent, props?: EventProps): void {
         })
             .then(res => {
                 if (!res.ok) console.error('[Cortex] API returned error:', res.status);
-                else console.log('[Cortex] Log sent successfully');
-            })
-            .catch(err => console.error('[Cortex] Failed to send log:', err));
-    }
+            });
+    }).catch(err => console.error('[Cortex] Failed to send log:', err));
 }
 
 export const analytics = {

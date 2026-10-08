@@ -12,15 +12,34 @@ type Sync = typeof import('@/app/lib/cloudSync');
 
 let server: Map<string, unknown>;
 
+// Signed-in Lexica session (null = signed out). The fake API below enforces
+// the same rule as Cortex: valid token required, only your own userId.
+let session: { userId: string; token: string } | null = null;
+const TOKENS: Record<string, string> = { 'token-for-user': USER };
+
+vi.mock('@/app/lib/cortexAuth', () => ({
+    getCortexAuth: () => Promise.resolve(session),
+    authHeaders: (a: { token: string }) => ({ Authorization: `Bearer ${a.token}` }),
+}));
+
+function caller(init?: RequestInit): string | null {
+    const header = new Headers(init?.headers).get('Authorization') ?? '';
+    return TOKENS[header.replace('Bearer ', '')] ?? null;
+}
+
 function fakeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     const url = String(input);
+    const who = caller(init);
+    if (!who) return Promise.resolve(new Response('{}', { status: 401 }));
     if (init?.method === 'POST' && url === `${API}/v1/sync/backup`) {
         const body = JSON.parse(String(init.body)) as { userId: string; data: unknown };
+        if (body.userId !== who) return Promise.resolve(new Response('{}', { status: 403 }));
         server.set(body.userId, body.data);
         return Promise.resolve(new Response('{}', { status: 201 }));
     }
     const m = url.match(/\/v1\/sync\/backup\/([^/]+)\/lexica$/);
     if (m) {
+        if (decodeURIComponent(m[1]) !== who) return Promise.resolve(new Response('{}', { status: 403 }));
         const data = server.get(decodeURIComponent(m[1]));
         return Promise.resolve(
             data ? new Response(JSON.stringify({ data }), { status: 200 }) : new Response('{}', { status: 404 }),
@@ -39,6 +58,7 @@ async function bootDevice(): Promise<{ store: Store['useLexicaStore']; sync: Syn
 
 beforeEach(() => {
     server = new Map();
+    session = { userId: USER, token: 'token-for-user' };
     localStorage.clear();
     vi.stubEnv('NEXT_PUBLIC_CORTEX_API_URL', API);
     vi.stubGlobal('fetch', vi.fn(fakeFetch));
@@ -52,7 +72,6 @@ afterEach(() => {
 describe('cloud sync across devices', () => {
     it('restores device A progress on a fresh device B', async () => {
         // Device A: connected user learns a card, then syncs
-        localStorage.setItem('cortex_user_id', USER);
         const a = await bootDevice();
         const stop = a.sync.startCloudSync();
         a.store.setState({ cardProgress: { v001: { cardId: 'v001' } as never } });
@@ -62,7 +81,6 @@ describe('cloud sync across devices', () => {
 
         // Device B: empty storage, same Cortex user
         localStorage.clear();
-        localStorage.setItem('cortex_user_id', USER);
         const b = await bootDevice();
         expect(Object.keys(b.store.getState().cardProgress)).toHaveLength(0);
         await b.sync.syncNow();
@@ -70,7 +88,6 @@ describe('cloud sync across devices', () => {
     });
 
     it('does not upload when only non-progress state changes', async () => {
-        localStorage.setItem('cortex_user_id', USER);
         server.set(USER, {
             savedAt: '2099-01-01T00:00:00Z',
             state: { state: { cardProgress: { v002: { cardId: 'v002' } } }, version: 0 },
@@ -91,7 +108,19 @@ describe('cloud sync across devices', () => {
         expect((server.get(USER) as { savedAt: string }).savedAt).toBe('2099-01-01T00:00:00Z');
     });
 
-    it('does nothing without a connected Cortex user', async () => {
+    it('sends the access token with every request', async () => {
+        const dev = await bootDevice();
+        dev.store.setState({ cardProgress: { v003: { cardId: 'v003' } as never } });
+        await dev.sync.syncNow();
+        const calls = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls;
+        expect(calls.length).toBeGreaterThan(0);
+        for (const [, init] of calls) {
+            expect(new Headers((init as RequestInit).headers).get('Authorization')).toBe('Bearer token-for-user');
+        }
+    });
+
+    it('does nothing when signed out', async () => {
+        session = null;
         const dev = await bootDevice();
         await dev.sync.syncNow();
         expect(fetch).not.toHaveBeenCalled();

@@ -4,6 +4,9 @@ import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic, RotateCcw, Trash2 } from 'lucide-react';
 import CortexSection from '../components/CortexSection';
+import AuthGate from '../components/AuthGate';
+import { useAuth } from '../context/AuthContext';
+import { getSupabaseClient } from '../lib/supabase';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import ActivityHeatmap from '../components/ActivityHeatmap';
@@ -176,6 +179,9 @@ function StatsPageContent() {
                         </div>
                     </div>
                 </div>
+
+                {/* Cloud backup sign-in */}
+                <BackupStatus />
 
                 {/* Cortex Hub Section */}
                 <CortexSection />
@@ -478,5 +484,28 @@ export default function StatsPage() {
         <Suspense fallback={<StatsPageFallback />}>
             <StatsPageContent />
         </Suspense>
+    );
+}
+
+/** Sign-in prompt that turns on cloud backup (lib/cloudSync.ts). */
+function BackupStatus() {
+    const { user, loading } = useAuth();
+    if (loading || !getSupabaseClient()) return null;
+
+    if (user) {
+        return (
+            <p className="mb-6 text-center text-xs text-slate-400">
+                Đã đăng nhập <span className="text-cyan-400">{user.email}</span> · tiến trình được tự động sao lưu
+            </p>
+        );
+    }
+
+    return (
+        <div className="mb-6 rounded-2xl border border-slate-700 bg-slate-800/60 p-4">
+            <AuthGate
+                reason="Đăng nhập để sao lưu tiến trình học và tiếp tục trên máy khác. Không cần mật khẩu."
+                redirectPath="/stats"
+            />
+        </div>
     );
 }

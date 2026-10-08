@@ -1,5 +1,6 @@
 import { analytics } from '../lib/analytics';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
+import { authHeaders, getCortexAuth } from '../lib/cortexAuth';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
@@ -847,26 +848,25 @@ export const useLexicaStore = create<LexicaStore>()(
                     return;
                 }
 
-                const userId = localStorage.getItem('cortex_user_id');
-                if (!userId) {
-                    console.error('[Cortex] No userId found in localStorage. Sync aborted.');
-                    return;
-                }
-
                 const API_URL = CORTEX_API_URL;
                 if (!API_URL) {
                     console.warn('[Cortex] NEXT_PUBLIC_CORTEX_API_URL not set. Sync skipped.');
                     return;
                 }
 
+                const auth = await getCortexAuth();
+                if (!auth) {
+                    console.warn('[Cortex] Not signed in. Sync skipped.');
+                    return;
+                }
+
                 try {
-                    console.log(`[Cortex] Sending bulk sync to ${API_URL} for user ${userId}...`);
                     const response = await fetch(`${API_URL}/actions/log`, {
                         method: 'POST',
                         mode: 'cors',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', ...authHeaders(auth) },
                         body: JSON.stringify({
-                            userId,
+                            userId: auth.userId,
                             appSource: 'lexica',
                             actionType: 'LEARN_VOCABULARY',
                             metadata: {

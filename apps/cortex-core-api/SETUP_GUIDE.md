@@ -97,6 +97,18 @@ REDIS_PORT=6379
 
 ---
 
+## Xác thực
+
+Các endpoint đọc/ghi dữ liệu người dùng (`/actions/*`, `/insights/:userId`, `/v1/sync/*`) yêu cầu header:
+
+```
+Authorization: Bearer <Supabase access token>
+```
+
+Token là `session.access_token` của người dùng đăng nhập vào cùng project Supabase (Lexica lấy từ `supabase.auth.getSession()`, supabase-js tự làm mới). API kiểm tra token với Supabase (cache tối đa 5 phút) và chỉ cho người dùng truy cập `userId` của chính mình: thiếu/sai token → `401`, `userId` của người khác → `403`.
+
+`GET /actions` và `GET /insights` (trả về dữ liệu của mọi người dùng) đã bị xoá. `/health` và `/synapse/*` vẫn công khai.
+
 ## Endpoints Giai đoạn 1
 
 | Endpoint | Mô tả |
