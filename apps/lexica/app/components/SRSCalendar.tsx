@@ -53,11 +53,11 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
     const maxCount = Math.max(...days.map(d => d.count), 1);
 
     return (
-        <div className="bg-slate-800/30 border border-slate-700 rounded-xl p-5">
+        <div className="bg-surface/30 border border-line rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
-                <CalendarDays className="w-5 h-5 text-cyan-400" />
-                <h2 className="text-base font-bold text-white">Lịch ôn tập SRS</h2>
-                <span className="ml-auto text-xs text-slate-500">14 ngày tới</span>
+                <CalendarDays className="w-5 h-5 text-accent" />
+                <h2 className="text-base font-bold text-ink">Lịch ôn tập SRS</h2>
+                <span className="ml-auto text-xs text-muted">14 ngày tới</span>
             </div>
 
             <div className="overflow-x-auto">
@@ -66,43 +66,43 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
                         const intensity = day.count === 0 ? 0 : Math.ceil((day.count / maxCount) * 4);
                         const barColor =
                             day.isToday
-                                ? 'bg-cyan-400'
+                                ? 'bg-accent'
                                 : intensity >= 4
-                                    ? 'bg-amber-400'
+                                    ? 'bg-warning'
                                     : intensity >= 3
-                                        ? 'bg-cyan-500'
+                                        ? 'bg-accent'
                                         : intensity >= 2
-                                            ? 'bg-cyan-600'
+                                            ? 'bg-accent'
                                             : intensity >= 1
-                                                ? 'bg-slate-500'
-                                                : 'bg-slate-700';
+                                                ? 'bg-surface-3'
+                                                : 'bg-surface-2';
 
                         return (
                             <div
                                 key={i}
                                 className={`flex flex-col items-center gap-1 w-10 rounded-lg px-1 py-2 transition-all ${day.isToday
-                                    ? 'bg-cyan-500/10 border border-cyan-500/30'
-                                    : 'border border-transparent hover:border-slate-600'
-                                    }`}
+ ? 'bg-accent/10 border border-accent/30'
+ : 'border border-transparent hover:border-line-strong'
+ }`}
                             >
                                 {/* Month label if needed */}
-                                <span className="text-[9px] text-slate-600 h-3 leading-none">
+                                <span className="text-[9px] text-subtle h-3 leading-none">
                                     {day.showMonth ? day.monthLabel : ''}
                                 </span>
 
                                 {/* Day of week */}
-                                <span className={`text-[10px] font-medium ${day.isToday ? 'text-cyan-400' : 'text-slate-500'}`}>
+                                <span className={`text-[10px] font-medium ${day.isToday ? 'text-accent' : 'text-muted'}`}>
                                     {day.dayLabel}
                                 </span>
 
                                 {/* Date number */}
-                                <span className={`text-sm font-bold ${day.isToday ? 'text-cyan-300' : 'text-slate-300'}`}>
+                                <span className={`text-sm font-bold ${day.isToday ? 'text-accent' : 'text-ink-2'}`}>
                                     {day.dateNum}
                                 </span>
 
                                 {/* Bar + count */}
                                 <div className="flex flex-col items-center gap-1 w-full mt-0.5">
-                                    <div className="w-full h-12 bg-slate-900/50 rounded flex items-end overflow-hidden">
+                                    <div className="w-full h-12 bg-bg/50 rounded flex items-end overflow-hidden">
                                         {day.count > 0 && (
                                             <div
                                                 className={`w-full ${barColor} rounded transition-all duration-500`}
@@ -111,11 +111,11 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
                                         )}
                                     </div>
                                     <span className={`text-[10px] font-mono font-semibold ${day.isToday
-                                        ? 'text-cyan-400'
-                                        : day.count > 0
-                                            ? 'text-slate-300'
-                                            : 'text-slate-600'
-                                        }`}>
+ ? 'text-accent'
+ : day.count > 0
+ ? 'text-ink-2'
+ : 'text-subtle'
+ }`}>
                                         {day.count > 0 ? day.count : '·'}
                                     </span>
                                 </div>
@@ -126,17 +126,17 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-slate-700/50 text-xs text-slate-500">
+            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-line/50 text-xs text-muted">
                 <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-sm bg-cyan-400" />
+                    <div className="w-2.5 h-2.5 rounded-sm bg-accent" />
                     <span>Hôm nay</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-sm bg-amber-400" />
+                    <div className="w-2.5 h-2.5 rounded-sm bg-warning" />
                     <span>Nhiều từ</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-sm bg-slate-700" />
+                    <div className="w-2.5 h-2.5 rounded-sm bg-surface-2" />
                     <span>Rảnh</span>
                 </div>
             </div>

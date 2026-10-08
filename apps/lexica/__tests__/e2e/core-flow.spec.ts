@@ -193,7 +193,7 @@ test.describe('Core Learning Flow — Linear Pipeline', () => {
       await page.keyboard.press('ArrowRight');
       await page.waitForTimeout(500);
 
-      // Feedback "GHI NHỚ" hoặc check icon có thể xuất hiện tạm thời
+      // Feedback "ĐÃ NHỚ" hoặc check icon có thể xuất hiện tạm thời
       // (AnimatePresence - xuất hiện trong ~1s)
     }
 

@@ -61,7 +61,7 @@ export default function ELOChart({ studyHistory, currentElo }: ELOChartProps) {
 
     if (data.length === 0) {
         return (
-            <div className="flex items-center justify-center py-16 text-slate-500">
+            <div className="flex items-center justify-center py-16 text-muted">
                 <p className="text-sm">Chưa có dữ liệu ELO</p>
             </div>
         );
@@ -87,40 +87,40 @@ export default function ELOChart({ studyHistory, currentElo }: ELOChartProps) {
                 <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                     <defs>
                         <linearGradient id="eloGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.3} />
-                            <stop offset="100%" stopColor="#22d3ee" stopOpacity={0} />
+                            <stop offset="0%" stopColor="#C6F432" stopOpacity={0.3} />
+                            <stop offset="100%" stopColor="#C6F432" stopOpacity={0} />
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#26282D" opacity={0.3} />
                     <XAxis
                         dataKey="date"
-                        stroke="#64748b"
-                        tick={{ fill: '#64748b', fontSize: 11 }}
-                        tickLine={{ stroke: '#475569' }}
+                        stroke="#6B6E75"
+                        tick={{ fill: '#6B6E75', fontSize: 11 }}
+                        tickLine={{ stroke: '#34373D' }}
                     />
                     <YAxis
-                        stroke="#64748b"
-                        tick={{ fill: '#64748b', fontSize: 11 }}
-                        tickLine={{ stroke: '#475569' }}
+                        stroke="#6B6E75"
+                        tick={{ fill: '#6B6E75', fontSize: 11 }}
+                        tickLine={{ stroke: '#34373D' }}
                         domain={[yAxisMin, yAxisMax]}
                     />
                     <Tooltip
                         contentStyle={{
-                            backgroundColor: '#1e293b',
-                            border: '1px solid #334155',
+                            backgroundColor: '#16171A',
+                            border: '1px solid #26282D',
                             borderRadius: '8px',
                             fontSize: '12px',
                         }}
-                        labelStyle={{ color: '#e2e8f0', fontWeight: 'bold' }}
-                        itemStyle={{ color: '#22d3ee' }}
+                        labelStyle={{ color: '#EDEEF0', fontWeight: 'bold' }}
+                        itemStyle={{ color: '#C6F432' }}
                     />
                     <Line
                         type="monotone"
                         dataKey="elo"
-                        stroke="#22d3ee"
+                        stroke="#C6F432"
                         strokeWidth={2}
-                        dot={{ fill: '#22d3ee', r: 3 }}
-                        activeDot={{ r: 5, fill: '#06b6d4' }}
+                        dot={{ fill: '#C6F432', r: 3 }}
+                        activeDot={{ r: 5, fill: '#C6F432' }}
                         fill="url(#eloGradient)"
                     />
                 </LineChart>

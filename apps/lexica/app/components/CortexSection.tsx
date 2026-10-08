@@ -109,31 +109,31 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
     if (loading) {
         return (
-            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-8">
+            <div className="bg-surface/50 border border-line rounded-xl p-6 mb-8">
                 <div className="flex items-center gap-3 mb-4">
-                    <Brain className="w-6 h-6 text-cyan-400 animate-pulse" />
-                    <h2 className="text-lg font-bold text-white">Cortex Hub</h2>
+                    <Brain className="w-6 h-6 text-accent animate-pulse" />
+                    <h2 className="text-lg font-bold text-ink">Cortex Hub</h2>
                 </div>
-                <p className="text-slate-400 text-sm">Đang kết nối...</p>
+                <p className="text-muted text-sm">Đang kết nối...</p>
             </div>
         );
     }
 
     if (!profile) {
         return (
-            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6 mb-8">
+            <div className="bg-surface/50 border border-line rounded-xl p-6 mb-8">
                 <div className="flex items-center gap-3 mb-4">
-                    <Brain className="w-6 h-6 text-slate-500" />
-                    <h2 className="text-lg font-bold text-white">Cortex Hub</h2>
+                    <Brain className="w-6 h-6 text-muted" />
+                    <h2 className="text-lg font-bold text-ink">Cortex Hub</h2>
                 </div>
-                <p className="text-slate-400 text-sm mb-4">
+                <p className="text-muted text-sm mb-4">
                     Kết nối với Cortex Hub để đồng bộ dữ liệu học tập của bạn qua các ứng dụng trong hệ sinh thái Cortex.
                 </p>
                 <a
                     href={HUB_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-400 text-sm font-medium rounded-lg transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 hover:bg-accent-strong/20 border border-accent/30 hover:border-accent/50 text-accent text-sm font-medium rounded-lg transition-colors"
                 >
                     <ExternalLink className="w-4 h-4" />
                     Đăng nhập Cortex Hub
@@ -143,18 +143,18 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
     }
 
     return (
-        <div className="bg-slate-800/50 border border-cyan-500/30 rounded-xl p-6 mb-8">
+        <div className="bg-surface/50 border border-accent/30 rounded-xl p-6 mb-8">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-cyan-500/20">
-                        <Brain className="w-6 h-6 text-cyan-400 animate-pulse" />
+                    <div className="p-2 rounded-lg bg-accent/20">
+                        <Brain className="w-6 h-6 text-accent animate-pulse" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-bold text-white">Cortex Hub</h2>
+                        <h2 className="text-lg font-bold text-ink">Cortex Hub</h2>
                         <div className="flex items-center gap-2">
-                            <Activity className="w-3 h-3 text-emerald-400" />
-                            <span className="text-xs text-emerald-400 font-medium">
+                            <Activity className="w-3 h-3 text-accent" />
+                            <span className="text-xs text-accent font-medium">
                                 {isSyncing ? 'Đang đồng bộ...' : 'Đã kết nối'}
                             </span>
                         </div>
@@ -179,7 +179,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
                         }
                     }}
                     disabled={isSyncing}
-                    className="flex items-center gap-2 px-3 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-400 text-xs font-medium rounded-lg transition-all disabled:opacity-50 active:scale-95"
+                    className="flex items-center gap-2 px-3 py-2 bg-accent/10 hover:bg-accent-strong/20 border border-accent/30 hover:border-accent/50 text-accent text-xs font-medium rounded-lg transition-all disabled:opacity-50 active:scale-95"
                 >
                     <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                     {isSyncing ? 'Đang đồng bộ...' : 'Đồng bộ'}
@@ -188,60 +188,60 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-700">
-                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Tổng từ vựng</div>
-                    <div className="text-2xl font-bold text-white">{profile.vocabulary_size}</div>
+                <div className="p-4 rounded-xl bg-bg/50 border border-line">
+                    <div className="text-xs text-muted uppercase font-mono mb-2">Tổng từ vựng</div>
+                    <div className="text-2xl font-bold text-ink">{profile.vocabulary_size}</div>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-700">
-                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Từ kích hoạt</div>
-                    <div className="text-2xl font-bold text-cyan-400">{profile.active_vocab_count}</div>
+                <div className="p-4 rounded-xl bg-bg/50 border border-line">
+                    <div className="text-xs text-muted uppercase font-mono mb-2">Từ kích hoạt</div>
+                    <div className="text-2xl font-bold text-accent">{profile.active_vocab_count}</div>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-700">
-                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Từ thụ động</div>
-                    <div className="text-2xl font-bold text-rose-400">{profile.passive_vocab_count}</div>
+                <div className="p-4 rounded-xl bg-bg/50 border border-line">
+                    <div className="text-xs text-muted uppercase font-mono mb-2">Từ thụ động</div>
+                    <div className="text-2xl font-bold text-danger">{profile.passive_vocab_count}</div>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-700">
-                    <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Độ trôi chảy</div>
-                    <div className="text-2xl font-bold text-emerald-400">{Math.round(profile.fluency_score)}%</div>
+                <div className="p-4 rounded-xl bg-bg/50 border border-line">
+                    <div className="text-xs text-muted uppercase font-mono mb-2">Độ trôi chảy</div>
+                    <div className="text-2xl font-bold text-accent">{Math.round(profile.fluency_score)}%</div>
                 </div>
             </div>
 
             {/* Fluency Progress Bar */}
             <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-slate-400">Fluency Score</span>
-                    <span className="text-sm font-bold text-emerald-400">{Math.round(profile.fluency_score)}%</span>
+                    <span className="text-sm text-muted">Fluency Score</span>
+                    <span className="text-sm font-bold text-accent">{Math.round(profile.fluency_score)}%</span>
                 </div>
-                <div className="h-2.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-2.5 w-full bg-surface rounded-full overflow-hidden">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${profile.fluency_score}%` }}
                         transition={{ duration: 1, ease: 'easeOut' }}
-                        className="h-full bg-emerald-400"
+                        className="h-full bg-accent"
                     />
                 </div>
             </div>
 
             {/* AI Recommendation */}
             {profile.difficulty_recommendation && (
-                <div className="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/20 mb-4">
+                <div className="p-4 rounded-xl bg-accent/5 border border-accent/20 mb-4">
                     <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="w-4 h-4 text-cyan-400" />
-                        <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">Gợi ý từ AI</span>
+                        <TrendingUp className="w-4 h-4 text-accent" />
+                        <span className="text-xs font-bold text-accent uppercase font-mono">Gợi ý từ AI</span>
                     </div>
-                    <p className="text-sm text-slate-300 leading-relaxed italic">
+                    <p className="text-sm text-ink-2 leading-relaxed italic">
                         &quot;{profile.difficulty_recommendation.message}&quot;
                     </p>
                 </div>
             )}
 
             {/* Footer Link */}
-            <div className="pt-4 border-t border-slate-700">
+            <div className="pt-4 border-t border-line">
                 <a
                     href={`${HUB_URL}/profile`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-cyan-400 transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-muted hover:text-accent transition-colors"
                 >
                     <User className="w-4 h-4" />
                     Xem profile chi tiết trên Cortex Hub

@@ -107,18 +107,18 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
     };
 
     return (
-        <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col overflow-hidden">
+        <div className="fixed inset-0 bg-bg z-50 flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 z-10">
+            <div className="sticky top-0 bg-bg/95 backdrop-blur-sm border-b border-line z-10">
                 <div className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-3">
-                        <BookOpen className="w-6 h-6 text-cyan-400" />
+                        <BookOpen className="w-6 h-6 text-accent" />
                         <div>
-                            <h1 className="text-lg font-bold text-white">
+                            <h1 className="text-lg font-bold text-ink">
                                 {story.title}
-                                {isPart1Only && <span className="ml-2 text-sm text-cyan-400">• Part 1</span>}
+                                {isPart1Only && <span className="ml-2 text-sm text-accent">• Part 1</span>}
                             </h1>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-muted">
                                 {story.vocabularyIds.length} từ vựng
                             </p>
                         </div>
@@ -128,9 +128,9 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                             click();
                             onClose();
                         }}
-                        className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                        className="p-2 hover:bg-surface rounded-lg transition-colors"
                     >
-                        <X className="w-6 h-6 text-slate-400" />
+                        <X className="w-6 h-6 text-muted" />
                     </button>
                 </div>
             </div>
@@ -147,7 +147,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                         animate={{ opacity: 1, y: 0 }}
                         className="prose prose-invert max-w-none"
                     >
-                        <div className="text-slate-300 text-base lg:text-lg leading-relaxed whitespace-pre-wrap">
+                        <div className="text-ink-2 text-base lg:text-lg leading-relaxed whitespace-pre-wrap">
                             {contentSegments.map((segment, index) => {
                                 if (segment.isVocab) {
                                     return (
@@ -181,7 +181,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                                     level: story.difficultyLevel === 'mixed' ? 'intermediate' : story.difficultyLevel,
                                                 });
                                             }}
-                                            className="text-cyan-400 font-semibold bg-cyan-500/10 px-1 rounded hover:bg-cyan-500/20 cursor-pointer transition-colors border-b-2 border-cyan-500/30 hover:border-cyan-400"
+                                            className="text-accent font-semibold bg-accent/10 px-1 rounded hover:bg-accent-strong/20 cursor-pointer transition-colors border-b-2 border-accent/30 hover:border-accent"
                                             title="Click to see definition"
                                         >
                                             {segment.text}
@@ -198,13 +198,13 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-slate-800/50 border border-slate-700 rounded-xl p-4"
+                        className="bg-surface/50 border border-line rounded-xl p-4"
                     >
-                        <h3 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-                            <Trophy className="w-4 h-4 text-cyan-400" />
+                        <h3 className="text-sm font-semibold text-ink-2 mb-3 flex items-center gap-2">
+                            <Trophy className="w-4 h-4 text-accent" />
                             Từ vựng trong câu chuyện này
                         </h3>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted">
                             Bạn đã học được {story.vocabularyIds.length} từ được làm nổi bật bên trên
                         </p>
                     </motion.div>
@@ -215,13 +215,13 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-2 border-cyan-500/50 rounded-2xl p-6 space-y-4"
+                            className=" bg-accent/20 border-2 border-accent/50 rounded-2xl p-6 space-y-4"
                         >
                             <div className="text-center space-y-2">
-                                <h3 className="text-xl font-bold text-white">
-                                    🎉 Part 2 Ready!
+                                <h3 className="text-xl font-bold text-ink">
+                                    Part 2 đã sẵn sàng
                                 </h3>
-                                <p className="text-slate-300 text-sm">
+                                <p className="text-ink-2 text-sm">
                                     Bạn đã hoàn thành 60% câu chuyện. Tiếp tục đọc phần kết?
                                 </p>
                             </div>
@@ -231,7 +231,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                     buttonPress();
                                     setShowComprehensionQuiz(true); // Show quiz instead of proceeding
                                 }}
-                                className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+                                className="w-full bg-accent hover:bg-accent-strong text-on-accent font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
                             >
                                 <span>Đọc Part 2</span>
                                 <ArrowRight className="w-5 h-5" />
@@ -245,19 +245,19 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4"
+                            className="bg-surface/60 border border-line/50 rounded-xl p-4"
                         >
                             <div className="flex items-center justify-between gap-4">
                                 <div>
-                                    <h3 className="text-sm font-semibold text-white mb-0.5">Hoàn thành câu chuyện</h3>
-                                    <p className="text-xs text-slate-400">Làm quiz để kiểm tra comprehension của bạn</p>
+                                    <h3 className="text-sm font-semibold text-ink mb-0.5">Hoàn thành câu chuyện</h3>
+                                    <p className="text-xs text-muted">Làm quiz để kiểm tra comprehension của bạn</p>
                                 </div>
                                 <button
                                     onClick={() => {
                                         buttonPress();
                                         setShowComprehensionQuiz(true);
                                     }}
-                                    className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-400 rounded-lg text-sm font-bold transition-all active:scale-95"
+                                    className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 bg-accent/20 hover:bg-accent-strong/30 border border-accent/30 hover:border-accent/50 text-accent rounded-lg text-sm font-bold transition-all active:scale-95"
                                 >
                                     <span>Làm Quiz</span>
                                     <ArrowRight className="w-4 h-4" />
@@ -276,9 +276,9 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="lg:hidden sticky bottom-0 bg-slate-900 p-4 text-center border-t border-slate-800"
+                    className="lg:hidden sticky bottom-0 bg-bg p-4 text-center border-t border-line"
                 >
-                    <p className="text-slate-500 text-sm">👇 Cuộn xuống để xem tiếp</p>
+                    <p className="text-muted text-sm">Cuộn xuống để xem tiếp</p>
                 </motion.div>
             )}
 
@@ -300,7 +300,7 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-slate-800 border-2 border-cyan-500/50 rounded-2xl p-6 z-50 shadow-2xl"
+                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md bg-surface border-2 border-accent/50 rounded-2xl p-6 z-50 shadow-2xl"
                         >
                             {/* Close button */}
                             <button
@@ -308,19 +308,19 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                     click();
                                     setSelectedVocab(null);
                                 }}
-                                className="absolute top-4 right-4 p-1.5 hover:bg-slate-700 rounded-lg transition-colors"
+                                className="absolute top-4 right-4 p-1.5 hover:bg-surface-2 rounded-lg transition-colors"
                             >
-                                <X className="w-5 h-5 text-slate-400" />
+                                <X className="w-5 h-5 text-muted" />
                             </button>
 
                             {/* Word */}
                             <div className="mb-4">
-                                <h2 className="text-3xl font-bold text-cyan-400 mb-2">
+                                <h2 className="text-3xl font-bold text-accent mb-2">
                                     {selectedVocab.word}
                                 </h2>
                                 <div className="flex items-center gap-3">
                                     {selectedVocab.ipa && (
-                                        <span className="text-slate-400 text-sm font-mono">
+                                        <span className="text-muted text-sm font-mono">
                                             {selectedVocab.ipa}
                                         </span>
                                     )}
@@ -332,38 +332,38 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                             utterance.rate = 0.8;
                                             speechSynthesis.speak(utterance);
                                         }}
-                                        className="p-1.5 bg-cyan-500/20 hover:bg-cyan-500/30 rounded-lg transition-colors"
+                                        className="p-1.5 bg-accent/20 hover:bg-accent-strong/30 rounded-lg transition-colors"
                                         title="Hear pronunciation"
                                     >
-                                        <Volume2 className="w-4 h-4 text-cyan-400" />
+                                        <Volume2 className="w-4 h-4 text-accent" />
                                     </button>
                                 </div>
                             </div>
 
                             {/* Definition */}
                             <div className="mb-4">
-                                <h3 className="text-xs uppercase tracking-wider text-slate-500 font-medium mb-2">
+                                <h3 className="text-xs uppercase font-mono text-muted font-medium mb-2">
                                     Meaning
                                 </h3>
-                                <p className="text-white text-sm">
+                                <p className="text-ink text-sm">
                                     {selectedVocab.translationHint}
                                 </p>
                             </div>
 
                             {/* Example Scenario */}
                             <div className="mb-4">
-                                <h3 className="text-xs uppercase tracking-wider text-slate-500 font-medium mb-2">
+                                <h3 className="text-xs uppercase font-mono text-muted font-medium mb-2">
                                     Example
                                 </h3>
-                                <p className="text-slate-300 text-sm italic leading-relaxed">
+                                <p className="text-ink-2 text-sm italic leading-relaxed">
                                     &ldquo;{selectedVocab.scenario || 'Không có ví dụ cho từ này.'}&rdquo;
                                 </p>
                             </div>
 
                             {/* Level Badge */}
-                            <div className="flex items-center justify-between pt-4 border-t border-slate-700">
-                                <span className="text-xs text-slate-500">Level</span>
-                                <span className="text-xs font-semibold text-cyan-400 uppercase">
+                            <div className="flex items-center justify-between pt-4 border-t border-line">
+                                <span className="text-xs text-muted">Level</span>
+                                <span className="text-xs font-semibold text-accent uppercase font-mono">
                                     {selectedVocab.level || 'intermediate'}
                                 </span>
                             </div>

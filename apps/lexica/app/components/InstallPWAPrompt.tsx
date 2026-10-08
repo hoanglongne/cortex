@@ -83,29 +83,29 @@ export default function InstallPWAPrompt() {
                         exit={{ y: 100, opacity: 0 }}
                         className="fixed bottom-20 left-4 right-4 z-40 md:left-auto md:right-6 md:max-w-sm"
                     >
-                        <div className="bg-slate-800 border border-cyan-500/30 rounded-xl p-4 shadow-xl relative">
+                        <div className="bg-surface border border-accent/30 rounded-xl p-4 shadow-xl relative">
                             <button
                                 onClick={handleDismiss}
-                                className="absolute -top-2 -right-2 p-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full transition-colors"
+                                className="absolute -top-2 -right-2 p-1.5 bg-surface-2 hover:bg-surface-3 border border-line-strong rounded-full transition-colors"
                             >
-                                <X className="w-4 h-4 text-slate-300" />
+                                <X className="w-4 h-4 text-ink-2" />
                             </button>
 
                             <div className="flex items-start gap-3">
-                                <div className="p-2.5 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-                                    <Download className="w-5 h-5 text-cyan-400" />
+                                <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg">
+                                    <Download className="w-5 h-5 text-accent" />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-white font-bold text-base mb-1">
+                                    <h3 className="text-ink font-bold text-base mb-1">
                                         Cài đặt Lexica
                                     </h3>
-                                    <p className="text-slate-400 text-sm mb-3">
+                                    <p className="text-muted text-sm mb-3">
                                         Học offline, nhanh hơn, trải nghiệm tốt hơn
                                     </p>
                                     <button
                                         onClick={handleInstallAndroid}
                                         disabled={isInstalling}
-                                        className="w-full px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full px-4 py-2.5 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isInstalling ? 'Đang cài...' : 'Cài ngay'}
                                     </button>
@@ -125,28 +125,28 @@ export default function InstallPWAPrompt() {
                         exit={{ y: 100, opacity: 0 }}
                         className="fixed bottom-20 left-4 right-4 z-40 md:left-auto md:right-6 md:max-w-sm"
                     >
-                        <div className="bg-slate-800 border border-cyan-500/30 rounded-xl p-4 shadow-xl relative">
+                        <div className="bg-surface border border-accent/30 rounded-xl p-4 shadow-xl relative">
                             <button
                                 onClick={handleDismiss}
-                                className="absolute -top-2 -right-2 p-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-full transition-colors"
+                                className="absolute -top-2 -right-2 p-1.5 bg-surface-2 hover:bg-surface-3 border border-line-strong rounded-full transition-colors"
                             >
-                                <X className="w-4 h-4 text-slate-300" />
+                                <X className="w-4 h-4 text-ink-2" />
                             </button>
 
                             <div className="flex items-start gap-3">
-                                <div className="p-2.5 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-                                    <Download className="w-5 h-5 text-cyan-400" />
+                                <div className="p-2.5 bg-accent/10 border border-accent/20 rounded-lg">
+                                    <Download className="w-5 h-5 text-accent" />
                                 </div>
                                 <div className="flex-1">
-                                    <h3 className="text-white font-bold text-base mb-1">
+                                    <h3 className="text-ink font-bold text-base mb-1">
                                         Cài đặt Lexica
                                     </h3>
-                                    <p className="text-slate-400 text-sm mb-3">
+                                    <p className="text-muted text-sm mb-3">
                                         Học offline, nhanh hơn, trải nghiệm tốt hơn
                                     </p>
                                     <button
                                         onClick={handleShowIOSInstructions}
-                                        className="w-full px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg font-medium transition-colors"
+                                        className="w-full px-4 py-2.5 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-colors"
                                     >
                                         Xem hướng dẫn
                                     </button>
@@ -175,28 +175,28 @@ export default function InstallPWAPrompt() {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-md z-50 bg-slate-800 border border-cyan-500/30 rounded-xl p-5 shadow-xl"
+                            className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-md z-50 bg-surface border border-accent/30 rounded-xl p-5 shadow-xl"
                         >
                             <button
                                 onClick={() => {
                                     setShowIOSInstructions(false);
                                     handleDismiss();
                                 }}
-                                className="absolute top-4 right-4 p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                                className="absolute top-4 right-4 p-2 hover:bg-surface-2 rounded-lg transition-colors"
                             >
-                                <X className="w-5 h-5 text-slate-400" />
+                                <X className="w-5 h-5 text-muted" />
                             </button>
 
                             <div className="space-y-5">
                                 {/* Header */}
                                 <div className="text-center">
-                                    <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl w-fit mx-auto mb-3">
-                                        <Download className="w-7 h-7 text-cyan-400" />
+                                    <div className="p-3 bg-accent/10 border border-accent/20 rounded-xl w-fit mx-auto mb-3">
+                                        <Download className="w-7 h-7 text-accent" />
                                     </div>
-                                    <h2 className="text-xl font-bold text-white mb-1.5">
+                                    <h2 className="text-xl font-bold text-ink mb-1.5">
                                         Cài đặt Lexica trên iOS
                                     </h2>
-                                    <p className="text-slate-400 text-sm">
+                                    <p className="text-muted text-sm">
                                         3 bước đơn giản
                                     </p>
                                 </div>
@@ -204,19 +204,19 @@ export default function InstallPWAPrompt() {
                                 {/* Steps */}
                                 <div className="space-y-3">
                                     {/* Step 1: Tap Share */}
-                                    <div className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                                        <div className="flex-shrink-0 w-7 h-7 bg-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                    <div className="flex items-start gap-3 p-3 bg-bg/50 rounded-lg border border-line">
+                                        <div className="flex-shrink-0 w-7 h-7 bg-accent rounded-full flex items-center justify-center text-on-accent text-sm font-bold">
                                             1
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-white font-medium text-sm mb-1.5">
-                                                Nhấn nút <span className="text-cyan-400">Share</span>
+                                            <p className="text-ink font-medium text-sm mb-1.5">
+                                                Nhấn nút <span className="text-accent">Share</span>
                                             </p>
                                             <div className="flex items-center gap-2">
-                                                <div className="p-1.5 bg-slate-700 rounded">
-                                                    <Share className="w-4 h-4 text-cyan-400" />
+                                                <div className="p-1.5 bg-surface-2 rounded">
+                                                    <Share className="w-4 h-4 text-accent" />
                                                 </div>
-                                                <span className="text-slate-400 text-xs">
+                                                <span className="text-muted text-xs">
                                                     Safari: thanh dưới | Chrome: góc phải thanh URL
                                                 </span>
                                             </div>
@@ -224,19 +224,19 @@ export default function InstallPWAPrompt() {
                                     </div>
 
                                     {/* Step 2: Add to Home Screen */}
-                                    <div className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                                        <div className="flex-shrink-0 w-7 h-7 bg-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                    <div className="flex items-start gap-3 p-3 bg-bg/50 rounded-lg border border-line">
+                                        <div className="flex-shrink-0 w-7 h-7 bg-accent rounded-full flex items-center justify-center text-on-accent text-sm font-bold">
                                             2
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-white font-medium text-sm mb-1.5">
-                                                Chọn <span className="text-cyan-400">&quot;Add to Home Screen&quot;</span>
+                                            <p className="text-ink font-medium text-sm mb-1.5">
+                                                Chọn <span className="text-accent">&quot;Add to Home Screen&quot;</span>
                                             </p>
                                             <div className="flex items-center gap-2">
-                                                <div className="p-1.5 bg-slate-700 rounded">
-                                                    <Plus className="w-4 h-4 text-cyan-400" />
+                                                <div className="p-1.5 bg-surface-2 rounded">
+                                                    <Plus className="w-4 h-4 text-accent" />
                                                 </div>
-                                                <span className="text-slate-400 text-xs">
+                                                <span className="text-muted text-xs">
                                                     Cuộn xuống trong menu
                                                 </span>
                                             </div>
@@ -244,15 +244,15 @@ export default function InstallPWAPrompt() {
                                     </div>
 
                                     {/* Step 3: Confirm */}
-                                    <div className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg border border-slate-700">
-                                        <div className="flex-shrink-0 w-7 h-7 bg-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                    <div className="flex items-start gap-3 p-3 bg-bg/50 rounded-lg border border-line">
+                                        <div className="flex-shrink-0 w-7 h-7 bg-accent rounded-full flex items-center justify-center text-on-accent text-sm font-bold">
                                             3
                                         </div>
                                         <div className="flex-1">
-                                            <p className="text-white font-medium text-sm mb-1">
-                                                Nhấn <span className="text-cyan-400">&quot;Add&quot;</span>
+                                            <p className="text-ink font-medium text-sm mb-1">
+                                                Nhấn <span className="text-accent">&quot;Add&quot;</span>
                                             </p>
-                                            <span className="text-slate-400 text-xs">
+                                            <span className="text-muted text-xs">
                                                 App sẽ xuất hiện trên Home Screen
                                             </span>
                                         </div>
@@ -260,13 +260,13 @@ export default function InstallPWAPrompt() {
                                 </div>
 
                                 {/* Footer */}
-                                <div className="pt-4 border-t border-slate-700">
+                                <div className="pt-4 border-t border-line">
                                     <button
                                         onClick={() => {
                                             setShowIOSInstructions(false);
                                             handleDismiss();
                                         }}
-                                        className="w-full px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg font-medium transition-colors"
+                                        className="w-full px-4 py-2.5 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-colors"
                                     >
                                         Đã hiểu
                                     </button>

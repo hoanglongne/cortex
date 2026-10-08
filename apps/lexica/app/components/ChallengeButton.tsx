@@ -44,12 +44,12 @@ export default function ChallengeButton({ gameType, score }: ChallengeButtonProp
                     onKeyDown={e => e.key === 'Enter' && nickname.trim() && create(nickname)}
                     placeholder="Tên hiển thị của bạn..."
                     maxLength={20}
-                    className="flex-1 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-500 transition-colors"
+                    className="flex-1 px-3 py-2 bg-surface-2 border border-line-strong rounded-lg text-ink placeholder-muted text-sm focus:outline-none focus:border-accent transition-colors"
                 />
                 <button
                     onClick={() => nickname.trim() && create(nickname)}
                     disabled={!nickname.trim()}
-                    className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:opacity-40 text-white rounded-lg text-sm font-medium transition-all"
+                    className="px-4 py-2 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent rounded-lg text-sm font-medium transition-all"
                 >
                     OK
                 </button>
@@ -61,14 +61,14 @@ export default function ChallengeButton({ gameType, score }: ChallengeButtonProp
         <button
             onClick={handleClick}
             disabled={status !== 'idle'}
-            className="w-full py-3 px-4 bg-slate-700 hover:bg-slate-600 disabled:opacity-60 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2 text-sm"
+            className="w-full py-3 px-4 bg-surface-2 hover:bg-surface-3 disabled:opacity-60 text-ink rounded-xl font-medium transition-all flex items-center justify-center gap-2 text-sm"
         >
             {status === 'done' ? (
-                <><span className="text-cyan-300">Copied! Hãy gửi cho bạn bè link này nhaaa!</span></>
+                <><span className="text-accent">Copied! Hãy gửi cho bạn bè link này nhaaa!</span></>
             ) : status === 'creating' ? (
-                <><div className="w-4 h-4 border border-white/50 border-t-white rounded-full animate-spin" /> Đang tạo link...</>
+                <><div className="w-4 h-4 border border-ink/50 border-t-ink rounded-full animate-spin" /> Đang tạo link...</>
             ) : (
-                <><Swords className="w-4 h-4 text-cyan-400" /> Thách bạn bè!</>
+                <><Swords className="w-4 h-4 text-accent" /> Thách bạn bè!</>
             )}
         </button>
     );

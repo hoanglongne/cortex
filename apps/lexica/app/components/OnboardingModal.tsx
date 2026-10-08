@@ -14,16 +14,16 @@ interface OnboardingModalProps {
 const STEPS = [
     {
         icon: Zap,
-        iconColor: 'text-cyan-400',
-        iconBg: 'bg-cyan-500/15 border-cyan-500/30',
+        iconColor: 'text-accent',
+        iconBg: 'bg-accent/15 border-accent/30',
         title: 'Chào mừng đến LEXICA',
         body: 'LEXICA giúp bạn học từ vựng tiếng Anh theo cách tốt nhất: học bằng ngữ cảnh thực tế, ôn tập đúng lúc trước khi quên.',
-        detail: 'Mỗi ngày bạn có 30 năng lượng ⚡. Hết năng lượng → nghỉ ngơi → hôm sau học tiếp.',
+        detail: 'Mỗi ngày bạn có 30 năng lượng. Hết năng lượng → nghỉ ngơi → hôm sau học tiếp.',
     },
     {
         icon: User,
-        iconColor: 'text-purple-400',
-        iconBg: 'bg-purple-500/15 border-purple-500/30',
+        iconColor: 'text-accent',
+        iconBg: 'bg-accent/15 border-accent/30',
         title: 'Chọn ngữ cảnh học phù hợp',
         body: 'Bạn muốn học từ vựng trong ngữ cảnh nào? Điều này giúp LEXICA cá nhân hóa các tình huống thực tế phù hợp với cuộc sống của bạn.',
         detail: null,
@@ -31,53 +31,53 @@ const STEPS = [
     },
     {
         icon: BookOpen,
-        iconColor: 'text-cyan-400',
-        iconBg: 'bg-cyan-500/15 border-cyan-500/30',
+        iconColor: 'text-accent',
+        iconBg: 'bg-accent/15 border-accent/30',
         title: 'Quẹt để học',
         body: 'Mỗi card có một tình huống thực tế. Đọc tình huống, đoán từ và đưa ra quyết định:',
         detail: 'Nếu là từ đang ôn tập, bạn phải trả lời đúng Quiz trên thẻ mới được tính là "Chính xác".',
         cards: [
-            { icon: '←', label: 'Bỏ qua / Quên', desc: 'Từ mới (không tốn ⚡) hoặc Chưa thuộc (ôn lại)', color: 'border-slate-700 bg-slate-800/50 text-slate-400' },
-            { icon: '→', label: 'Ghi nhớ', desc: 'Học từ mới (tốn 1 ⚡) và bắt đầu hành trình SRS', color: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-300' },
-            { icon: '✓', label: 'Đã biết', desc: 'Bỏ qua học, đánh dấu "Thành thạo" ngay lập tức', color: 'border-amber-500/40 bg-amber-500/10 text-amber-300' },
+            { icon: '←', label: 'Bỏ qua / Quên', desc: 'Từ mới (không tốn năng lượng) hoặc Chưa thuộc (ôn lại)', color: 'border-line bg-surface/50 text-muted' },
+            { icon: '→', label: 'Ghi nhớ', desc: 'Học từ mới (tốn 1 năng lượng) và bắt đầu hành trình SRS', color: 'border-accent/40 bg-accent/10 text-accent' },
+            { icon: '✓', label: 'Đã biết', desc: 'Bỏ qua học, đánh dấu "Thành thạo" ngay lập tức', color: 'border-warning/40 bg-warning/10 text-warning' },
         ],
     },
     {
         icon: Mic,
-        iconColor: 'text-cyan-400',
-        iconBg: 'bg-cyan-500/15 border-cyan-500/30',
+        iconColor: 'text-accent',
+        iconBg: 'bg-accent/15 border-accent/30',
         title: 'Voice Mode',
         body: 'Bật Voice Mode để luyện phát âm. Thay vì quẹt tay, bạn phải nói đúng từ 3 lần liên tiếp mới được "nhớ".',
-        detail: 'Boss Card 🗡️ luôn yêu cầu Voice Mode, kể cả khi bạn đang ở Touch Mode.',
+        detail: 'Boss Card luôn yêu cầu Voice Mode, kể cả khi bạn đang ở Touch Mode.',
     },
     {
         icon: Trophy,
-        iconColor: 'text-amber-400',
-        iconBg: 'bg-amber-500/15 border-amber-500/30',
+        iconColor: 'text-warning',
+        iconBg: 'bg-warning/15 border-warning/30',
         title: 'Hệ thống ôn tập thông minh',
         body: 'Mỗi từ bạn học sẽ được lên lịch ôn tập tự động: 1 ngày → 3 ngày → 7 ngày → 14 ngày.',
         detail: 'Swipe Deck chỉ chứa tối đa 3 từ ôn tập để ưu tiên từ mới. Hãy vào trang "Ôn tập" để giải quyết hết các từ đến hạn.',
     },
     {
         icon: Sprout,
-        iconColor: 'text-cyan-400',
-        iconBg: 'bg-cyan-500/15 border-cyan-500/30',
+        iconColor: 'text-accent',
+        iconBg: 'bg-accent/15 border-accent/30',
         title: 'Trạng thái từ vựng',
         body: 'Tiến độ "Thành thạo" phản ánh số lượng từ thực sự nằm trong trí nhớ dài hạn của bạn:',
         detail: null,
         cards: [
-            { icon: <Sprout className="w-4 h-4" />, label: 'Seed — Mầm non', desc: 'Mới gặp, chưa vào bộ nhớ dài hạn', color: 'border-slate-700 bg-slate-800/50 text-slate-500' },
-            { icon: <Leaf className="w-4 h-4" />, label: 'Sprout — Đang nhớ', desc: 'Đã ôn 1–2 lần, đang củng cố', color: 'border-cyan-500/40 bg-cyan-500/10 text-cyan-500' },
-            { icon: <Sparkles className="w-4 h-4" />, label: 'Gold — Thuộc tốt', desc: 'Nhớ vững, ôn thưa dần', color: 'border-cyan-400/40 bg-cyan-500/20 text-cyan-400' },
-            { icon: <Trophy className="w-4 h-4" />, label: 'Mastered — Thành thạo', desc: 'Nhớ lâu dài, hoàn thành mục tiêu', color: 'border-amber-500/40 bg-amber-500/10 text-amber-400' },
+            { icon: <Sprout className="w-4 h-4" />, label: 'Seed — Mầm non', desc: 'Mới gặp, chưa vào bộ nhớ dài hạn', color: 'border-line bg-surface/50 text-muted' },
+            { icon: <Leaf className="w-4 h-4" />, label: 'Sprout — Đang nhớ', desc: 'Đã ôn 1–2 lần, đang củng cố', color: 'border-accent/40 bg-accent/10 text-accent' },
+            { icon: <Sparkles className="w-4 h-4" />, label: 'Gold — Thuộc tốt', desc: 'Nhớ vững, ôn thưa dần', color: 'border-accent/40 bg-accent/20 text-accent' },
+            { icon: <Trophy className="w-4 h-4" />, label: 'Mastered — Thành thạo', desc: 'Nhớ lâu dài, hoàn thành mục tiêu', color: 'border-warning/40 bg-warning/10 text-warning' },
         ],
     },
     {
         icon: Flame,
-        iconColor: 'text-orange-400',
-        iconBg: 'bg-orange-500/15 border-orange-500/30',
+        iconColor: 'text-warning',
+        iconBg: 'bg-warning/15 border-warning/30',
         title: 'Streak & Trang "Đã học"',
-        body: 'Mỗi ngày bạn swipe ít nhất 1 từ = +1 streak 🔥. Bỏ 1 ngày là streak về 0. Đạt các mốc 7, 14, 30, 60, 100 ngày để tự hào.',
+        body: 'Mỗi ngày bạn swipe ít nhất 1 từ = +1 streak. Bỏ 1 ngày là streak về 0. Đạt các mốc 7, 14, 30, 60, 100 ngày để tự hào.',
         detail: 'Vào trang "Đã học" để xem toàn bộ từ vựng đã học, lịch ôn tập SRS theo ngày, tiến trình Story Pack — và nhấn vào từng từ để xem chi tiết.',
     },
 ];
@@ -95,32 +95,32 @@ const PERSONA_OPTIONS: Array<{
             icon: User,
             label: 'Người học thường',
             description: 'Tình huống hàng ngày, giao tiếp đời sống',
-            color: 'text-cyan-400',
-            bgColor: 'border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20',
+            color: 'text-accent',
+            bgColor: 'border-accent/40 bg-accent/10 hover:bg-accent-strong/20',
         },
         {
             type: 'tech',
             icon: Laptop,
             label: 'Lập trình viên / Tech',
             description: 'Ngữ cảnh công nghệ, startup, lập trình',
-            color: 'text-purple-400',
-            bgColor: 'border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20',
+            color: 'text-accent',
+            bgColor: 'border-accent/40 bg-accent/10 hover:bg-accent-strong/20',
         },
         {
             type: 'business',
             icon: Briefcase,
             label: 'Doanh nghiệp / Chuyên nghiệp',
             description: 'Môi trường công sở, kinh doanh, thương mại',
-            color: 'text-amber-400',
-            bgColor: 'border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20',
+            color: 'text-warning',
+            bgColor: 'border-warning/40 bg-warning/10 hover:bg-warning/20',
         },
         {
             type: 'student',
             icon: GraduationCap,
             label: 'Học sinh / Sinh viên',
             description: 'Trường học, kỳ thi, học thuật',
-            color: 'text-emerald-400',
-            bgColor: 'border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20',
+            color: 'text-accent',
+            bgColor: 'border-accent/40 bg-accent/10 hover:bg-accent-strong/20',
         },
     ];
 
@@ -166,7 +166,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                 initial={{ y: '100%', opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-                className="relative w-full max-w-md bg-slate-800 border border-slate-700 rounded-t-3xl sm:rounded-2xl p-6 pb-8 mx-0 sm:mx-4 overflow-hidden"
+                className="relative w-full max-w-md bg-surface border border-line rounded-t-3xl sm:rounded-2xl p-6 pb-8 mx-0 sm:mx-4 overflow-hidden"
             >
                 {/* Skip button */}
                 <button
@@ -174,7 +174,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                         click();
                         onComplete();
                     }}
-                    className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-700 transition-colors text-slate-400 hover:text-slate-200"
+                    className="absolute top-4 right-4 p-2 rounded-lg hover:bg-surface-2 transition-colors text-muted hover:text-ink"
                 >
                     <X className="w-4 h-4" />
                 </button>
@@ -184,7 +184,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                     {STEPS.map((_, i) => (
                         <div
                             key={i}
-                            className={`h-1 rounded-full transition-all duration-300 ${i === step ? 'bg-cyan-400 w-6' : i < step ? 'bg-cyan-600 w-3' : 'bg-slate-600 w-3'}`}
+                            className={`h-1 rounded-full transition-all duration-300 ${i === step ? 'bg-accent w-6' : i < step ? 'bg-accent w-3' : 'bg-surface-3 w-3'}`}
                         />
                     ))}
                 </div>
@@ -206,10 +206,10 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                         </div>
 
                         {/* Title */}
-                        <h2 className="text-xl font-bold text-white">{currentStep.title}</h2>
+                        <h2 className="text-xl font-bold text-ink">{currentStep.title}</h2>
 
                         {/* Body */}
-                        <p className="text-slate-300 text-sm leading-relaxed">{currentStep.body}</p>
+                        <p className="text-ink-2 text-sm leading-relaxed">{currentStep.body}</p>
 
                         {/* Persona Selection (step 2) */}
                         {isPersonaStep && (
@@ -224,14 +224,14 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                                                 click();
                                                 setSelectedPersona(persona.type);
                                             }}
-                                            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${isSelected ? persona.bgColor + ' ring-2 ring-offset-2 ring-offset-slate-800' : 'border-slate-600 bg-slate-700/30 hover:bg-slate-700/50'}`}
+                                            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${isSelected ? persona.bgColor + ' ring-2 ring-offset-2 ring-offset-slate-800' : 'border-line-strong bg-surface-2/30 hover:bg-surface-2/50'}`}
                                         >
-                                            <div className={`w-10 h-10 rounded-lg ${isSelected ? persona.bgColor : 'bg-slate-600/50'} flex items-center justify-center shrink-0`}>
-                                                <PersonaIcon className={`w-5 h-5 ${isSelected ? persona.color : 'text-slate-400'}`} />
+                                            <div className={`w-10 h-10 rounded-lg ${isSelected ? persona.bgColor : 'bg-surface-3/50'} flex items-center justify-center shrink-0`}>
+                                                <PersonaIcon className={`w-5 h-5 ${isSelected ? persona.color : 'text-muted'}`} />
                                             </div>
                                             <div className="text-left flex-1">
-                                                <p className={`font-semibold text-sm ${isSelected ? 'text-white' : 'text-slate-200'}`}>{persona.label}</p>
-                                                <p className={`text-xs mt-0.5 ${isSelected ? persona.color : 'text-slate-400'}`}>{persona.description}</p>
+                                                <p className={`font-semibold text-sm ${isSelected ? 'text-ink' : 'text-ink'}`}>{persona.label}</p>
+                                                <p className={`text-xs mt-0.5 ${isSelected ? persona.color : 'text-muted'}`}>{persona.description}</p>
                                             </div>
                                             {isSelected && (
                                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${persona.color}`}>
@@ -261,7 +261,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
                         {/* Detail */}
                         {currentStep.detail && (
-                            <p className="text-xs text-slate-400 bg-slate-700/50 rounded-lg px-3 py-2.5 leading-relaxed border border-slate-700">
+                            <p className="text-xs text-muted bg-surface-2/50 rounded-lg px-3 py-2.5 leading-relaxed border border-line">
                                 {currentStep.detail}
                             </p>
                         )}
@@ -276,7 +276,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                             goPrev();
                         }}
                         disabled={step === 0}
-                        className="p-2.5 rounded-xl border border-slate-600 text-slate-400 hover:border-slate-500 hover:text-slate-200 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="p-2.5 rounded-xl border border-line-strong text-muted hover:border-line-strong hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -287,7 +287,7 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                             goNext();
                         }}
                         disabled={isPersonaStep && !selectedPersona}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-cyan-500"
+                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent-strong"
                     >
                         {isLast ? 'Bắt đầu học!' : 'Tiếp theo'}
                         {!isLast && <ChevronRight className="w-4 h-4" />}

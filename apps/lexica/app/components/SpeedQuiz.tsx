@@ -217,24 +217,24 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-slate-800 border-0 md:border border-cyan-500/30 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative w-full min-h-full md:min-h-0"
+                        className="bg-surface border-0 md:border border-accent/30 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative w-full min-h-full md:min-h-0"
                     >
                         <button
                             onClick={() => {
                                 click();
                                 onClose();
                             }}
-                            className="absolute top-4 right-4 p-2 rounded-full bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                            className="absolute top-4 right-4 p-2 rounded-full bg-surface-2 text-muted hover:text-ink hover:bg-surface-3 transition-all"
                         >
                             <X className="w-5 h-5" />
                         </button>
 
                         <div className="text-center mb-6 sm:mb-8">
                             <div className="flex items-center justify-center gap-3 mb-3 sm:mb-4">
-                                <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-400" />
+                                <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-accent" />
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Speed Quiz</h2>
-                            <p className="text-sm sm:text-base text-slate-400">Ôn tập siêu tốc - Endless mode!</p>
+                            <h2 className="text-2xl sm:text-3xl font-bold text-ink mb-2">Speed Quiz</h2>
+                            <p className="text-sm sm:text-base text-muted">Ôn tập siêu tốc - Endless mode!</p>
                         </div>
 
                         <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
@@ -242,19 +242,19 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                             <button
                                 onClick={() => startGame('all')}
                                 disabled={learnedWordIds.length < 4}
-                                className="w-full p-3 sm:p-4 rounded-xl bg-slate-700/30 border border-cyan-500/30 hover:border-cyan-500 transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed group"
+                                className="w-full p-3 sm:p-4 rounded-xl bg-surface-2/30 border border-accent/30 hover:border-accent transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed group"
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 sm:gap-3">
-                                        <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400" />
+                                        <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
                                         <div className="text-left">
-                                            <div className="text-base sm:text-lg font-semibold text-white">Tất cả từ đã học</div>
-                                            <div className="text-xs sm:text-sm text-slate-400">{learnedWordIds.length} từ • High Score: {highScoreAll}</div>
+                                            <div className="text-base sm:text-lg font-semibold text-ink">Tất cả từ đã học</div>
+                                            <div className="text-xs sm:text-sm text-muted">{learnedWordIds.length} từ • High Score: {highScoreAll}</div>
                                         </div>
                                     </div>
                                 </div>
                                 {learnedWordIds.length < 4 && (
-                                    <p className="text-xs text-red-400 mt-2">Cần ít nhất 4 từ để chơi</p>
+                                    <p className="text-xs text-danger mt-2">Cần ít nhất 4 từ để chơi</p>
                                 )}
                             </button>
 
@@ -262,34 +262,34 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                             <button
                                 onClick={() => startGame('today')}
                                 disabled={todayWordIds.length < 4}
-                                className="w-full p-3 sm:p-4 rounded-xl bg-slate-700/30 border border-amber-500/30 hover:border-amber-500 transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed group"
+                                className="w-full p-3 sm:p-4 rounded-xl bg-surface-2/30 border border-warning/30 hover:border-warning transition-all hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed group"
                             >
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 sm:gap-3">
-                                        <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
+                                        <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-warning" />
                                         <div className="text-left">
-                                            <div className="text-base sm:text-lg font-semibold text-white">Từ học hôm nay</div>
-                                            <div className="text-xs sm:text-sm text-slate-400">{todayWordIds.length} từ • High Score: {highScoreToday}</div>
+                                            <div className="text-base sm:text-lg font-semibold text-ink">Từ học hôm nay</div>
+                                            <div className="text-xs sm:text-sm text-muted">{todayWordIds.length} từ • High Score: {highScoreToday}</div>
                                         </div>
                                     </div>
                                 </div>
                                 {todayWordIds.length < 4 && (
-                                    <p className="text-xs text-red-400 mt-2">Cần học ít nhất 4 từ hôm nay</p>
+                                    <p className="text-xs text-danger mt-2">Cần học ít nhất 4 từ hôm nay</p>
                                 )}
                             </button>
                         </div>
 
-                        <div className="bg-slate-900/50 rounded-lg p-3 sm:p-4 space-y-2 text-xs sm:text-sm text-slate-400">
+                        <div className="bg-bg/50 rounded-lg p-3 sm:p-4 space-y-2 text-xs sm:text-sm text-muted">
                             <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-cyan-400" />
+                                <Clock className="w-4 h-4 text-accent" />
                                 <span>Mỗi câu có {TIME_PER_QUESTION}s - Trả lời nhanh được bonus!</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Flame className="w-4 h-4 text-orange-400" />
+                                <Flame className="w-4 h-4 text-warning" />
                                 <span>Streak bonus: +{STREAK_BONUS_MULTIPLIER * 100}% điểm mỗi chuỗi đúng</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Target className="w-4 h-4 text-red-400" />
+                                <Target className="w-4 h-4 text-danger" />
                                 <span>Sai 1 câu = Game Over!</span>
                             </div>
                         </div>
@@ -301,46 +301,46 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-slate-800 border-0 md:border border-cyan-500/30 md:rounded-xl px-4 pb-4 pt-12 sm:p-6 md:p-8 relative w-full min-h-full md:min-h-0"
+                        className="bg-surface border-0 md:border border-accent/30 md:rounded-xl px-4 pb-4 pt-12 sm:p-6 md:p-8 relative w-full min-h-full md:min-h-0"
                     >
                         {/* Header Stats */}
                         <div className="flex items-center justify-between mb-4 sm:mb-6">
                             <div className="flex items-center gap-2 sm:gap-4">
                                 <div className="text-center">
-                                    <div className="text-[10px] sm:text-xs text-slate-500 uppercase mb-1">Score</div>
-                                    <div className="text-lg sm:text-2xl font-bold text-yellow-400">{score}</div>
+                                    <div className="text-[10px] sm:text-xs text-muted uppercase font-mono mb-1">Score</div>
+                                    <div className="text-lg sm:text-2xl font-bold text-warning">{score}</div>
                                 </div>
-                                <div className="w-px h-8 sm:h-10 bg-slate-700"></div>
+                                <div className="w-px h-8 sm:h-10 bg-surface-2"></div>
                                 <div className="text-center">
-                                    <div className="text-[10px] sm:text-xs text-slate-500 uppercase mb-1">Streak</div>
-                                    <div className="text-lg sm:text-2xl font-bold text-orange-400 flex items-center gap-1">
+                                    <div className="text-[10px] sm:text-xs text-muted uppercase font-mono mb-1">Streak</div>
+                                    <div className="text-lg sm:text-2xl font-bold text-warning flex items-center gap-1">
                                         {streak}
                                         {streak > 0 && <Flame className="w-4 h-4 sm:w-5 sm:h-5" />}
                                     </div>
                                 </div>
-                                <div className="w-px h-8 sm:h-10 bg-slate-700"></div>
+                                <div className="w-px h-8 sm:h-10 bg-surface-2"></div>
                                 <div className="text-center">
-                                    <div className="text-[10px] sm:text-xs text-slate-500 uppercase mb-1">Questions</div>
-                                    <div className="text-lg sm:text-2xl font-bold text-cyan-400">{questionCount + 1}</div>
+                                    <div className="text-[10px] sm:text-xs text-muted uppercase font-mono mb-1">Questions</div>
+                                    <div className="text-lg sm:text-2xl font-bold text-accent">{questionCount + 1}</div>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <div className="text-[10px] sm:text-xs text-slate-500 uppercase mb-1">High</div>
-                                <div className="text-base sm:text-xl font-bold text-slate-400">{currentHighScore}</div>
+                                <div className="text-[10px] sm:text-xs text-muted uppercase font-mono mb-1">High</div>
+                                <div className="text-base sm:text-xl font-bold text-muted">{currentHighScore}</div>
                             </div>
                         </div>
 
                         {/* Timer Bar */}
                         <div className="mb-6 sm:mb-8">
                             <div className="flex items-center justify-between text-sm mb-2">
-                                <span className="text-slate-500">Time Left</span>
-                                <span className={`font-bold font-mono ${timeLeft < 3 ? 'text-red-400 animate-pulse' : 'text-cyan-400'}`}>
+                                <span className="text-muted">Time Left</span>
+                                <span className={`font-bold font-mono ${timeLeft < 3 ? 'text-danger animate-pulse' : 'text-accent'}`}>
                                     {timeLeft.toFixed(1)}s
                                 </span>
                             </div>
-                            <div className="h-2 bg-slate-900 rounded-full overflow-hidden">
+                            <div className="h-2 bg-bg rounded-full overflow-hidden">
                                 <motion.div
-                                    className={`h-full ${timeLeft < 3 ? 'bg-red-500' : 'bg-cyan-500'}`}
+                                    className={`h-full ${timeLeft < 3 ? 'bg-danger' : 'bg-accent'}`}
                                     style={{ width: `${timeProgress}%` }}
                                     transition={{ duration: 0.1 }}
                                 />
@@ -350,10 +350,10 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                         {/* Question */}
                         <div className="mb-6 sm:mb-8">
                             <div className="text-center mb-4 sm:mb-6">
-                                <div className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 sm:mb-4">
+                                <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-ink mb-3 sm:mb-4">
                                     {currentQuestion.word}
                                 </div>
-                                <div className="text-sm sm:text-base text-slate-400">Chọn nghĩa đúng:</div>
+                                <div className="text-sm sm:text-base text-muted">Chọn nghĩa đúng:</div>
                             </div>
 
                             {/* Options */}
@@ -371,21 +371,21 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                                             onClick={() => handleAnswer(option)}
                                             disabled={showResult}
                                             className={`p-3 sm:p-4 rounded-xl text-left text-sm sm:text-base font-medium transition-all border ${showResult
-                                                ? isCorrectOption
-                                                    ? 'bg-green-500/20 border-green-500 text-green-300'
-                                                    : isSelected
-                                                        ? 'bg-red-500/20 border-red-500 text-red-300'
-                                                        : 'bg-slate-700/30 border-slate-600 text-slate-400'
-                                                : 'bg-slate-700/50 border-slate-600 hover:border-cyan-500 text-white'
-                                                }`}
+ ? isCorrectOption
+ ? 'bg-accent/20 border-accent text-accent'
+ : isSelected
+ ? 'bg-danger/20 border-danger text-danger'
+ : 'bg-surface-2/30 border-line-strong text-muted'
+ : 'bg-surface-2/50 border-line-strong hover:border-accent text-ink'
+ }`}
                                         >
                                             <div className="flex items-center gap-2 sm:gap-3">
-                                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-slate-900/50 flex items-center justify-center text-xs sm:text-sm font-bold">
+                                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-bg/50 flex items-center justify-center text-xs sm:text-sm font-bold">
                                                     {String.fromCharCode(65 + index)}
                                                 </div>
                                                 <span className="flex-1">{option}</span>
                                                 {showResult && isCorrectOption && (
-                                                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                                                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
                                                 )}
                                             </div>
                                         </motion.button>
@@ -401,9 +401,9 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                                 animate={{ scale: 1 }}
                                 className="text-center mt-4"
                             >
-                                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-orange-500/20 border border-orange-500/30 rounded-full">
-                                    <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-orange-400" />
-                                    <span className="text-orange-400 font-bold text-xs sm:text-base">
+                                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-warning/20 border border-warning/30 rounded-full">
+                                    <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-warning" />
+                                    <span className="text-warning font-bold text-xs sm:text-base">
                                         {(1 + streak * STREAK_BONUS_MULTIPLIER).toFixed(1)}x Multiplier!
                                     </span>
                                 </div>
@@ -417,16 +417,16 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-slate-800 border-0 md:border border-cyan-500/30 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative text-center w-full min-h-full md:min-h-0"
+                        className="bg-surface border-0 md:border border-accent/30 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative text-center w-full min-h-full md:min-h-0"
                     >
                         <div className="mb-6">
-                            <Trophy className="w-12 h-12 sm:w-16 sm:h-16 text-yellow-400 mx-auto mb-3 sm:mb-4" />
-                            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Game Over!</h2>
+                            <Trophy className="w-12 h-12 sm:w-16 sm:h-16 text-warning mx-auto mb-3 sm:mb-4" />
+                            <h2 className="text-2xl sm:text-3xl font-bold text-ink mb-2">Game Over!</h2>
                             {score > currentHighScore && (
                                 <motion.div
                                     initial={{ scale: 0 }}
                                     animate={{ scale: 1 }}
-                                    className="flex items-center justify-center gap-2 text-yellow-400 text-base sm:text-lg font-bold"
+                                    className="flex items-center justify-center gap-2 text-warning text-base sm:text-lg font-bold"
                                 >
                                     <Star className="w-4 h-4 sm:w-5 sm:h-5" />
                                     NEW HIGH SCORE!
@@ -436,17 +436,17 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                         </div>
 
                         <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
-                            <div className="bg-slate-900/50 rounded-xl p-3 sm:p-4">
-                                <div className="text-slate-500 text-xs sm:text-sm mb-1 sm:mb-2">Final Score</div>
-                                <div className="text-xl sm:text-3xl font-bold text-yellow-400">{score}</div>
+                            <div className="bg-bg/50 rounded-xl p-3 sm:p-4">
+                                <div className="text-muted text-xs sm:text-sm mb-1 sm:mb-2">Final Score</div>
+                                <div className="text-xl sm:text-3xl font-bold text-warning">{score}</div>
                             </div>
-                            <div className="bg-slate-900/50 rounded-xl p-3 sm:p-4">
-                                <div className="text-slate-500 text-xs sm:text-sm mb-1 sm:mb-2">Best Streak</div>
-                                <div className="text-xl sm:text-3xl font-bold text-orange-400">{bestStreak}</div>
+                            <div className="bg-bg/50 rounded-xl p-3 sm:p-4">
+                                <div className="text-muted text-xs sm:text-sm mb-1 sm:mb-2">Best Streak</div>
+                                <div className="text-xl sm:text-3xl font-bold text-warning">{bestStreak}</div>
                             </div>
-                            <div className="bg-slate-900/50 rounded-xl p-3 sm:p-4">
-                                <div className="text-slate-500 text-xs sm:text-sm mb-1 sm:mb-2">Questions</div>
-                                <div className="text-xl sm:text-3xl font-bold text-cyan-400">{questionCount}</div>
+                            <div className="bg-bg/50 rounded-xl p-3 sm:p-4">
+                                <div className="text-muted text-xs sm:text-sm mb-1 sm:mb-2">Questions</div>
+                                <div className="text-xl sm:text-3xl font-bold text-accent">{questionCount}</div>
                             </div>
                         </div>
 
@@ -456,7 +456,7 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                                     click();
                                     setGameState('menu');
                                 }}
-                                className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-bold text-base sm:text-lg transition-all"
+                                className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-accent hover:bg-accent-strong text-on-accent rounded-xl font-bold text-base sm:text-lg transition-all"
                             >
                                 Chơi lại
                             </button>
@@ -466,7 +466,7 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
                                     click();
                                     onClose();
                                 }}
-                                className="w-full py-3 px-6 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-all"
+                                className="w-full py-3 px-6 bg-surface-2 hover:bg-surface-3 text-ink rounded-xl font-medium transition-all"
                             >
                                 Đóng
                             </button>

@@ -175,7 +175,7 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
     };
 
     const getCellColor = (cell: Cell, row: number, col: number) => {
-        if (cell.isMarked) return 'bg-cyan-500/20 border-cyan-500';
+        if (cell.isMarked) return 'bg-accent/20 border-accent';
 
         // Highlight if part of bingo
         const inRow = grid[row].every(c => c.isMarked);
@@ -184,10 +184,10 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
         const inDiag2 = row + col === 2 && grid[0][2].isMarked && grid[1][1].isMarked && grid[2][0].isMarked;
 
         if (inRow || inCol || inDiag1 || inDiag2) {
-            return 'bg-cyan-500/10 border-cyan-500/50';
+            return 'bg-accent/10 border-accent/50';
         }
 
-        return 'bg-slate-700/50 border-slate-600 hover:border-pink-500';
+        return 'bg-surface-2/50 border-line-strong hover:border-danger';
     };
 
     return (
@@ -195,11 +195,11 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full md:max-w-2xl bg-slate-800 border-0 md:border border-slate-700 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
+                className="w-full md:max-w-2xl bg-surface border-0 md:border border-line md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
             >
                 <button
                     onClick={() => { click(); onClose(); }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-surface-2 text-muted hover:text-ink hover:bg-surface-3 transition-all"
                 >
                     <X className="w-5 h-5" />
                 </button>
@@ -207,10 +207,10 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                 {/* Header */}
                 <div className="text-center mb-4">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                        <Grid3x3 className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">Word Bingo</h2>
+                        <Grid3x3 className="w-6 h-6 sm:w-7 sm:h-7 text-accent" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-ink">Word Bingo</h2>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-400">
+                    <p className="text-xs sm:text-sm text-muted">
                         Hoàn thành hàng/cột/chéo để thắng!
                     </p>
                 </div>
@@ -221,10 +221,10 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-3"
                     >
-                        <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                            <Grid3x3 className="w-10 h-10 text-cyan-400 mx-auto mb-2" />
-                            <h3 className="text-base font-bold text-white mb-2">Cách chơi</h3>
-                            <div className="text-sm text-slate-300 space-y-1 text-left max-w-sm mx-auto">
+                        <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                            <Grid3x3 className="w-10 h-10 text-accent mx-auto mb-2" />
+                            <h3 className="text-base font-bold text-ink mb-2">Cách chơi</h3>
+                            <div className="text-sm text-ink-2 space-y-1 text-left max-w-sm mx-auto">
                                 <p>• Nhìn từ tiếng Anh</p>
                                 <p>• Click ô có nghĩa đúng trên lưới</p>
                                 <p>• Hoàn thành hàng/cột/chéo = Bingo!</p>
@@ -234,7 +234,7 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                         </div>
 
                         {highScore !== null && (
-                            <div className="flex items-center justify-center gap-2 text-sm text-cyan-400">
+                            <div className="flex items-center justify-center gap-2 text-sm text-accent">
                                 <Trophy className="w-4 h-4" />
                                 <span>High Score: {highScore}</span>
                             </div>
@@ -242,7 +242,7 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
 
                         <button
                             onClick={startGame}
-                            className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="px-8 py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Bắt đầu
                         </button>
@@ -262,19 +262,19 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                                     {[...Array(3)].map((_, i) => (
                                         <div
                                             key={i}
-                                            className={`w-5 h-5 rounded-full border-2 ${i < lives ? 'bg-red-500 border-red-400' : 'bg-slate-700 border-slate-600'
-                                                }`}
+                                            className={`w-5 h-5 rounded-full border-2 ${i < lives ? 'bg-danger border-danger' : 'bg-surface-2 border-line-strong'
+ }`}
                                         />
                                     ))}
                                 </div>
                                 <div className="flex items-center gap-1 text-sm">
-                                    <Sparkles className="w-4 h-4 text-cyan-400" />
-                                    <span className="text-cyan-400 font-bold">
+                                    <Sparkles className="w-4 h-4 text-accent" />
+                                    <span className="text-accent font-bold">
                                         {bingos} Bingo{bingos !== 1 ? 's' : ''}
                                     </span>
                                 </div>
                             </div>
-                            <div className="text-lg font-bold text-white">
+                            <div className="text-lg font-bold text-ink">
                                 {score}
                             </div>
                         </div>
@@ -285,14 +285,14 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className={`p-4 rounded-lg border-2 text-center transition-all ${feedback === 'correct'
-                                ? 'bg-green-500/10 border-green-500'
-                                : feedback === 'wrong'
-                                    ? 'bg-red-500/10 border-red-500'
-                                    : 'bg-slate-700/50 border-slate-600'
-                                }`}
+ ? 'bg-accent/10 border-accent'
+ : feedback === 'wrong'
+ ? 'bg-danger/10 border-danger'
+ : 'bg-surface-2/50 border-line-strong'
+ }`}
                         >
-                            <p className="text-xs text-slate-500 mb-1">Find the meaning:</p>
-                            <p className="text-xl sm:text-2xl font-bold text-cyan-400">
+                            <p className="text-xs text-muted mb-1">Find the meaning:</p>
+                            <p className="text-xl sm:text-2xl font-bold text-accent">
                                 {currentQuestion.word}
                             </p>
                         </motion.div>
@@ -308,12 +308,12 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                                         whileTap={{ scale: cell.isMarked ? 1 : 0.95 }}
                                         disabled={cell.isMarked || feedback !== null}
                                         className={`aspect-square rounded-lg border-2 p-2 flex items-center justify-center text-center transition-all ${getCellColor(cell, i, j)
-                                            }`}
+ }`}
                                     >
                                         {cell.isMarked ? (
-                                            <Sparkles className="w-6 h-6 text-cyan-400" />
+                                            <Sparkles className="w-6 h-6 text-accent" />
                                         ) : (
-                                            <span className="text-xs sm:text-sm font-medium text-slate-300 line-clamp-3">
+                                            <span className="text-xs sm:text-sm font-medium text-ink-2 line-clamp-3">
                                                 {cell.meaning}
                                             </span>
                                         )}
@@ -322,7 +322,7 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                             )}
                         </div>
 
-                        <div className="text-center text-xs text-slate-500">
+                        <div className="text-center text-xs text-muted">
                             {grid.flat().filter(c => c.isMarked).length}/9 marked
                         </div>
                     </motion.div>
@@ -334,25 +334,25 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-3"
                     >
-                        <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto">
-                            <X className="w-10 h-10 text-red-400" />
+                        <div className="w-16 h-16 bg-danger/20 rounded-full flex items-center justify-center mx-auto">
+                            <X className="w-10 h-10 text-danger" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white">Game Over!</h3>
+                        <h3 className="text-2xl font-bold text-ink">Game Over!</h3>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Score</p>
-                                <p className="text-xl font-bold text-cyan-400">{score}</p>
+                            <div className="p-3 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Score</p>
+                                <p className="text-xl font-bold text-accent">{score}</p>
                             </div>
-                            <div className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Bingos</p>
-                                <p className="text-xl font-bold text-white">{bingos}</p>
+                            <div className="p-3 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Bingos</p>
+                                <p className="text-xl font-bold text-ink">{bingos}</p>
                             </div>
                         </div>
 
                         <button
                             onClick={startGame}
-                            className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="w-full py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Try Again
                         </button>
@@ -365,22 +365,22 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-3"
                     >
-                        <Trophy className="w-16 h-16 text-cyan-400 mx-auto" />
-                        <h3 className="text-2xl font-bold text-white">BINGO!</h3>
+                        <Trophy className="w-16 h-16 text-accent mx-auto" />
+                        <h3 className="text-2xl font-bold text-ink">BINGO!</h3>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Score</p>
-                                <p className="text-xl font-bold text-cyan-400">{score}</p>
+                            <div className="p-3 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Score</p>
+                                <p className="text-xl font-bold text-accent">{score}</p>
                             </div>
-                            <div className="p-3 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Bingos</p>
-                                <p className="text-xl font-bold text-white">{bingos}</p>
+                            <div className="p-3 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Bingos</p>
+                                <p className="text-xl font-bold text-ink">{bingos}</p>
                             </div>
                         </div>
 
                         {highScore !== null && (
-                            <div className="flex items-center justify-center gap-2 text-sm text-cyan-400">
+                            <div className="flex items-center justify-center gap-2 text-sm text-accent">
                                 <Trophy className="w-4 h-4" />
                                 <span>High Score: {highScore}</span>
                             </div>
@@ -388,7 +388,7 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
 
                         <button
                             onClick={startGame}
-                            className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="w-full py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Play Again
                         </button>

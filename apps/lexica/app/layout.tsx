@@ -1,20 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Orbitron, Space_Grotesk } from "next/font/google";
+import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import CloudSync from "./components/CloudSync";
 
-// Cyberpunk-style fonts
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
-  subsets: ["latin"],
-  weight: ["400", "500", "700", "900"],
-});
-
+// Design system fonts (docs/DESIGN_SYSTEM.md). Vietnamese subset is required:
+// without it, accented letters fall back to the system font.
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -45,7 +46,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#0f172a",
+  themeColor: "#0E0F11",
 };
 
 export default function RootLayout({
@@ -56,9 +57,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${orbitron.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-900 text-white overflow-x-hidden" suppressHydrationWarning>
+      <body className="min-h-full flex flex-col bg-bg text-ink overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
           <CloudSync />
           {children}

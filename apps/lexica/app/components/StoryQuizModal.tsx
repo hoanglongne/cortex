@@ -132,29 +132,29 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.8, opacity: 0 }}
-                    className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-md z-50 bg-slate-800 border border-slate-700 rounded-2xl p-6"
+                    className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-md z-50 bg-surface border border-line rounded-2xl p-6"
                 >
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                        className="absolute top-4 right-4 p-2 hover:bg-surface-2 rounded-lg transition-colors"
                     >
-                        <X className="w-5 h-5 text-slate-400" />
+                        <X className="w-5 h-5 text-muted" />
                     </button>
 
                     <div className="text-center space-y-4">
-                        <div className="p-4 bg-amber-500/20 rounded-full w-fit mx-auto">
-                            <Brain className="w-12 h-12 text-amber-400" />
+                        <div className="p-4 bg-warning/20 rounded-full w-fit mx-auto">
+                            <Brain className="w-12 h-12 text-warning" />
                         </div>
-                        <h2 className="text-2xl font-bold text-white">Quiz Cooldown</h2>
-                        <p className="text-slate-400">
-                            Bạn cần đợi <span className="text-amber-400 font-bold">{minutesLeft} phút</span> nữa để thử lại quiz.
+                        <h2 className="text-2xl font-bold text-ink">Quiz Cooldown</h2>
+                        <p className="text-muted">
+                            Bạn cần đợi <span className="text-warning font-bold">{minutesLeft} phút</span> nữa để thử lại quiz.
                         </p>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-muted">
                             Hoặc học thêm từ để unlock tự nhiên!
                         </p>
                         <button
                             onClick={onClose}
-                            className="w-full px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors"
+                            className="w-full px-4 py-3 bg-surface-2 hover:bg-surface-3 text-ink rounded-lg font-medium transition-colors"
                         >
                             Đóng
                         </button>
@@ -178,25 +178,25 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.8, opacity: 0 }}
-                    className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-md z-50 bg-slate-800 border-2 border-cyan-500/50 rounded-2xl p-6"
+                    className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-md z-50 bg-surface border-2 border-accent/50 rounded-2xl p-6"
                 >
                     <div className="text-center space-y-6">
-                        <div className={`p-4 rounded-full w-fit mx-auto ${passed ? 'bg-cyan-500/20' : 'bg-red-500/20'}`}>
+                        <div className={`p-4 rounded-full w-fit mx-auto ${passed ? 'bg-accent/20' : 'bg-danger/20'}`}>
                             {passed ? (
-                                <CheckCircle className="w-16 h-16 text-cyan-400" />
+                                <CheckCircle className="w-16 h-16 text-accent" />
                             ) : (
-                                <XCircle className="w-16 h-16 text-red-400" />
+                                <XCircle className="w-16 h-16 text-danger" />
                             )}
                         </div>
 
                         <div>
-                            <h2 className={`text-3xl font-bold mb-2 ${passed ? 'text-cyan-400' : 'text-red-400'}`}>
+                            <h2 className={`text-3xl font-bold mb-2 ${passed ? 'text-accent' : 'text-danger'}`}>
                                 {score}/5
                             </h2>
-                            <p className="text-xl font-bold text-white mb-1">
-                                {passed ? '🎉 Passed!' : '💪 Try Again'}
+                            <p className="text-xl font-bold text-ink mb-1">
+                                {passed ? 'Đạt rồi!' : 'Thử lại nhé'}
                             </p>
-                            <p className="text-slate-400 text-sm">
+                            <p className="text-muted text-sm">
                                 {passed
                                     ? `Part ${part} đã được mở khóa!`
                                     : 'Bạn cần 4/5 để pass. Học thêm từ hoặc thử lại sau 1 giờ.'
@@ -212,20 +212,20 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                                     <div
                                         key={idx}
                                         className={`p-3 rounded-lg border ${correct
-                                            ? 'bg-cyan-500/10 border-cyan-500/30'
-                                            : 'bg-red-500/10 border-red-500/30'
-                                            }`}
+ ? 'bg-accent/10 border-accent/30'
+ : 'bg-danger/10 border-danger/30'
+ }`}
                                     >
                                         <div className="flex items-center gap-2">
                                             {correct ? (
-                                                <CheckCircle className="w-4 h-4 text-cyan-400" />
+                                                <CheckCircle className="w-4 h-4 text-accent" />
                                             ) : (
-                                                <XCircle className="w-4 h-4 text-red-400" />
+                                                <XCircle className="w-4 h-4 text-danger" />
                                             )}
-                                            <span className="text-white font-medium">{q.word}</span>
+                                            <span className="text-ink font-medium">{q.word}</span>
                                         </div>
                                         {!correct && (
-                                            <p className="text-xs text-slate-400 ml-6 mt-1">
+                                            <p className="text-xs text-muted ml-6 mt-1">
                                                 Đúng: {q.correctAnswer}
                                             </p>
                                         )}
@@ -236,7 +236,7 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
 
                         <button
                             onClick={onClose}
-                            className="w-full px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-lg font-bold transition-colors"
+                            className="w-full px-4 py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-bold transition-colors"
                         >
                             {passed ? 'Đọc Story!' : 'Đóng'}
                         </button>
@@ -258,33 +258,33 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.8, opacity: 0 }}
-                className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-lg z-50 bg-slate-800 border border-cyan-500/30 rounded-2xl p-6"
+                className="fixed inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-lg z-50 bg-surface border border-accent/30 rounded-2xl p-6"
             >
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 hover:bg-slate-700 rounded-lg transition-colors z-10"
+                    className="absolute top-4 right-4 p-2 hover:bg-surface-2 rounded-lg transition-colors z-10"
                 >
-                    <X className="w-5 h-5 text-slate-400" />
+                    <X className="w-5 h-5 text-muted" />
                 </button>
 
                 <div className="space-y-6">
                     {/* Header */}
                     <div className="text-center">
                         <div className="flex items-center justify-center gap-2 mb-2">
-                            <Brain className="w-6 h-6 text-cyan-400" />
-                            <h2 className="text-xl font-bold text-white">Story Quiz - Part {part}</h2>
+                            <Brain className="w-6 h-6 text-accent" />
+                            <h2 className="text-xl font-bold text-ink">Story Quiz - Part {part}</h2>
                         </div>
-                        <p className="text-slate-400 text-sm">{story.title}</p>
+                        <p className="text-muted text-sm">{story.title}</p>
                         <div className="flex items-center justify-center gap-2 mt-3">
                             {questions.map((_, idx) => (
                                 <div
                                     key={idx}
                                     className={`h-1.5 flex-1 rounded-full ${idx < currentQuestion
-                                        ? 'bg-cyan-400'
-                                        : idx === currentQuestion
-                                            ? 'bg-cyan-500/50'
-                                            : 'bg-slate-700'
-                                        }`}
+ ? 'bg-accent'
+ : idx === currentQuestion
+ ? 'bg-accent/50'
+ : 'bg-surface-2'
+ }`}
                                 />
                             ))}
                         </div>
@@ -299,9 +299,9 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                             exit={{ opacity: 0, x: -20 }}
                             className="space-y-4"
                         >
-                            <div className="bg-slate-900/50 border border-slate-700 rounded-lg p-6 text-center">
-                                <p className="text-sm text-slate-500 mb-2">What does this word mean?</p>
-                                <p className="text-3xl font-bold text-white">{currentQ.word}</p>
+                            <div className="bg-bg/50 border border-line rounded-lg p-6 text-center">
+                                <p className="text-sm text-muted mb-2">What does this word mean?</p>
+                                <p className="text-3xl font-bold text-ink">{currentQ.word}</p>
                             </div>
 
                             <div className="grid grid-cols-1 gap-3">
@@ -311,9 +311,9 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                                         whileHover={{ scale: 1.02 }}
                                         whileTap={{ scale: 0.98 }}
                                         onClick={() => handleAnswer(option)}
-                                        className="p-4 bg-slate-700/50 hover:bg-cyan-500/20 border border-slate-600 hover:border-cyan-500/50 rounded-lg text-left transition-all group"
+                                        className="p-4 bg-surface-2/50 hover:bg-accent-strong/20 border border-line-strong hover:border-accent/50 rounded-lg text-left transition-all group"
                                     >
-                                        <span className="text-white font-medium group-hover:text-cyan-400 transition-colors">
+                                        <span className="text-ink font-medium group-hover:text-accent transition-colors">
                                             {option}
                                         </span>
                                     </motion.button>
@@ -322,7 +322,7 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
                         </motion.div>
                     </AnimatePresence>
 
-                    <p className="text-center text-xs text-slate-500">
+                    <p className="text-center text-xs text-muted">
                         Cần 4/5 đúng để unlock • Question {currentQuestion + 1}/5
                     </p>
                 </div>

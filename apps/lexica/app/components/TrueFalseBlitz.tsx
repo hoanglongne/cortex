@@ -156,11 +156,11 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full md:max-w-2xl bg-slate-800 border-0 md:border border-slate-700 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
+                className="w-full md:max-w-2xl bg-surface border-0 md:border border-line md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
             >
                 <button
                     onClick={() => { click(); onClose(); }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-surface-2 text-muted hover:text-ink hover:bg-surface-3 transition-all"
                 >
                     <XIcon className="w-5 h-5" />
                 </button>
@@ -168,10 +168,10 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                 {/* Header */}
                 <div className="text-center mb-6">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                        <Check className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">True/False Blitz</h2>
+                        <Check className="w-6 h-6 sm:w-7 sm:h-7 text-accent" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-ink">True/False Blitz</h2>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-400">
+                    <p className="text-xs sm:text-sm text-muted">
                         60 giây - trả lời True/False nhiều nhất có thể!
                     </p>
                 </div>
@@ -182,10 +182,10 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-4"
                     >
-                        <div className="p-6 bg-slate-700/50 rounded-lg border border-slate-600">
-                            <Check className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-                            <h3 className="text-lg font-bold text-white mb-2">Cách chơi</h3>
-                            <div className="text-sm text-slate-300 space-y-1 text-left max-w-sm mx-auto">
+                        <div className="p-6 bg-surface-2/50 rounded-lg border border-line-strong">
+                            <Check className="w-12 h-12 text-accent mx-auto mb-3" />
+                            <h3 className="text-lg font-bold text-ink mb-2">Cách chơi</h3>
+                            <div className="text-sm text-ink-2 space-y-1 text-left max-w-sm mx-auto">
                                 <p>• Xem cặp từ - nghĩa</p>
                                 <p>• Nhấn TRUE nếu đúng, FALSE nếu sai</p>
                                 <p>• Càng nhanh càng nhiều điểm</p>
@@ -194,7 +194,7 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                         </div>
 
                         {highScore !== null && (
-                            <div className="flex items-center justify-center gap-2 text-sm text-cyan-400">
+                            <div className="flex items-center justify-center gap-2 text-sm text-accent">
                                 <Trophy className="w-4 h-4" />
                                 <span>High Score: {highScore}</span>
                             </div>
@@ -202,7 +202,7 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
 
                         <button
                             onClick={startGame}
-                            className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="px-8 py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Bắt đầu
                         </button>
@@ -218,15 +218,15 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                         {/* Stats Bar */}
                         <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2 text-sm">
-                                <Clock className="w-4 h-4 text-cyan-400" />
-                                <span className={`font-bold ${time <= 10 ? 'text-red-400' : 'text-white'}`}>
+                                <Clock className="w-4 h-4 text-accent" />
+                                <span className={`font-bold ${time <= 10 ? 'text-danger' : 'text-ink'}`}>
                                     {time}s
                                 </span>
                             </div>
-                            <div className="text-sm text-slate-400">
+                            <div className="text-sm text-muted">
                                 {answered} answered
                             </div>
-                            <div className="text-lg font-bold text-white">
+                            <div className="text-lg font-bold text-ink">
                                 {score}
                             </div>
                         </div>
@@ -237,29 +237,29 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className={`p-8 rounded-lg border-2 text-center transition-all ${feedback === 'correct'
-                                ? 'bg-green-500/10 border-green-500'
-                                : feedback === 'wrong'
-                                    ? 'bg-red-500/10 border-red-500'
-                                    : 'bg-slate-700/50 border-slate-600'
-                                }`}
+ ? 'bg-accent/10 border-accent'
+ : feedback === 'wrong'
+ ? 'bg-danger/10 border-danger'
+ : 'bg-surface-2/50 border-line-strong'
+ }`}
                         >
-                            <p className="text-sm text-slate-500 mb-4">Is this correct?</p>
+                            <p className="text-sm text-muted mb-4">Is this correct?</p>
 
                             <div className="space-y-3">
-                                <div className="p-4 bg-slate-800/50 rounded-lg">
-                                    <p className="text-xs text-cyan-400 mb-1">English</p>
-                                    <p className="text-2xl sm:text-3xl font-bold text-white">
+                                <div className="p-4 bg-surface/50 rounded-lg">
+                                    <p className="text-xs text-accent mb-1">English</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-ink">
                                         {currentQuestion.word}
                                     </p>
                                 </div>
 
-                                <div className="flex items-center justify-center text-slate-500 my-2">
-                                    <div className="w-8 h-0.5 bg-slate-600"></div>
+                                <div className="flex items-center justify-center text-muted my-2">
+                                    <div className="w-8 h-0.5 bg-surface-3"></div>
                                 </div>
 
-                                <div className="p-4 bg-slate-800/50 rounded-lg">
-                                    <p className="text-xs text-slate-400 mb-1">Tiếng Việt</p>
-                                    <p className="text-xl sm:text-2xl font-bold text-white">
+                                <div className="p-4 bg-surface/50 rounded-lg">
+                                    <p className="text-xs text-muted mb-1">Tiếng Việt</p>
+                                    <p className="text-xl sm:text-2xl font-bold text-ink">
                                         {currentQuestion.meaning}
                                     </p>
                                 </div>
@@ -271,7 +271,7 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                             <button
                                 onClick={() => handleAnswer(true)}
                                 disabled={feedback !== null}
-                                className="py-6 bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 hover:border-cyan-500 disabled:opacity-50 text-slate-300 hover:text-white rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-2"
+                                className="py-6 bg-surface-2 hover:bg-surface-3 border-2 border-line-strong hover:border-accent disabled:opacity-50 text-ink-2 hover:text-ink rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-2"
                             >
                                 <Check className="w-6 h-6" />
                                 TRUE
@@ -279,7 +279,7 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                             <button
                                 onClick={() => handleAnswer(false)}
                                 disabled={feedback !== null}
-                                className="py-6 bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 hover:border-cyan-500 disabled:opacity-50 text-slate-300 hover:text-white rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-2"
+                                className="py-6 bg-surface-2 hover:bg-surface-3 border-2 border-line-strong hover:border-accent disabled:opacity-50 text-ink-2 hover:text-ink rounded-lg font-bold text-lg transition-all flex items-center justify-center gap-2"
                             >
                                 <XIcon className="w-6 h-6" />
                                 FALSE
@@ -287,8 +287,8 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                         </div>
 
                         {/* Accuracy */}
-                        <div className="text-center text-sm text-slate-400">
-                            Accuracy: <span className={correctCount / answered >= 0.8 ? 'text-green-400' : 'text-slate-300'}>
+                        <div className="text-center text-sm text-muted">
+                            Accuracy: <span className={correctCount / answered >= 0.8 ? 'text-accent' : 'text-ink-2'}>
                                 {accuracy}%
                             </span>
                         </div>
@@ -301,31 +301,31 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-4"
                     >
-                        <Trophy className="w-16 h-16 text-cyan-400 mx-auto" />
-                        <h3 className="text-2xl font-bold text-white">Time&apos;s Up!</h3>
+                        <Trophy className="w-16 h-16 text-accent mx-auto" />
+                        <h3 className="text-2xl font-bold text-ink">Time&apos;s Up!</h3>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Score</p>
-                                <p className="text-2xl font-bold text-cyan-400">{score}</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Score</p>
+                                <p className="text-2xl font-bold text-accent">{score}</p>
                             </div>
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Answered</p>
-                                <p className="text-2xl font-bold text-white">{answered}</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Answered</p>
+                                <p className="text-2xl font-bold text-ink">{answered}</p>
                             </div>
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Accuracy</p>
-                                <p className="text-2xl font-bold text-cyan-400">{accuracy}%</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Accuracy</p>
+                                <p className="text-2xl font-bold text-accent">{accuracy}%</p>
                             </div>
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">High Score</p>
-                                <p className="text-2xl font-bold text-cyan-400">{highScore}</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">High Score</p>
+                                <p className="text-2xl font-bold text-accent">{highScore}</p>
                             </div>
                         </div>
 
                         <button
                             onClick={startGame}
-                            className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="w-full py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Play Again
                         </button>

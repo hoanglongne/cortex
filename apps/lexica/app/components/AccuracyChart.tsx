@@ -45,7 +45,7 @@ export default function AccuracyChart({ studyHistory }: AccuracyChartProps) {
 
     if (data.length === 0) {
         return (
-            <div className="flex items-center justify-center py-16 text-slate-500">
+            <div className="flex items-center justify-center py-16 text-muted">
                 <p className="text-sm">Chưa có dữ liệu accuracy</p>
             </div>
         );
@@ -69,33 +69,33 @@ export default function AccuracyChart({ studyHistory }: AccuracyChartProps) {
                 <AreaChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
                     <defs>
                         <linearGradient id="accuracyGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity={0.4} />
-                            <stop offset="100%" stopColor="#10b981" stopOpacity={0.05} />
+                            <stop offset="0%" stopColor="#C6F432" stopOpacity={0.4} />
+                            <stop offset="100%" stopColor="#C6F432" stopOpacity={0.05} />
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#26282D" opacity={0.3} />
                     <XAxis
                         dataKey="date"
-                        stroke="#64748b"
-                        tick={{ fill: '#64748b', fontSize: 11 }}
-                        tickLine={{ stroke: '#475569' }}
+                        stroke="#6B6E75"
+                        tick={{ fill: '#6B6E75', fontSize: 11 }}
+                        tickLine={{ stroke: '#34373D' }}
                     />
                     <YAxis
-                        stroke="#64748b"
-                        tick={{ fill: '#64748b', fontSize: 11 }}
-                        tickLine={{ stroke: '#475569' }}
+                        stroke="#6B6E75"
+                        tick={{ fill: '#6B6E75', fontSize: 11 }}
+                        tickLine={{ stroke: '#34373D' }}
                         domain={[0, 100]}
                         tickFormatter={(value) => `${value}%`}
                     />
                     <Tooltip
                         contentStyle={{
-                            backgroundColor: '#1e293b',
-                            border: '1px solid #334155',
+                            backgroundColor: '#16171A',
+                            border: '1px solid #26282D',
                             borderRadius: '8px',
                             fontSize: '12px',
                         }}
-                        labelStyle={{ color: '#e2e8f0', fontWeight: 'bold' }}
-                        itemStyle={{ color: '#10b981' }}
+                        labelStyle={{ color: '#EDEEF0', fontWeight: 'bold' }}
+                        itemStyle={{ color: '#C6F432' }}
                         formatter={(value, name) => {
                             if (value === undefined || typeof value !== 'number') return ['N/A', name];
                             if (name === 'accuracy') return [`${value}%`, 'Accuracy'];
@@ -104,23 +104,23 @@ export default function AccuracyChart({ studyHistory }: AccuracyChartProps) {
                     />
                     <ReferenceLine
                         y={avgAccuracy}
-                        stroke="#64748b"
+                        stroke="#6B6E75"
                         strokeDasharray="5 5"
                         label={{
                             value: `TB: ${avgAccuracy}%`,
                             position: 'right',
-                            fill: '#64748b',
+                            fill: '#6B6E75',
                             fontSize: 11,
                         }}
                     />
                     <Area
                         type="monotone"
                         dataKey="accuracy"
-                        stroke="#10b981"
+                        stroke="#C6F432"
                         strokeWidth={2}
                         fill="url(#accuracyGradient)"
-                        dot={{ fill: '#10b981', r: 3 }}
-                        activeDot={{ r: 5, fill: '#059669' }}
+                        dot={{ fill: '#C6F432', r: 3 }}
+                        activeDot={{ r: 5, fill: '#A3C928' }}
                     />
                 </AreaChart>
             </ResponsiveContainer>

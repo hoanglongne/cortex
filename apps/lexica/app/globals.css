@@ -1,28 +1,50 @@
 @import "tailwindcss";
 
-:root {
-  --background: #0f172a;
-  /* slate-900 */
-  --foreground: #f1f5f9;
-  /* slate-100 */
-  --cyber-cyan: #06b6d4;
-  --cyber-pink: #ec4899;
-  --cyber-purple: #a855f7;
-  --cyber-green: #10b981;
+/*
+ * LEXICA design system ("Focus").
+ * Spec and usage rules: docs/DESIGN_SYSTEM.md. Use these semantic tokens
+ * (bg-surface, text-muted, border-line, bg-accent, text-danger...) instead
+ * of raw Tailwind palette colors.
+ */
+@theme {
+  /* Surfaces: darkest to lightest */
+  --color-bg: #0E0F11;
+  --color-surface: #16171A;
+  --color-surface-2: #1E2024;
+  --color-surface-3: #26282D;
+
+  /* Lines */
+  --color-line: #26282D;
+  --color-line-strong: #34373D;
+
+  /* Text */
+  --color-ink: #EDEEF0;
+  --color-ink-2: #C4C6CB;
+  --color-muted: #9A9DA3;
+  --color-subtle: #6B6E75;
+
+  /* Accent: the one brand color. Also means "correct / known". */
+  --color-accent: #C6F432;
+  --color-accent-strong: #DBFF6E;
+  --color-on-accent: #0E0F11;
+
+  /* Status */
+  --color-danger: #FF6B5B;
+  --color-warning: #F5B83D;
+  --color-on-status: #0E0F11;
+
+  /* Type */
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+
+  /* Shape: Tailwind's default radius scale (see DESIGN_SYSTEM.md) */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-space-grotesk);
-  --font-display: var(--font-orbitron);
-}
-
-/* Cyber-Arcade Global Styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-space-grotesk), system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -54,17 +76,17 @@ button {
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: var(--color-surface);
   border-radius: 4px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: var(--color-line-strong);
   border-radius: 4px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: var(--color-subtle);
 }
 
 /* Prevent pull-to-refresh on mobile */
@@ -82,20 +104,20 @@ svg *:focus {
 
 /* Overlay */
 .driver-overlay {
-  background: rgba(0, 0, 0, 0.4) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Highlighted element */
 .driver-active-element {
-  outline: 3px solid #22d3ee !important;
+  outline: 2px solid var(--color-accent) !important;
   outline-offset: 6px !important;
-  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.3), 0 0 20px rgba(34, 211, 238, 0.4) !important;
+  box-shadow: none !important;
 }
 
 /* Popover */
 .driver-popover {
-  background: #1e293b !important;
-  border: 2px solid #334155 !important;
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-line-strong) !important;
   border-radius: 16px !important;
   max-width: 400px !important;
 }
@@ -107,30 +129,31 @@ svg *:focus {
 .driver-popover-title {
   font-size: 18px !important;
   font-weight: 700 !important;
-  color: #06b6d4 !important;
+  color: var(--color-ink) !important;
   padding: 20px 24px 12px !important;
-  border-bottom: 1px solid #334155 !important;
+  border-bottom: 1px solid var(--color-line) !important;
 }
 
 .driver-popover-description {
   font-size: 14px !important;
-  color: #cbd5e1 !important;
+  color: var(--color-ink-2) !important;
   padding: 16px 24px !important;
 }
 
 .driver-popover-description strong {
-  color: #06b6d4 !important;
+  color: var(--color-accent) !important;
 }
 
 .driver-popover-progress-text {
   font-size: 12px !important;
-  color: #64748b !important;
+  color: var(--color-subtle) !important;
+  font-family: var(--font-mono) !important;
   padding: 0 24px 16px !important;
 }
 
 .driver-popover-footer {
   padding: 16px 24px 20px !important;
-  border-top: 1px solid #334155 !important;
+  border-top: 1px solid var(--color-line) !important;
   gap: 12px !important;
 }
 
@@ -146,35 +169,35 @@ svg *:focus {
 }
 
 .driver-popover-prev-btn {
-  background: #334155 !important;
-  color: #94a3b8 !important;
+  background: var(--color-surface-2) !important;
+  color: var(--color-ink-2) !important;
 }
 
 .driver-popover-prev-btn:hover {
-  background: #475569 !important;
+  background: var(--color-surface-3) !important;
 }
 
 .driver-popover-next-btn {
-  background: #06b6d4 !important;
-  color: #0f172a !important;
+  background: var(--color-accent) !important;
+  color: var(--color-on-accent) !important;
   font-weight: 700 !important;
 }
 
 .driver-popover-next-btn:hover {
-  background: #22d3ee !important;
+  background: var(--color-accent-strong) !important;
 }
 
 .driver-popover-close-btn {
   width: 32px !important;
   height: 32px !important;
-  background: #334155 !important;
-  color: #94a3b8 !important;
+  background: var(--color-surface-2) !important;
+  color: var(--color-muted) !important;
   border-radius: 8px !important;
   font-size: 20px !important;
 }
 
 .driver-popover-close-btn:hover {
-  background: #475569 !important;
+  background: var(--color-surface-3) !important;
 }
 
 @media (max-width: 640px) {

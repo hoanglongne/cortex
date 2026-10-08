@@ -40,7 +40,7 @@ function UnlockContent() {
 
 export default function UnlockPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-slate-900" />}>
+        <Suspense fallback={<div className="min-h-screen bg-bg" />}>
             <UnlockContent />
         </Suspense>
     );
