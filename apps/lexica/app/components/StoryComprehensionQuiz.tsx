@@ -74,13 +74,13 @@ export default function StoryComprehensionQuiz({
         const passed = correctCount >= passThreshold;
 
         return (
-            <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col overflow-hidden">
+            <div className="fixed inset-0 bg-bg z-50 flex flex-col overflow-hidden">
                 {/* Header */}
-                <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 z-10 p-4">
+                <div className="sticky top-0 bg-bg/95 backdrop-blur-sm border-b border-line z-10 p-4">
                     <div className="flex items-center gap-3">
-                        <Trophy className={`w-6 h-6 ${passed ? 'text-cyan-400' : 'text-amber-400'}`} />
-                        <h1 className="text-lg font-bold text-white">
-                            {passed ? '🎉 Xuất sắc!' : '💭 Gần đúng rồi!'}
+                        <Trophy className={`w-6 h-6 ${passed ? 'text-accent' : 'text-warning'}`} />
+                        <h1 className="text-lg font-bold text-ink">
+                            {passed ? 'Xuất sắc!' : 'Gần đúng rồi!'}
                         </h1>
                     </div>
                 </div>
@@ -93,21 +93,21 @@ export default function StoryComprehensionQuiz({
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             className={`rounded-xl p-6 border-2 ${passed
-                                ? 'bg-cyan-500/10 border-cyan-500/50'
-                                : 'bg-amber-500/10 border-amber-500/50'
-                                }`}
+ ? 'bg-accent/10 border-accent/50'
+ : 'bg-warning/10 border-warning/50'
+ }`}
                         >
                             <div className="text-center space-y-3">
-                                <div className="text-5xl font-bold text-white">
+                                <div className="text-5xl font-bold text-ink">
                                     {correctCount}/{totalQuestions}
                                 </div>
-                                <p className={`text-lg font-semibold ${passed ? 'text-cyan-400' : 'text-amber-400'}`}>
+                                <p className={`text-lg font-semibold ${passed ? 'text-accent' : 'text-warning'}`}>
                                     {passed
-                                        ? `Bạn hiểu rất rõ câu chuyện! 🌟`
+                                        ? `Bạn hiểu rất rõ câu chuyện!`
                                         : `Bạn cần ${passThreshold - correctCount} câu nữa để pass (${Math.round(passThreshold / totalQuestions * 100)}%)`}
                                 </p>
                                 {passed && (
-                                    <p className="text-sm text-slate-400">
+                                    <p className="text-sm text-muted">
                                         Comprehension xuất sắc! Bạn nắm được từ vựng trong ngữ cảnh.
                                     </p>
                                 )}
@@ -116,8 +116,8 @@ export default function StoryComprehensionQuiz({
 
                         {/* Question Review */}
                         <div className="space-y-4">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <BookOpen className="w-5 h-5 text-cyan-400" />
+                            <h2 className="text-xl font-bold text-ink flex items-center gap-2">
+                                <BookOpen className="w-5 h-5 text-accent" />
                                 Review câu trả lời
                             </h2>
 
@@ -132,35 +132,35 @@ export default function StoryComprehensionQuiz({
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         className={`rounded-xl p-4 border ${isCorrect
-                                            ? 'bg-slate-800/50 border-cyan-500/30'
-                                            : 'bg-slate-800/50 border-amber-500/30'
-                                            }`}
+ ? 'bg-surface/50 border-accent/30'
+ : 'bg-surface/50 border-warning/30'
+ }`}
                                     >
                                         <div className="flex items-start gap-3 mb-3">
                                             {isCorrect ? (
-                                                <CheckCircle className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                                                <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                                             ) : (
-                                                <XCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                                                <XCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
                                             )}
                                             <div className="flex-1">
-                                                <p className="text-white font-medium mb-2">
+                                                <p className="text-ink font-medium mb-2">
                                                     {idx + 1}. {question.question}
                                                 </p>
 
                                                 {!isCorrect && (
                                                     <div className="space-y-1 mb-2">
-                                                        <p className="text-sm text-amber-400">
-                                                            ❌ Bạn chọn: {question.options[userAnswer]}
+                                                        <p className="text-sm text-warning">
+                                                            Bạn chọn: {question.options[userAnswer]}
                                                         </p>
-                                                        <p className="text-sm text-cyan-400">
+                                                        <p className="text-sm text-accent">
                                                             ✓ Đáp án đúng: {question.options[question.correctAnswer]}
                                                         </p>
                                                     </div>
                                                 )}
 
                                                 {question.explanation && (
-                                                    <p className="text-sm text-slate-400 leading-relaxed">
-                                                        💡 {question.explanation}
+                                                    <p className="text-sm text-muted leading-relaxed">
+                                                        {question.explanation}
                                                     </p>
                                                 )}
                                             </div>
@@ -178,7 +178,7 @@ export default function StoryComprehensionQuiz({
                                         click();
                                         onRetry();
                                     }}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors"
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-surface-2 hover:bg-surface-3 text-ink rounded-xl font-medium transition-colors"
                                 >
                                     <RotateCcw className="w-4 h-4" />
                                     Đọc lại
@@ -189,7 +189,7 @@ export default function StoryComprehensionQuiz({
                                     buttonPress();
                                     onComplete(correctCount, passed);
                                 }}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-xl font-bold transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-xl font-bold transition-colors"
                             >
                                 Tiếp tục
                                 <ArrowRight className="w-4 h-4" />
@@ -206,24 +206,24 @@ export default function StoryComprehensionQuiz({
     const progress = ((currentQuestion + 1) / totalQuestions) * 100;
 
     return (
-        <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col overflow-hidden">
+        <div className="fixed inset-0 bg-bg z-50 flex flex-col overflow-hidden">
             {/* Header with Progress */}
-            <div className="sticky top-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 z-10 p-4">
+            <div className="sticky top-0 bg-bg/95 backdrop-blur-sm border-b border-line z-10 p-4">
                 <div className="flex items-center gap-3 mb-3">
-                    <BookOpen className="w-6 h-6 text-cyan-400" />
-                    <h1 className="text-lg font-bold text-white">Comprehension Check</h1>
-                    <span className="ml-auto text-sm text-slate-400">
+                    <BookOpen className="w-6 h-6 text-accent" />
+                    <h1 className="text-lg font-bold text-ink">Comprehension Check</h1>
+                    <span className="ml-auto text-sm text-muted">
                         {currentQuestion + 1}/{totalQuestions}
                     </span>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                <div className="h-2 rounded-full bg-surface overflow-hidden">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 0.3 }}
-                        className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400"
+                        className="h-full bg-accent "
                     />
                 </div>
             </div>
@@ -241,8 +241,8 @@ export default function StoryComprehensionQuiz({
                             className="space-y-6"
                         >
                             {/* Question */}
-                            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
-                                <p className="text-xl font-semibold text-white leading-relaxed">
+                            <div className="bg-surface/50 border border-line rounded-xl p-6">
+                                <p className="text-xl font-semibold text-ink leading-relaxed">
                                     {question.question}
                                 </p>
                             </div>
@@ -256,13 +256,13 @@ export default function StoryComprehensionQuiz({
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: idx * 0.1 }}
                                         onClick={() => handleAnswer(idx)}
-                                        className="w-full p-4 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 hover:border-cyan-500/50 rounded-xl text-left transition-all group"
+                                        className="w-full p-4 bg-surface/50 hover:bg-surface-2/50 border border-line hover:border-accent/50 rounded-xl text-left transition-all group"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-slate-700 group-hover:bg-cyan-500/20 border border-slate-600 group-hover:border-cyan-500/50 flex items-center justify-center text-slate-400 group-hover:text-cyan-400 font-semibold transition-all">
+                                            <div className="w-8 h-8 rounded-full bg-surface-2 group-hover:bg-accent-strong/20 border border-line-strong group-hover:border-accent/50 flex items-center justify-center text-muted group-hover:text-accent font-semibold transition-all">
                                                 {String.fromCharCode(65 + idx)}
                                             </div>
-                                            <span className="text-slate-300 group-hover:text-white transition-colors">
+                                            <span className="text-ink-2 group-hover:text-ink transition-colors">
                                                 {option}
                                             </span>
                                         </div>
@@ -271,8 +271,8 @@ export default function StoryComprehensionQuiz({
                             </div>
 
                             {/* Hint */}
-                            <p className="text-center text-sm text-slate-500">
-                                💡 Chọn đáp án phù hợp nhất với câu chuyện bạn vừa đọc
+                            <p className="text-center text-sm text-muted">
+                                Chọn đáp án phù hợp nhất với câu chuyện bạn vừa đọc
                             </p>
                         </motion.div>
                     </AnimatePresence>

@@ -205,7 +205,7 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
         <div className="w-full h-full px-4">
             {/* Logo - Top Left */}
             <div className="fixed top-4 left-4 md:top-6 md:left-6 z-50">
-                <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                <h1 className="text-2xl md:text-3xl font-bold text-ink tracking-tight">
                     LEXICA
                 </h1>
             </div>
@@ -219,39 +219,39 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                             click();
                             onBack();
                         }}
-                        className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 text-sm"
+                        className="text-muted hover:text-ink transition-colors flex items-center gap-2 text-sm"
                     >
                         <span>←</span>
                         <span className="hidden sm:inline">Quay lại</span>
                     </button>
-                    <div className="text-sm text-slate-400">
-                        <span className="text-white font-medium">{currentQuestionIndex + 1}</span> / {TEST_QUESTIONS.length}
+                    <div className="text-sm text-muted">
+                        <span className="text-ink font-medium">{currentQuestionIndex + 1}</span> / {TEST_QUESTIONS.length}
                     </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-1 bg-ink/5 rounded-full overflow-hidden">
                     <div
-                        className="h-full bg-cyan-500 transition-all duration-300"
+                        className="h-full bg-accent transition-all duration-300"
                         style={{ width: `${progress}%` }}
                     ></div>
                 </div>
 
                 {/* Question Card */}
-                <div className="bg-white/[0.02] border border-white/20 rounded-xl p-8 md:p-10 space-y-8">
+                <div className="bg-ink/[0.02] border border-ink/20 rounded-xl p-8 md:p-10 space-y-8">
                     {/* Word and IPA */}
                     <div className="text-center space-y-3">
-                        <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-white tracking-tight">
+                        <h2 className="text-5xl sm:text-6xl md:text-7xl font-bold text-ink tracking-tight">
                             {currentQuestion.word}
                         </h2>
-                        <p className="text-slate-400 font-mono text-sm">
+                        <p className="text-muted font-mono text-sm">
                             /{currentQuestion.ipa}/
                         </p>
                     </div>
 
                     {/* Question */}
                     <div className="text-center py-4">
-                        <p className="text-lg text-slate-300">
+                        <p className="text-lg text-ink-2">
                             Từ này có nghĩa là gì?
                         </p>
                     </div>
@@ -265,29 +265,29 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                                     key={index}
                                     onClick={() => handleSelectOption(index)}
                                     className={`
-                                    w-full p-4 rounded-lg text-left transition-all
-                                    ${isSelected
-                                            ? 'bg-cyan-500/10 border border-cyan-500/50'
-                                            : 'bg-white/[0.02] border border-white/20 hover:bg-white/[0.04] hover:border-white/30'
-                                        }
-                                `}
+ w-full p-4 rounded-lg text-left transition-all
+ ${isSelected
+ ? 'bg-accent/10 border border-accent/50'
+ : 'bg-ink/[0.02] border border-ink/20 hover:bg-ink/[0.04] hover:border-ink/30'
+ }
+ `}
                                 >
                                     <div className="flex items-center gap-3">
                                         <div className={`
-                                        w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
-                                        ${isSelected
-                                                ? 'border-cyan-400 bg-cyan-400'
-                                                : 'border-slate-600'
-                                            }
-                                    `}>
+ w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0
+ ${isSelected
+ ? 'border-accent bg-accent'
+ : 'border-line-strong'
+ }
+ `}>
                                             {isSelected && (
-                                                <svg className="w-3 h-3 text-slate-900 font-bold" fill="currentColor" viewBox="0 0 20 20">
+                                                <svg className="w-3 h-3 text-on-accent font-bold" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                 </svg>
                                             )}
                                         </div>
-                                        <span className={`text-sm leading-relaxed ${isSelected ? 'text-white font-medium' : 'text-slate-300'
-                                            }`}>
+                                        <span className={`text-sm leading-relaxed ${isSelected ? 'text-ink font-medium' : 'text-ink-2'
+ }`}>
                                             {option}
                                         </span>
                                     </div>
@@ -302,12 +302,12 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                             onClick={handleNext}
                             disabled={selectedOption === null}
                             className={`
-                            w-full py-4 rounded-lg font-semibold transition-all
-                            ${selectedOption !== null
-                                    ? 'bg-cyan-500 text-white hover:bg-cyan-600'
-                                    : 'bg-white/5 text-slate-600 cursor-not-allowed'
-                                }
-                        `}
+ w-full py-4 rounded-lg font-semibold transition-all
+ ${selectedOption !== null
+ ? 'bg-accent text-on-accent hover:bg-accent-strong'
+ : 'bg-ink/5 text-subtle cursor-not-allowed'
+ }
+ `}
                         >
                             {currentQuestionIndex < TEST_QUESTIONS.length - 1 ? (
                                 'Câu tiếp theo →'
@@ -320,7 +320,7 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                         </button>
                         <button
                             onClick={handleSkip}
-                            className="w-full py-2.5 rounded-lg text-sm text-slate-500 hover:text-slate-300 transition-colors"
+                            className="w-full py-2.5 rounded-lg text-sm text-muted hover:text-ink-2 transition-colors"
                         >
                             Bỏ qua câu này
                         </button>
@@ -328,7 +328,7 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
                 </div>
 
                 {/* Helper Text */}
-                <div className="text-center text-xs text-slate-500 flex items-center justify-center gap-1.5">
+                <div className="text-center text-xs text-muted flex items-center justify-center gap-1.5">
                     <Lightbulb className="w-3.5 h-3.5" />
                     Chọn đáp án phù hợp nhất với nghĩa của từ trong câu
                 </div>

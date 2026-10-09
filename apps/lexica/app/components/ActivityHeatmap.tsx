@@ -78,11 +78,11 @@ export default function ActivityHeatmap({ studyHistory }: ActivityHeatmapProps) 
 
     // Get color based on swipes count
     const getColor = (swipes: number): string => {
-        if (swipes === 0) return 'bg-slate-800';
-        if (swipes <= 2) return 'bg-slate-700';
-        if (swipes <= 5) return 'bg-cyan-700';
-        if (swipes <= 10) return 'bg-cyan-600';
-        return 'bg-cyan-500';
+        if (swipes === 0) return 'bg-surface';
+        if (swipes <= 2) return 'bg-surface-2';
+        if (swipes <= 5) return 'bg-accent';
+        if (swipes <= 10) return 'bg-accent';
+        return 'bg-accent';
     };
 
     const periodOptions = [
@@ -153,19 +153,19 @@ export default function ActivityHeatmap({ studyHistory }: ActivityHeatmapProps) 
                         <button
                             onClick={() => setYearOffset(yearOffset - 1)}
                             disabled={!hasDataForYear(yearOffset - 1) && yearOffset <= -5}
-                            className="p-1.5 rounded-md hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                            className="p-1.5 rounded-md hover:bg-surface-2 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                         >
-                            <ChevronLeft className="w-4 h-4 text-slate-400" />
+                            <ChevronLeft className="w-4 h-4 text-muted" />
                         </button>
-                        <span className="text-xs font-medium text-slate-400 min-w-[100px] text-center">
+                        <span className="text-xs font-medium text-muted min-w-[100px] text-center">
                             {getYearLabel()}
                         </span>
                         <button
                             onClick={() => setYearOffset(yearOffset + 1)}
                             disabled={yearOffset >= 0}
-                            className="p-1.5 rounded-md hover:bg-slate-700 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                            className="p-1.5 rounded-md hover:bg-surface-2 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
                         >
-                            <ChevronRight className="w-4 h-4 text-slate-400" />
+                            <ChevronRight className="w-4 h-4 text-muted" />
                         </button>
                     </div>
                 )}
@@ -174,7 +174,7 @@ export default function ActivityHeatmap({ studyHistory }: ActivityHeatmapProps) 
             {/* Heatmap với day labels bên trái */}
             <div className={`flex ${sizes.gap} w-full`}>
                 {/* Day labels (bên trái) */}
-                <div className={`flex flex-col ${sizes.gap} ${sizes.labelSize} text-slate-500 justify-between shrink-0`}>
+                <div className={`flex flex-col ${sizes.gap} ${sizes.labelSize} text-muted justify-between shrink-0`}>
                     <div className="flex items-center">CN</div>
                     <div className="flex items-center">T2</div>
                     <div className="flex items-center">T3</div>
@@ -191,7 +191,7 @@ export default function ActivityHeatmap({ studyHistory }: ActivityHeatmapProps) 
                             {week.map((day, dayIndex) => (
                                 <div
                                     key={`${weekIndex}-${dayIndex}`}
-                                    className={`w-full ${sizes.height} rounded-sm transition-all cursor-pointer hover:ring-1 hover:ring-cyan-400 hover:scale-105 ${day.date ? getColor(day.swipes) : 'bg-slate-900'}`}
+                                    className={`w-full ${sizes.height} rounded-sm transition-all cursor-pointer hover:ring-1 hover:ring-accent hover:scale-105 ${day.date ? getColor(day.swipes) : 'bg-bg'}`}
                                     onMouseEnter={(e) => handleMouseEnter(day.date, e)}
                                     onMouseLeave={() => setHoveredDate(null)}
                                     title={day.date ? `${formatDate(day.date)} - ${day.swipes} swipes` : ''}
@@ -203,14 +203,14 @@ export default function ActivityHeatmap({ studyHistory }: ActivityHeatmapProps) 
             </div>
 
             {/* Legend */}
-            <div className="flex items-center gap-2 mt-4 text-xs text-slate-500">
+            <div className="flex items-center gap-2 mt-4 text-xs text-muted">
                 <span>Ít</span>
                 <div className={`flex ${sizes.gap}`}>
-                    <div className={`${sizes.legendCell} rounded-sm bg-slate-800`} />
-                    <div className={`${sizes.legendCell} rounded-sm bg-slate-700`} />
-                    <div className={`${sizes.legendCell} rounded-sm bg-cyan-700`} />
-                    <div className={`${sizes.legendCell} rounded-sm bg-cyan-600`} />
-                    <div className={`${sizes.legendCell} rounded-sm bg-cyan-500`} />
+                    <div className={`${sizes.legendCell} rounded-sm bg-surface`} />
+                    <div className={`${sizes.legendCell} rounded-sm bg-surface-2`} />
+                    <div className={`${sizes.legendCell} rounded-sm bg-accent`} />
+                    <div className={`${sizes.legendCell} rounded-sm bg-accent`} />
+                    <div className={`${sizes.legendCell} rounded-sm bg-accent`} />
                 </div>
                 <span>Nhiều</span>
             </div>
@@ -229,15 +229,15 @@ export default function ActivityHeatmap({ studyHistory }: ActivityHeatmapProps) 
                             transform: 'translateX(-50%) translateY(-100%)',
                         }}
                     >
-                        <div className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
-                            <p className="text-white text-xs font-bold mb-1">{formatDate(hoveredDate)}</p>
-                            <p className="text-cyan-400 text-xs">
+                        <div className="bg-surface border border-line rounded-lg px-3 py-2 shadow-xl whitespace-nowrap">
+                            <p className="text-ink text-xs font-bold mb-1">{formatDate(hoveredDate)}</p>
+                            <p className="text-accent text-xs">
                                 {studyHistory[hoveredDate].swipes} swipes
                             </p>
-                            <p className="text-slate-400 text-xs">
+                            <p className="text-muted text-xs">
                                 {studyHistory[hoveredDate].correct} đúng, {studyHistory[hoveredDate].wrong} sai
                             </p>
-                            <p className="text-green-400 text-xs">
+                            <p className="text-accent text-xs">
                                 {Math.round((studyHistory[hoveredDate].correct / studyHistory[hoveredDate].swipes) * 100)}% accuracy
                             </p>
                         </div>

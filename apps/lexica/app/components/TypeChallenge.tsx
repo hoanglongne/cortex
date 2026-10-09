@@ -143,11 +143,11 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full md:max-w-2xl bg-slate-800 border-0 md:border border-slate-700 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
+                className="w-full md:max-w-2xl bg-surface border-0 md:border border-line md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
             >
                 <button
                     onClick={() => { click(); onClose(); }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-surface-2 text-muted hover:text-ink hover:bg-surface-3 transition-all"
                 >
                     <X className="w-5 h-5" />
                 </button>
@@ -155,10 +155,10 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
                 {/* Header */}
                 <div className="text-center mb-6">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                        <Keyboard className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">Type Challenge</h2>
+                        <Keyboard className="w-6 h-6 sm:w-7 sm:h-7 text-accent" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-ink">Type Challenge</h2>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-400">
+                    <p className="text-xs sm:text-sm text-muted">
                         Gõ từ tiếng Anh từ nghĩa tiếng Việt - 60 giây!
                     </p>
                 </div>
@@ -169,10 +169,10 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-4"
                     >
-                        <div className="p-6 bg-slate-700/50 rounded-lg border border-slate-600">
-                            <Keyboard className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-                            <h3 className="text-lg font-bold text-white mb-2">Cách chơi</h3>
-                            <div className="text-sm text-slate-300 space-y-1 text-left max-w-sm mx-auto">
+                        <div className="p-6 bg-surface-2/50 rounded-lg border border-line-strong">
+                            <Keyboard className="w-12 h-12 text-accent mx-auto mb-3" />
+                            <h3 className="text-lg font-bold text-ink mb-2">Cách chơi</h3>
+                            <div className="text-sm text-ink-2 space-y-1 text-left max-w-sm mx-auto">
                                 <p>• Nhìn nghĩa tiếng Việt</p>
                                 <p>• Gõ từ tiếng Anh chính xác</p>
                                 <p>• Càng nhanh càng nhiều điểm</p>
@@ -181,7 +181,7 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
                         </div>
 
                         {highScore !== null && (
-                            <div className="flex items-center justify-center gap-2 text-sm text-cyan-400">
+                            <div className="flex items-center justify-center gap-2 text-sm text-accent">
                                 <Trophy className="w-4 h-4" />
                                 <span>High Score: {highScore}</span>
                             </div>
@@ -189,7 +189,7 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
 
                         <button
                             onClick={startGame}
-                            className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="px-8 py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Bắt đầu
                         </button>
@@ -205,26 +205,26 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
                         {/* Stats Bar */}
                         <div className="flex justify-between items-center text-sm">
                             <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-cyan-400" />
-                                <span className={`font-bold ${time <= 10 ? 'text-red-400' : 'text-white'}`}>
+                                <Clock className="w-4 h-4 text-accent" />
+                                <span className={`font-bold ${time <= 10 ? 'text-danger' : 'text-ink'}`}>
                                     {time}s
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-cyan-400" />
-                                <span className="font-bold text-cyan-400">
+                                <Zap className="w-4 h-4 text-accent" />
+                                <span className="font-bold text-accent">
                                     Streak: {streak}
                                 </span>
                             </div>
-                            <div className="text-white font-bold">
+                            <div className="text-ink font-bold">
                                 {score}
                             </div>
                         </div>
 
                         {/* Question */}
-                        <div className="p-8 bg-slate-700/50 rounded-lg border border-slate-600 text-center">
-                            <p className="text-xs text-slate-500 mb-2">Nghĩa tiếng Việt:</p>
-                            <p className="text-2xl sm:text-3xl font-bold text-white mb-4">
+                        <div className="p-8 bg-surface-2/50 rounded-lg border border-line-strong text-center">
+                            <p className="text-xs text-muted mb-2">Nghĩa tiếng Việt:</p>
+                            <p className="text-2xl sm:text-3xl font-bold text-ink mb-4">
                                 {currentCard.translationHint}
                             </p>
                         </div>
@@ -238,16 +238,16 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 placeholder="Type the English word..."
-                                className={`w-full px-4 py-3 bg-slate-700 border-2 rounded-lg text-white text-lg text-center transition-all outline-none ${feedback === 'correct'
-                                    ? 'border-green-500 bg-green-500/10'
-                                    : feedback === 'wrong'
-                                        ? 'border-red-500 bg-red-500/10'
-                                        : 'border-slate-600 focus:border-cyan-500'
-                                    }`}
+                                className={`w-full px-4 py-3 bg-surface-2 border-2 rounded-lg text-ink text-lg text-center transition-all outline-none ${feedback === 'correct'
+ ? 'border-accent bg-accent/10'
+ : feedback === 'wrong'
+ ? 'border-danger bg-danger/10'
+ : 'border-line-strong focus:border-accent'
+ }`}
                                 disabled={feedback !== null}
                             />
                             {feedback === 'wrong' && (
-                                <p className="text-sm text-red-400 text-center mt-2">
+                                <p className="text-sm text-danger text-center mt-2">
                                     Correct: {currentCard.word}
                                 </p>
                             )}
@@ -256,12 +256,12 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
                         <button
                             onClick={checkAnswer}
                             disabled={!input.trim() || feedback !== null}
-                            className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 disabled:bg-slate-700 disabled:text-slate-500 text-white rounded-lg font-medium transition-all"
+                            className="w-full py-3 bg-accent hover:bg-accent-strong disabled:bg-surface-2 disabled:text-muted text-on-accent rounded-lg font-medium transition-all"
                         >
                             Submit (Enter)
                         </button>
 
-                        <div className="text-center text-xs text-slate-500">
+                        <div className="text-center text-xs text-muted">
                             {answered} answered
                         </div>
                     </motion.div>
@@ -273,31 +273,31 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-4"
                     >
-                        <Trophy className="w-16 h-16 text-cyan-400 mx-auto" />
-                        <h3 className="text-2xl font-bold text-white">Time&apos;s Up!</h3>
+                        <Trophy className="w-16 h-16 text-accent mx-auto" />
+                        <h3 className="text-2xl font-bold text-ink">Time&apos;s Up!</h3>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Score</p>
-                                <p className="text-2xl font-bold text-cyan-400">{score}</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Score</p>
+                                <p className="text-2xl font-bold text-accent">{score}</p>
                             </div>
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Answered</p>
-                                <p className="text-2xl font-bold text-white">{answered}</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Answered</p>
+                                <p className="text-2xl font-bold text-ink">{answered}</p>
                             </div>
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">Best Streak</p>
-                                <p className="text-2xl font-bold text-cyan-400">{bestStreak}</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">Best Streak</p>
+                                <p className="text-2xl font-bold text-accent">{bestStreak}</p>
                             </div>
-                            <div className="p-4 bg-slate-700/50 rounded-lg border border-slate-600">
-                                <p className="text-xs text-slate-500 mb-1">High Score</p>
-                                <p className="text-2xl font-bold text-cyan-400">{highScore}</p>
+                            <div className="p-4 bg-surface-2/50 rounded-lg border border-line-strong">
+                                <p className="text-xs text-muted mb-1">High Score</p>
+                                <p className="text-2xl font-bold text-accent">{highScore}</p>
                             </div>
                         </div>
 
                         <button
                             onClick={startGame}
-                            className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="w-full py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Play Again
                         </button>

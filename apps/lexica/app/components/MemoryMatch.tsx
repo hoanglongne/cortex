@@ -151,11 +151,11 @@ export default function MemoryMatch({ learnedWordIds, onClose }: MemoryMatchProp
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full md:max-w-2xl bg-slate-800 border-0 md:border border-slate-700 md:rounded-xl px-4 pb-4 pt-12 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
+                className="w-full md:max-w-2xl bg-surface border-0 md:border border-line md:rounded-xl px-4 pb-4 pt-12 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
             >
                 <button
                     onClick={() => { click(); onClose(); }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-surface-2 text-muted hover:text-ink hover:bg-surface-3 transition-all"
                 >
                     <X className="w-5 h-5" />
                 </button>
@@ -163,34 +163,34 @@ export default function MemoryMatch({ learnedWordIds, onClose }: MemoryMatchProp
                 {/* Header */}
                 <div className="text-center mb-4 sm:mb-6">
                     <div className="flex items-center justify-center gap-2 mb-2">
-                        <Brain className="w-6 h-6 text-cyan-400" />
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">Memory Match</h2>
+                        <Brain className="w-6 h-6 text-accent" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-ink">Memory Match</h2>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-400">Lật thẻ tìm cặp từ - nghĩa đúng</p>
+                    <p className="text-xs sm:text-sm text-muted">Lật thẻ tìm cặp từ - nghĩa đúng</p>
                 </div>
 
                 {/* Stats */}
                 <div className="flex justify-between items-center mb-4 px-2">
                     <div className="text-center">
-                        <p className="text-xs text-slate-500">Moves</p>
-                        <p className="text-lg font-bold text-white">{moves}</p>
+                        <p className="text-xs text-muted">Moves</p>
+                        <p className="text-lg font-bold text-ink">{moves}</p>
                     </div>
                     <div className="text-center">
                         <div className="flex items-center gap-1 justify-center">
-                            <Clock className="w-3 h-3 text-slate-500" />
-                            <p className="text-xs text-slate-500">Time</p>
+                            <Clock className="w-3 h-3 text-muted" />
+                            <p className="text-xs text-muted">Time</p>
                         </div>
-                        <p className="text-lg font-bold text-white">{formatTime(time)}</p>
+                        <p className="text-lg font-bold text-ink">{formatTime(time)}</p>
                     </div>
                     <div className="text-center">
-                        <p className="text-xs text-slate-500">Matched</p>
-                        <p className="text-lg font-bold text-cyan-400">{matches}/6</p>
+                        <p className="text-xs text-muted">Matched</p>
+                        <p className="text-lg font-bold text-accent">{matches}/6</p>
                     </div>
                     <button
                         onClick={() => { click(); initializeGame(); }}
-                        className="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition-all"
+                        className="p-2 rounded-lg bg-surface-2 hover:bg-surface-3 transition-all"
                     >
-                        <RotateCcw className="w-4 h-4 text-white" />
+                        <RotateCcw className="w-4 h-4 text-ink" />
                     </button>
                 </div>
 
@@ -203,19 +203,19 @@ export default function MemoryMatch({ learnedWordIds, onClose }: MemoryMatchProp
                             whileHover={{ scale: card.isMatched ? 1 : 1.05 }}
                             whileTap={{ scale: card.isMatched ? 1 : 0.95 }}
                             className={`aspect-square rounded-lg border-2 p-2 sm:p-3 flex items-center justify-center text-center transition-all ${card.isMatched
-                                ? 'bg-cyan-500/20 border-cyan-500 opacity-50'
-                                : card.isFlipped
-                                    ? 'bg-slate-700 border-slate-600'
-                                    : 'bg-slate-800 border-slate-700 hover:border-slate-600'
-                                }`}
+ ? 'bg-accent/20 border-accent opacity-50'
+ : card.isFlipped
+ ? 'bg-surface-2 border-line-strong'
+ : 'bg-surface border-line hover:border-line-strong'
+ }`}
                         >
                             {card.isFlipped || card.isMatched ? (
-                                <span className={`text-xs sm:text-sm font-medium ${card.type === 'word' ? 'text-cyan-400' : 'text-slate-300'
-                                    }`}>
+                                <span className={`text-xs sm:text-sm font-medium ${card.type === 'word' ? 'text-accent' : 'text-ink-2'
+ }`}>
                                     {card.content}
                                 </span>
                             ) : (
-                                <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-slate-600" />
+                                <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-subtle" />
                             )}
                         </motion.button>
                     ))}
@@ -226,15 +226,15 @@ export default function MemoryMatch({ learnedWordIds, onClose }: MemoryMatchProp
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-center p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg"
+                        className="text-center p-4 bg-accent/10 border border-accent/30 rounded-lg"
                     >
-                        <Trophy className="w-8 h-8 text-cyan-400 mx-auto mb-2" />
-                        <h3 className="text-lg font-bold text-white mb-1">Hoàn thành!</h3>
-                        <p className="text-sm text-slate-400">
+                        <Trophy className="w-8 h-8 text-accent mx-auto mb-2" />
+                        <h3 className="text-lg font-bold text-ink mb-1">Hoàn thành!</h3>
+                        <p className="text-sm text-muted">
                             {moves} moves • {formatTime(time)}
                         </p>
                         {highScore !== null && (
-                            <p className="text-xs text-cyan-400 mt-1">
+                            <p className="text-xs text-accent mt-1">
                                 Best: {highScore} moves
                             </p>
                         )}

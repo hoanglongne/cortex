@@ -95,19 +95,19 @@ export default function ChallengePage({ params }: ChallengePageProps) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen bg-bg flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     if (notFound || !challenge) {
         return (
-            <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-center p-6 gap-4">
-                <Swords className="w-12 h-12 text-slate-500" />
-                <h1 className="text-2xl font-bold text-white">Challenge không tồn tại</h1>
-                <p className="text-slate-400 text-sm">Link đã hết hạn hoặc không hợp lệ.</p>
-                <Link href="/" className="mt-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-medium transition-all">
+            <div className="min-h-screen bg-bg flex flex-col items-center justify-center text-center p-6 gap-4">
+                <Swords className="w-12 h-12 text-muted" />
+                <h1 className="text-2xl font-bold text-ink">Challenge không tồn tại</h1>
+                <p className="text-muted text-sm">Link đã hết hạn hoặc không hợp lệ.</p>
+                <Link href="/" className="mt-2 px-6 py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-xl font-medium transition-all">
                     Về trang chủ
                 </Link>
             </div>
@@ -124,27 +124,27 @@ export default function ChallengePage({ params }: ChallengePageProps) {
         const iWon = challenge.score > friendScore;
         const isTied = challenge.score === friendScore;
         return (
-            <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
-                <div className="w-full max-w-md bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-5">
+            <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-4">
+                <div className="w-full max-w-md bg-surface rounded-2xl p-6 border border-line space-y-5">
                     <div className="text-center space-y-2">
-                        <p className="text-slate-400 text-sm">{GAME_LABELS[challenge.game_type]}</p>
+                        <p className="text-muted text-sm">{GAME_LABELS[challenge.game_type]}</p>
                         {iWon ? (
-                            <><Trophy className="w-12 h-12 text-yellow-400 mx-auto" /><h2 className="text-2xl font-bold text-yellow-400">Bạn thắng! 🎉</h2></>
+                            <><Trophy className="w-12 h-12 text-warning mx-auto" /><h2 className="text-2xl font-bold text-warning">Bạn thắng!</h2></>
                         ) : isTied ? (
-                            <><Flame className="w-12 h-12 text-orange-400 mx-auto" /><h2 className="text-2xl font-bold text-orange-400">Hoà!</h2></>
+                            <><Flame className="w-12 h-12 text-warning mx-auto" /><h2 className="text-2xl font-bold text-warning">Hoà!</h2></>
                         ) : (
-                            <><Swords className="w-12 h-12 text-red-400 mx-auto" /><h2 className="text-2xl font-bold text-white">Thua rồi...</h2><p className="text-slate-400 text-sm">Thách đấu ngược để rửa hận!</p></>
+                            <><Swords className="w-12 h-12 text-danger mx-auto" /><h2 className="text-2xl font-bold text-ink">Thua rồi...</h2><p className="text-muted text-sm">Thách đấu ngược để rửa hận!</p></>
                         )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        <div className={`rounded-xl p-4 text-center border ${iWon || isTied ? 'border-yellow-500/40 bg-yellow-500/10' : 'border-slate-600 bg-slate-900/50'}`}>
-                            <div className="text-slate-400 text-xs mb-1">Bạn ({challenge.nickname})</div>
-                            <div className={`text-3xl font-bold ${iWon || isTied ? 'text-yellow-400' : 'text-white'}`}>{challenge.score}</div>
+                        <div className={`rounded-xl p-4 text-center border ${iWon || isTied ? 'border-warning/40 bg-warning/10' : 'border-line-strong bg-bg/50'}`}>
+                            <div className="text-muted text-xs mb-1">Bạn ({challenge.nickname})</div>
+                            <div className={`text-3xl font-bold ${iWon || isTied ? 'text-warning' : 'text-ink'}`}>{challenge.score}</div>
                         </div>
-                        <div className={`rounded-xl p-4 text-center border ${!iWon && !isTied ? 'border-cyan-500/40 bg-cyan-500/10' : 'border-slate-600 bg-slate-900/50'}`}>
-                            <div className="text-slate-400 text-xs mb-1">{friendName}</div>
-                            <div className={`text-3xl font-bold ${!iWon && !isTied ? 'text-cyan-400' : 'text-white'}`}>{friendScore}</div>
+                        <div className={`rounded-xl p-4 text-center border ${!iWon && !isTied ? 'border-accent/40 bg-accent/10' : 'border-line-strong bg-bg/50'}`}>
+                            <div className="text-muted text-xs mb-1">{friendName}</div>
+                            <div className={`text-3xl font-bold ${!iWon && !isTied ? 'text-accent' : 'text-ink'}`}>{friendScore}</div>
                         </div>
                     </div>
 
@@ -152,15 +152,15 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                         <button
                             onClick={handleCounterChallenge}
                             disabled={creatingCounter}
-                            className="w-full py-3 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-surface-2 hover:bg-surface-3 disabled:opacity-50 text-ink rounded-xl font-medium transition-all flex items-center justify-center gap-2"
                         >
                             <Swords className="w-4 h-4" />
                             {creatingCounter ? 'Đang tạo...' : 'Thách đấu ngược!'}
                         </button>
                         {counterLink && (
-                            <p className="text-green-400 text-xs text-center">Link đã copy! Gửi cho bạn bè nhé 🎯</p>
+                            <p className="text-accent text-xs text-center">Link đã copy! Gửi cho bạn bè nhé.</p>
                         )}
-                        <Link href="/" className="w-full py-2 text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors">
+                        <Link href="/" className="w-full py-2 text-muted hover:text-ink text-sm flex items-center justify-center gap-2 transition-colors">
                             <ArrowLeft className="w-4 h-4" />Về trang chủ
                         </Link>
                     </div>
@@ -181,7 +181,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                 )}
             </AnimatePresence>
 
-            <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-4">
+            <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-4">
                 <div className="w-full max-w-md">
                     <AnimatePresence mode="wait">
                         {/* Intro screen */}
@@ -191,27 +191,27 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -20 }}
-                                className="bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-6"
+                                className="bg-surface rounded-2xl p-6 border border-line space-y-6"
                             >
                                 {/* Header */}
                                 <div className="text-center space-y-1">
-                                    <Swords className="w-10 h-10 text-cyan-400 mx-auto" />
-                                    <p className="text-slate-400 text-sm">Thách đấu từ</p>
-                                    <h1 className="text-xl font-bold text-white">
+                                    <Swords className="w-10 h-10 text-accent mx-auto" />
+                                    <p className="text-muted text-sm">Thách đấu từ</p>
+                                    <h1 className="text-xl font-bold text-ink">
                                         {challenge.nickname}
                                     </h1>
                                 </div>
 
                                 {/* Challenge info */}
-                                <div className="bg-slate-900/60 rounded-xl p-5 text-center border border-slate-600">
-                                    <div className="text-slate-400 text-sm mb-1">{GAME_LABELS[challenge.game_type]}</div>
-                                    <div className="text-5xl font-bold text-yellow-400 mb-1">{challenge.score}</div>
-                                    <div className="text-slate-500 text-xs">{SCORE_LABELS[challenge.game_type]}</div>
+                                <div className="bg-bg/60 rounded-xl p-5 text-center border border-line-strong">
+                                    <div className="text-muted text-sm mb-1">{GAME_LABELS[challenge.game_type]}</div>
+                                    <div className="text-5xl font-bold text-warning mb-1">{challenge.score}</div>
+                                    <div className="text-muted text-xs">{SCORE_LABELS[challenge.game_type]}</div>
                                 </div>
 
                                 {/* Nickname input */}
                                 <div className="space-y-2">
-                                    <label className="text-slate-400 text-sm flex items-center gap-1">
+                                    <label className="text-muted text-sm flex items-center gap-1">
                                         <User className="w-3 h-3" /> Tên của bạn
                                     </label>
                                     <input
@@ -220,22 +220,22 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                         onKeyDown={e => e.key === 'Enter' && handleAccept()}
                                         placeholder="Nhập nickname..."
                                         maxLength={20}
-                                        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+                                        className="w-full px-4 py-3 bg-surface-2 border border-line-strong rounded-xl text-ink placeholder-muted focus:outline-none focus:border-accent transition-colors"
                                     />
                                 </div>
 
                                 <button
                                     onClick={handleAccept}
-                                    className="w-full py-4 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-bold text-lg transition-all"
+                                    className="w-full py-4 bg-accent hover:bg-accent-strong text-on-accent rounded-xl font-bold text-lg transition-all"
                                 >
                                     Chấp nhận thách đấu!
                                 </button>
 
                                 <button
                                     onClick={handleCopyLink}
-                                    className="w-full py-2 text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors"
+                                    className="w-full py-2 text-muted hover:text-ink text-sm flex items-center justify-center gap-2 transition-colors"
                                 >
-                                    {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                                    {copied ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
                                     {copied ? 'Đã copy link!' : 'Copy link thách đấu'}
                                 </button>
                             </motion.div>
@@ -247,44 +247,44 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                 key="result"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-5"
+                                className="bg-surface rounded-2xl p-6 border border-line space-y-5"
                             >
                                 {/* Verdict */}
                                 <div className="text-center space-y-2">
                                     {won ? (
                                         <>
-                                            <Trophy className="w-12 h-12 text-yellow-400 mx-auto" />
-                                            <h2 className="text-2xl font-bold text-yellow-400">Bạn thắng!</h2>
+                                            <Trophy className="w-12 h-12 text-warning mx-auto" />
+                                            <h2 className="text-2xl font-bold text-warning">Bạn thắng!</h2>
                                         </>
                                     ) : tied ? (
                                         <>
-                                            <Flame className="w-12 h-12 text-orange-400 mx-auto" />
-                                            <h2 className="text-2xl font-bold text-orange-400">Hoà!</h2>
+                                            <Flame className="w-12 h-12 text-warning mx-auto" />
+                                            <h2 className="text-2xl font-bold text-warning">Hoà!</h2>
                                         </>
                                     ) : (
                                         <>
-                                            <Swords className="w-12 h-12 text-slate-400 mx-auto" />
-                                            <h2 className="text-2xl font-bold text-white">Tiếc quá!</h2>
-                                            <p className="text-slate-400 text-sm">Luyện thêm rồi thử lại nhé!</p>
+                                            <Swords className="w-12 h-12 text-muted mx-auto" />
+                                            <h2 className="text-2xl font-bold text-ink">Tiếc quá!</h2>
+                                            <p className="text-muted text-sm">Luyện thêm rồi thử lại nhé!</p>
                                         </>
                                     )}
                                 </div>
 
                                 {/* Score comparison */}
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className={`rounded-xl p-4 text-center border ${won || tied ? 'border-cyan-500/40 bg-cyan-500/10' : 'border-slate-600 bg-slate-900/50'}`}>
-                                        <div className="text-slate-400 text-xs mb-1">
+                                    <div className={`rounded-xl p-4 text-center border ${won || tied ? 'border-accent/40 bg-accent/10' : 'border-line-strong bg-bg/50'}`}>
+                                        <div className="text-muted text-xs mb-1">
                                             {nickname.trim() || 'Bạn'}
                                         </div>
-                                        <div className={`text-3xl font-bold ${won || tied ? 'text-cyan-400' : 'text-white'}`}>
+                                        <div className={`text-3xl font-bold ${won || tied ? 'text-accent' : 'text-ink'}`}>
                                             {myScore}
                                         </div>
                                     </div>
-                                    <div className={`rounded-xl p-4 text-center border ${!won && !tied ? 'border-yellow-500/40 bg-yellow-500/10' : 'border-slate-600 bg-slate-900/50'}`}>
-                                        <div className="text-slate-400 text-xs mb-1">
+                                    <div className={`rounded-xl p-4 text-center border ${!won && !tied ? 'border-warning/40 bg-warning/10' : 'border-line-strong bg-bg/50'}`}>
+                                        <div className="text-muted text-xs mb-1">
                                             {challenge.nickname}
                                         </div>
-                                        <div className={`text-3xl font-bold ${!won && !tied ? 'text-yellow-400' : 'text-white'}`}>
+                                        <div className={`text-3xl font-bold ${!won && !tied ? 'text-warning' : 'text-ink'}`}>
                                             {challenge.score}
                                         </div>
                                     </div>
@@ -294,10 +294,10 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                     {/* Counter-challenge */}
                                     {counterLink ? (
                                         <div className="space-y-2">
-                                            <p className="text-green-400 text-sm text-center">Link đã copy vào clipboard!</p>
+                                            <p className="text-accent text-sm text-center">Link đã copy vào clipboard!</p>
                                             <button
                                                 onClick={() => navigator.clipboard.writeText(counterLink)}
-                                                className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
+                                                className="w-full py-3 bg-surface-2 hover:bg-surface-3 text-ink rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
                                             >
                                                 <Copy className="w-4 h-4" />
                                                 Copy lại link thách đấu ngược
@@ -307,7 +307,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                         <button
                                             onClick={handleCounterChallenge}
                                             disabled={creatingCounter}
-                                            className="w-full py-3 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                                            className="w-full py-3 bg-surface-2 hover:bg-surface-3 disabled:opacity-50 text-ink rounded-xl font-medium transition-all flex items-center justify-center gap-2"
                                         >
                                             <Swords className="w-4 h-4" />
                                             {creatingCounter ? 'Đang tạo...' : 'Thách đấu ngược lại!'}
@@ -317,7 +317,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                     {/* Play again */}
                                     <button
                                         onClick={() => { setMyScore(null); setCounterLink(null); }}
-                                        className="w-full py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-bold transition-all"
+                                        className="w-full py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-xl font-bold transition-all"
                                     >
                                         Chơi lại
                                     </button>
@@ -325,15 +325,15 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                                     {/* Share result — để bạn gửi lại link cho người đã thách */}
                                     <button
                                         onClick={handleCopyLink}
-                                        className="w-full py-2 text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors"
+                                        className="w-full py-2 text-muted hover:text-ink text-sm flex items-center justify-center gap-2 transition-colors"
                                     >
-                                        {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                                        {copied ? <Check className="w-4 h-4 text-accent" /> : <Copy className="w-4 h-4" />}
                                         {copied ? 'Đã copy!' : 'Gửi kết quả cho người thách đấu'}
                                     </button>
 
                                     <Link
                                         href="/"
-                                        className="w-full py-2 text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors"
+                                        className="w-full py-2 text-muted hover:text-ink text-sm flex items-center justify-center gap-2 transition-colors"
                                     >
                                         <ArrowLeft className="w-4 h-4" />
                                         Về trang chủ

@@ -142,9 +142,9 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
     };
 
     const getComboColor = () => {
-        if (combo >= 10) return 'text-cyan-400';
-        if (combo >= 5) return 'text-cyan-300';
-        return 'text-slate-400';
+        if (combo >= 10) return 'text-accent';
+        if (combo >= 5) return 'text-accent';
+        return 'text-muted';
     };
 
     const getComboText = () => {
@@ -158,11 +158,11 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full md:max-w-2xl bg-slate-800 border-0 md:border border-slate-700 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
+                className="w-full md:max-w-2xl bg-surface border-0 md:border border-line md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0 md:max-h-[90vh] md:overflow-y-auto"
             >
                 <button
                     onClick={() => { click(); if (isPlaying) onGameEnd?.(maxCombo); onClose(); }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-surface-2 text-muted hover:text-ink hover:bg-surface-3 transition-all"
                 >
                     <X className="w-5 h-5" />
                 </button>
@@ -170,8 +170,8 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                 {/* Header */}
                 <div className="text-center mb-6">
                     <div className="flex items-center justify-center gap-2">
-                        <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400" />
-                        <h2 className="text-xl sm:text-2xl font-bold text-white">Combo Chain</h2>
+                        <Flame className="w-6 h-6 sm:w-7 sm:h-7 text-accent" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-ink">Combo Chain</h2>
                     </div>
                 </div>
 
@@ -181,10 +181,10 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center space-y-4"
                     >
-                        <div className="p-6 bg-slate-700/50 rounded-lg border border-slate-600">
-                            <Flame className="w-12 h-12 text-cyan-400 mx-auto mb-3" />
-                            <h3 className="text-lg font-bold text-white mb-2">Cách chơi</h3>
-                            <div className="text-sm text-slate-300 space-y-1 text-left max-w-sm mx-auto">
+                        <div className="p-6 bg-surface-2/50 rounded-lg border border-line-strong">
+                            <Flame className="w-12 h-12 text-accent mx-auto mb-3" />
+                            <h3 className="text-lg font-bold text-ink mb-2">Cách chơi</h3>
+                            <div className="text-sm text-ink-2 space-y-1 text-left max-w-sm mx-auto">
                                 <p>• Trả lời đúng → Combo tăng</p>
                                 <p>• Combo càng cao → Điểm nhân lên</p>
                                 <p>• Sai → Combo về 0 (không game over)</p>
@@ -193,7 +193,7 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                         </div>
 
                         {highScore !== null && highScore > 0 && (
-                            <div className="flex items-center justify-center gap-2 text-sm text-cyan-400">
+                            <div className="flex items-center justify-center gap-2 text-sm text-accent">
                                 <Trophy className="w-4 h-4" />
                                 <span>Best Combo: {highScore}</span>
                             </div>
@@ -201,7 +201,7 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
 
                         <button
                             onClick={startGame}
-                            className="px-8 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all"
+                            className="px-8 py-3 bg-accent hover:bg-accent-strong text-on-accent rounded-lg font-medium transition-all"
                         >
                             Bắt đầu
                         </button>
@@ -216,16 +216,16 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                     >
                         {/* Stats Bar */}
                         <div className="flex justify-between items-center">
-                            <div className="text-sm text-slate-400">
+                            <div className="text-sm text-muted">
                                 {answered} answered
                             </div>
-                            <div className="text-lg font-bold text-white">
+                            <div className="text-lg font-bold text-ink">
                                 {Math.round(score)}
                             </div>
                         </div>
 
                         {/* Combo Display */}
-                        <div className={`text-center p-6 bg-cyan-500/10 border border-cyan-500/30 rounded-lg`}>
+                        <div className={`text-center p-6 bg-accent/10 border border-accent/30 rounded-lg`}>
                             <div className="flex items-center justify-center gap-3 mb-2">
                                 <Flame className={`w-8 h-8 ${getComboColor()}`} />
                                 <motion.p
@@ -242,7 +242,7 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                             <p className={`text-sm font-bold ${getComboColor()}`}>
                                 {getComboText() || 'COMBO CHAIN'}
                             </p>
-                            <p className={`text-xs mt-1 transition-opacity ${maxCombo > 0 ? 'text-slate-500 opacity-100' : 'text-slate-700 opacity-0'}`}>
+                            <p className={`text-xs mt-1 transition-opacity ${maxCombo > 0 ? 'text-muted opacity-100' : 'text-subtle opacity-0'}`}>
                                 Best: {maxCombo > 0 ? maxCombo : '-'}
                             </p>
                         </div>
@@ -253,14 +253,14 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                             initial={{ x: 20, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             className={`p-6 rounded-lg border-2 text-center transition-all ${feedback === 'correct'
-                                ? 'bg-green-500/10 border-green-500'
-                                : feedback === 'wrong'
-                                    ? 'bg-red-500/10 border-red-500'
-                                    : 'bg-slate-700/50 border-slate-600'
-                                }`}
+ ? 'bg-accent/10 border-accent'
+ : feedback === 'wrong'
+ ? 'bg-danger/10 border-danger'
+ : 'bg-surface-2/50 border-line-strong'
+ }`}
                         >
-                            <p className="text-xs text-slate-500 mb-2">English word:</p>
-                            <p className="text-2xl sm:text-3xl font-bold text-cyan-400">
+                            <p className="text-xs text-muted mb-2">English word:</p>
+                            <p className="text-2xl sm:text-3xl font-bold text-accent">
                                 {currentCard.word}
                             </p>
                         </motion.div>
@@ -281,19 +281,19 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                                         onClick={() => handleAnswer(option)}
                                         disabled={feedback !== null}
                                         className={`p-4 rounded-lg border-2 text-left transition-all ${showResult && isCorrect
-                                            ? 'bg-green-500/20 border-green-500 text-white'
-                                            : showResult && isSelected
-                                                ? 'bg-red-500/20 border-red-500 text-white'
-                                                : 'bg-slate-700/50 border-slate-600 text-slate-300 hover:border-cyan-500'
-                                            }`}
+ ? 'bg-accent/20 border-accent text-ink'
+ : showResult && isSelected
+ ? 'bg-danger/20 border-danger text-ink'
+ : 'bg-surface-2/50 border-line-strong text-ink-2 hover:border-accent'
+ }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${showResult && isCorrect
-                                                ? 'border-green-500 text-green-400'
-                                                : showResult && isSelected
-                                                    ? 'border-red-500 text-red-400'
-                                                    : 'border-slate-500 text-slate-500'
-                                                }`}>
+ ? 'border-accent text-accent'
+ : showResult && isSelected
+ ? 'border-danger text-danger'
+ : 'border-line-strong text-muted'
+ }`}>
                                                 {String.fromCharCode(65 + index)}
                                             </div>
                                             <span className="text-sm sm:text-base">{option}</span>
@@ -304,7 +304,7 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
                         </div>
 
                         {/* Multiplier Info */}
-                        <div className="text-center text-xs text-slate-500">
+                        <div className="text-center text-xs text-muted">
                             <Zap className="w-3 h-3 inline mr-1" />
                             Điểm nhân: {combo > 0 ? `×${(1.5 ** Math.min(combo - 1, 10)).toFixed(1)}` : '×1.0'}
                         </div>

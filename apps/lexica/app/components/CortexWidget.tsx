@@ -111,18 +111,18 @@ function CortexWidgetInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: strin
     }, [fetchProfile, HUB_URL, syncAllToCortex]);
 
     return (
-        <div className="fixed top-16 right-3 md:top-4 md:right-4 z-[100] font-space-grotesk">
+        <div className="fixed top-16 right-3 md:top-4 md:right-4 z-[100] font-sans">
             <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
                 className={`flex items-center gap-2 px-2 py-2 md:px-3 md:py-2 rounded-full border shadow-lg transition-all ${profile
-                    ? 'bg-slate-900/60 md:bg-slate-900/80 border-cyan-500/30 md:border-cyan-500/50 text-cyan-400 backdrop-blur-md'
-                    : 'bg-slate-900/40 md:bg-slate-900/50 border-slate-700 text-slate-400'
-                    }`}
+ ? 'bg-bg/60 md:bg-bg/80 border-accent/30 md:border-accent/50 text-accent backdrop-blur-md'
+ : 'bg-bg/40 md:bg-bg/50 border-line text-muted'
+ }`}
             >
                 <Brain className={`w-4 h-4 md:w-[18px] md:h-[18px] ${profile ? 'animate-pulse' : ''}`} />
-                <span className="hidden md:inline text-xs font-bold tracking-wider uppercase">
+                <span className="hidden md:inline text-xs font-bold uppercase font-mono">
                     {profile ? `CORTEX HUB` : 'Chưa kết nối Hub'}
                 </span>
             </motion.button>
@@ -133,21 +133,21 @@ function CortexWidgetInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: strin
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute top-full mt-3 right-0 w-64 bg-slate-900/95 border border-cyan-500/30 rounded-2xl p-4 shadow-2xl backdrop-blur-xl"
+                        className="absolute top-full mt-3 right-0 w-64 bg-bg/95 border border-accent/30 rounded-2xl p-4 shadow-2xl backdrop-blur-xl"
                     >
-                        <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-800">
-                            <div className="flex items-center gap-2 text-cyan-400">
+                        <div className="flex items-center justify-between mb-4 pb-2 border-b border-line">
+                            <div className="flex items-center gap-2 text-accent">
                                 <Activity size={16} />
                                 <span className="text-sm font-bold tracking-tight">Hệ sinh thái Cortex</span>
                             </div>
-                            <div className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-[10px] text-cyan-400 font-bold uppercase">
+                            <div className="px-2 py-0.5 rounded bg-accent/10 border border-accent/20 text-[10px] text-accent font-bold uppercase font-mono">
                                 {isSyncing ? 'Syncing...' : 'Online'}
                             </div>
                         </div>
 
                         <div className="space-y-4">
-                            <div className="flex justify-between items-center bg-slate-800/30 p-2 rounded-lg border border-slate-700/50">
-                                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Dữ liệu cục bộ</span>
+                            <div className="flex justify-between items-center bg-surface/30 p-2 rounded-lg border border-line/50">
+                                <span className="text-[10px] text-muted uppercase font-mono font-bold">Dữ liệu cục bộ</span>
                                 <button
                                     onClick={async () => {
                                         setIsSyncing(true);
@@ -157,7 +157,7 @@ function CortexWidgetInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: strin
                                         setIsSyncing(false);
                                     }}
                                     disabled={isSyncing}
-                                    className="flex items-center gap-1 text-[10px] bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-400 px-2 py-1 rounded transition-all disabled:opacity-50"
+                                    className="flex items-center gap-1 text-[10px] bg-accent/20 hover:bg-accent-strong/40 text-accent px-2 py-1 rounded transition-all disabled:opacity-50"
                                 >
                                     <RefreshCw size={10} className={isSyncing ? 'animate-spin' : ''} />
                                     Đồng bộ ngay
@@ -165,47 +165,47 @@ function CortexWidgetInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: strin
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700">
-                                    <div className="text-[10px] text-slate-500 uppercase mb-1">Kích hoạt</div>
-                                    <div className="text-lg font-bold text-cyan-400">{profile.active_vocab_count}</div>
+                                <div className="p-2 rounded-xl bg-surface/50 border border-line">
+                                    <div className="text-[10px] text-muted uppercase font-mono mb-1">Kích hoạt</div>
+                                    <div className="text-lg font-bold text-accent">{profile.active_vocab_count}</div>
                                 </div>
-                                <div className="p-2 rounded-xl bg-slate-800/50 border border-slate-700">
-                                    <div className="text-[10px] text-slate-500 uppercase mb-1">Từ vựng chết</div>
-                                    <div className="text-lg font-bold text-rose-400">{profile.passive_vocab_count}</div>
+                                <div className="p-2 rounded-xl bg-surface/50 border border-line">
+                                    <div className="text-[10px] text-muted uppercase font-mono mb-1">Từ vựng chết</div>
+                                    <div className="text-lg font-bold text-danger">{profile.passive_vocab_count}</div>
                                 </div>
                             </div>
 
                             <div className="space-y-2">
                                 <div className="flex justify-between items-end">
-                                    <span className="text-xs text-slate-400">Độ trôi chảy</span>
-                                    <span className="text-sm font-bold text-emerald-400">{Math.round(profile.fluency_score)}%</span>
+                                    <span className="text-xs text-muted">Độ trôi chảy</span>
+                                    <span className="text-sm font-bold text-accent">{Math.round(profile.fluency_score)}%</span>
                                 </div>
-                                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                                <div className="h-1.5 w-full bg-surface rounded-full overflow-hidden">
                                     <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${profile.fluency_score}%` }}
-                                        className="h-full bg-emerald-400"
+                                        className="h-full bg-accent"
                                     />
                                 </div>
                             </div>
 
                             {profile.difficulty_recommendation && (
-                                <div className="mt-4 p-3 rounded-xl bg-cyan-500/5 border border-cyan-500/20">
+                                <div className="mt-4 p-3 rounded-xl bg-accent/5 border border-accent/20">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <TrendingUp size={12} className="text-cyan-400" />
-                                        <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Gợi ý AI</span>
+                                        <TrendingUp size={12} className="text-accent" />
+                                        <span className="text-[10px] font-bold text-accent uppercase font-mono">Gợi ý AI</span>
                                     </div>
-                                    <p className="text-[11px] text-slate-300 leading-relaxed italic">
+                                    <p className="text-[11px] text-ink-2 leading-relaxed italic">
                                         &quot;{profile.difficulty_recommendation.message}&quot;
                                     </p>
                                 </div>
                             )}
                         </div>
 
-                        <div className="mt-4 pt-4 border-t border-slate-800 flex justify-center">
+                        <div className="mt-4 pt-4 border-t border-line flex justify-center">
                             <button
                                 onClick={() => window.open(`${HUB_URL}/profile`, '_blank')}
-                                className="text-[10px] text-slate-500 hover:text-cyan-400 transition-colors uppercase font-bold tracking-widest flex items-center gap-1"
+                                className="text-[10px] text-muted hover:text-accent transition-colors uppercase font-mono font-bold flex items-center gap-1"
                             >
                                 <User size={10} />
                                 Xem Profile chi tiết

@@ -106,12 +106,12 @@ export default function SwipeDeck() {
                     animate={{ scale: 1 }}
                     className="mb-4"
                 >
-                    <PartyPopper className="w-20 h-20 text-slate-400 mx-auto" />
+                    <PartyPopper className="w-20 h-20 text-muted mx-auto" />
                 </motion.div>
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-ink mb-2">
                     Hoàn thành bộ bài!
                 </h2>
-                <p className="text-slate-400 text-sm mb-6">
+                <p className="text-muted text-sm mb-6">
                     Bạn đã quẹt hết các thẻ trong lượt này.
                 </p>
 
@@ -120,7 +120,7 @@ export default function SwipeDeck() {
                     <Link
                         href="/stories"
                         onClick={() => buttonPress()}
-                        className="w-full px-6 py-3 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 hover:border-slate-500 rounded-xl font-semibold text-slate-200 text-sm transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
                     >
                         Đọc truyện thực hành
                     </Link>
@@ -129,7 +129,7 @@ export default function SwipeDeck() {
                     <Link
                         href="/learned"
                         onClick={() => buttonPress()}
-                        className="w-full px-6 py-3 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 hover:border-slate-500 rounded-xl font-semibold text-slate-200 text-sm transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
                     >
                         Xem danh sách từ vựng
                     </Link>
@@ -148,20 +148,20 @@ export default function SwipeDeck() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.8 }}
-                        className="absolute z-50 flex flex-col items-center gap-2 text-4xl font-bold pointer-events-none"
+                        className="absolute z-50 flex flex-col items-center gap-2 font-mono text-lg pointer-events-none"
                     >
                         {lastSwipeDirection === 'right' ? (
                             <div className="flex flex-col items-center">
-                                <span className="flex items-center gap-2 text-green-400">
-                                    <Check className="w-12 h-12" />
-                                    GHI NHỚ
+                                <span className="flex items-center gap-2 text-accent">
+                                    <Check className="w-6 h-6" />
+                                    ĐÃ NHỚ
                                 </span>
                             </div>
                         ) : (
                             <div className="flex flex-col items-center">
-                                <span className="flex items-center gap-2 text-red-400">
-                                    <X className="w-12 h-12" />
-                                    BỎ QUA
+                                <span className="flex items-center gap-2 text-danger">
+                                    <X className="w-6 h-6" />
+                                    CHƯA NHỚ
                                 </span>
                             </div>
                         )}
@@ -202,6 +202,27 @@ export default function SwipeDeck() {
                 })}
             </AnimatePresence>
 
+            {/* Explicit actions: same as swiping left / right */}
+            {topCardId && (
+                <div className="absolute top-[calc(50%+237px)] left-0 right-0 mx-2 sm:mx-4 grid grid-cols-2 gap-2.5">
+                    <button
+                        onClick={() => handleSwipe('left', topCardId)}
+                        className="h-14 rounded-xl border border-line bg-surface text-ink font-medium flex items-center justify-center gap-2 hover:bg-surface-2 active:scale-[0.98] transition"
+                    >
+                        <X className="w-4 h-4" />
+                        Chưa nhớ
+                    </button>
+                    <button
+                        onClick={() => handleSwipe('right', topCardId)}
+                        disabled={swipeMode === 'voice' && voiceAvailable}
+                        title={swipeMode === 'voice' && voiceAvailable ? 'Chế độ giọng nói: nói từ để ghi nhớ' : undefined}
+                        className="h-14 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2 hover:bg-accent-strong active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        Đã nhớ
+                        <Check className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

@@ -97,13 +97,13 @@ const GAMES: GameInfo[] = [
 ];
 
 const colorClasses = {
-    cyan: 'border-cyan-500/30 hover:border-cyan-500 bg-slate-700/50'
+    cyan: 'border-accent/30 hover:border-accent bg-surface-2/50'
 };
 
 const difficultyColors = {
-    Easy: 'text-slate-400',
-    Medium: 'text-slate-400',
-    Hard: 'text-slate-400'
+    Easy: 'text-muted',
+    Medium: 'text-muted',
+    Hard: 'text-muted'
 };
 
 export default function GameHub({ learnedWordIds, todayWordIds, onClose }: GameHubProps) {
@@ -151,24 +151,24 @@ export default function GameHub({ learnedWordIds, todayWordIds, onClose }: GameH
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full md:max-w-4xl bg-slate-800 border-0 md:border border-slate-700 md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0"
+                className="w-full md:max-w-4xl bg-surface border-0 md:border border-line md:rounded-xl px-6 pb-6 pt-16 sm:p-8 relative min-h-full md:min-h-0"
             >
                 <button
                     onClick={() => {
                         click();
                         onClose();
                     }}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-slate-700 text-slate-400 hover:text-white hover:bg-slate-600 transition-all"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-surface-2 text-muted hover:text-ink hover:bg-surface-3 transition-all"
                 >
                     <X className="w-5 h-5" />
                 </button>
 
                 <div className="text-center mb-6 sm:mb-8">
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Vocabulary Games</h2>
-                    <p className="text-sm sm:text-base text-slate-400">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-ink mb-2">Vocabulary Games</h2>
+                    <p className="text-sm sm:text-base text-muted">
                         Chọn game để ôn luyện từ vựng một cách vui vẻ!
                     </p>
-                    <p className="text-xs text-slate-500 mt-2">
+                    <p className="text-xs text-muted mt-2">
                         {learnedWordIds.length} từ đã học • {todayWordIds.length} từ hôm nay
                     </p>
                 </div>
@@ -186,37 +186,37 @@ export default function GameHub({ learnedWordIds, todayWordIds, onClose }: GameH
                                 onClick={() => canPlay && handleSelectGame(game.id)}
                                 disabled={!canPlay}
                                 className={`p-4 sm:p-5 rounded-xl border transition-all text-left ${canPlay
-                                        ? colorClasses[game.color as keyof typeof colorClasses]
-                                        : 'border-slate-700 bg-slate-900/30 opacity-50 cursor-not-allowed'
-                                    }`}
+ ? colorClasses[game.color as keyof typeof colorClasses]
+ : 'border-line bg-bg/30 opacity-50 cursor-not-allowed'
+ }`}
                             >
                                 <div className="flex items-start gap-3 mb-3">
-                                    <div className={`p-2 rounded-lg ${canPlay ? 'bg-slate-700' : 'bg-slate-800/50'}`}>
-                                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${canPlay ? 'text-cyan-400' : 'text-slate-600'}`} />
+                                    <div className={`p-2 rounded-lg ${canPlay ? 'bg-surface-2' : 'bg-surface/50'}`}>
+                                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${canPlay ? 'text-accent' : 'text-subtle'}`} />
                                     </div>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-1">
-                                            <h3 className={`font-bold text-base sm:text-lg ${canPlay ? 'text-white' : 'text-slate-500'}`}>
+                                            <h3 className={`font-bold text-base sm:text-lg ${canPlay ? 'text-ink' : 'text-muted'}`}>
                                                 {game.name}
                                             </h3>
                                             <span className={`text-[10px] sm:text-xs font-medium ${difficultyColors[game.difficulty]}`}>
                                                 {game.difficulty}
                                             </span>
                                         </div>
-                                        <p className={`text-xs sm:text-sm ${canPlay ? 'text-slate-400' : 'text-slate-600'}`}>
+                                        <p className={`text-xs sm:text-sm ${canPlay ? 'text-muted' : 'text-subtle'}`}>
                                             {game.description}
                                         </p>
                                     </div>
                                 </div>
 
                                 {!canPlay && (
-                                    <div className="text-xs text-red-400">
+                                    <div className="text-xs text-danger">
                                         Cần ít nhất {game.minWords} từ để chơi
                                     </div>
                                 )}
 
                                 {canPlay && (
-                                    <div className="flex items-center justify-between text-xs text-slate-500">
+                                    <div className="flex items-center justify-between text-xs text-muted">
                                         <span>Click để chơi →</span>
                                     </div>
                                 )}

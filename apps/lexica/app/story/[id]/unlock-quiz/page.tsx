@@ -39,7 +39,7 @@ function UnlockQuizContent() {
 
 export default function UnlockQuizPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-slate-900" />}>
+        <Suspense fallback={<div className="min-h-screen bg-bg" />}>
             <UnlockQuizContent />
         </Suspense>
     );

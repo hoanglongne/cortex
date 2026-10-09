@@ -38,15 +38,15 @@ export default function CardStatesPieChart({ cardProgress, learnedWords }: CardS
     }
 
     const data = [
-        { name: 'Chưa học', value: notStarted, color: '#475569' },
-        { name: 'Đã học', value: learned, color: '#22d3ee' },
-        { name: 'Đang luyện', value: sprout, color: '#10b981' },
-        { name: 'Thành thạo', value: mastered, color: '#fbbf24' },
+        { name: 'Chưa học', value: notStarted, color: '#34373D' },
+        { name: 'Đã học', value: learned, color: '#C6F432' },
+        { name: 'Đang luyện', value: sprout, color: '#C6F432' },
+        { name: 'Thành thạo', value: mastered, color: '#F5B83D' },
     ].filter(item => item.value > 0); // Only show categories with data
 
     if (data.length === 0 || (data.length === 1 && data[0].name === 'Chưa học')) {
         return (
-            <div className="flex items-center justify-center py-16 text-slate-500">
+            <div className="flex items-center justify-center py-16 text-muted">
                 <p className="text-sm">Bắt đầu học từ đầu tiên!</p>
             </div>
         );
@@ -107,12 +107,12 @@ export default function CardStatesPieChart({ cardProgress, learnedWords }: CardS
                     </Pie>
                     <Tooltip
                         contentStyle={{
-                            backgroundColor: '#1e293b',
-                            border: '1px solid #334155',
+                            backgroundColor: '#16171A',
+                            border: '1px solid #26282D',
                             borderRadius: '8px',
                             fontSize: '12px',
                         }}
-                        itemStyle={{ color: '#e2e8f0' }}
+                        itemStyle={{ color: '#EDEEF0' }}
                     />
                 </PieChart>
             </ResponsiveContainer>
@@ -120,8 +120,8 @@ export default function CardStatesPieChart({ cardProgress, learnedWords }: CardS
             {/* Center label */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="text-center">
-                    <p className="text-3xl font-bold text-white">{totalCards}</p>
-                    <p className="text-xs text-slate-500 mt-1">tổng từ</p>
+                    <p className="text-3xl font-bold text-ink">{totalCards}</p>
+                    <p className="text-xs text-muted mt-1">tổng từ</p>
                 </div>
             </div>
         </div>

@@ -108,8 +108,8 @@ export default function BuddyPage() {
     // ── Loading ──────────────────────────────────────────
     if (authLoading) {
         return (
-            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+            <div className="min-h-screen bg-bg flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-accent animate-spin" />
             </div>
         );
     }
@@ -117,15 +117,15 @@ export default function BuddyPage() {
     // ── Not logged in ────────────────────────────────────
     if (!user) {
         return (
-            <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6">
-                <div className="w-full max-w-sm bg-slate-800 rounded-2xl p-6 border border-slate-700 space-y-6">
+            <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6">
+                <div className="w-full max-w-sm bg-surface rounded-2xl p-6 border border-line space-y-6">
                     <div className="text-center space-y-2">
-                        <Users className="w-10 h-10 text-cyan-400 mx-auto" />
-                        <h1 className="text-xl font-bold text-white">Study Buddy</h1>
-                        <p className="text-slate-400 text-sm">Học cùng bạn bè, duy trì chuỗi đôi, tạo động lực mỗi ngày.</p>
+                        <Users className="w-10 h-10 text-accent mx-auto" />
+                        <h1 className="text-xl font-bold text-ink">Study Buddy</h1>
+                        <p className="text-muted text-sm">Học cùng bạn bè, duy trì chuỗi đôi, tạo động lực mỗi ngày.</p>
                     </div>
                     <AuthGate reason="Cần lưu tài khoản để kết nối với bạn bè. Không cần mật khẩu." />
-                    <Link href="/" className="flex items-center justify-center gap-2 text-slate-500 hover:text-white text-sm transition-colors">
+                    <Link href="/" className="flex items-center justify-center gap-2 text-muted hover:text-ink text-sm transition-colors">
                         <ArrowLeft className="w-4 h-4" /> Về trang chủ
                     </Link>
                 </div>
@@ -135,15 +135,15 @@ export default function BuddyPage() {
 
     // ── Logged in ────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-slate-900 pb-8">
+        <div className="min-h-screen bg-bg pb-8">
             {/* Header */}
-            <div className="sticky top-0 bg-slate-900/90 backdrop-blur border-b border-slate-800 z-10">
+            <div className="sticky top-0 bg-bg/90 backdrop-blur border-b border-line z-10">
                 <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-                    <Link href="/" className="text-slate-400 hover:text-white transition-colors">
+                    <Link href="/" className="text-muted hover:text-ink transition-colors">
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div className="flex items-center gap-2">
-                        <Link href="/buddy" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+                        <Link href="/buddy" className="text-accent hover:text-accent transition-colors">
                             <Users className="w-4 h-4" />
                         </Link>
                         {editingNickname ? (
@@ -157,12 +157,12 @@ export default function BuddyPage() {
                                         if (e.key === 'Escape') setEditingNickname(false);
                                     }}
                                     maxLength={20}
-                                    className="w-28 px-2 py-0.5 bg-slate-700 border border-cyan-500 rounded text-white text-sm focus:outline-none"
+                                    className="w-28 px-2 py-0.5 bg-surface-2 border border-accent rounded text-ink text-sm focus:outline-none"
                                 />
                                 <button
                                     onClick={handleSaveNickname}
                                     disabled={savingNickname || !nicknameInput.trim()}
-                                    className="text-cyan-400 hover:text-cyan-300 disabled:opacity-40 transition-colors"
+                                    className="text-accent hover:text-accent disabled:opacity-40 transition-colors"
                                 >
                                     {savingNickname ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                                 </button>
@@ -170,14 +170,14 @@ export default function BuddyPage() {
                         ) : (
                             <button
                                 onClick={() => { setNicknameInput(profile?.nickname ?? ''); setEditingNickname(true); }}
-                                className="flex items-center gap-1 font-bold text-white text-sm hover:text-cyan-300 transition-colors group"
+                                className="flex items-center gap-1 font-bold text-ink text-sm hover:text-accent transition-colors group"
                             >
                                 {profile?.nickname ?? 'Đặt tên'}
-                                <Pencil className="w-3 h-3 text-slate-500 group-hover:text-cyan-400 transition-colors" />
+                                <Pencil className="w-3 h-3 text-muted group-hover:text-accent transition-colors" />
                             </button>
                         )}
                     </div>
-                    <button onClick={signOut} className="text-slate-500 hover:text-white transition-colors">
+                    <button onClick={signOut} className="text-muted hover:text-ink transition-colors">
                         <LogOut className="w-4 h-4" />
                     </button>
                 </div>
@@ -185,18 +185,18 @@ export default function BuddyPage() {
 
             <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
                 {/* My stats today */}
-                <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700">
-                    <p className="text-slate-400 text-xs mb-3 uppercase tracking-wide">Hôm nay của bạn</p>
+                <div className="bg-surface rounded-2xl p-4 border border-line">
+                    <p className="text-muted text-xs mb-3 uppercase font-mono">Hôm nay của bạn</p>
                     <div className="grid grid-cols-3 gap-3">
-                        <StatPill icon={<Flame className="w-4 h-4 text-orange-400" />} label="Streak" value={`${currentStreak} ngày`} />
+                        <StatPill icon={<Flame className="w-4 h-4 text-warning" />} label="Streak" value={`${currentStreak} ngày`} />
                         <StatPill
-                            icon={<Target className="w-4 h-4 text-cyan-400" />}
+                            icon={<Target className="w-4 h-4 text-accent" />}
                             label="Tiến độ"
                             value={`${dailyProgress}/${dailyGoal}`}
                             highlight={goalMet}
                         />
                         <StatPill
-                            icon={<BookOpen className="w-4 h-4 text-purple-400" />}
+                            icon={<BookOpen className="w-4 h-4 text-accent" />}
                             label="Mục tiêu"
                             value={goalMet ? 'Đạt' : 'Chưa'}
                             highlight={goalMet}
@@ -207,11 +207,11 @@ export default function BuddyPage() {
                 {/* Buddies list */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-white font-bold text-sm uppercase tracking-wide">Study Buddies ({buddies.length}/5)</h2>
+                        <h2 className="text-ink font-bold text-sm uppercase tracking-wide">Study Buddies ({buddies.length}/5)</h2>
                         {buddies.length < 5 && (
                             <button
                                 onClick={() => setShowAddPanel(v => !v)}
-                                className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300 text-sm transition-colors"
+                                className="flex items-center gap-1 text-accent hover:text-accent text-sm transition-colors"
                             >
                                 <Plus className="w-4 h-4" />
                                 Thêm bạn
@@ -228,18 +228,18 @@ export default function BuddyPage() {
                                 exit={{ opacity: 0, height: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700 space-y-4">
+                                <div className="bg-surface rounded-2xl p-4 border border-line space-y-4">
                                     {/* Create invite */}
                                     <div className="space-y-2">
-                                        <p className="text-slate-400 text-xs">Tạo mã mời cho bạn bè</p>
+                                        <p className="text-muted text-xs">Tạo mã mời cho bạn bè</p>
                                         {inviteCode ? (
                                             <div className="flex gap-2">
-                                                <div className="flex-1 px-4 py-2 bg-slate-700 rounded-lg text-white font-mono text-lg tracking-widest text-center">
+                                                <div className="flex-1 px-4 py-2 bg-surface-2 rounded-lg text-ink font-mono text-lg tracking-widest text-center">
                                                     {inviteCode}
                                                 </div>
                                                 <button
                                                     onClick={handleCopyCode}
-                                                    className="px-3 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-all"
+                                                    className="px-3 py-2 bg-accent hover:bg-accent-strong text-on-accent rounded-lg transition-all"
                                                 >
                                                     {codeCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                                                 </button>
@@ -247,21 +247,21 @@ export default function BuddyPage() {
                                         ) : (
                                             <button
                                                 onClick={handleCreateCode}
-                                                className="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-all"
+                                                className="w-full py-2 bg-surface-2 hover:bg-surface-3 text-ink rounded-lg text-sm transition-all"
                                             >
                                                 Tạo mã mời
                                             </button>
                                         )}
                                         {inviteCode && (
-                                            <p className="text-slate-500 text-xs text-center">Hết hạn sau 48 giờ</p>
+                                            <p className="text-muted text-xs text-center">Hết hạn sau 48 giờ</p>
                                         )}
                                     </div>
 
-                                    <div className="border-t border-slate-700" />
+                                    <div className="border-t border-line" />
 
                                     {/* Enter invite code */}
                                     <div className="space-y-2">
-                                        <p className="text-slate-400 text-xs">Nhập mã từ bạn bè</p>
+                                        <p className="text-muted text-xs">Nhập mã từ bạn bè</p>
                                         <div className="flex gap-2">
                                             <input
                                                 value={joinCode}
@@ -269,18 +269,18 @@ export default function BuddyPage() {
                                                 onKeyDown={e => e.key === 'Enter' && handleJoin()}
                                                 placeholder="ABC123"
                                                 maxLength={6}
-                                                className="flex-1 px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white font-mono placeholder-slate-500 text-center text-lg tracking-widest focus:outline-none focus:border-cyan-500 transition-colors uppercase"
+                                                className="flex-1 px-4 py-2 bg-surface-2 border border-line-strong rounded-lg text-ink font-mono placeholder-muted text-center text-lg tracking-widest focus:outline-none focus:border-accent transition-colors uppercase"
                                             />
                                             <button
                                                 onClick={handleJoin}
                                                 disabled={joinCode.length < 6 || joinStatus === 'loading'}
-                                                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:opacity-40 text-white rounded-lg transition-all flex items-center"
+                                                className="px-4 py-2 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent rounded-lg transition-all flex items-center"
                                             >
                                                 {joinStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'OK'}
                                             </button>
                                         </div>
-                                        {joinStatus === 'error' && <p className="text-red-400 text-xs">{joinError}</p>}
-                                        {joinStatus === 'success' && <p className="text-green-400 text-xs">Đã kết nối!</p>}
+                                        {joinStatus === 'error' && <p className="text-danger text-xs">{joinError}</p>}
+                                        {joinStatus === 'success' && <p className="text-accent text-xs">Đã kết nối!</p>}
                                     </div>
                                 </div>
                             </motion.div>
@@ -290,13 +290,13 @@ export default function BuddyPage() {
                     {/* Buddy cards */}
                     {loadingBuddies ? (
                         <div className="flex justify-center py-8">
-                            <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+                            <Loader2 className="w-6 h-6 text-accent animate-spin" />
                         </div>
                     ) : buddies.length === 0 ? (
-                        <div className="bg-slate-800/50 rounded-2xl p-8 border border-slate-700 border-dashed text-center space-y-2">
-                            <Users className="w-8 h-8 text-slate-600 mx-auto" />
-                            <p className="text-slate-400 text-sm">Chưa có buddy nào</p>
-                            <p className="text-slate-500 text-xs">Tạo mã mời và gửi cho bạn bè để bắt đầu</p>
+                        <div className="bg-surface/50 rounded-2xl p-8 border border-line border-dashed text-center space-y-2">
+                            <Users className="w-8 h-8 text-subtle mx-auto" />
+                            <p className="text-muted text-sm">Chưa có buddy nào</p>
+                            <p className="text-muted text-xs">Tạo mã mời và gửi cho bạn bè để bắt đầu</p>
                         </div>
                     ) : (
                         <div className="space-y-3">
@@ -324,10 +324,10 @@ function StatPill({ icon, label, value, highlight }: {
     highlight?: boolean;
 }) {
     return (
-        <div className={`rounded-xl p-3 text-center space-y-1 ${highlight ? 'bg-cyan-500/10 border border-cyan-500/30' : 'bg-slate-700/50'}`}>
+        <div className={`rounded-xl p-3 text-center space-y-1 ${highlight ? 'bg-accent/10 border border-accent/30' : 'bg-surface-2/50'}`}>
             <div className="flex justify-center">{icon}</div>
-            <div className="text-white font-bold text-sm">{value}</div>
-            <div className="text-slate-500 text-xs">{label}</div>
+            <div className="text-ink font-bold text-sm">{value}</div>
+            <div className="text-muted text-xs">{label}</div>
         </div>
     );
 }
@@ -346,25 +346,25 @@ function BuddyCard({ buddy, myGoalMet, onRemove }: {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-slate-800 rounded-2xl p-4 border transition-all ${duoActive ? 'border-cyan-500/30 bg-cyan-500/10' : 'border-slate-700'}`}
+            className={`bg-surface rounded-2xl p-4 border transition-all ${duoActive ? 'border-accent/30 bg-accent/10' : 'border-line'}`}
         >
             <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                     <div>
-                        <div className="text-white font-semibold text-sm">{buddy.nickname}</div>
+                        <div className="text-ink font-semibold text-sm">{buddy.nickname}</div>
                         <div className="flex items-center gap-2 mt-0.5">
                             {/* Personal streak */}
-                            <span className="text-orange-400 text-xs flex items-center gap-0.5">
+                            <span className="text-warning text-xs flex items-center gap-0.5">
                                 <Flame className="w-3 h-3" />
                                 {buddy.today?.streak ?? 0}
                             </span>
                             {/* ELO Rating */}
-                            <span className="text-xs text-slate-400 flex items-center gap-0.5">
+                            <span className="text-xs text-muted flex items-center gap-0.5">
                                 <Target className="w-3 h-3" />
                                 {buddy.today?.words_swiped || 0}/{buddy.today?.daily_goal || 0}
                             </span>
                             {/* Duo streak */}
-                            <span className={`text-xs flex items-center gap-0.5 ${duoActive ? 'text-cyan-400' : 'text-slate-500'}`}>
+                            <span className={`text-xs flex items-center gap-0.5 ${duoActive ? 'text-accent' : 'text-muted'}`}>
                                 <Zap className="w-3 h-3" />
                                 {buddy.duoStreak} đôi
                             </span>
@@ -376,23 +376,23 @@ function BuddyCard({ buddy, myGoalMet, onRemove }: {
                 <div className="text-right">
                     {buddyStudiedToday ? (
                         <div className="space-y-0.5">
-                            <div className="text-xs text-slate-400">
+                            <div className="text-xs text-muted">
                                 {buddy.today!.words_swiped}/{buddy.today!.daily_goal} thẻ
                             </div>
-                            <div className={`text-xs font-medium ${buddyGoalMet ? 'text-cyan-500' : 'text-slate-400'}`}>
+                            <div className={`text-xs font-medium ${buddyGoalMet ? 'text-accent' : 'text-muted'}`}>
                                 {buddyGoalMet ? 'Đạt mục tiêu' : 'Đang học'}
                             </div>
                         </div>
                     ) : (
-                        <span className="text-slate-500 text-xs">Chưa học hôm nay</span>
+                        <span className="text-muted text-xs">Chưa học hôm nay</span>
                     )}
                 </div>
             </div>
 
             {/* Duo streak banner */}
             {duoActive && (
-                <div className="mt-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl px-3 py-2 text-center">
-                    <span className="text-cyan-500 text-xs font-medium flex items-center justify-center gap-1">
+                <div className="mt-3 bg-accent/10 border border-accent/30 rounded-xl px-3 py-2 text-center">
+                    <span className="text-accent text-xs font-medium flex items-center justify-center gap-1">
                         <Zap className="w-3 h-3" /> Cả hai đều đạt mục tiêu hôm nay! Chuỗi đôi +1
                     </span>
                 </div>
@@ -402,13 +402,13 @@ function BuddyCard({ buddy, myGoalMet, onRemove }: {
             <div className="mt-3 flex justify-end">
                 {confirmRemove ? (
                     <div className="flex gap-2">
-                        <button onClick={() => setConfirmRemove(false)} className="text-slate-400 hover:text-white text-xs transition-colors">Hủy</button>
-                        <button onClick={onRemove} className="text-red-400 hover:text-red-300 text-xs transition-colors flex items-center gap-1">
+                        <button onClick={() => setConfirmRemove(false)} className="text-muted hover:text-ink text-xs transition-colors">Hủy</button>
+                        <button onClick={onRemove} className="text-danger hover:text-danger text-xs transition-colors flex items-center gap-1">
                             <UserX className="w-3 h-3" /> Xác nhận xóa
                         </button>
                     </div>
                 ) : (
-                    <button onClick={() => setConfirmRemove(true)} className="text-slate-600 hover:text-slate-400 text-xs transition-colors">
+                    <button onClick={() => setConfirmRemove(true)} className="text-subtle hover:text-muted text-xs transition-colors">
                         Xóa buddy
                     </button>
                 )}

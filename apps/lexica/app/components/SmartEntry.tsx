@@ -92,21 +92,21 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.1, type: 'spring' }}
-                        className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 flex items-center justify-center"
+                        className="mx-auto mb-4 w-16 h-16 rounded-2xl bg-accent/20 border border-accent/30 flex items-center justify-center"
                     >
-                        <GreetingIcon className="w-8 h-8 text-cyan-400" />
+                        <GreetingIcon className="w-8 h-8 text-accent" />
                     </motion.div>
-                    <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{greeting.text}!</h2>
-                    <p className="text-slate-400 text-xs sm:text-sm">Hôm nay bạn muốn học bao nhiêu từ?</p>
+                    <h2 className="text-xl sm:text-2xl font-bold text-ink mb-2">{greeting.text}!</h2>
+                    <p className="text-muted text-xs sm:text-sm">Hôm nay bạn muốn học bao nhiêu từ?</p>
                 </div>
 
                 {/* Slider */}
                 <div className="w-full max-w-sm mb-6 sm:mb-8">
                     <div className="mb-3 sm:mb-4">
-                        <div className="text-5xl sm:text-6xl font-bold text-cyan-400 mb-2">
+                        <div className="text-5xl sm:text-6xl font-bold text-accent mb-2">
                             {sliderValue}
                         </div>
-                        <div className="text-slate-500 text-sm">từ vựng</div>
+                        <div className="text-muted text-sm">từ vựng</div>
                     </div>
 
                     <input
@@ -116,13 +116,13 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                         step="5"
                         value={sliderValue}
                         onChange={(e) => setSliderValue(Number(e.target.value))}
-                        className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+                        className="w-full h-2 bg-surface-2 rounded-lg appearance-none cursor-pointer accent-accent"
                         style={{
-                            background: `linear-gradient(to right, rgb(6 182 212) 0%, rgb(6 182 212) ${((sliderValue - 5) / 25) * 100}%, rgb(51 65 85) ${((sliderValue - 5) / 25) * 100}%, rgb(51 65 85) 100%)`
+                            background: `linear-gradient(to right, var(--color-accent) 0%, var(--color-accent) ${((sliderValue - 5) / 25) * 100}%, var(--color-surface-3) ${((sliderValue - 5) / 25) * 100}%, var(--color-surface-3) 100%)`
                         }}
                     />
 
-                    <div className="flex justify-between text-xs text-slate-500 mt-2">
+                    <div className="flex justify-between text-xs text-muted mt-2">
                         <span>5</span>
                         <span>10</span>
                         <span>15</span>
@@ -135,13 +135,13 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                 {/* Start Button */}
                 <button
                     onClick={handleStartWithGoal}
-                    className="px-6 sm:px-8 py-3 sm:py-4 bg-cyan-600 hover:bg-cyan-500 rounded-xl font-bold text-white text-base sm:text-lg transition-all transform hover:scale-105 active:scale-95"
+                    className="px-6 sm:px-8 py-3 sm:py-4 bg-accent hover:bg-accent-strong rounded-xl font-bold text-on-accent text-base sm:text-lg transition-all transform hover:scale-105 active:scale-95"
                 >
                     Bắt đầu học
                 </button>
 
                 {/* Info */}
-                <p className="text-slate-600 text-xs mt-6 max-w-xs">
+                <p className="text-subtle text-xs mt-6 max-w-xs">
                     Bạn có thể thay đổi mục tiêu này bất cứ lúc nào trong Settings
                 </p>
             </motion.div>
@@ -157,12 +157,12 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
         >
             {/* Header */}
             <div className="text-center mb-6 sm:mb-8">
-                <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Chào mừng trở lại!</h2>
-                <p className="text-slate-400 text-sm">
+                <h2 className="text-2xl sm:text-3xl font-bold text-ink mb-2">Chào mừng trở lại!</h2>
+                <p className="text-muted text-sm">
                     {remaining > 0 ? (
-                        <>Còn <span className="text-cyan-400 font-bold">{remaining} từ</span> để đạt mục tiêu hôm nay</>
+                        <>Còn <span className="text-accent font-bold">{remaining} từ</span> để đạt mục tiêu hôm nay</>
                     ) : (
-                        <>Bạn đã hoàn thành <span className="text-amber-400 font-bold">{dailyGoal} từ</span> hôm nay!</>
+                        <>Bạn đã hoàn thành <span className="text-warning font-bold">{dailyGoal} từ</span> hôm nay!</>
                     )}
                 </p>
             </div>
@@ -174,18 +174,18 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                     <Link
                         href="/review"
                         onClick={() => buttonPress()}
-                        className="flex items-center justify-between p-5 rounded-xl bg-slate-700/50 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-500 transition-all group hover:scale-[1.02] active:scale-95"
+                        className="flex items-center justify-between p-5 rounded-xl bg-surface-2/50 hover:bg-surface-2 border-2 border-line-strong hover:border-line-strong transition-all group hover:scale-[1.02] active:scale-95"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-xl bg-slate-600/50">
-                                <RotateCcw className="w-6 h-6 text-slate-200" />
+                            <div className="p-3 rounded-xl bg-surface-3/50">
+                                <RotateCcw className="w-6 h-6 text-ink" />
                             </div>
                             <div>
-                                <p className="text-white font-bold text-lg">Ôn tập đến hạn</p>
-                                <p className="text-slate-400 text-sm">{dueCount} từ cần ôn ngay</p>
+                                <p className="text-ink font-bold text-lg">Ôn tập đến hạn</p>
+                                <p className="text-muted text-sm">{dueCount} từ cần ôn ngay</p>
                             </div>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-5 h-5 text-ink-2 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 )}
 
@@ -194,40 +194,40 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                     <Link
                         href="/stories"
                         onClick={() => buttonPress()}
-                        className="flex items-center justify-between p-5 rounded-xl bg-slate-700/50 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-500 transition-all group hover:scale-[1.02] active:scale-95"
+                        className="flex items-center justify-between p-5 rounded-xl bg-surface-2/50 hover:bg-surface-2 border-2 border-line-strong hover:border-line-strong transition-all group hover:scale-[1.02] active:scale-95"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-xl bg-slate-600/50">
-                                <BookMarked className="w-6 h-6 text-slate-200" />
+                            <div className="p-3 rounded-xl bg-surface-3/50">
+                                <BookMarked className="w-6 h-6 text-ink" />
                             </div>
                             <div>
-                                <p className="text-white font-bold text-lg">Câu chuyện mới</p>
-                                <p className="text-slate-400 text-sm">Thực hành qua story mode</p>
+                                <p className="text-ink font-bold text-lg">Câu chuyện mới</p>
+                                <p className="text-muted text-sm">Thực hành qua story mode</p>
                             </div>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-5 h-5 text-ink-2 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 )}
 
                 {/* Priority 3: Continue Learning (Default) */}
                 <button
                     onClick={handleContinue}
-                    className="w-full flex items-center justify-between p-5 rounded-xl bg-slate-700/50 hover:bg-slate-700 border-2 border-slate-600 hover:border-slate-500 transition-all group hover:scale-[1.02] active:scale-95"
+                    className="w-full flex items-center justify-between p-5 rounded-xl bg-surface-2/50 hover:bg-surface-2 border-2 border-line-strong hover:border-line-strong transition-all group hover:scale-[1.02] active:scale-95"
                 >
                     <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-slate-600/50">
-                            <Zap className="w-6 h-6 text-slate-200" />
+                        <div className="p-3 rounded-xl bg-surface-3/50">
+                            <Zap className="w-6 h-6 text-ink" />
                         </div>
                         <div className="text-left">
-                            <p className="text-white font-bold text-lg">
+                            <p className="text-ink font-bold text-lg">
                                 {remaining > 0 ? 'Tiếp tục học' : 'Học thêm'}
                             </p>
-                            <p className="text-slate-400 text-sm">
+                            <p className="text-muted text-sm">
                                 {remaining > 0 ? `Còn ${remaining} từ mục tiêu` : 'Vượt mục tiêu hôm nay'}
                             </p>
                         </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="w-5 h-5 text-ink-2 group-hover:translate-x-1 transition-transform" />
                 </button>
 
                 {/* Secondary Actions */}
@@ -235,7 +235,7 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                     <Link
                         href="/learned"
                         onClick={() => buttonPress()}
-                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600 hover:border-slate-500 transition-all text-slate-300 text-sm font-medium"
+                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong transition-all text-ink-2 text-sm font-medium"
                     >
                         <BookOpen className="w-4 h-4" />
                         Từ đã học
@@ -245,7 +245,7 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                             buttonPress();
                             setManualShowSlider(true);
                         }}
-                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-slate-700/50 hover:bg-slate-700 border border-slate-600 hover:border-slate-500 transition-all text-slate-300 text-sm font-medium"
+                        className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong transition-all text-ink-2 text-sm font-medium"
                     >
                         <Zap className="w-4 h-4" />
                         Đổi mục tiêu

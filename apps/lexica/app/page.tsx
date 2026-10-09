@@ -189,31 +189,31 @@ function HomeContent() {
       case 'challenging':
         return {
           icon: TrendingDown,
-          color: 'text-slate-300',
-          bgColor: 'bg-slate-700/50',
-          borderColor: 'border-slate-600',
+          color: 'text-ink-2',
+          bgColor: 'bg-surface-2/50',
+          borderColor: 'border-line-strong',
         };
       case 'too-easy':
       case 'easy':
         return {
           icon: TrendingUp,
-          color: 'text-cyan-400',
-          bgColor: 'bg-cyan-500/10',
-          borderColor: 'border-cyan-500/30',
+          color: 'text-accent',
+          bgColor: 'bg-accent/10',
+          borderColor: 'border-accent/30',
         };
       case 'perfect':
         return {
           icon: Zap,
-          color: 'text-cyan-400',
-          bgColor: 'bg-cyan-500/10',
-          borderColor: 'border-cyan-500/30',
+          color: 'text-accent',
+          bgColor: 'bg-accent/10',
+          borderColor: 'border-accent/30',
         };
       default:
         return {
           icon: Check,
-          color: 'text-slate-400',
-          bgColor: 'bg-slate-700/50',
-          borderColor: 'border-slate-600',
+          color: 'text-muted',
+          bgColor: 'bg-surface-2/50',
+          borderColor: 'border-line-strong',
         };
     }
   };
@@ -294,7 +294,7 @@ function HomeContent() {
   }, [dailyProgress, dailyGoal]);
 
   return (
-    <div className="relative h-screen flex flex-col bg-slate-900 overflow-hidden">
+    <div className="relative h-screen flex flex-col bg-bg overflow-hidden">
       {/* Review Prompt Modal */}
       <AnimatePresence>
         {showReviewPrompt && (
@@ -310,18 +310,18 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 8 }}
               transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-              className="w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl"
+              className="w-full max-w-sm bg-surface border border-line rounded-2xl p-6 shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 rounded-xl bg-amber-500/20">
-                  <RotateCcw className="w-6 h-6 text-amber-400" />
+                <div className="p-2.5 rounded-xl bg-warning/20">
+                  <RotateCcw className="w-6 h-6 text-warning" />
                 </div>
-                <h2 className="text-lg font-bold text-white">Ôn tập hôm nay</h2>
+                <h2 className="text-lg font-bold text-ink">Ôn tập hôm nay</h2>
               </div>
-              <p className="text-slate-300 text-sm mb-1">
-                Bạn có <span className="text-amber-400 font-bold">{previewDue || progressStats.dueToday} từ</span> cần ôn lại hôm nay.
+              <p className="text-ink-2 text-sm mb-1">
+                Bạn có <span className="text-warning font-bold">{previewDue || progressStats.dueToday} từ</span> cần ôn lại hôm nay.
               </p>
-              <p className="text-slate-500 text-xs mb-6">
+              <p className="text-muted text-xs mb-6">
                 Ôn tập giúp củng cố trí nhớ và tăng tốc độ ghi nhớ dài hạn.
               </p>
               <div className="flex gap-3">
@@ -330,7 +330,7 @@ function HomeContent() {
                     click();
                     setShowReviewPrompt(false);
                   }}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition-colors"
+                  className="flex-1 py-2.5 rounded-xl border border-line-strong text-ink-2 text-sm font-medium hover:border-line-strong hover:text-ink transition-colors"
                 >
                   Để sau
                 </button>
@@ -340,7 +340,7 @@ function HomeContent() {
                     setShowReviewPrompt(false);
                     router.push('/review');
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-900 text-sm font-bold transition-colors"
+                  className="flex-1 py-2.5 rounded-xl bg-warning hover:bg-warning text-on-accent text-sm font-bold transition-colors"
                 >
                   Ôn ngay →
                 </button>
@@ -365,18 +365,18 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 8 }}
               transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-              className="w-full max-w-sm bg-slate-800 border border-cyan-500/30 rounded-2xl p-6 shadow-2xl"
+              className="w-full max-w-sm bg-surface border border-accent/30 rounded-2xl p-6 shadow-2xl"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 rounded-xl bg-cyan-500/20">
-                  <Brain className="w-6 h-6 text-cyan-400" />
+                <div className="p-2.5 rounded-xl bg-accent/20">
+                  <Brain className="w-6 h-6 text-accent" />
                 </div>
-                <h2 className="text-lg font-bold text-white">Kết nối Cortex Hub</h2>
+                <h2 className="text-lg font-bold text-ink">Kết nối Cortex Hub</h2>
               </div>
-              <p className="text-slate-300 text-sm mb-1">
-                Bạn đã học được <span className="text-cyan-400 font-bold">{learnedCount} từ</span>!
+              <p className="text-ink-2 text-sm mb-1">
+                Bạn đã học được <span className="text-accent font-bold">{learnedCount} từ</span>!
               </p>
-              <p className="text-slate-400 text-xs mb-6">
+              <p className="text-muted text-xs mb-6">
                 Kết nối Cortex Hub để đồng bộ tiến độ học tập của bạn qua tất cả ứng dụng trong hệ sinh thái Cortex. Dữ liệu được phân tích bằng AI để cải thiện hiệu quả học tập.
               </p>
               <div className="flex gap-3">
@@ -386,7 +386,7 @@ function HomeContent() {
                     setShowCortexReminder(false);
                     localStorage.setItem('cortex_reminder_dismissed', new Date().toISOString());
                   }}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-600 text-slate-300 text-sm font-medium hover:border-slate-500 hover:text-white transition-colors"
+                  className="flex-1 py-2.5 rounded-xl border border-line-strong text-ink-2 text-sm font-medium hover:border-line-strong hover:text-ink transition-colors"
                 >
                   Để sau
                 </button>
@@ -396,7 +396,7 @@ function HomeContent() {
                     setShowCortexReminder(false);
                     if (CORTEX_HUB_URL) window.open(CORTEX_HUB_URL, '_blank');
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold transition-colors"
+                  className="flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-bold transition-colors"
                 >
                   Kết nối ngay →
                 </button>
@@ -422,11 +422,11 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="w-full max-w-sm bg-slate-800 border-2 border-cyan-500/60 rounded-2xl p-6 shadow-2xl relative overflow-hidden"
+              className="w-full max-w-sm bg-surface border-2 border-accent/60 rounded-2xl p-6 shadow-2xl relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Subtle background glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-accent/5 pointer-events-none" />
 
               <div className="text-center relative z-10">
                 {/* Celebration Icon with bounce */}
@@ -442,7 +442,7 @@ function HomeContent() {
                     stiffness: 400,
                     damping: 10,
                   }}
-                  className="mx-auto mb-4 w-20 h-20 rounded-2xl bg-cyan-500/20 border-2 border-cyan-500/50 flex items-center justify-center relative"
+                  className="mx-auto mb-4 w-20 h-20 rounded-2xl bg-accent/20 border-2 border-accent/50 flex items-center justify-center relative"
                 >
                   {/* Pulsing ring effect */}
                   <motion.div
@@ -455,9 +455,9 @@ function HomeContent() {
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
-                    className="absolute inset-0 rounded-2xl border-2 border-cyan-400"
+                    className="absolute inset-0 rounded-2xl border-2 border-accent"
                   />
-                  <Award className="w-10 h-10 text-cyan-400" />
+                  <Award className="w-10 h-10 text-accent" />
                 </motion.div>
 
                 {/* Title with bounce */}
@@ -465,7 +465,7 @@ function HomeContent() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="text-2xl font-bold text-white mb-3"
+                  className="text-2xl font-bold text-ink mb-3"
                 >
                   Tuyệt vời!
                 </motion.h2>
@@ -476,14 +476,14 @@ function HomeContent() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
                 >
-                  <p className="text-slate-300 text-base mb-2">
+                  <p className="text-ink-2 text-base mb-2">
                     Bạn vừa hoàn thành mục tiêu hôm nay
                   </p>
 
                   {/* Goal achievement badge */}
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/15 border border-cyan-500/30 rounded-xl mb-3">
-                    <Check className="w-5 h-5 text-cyan-400" />
-                    <span className="text-cyan-400 font-bold text-lg">{dailyGoal} từ vựng</span>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/15 border border-accent/30 rounded-xl mb-3">
+                    <Check className="w-5 h-5 text-accent" />
+                    <span className="text-accent font-bold text-lg">{dailyGoal} từ vựng</span>
                   </div>
                 </motion.div>
 
@@ -492,7 +492,7 @@ function HomeContent() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="text-slate-400 text-sm mt-4 leading-relaxed"
+                  className="text-muted text-sm mt-4 leading-relaxed"
                 >
                   {dailyProgress > dailyGoal
                     ? 'Tiếp tục duy trì phong độ này nhé!'
@@ -520,28 +520,28 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="w-full max-w-md bg-slate-800 border-2 border-amber-500/50 rounded-2xl p-6 shadow-2xl"
+              className="w-full max-w-md bg-surface border-2 border-warning/50 rounded-2xl p-6 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center">
                 {/* Warning Icon */}
-                <div className="mx-auto mb-4 w-16 h-16 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-                  <Brain className="w-8 h-8 text-amber-400" />
+                <div className="mx-auto mb-4 w-16 h-16 rounded-xl bg-warning/20 border border-warning/40 flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-warning" />
                 </div>
 
                 {/* Title */}
-                <h2 className="text-xl font-bold text-white mb-3">
+                <h2 className="text-xl font-bold text-ink mb-3">
                   Lưu ý về việc học quá nhiều
                 </h2>
 
                 {/* Message */}
-                <p className="text-slate-300 text-sm mb-4 leading-relaxed">
-                  Bạn đã học <span className="text-amber-400 font-bold">{dailyProgress} từ mới</span> hôm nay.
+                <p className="text-ink-2 text-sm mb-4 leading-relaxed">
+                  Bạn đã học <span className="text-warning font-bold">{dailyProgress} từ mới</span> hôm nay.
                   Học quá nhiều từ trong một ngày có thể làm giảm khả năng ghi nhớ từng từ.
                 </p>
 
-                <div className="bg-slate-700/50 border border-slate-600 rounded-xl p-4 text-left space-y-2">
-                  <p className="text-slate-300 text-xs font-medium">Gợi ý cho bạn:</p>
+                <div className="bg-surface-2/50 border border-line-strong rounded-xl p-4 text-left space-y-2">
+                  <p className="text-ink-2 text-xs font-medium">Gợi ý cho bạn:</p>
                   <div className="space-y-1.5">
                     <Link
                       href="/learned#practice-section"
@@ -549,7 +549,7 @@ function HomeContent() {
                         buttonPress();
                         setShowOverlearningReminder(false);
                       }}
-                      className="flex items-center gap-2 text-cyan-400 text-xs hover:text-cyan-300 transition-colors"
+                      className="flex items-center gap-2 text-accent text-xs hover:text-accent transition-colors"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                       Ôn tập từ đã học để củng cố trí nhớ
@@ -560,7 +560,7 @@ function HomeContent() {
                         buttonPress();
                         setShowOverlearningReminder(false);
                       }}
-                      className="flex items-center gap-2 text-cyan-400 text-xs hover:text-cyan-300 transition-colors"
+                      className="flex items-center gap-2 text-accent text-xs hover:text-accent transition-colors"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
                       Thử Deep Dive Labs để hiểu sâu hơn
@@ -573,7 +573,7 @@ function HomeContent() {
                     click();
                     setShowOverlearningReminder(false);
                   }}
-                  className="mt-4 w-full py-2.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 rounded-lg text-slate-300 text-sm font-medium transition-colors"
+                  className="mt-4 w-full py-2.5 bg-surface-2 hover:bg-surface-3 border border-line-strong rounded-lg text-ink-2 text-sm font-medium transition-colors"
                 >
                   Đã hiểu
                 </button>
@@ -590,7 +590,7 @@ function HomeContent() {
 
       {/* Logo - Desktop Only */}
       <div className="hidden lg:block fixed top-4 left-4 md:top-6 md:left-6 z-50">
-        <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-bold text-ink tracking-tight">
           LEXICA
         </h1>
       </div>
@@ -598,7 +598,7 @@ function HomeContent() {
       {/* Help Button - Desktop Only */}
       <button
         onClick={() => { click(); setShowOnboarding(true); }}
-        className="hidden lg:flex fixed bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-slate-700 border border-slate-600 hover:border-cyan-500 hover:bg-slate-600 transition-colors items-center justify-center text-slate-400 hover:text-cyan-400 text-sm font-bold"
+        className="hidden lg:flex fixed bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-surface-2 border border-line-strong hover:border-accent hover:bg-surface-3 transition-colors items-center justify-center text-muted hover:text-accent text-sm font-bold"
         aria-label="Hướng dẫn"
       >
         ?
@@ -607,22 +607,7 @@ function HomeContent() {
       {/* Mobile Progress Bar - shown above main when session is active */}
       {sessionStarted && (
         <div className="lg:hidden w-full shrink-0 px-4 pt-3 pb-2">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-            <span>Tiến độ hôm nay</span>
-            <span>
-              <span className="text-cyan-400 font-bold">{dailyProgress}</span>
-              <span className="text-slate-600 mx-1">/</span>
-              <span>{dailyGoal}</span>
-            </span>
-          </div>
-          <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min((dailyProgress / dailyGoal) * 100, 100)}%` }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="h-full bg-cyan-500 rounded-full"
-            />
-          </div>
+          <DailyProgress done={dailyProgress} goal={dailyGoal} />
         </div>
       )}
 
@@ -633,66 +618,12 @@ function HomeContent() {
         <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-center lg:h-full lg:min-h-150">
           {/* Daily Progress Bar - desktop only (mobile version is above <main>) */}
           {sessionStarted && (
-            <div className="hidden lg:block w-full max-w-md mb-5 sm:mb-6 px-2 sm:px-4">
-              <div className="flex items-center justify-between text-xs sm:text-sm text-slate-300 mb-2 font-medium">
-                <span>Tiến độ hôm nay</span>
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-cyan-400 font-bold text-base sm:text-lg">{dailyProgress}</span>
-                    <span className="text-slate-600">/</span>
-                    <span className="text-slate-400">{dailyGoal}</span>
-                  </span>
-                </div>
-              </div>
-              <div className="relative h-2.5 sm:h-3 rounded-full bg-slate-800/80 border border-slate-700/50 overflow-hidden shadow-inner">
-                {/* Background shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-700/20 to-transparent" />
-
-                {/* Progress bar */}
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{
-                    width: `${Math.min((dailyProgress / dailyGoal) * 100, 100)}%`,
-                  }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
-                  className="relative h-full"
-                >
-                  {/* Main gradient bar */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-cyan-400 shadow-[0_0_16px_rgba(6,182,212,0.6)]" />
-
-                  {/* Animated shine effect */}
-                  <motion.div
-                    animate={{
-                      x: ['-100%', '200%'],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: 'linear',
-                    }}
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                  />
-
-                  {/* Pulse effect when at/near goal */}
-                  {dailyProgress >= dailyGoal && (
-                    <motion.div
-                      animate={{
-                        opacity: [0.5, 1, 0.5],
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                      }}
-                      className="absolute inset-0 bg-cyan-300/20"
-                    />
-                  )}
-                </motion.div>
-              </div>
+            <div className="hidden lg:block w-full max-w-md mb-6 px-4">
+              <DailyProgress done={dailyProgress} goal={dailyGoal} />
             </div>
           )}
 
-          <div className="w-full max-w-md flex items-center justify-center" data-tour-id="swipe-deck">
+          <div className={`w-full max-w-md flex items-center justify-center ${sessionStarted ? 'mb-28' : ''}`} data-tour-id="swipe-deck">
             <ErrorBoundary>
               {sessionStarted ? (
                 <SwipeDeck />
@@ -719,7 +650,7 @@ function HomeContent() {
                   <p className={`text-base font-bold ${statusDisplay.color}`}>
                     {analysis.message.split(' - ')[0]}
                   </p>
-                  <p className="text-sm text-slate-300 mt-1">
+                  <p className="text-sm text-ink-2 mt-1">
                     {analysis.message.split(' - ')[1]}
                   </p>
                 </div>
@@ -728,9 +659,9 @@ function HomeContent() {
                     click();
                     setShowDifficultyStatus(false);
                   }}
-                  className="p-1 hover:bg-slate-700/50 rounded-lg transition-colors"
+                  className="p-1 hover:bg-surface-2/50 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-slate-400" />
+                  <X className="w-5 h-5 text-muted" />
                 </button>
               </div>
             </motion.div>
@@ -738,28 +669,28 @@ function HomeContent() {
         </AnimatePresence>
 
         {/* Mobile Bottom Navigation Bar - Fixed */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-800">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-bg/95 backdrop-blur-md border-t border-line">
           <div className="flex items-stretch max-w-md mx-auto">
             <button
               onClick={() => { click(); setShowMobileStats(true); }}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-slate-500 hover:text-slate-300 transition-colors active:scale-95"
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95"
             >
               <BarChart3 className="w-4 h-4" />
               <span className="text-[10px]">Thống kê</span>
             </button>
 
             <Link href="/learned" className="flex-1">
-              <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-slate-500 hover:text-slate-300 transition-colors active:scale-95 h-full relative">
+              <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95 h-full relative">
                 <BookOpen className="w-4 h-4" />
                 <span className="text-[10px]">Đã học</span>
                 {learnedCount > 0 && (
-                  <span className="absolute top-2 right-1/4 translate-x-full text-[9px] font-bold text-cyan-400">{learnedCount}</span>
+                  <span className="absolute top-2 right-1/4 translate-x-full text-[9px] font-bold text-accent">{learnedCount}</span>
                 )}
               </div>
             </Link>
 
             <Link href="/buddy" className="flex-1">
-              <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-cyan-500 hover:text-cyan-400 transition-colors active:scale-95 h-full">
+              <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-accent hover:text-accent transition-colors active:scale-95 h-full">
                 <Users className="w-4 h-4" />
                 <span className="text-[10px]">Study Buddy</span>
               </div>
@@ -767,7 +698,7 @@ function HomeContent() {
 
             {dueToday > 0 && (
               <Link href="/review" className="flex-1">
-                <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-amber-500 hover:text-amber-400 transition-colors active:scale-95 h-full">
+                <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-warning hover:text-warning transition-colors active:scale-95 h-full">
                   <RotateCcw className="w-4 h-4" />
                   <span className="text-[10px]">{dueToday} từ</span>
                 </div>
@@ -776,7 +707,7 @@ function HomeContent() {
 
             <button
               onClick={() => { click(); handleChangeLevel(); }}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-slate-500 hover:text-slate-300 transition-colors active:scale-95"
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95"
               aria-label="Đổi level"
             >
               <Settings className="w-4 h-4" />
@@ -785,7 +716,7 @@ function HomeContent() {
 
             <button
               onClick={() => { click(); setShowOnboarding(true); }}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-slate-500 hover:text-slate-300 transition-colors active:scale-95"
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95"
               aria-label="Hướng dẫn"
             >
               <span className="text-sm font-bold leading-none">?</span>
@@ -802,9 +733,9 @@ function HomeContent() {
             data-tour-id="voice-mode-toggle"
             onClick={() => { click(); setSwipeMode(isVoiceMode ? 'touch' : 'voice'); }}
             className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors w-full ${isVoiceMode
-              ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300'
-              : 'bg-slate-800/40 border-slate-700/60 text-slate-400 hover:text-slate-300 hover:border-slate-600'
-              }`}
+ ? 'bg-accent/10 border-accent/30 text-accent'
+ : 'bg-surface/40 border-line/60 text-muted hover:text-ink-2 hover:border-line-strong'
+ }`}
           >
             {isVoiceMode ? <Mic className="w-4 h-4 shrink-0" /> : <Hand className="w-4 h-4 shrink-0" />}
             {isVoiceMode ? 'Voice Mode' : 'Touch Mode'}
@@ -813,52 +744,52 @@ function HomeContent() {
           {/* Stats */}
           <div className="space-y-3">
             <div className="flex justify-between items-center" data-tour-id="elo-rating">
-              <span className="text-sm text-slate-500">ELO</span>
-              <span className="text-sm font-mono text-cyan-400">{userStats.currentElo}</span>
+              <span className="text-sm text-muted">ELO</span>
+              <span className="text-sm font-mono text-accent">{userStats.currentElo}</span>
             </div>
             <div className="flex justify-between items-center" data-tour-id="learned-counter">
-              <span className="text-sm text-slate-500">Đã học</span>
-              <span className="text-sm font-semibold text-slate-200">{learnedCount}</span>
+              <span className="text-sm text-muted">Đã học</span>
+              <span className="text-sm font-semibold text-ink">{learnedCount}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-sm text-slate-500">Thành thạo</span>
-              <span className="text-sm font-semibold text-slate-200">{progressStats.mastered}</span>
+              <span className="text-sm text-muted">Thành thạo</span>
+              <span className="text-sm font-semibold text-ink">{progressStats.mastered}</span>
             </div>
           </div>
 
           {/* Nav Links */}
-          <div className="border-t border-slate-800 pt-4 space-y-0.5">
+          <div className="border-t border-line pt-4 space-y-0.5">
             <Link href="/learned" data-tour-id="learned-words-link"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors">
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-ink hover:bg-surface/60 transition-colors">
               <BookOpen className="w-4 h-4 shrink-0" />
               <span>Từ đã học</span>
-              {learnedCount > 0 && <span className="ml-auto text-xs text-slate-600">{learnedCount}</span>}
+              {learnedCount > 0 && <span className="ml-auto text-xs text-subtle">{learnedCount}</span>}
             </Link>
             <Link href="/buddy" data-tour-id="buddy-link"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-cyan-400 hover:text-cyan-300 hover:bg-slate-800/60 transition-colors">
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-accent hover:text-accent hover:bg-surface/60 transition-colors">
               <Users className="w-4 h-4 shrink-0" />
               <span>Study Buddy</span>
             </Link>
             {dueToday > 0 && (
               <Link href="/review" data-tour-id="review-link"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-amber-500 hover:text-amber-400 hover:bg-slate-800/60 transition-colors">
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-warning hover:text-warning hover:bg-surface/60 transition-colors">
                 <RotateCcw className="w-4 h-4 shrink-0" />
                 <span>Ôn tập</span>
                 <span className="ml-auto text-xs">{dueToday} từ</span>
               </Link>
             )}
             <Link href="/stats"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-colors">
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-ink hover:bg-surface/60 transition-colors">
               <BarChart3 className="w-4 h-4 shrink-0" />
               <span>Thống kê</span>
             </Link>
           </div>
 
           {/* Settings */}
-          <div className="border-t border-slate-800 pt-4 space-y-0.5">
+          <div className="border-t border-line pt-4 space-y-0.5">
             <button
               onClick={() => { click(); handleChangeLevel(); }}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-500 hover:text-slate-300 hover:bg-slate-800/60 transition-colors w-full text-left"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-ink-2 hover:bg-surface/60 transition-colors w-full text-left"
             >
               <Settings className="w-4 h-4 shrink-0" />
               <span>Đổi level</span>
@@ -866,7 +797,7 @@ function HomeContent() {
             {process.env.NODE_ENV === 'development' && (
               <button
                 onClick={() => { click(); resetProgress(); }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-slate-400 hover:bg-slate-800/60 transition-colors w-full text-left"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-subtle hover:text-muted hover:bg-surface/60 transition-colors w-full text-left"
               >
                 <RotateCcw className="w-4 h-4 shrink-0" />
                 <span>Reset</span>
@@ -896,90 +827,90 @@ function HomeContent() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-slate-800 border-t-2 border-cyan-500/30 rounded-t-3xl z-50 lg:hidden max-h-[85vh] overflow-y-auto"
+              className="fixed bottom-0 left-0 right-0 bg-surface border-t-2 border-accent/30 rounded-t-3xl z-50 lg:hidden max-h-[85vh] overflow-y-auto"
             >
               {/* Header */}
-              <div className="sticky top-0 bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">Thống kê</h3>
+              <div className="sticky top-0 bg-surface border-b border-line px-6 py-4 flex items-center justify-between">
+                <h3 className="text-lg font-bold text-ink">Thống kê</h3>
                 <button
                   onClick={() => {
                     click();
                     setShowMobileStats(false);
                   }}
-                  className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                  className="p-2 hover:bg-surface-2 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-slate-400" />
+                  <X className="w-5 h-5 text-muted" />
                 </button>
               </div>
 
               {/* Content */}
               <div className="p-6 space-y-5">
                 {/* Voice/Touch Mode Toggle */}
-                <div className="space-y-3 pb-4 border-b border-slate-700">
+                <div className="space-y-3 pb-4 border-b border-line">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm">Chế độ swipe</span>
+                    <span className="text-muted text-sm">Chế độ swipe</span>
                     <button
                       onClick={() => {
                         click();
                         setSwipeMode(isVoiceMode ? 'touch' : 'voice');
                       }}
                       className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${isVoiceMode
-                        ? 'bg-cyan-500/12 border-cyan-400/35 text-cyan-200'
-                        : 'bg-slate-700/40 border-slate-600/50 text-slate-200 hover:border-slate-400/60'
-                        }`}
+ ? 'bg-accent/12 border-accent/35 text-accent'
+ : 'bg-surface-2/40 border-line-strong/50 text-ink hover:border-line-strong/60'
+ }`}
                     >
                       {isVoiceMode ? <Mic className="w-3.5 h-3.5" /> : <Hand className="w-3.5 h-3.5" />}
                       {isVoiceMode ? 'Voice Mode' : 'Touch Mode'}
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-muted">
                     Voice mode yêu cầu đọc đúng từ trên cùng 3 lần liên tiếp.
                   </p>
                 </div>
 
                 {/* Performance Stats */}
                 <div className="space-y-3">
-                  <h3 className="text-slate-400 text-xs uppercase tracking-wider font-medium">Performance</h3>
+                  <h3 className="text-muted text-xs uppercase font-mono font-medium">Performance</h3>
 
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-cyan-400" />
-                      <span className="text-slate-300 text-sm">ELO Rating</span>
+                      <TrendingUp className="w-4 h-4 text-accent" />
+                      <span className="text-ink-2 text-sm">ELO Rating</span>
                     </div>
-                    <span className="text-cyan-400 font-mono font-semibold">{userStats.currentElo}</span>
+                    <span className="text-accent font-mono font-semibold">{userStats.currentElo}</span>
                   </div>
                 </div>
 
                 {/* Progress Stats */}
-                <div className="space-y-3 pt-4 border-t border-slate-700">
-                  <h3 className="text-slate-400 text-xs uppercase tracking-wider font-medium">Progress</h3>
+                <div className="space-y-3 pt-4 border-t border-line">
+                  <h3 className="text-muted text-xs uppercase font-mono font-medium">Progress</h3>
 
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-cyan-400" />
-                      <span className="text-slate-300 text-sm">Learned</span>
+                      <BookOpen className="w-4 h-4 text-accent" />
+                      <span className="text-ink-2 text-sm">Learned</span>
                     </div>
-                    <span className="text-cyan-400 font-semibold">{learnedCount}</span>
+                    <span className="text-accent font-semibold">{learnedCount}</span>
                   </div>
 
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                      <Award className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-300 text-sm">Mastered</span>
+                      <Award className="w-4 h-4 text-muted" />
+                      <span className="text-ink-2 text-sm">Mastered</span>
                     </div>
-                    <span className="text-white font-semibold">{progressStats.mastered}</span>
+                    <span className="text-ink font-semibold">{progressStats.mastered}</span>
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="space-y-2 pt-4 border-t border-slate-700">
+                <div className="space-y-2 pt-4 border-t border-line">
                   <Link href="/stats">
                     <button
                       onClick={() => {
                         click();
                         setShowMobileStats(false);
                       }}
-                      className="w-full mb-2 px-4 py-2.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/15 border border-cyan-500/30 hover:border-cyan-500/50 text-cyan-300 hover:text-cyan-200 text-sm font-medium transition-all flex items-center justify-center gap-2"
+                      className="w-full mb-2 px-4 py-2.5 rounded-lg bg-accent/10 hover:bg-accent-strong/15 border border-accent/30 hover:border-accent/50 text-accent hover:text-accent text-sm font-medium transition-all flex items-center justify-center gap-2"
                     >
                       <BarChart3 className="w-4 h-4" />
                       Xem thống kê chi tiết
@@ -991,7 +922,7 @@ function HomeContent() {
                       handleChangeLevel();
                       setShowMobileStats(false);
                     }}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-200 text-sm font-medium transition-colors border border-slate-600/50 hover:border-slate-500 flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2.5 rounded-lg bg-surface-2/50 hover:bg-surface-2 text-ink text-sm font-medium transition-colors border border-line-strong/50 hover:border-line-strong flex items-center justify-center gap-2"
                   >
                     <Settings className="w-4 h-4" />
                     Đổi level
@@ -1003,7 +934,7 @@ function HomeContent() {
                         resetProgress();
                         setShowMobileStats(false);
                       }}
-                      className="w-full px-4 py-2.5 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-400 text-sm font-medium transition-colors border border-slate-600/30 hover:border-slate-600 flex items-center justify-center gap-2"
+                      className="w-full px-4 py-2.5 rounded-lg bg-surface-2/30 hover:bg-surface-2/50 text-muted text-sm font-medium transition-colors border border-line-strong/30 hover:border-line-strong flex items-center justify-center gap-2"
                     >
                       <RotateCcw className="w-4 h-4" />
                       Reset Progress
@@ -1025,8 +956,8 @@ function HomeContent() {
 
 function HomePageFallback() {
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="w-8 h-8 rounded-full border-2 border-slate-700 border-t-cyan-400 animate-spin" />
+    <div className="min-h-screen bg-bg flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-line border-t-accent animate-spin" />
     </div>
   );
 }
@@ -1036,5 +967,24 @@ export default function Home() {
     <Suspense fallback={<HomePageFallback />}>
       <HomeContent />
     </Suspense>
+  );
+}
+
+/** Segmented daily-goal bar in the design system's "Focus" style. */
+function DailyProgress({ done, goal }: { done: number; goal: number }) {
+  const segments = Math.max(1, Math.min(goal, 30));
+  const filled = Math.min(segments, Math.round((done / Math.max(goal, 1)) * segments));
+  return (
+    <div className="space-y-2" aria-label={`Tiến độ hôm nay ${done}/${goal} từ`}>
+      <div className="flex items-center justify-between font-mono text-xs text-muted">
+        <span>Hôm nay</span>
+        <span><span className="text-ink">{done}</span><span className="text-subtle">/{goal}</span> từ</span>
+      </div>
+      <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${segments}, minmax(0, 1fr))` }}>
+        {Array.from({ length: segments }, (_, i) => (
+          <div key={i} className={`h-[3px] ${i < filled ? 'bg-accent' : 'bg-surface-3'}`} />
+        ))}
+      </div>
+    </div>
   );
 }

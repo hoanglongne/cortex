@@ -47,18 +47,18 @@ export default function ReviewQuiz({ card, onSwipe }: ReviewQuizProps) {
 
     return (
         <div className="space-y-1.5">
-            <p className="text-[11px] text-amber-300/80 text-center font-medium">Chọn nghĩa đúng của <span className="font-bold text-amber-200">{card.word}</span>:</p>
+            <p className="text-[11px] text-warning/80 text-center font-medium">Chọn nghĩa đúng của <span className="font-bold text-warning">{card.word}</span>:</p>
             {options.map((option, i) => {
                 const isSelected = selected === option;
                 const isCorrect = option === card.translationHint;
 
-                let cls = 'bg-slate-700/60 border-slate-600 text-slate-300 hover:border-cyan-500/50 hover:bg-slate-700/80 active:scale-[0.98]';
+                let cls = 'bg-surface-2/60 border-line-strong text-ink-2 hover:border-accent/50 hover:bg-surface-2/80 active:scale-[0.98]';
                 if (answered && isCorrect) {
-                    cls = 'bg-green-500/20 border-green-500/50 text-green-300';
+                    cls = 'bg-accent/20 border-accent/50 text-accent';
                 } else if (answered && isSelected && !isCorrect) {
-                    cls = 'bg-red-500/20 border-red-500/50 text-red-300';
+                    cls = 'bg-danger/20 border-danger/50 text-danger';
                 } else if (answered) {
-                    cls = 'bg-slate-700/30 border-slate-700 text-slate-500';
+                    cls = 'bg-surface-2/30 border-line text-muted';
                 }
 
                 return (
@@ -68,8 +68,8 @@ export default function ReviewQuiz({ card, onSwipe }: ReviewQuizProps) {
                         disabled={answered}
                         className={`w-full px-3 py-2 rounded-lg border text-xs text-left transition-colors flex items-center gap-2 ${cls}`}
                     >
-                        {answered && isCorrect && <Check className="w-3 h-3 shrink-0 text-green-400" />}
-                        {answered && isSelected && !isCorrect && <X className="w-3 h-3 shrink-0 text-red-400" />}
+                        {answered && isCorrect && <Check className="w-3 h-3 shrink-0 text-accent" />}
+                        {answered && isSelected && !isCorrect && <X className="w-3 h-3 shrink-0 text-danger" />}
                         <span className="line-clamp-1">{option}</span>
                     </button>
                 );
