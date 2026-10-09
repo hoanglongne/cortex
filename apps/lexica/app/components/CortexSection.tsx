@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Brain, Activity, TrendingUp, User, RefreshCw, ExternalLink } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { CORTEX_API_URL, CORTEX_HUB_URL } from '../lib/cortexConfig';
-import { syncNow } from '../lib/cloudSync';
 import { authHeaders, getCortexAuth } from '../lib/cortexAuth';
 
 interface CortexProfile {
@@ -33,11 +32,15 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
     const { syncAllToCortex } = useLexicaStore();
 
-    const fetchProfile = useCallback(async (userId: string) => {
+    const fetchProfile = useCallback(async () => {
         try {
+            // Identity comes from Lexica's own Supabase session
             const auth = await getCortexAuth();
-            if (!auth || auth.userId !== userId) return;
-            const res = await fetch(`${API_URL}/insights/${userId}`, { headers: authHeaders(auth) });
+            if (!auth) {
+                setProfile(null);
+                return;
+            }
+            const res = await fetch(`${API_URL}/insights/${auth.userId}`, { headers: authHeaders(auth) });
             const data = await res.json();
             if (data && !data.error) setProfile(data);
         } catch (err) {
@@ -48,64 +51,10 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
     }, [API_URL]);
 
     useEffect(() => {
-        console.log('[CortexSection] Initializing with Hub URL:', HUB_URL);
-        // 1. Create invisible bridge to Hub
-        const iframe = document.createElement('iframe');
-        iframe.src = `${HUB_URL}/auth-bridge`;
-        iframe.style.display = 'none';
-        iframe.id = 'cortex-auth-bridge-section';
-        document.body.appendChild(iframe);
-
-        const handleMessage = async (event: MessageEvent) => {
-            const isAuthorizedOrigin = [
-                HUB_URL,
-                'http://localhost:3000',
-                'http://localhost:3005',
-                'https://cortexedtech.vercel.app/',
-            ].includes(event.origin);
-
-            if (!isAuthorizedOrigin) return;
-
-            if (event.data.type === 'CORTEX_SESSION_RESPONSE') {
-                const newUserId = event.data.userId;
-                const token = event.data.token;
-
-                if (newUserId) {
-                    localStorage.setItem('cortex_user_id', newUserId);
-                    void syncNow(); // first connect: restore or back up progress
-                    if (token) localStorage.setItem('sb-token', token);
-                    fetchProfile(newUserId);
-                }
-            }
-        };
-
-        window.addEventListener('message', handleMessage);
-
-        iframe.onload = () => {
-            iframe.contentWindow?.postMessage({ type: 'GET_CORTEX_SESSION' }, HUB_URL);
-        };
-
-        // 2. Initial fetch if we already have it
-        const existingId = localStorage.getItem('cortex_user_id');
-        if (existingId) {
-            setTimeout(() => fetchProfile(existingId), 0);
-        } else {
-            setTimeout(() => setLoading(false), 0);
-        }
-
-        const interval = setInterval(() => {
-            const currentId = localStorage.getItem('cortex_user_id');
-            if (currentId) fetchProfile(currentId);
-        }, 30000);
-
-        return () => {
-            window.removeEventListener('message', handleMessage);
-            if (document.body.contains(iframe)) {
-                document.body.removeChild(iframe);
-            }
-            clearInterval(interval);
-        };
-    }, [fetchProfile, HUB_URL]);
+        void fetchProfile();
+        const interval = setInterval(() => void fetchProfile(), 30000);
+        return () => clearInterval(interval);
+    }, [fetchProfile]);
 
     if (loading) {
         return (
@@ -167,11 +116,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
                             console.log('[CortexSection] Starting manual sync...');
                             await syncAllToCortex();
                             console.log('[CortexSection] Sync completed, fetching profile...');
-                            const id = localStorage.getItem('cortex_user_id');
-                            if (id) {
-                                await fetchProfile(id);
-                                console.log('[CortexSection] Profile refreshed');
-                            }
+                            await fetchProfile();
                         } catch (error) {
                             console.error('[CortexSection] Sync error:', error);
                         } finally {
