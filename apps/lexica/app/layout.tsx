@@ -3,6 +3,7 @@ import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 import CloudSync from "./components/CloudSync";
+import HydrationGate from "./components/HydrationGate";
 
 // Design system fonts (docs/DESIGN_SYSTEM.md). Vietnamese subset is required:
 // without it, accented letters fall back to the system font.
@@ -62,7 +63,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-bg text-ink overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
           <CloudSync />
-          {children}
+          <HydrationGate>{children}</HydrationGate>
         </AuthProvider>
       </body>
     </html>
