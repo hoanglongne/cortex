@@ -8,6 +8,13 @@
 | Phạm vi | `apps/studio` (mới), `apps/cortex-core-api` (module `studio`), Supabase, `apps/lexica` (content delivery) |
 | Nguyên tắc cốt lõi | AI chỉ chạy **lúc soạn nội dung**, không bao giờ chạy khi người dùng học. Chi phí cố định theo số thẻ sản xuất, không theo số user. Không thẻ nào lên app mà chưa qua tay người duyệt. |
 
+
+> **Ghi chú triển khai v1** (khác với bản thiết kế bên dưới):
+> - Bảng nằm trong `public` với tiền tố `studio_` (không dùng schema `studio`) để PostgREST phục vụ được mà không phải mở thêm schema. File: `apps/cortex-core-api/supabase/migration_studio.sql`.
+> - Cortex API gọi Supabase **bằng JWT của editor** (RLS `is_studio_editor()`), không cần service-role key.
+> - Manifest có `current` (drop đang chạy) và `library` (mọi thẻ đã phát hành trước đó + thẻ retired, để người đã học vẫn tra được) thay cho `evergreen`. File pack đặt tên theo hash nội dung: `packs/<id>.<sha12>.json`.
+> - Giai đoạn 0 và 1 đã làm (Lexica `contentRepository`, API `/studio/*`, app `apps/studio`). Giai đoạn 2–3 (collector tự động, event, lifecycle) chưa làm.
+
 ---
 
 ## 1. Mục tiêu và phi mục tiêu

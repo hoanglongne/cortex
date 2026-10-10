@@ -15,7 +15,13 @@ async function bootstrap() {
         'http://localhost:3000',
         'http://localhost:3002',
         'http://localhost:3005',
+        'http://localhost:3012', // Lexica Studio
         /\.vercel\.app$/,
+        // Extra origins (e.g. a custom Studio domain), comma-separated
+        ...(process.env.CORS_ORIGINS ?? '')
+          .split(',')
+          .map((o) => o.trim())
+          .filter(Boolean),
       ];
 
       if (!origin) {
