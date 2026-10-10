@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Brain, RotateCcw, Trophy, X, Clock } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 
 interface MemoryMatchProps {
     learnedWordIds: string[];
@@ -46,7 +46,7 @@ export default function MemoryMatch({ learnedWordIds, onClose }: MemoryMatchProp
     const initializeGame = () => {
         // Get 6 random words
         const selectedWords = learnedWordIds
-            .map(id => VOCAB_DATABASE.find(card => card.id === id))
+            .map(id => getAllCards().find(card => card.id === id))
             .filter(card => card !== undefined)
             .sort(() => Math.random() - 0.5)
             .slice(0, 6);

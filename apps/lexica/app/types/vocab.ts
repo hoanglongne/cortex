@@ -16,6 +16,13 @@ export interface VocabCardData {
     state: CardState;
     isBossCard?: boolean;
 
+    /** Set on cards published from Lexica Studio (Trend Drops). */
+    trend?: { label: string; expiresAt?: string; dropId?: string };
+    /** Pre-generated audio clips (see docs/LEXICA_AUDIO_SPEC.md). */
+    audio?: { word?: string; meaning?: string; scenario?: string };
+    /** Bumped when a published card is edited. */
+    revision?: number;
+
     upgradeModule?: {
         simpleSentence: string;
         targetSlot: string;

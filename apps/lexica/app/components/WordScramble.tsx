@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Shuffle, Trophy, X, RotateCcw, Lightbulb, SkipForward, Heart, Delete } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import ChallengeButton from './ChallengeButton';
 
 import { VocabCardData } from '../types/vocab';
@@ -67,7 +67,7 @@ export default function WordScramble({ learnedWordIds, onClose, onGameEnd }: Wor
             wordQueueRef.current = shuffleArray(learnedWordIds);
         }
         const randomId = wordQueueRef.current.pop()!;
-        const card = VOCAB_DATABASE.find(c => c.id === randomId);
+        const card = getAllCards().find(c => c.id === randomId);
         if (card) {
             setCurrentCard(card);
             setScrambledLetters(scrambleWord(card.word));

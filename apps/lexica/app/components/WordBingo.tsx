@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Grid3x3, Trophy, X, Sparkles } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 
 interface WordBingoProps {
     learnedWordIds: string[];
@@ -38,7 +38,7 @@ export default function WordBingo({ learnedWordIds, onClose }: WordBingoProps) {
     const initializeGrid = () => {
         // Get 9 random words for 3x3 grid
         const selectedCards = learnedWordIds
-            .map(id => VOCAB_DATABASE.find(card => card.id === id))
+            .map(id => getAllCards().find(card => card.id === id))
             .filter(card => card !== undefined)
             .sort(() => Math.random() - 0.5)
             .slice(0, 9);

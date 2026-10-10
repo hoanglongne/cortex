@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Check, X as XIcon, Trophy, Clock } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import ChallengeButton from './ChallengeButton';
 
 interface TrueFalseBlitzProps {
@@ -73,7 +73,7 @@ export default function TrueFalseBlitz({ learnedWordIds, onClose, onGameEnd }: T
 
     const generateQuestion = (): Question => {
         // Get all learned cards
-        const learnedCards = VOCAB_DATABASE.filter(c =>
+        const learnedCards = getAllCards().filter(c =>
             learnedWordIds.includes(c.id)
         );
 

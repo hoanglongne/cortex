@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import { getDueCards } from '../lib/eloAlgorithm';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
@@ -71,12 +71,12 @@ function highlightWord(sentence: string, word: string) {
 }
 
 function buildQuestions(dueCardIds: string[]): Question[] {
-    const wordPool = VOCAB_DATABASE.map(c => c.word);
-    const meaningPool = VOCAB_DATABASE.map(c => c.translationHint);
+    const wordPool = getAllCards().map(c => c.word);
+    const meaningPool = getAllCards().map(c => c.translationHint);
     const types: QuestionType[] = ['word-to-meaning', 'meaning-to-word', 'fill-in', 'context-pick'];
 
     return shuffle(dueCardIds).map(cardId => {
-        const card = VOCAB_DATABASE.find(c => c.id === cardId);
+        const card = getAllCards().find(c => c.id === cardId);
         if (!card) return null;
 
         const type = types[Math.floor(Math.random() * types.length)];
@@ -103,7 +103,7 @@ function buildQuestions(dueCardIds: string[]): Question[] {
             };
         }
         // context-pick: which sentence fits this word?
-        const distractorCards = shuffle(VOCAB_DATABASE.filter(c => c.id !== cardId)).slice(0, 3);
+        const distractorCards = shuffle(getAllCards().filter(c => c.id !== cardId)).slice(0, 3);
         const allOptions = shuffle([
             { scenario: card.scenario, word: card.word },
             ...distractorCards.map(c => ({ scenario: c.scenario, word: c.word }))
@@ -441,7 +441,7 @@ function ResultScreen({
                     <p className="text-muted text-xs uppercase font-mono font-semibold mb-2.5">Xem lại từ sai ({wrong.length})</p>
                     <div className="space-y-2">
                         {wrong.map(r => {
-                            const card = VOCAB_DATABASE.find(c => c.id === r.cardId);
+                            const card = getAllCards().find(c => c.id === r.cardId);
                             return (
                                 <div key={r.cardId} className="px-3.5 py-2.5 rounded-xl bg-ink/[0.02] border border-ink/20 space-y-1">
                                     <div className="flex items-center gap-2">
@@ -509,8 +509,8 @@ function ReviewPageContent() {
 
     const dueCardIds = useMemo(() => {
         if (testAll) {
-            // Test mode: use all learned words that exist in VOCAB_DATABASE
-            const vocabIds = new Set(VOCAB_DATABASE.map(c => c.id));
+            // Test mode: use all learned words that exist in getAllCards()
+            const vocabIds = new Set(getAllCards().map(c => c.id));
             return Array.from(learnedWords).filter(id => vocabIds.has(id));
         }
         return getDueCards(cardProgress).map(p => p.cardId);
@@ -533,7 +533,7 @@ function ReviewPageContent() {
 
     const handleAnswer = useCallback((correct: boolean) => {
         const q = questions[currentIndex];
-        const card = VOCAB_DATABASE.find(c => c.id === q.cardId);
+        const card = getAllCards().find(c => c.id === q.cardId);
 
         submitReviewAnswer(q.cardId, correct);
 

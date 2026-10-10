@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, Mic, RotateCcw } from 'lucide-react';
+import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, Mic, RotateCcw, TrendingUp } from 'lucide-react';
 import { useVocalSwipe } from '../hooks/useVocalSwipe';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useVoiceAvailable } from '../lib/speechAvailability';
@@ -111,6 +111,11 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         )}
                         {isReviewCard && (
                             <span className="flex items-center gap-1 text-warning"><RotateCcw className="w-3 h-3" /> ÔN TẬP</span>
+                        )}
+                        {card.trend && (
+                            <span className="flex items-center gap-1 text-accent truncate" title={card.trend.label}>
+                                <TrendingUp className="w-3 h-3 shrink-0" /> TREND
+                            </span>
                         )}
                         <span className="ml-auto flex items-center gap-1" aria-label={`Trạng thái: ${card.state}`}>
                             {card.state === 'seed' && <Sprout className="w-3.5 h-3.5" />}

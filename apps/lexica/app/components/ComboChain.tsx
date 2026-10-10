@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Flame, Trophy, X, Zap } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import { VocabCardData } from '../types/vocab';
 
 interface ComboChainProps {
@@ -55,11 +55,11 @@ export default function ComboChain({ learnedWordIds, onClose, onGameEnd }: Combo
             wordQueueRef.current = shuffleArray(learnedWordIds);
         }
         const randomId = wordQueueRef.current.pop()!;
-        const card = VOCAB_DATABASE.find(c => c.id === randomId);
+        const card = getAllCards().find(c => c.id === randomId);
         if (!card) return;
 
         // Get 3 wrong answers
-        const allOtherCards = VOCAB_DATABASE
+        const allOtherCards = getAllCards()
             .filter(c => learnedWordIds.includes(c.id) && c.id !== card.id);
 
         const wrongOptions: string[] = [];
