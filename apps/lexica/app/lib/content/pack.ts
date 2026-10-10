@@ -21,7 +21,7 @@ export interface ContentManifest {
     schema: 1;
     updatedAt: string;
     current: PackRef | null;
-    evergreen: PackRef | null;
+    library: PackRef | null;
     retired: string[];
 }
 
@@ -42,7 +42,7 @@ export function parseManifest(v: unknown): ContentManifest | null {
         schema: 1,
         updatedAt: v.updatedAt,
         current: parsePackRef(v.current),
-        evergreen: parsePackRef(v.evergreen),
+        library: parsePackRef(v.library),
         retired: Array.isArray(v.retired) ? v.retired.filter(isStr) : [],
     };
 }

@@ -30,7 +30,7 @@ async function loadPack(ref: PackRef, allowNetwork: boolean): Promise<ContentPac
 }
 
 async function apply(manifest: ContentManifest, allowNetwork: boolean) {
-    const refs = [manifest.current, manifest.evergreen].filter((r): r is PackRef => r !== null);
+    const refs = [manifest.current, manifest.library].filter((r): r is PackRef => r !== null);
     const packs = (await Promise.all(refs.map(r => loadPack(r, allowNetwork).catch(() => null))))
         .filter((p): p is ContentPack => p !== null);
     // Never replace good content with nothing because of a network blip.
