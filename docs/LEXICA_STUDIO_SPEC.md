@@ -8,6 +8,13 @@
 | Phạm vi | `apps/studio` (mới), `apps/cortex-core-api` (module `studio`), Supabase, `apps/lexica` (content delivery) |
 | Nguyên tắc cốt lõi | AI chỉ chạy **lúc soạn nội dung**, không bao giờ chạy khi người dùng học. Chi phí cố định theo số thẻ sản xuất, không theo số user. Không thẻ nào lên app mà chưa qua tay người duyệt. |
 
+
+> **Ghi chú triển khai v1** (khác với bản thiết kế bên dưới):
+> - Bảng nằm trong `public` với tiền tố `studio_` (không dùng schema `studio`) để PostgREST phục vụ được mà không phải mở thêm schema. File: `apps/cortex-core-api/supabase/migration_studio.sql`.
+> - Cortex API gọi Supabase **bằng JWT của editor** (RLS `is_studio_editor()`), không cần service-role key.
+> - Manifest có `current` (drop đang chạy) và `library` (mọi thẻ đã phát hành trước đó + thẻ retired, để người đã học vẫn tra được) thay cho `evergreen`. File pack đặt tên theo hash nội dung: `packs/<id>.<sha12>.json`.
+> - Giai đoạn 0 và 1 đã làm (Lexica `contentRepository`, API `/studio/*`, app `apps/studio`). Giai đoạn 2–3 (collector tự động, event, lifecycle) chưa làm.
+
 ---
 
 ## 1. Mục tiêu và phi mục tiêu
@@ -425,8 +432,9 @@ Khi một drop đến `publish_at`:
 }
 ```
 
-3. Upload `packs/<drop-id>.json` lên Supabase Storage (bucket public `lexica-content`, `Cache-Control: public, max-age=31536000, immutable` vì tên file không đổi nội dung).
-4. Ghi lại `packs/manifest.json` (`Cache-Control: max-age=300`):
+3. Sinh audio cho thẻ chưa có clip ở `revision` hiện tại và ghi URL vào trường `audio` của thẻ (chi tiết: `docs/LEXICA_AUDIO_SPEC.md`, mục 4.4). Lỗi TTS không chặn publish.
+4. Upload `packs/<drop-id>.json` lên Supabase Storage (bucket public `lexica-content`, `Cache-Control: public, max-age=31536000, immutable` vì tên file không đổi nội dung).
+5. Ghi lại `packs/manifest.json` (`Cache-Control: max-age=300`):
 
 ```json
 {
@@ -438,7 +446,7 @@ Khi một drop đến `publish_at`:
 }
 ```
 
-5. Cập nhật `drops.status = 'published'`, `pack_url`, `pack_sha256`.
+6. Cập nhật `drops.status = 'published'`, `pack_url`, `pack_sha256`.
 
 Rollback: trỏ `manifest.current` về drop trước (nút "Rollback" trong Studio). Pack cũ không bao giờ bị xoá.
 
@@ -593,4 +601,4 @@ Câu hỏi mở:
 1. Thẻ trend có cần `upgradeModule` / `surgeryModule` không, hay chấp nhận thẻ trend "mỏng" hơn thẻ core?
 2. Có muốn `scenarios` theo archetype (casual/tech/business/student) cho thẻ trend, hay 1 câu cho tất cả?
 3. Tên miền cho Studio (`studio.cortex…`) và ai được làm editor ngoài bạn?
-4. Drop có gắn với tính năng khác không (ví dụ thẻ trend xuất hiện trong chế độ chơi/cược ở các ý tưởng gamification)?
+4. ~~Drop có gắn với tính năng khác không?~~ Có: mỗi drop là một bộ mùa trong hệ thống sưu tầm (`docs/LEXICA_ENGAGEMENT_SPEC.md`, mục 2.4).

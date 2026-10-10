@@ -30,6 +30,22 @@ export class SupabaseService {
     return this.client;
   }
 
+  /**
+   * A client that acts as the given user, so row-level security applies.
+   * Used where the API must not have more rights than the caller (Studio).
+   */
+  clientForToken(accessToken: string): SupabaseClient<any, any, any> | null {
+    const url = this.configService.get<string>('NEXT_PUBLIC_SUPABASE_URL');
+    const key = this.configService.get<string>(
+      'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
+    );
+    if (!url || !key) return null;
+    return createClient(url, key, {
+      global: { headers: { Authorization: `Bearer ${accessToken}` } },
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+  }
+
   async upsertData(table: string, data: any): Promise<any[]> {
     if (!this.client) {
       throw new Error('Supabase client not initialized');

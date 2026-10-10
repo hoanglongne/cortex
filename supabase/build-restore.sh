@@ -21,6 +21,8 @@ FILES=(
   apps/lexica/supabase/migration_game_challenges.sql
   apps/lexica/supabase/migration_add_response.sql
   apps/cortex-core-api/supabase/migration_phase1_core.sql
+  apps/cortex-core-api/supabase/migration_studio.sql
+  apps/cortex-core-api/supabase/seed_studio_lexemes.sql
 )
 
 OUT=supabase/restore_all.sql

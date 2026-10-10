@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Trophy, X, Clock, Flame, Target, Star } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import ChallengeButton from './ChallengeButton';
 
 interface SpeedQuizProps {
@@ -71,7 +71,7 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
             wordQueueRef.current = shuffleArray(wordIds);
         }
         const randomWordId = wordQueueRef.current.pop()!;
-        const wordData = VOCAB_DATABASE.find(w => w.id === randomWordId);
+        const wordData = getAllCards().find(w => w.id === randomWordId);
         if (!wordData) return null;
 
         // Get 3 random wrong answers from other learned words
@@ -79,7 +79,7 @@ export default function SpeedQuiz({ learnedWordIds, todayWordIds = [], onClose, 
         const wrongAnswers: string[] = [];
         while (wrongAnswers.length < 3 && otherWords.length > 0) {
             const randomId = otherWords.splice(Math.floor(Math.random() * otherWords.length), 1)[0];
-            const wrongWord = VOCAB_DATABASE.find(w => w.id === randomId);
+            const wrongWord = getAllCards().find(w => w.id === randomId);
             if (wrongWord && !wrongAnswers.includes(wrongWord.translationHint)) {
                 wrongAnswers.push(wrongWord.translationHint);
             }

@@ -1,4 +1,4 @@
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getCard, getCurrentDropCards, getDeckCards } from './content/repository';
 import { VocabCardData, DifficultyLevel } from '../types/vocab';
 
 /**
@@ -187,8 +187,8 @@ export function generateInitialDeck(
 
     // Filter database by level if specified
     const filteredDatabase = (selectedLevel && selectedLevel !== 'all')
-        ? VOCAB_DATABASE.filter(card => card.level === selectedLevel)
-        : VOCAB_DATABASE;
+        ? getDeckCards().filter(card => card.level === selectedLevel)
+        : getDeckCards();
 
     // Local copy of seenCardIds to avoid mutating the Zustand store directly
     const seenCardIds = [...userStats.seenCardIds];
@@ -198,7 +198,7 @@ export function generateInitialDeck(
         if (deck.length >= DECK_SIZE) break;
         if (deck.some(card => card.id === forcedCardId)) continue;
 
-        const cardData = VOCAB_DATABASE.find(card => card.id === forcedCardId);
+        const cardData = getCard(forcedCardId);
         if (!cardData) continue;
 
         const progress = cardProgress[forcedCardId];
@@ -245,6 +245,22 @@ export function generateInitialDeck(
         }
     }
 
+    // Step 2b: ~30% of each deck comes from the live Trend Drop (never-seen cards only)
+    const MAX_DROP_CARDS_IN_DECK = 3;
+    const dropCards = getCurrentDropCards().filter(card =>
+        !cardProgress[card.id] &&
+        (!selectedLevel || selectedLevel === 'all' || card.level === selectedLevel)
+    );
+    for (const cardData of dropCards.slice(0, MAX_DROP_CARDS_IN_DECK)) {
+        if (deck.length >= DECK_SIZE) break;
+        if (deck.some(card => card.id === cardData.id)) continue;
+        deck.push({ ...cardData, state: 'seed' });
+        seenCardIds.push(cardData.id);
+        if (seenCardIds.length > 20) {
+            seenCardIds.shift();
+        }
+    }
+
     // Step 3: Fill remaining slots with new cards (ELO-based)
     // Only consider cards with NO progress entry (truly never seen).
     // Cards that have been learned but are not yet due should stay in the SRS
@@ -263,6 +279,7 @@ export function generateInitialDeck(
         // No progress → brand new card, eligible.
         // Has progress but due right now → already handled in Step 1 above, but allow as fallback.
         // Has progress with future nextReviewAt → exclude until review date.
+        if (deck.some(d => d.id === card.id)) return false;
         return !progress || progress.nextReviewAt <= now;
     });
 
