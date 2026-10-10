@@ -1540,3 +1540,616 @@ begin
   end if;
 end $$;
 
+
+-- ============================================================
+-- apps/cortex-core-api/supabase/migration_studio.sql
+-- ============================================================
+
+-- Lexica Studio (docs/LEXICA_STUDIO_SPEC.md): trend → AI draft → human review → content pack.
+-- Tables live in `public` with a `studio_` prefix so PostgREST serves them without
+-- exposing an extra schema. Every table is editor-only through RLS; the Cortex API
+-- calls Supabase with the editor's own JWT, so no service-role key is needed.
+-- Idempotent: safe to re-run.
+
+create table if not exists studio_editors (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+create or replace function is_studio_editor()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (select 1 from studio_editors where user_id = auth.uid());
+$$;
+
+-- Trends: manual in v1 (collectors come in phase 2)
+create table if not exists studio_trends (
+  id uuid primary key default gen_random_uuid(),
+  label text not null,
+  summary text,
+  url text,
+  source text not null default 'manual',
+  status text not null default 'new'
+    check (status in ('new','queued','generated','ignored','blocked')),
+  hotness real not null default 0,
+  tags text[] not null default '{}',
+  target_words text[] not null default '{}',     -- optional: editor-picked words
+  first_seen_at timestamptz not null default now(),
+  last_seen_at timestamptz not null default now(),
+  expires_at timestamptz,
+  generated_at timestamptz,
+  created_by uuid references auth.users(id),
+  created_at timestamptz not null default now()
+);
+create index if not exists studio_trends_status_idx on studio_trends (status, created_at desc);
+
+-- Words the generator may teach (seeded from Lexica's core cards)
+create table if not exists studio_lexemes (
+  word text primary key,                          -- lowercase
+  ipa text,
+  elo int not null,
+  level text not null check (level in ('beginner','intermediate','advanced','expert')),
+  in_core boolean not null default false,
+  times_used int not null default 0,
+  last_used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists studio_drafts (
+  id uuid primary key default gen_random_uuid(),
+  trend_id uuid references studio_trends(id) on delete set null,
+  word text not null references studio_lexemes(word),
+  scenario text not null,
+  translation_hint text not null,
+  archetype text check (archetype in ('casual','tech','business','student')),
+  tone text,
+  model text not null,
+  prompt_version text not null,
+  validation jsonb not null default '{}',
+  status text not null default 'pending'
+    check (status in ('pending','rejected_auto','approved','rejected','edited')),
+  reviewer_id uuid references auth.users(id),
+  reviewed_at timestamptz,
+  reject_reason text,
+  card_id text,
+  created_at timestamptz not null default now()
+);
+create index if not exists studio_drafts_status_idx on studio_drafts (status, created_at);
+
+create table if not exists studio_cards (
+  id text primary key,                            -- 't' + base36, never collides with core 'v###'
+  draft_id uuid references studio_drafts(id) on delete set null,
+  word text not null references studio_lexemes(word),
+  ipa text,
+  elo int not null,
+  level text not null check (level in ('beginner','intermediate','advanced','expert')),
+  scenario text not null,
+  translation_hint text not null,
+  trend_label text,
+  tags text[] not null default '{}',
+  lifecycle text not null default 'trend' check (lifecycle in ('trend','evergreen','retired')),
+  revision int not null default 1,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists studio_cards_lifecycle_idx on studio_cards (lifecycle, created_at desc);
+
+create table if not exists studio_drops (
+  id text primary key,                            -- 'drop-2026-w42'
+  title text not null,
+  status text not null default 'draft' check (status in ('draft','published','archived')),
+  expires_at timestamptz,                         -- trend cards of this drop stop being dealt
+  published_at timestamptz,
+  pack_url text,
+  pack_sha256 text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists studio_drop_cards (
+  drop_id text references studio_drops(id) on delete cascade,
+  card_id text references studio_cards(id) on delete cascade,
+  position int not null default 0,
+  primary key (drop_id, card_id)
+);
+
+create table if not exists studio_blocklist (
+  pattern text primary key,
+  kind text not null check (kind in ('word','regex','person','topic')),
+  note text
+);
+
+create table if not exists studio_job_runs (
+  id bigserial primary key,
+  job text not null,
+  started_at timestamptz not null default now(),
+  finished_at timestamptz,
+  ok boolean,
+  stats jsonb not null default '{}',
+  error text,
+  created_by uuid references auth.users(id)
+);
+create index if not exists studio_job_runs_job_idx on studio_job_runs (job, started_at desc);
+
+-- RLS: editors only
+alter table studio_editors enable row level security;
+drop policy if exists "studio_editors self read" on studio_editors;
+create policy "studio_editors self read" on studio_editors
+  for select using (user_id = auth.uid());
+
+do $$
+declare t text;
+begin
+  foreach t in array array['studio_trends','studio_lexemes','studio_drafts','studio_cards',
+                           'studio_drops','studio_drop_cards','studio_blocklist','studio_job_runs']
+  loop
+    execute format('alter table %I enable row level security', t);
+    execute format('drop policy if exists "%s editors" on %I', t, t);
+    execute format('create policy "%s editors" on %I for all using (is_studio_editor()) with check (is_studio_editor())', t, t);
+  end loop;
+end $$;
+
+-- Public bucket for published packs; only editors may write
+insert into storage.buckets (id, name, public)
+values ('lexica-content', 'lexica-content', true)
+on conflict (id) do nothing;
+
+drop policy if exists "lexica-content editors insert" on storage.objects;
+create policy "lexica-content editors insert" on storage.objects
+  for insert with check (bucket_id = 'lexica-content' and is_studio_editor());
+drop policy if exists "lexica-content editors update" on storage.objects;
+create policy "lexica-content editors update" on storage.objects
+  for update using (bucket_id = 'lexica-content' and is_studio_editor());
+drop policy if exists "lexica-content editors select" on storage.objects;
+create policy "lexica-content editors select" on storage.objects
+  for select using (bucket_id = 'lexica-content' and is_studio_editor());
+
+-- Default blocklist (editable in Studio)
+insert into studio_blocklist (pattern, kind, note) values
+  ('chính trị', 'topic', 'Không đụng chính trị'),
+  ('đảng', 'topic', 'Không đụng chính trị'),
+  ('tôn giáo', 'topic', 'Không đụng tôn giáo'),
+  ('chết', 'topic', 'Thảm hoạ, tai nạn, vụ án'),
+  ('tự tử', 'topic', 'Sức khoẻ tâm thần'),
+  ('đm', 'word', 'Tục nặng'),
+  ('địt', 'word', 'Tục nặng'),
+  ('lồn', 'word', 'Tục nặng'),
+  ('cặc', 'word', 'Tục nặng')
+on conflict (pattern) do nothing;
+
+-- To make someone an editor (run once in SQL Editor):
+--   insert into studio_editors (user_id) select id from auth.users where email = 'you@example.com';
+
+
+-- ============================================================
+-- apps/cortex-core-api/supabase/seed_studio_lexemes.sql
+-- ============================================================
+
+-- GENERATED by apps/cortex-core-api/scripts/build-studio-lexemes.py — do not edit by hand.
+-- 419 words from Lexica core cards; the Studio generator may only teach these
+-- (plus words editors add in Studio).
+insert into studio_lexemes (word, ipa, elo, level, in_core) values
+  ('abandon', 'əˈbændən', 880, 'beginner', true),
+  ('aberrant', 'æˈberənt', 1130, 'advanced', true),
+  ('abnegation', 'ˌæbnɪˈɡeɪʃn', 1380, 'expert', true),
+  ('abstemious', 'əbˈstiːmiəs', 1420, 'expert', true),
+  ('abstract', 'ˈæbstrækt', 870, 'beginner', true),
+  ('abstruse', 'æbˈstruːs', 1490, 'expert', true),
+  ('abundant', 'əˈbʌndənt', 850, 'beginner', true),
+  ('accommodate', 'əˈkɒmədeɪt', 960, 'intermediate', true),
+  ('accurate', 'ˈækjərət', 880, 'beginner', true),
+  ('acerbic', 'əˈsɜːbɪk', 1390, 'expert', true),
+  ('acquire', 'əˈkwaɪə', 960, 'intermediate', true),
+  ('acrimonious', 'ˌækrɪˈməʊniəs', 1150, 'advanced', true),
+  ('acumen', 'ˈækjʊmən', 1400, 'expert', true),
+  ('adaptable', 'əˈdæptəbl', 940, 'intermediate', true),
+  ('admit', 'ədˈmɪt', 865, 'beginner', true),
+  ('admonish', 'ədˈmɒnɪʃ', 1200, 'advanced', true),
+  ('adumbrate', 'ˈædʌmbreɪt', 1470, 'expert', true),
+  ('advocating', 'ˈædvəkeɪtɪŋ', 960, 'intermediate', true),
+  ('affluent', 'ˈæfluənt', 1120, 'advanced', true),
+  ('alleviate', 'əˈliːvieɪt', 1140, 'advanced', true),
+  ('altruistic', 'ˌæltruˈɪstɪk', 1180, 'advanced', true),
+  ('ambiguous', 'æmˈbɪɡjuəs', 950, 'beginner', true),
+  ('ambitious', 'æmˈbɪʃəs', 850, 'beginner', true),
+  ('ambivalent', 'æmˈbɪvələnt', 980, 'intermediate', true),
+  ('ameliorate', 'əˈmiːliəreɪt', 1360, 'expert', true),
+  ('anachronism', 'əˈnækrənɪzəm', 1440, 'expert', true),
+  ('anachronistic', 'əˌnækrəˈnɪstɪk', 1280, 'advanced', true),
+  ('analogous', 'əˈnæləɡəs', 1050, 'intermediate', true),
+  ('anathema', 'əˈnæθəmə', 1460, 'expert', true),
+  ('anecdotal', 'ˌænɪkˈdəʊtl', 1160, 'advanced', true),
+  ('annoying', 'əˈnɔɪɪŋ', 820, 'beginner', true),
+  ('anomaly', 'əˈnɒməli', 1170, 'advanced', true),
+  ('antiquated', 'ˈæntɪkweɪtɪd', 1220, 'advanced', true),
+  ('anxious', 'ˈæŋkʃəs', 810, 'beginner', true),
+  ('apocryphal', 'əˈpɒkrɪfl', 1450, 'expert', true),
+  ('apotheosis', 'əˌɒθiˈəʊsɪs', 1490, 'expert', true),
+  ('apprehensive', 'ˌæprɪˈhensɪv', 1150, 'advanced', true),
+  ('approach', 'əˈprəʊtʃ', 920, 'intermediate', true),
+  ('approbation', 'ˌæprəˈbeɪʃn', 1430, 'expert', true),
+  ('appropriate', 'əˈprəʊpriət', 960, 'intermediate', true),
+  ('arbitrary', 'ˈɑːrbɪtreri', 1100, 'intermediate', true),
+  ('arcane', 'ɑːˈkeɪn', 1380, 'expert', true),
+  ('arduous', 'ˈɑːdjuəs', 1200, 'advanced', true),
+  ('arrant', 'ˈærənt', 1460, 'expert', true),
+  ('articulate', 'ɑːˈtɪkjʊlət', 1000, 'intermediate', true),
+  ('artifice', 'ˈɑːtɪfɪs', 1420, 'expert', true),
+  ('ascetic', 'əˈsetɪk', 1440, 'expert', true),
+  ('assertive', 'əˈsɜːtɪv', 970, 'intermediate', true),
+  ('assiduous', 'əˈsɪdjuəs', 1390, 'expert', true),
+  ('atavistic', 'ˌætəˈvɪstɪk', 1480, 'expert', true),
+  ('attenuate', 'əˈtenjueɪt', 1410, 'expert', true),
+  ('august', 'ɔːˈɡʌst', 1370, 'expert', true),
+  ('austere', 'ɒˈstɪə', 1240, 'advanced', true),
+  ('avarice', 'ˈævərɪs', 1430, 'expert', true),
+  ('banal', 'bəˈnɑːl', 1180, 'advanced', true),
+  ('behave', 'bɪˈheɪv', 820, 'beginner', true),
+  ('believable', 'bɪˈliːvəbl', 815, 'beginner', true),
+  ('believe', 'bɪˈliːv', 800, 'beginner', true),
+  ('bellicose', 'ˈbelɪkəʊs', 1400, 'expert', true),
+  ('belligerent', 'bəˈlɪdʒərənt', 1250, 'advanced', true),
+  ('beneficial', 'ˌbenɪˈfɪʃl', 850, 'beginner', true),
+  ('benefit', 'ˈbenɪfɪt', 825, 'beginner', true),
+  ('benevolent', 'bəˈnevələnt', 1160, 'advanced', true),
+  ('biased', 'ˈbaɪəst', 960, 'intermediate', true),
+  ('blunt', 'blʌnt', 820, 'beginner', true),
+  ('boring', 'ˈbɔːrɪŋ', 800, 'beginner', true),
+  ('brief', 'briːf', 830, 'beginner', true),
+  ('bureaucratic', 'ˌbjʊərəˈkrætɪk', 1080, 'intermediate', true),
+  ('byzantine', 'ˈbɪzəntiːn', 1470, 'expert', true),
+  ('cacophony', 'kəˈkɒfəni', 1380, 'expert', true),
+  ('callous', 'ˈkæləs', 1190, 'advanced', true),
+  ('candid', 'ˈkændɪd', 1030, 'intermediate', true),
+  ('capable', 'ˈkeɪpəbl', 870, 'beginner', true),
+  ('capitulate', 'kəˈpɪtʃʊleɪt', 1250, 'advanced', true),
+  ('capricious', 'kəˈprɪʃəs', 1390, 'expert', true),
+  ('castigate', 'ˈkæstɪɡeɪt', 1450, 'expert', true),
+  ('catalyst', 'ˈkætəlɪst', 1020, 'intermediate', true),
+  ('caustic', 'ˈkɔːstɪk', 1410, 'expert', true),
+  ('cautious', 'ˈkɔːʃəs', 815, 'beginner', true),
+  ('certain', 'ˈsɜːtn', 810, 'beginner', true),
+  ('challenging', 'ˈtʃælɪndʒɪŋ', 890, 'beginner', true),
+  ('chicanery', 'ʃɪˈkeɪnəri', 1480, 'expert', true),
+  ('chronic', 'ˈkrɒnɪk', 975, 'intermediate', true),
+  ('churlish', 'ˈtʃɜːlɪʃ', 1380, 'expert', true),
+  ('circumlocution', 'ˌsɜːkəmləˈkjuːʃn', 1490, 'expert', true),
+  ('circumvent', 'ˌsɜːkəmˈvent', 1230, 'advanced', true),
+  ('clairvoyant', 'kleəˈvɔɪənt', 1420, 'expert', true),
+  ('clandestine', 'klænˈdestɪn', 1270, 'advanced', true),
+  ('cloying', 'ˈklɔɪɪŋ', 1360, 'expert', true),
+  ('coerce', 'kəʊˈɜːs', 1210, 'advanced', true),
+  ('cogent', 'ˈkəʊdʒənt', 1380, 'expert', true),
+  ('cognitive', 'ˈkɒɡnətɪv', 870, 'beginner', true),
+  ('coherent', 'kəʊˈhɪrənt', 1170, 'intermediate', true),
+  ('coincidence', 'kəʊˈɪnsɪdəns', 980, 'intermediate', true),
+  ('collaborate', 'kəˈlæbəreɪt', 880, 'beginner', true),
+  ('complacent', 'kəmˈpleɪsnt', 1170, 'advanced', true),
+  ('complain', 'kəmˈpleɪn', 820, 'beginner', true),
+  ('comprehensive', 'ˌkɒmprɪˈhensɪv', 990, 'intermediate', true),
+  ('compunction', 'kəmˈpʌŋkʃn', 1430, 'expert', true),
+  ('concede', 'kənˈsiːd', 1150, 'advanced', true),
+  ('condescending', 'ˌkɒndɪˈsendɪŋ', 1200, 'advanced', true),
+  ('confident', 'ˈkɒnfɪdənt', 835, 'beginner', true),
+  ('conflagration', 'ˌkɒnfləˈɡreɪʃn', 1460, 'expert', true),
+  ('consistent', 'kənˈsɪstənt', 910, 'intermediate', true),
+  ('consternation', 'ˌkɒnstəˈneɪʃn', 1460, 'expert', true),
+  ('contemplate', 'ˈkɒntəmpleɪt', 1060, 'intermediate', true),
+  ('contentious', 'kənˈtenʃəs', 1060, 'intermediate', true),
+  ('contradict', 'ˌkɒntrəˈdɪkt', 980, 'intermediate', true),
+  ('contrite', 'ˈkɒntraɪt', 1370, 'expert', true),
+  ('conundrum', 'kəˈnʌndrəm', 1150, 'intermediate', true),
+  ('convenient', 'kənˈviːniənt', 820, 'beginner', true),
+  ('convince', 'kənˈvɪns', 870, 'beginner', true),
+  ('convivial', 'kənˈvɪviəl', 1360, 'expert', true),
+  ('convoluted', 'ˈkɒnvəluːtɪd', 1220, 'advanced', true),
+  ('copious', 'ˈkəʊpiəs', 1370, 'expert', true),
+  ('counterproductive', 'ˌkaʊntəprəˈdʌktɪv', 1100, 'intermediate', true),
+  ('craven', 'ˈkreɪvən', 1400, 'expert', true),
+  ('credible', 'ˈkredɪbl', 980, 'intermediate', true),
+  ('credulous', 'ˈkredjʊləs', 1180, 'advanced', true),
+  ('critical', 'ˈkrɪtɪkl', 970, 'intermediate', true),
+  ('cumulative', 'ˈkjuːmjʊlətɪv', 1040, 'intermediate', true),
+  ('cupidity', 'kjuːˈpɪdɪti', 1450, 'expert', true),
+  ('curtail', 'kɜːˈteɪl', 1190, 'advanced', true),
+  ('cynical', 'ˈsɪnɪkl', 965, 'intermediate', true),
+  ('cynicism', 'ˈsɪnɪsɪzəm', 1160, 'advanced', true),
+  ('dearth', 'dɜːθ', 1390, 'expert', true),
+  ('debilitating', 'dɪˈbɪlɪteɪtɪŋ', 1240, 'advanced', true),
+  ('decisive', 'dɪˈsaɪsɪv', 970, 'intermediate', true),
+  ('decline', 'dɪˈklaɪn', 940, 'intermediate', true),
+  ('deference', 'ˈdefərəns', 1400, 'expert', true),
+  ('deleterious', 'ˌdelɪˈtɪəriəs', 1440, 'expert', true),
+  ('deliberate', 'dɪˈlɪbərət', 980, 'intermediate', true),
+  ('delighted', 'dɪˈlaɪtɪd', 890, 'beginner', true),
+  ('delineate', 'dɪˈlɪnieɪt', 1260, 'advanced', true),
+  ('demand', 'dɪˈmɑːnd', 830, 'beginner', true),
+  ('denouement', 'deɪˈnuːmɒŋ', 1460, 'expert', true),
+  ('dependable', 'dɪˈpendəbl', 930, 'intermediate', true),
+  ('desultory', 'ˈdesəltri', 1470, 'expert', true),
+  ('determined', 'dɪˈtɜːmɪnd', 880, 'beginner', true),
+  ('detrimental', 'ˌdetrɪˈmentl', 1030, 'intermediate', true),
+  ('dilemma', 'dɪˈlemə', 820, 'beginner', true),
+  ('discrepancy', 'dɪˈskrepənsi', 1200, 'advanced', true),
+  ('dismissive', 'dɪsˈmɪsɪv', 1170, 'advanced', true),
+  ('disparate', 'ˈdɪspərət', 1210, 'advanced', true),
+  ('distinct', 'dɪˈstɪŋkt', 910, 'intermediate', true),
+  ('diverse', 'daɪˈvɜːs', 865, 'beginner', true),
+  ('dogmatic', 'dɒɡˈmætɪk', 1300, 'expert', true),
+  ('doubt', 'daʊt', 855, 'beginner', true),
+  ('draconian', 'drəˈkəʊniən', 1280, 'advanced', true),
+  ('duplicitous', 'djuːˈplɪsɪtəs', 1300, 'advanced', true),
+  ('dynamic', 'daɪˈnæmɪk', 955, 'intermediate', true),
+  ('eager', 'ˈiːɡə(r)', 920, 'intermediate', true),
+  ('effective', 'ɪˈfektɪv', 850, 'beginner', true),
+  ('efficient', 'ɪˈfɪʃnt', 840, 'beginner', true),
+  ('elaborate', 'ɪˈlæbərət', 990, 'intermediate', true),
+  ('eliminate', 'ɪˈlɪmɪneɪt', 930, 'intermediate', true),
+  ('eloquent', 'ˈeləkwənt', 1020, 'intermediate', true),
+  ('elucidate', 'ɪˈluːsɪdeɪt', 1220, 'advanced', true),
+  ('elusive', 'ɪˈluːsɪv', 1190, 'advanced', true),
+  ('empirical', 'ɪmˈpɪrɪkl', 1070, 'intermediate', true),
+  ('emulate', 'ˈemjʊleɪt', 1160, 'advanced', true),
+  ('encourage', 'ɪnˈkʌrɪdʒ', 860, 'beginner', true),
+  ('enervate', 'ˈenərveɪt', 1390, 'expert', true),
+  ('ephemeral', 'ɪˈfemərəl', 1100, 'intermediate', true),
+  ('equivocate', 'ɪˈkwɪvəkeɪt', 1290, 'advanced', true),
+  ('esoteric', 'esəˈterɪk', 1280, 'advanced', true),
+  ('estimate', 'ˈestɪmeɪt', 880, 'beginner', true),
+  ('evident', 'ˈevɪdənt', 855, 'beginner', true),
+  ('exacerbate', 'ɪɡˈzæsərbeɪt', 1180, 'intermediate', true),
+  ('exorbitant', 'ɪɡˈzɔːbɪtənt', 1220, 'advanced', true),
+  ('expedient', 'ɪkˈspiːdiənt', 1230, 'advanced', true),
+  ('explicit', 'ɪkˈsplɪsɪt', 1000, 'intermediate', true),
+  ('extraneous', 'ɪkˈstreɪniəs', 1250, 'advanced', true),
+  ('fallacious', 'fəˈleɪʃəs', 1270, 'advanced', true),
+  ('familiar', 'fəˈmɪliə(r)', 810, 'beginner', true),
+  ('fastidious', 'fæˈstɪdiəs', 1240, 'advanced', true),
+  ('feasible', 'ˈfiːzəbl', 880, 'beginner', true),
+  ('fervent', 'ˈfɜːvənt', 1180, 'advanced', true),
+  ('financial', 'faɪˈnænʃl', 840, 'beginner', true),
+  ('flagrant', 'ˈfleɪɡrənt', 1210, 'advanced', true),
+  ('fleeting', 'ˈfliːtɪŋ', 1130, 'advanced', true),
+  ('flexible', 'ˈfleksəbl', 835, 'beginner', true),
+  ('focus', 'ˈfəʊkəs', 820, 'beginner', true),
+  ('force', 'fɔːs', 840, 'beginner', true),
+  ('formidable', 'ˈfɔːmɪdəbl', 1050, 'intermediate', true),
+  ('forthright', 'ˈfɔːθraɪt', 1160, 'advanced', true),
+  ('fragmented', 'ˈfræɡməntɪd', 1020, 'intermediate', true),
+  ('frugal', 'ˈfruːɡl', 1140, 'advanced', true),
+  ('frustrated', 'frʌˈstreɪtɪd', 870, 'beginner', true),
+  ('fundamental', 'ˌfʌndəˈmentl', 960, 'intermediate', true),
+  ('futile', 'ˈfjuːtaɪl', 1170, 'advanced', true),
+  ('gather', 'ˈɡæðə(r)', 830, 'beginner', true),
+  ('generalize', 'ˈdʒenrəlaɪz', 950, 'intermediate', true),
+  ('generate', 'ˈdʒenəreɪt', 845, 'beginner', true),
+  ('generous', 'ˈdʒenərəs', 835, 'beginner', true),
+  ('genuine', 'ˈdʒenjuɪn', 845, 'beginner', true),
+  ('grandiloquent', 'ɡrændɪˈləʊkwənt', 1450, 'expert', true),
+  ('grateful', 'ˈɡreɪtfl', 860, 'beginner', true),
+  ('gratuitous', 'ɡrəˈtjuːɪtəs', 1260, 'advanced', true),
+  ('gregarious', 'ɡrɪˈɡeəriəs', 1240, 'advanced', true),
+  ('hackneyed', 'ˈhæknid', 1410, 'expert', true),
+  ('hardly', 'ˈhɑːdli', 815, 'beginner', true),
+  ('hegemony', 'hɪˈɡeməni', 1300, 'advanced', true),
+  ('hesitate', 'ˈhezɪteɪt', 830, 'beginner', true),
+  ('highlight', 'ˈhaɪlaɪt', 830, 'beginner', true),
+  ('hinder', 'ˈhɪndə', 970, 'intermediate', true),
+  ('honest', 'ˈɒnɪst', 810, 'beginner', true),
+  ('hubris', 'ˈhjuːbrɪs', 1280, 'advanced', true),
+  ('hypocritical', 'ˌhɪpəˈkrɪtɪkl', 1190, 'advanced', true),
+  ('hypothetical', 'ˌhaɪpəˈθetɪkl', 1080, 'intermediate', true),
+  ('iconoclast', 'aɪˈkɒnəklæst', 1440, 'expert', true),
+  ('idealistic', 'aɪˌdɪəˈlɪstɪk', 1150, 'advanced', true),
+  ('ignore', 'ɪɡˈnɔː(r)', 820, 'beginner', true),
+  ('imagine', 'ɪˈmædʒɪn', 805, 'beginner', true),
+  ('imitate', 'ˈɪmɪteɪt', 940, 'intermediate', true),
+  ('immediate', 'ɪˈmiːdiət', 845, 'beginner', true),
+  ('impact', 'ˈɪmpækt', 825, 'beginner', true),
+  ('impetuous', 'ɪmˈpetʃuəs', 1260, 'advanced', true),
+  ('implement', 'ˈɪmplɪment', 920, 'intermediate', true),
+  ('implicit', 'ɪmˈplɪsɪt', 1040, 'intermediate', true),
+  ('inadequate', 'ɪnˈædɪkwət', 990, 'intermediate', true),
+  ('inadvertent', 'ˌɪnədˈvɜːtnt', 1230, 'advanced', true),
+  ('incongruent', 'ɪnˈkɒŋɡruənt', 1260, 'advanced', true),
+  ('indispensable', 'ˌɪndɪˈspensəbl', 1090, 'intermediate', true),
+  ('indolent', 'ˈɪndələnt', 1200, 'advanced', true),
+  ('inevitable', 'ɪnˈevɪtəbl', 890, 'beginner', true),
+  ('inexorable', 'ɪnˈeksərəbl', 1310, 'advanced', true),
+  ('influence', 'ˈɪnfluəns', 915, 'intermediate', true),
+  ('inherent', 'ɪnˈhɪrənt', 1070, 'intermediate', true),
+  ('insidious', 'ɪnˈsɪdiəs', 1270, 'advanced', true),
+  ('integrate', 'ˈɪntɪɡreɪt', 970, 'intermediate', true),
+  ('intention', 'ɪnˈtenʃn', 910, 'intermediate', true),
+  ('intransigent', 'ɪnˈtrænsɪdʒənt', 1290, 'advanced', true),
+  ('intuitive', 'ɪnˈtjuːɪtɪv', 1010, 'intermediate', true),
+  ('inveterate', 'ɪnˈvetərət', 1410, 'expert', true),
+  ('irrevocable', 'ɪˈrevəkəbl', 1300, 'advanced', true),
+  ('jealous', 'ˈdʒeləs', 830, 'beginner', true),
+  ('judge', 'dʒʌdʒ', 830, 'beginner', true),
+  ('justify', 'ˈdʒʌstɪfaɪ', 850, 'beginner', true),
+  ('juxtapose', 'ʤʌksˈtæpəʊz', 1230, 'advanced', true),
+  ('keen', 'kiːn', 835, 'beginner', true),
+  ('kindness', 'ˈkaɪndnəs', 820, 'beginner', true),
+  ('knowledge', 'ˈnɒlɪdʒ', 840, 'beginner', true),
+  ('knowledgeable', 'ˈnɒlɪdʒəbl', 950, 'intermediate', true),
+  ('lachrymose', 'ˈlækrɪməʊs', 1450, 'expert', true),
+  ('lack', 'læk', 810, 'beginner', true),
+  ('laconic', 'ləˈkɒnɪk', 1430, 'expert', true),
+  ('lambaste', 'læmˈbeɪst', 1420, 'expert', true),
+  ('lamentable', 'ˈlæməntəbl', 1220, 'advanced', true),
+  ('languid', 'ˈlæŋɡwɪd', 1380, 'expert', true),
+  ('lethargic', 'ləˈθɑːdʒɪk', 1180, 'advanced', true),
+  ('leverage', 'ˈliːvərɪdʒ', 1000, 'intermediate', true),
+  ('limit', 'ˈlɪmɪt', 815, 'beginner', true),
+  ('logical', 'ˈlɒdʒɪkl', 840, 'beginner', true),
+  ('loose', 'luːs', 835, 'beginner', true),
+  ('loquacious', 'ləˈkweɪʃəs', 1390, 'expert', true),
+  ('lucid', 'ˈluːsɪd', 1140, 'advanced', true),
+  ('machiavellian', 'ˌmækiəˈveliən', 1490, 'expert', true),
+  ('magnanimous', 'mæɡˈnænɪməs', 1250, 'advanced', true),
+  ('magniloquent', 'mæɡˈnɪləkwənt', 1480, 'expert', true),
+  ('maintain', 'meɪnˈteɪn', 860, 'beginner', true),
+  ('maladroit', 'ˌmæləˈdrɔɪt', 1420, 'expert', true),
+  ('malaise', 'məˈleɪz', 1400, 'expert', true),
+  ('malevolent', 'məˈlevələnt', 1270, 'advanced', true),
+  ('malleable', 'ˈmæliəbl', 1210, 'advanced', true),
+  ('manage', 'ˈmænɪdʒ', 850, 'beginner', true),
+  ('massive', 'ˈmæsɪv', 820, 'beginner', true),
+  ('melancholy', 'ˈmelənkɒli', 1160, 'advanced', true),
+  ('mendacious', 'menˈdeɪʃəs', 1320, 'advanced', true),
+  ('mention', 'ˈmenʃn', 840, 'beginner', true),
+  ('mercurial', 'mɜːˈkjʊəriəl', 1110, 'advanced', true),
+  ('meretricious', 'ˌmerɪˈtrɪʃəs', 1470, 'expert', true),
+  ('meticulous', 'məˈtɪkjələs', 1050, 'intermediate', true),
+  ('mettlesome', 'ˈmetlsəm', 1440, 'expert', true),
+  ('misanthropic', 'ˌmɪzənˈθrɒpɪk', 1460, 'expert', true),
+  ('mitigate', 'ˈmɪtɪɡeɪt', 1120, 'intermediate', true),
+  ('mnemonic', 'nɪˈmɒnɪk', 1380, 'expert', true),
+  ('modicum', 'ˈmɒdɪkəm', 1030, 'intermediate', true),
+  ('mollify', 'ˈmɒlɪfaɪ', 1130, 'advanced', true),
+  ('momentum', 'məˈmentəm', 990, 'intermediate', true),
+  ('monotonous', 'məˈnɒtənəs', 975, 'intermediate', true),
+  ('mordant', 'ˈmɔːdnt', 1430, 'expert', true),
+  ('motivate', 'ˈməʊtɪveɪt', 860, 'beginner', true),
+  ('mundane', 'mʌnˈdeɪn', 1000, 'intermediate', true),
+  ('munificent', 'mjuːˈnɪfɪsnt', 1410, 'expert', true),
+  ('navigate', 'ˈnævɪɡeɪt', 960, 'intermediate', true),
+  ('nebulous', 'ˈnebjʊləs', 1390, 'expert', true),
+  ('necessary', 'ˈnesəsəri', 840, 'beginner', true),
+  ('nefarious', 'nɪˈfeəriəs', 1310, 'advanced', true),
+  ('negative', 'ˈneɡətɪv', 810, 'beginner', true),
+  ('neglect', 'nɪˈɡlekt', 855, 'beginner', true),
+  ('nervous', 'ˈnɜːvəs', 815, 'beginner', true),
+  ('noisome', 'ˈnɔɪsəm', 1420, 'expert', true),
+  ('nonchalant', 'ˌnɒnʃəˈlɑːnt', 1190, 'advanced', true),
+  ('nostalgic', 'nɒˈstældʒɪk', 1130, 'advanced', true),
+  ('notable', 'ˈnəʊtəbl', 890, 'beginner', true),
+  ('notice', 'ˈnəʊtɪs', 810, 'beginner', true),
+  ('nuance', 'ˈnjuːɑːns', 1140, 'intermediate', true),
+  ('obdurate', 'ˈɒbdjʊrət', 1440, 'expert', true),
+  ('obfuscate', 'ɒbˈfʌskeɪt', 1290, 'advanced', true),
+  ('objective', 'əbˈdʒektɪv', 950, 'intermediate', true),
+  ('oblivious', 'əˈblɪviəs', 1160, 'advanced', true),
+  ('obsequious', 'əbˈsiːkwiəs', 1460, 'expert', true),
+  ('obstreperous', 'əbˈstrepərəs', 1470, 'expert', true),
+  ('obtain', 'əbˈteɪn', 960, 'intermediate', true),
+  ('obtuse', 'əbˈtjuːs', 1380, 'expert', true),
+  ('obvious', 'ˈɒbviəs', 815, 'beginner', true),
+  ('offer', 'ˈɒfə(r)', 850, 'beginner', true),
+  ('officious', 'əˈfɪʃəs', 1410, 'expert', true),
+  ('oleaginous', 'ˌəʊliˈædʒɪnəs', 1490, 'expert', true),
+  ('ominous', 'ˈɒmɪnəs', 1180, 'advanced', true),
+  ('onerous', 'ˈɒnərəs', 1370, 'expert', true),
+  ('opaque', 'əʊˈpeɪk', 1200, 'advanced', true),
+  ('opportunity', 'ˌɒpəˈtjuːnəti', 850, 'beginner', true),
+  ('opprobrium', 'əˈprəʊbriəm', 1460, 'expert', true),
+  ('optimistic', 'ˌɒptɪˈmɪstɪk', 840, 'beginner', true),
+  ('ostentatious', 'ˌɒstənˈteɪʃəs', 1300, 'advanced', true),
+  ('overwhelming', 'ˌəʊvəˈwelmɪŋ', 980, 'intermediate', true),
+  ('paradox', 'ˈpærədɒks', 1050, 'intermediate', true),
+  ('parsimonious', 'ˌpɑːsɪˈməʊniəs', 1430, 'expert', true),
+  ('parsimony', 'ˈpɑːrsɪməni', 1210, 'advanced', true),
+  ('partial', 'ˈpɑːʃl', 830, 'beginner', true),
+  ('particular', 'pəˈtɪkjələ(r)', 910, 'intermediate', true),
+  ('patient', 'ˈpeɪʃnt', 825, 'beginner', true),
+  ('pedantic', 'pɪˈdæntɪk', 1250, 'advanced', true),
+  ('pejorative', 'pɪˈdʒɒrətɪv', 1420, 'expert', true),
+  ('penurious', 'pɪˈnjʊəriəs', 1450, 'expert', true),
+  ('perceive', 'pəˈsiːv', 1010, 'intermediate', true),
+  ('perfidious', 'pəˈfɪdiəs', 1330, 'advanced', true),
+  ('pernicious', 'pərˈnɪʃəs', 1470, 'expert', true),
+  ('perpetual', 'pəˈpetʃuəl', 1060, 'intermediate', true),
+  ('persistent', 'pəˈsɪstənt', 860, 'beginner', true),
+  ('perspective', 'pəˈspektɪv', 920, 'intermediate', true),
+  ('pertinent', 'ˈpɜːtɪnənt', 1150, 'advanced', true),
+  ('phlegmatic', 'fleɡˈmætɪk', 1280, 'advanced', true),
+  ('placid', 'ˈplæsɪd', 1200, 'advanced', true),
+  ('plausible', 'ˈplɔːzəbl', 1010, 'intermediate', true),
+  ('polarizing', 'ˈpəʊləraɪzɪŋ', 1170, 'advanced', true),
+  ('pompous', 'ˈpɒmpəs', 1220, 'advanced', true),
+  ('practical', 'ˈpræktɪkl', 870, 'beginner', true),
+  ('pragmatic', 'præɡˈmætɪk', 920, 'beginner', true),
+  ('precarious', 'prɪˈkeəriəs', 1190, 'advanced', true),
+  ('prefer', 'prɪˈfɜː(r)', 820, 'beginner', true),
+  ('presumptuous', 'prɪˈzʌmptʃuəs', 1260, 'advanced', true),
+  ('pretentious', 'prɪˈtenʃəs', 1230, 'advanced', true),
+  ('prevalent', 'ˈprevələnt', 1020, 'intermediate', true),
+  ('priority', 'praɪˈɒrəti', 850, 'beginner', true),
+  ('proactive', 'ˌprəʊˈæktɪv', 975, 'intermediate', true),
+  ('procedure', 'prəˈsiːdʒə', 950, 'intermediate', true),
+  ('profound', 'prəˈfaʊnd', 1040, 'intermediate', true),
+  ('prolific', 'prəˈlɪfɪk', 1160, 'intermediate', true),
+  ('pugnacious', 'pʌɡˈneɪʃəs', 1260, 'advanced', true),
+  ('punctilious', 'pʌŋkˈtɪliəs', 1280, 'advanced', true),
+  ('qualify', 'ˈkwɒlɪfaɪ', 940, 'intermediate', true),
+  ('quality', 'ˈkwɒləti', 805, 'beginner', true),
+  ('quarrel', 'ˈkwɒrəl', 930, 'intermediate', true),
+  ('quickly', 'ˈkwɪkli', 800, 'beginner', true),
+  ('quintessential', 'kwɪntɪˈsenʃl', 1200, 'advanced', true),
+  ('quixotic', 'kwɪkˈsɒtɪk', 1480, 'expert', true),
+  ('rational', 'ˈræʃnəl', 965, 'intermediate', true),
+  ('reaction', 'riˈækʃn', 820, 'beginner', true),
+  ('reasonable', 'ˈriːznəbl', 855, 'beginner', true),
+  ('recalcitrant', 'rɪˈkælsɪtrənt', 1350, 'expert', true),
+  ('recognize', 'ˈrekəɡnaɪz', 875, 'beginner', true),
+  ('redundant', 'rɪˈdʌndənt', 1110, 'intermediate', true),
+  ('relevant', 'ˈreləvənt', 845, 'beginner', true),
+  ('resilient', 'rɪˈzɪliənt', 940, 'beginner', true),
+  ('reveal', 'rɪˈviːl', 830, 'beginner', true),
+  ('risible', 'ˈrɪzəbl', 1400, 'expert', true),
+  ('salient', 'ˈseɪliənt', 1320, 'expert', true),
+  ('scrutinize', 'ˈskruːtənaɪz', 1040, 'intermediate', true),
+  ('sensitive', 'ˈsensətɪv', 935, 'intermediate', true),
+  ('significance', 'sɪɡˈnɪfɪkəns', 1020, 'intermediate', true),
+  ('significant', 'sɪɡˈnɪfɪkənt', 850, 'beginner', true),
+  ('skeptical', 'ˈskeptɪkl', 990, 'intermediate', true),
+  ('skepticism', 'ˈskeptɪsɪzəm', 1040, 'intermediate', true),
+  ('specific', 'spəˈsɪfɪk', 830, 'beginner', true),
+  ('spontaneous', 'spɒnˈteɪniəs', 1000, 'intermediate', true),
+  ('struggle', 'ˈstrʌɡl', 880, 'beginner', true),
+  ('stubborn', 'ˈstʌbən', 860, 'beginner', true),
+  ('subjective', 'səbˈdʒektɪv', 975, 'intermediate', true),
+  ('subtle', 'ˈsʌtl', 930, 'beginner', true),
+  ('sufficient', 'səˈfɪʃnt', 940, 'intermediate', true),
+  ('sustainable', 'səˈsteɪnəbl', 955, 'intermediate', true),
+  ('sycophant', 'ˈsɪkəfənt', 1490, 'expert', true),
+  ('taciturn', 'ˈtæsɪtɜn', 1340, 'expert', true),
+  ('tangible', 'ˈtænʤəbl', 1130, 'intermediate', true),
+  ('tedious', 'ˈtiːdiəs', 910, 'beginner', true),
+  ('temporary', 'ˈtemprəri', 870, 'beginner', true),
+  ('tendency', 'ˈtendənsi', 910, 'intermediate', true),
+  ('thorough', 'ˈθʌrə', 960, 'intermediate', true),
+  ('tolerate', 'ˈtɒləreɪt', 855, 'beginner', true),
+  ('transparent', 'trænsˈpærənt', 970, 'intermediate', true),
+  ('trivial', 'ˈtrɪviəl', 960, 'intermediate', true),
+  ('trustworthy', 'ˈtrʌstwɜːði', 925, 'intermediate', true),
+  ('typical', 'ˈtɪpɪkl', 820, 'beginner', true),
+  ('ubiquitous', 'juːˈbɪkwɪtəs', 1080, 'intermediate', true),
+  ('ultimate', 'ˈʌltɪmət', 940, 'intermediate', true),
+  ('unexpected', 'ˌʌnɪkˈspektɪd', 850, 'beginner', true),
+  ('unique', 'juˈniːk', 860, 'beginner', true),
+  ('unprecedented', 'ʌnˈpresɪdentɪd', 1070, 'intermediate', true),
+  ('urgent', 'ˈɜːdʒənt', 845, 'beginner', true),
+  ('utilize', 'ˈjuːtɪlaɪz', 860, 'beginner', true),
+  ('vague', 'veɪɡ', 910, 'intermediate', true),
+  ('valid', 'ˈvælɪd', 840, 'beginner', true),
+  ('validate', 'ˈvælɪdeɪt', 940, 'intermediate', true),
+  ('valuable', 'ˈvæljuəbl', 840, 'beginner', true),
+  ('versatile', 'ˈvɜːsətaɪl', 1050, 'intermediate', true),
+  ('vicarious', 'vɪˈkeəriəs', 1310, 'expert', true),
+  ('vitriolic', 'vɪtriˈɒlɪk', 1460, 'expert', true),
+  ('vulnerable', 'ˈvʌlnərəbl', 1010, 'intermediate', true),
+  ('warranted', 'ˈwɒrəntɪd', 1080, 'intermediate', true),
+  ('whisper', 'ˈwɪspə(r)', 830, 'beginner', true),
+  ('willing', 'ˈwɪlɪŋ', 830, 'beginner', true),
+  ('wonder', 'ˈwʌndə(r)', 810, 'beginner', true),
+  ('worthwhile', 'ˌwɜːθˈwaɪl', 900, 'intermediate', true),
+  ('yield', 'jiːld', 1020, 'intermediate', true),
+  ('zealot', 'ˈzelət', 1330, 'expert', true),
+  ('zenith', 'ˈzenɪθ', 1190, 'intermediate', true)
+on conflict (word) do nothing;
+
