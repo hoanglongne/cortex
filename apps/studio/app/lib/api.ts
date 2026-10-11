@@ -1,7 +1,14 @@
 import { getSupabase } from './supabase';
 
+/** Adds https:// when the env var was set as a bare host, drops trailing slashes. */
+export function normalizeBaseUrl(value: string | undefined): string {
+    const v = value?.trim().replace(/\/+$/, '') ?? '';
+    if (!v) return '';
+    return /^https?:\/\//i.test(v) ? v : `https://${v}`;
+}
+
 const API_URL =
-    process.env.NEXT_PUBLIC_CORTEX_API_URL ||
+    normalizeBaseUrl(process.env.NEXT_PUBLIC_CORTEX_API_URL) ||
     (process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : '');
 
 export class ApiError extends Error {
@@ -30,7 +37,17 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
     });
     if (res.status === 204) return undefined as T;
     const text = await res.text();
-    const body: unknown = text ? JSON.parse(text) : null;
+    let body: unknown = null;
+    try {
+        body = text ? JSON.parse(text) : null;
+    } catch {
+        // An HTML page instead of JSON: wrong API URL, or an API build without /studio.
+        throw new ApiError(
+            `Cortex API trả về trang không phải JSON (HTTP ${res.status}) tại ${API_URL}/studio${path}. Kiểm tra NEXT_PUBLIC_CORTEX_API_URL và bản deploy của API.`,
+            res.status,
+            null,
+        );
+    }
     if (!res.ok) {
         const msg = (body as { message?: unknown } | null)?.message;
         throw new ApiError(
