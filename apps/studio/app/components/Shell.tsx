@@ -150,7 +150,7 @@ function SignIn() {
     return (
         <Centered title="Lexica Studio">
             {state === 'sent' ? (
-                <p>Đã gửi link đăng nhập tới {email}. Mở email trên máy này để vào Studio.</p>
+                <p>Đã gửi link đăng nhập tới {email}. Mở link trên <b>chính trình duyệt này</b> (link chỉ dùng được ở nơi đã yêu cầu).</p>
             ) : (
                 <form onSubmit={send} className="flex flex-col gap-3">
                     <label className="flex flex-col gap-1.5">
