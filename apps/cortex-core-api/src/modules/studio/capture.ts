@@ -60,17 +60,35 @@ function str(v: unknown, key: string, max: number): string | undefined {
   return t.length > max ? t.slice(0, max) : t;
 }
 
+const TRACKING =
+  /^(utm_\w+|xmt|igshid|igsh|mibextid|fbclid|si|_r|_t|is_from_webapp|sender_device|slof)$/i;
+
+/** Drops tracking parameters so the same post is recognised again. */
+export function cleanUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    for (const key of [...u.searchParams.keys()])
+      if (TRACKING.test(key)) u.searchParams.delete(key);
+    u.hash = '';
+    return u.toString().replace(/\?$/, '');
+  } catch {
+    return raw;
+  }
+}
+
 /** Validates and trims a capture body. Needs at least a link or some text. */
 export function parseCaptureInput(body: unknown): CaptureInput {
   if (typeof body !== 'object' || body === null || Array.isArray(body)) {
     throw new BadRequestException('Body must be a JSON object');
   }
   const o = body as Record<string, unknown>;
-  const url = str(o.url, 'url', 500);
-  if (url && !/^https?:\/\//i.test(url)) {
-    throw new BadRequestException('url must be http(s)');
-  }
-  const text = str(o.text, 'text', 2000);
+  // Share sheets sometimes hand over "some text https://…" as the link.
+  const shared = str(o.url, 'url', 2000);
+  const found = shared?.match(/https?:\/\/[^\s<>"]+/i)?.[0];
+  const rest = found ? shared.replace(found, '').trim() : shared;
+  const url = found ? cleanUrl(found.slice(0, 500)) : undefined;
+  const text =
+    str(o.text, 'text', 2000) ?? (rest ? rest.slice(0, 2000) : undefined);
   if (!url && !text) throw new BadRequestException('Cần link hoặc nội dung');
   let metrics: Record<string, number> | undefined;
   if (

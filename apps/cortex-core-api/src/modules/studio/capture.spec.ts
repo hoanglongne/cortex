@@ -47,9 +47,6 @@ describe('capture helpers', () => {
       metrics: { likes: 12 },
     });
     expect(() => parseCaptureInput({})).toThrow(BadRequestException);
-    expect(() => parseCaptureInput({ url: 'javascript:alert(1)' })).toThrow(
-      BadRequestException,
-    );
     expect(parseCaptureInput({ text: 'y'.repeat(5000) }).text).toHaveLength(
       2000,
     );
@@ -71,5 +68,37 @@ describe('capture helpers', () => {
     expect(hashToken(t)).toHaveLength(64);
     expect(hashToken(t)).toBe(hashToken(t));
     expect(newCaptureToken()).not.toBe(t);
+  });
+});
+
+describe('cleanUrl', () => {
+  it('drops tracking parameters', () => {
+    expect(
+      parseCaptureInput({
+        url: 'https://www.threads.net/@a/post/C1?xmt=AQ&utm_source=ig',
+      }).url,
+    ).toBe('https://www.threads.net/@a/post/C1');
+  });
+});
+
+describe('parseCaptureInput with shared text', () => {
+  it('pulls the link out of text sent as url', () => {
+    expect(
+      parseCaptureInput({
+        url: 'Xem bài của @a trên Threads https://www.threads.net/@a/post/C1?xmt=1',
+      }),
+    ).toEqual({
+      url: 'https://www.threads.net/@a/post/C1',
+      text: 'Xem bài của @a trên Threads',
+    });
+  });
+
+  it('keeps text without a link, and ignores non-http links', () => {
+    expect(parseCaptureInput({ url: 'đi làm vì đam mê' })).toEqual({
+      text: 'đi làm vì đam mê',
+    });
+    expect(
+      parseCaptureInput({ url: 'javascript:alert(1)' }).url,
+    ).toBeUndefined();
   });
 });
