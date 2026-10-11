@@ -60,17 +60,21 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async onModuleInit() {
-    // Initial check
-    try {
-      this.logger.log('Pinging Redis...');
-      const result = await this.client.ping();
-      this.logger.log(`Redis ping result: ${result}`);
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.error(`Could not ping Redis on startup: ${errorMessage}`);
-    }
+  onModuleInit() {
+    // Don't await: ioredis queues the ping until it connects, so an
+    // unreachable Redis would block startup forever and the API would never
+    // listen (the host then answers with its own error page, no CORS).
+    this.logger.log('Pinging Redis...');
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('timed out after 5s')), 5000).unref(),
+    );
+    Promise.race([this.client.ping(), timeout])
+      .then((result) => this.logger.log(`Redis ping result: ${result}`))
+      .catch((error: unknown) => {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        this.logger.error(`Could not ping Redis on startup: ${errorMessage}`);
+      });
   }
 
   async onModuleDestroy() {
