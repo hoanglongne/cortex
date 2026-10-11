@@ -2403,3 +2403,20 @@ $$;
 revoke all on function studio_capture_with_token(text, jsonb) from public;
 grant execute on function studio_capture_with_token(text, jsonb) to anon, authenticated;
 
+-- Lets the extension's "Kiểm tra" button confirm a token without saving
+-- anything. Returns the token's name, or null when it is unknown or revoked.
+create or replace function studio_capture_token_name(p_token_hash text)
+returns text
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select t.name from studio_capture_tokens t
+  join studio_editors e on e.user_id = t.user_id
+  where t.token_hash = p_token_hash and t.revoked_at is null;
+$$;
+
+revoke all on function studio_capture_token_name(text) from public;
+grant execute on function studio_capture_token_name(text) to anon, authenticated;
+

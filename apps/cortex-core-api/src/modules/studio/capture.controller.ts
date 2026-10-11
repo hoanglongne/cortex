@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpException,
@@ -13,6 +14,9 @@ import { CaptureService } from './capture.service';
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS_PER_WINDOW = 30;
+
+const bearer = (header: string | undefined) =>
+  header?.match(/^Bearer\s+(\S+)$/i)?.[1];
 
 /**
  * Public endpoint for the browser extension and the iOS Shortcut. Callers
@@ -42,6 +46,15 @@ export class CaptureController {
     }
   }
 
+  @Get('check')
+  check(
+    @Ip() ip: string,
+    @Headers('authorization') authorization: string | undefined,
+  ) {
+    this.limit(ip);
+    return this.captures.checkToken(bearer(authorization));
+  }
+
   @Post()
   @HttpCode(201)
   capture(
@@ -50,7 +63,9 @@ export class CaptureController {
     @Body() body: unknown,
   ) {
     this.limit(ip);
-    const token = authorization?.match(/^Bearer\s+(\S+)$/i)?.[1];
-    return this.captures.captureWithToken(token, parseCaptureInput(body));
+    return this.captures.captureWithToken(
+      bearer(authorization),
+      parseCaptureInput(body),
+    );
   }
 }

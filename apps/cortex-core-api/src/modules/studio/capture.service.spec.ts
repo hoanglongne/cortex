@@ -179,3 +179,14 @@ describe('CaptureService.enrich', () => {
     expect(fetchPage).not.toHaveBeenCalled();
   });
 });
+
+describe('CaptureService.checkToken', () => {
+  it('returns the token name, or 401 when unknown', async () => {
+    await expect(
+      service(() => ({ data: 'Chrome', error: null })).checkToken('lxs_a'),
+    ).resolves.toEqual({ name: 'Chrome' });
+    await expect(
+      service(() => ({ data: null, error: null })).checkToken('lxs_a'),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+});

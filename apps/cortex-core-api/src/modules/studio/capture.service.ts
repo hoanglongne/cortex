@@ -174,6 +174,24 @@ export class CaptureService {
     return { id: Number(res.data) };
   }
 
+  /** For the extension's "Kiểm tra" button: the token's name, or 401. */
+  async checkToken(token: string | undefined): Promise<{ name: string }> {
+    if (!token?.startsWith(TOKEN_PREFIX)) {
+      throw new UnauthorizedException('Thiếu mã gửi bài (Bearer lxs_…)');
+    }
+    const client = this.supabase.getClient();
+    if (!client)
+      throw new ServiceUnavailableException('Supabase chưa cấu hình');
+    const res = (await client.rpc('studio_capture_token_name', {
+      p_token_hash: hashToken(token),
+    })) as Res;
+    if (res.error) throw new Error(res.error.message);
+    if (typeof res.data !== 'string') {
+      throw new UnauthorizedException('Mã gửi bài sai hoặc đã bị thu hồi');
+    }
+    return { name: res.data };
+  }
+
   // ------------------------------------------------------ editor captures
 
   /** Same rules as the token path: one capture per link per week. */
