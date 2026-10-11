@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Lexica Capture: cài đặt</title>
+    <link rel="stylesheet" href="ui.css" />
+    <style>
+        main { max-width: 520px; margin: 40px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+        ol { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+    </style>
+</head>
+<body>
+    <main>
+        <div>
+            <h1>Lexica Capture</h1>
+            <p class="muted">Gửi bài Threads, Facebook, TikTok hoặc đoạn chữ bất kỳ vào Radar của Lexica Studio.</p>
+        </div>
+        <ol>
+            <li>Mở Lexica Studio → <b>Hệ thống</b> → <b>Mã gửi bài</b>, tạo một mã mới (ví dụ "Chrome laptop").</li>
+            <li>Dán địa chỉ API (giống <code>NEXT_PUBLIC_CORTEX_API_URL</code> của Studio) và mã vừa tạo vào đây.</li>
+            <li>Bấm <b>Lưu và kiểm tra</b>.</li>
+        </ol>
+        <form id="form" style="display: flex; flex-direction: column; gap: 12px">
+            <label>Địa chỉ API
+                <input id="apiUrl" placeholder="https://cortexapi-production.up.railway.app" autocomplete="off" required />
+            </label>
+            <label>Mã gửi bài
+                <input id="token" type="password" placeholder="lxs_…" autocomplete="off" required />
+            </label>
+            <div class="row">
+                <button class="primary" type="submit">Lưu và kiểm tra</button>
+                <span id="status" class="status"></span>
+            </div>
+        </form>
+        <div>
+            <p class="muted"><b>Cách dùng:</b> trên Threads, bấm <b>+ Lexica</b> cạnh giờ đăng của bài (Shift+click để gửi luôn). Ở trang khác: bôi đen chữ hoặc chuột phải vào link/trang → <b>Gửi … vào Lexica Studio</b>, hoặc bấm biểu tượng extension.</p>
+        </div>
+    </main>
+    <script src="lib/extract.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>

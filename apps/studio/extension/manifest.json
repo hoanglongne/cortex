@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Lexica Capture",
+  "version": "1.0.0",
+  "description": "Gửi bài Threads, Facebook, TikTok hay đoạn chữ bất kỳ vào Lexica Studio (Radar).",
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "action": { "default_title": "Gửi trang này vào Lexica Studio", "default_popup": "popup.html" },
+  "background": { "service_worker": "background.js" },
+  "options_page": "options.html",
+  "permissions": ["contextMenus", "storage", "activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.threads.net/*", "https://www.threads.com/*", "https://threads.net/*", "https://threads.com/*"],
+      "js": ["lib/extract.js", "content-threads.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

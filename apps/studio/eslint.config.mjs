@@ -12,5 +12,6 @@ export default defineConfig([
       "react-hooks/set-state-in-effect": "warn",
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  // The browser extension is plain JS for Chrome, outside Next.js.
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "extension/**"]),
 ]);
