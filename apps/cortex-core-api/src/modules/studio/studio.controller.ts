@@ -25,6 +25,8 @@ import {
   strList,
   weekDropId,
 } from './input';
+import { parseCaptureInput } from './capture';
+import { CaptureService } from './capture.service';
 import { JOBS, PipelineService } from './pipeline.service';
 import { StudioService } from './studio.service';
 import type {
@@ -53,6 +55,14 @@ const DRAFT_STATUSES: DraftRow['status'][] = [
   'edited',
 ];
 
+function captureId(id: string): number {
+  const n = Number(id);
+  if (!Number.isSafeInteger(n) || n <= 0) {
+    throw new BadRequestException('Invalid capture id');
+  }
+  return n;
+}
+
 /** Lexica Studio back office. Editors only (docs/LEXICA_STUDIO_SPEC.md §7). */
 @Controller('studio')
 @UseGuards(SupabaseAuthGuard, EditorGuard)
@@ -60,6 +70,7 @@ export class StudioController {
   constructor(
     private readonly studio: StudioService,
     private readonly pipeline: PipelineService,
+    private readonly captures: CaptureService,
   ) {}
 
   @Get('me')
@@ -120,6 +131,80 @@ export class StudioController {
     @Param('id') id: string,
   ) {
     return this.studio.generateForTrend(db, userId, id);
+  }
+
+  // captures (Radar) and capture tokens
+  @Get('captures')
+  listCaptures(@StudioDb() db: Db, @Query('dismissed') dismissed?: string) {
+    return this.captures.listCaptures(db, dismissed === 'true');
+  }
+
+  @Post('captures')
+  createCapture(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Body() body: unknown,
+  ) {
+    return this.captures.createCapture(db, userId, parseCaptureInput(body));
+  }
+
+  @Patch('captures/:id')
+  updateCapture(
+    @StudioDb() db: Db,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    const o = obj(body);
+    const dismissed = o.dismissed;
+    if (dismissed !== undefined && typeof dismissed !== 'boolean') {
+      throw new BadRequestException('dismissed must be a boolean');
+    }
+    const text =
+      o.text === '' ? '' : str(o, 'text', { max: 2000, optional: true });
+    const note =
+      o.note === '' ? '' : str(o, 'note', { max: 500, optional: true });
+    return this.captures.updateCapture(db, captureId(id), {
+      text,
+      note,
+      dismissed,
+    });
+  }
+
+  @Post('captures/:id/trend')
+  trendFromCapture(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    const o = obj(body);
+    return this.captures.createTrendFromCapture(db, userId, captureId(id), {
+      label: str(o, 'label', { max: 120 })!,
+      summary: str(o, 'summary', { max: 500, optional: true }),
+      tags: strList(o, 'tags', 10),
+      targetWords: strList(o, 'targetWords', 5),
+      generate: o.generate === true,
+    });
+  }
+
+  @Get('capture-tokens')
+  listCaptureTokens(@StudioDb() db: Db) {
+    return this.captures.listTokens(db);
+  }
+
+  @Post('capture-tokens')
+  createCaptureToken(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Body() body: unknown,
+  ) {
+    const name = str(obj(body), 'name', { max: 60 })!;
+    return this.captures.createToken(db, userId, name);
+  }
+
+  @Post('capture-tokens/:id/revoke')
+  revokeCaptureToken(@StudioDb() db: Db, @Param('id') id: string) {
+    return this.captures.revokeToken(db, id);
   }
 
   // drafts
