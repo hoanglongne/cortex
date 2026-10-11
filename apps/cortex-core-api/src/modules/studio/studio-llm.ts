@@ -1,6 +1,7 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { DEFAULT_GEMINI_MODEL } from '../synapse/llm.provider';
 
 export interface LlmResult {
   json: unknown;
@@ -25,7 +26,13 @@ export class StudioLlm {
     const model = this.config.get<string>('STUDIO_LLM_MODEL');
 
     if (provider === 'gemini' && geminiKey) {
-      return this.gemini(geminiKey, model ?? 'gemini-2.0-flash', prompt);
+      return this.gemini(
+        geminiKey,
+        model ??
+          this.config.get<string>('GEMINI_MODEL') ??
+          DEFAULT_GEMINI_MODEL,
+        prompt,
+      );
     }
     if (provider === 'groq' && groqKey) {
       return this.groq(groqKey, model ?? 'llama-3.3-70b-versatile', prompt);
