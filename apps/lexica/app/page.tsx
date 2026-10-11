@@ -8,6 +8,7 @@ import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, Trendin
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
+import LiveDropBanner from './components/LiveDropBanner';
 import SmartEntry from './components/SmartEntry';
 import OnboardingModal from './components/OnboardingModal';
 // Story modals now handled by routes: /story/[id], /story/[id]/unlock-quiz, /story/[id]/unlock
@@ -628,7 +629,10 @@ function HomeContent() {
               {sessionStarted ? (
                 <SwipeDeck />
               ) : (
-                <SmartEntry onStartSession={() => setSessionStarted(true)} />
+                <div className="w-full flex flex-col items-center">
+                  <LiveDropBanner onStart={() => setSessionStarted(true)} />
+                  <SmartEntry onStartSession={() => setSessionStarted(true)} />
+                </div>
               )}
             </ErrorBoundary>
           </div>

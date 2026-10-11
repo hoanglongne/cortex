@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { flushSync } from 'react-dom';
+import { trackCardEvent } from '../lib/content/events';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PartyPopper, Check, X } from 'lucide-react';
 import Link from 'next/link';
@@ -28,6 +29,15 @@ export default function SwipeDeck() {
     const topCardRevealed = revealedForCardId === topCardId;
     const setTopCardRevealed = useCallback((val: boolean) => {
         setRevealedForCardId(val ? topCardId ?? null : null);
+        if (val && topCardId) trackCardEvent(topCardId, 'reveal');
+    }, [topCardId]);
+
+    // Studio feedback: one impression per card shown on top, dwell measured to the swipe
+    const shownAtRef = useRef<{ id: string; at: number } | null>(null);
+    useEffect(() => {
+        if (!topCardId || shownAtRef.current?.id === topCardId) return;
+        shownAtRef.current = { id: topCardId, at: Date.now() };
+        trackCardEvent(topCardId, 'impression');
     }, [topCardId]);
 
     const handleSwipe = useCallback((
@@ -58,6 +68,9 @@ export default function SwipeDeck() {
         flushSync(() => {
             setCardExitDirections(prev => ({ ...prev, [cardId]: direction }));
         });
+
+        const shown = shownAtRef.current;
+        trackCardEvent(cardId, direction === 'right' ? 'known' : 'unknown', shown?.id === cardId ? Date.now() - shown.at : undefined);
 
         swipeCard(cardId, direction);
     }, [swipeCard, swipeMode, voiceAvailable, cards, swipeRight, swipeLeft]);

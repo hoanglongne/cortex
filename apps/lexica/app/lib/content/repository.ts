@@ -14,6 +14,7 @@ import type { ContentCard, ContentPack } from './pack';
 let remote: ContentCard[] = [];
 let retired = new Set<string>();
 let currentDropId: string | null = null;
+let currentDropTitle: string | null = null;
 
 let all: readonly ContentCard[] = VOCAB_DATABASE;
 let byId = new Map<string, ContentCard>(VOCAB_DATABASE.map(c => [c.id, c]));
@@ -71,6 +72,14 @@ export function getCurrentDropId(): string | null {
     return currentDropId;
 }
 
+/** The live Trend Drop, if one is loaded: title, end date and its dealable cards. */
+export function getCurrentDrop(now = Date.now()): { id: string; title: string; expiresAt?: string; cards: ContentCard[] } | null {
+    if (!currentDropId) return null;
+    const cards = getCurrentDropCards(now);
+    if (cards.length === 0) return null;
+    return { id: currentDropId, title: currentDropTitle ?? currentDropId, expiresAt: cards[0].trend?.expiresAt, cards };
+}
+
 /** Replaces the remote layer. Called by the content loader. */
 export function applyRemoteContent(input: {
     packs: ContentPack[];
@@ -89,6 +98,7 @@ export function applyRemoteContent(input: {
     }
     retired = new Set(input.retired);
     currentDropId = input.currentDropId;
+    currentDropTitle = input.packs.find(p => p.id === input.currentDropId)?.title ?? null;
     rebuild();
 }
 
@@ -97,6 +107,7 @@ export function resetContent() {
     remote = [];
     retired = new Set();
     currentDropId = null;
+    currentDropTitle = null;
     rebuild();
 }
 

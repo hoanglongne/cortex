@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards } from '../lib/content/repository';
+import { trackCardEvent } from '../lib/content/events';
 import { getDueCards } from '../lib/eloAlgorithm';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
@@ -536,6 +537,7 @@ function ReviewPageContent() {
         const card = getAllCards().find(c => c.id === q.cardId);
 
         submitReviewAnswer(q.cardId, correct);
+        trackCardEvent(q.cardId, correct ? 'review_correct' : 'review_wrong');
 
         const newStreak = correct ? streak + 1 : 0;
         setStreak(newStreak);

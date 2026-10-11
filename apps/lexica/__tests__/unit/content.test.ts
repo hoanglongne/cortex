@@ -1,10 +1,11 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { parseCard, parseManifest, parsePack } from '../../app/lib/content/pack';
 import {
     applyRemoteContent,
     getAllCards,
     getCard,
     getCardByWord,
+    getCurrentDrop,
     getCurrentDropCards,
     getDeckCards,
     resetContent,
@@ -97,5 +98,26 @@ describe('content repository', () => {
         expect(ids).toContain('t1');
         expect(ids).toContain('t2');
         expect(new Set(ids).size).toBe(ids.length);
+    });
+});
+
+describe('card events', () => {
+    it('queues events for Studio cards only', async () => {
+        vi.resetModules();
+        vi.stubEnv('NEXT_PUBLIC_CORTEX_API_URL', 'http://api.test');
+        const { trackCardEvent, pendingCardEvents } = await import('../../app/lib/content/events');
+        trackCardEvent('v001', 'known');
+        trackCardEvent('t0k9xa', 'known', 1234.4);
+        expect(pendingCardEvents()).toEqual([{ cardId: 't0k9xa', kind: 'known', dwellMs: 1234 }]);
+        vi.unstubAllEnvs();
+    });
+});
+
+describe('current drop', () => {
+    it('exposes the live drop title and cards', () => {
+        applyRemoteContent({ packs: [pack([trendCard('t1', { trend: { label: 'x', dropId: 'drop-1', expiresAt: '2099-01-01T00:00:00Z' } })])], retired: [], currentDropId: 'drop-1' });
+        expect(getCurrentDrop()).toMatchObject({ id: 'drop-1', title: 'T', expiresAt: '2099-01-01T00:00:00Z' });
+        resetContent();
+        expect(getCurrentDrop()).toBeNull();
     });
 });
