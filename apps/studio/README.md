@@ -22,11 +22,19 @@ The Cortex API must be running (`pnpm --filter @cortex/api start:dev`, port 3001
    ```sql
    insert into studio_editors (user_id) select id from auth.users where email = 'you@example.com';
    ```
-   Sign-in uses a magic link and does not create accounts, so the email must already exist
-   (e.g. sign in to Lexica once).
-3. Supabase → Authentication → URL Configuration: add the Studio URL (and
+   Studio does not create accounts, so the email must already exist (e.g. sign in to Lexica once).
+3. Give yourself a password, so signing in needs no email (Supabase's built-in mailer only sends a
+   few emails per hour for the whole project). In the SQL Editor, type your own password in place
+   of `…` (never paste it anywhere else):
+   ```sql
+   update auth.users
+   set encrypted_password = extensions.crypt('…', extensions.gen_salt('bf'))
+   where email = 'you@example.com';
+   ```
+   The magic link still works as a fallback; it is one-time and must be opened in the same browser.
+4. Supabase → Authentication → URL Configuration: add the Studio URL (and
    `http://localhost:3012`) to Redirect URLs.
-4. Lexica (Vercel): set
+5. Lexica (Vercel): set
    `NEXT_PUBLIC_CONTENT_MANIFEST_URL=https://<project>.supabase.co/storage/v1/object/public/lexica-content/packs/manifest.json`.
 
 ## Keyboard (inbox)

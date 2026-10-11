@@ -124,52 +124,108 @@ function Centered({ title, children }: { title: string; children: React.ReactNod
     );
 }
 
+/** Supabase error messages, in Vietnamese where the cause is known. */
+function authMessage(message: string): string {
+    const m = message.toLowerCase();
+    if (m.includes('rate limit')) {
+        return 'Supabase đã chạm giới hạn gửi email (email mặc định của Supabase chỉ gửi được vài thư mỗi giờ cho cả project). Đăng nhập bằng mật khẩu, hoặc đợi khoảng 1 giờ.';
+    }
+    if (m.includes('invalid login credentials')) return 'Sai email hoặc mật khẩu.';
+    if (m.includes('expired') || m.includes('invalid')) return 'Link đăng nhập đã hết hạn hoặc đã được dùng. Mỗi link chỉ dùng được một lần.';
+    return message;
+}
+
+/** Reads an auth error Supabase left in the URL after a magic-link redirect (pure: no URL changes). */
+function readRedirectError(): string {
+    if (typeof window === 'undefined') return '';
+    const url = new URL(window.location.href);
+    const hash = new URLSearchParams(url.hash.replace(/^#/, ''));
+    const description = url.searchParams.get('error_description') ?? hash.get('error_description');
+    // A ?code= still present after load means this browser could not exchange it
+    // (link opened in another browser, or already used).
+    const leftoverCode = url.searchParams.get('code');
+    if (!description && !leftoverCode) return '';
+    if (description) return authMessage(description.replace(/\+/g, ' '));
+    return 'Link đăng nhập không dùng được trên trình duyệt này (cần mở trên đúng trình duyệt đã bấm gửi link) hoặc đã được dùng rồi.';
+}
+
 function SignIn() {
     const [email, setEmail] = useState('');
-    const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
-    const [error, setError] = useState('');
+    const [password, setPassword] = useState('');
+    const [state, setState] = useState<'idle' | 'busy' | 'sent'>('idle');
+    const [error, setError] = useState(readRedirectError);
 
-    const send = async (e: React.FormEvent) => {
+    // Drop the spent ?code= / error params so a reload doesn't show the error again.
+    useEffect(() => {
+        if (window.location.search || window.location.hash) {
+            window.history.replaceState(null, '', window.location.pathname);
+        }
+    }, []);
+
+    const signInWithPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         const supabase = getSupabase();
         if (!supabase) return;
-        setState('sending');
+        setState('busy');
+        setError('');
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+        if (error) setError(authMessage(error.message));
+        setState('idle');
+    };
+
+    const sendLink = async () => {
+        const supabase = getSupabase();
+        if (!supabase || !email.trim()) {
+            setError('Nhập email trước.');
+            return;
+        }
+        setState('busy');
         setError('');
         const { error } = await supabase.auth.signInWithOtp({
             email: email.trim().toLowerCase(),
             options: { emailRedirectTo: window.location.origin, shouldCreateUser: false },
         });
         if (error) {
-            setError(error.message);
+            setError(authMessage(error.message));
             setState('idle');
         } else {
             setState('sent');
         }
     };
 
+    const field =
+        'h-12 rounded-xl bg-surface-2 border border-line-strong px-3.5 text-ink placeholder-subtle focus:border-accent outline-none';
+
     return (
         <Centered title="Lexica Studio">
             {state === 'sent' ? (
-                <p>Đã gửi link đăng nhập tới {email}. Mở link trên <b>chính trình duyệt này</b> (link chỉ dùng được ở nơi đã yêu cầu).</p>
+                <p>
+                    Đã gửi link đăng nhập tới {email}. Mở link trên <b>chính trình duyệt này</b> (link chỉ dùng được một lần, ở nơi đã yêu cầu).
+                </p>
             ) : (
-                <form onSubmit={send} className="flex flex-col gap-3">
+                <form onSubmit={signInWithPassword} className="flex flex-col gap-3">
                     <label className="flex flex-col gap-1.5">
                         <span className="font-mono text-[11px] uppercase text-subtle">Email editor</span>
-                        <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            className="h-12 rounded-xl bg-surface-2 border border-line-strong px-3.5 text-ink placeholder-subtle focus:border-accent outline-none"
-                            placeholder="email@example.com"
-                        />
+                        <input type="email" required autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} className={field} placeholder="email@example.com" />
+                    </label>
+                    <label className="flex flex-col gap-1.5">
+                        <span className="font-mono text-[11px] uppercase text-subtle">Mật khẩu</span>
+                        <input type="password" required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className={field} />
                     </label>
                     {error && <p className="text-danger">{error}</p>}
                     <button
-                        disabled={state === 'sending'}
+                        disabled={state === 'busy'}
                         className="h-12 rounded-xl bg-accent text-on-accent font-bold hover:bg-accent-strong disabled:opacity-40"
                     >
-                        {state === 'sending' ? 'Đang gửi…' : 'Gửi link đăng nhập'}
+                        {state === 'busy' ? 'Đang đăng nhập…' : 'Đăng nhập'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => void sendLink()}
+                        disabled={state === 'busy'}
+                        className="text-sm text-muted hover:text-ink disabled:opacity-40"
+                    >
+                        Chưa có mật khẩu? Gửi link đăng nhập qua email
                     </button>
                 </form>
             )}
