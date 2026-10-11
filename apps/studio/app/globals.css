@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Same "Focus" tokens as Lexica (apps/lexica/docs/DESIGN_SYSTEM.md). */
+@theme {
+  --color-bg: #0E0F11;
+  --color-surface: #16171A;
+  --color-surface-2: #1E2024;
+  --color-surface-3: #26282D;
+  --color-line: #26282D;
+  --color-line-strong: #34373D;
+  --color-ink: #EDEEF0;
+  --color-ink-2: #C4C6CB;
+  --color-muted: #9A9DA3;
+  --color-subtle: #6B6E75;
+  --color-accent: #C6F432;
+  --color-accent-strong: #DBFF6E;
+  --color-on-accent: #0E0F11;
+  --color-danger: #FF6B5B;
+  --color-warning: #F5B83D;
+  --color-on-status: #0E0F11;
+  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}

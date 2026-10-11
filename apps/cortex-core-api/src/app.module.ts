@@ -12,6 +12,7 @@ import { SynapseModule } from './modules/synapse/synapse.module';
 import { HealthModule } from './modules/health/health.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { StudioModule } from './modules/studio/studio.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from './modules/auth/auth.module';
     SynapseModule,
     HealthModule,
     SyncModule,
+    StudioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

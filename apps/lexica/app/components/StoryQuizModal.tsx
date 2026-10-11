@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Brain, CheckCircle, XCircle } from 'lucide-react';
 import { STORIES } from '../data/stories';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
@@ -45,7 +45,7 @@ export default function StoryQuizModal({ storyId, part, onClose, onSuccess }: St
         const storyLearnedWords = story.vocabularyIds.filter(id => learnedWordIds.includes(id));
 
         // Get vocab data for learned words
-        const vocabMap = new Map(VOCAB_DATABASE.map(v => [v.id, v]));
+        const vocabMap = new Map(getAllCards().map(v => [v.id, v]));
         const availableVocab = storyLearnedWords
             .map(id => vocabMap.get(id))
             .filter(Boolean);

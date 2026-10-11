@@ -8,7 +8,7 @@ import {
 import type { Request } from 'express';
 import { SupabaseService } from '../supabase/supabase.service';
 
-export type AuthedRequest = Request & { userId?: string };
+export type AuthedRequest = Request & { userId?: string; accessToken?: string };
 
 type CacheEntry = { userId: string; expiresAt: number };
 
@@ -35,6 +35,7 @@ export class SupabaseAuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException('Missing bearer token');
 
     req.userId = await this.verify(token);
+    req.accessToken = token;
     return true;
   }
 

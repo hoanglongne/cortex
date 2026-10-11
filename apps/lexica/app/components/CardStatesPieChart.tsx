@@ -1,7 +1,7 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 
 interface CardStatesPieChartProps {
     cardProgress: Record<string, { state: 'seed' | 'sprout' | 'gold' | 'mastered'; cardId: string }>;
@@ -10,7 +10,7 @@ interface CardStatesPieChartProps {
 
 export default function CardStatesPieChart({ cardProgress, learnedWords }: CardStatesPieChartProps) {
     // Calculate card states
-    const totalCards = VOCAB_DATABASE.length;
+    const totalCards = getAllCards().length;
     let notStarted = 0;
     let learned = 0; // seed
     let sprout = 0;
@@ -18,7 +18,7 @@ export default function CardStatesPieChart({ cardProgress, learnedWords }: CardS
 
     const learnedArray = Array.from(learnedWords);
 
-    for (const card of VOCAB_DATABASE) {
+    for (const card of getAllCards()) {
         if (!learnedArray.includes(card.id)) {
             notStarted++;
         } else {

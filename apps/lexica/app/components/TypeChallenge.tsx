@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Keyboard, Trophy, X, Clock, Zap } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import ChallengeButton from './ChallengeButton';
 
 import { VocabCardData } from '../types/vocab';
@@ -74,7 +74,7 @@ export default function TypeChallenge({ learnedWordIds, onClose, onGameEnd }: Ty
             wordQueueRef.current = shuffleArray(learnedWordIds);
         }
         const randomId = wordQueueRef.current.pop()!;
-        return VOCAB_DATABASE.find(card => card.id === randomId);
+        return getAllCards().find(card => card.id === randomId);
     };
 
     const startGame = () => {

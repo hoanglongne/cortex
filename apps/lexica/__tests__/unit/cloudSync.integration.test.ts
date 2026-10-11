@@ -2,7 +2,7 @@
  * Two "devices" sharing one fake Cortex API: progress made on device A is
  * restored on a fresh device B, and B opening the app does not overwrite A.
  */
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const API = 'https://api.test';
 const USER = '3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b';
@@ -56,6 +56,14 @@ async function bootDevice(): Promise<{ store: Store['useLexicaStore']; sync: Syn
     return { store: useLexicaStore, sync };
 }
 
+// Each device boot re-evaluates the store, which pulls in the 12k-line
+// vocabulary module. Warm the transform cache once so the tests measure sync,
+// not module loading (slow when CI runs several apps' builds in parallel).
+beforeAll(async () => {
+    await import('@/app/store/lexicaStore');
+    await import('@/app/lib/cloudSync');
+}, 60_000);
+
 beforeEach(() => {
     server = new Map();
     session = { userId: USER, token: 'token-for-user' };
@@ -69,7 +77,7 @@ afterEach(() => {
     vi.unstubAllGlobals();
 });
 
-describe('cloud sync across devices', () => {
+describe('cloud sync across devices', { timeout: 20_000 }, () => {
     it('restores device A progress on a fresh device B', async () => {
         // Device A: connected user learns a card, then syncs
         const a = await bootDevice();

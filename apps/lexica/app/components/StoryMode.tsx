@@ -4,18 +4,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, BookOpen, Trophy, Volume2, ArrowRight } from 'lucide-react';
 import { STORIES, parseStoryContentWithIds } from '../data/stories';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getCard, getCardByWord } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
 import StoryComprehensionQuiz from './StoryComprehensionQuiz';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
-const VOCAB_ID_BY_WORD = new Map(
-    VOCAB_DATABASE.map(vocab => [vocab.word.trim().toLowerCase(), vocab.id])
-);
-
-const VOCAB_BY_ID = new Map(
-    VOCAB_DATABASE.map(vocab => [vocab.id, vocab])
-);
 
 interface StoryVocabDialogData {
     word: string;
@@ -158,9 +151,8 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                             transition={{ delay: index * 0.05 }}
                                             onClick={() => {
                                                 const normalizedWord = segment.text.trim().toLowerCase();
-                                                const exactVocabId = VOCAB_ID_BY_WORD.get(normalizedWord);
-                                                const exactVocab = exactVocabId ? VOCAB_BY_ID.get(exactVocabId) : undefined;
-                                                const fallbackVocab = segment.vocabId ? VOCAB_BY_ID.get(segment.vocabId) : undefined;
+                                                const exactVocab = getCardByWord(normalizedWord);
+                                                const fallbackVocab = segment.vocabId ? getCard(segment.vocabId) : undefined;
                                                 const resolved = exactVocab || fallbackVocab;
 
                                                 if (resolved) {

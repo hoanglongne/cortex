@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, Mic, RotateCcw } from 'lucide-react';
+import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, Mic, RotateCcw, TrendingUp, Flag } from 'lucide-react';
+import { flushCardEvents, trackCardEvent } from '../lib/content/events';
 import { useVocalSwipe } from '../hooks/useVocalSwipe';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useVoiceAvailable } from '../lib/speechAvailability';
@@ -19,6 +20,7 @@ interface VocabCardProps {
 
 export default function VocabCard({ card, index, onSwipe, revealed: controlledRevealed, onReveal }: VocabCardProps) {
     const [internalRevealed, setInternalRevealed] = useState(false);
+    const [reported, setReported] = useState(false);
     const swipeMode = useLexicaStore(state => state.swipeMode);
     const cardProgress = useLexicaStore(state => state.cardProgress[card.id]);
     const markAsMastered = useLexicaStore(state => state.markAsMastered);
@@ -111,6 +113,30 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         )}
                         {isReviewCard && (
                             <span className="flex items-center gap-1 text-warning"><RotateCcw className="w-3 h-3" /> ÔN TẬP</span>
+                        )}
+                        {card.trend && (
+                            <span className="flex items-center gap-1 text-accent truncate" title={card.trend.label}>
+                                <TrendingUp className="w-3 h-3 shrink-0" /> TREND
+                            </span>
+                        )}
+                        {card.trend && index === 0 && (
+                            <button
+                                type="button"
+                                onPointerDown={e => e.stopPropagation()}
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    if (reported) return;
+                                    if (!window.confirm('Báo cáo câu này là không phù hợp hoặc sai?')) return;
+                                    trackCardEvent(card.id, 'report');
+                                    flushCardEvents();
+                                    setReported(true);
+                                }}
+                                className={`-m-2 p-2 flex items-center gap-1 ${reported ? 'text-danger' : 'hover:text-danger'}`}
+                                aria-label={reported ? 'Đã báo cáo' : 'Báo cáo câu này'}
+                                title={reported ? 'Đã báo cáo' : 'Báo cáo câu này'}
+                            >
+                                <Flag className="w-3 h-3" />
+                            </button>
                         )}
                         <span className="ml-auto flex items-center gap-1" aria-label={`Trạng thái: ${card.state}`}>
                             {card.state === 'seed' && <Sprout className="w-3.5 h-3.5" />}

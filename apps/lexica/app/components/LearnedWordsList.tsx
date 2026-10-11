@@ -3,7 +3,7 @@
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { HandHeart, Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import { type VocabCardData as BaseCardData } from '../types/vocab';
 import { type UserCardProgress } from '../lib/eloAlgorithm';
 import SurgeryLab from './SurgeryLab';
@@ -230,7 +230,7 @@ export default function LearnedWordsList() {
     const learnedCards = useMemo(() => {
         return learnedWords
             .map(cardId => {
-                const card = VOCAB_DATABASE.find(c => c.id === cardId);
+                const card = getAllCards().find(c => c.id === cardId);
                 const progress = cardProgress[cardId];
                 return card ? { ...card, progress } : null;
             })

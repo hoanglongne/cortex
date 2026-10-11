@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Trophy, Swords, Copy, Check, User, ArrowLeft, Flame } from 'lucide-react';
 import { fetchChallenge, getSavedNickname, saveNickname, saveResponse, createChallenge, GAME_LABELS, SCORE_LABELS, type GameChallenge, type GameType } from '../../lib/challenges';
-import { VOCAB_DATABASE } from '../../data/vocabCards';
+import { getAllCards } from '../../lib/content/repository';
 import SpeedQuiz from '../../components/SpeedQuiz';
 import TypeChallenge from '../../components/TypeChallenge';
 import TrueFalseBlitz from '../../components/TrueFalseBlitz';
@@ -13,7 +13,7 @@ import WordScramble from '../../components/WordScramble';
 import ComboChain from '../../components/ComboChain';
 
 // Dùng toàn bộ từ vựng làm pool cho challenge (không cần học trước)
-const ALL_WORD_IDS = VOCAB_DATABASE.map(c => c.id);
+const ALL_WORD_IDS = getAllCards().map(c => c.id);
 
 interface ChallengePageProps {
     params: Promise<{ id: string }>;

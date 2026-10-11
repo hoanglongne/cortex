@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Check, X } from 'lucide-react';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 import { VocabCardData } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
@@ -18,7 +18,7 @@ export default function ReviewQuiz({ card, onSwipe }: ReviewQuizProps) {
     const { quizCorrect, quizWrong } = useSoundEffects();
 
     const options = useMemo(() => {
-        const others = VOCAB_DATABASE.filter(c => c.id !== card.id);
+        const others = getAllCards().filter(c => c.id !== card.id);
         // eslint-disable-next-line react-hooks/purity
         const shuffled = [...others].sort(() => Math.random() - 0.5).slice(0, 3);
         const all = [card.translationHint, ...shuffled.map(c => c.translationHint)];

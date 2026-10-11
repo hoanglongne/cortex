@@ -10,7 +10,7 @@ import SRSCalendar from '../components/SRSCalendar';
 import OnboardingModal from '../components/OnboardingModal';
 import { useState, useMemo, useEffect } from 'react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getAllCards } from '../lib/content/repository';
 
 export default function LearnedPage() {
     const [showHelp, setShowHelp] = useState(false);
@@ -27,7 +27,7 @@ export default function LearnedPage() {
     // Get words with lab modules
     const labWords = useMemo(() => {
         const learnedWordIds = Array.from(learnedWords);
-        return VOCAB_DATABASE.filter(card =>
+        return getAllCards().filter(card =>
             learnedWordIds.includes(card.id) &&
             (card.surgeryModule || card.upgradeModule)
         );
