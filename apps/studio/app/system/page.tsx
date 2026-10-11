@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, errorText } from '../lib/api';
 import { LEVELS, type Lexeme, type Level } from '../lib/types';
 import { Badge, Button, Card, ErrorNote, Input, Label, Select } from '../components/ui';
+import { Blocklist, Jobs, Sources } from './Pipeline';
 
 interface Health {
     pendingDrafts: number;
@@ -16,11 +17,15 @@ export default function SystemPage() {
     const [health, setHealth] = useState<Health | null>(null);
     const [error, setError] = useState('');
 
-    useEffect(() => {
+    const loadHealth = useCallback(() => {
         api<Health>('/health')
             .then(setHealth)
             .catch(err => setError(errorText(err)));
     }, []);
+
+    useEffect(() => {
+        loadHealth();
+    }, [loadHealth]);
 
     return (
         <div className="flex flex-col gap-6">
@@ -32,6 +37,8 @@ export default function SystemPage() {
                     <Stat label="Lần chạy gần nhất" value={health.recentRuns[0] ? new Date(health.recentRuns[0].started_at).toLocaleString('vi-VN') : '—'} />
                 </div>
             )}
+
+            <Jobs onDone={loadHealth} />
 
             {health && (
                 <Card>
@@ -51,6 +58,8 @@ export default function SystemPage() {
                 </Card>
             )}
 
+            <Sources />
+            <Blocklist />
             <Lexemes />
         </div>
     );

@@ -17,6 +17,10 @@ export interface Trend {
     status: TrendStatus;
     tags: string[];
     target_words: string[];
+    source?: string;
+    hotness?: number;
+    signal_count?: number;
+    source_count?: number;
     generated_at: string | null;
     created_at: string;
 }
@@ -51,6 +55,38 @@ export interface Card {
     revision: number;
     created_at: string;
     drops?: string[];
+    flags?: string[];
+    metrics?: CardMetrics | null;
+}
+
+export interface CardMetrics {
+    impressions: number;
+    reveals: number;
+    known: number;
+    unknown: number;
+    shares: number;
+    reports: number;
+    review_correct: number;
+    review_wrong: number;
+    dwell_ms_total: number;
+    dwell_count: number;
+}
+
+export interface Source {
+    id: string;
+    kind: 'google_trends' | 'rss' | 'youtube' | 'manual';
+    label: string;
+    enabled: boolean;
+    weight: number;
+    config: { feeds?: string[]; url?: string };
+    last_run_at: string | null;
+    last_error: string | null;
+}
+
+export interface BlockRule {
+    pattern: string;
+    kind: 'word' | 'regex' | 'person' | 'topic';
+    note: string | null;
 }
 
 export interface Drop {

@@ -83,6 +83,16 @@ function CardRow({ card, onChange }: { card: CardT; onChange: (c: CardT) => void
                 {card.trend_label && <span>· {card.trend_label}</span>}
                 <span className="ml-auto">{card.id}</span>
             </div>
+            {card.metrics && <Metrics m={card.metrics} />}
+            {card.flags && card.flags.length > 0 && (
+                <div className="flex gap-2">
+                    {card.flags.map(f => (
+                        <Badge key={f} tone="danger">
+                            {f === 'reported' ? 'bị báo cáo' : f === 'too_hard' ? 'quá khó / khó hiểu' : f}
+                        </Badge>
+                    ))}
+                </div>
+            )}
             {editing ? (
                 <div className="flex flex-col gap-2">
                     <Textarea rows={2} value={scenario} onChange={e => setScenario(e.target.value)} />
@@ -126,5 +136,29 @@ function CardRow({ card, onChange }: { card: CardT; onChange: (c: CardT) => void
                 </div>
             )}
         </Card>
+    );
+}
+
+function Metrics({ m }: { m: NonNullable<CardT['metrics']> }) {
+    const swipes = m.known + m.unknown;
+    const reviews = m.review_correct + m.review_wrong;
+    const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : '—');
+    const items = [
+        ['Lượt xem', String(m.impressions)],
+        ['Nhớ', pct(m.known, swipes)],
+        ['Lật nghĩa', pct(m.reveals, m.impressions)],
+        ['Ôn đúng', pct(m.review_correct, reviews)],
+        ['Chia sẻ', String(m.shares)],
+        ['Báo cáo', String(m.reports)],
+        ['Đọc', m.dwell_count > 0 ? `${(m.dwell_ms_total / m.dwell_count / 1000).toFixed(1)}s` : '—'],
+    ];
+    return (
+        <div className="flex flex-wrap gap-x-5 gap-y-1 font-mono text-[11px] text-subtle">
+            {items.map(([label, value]) => (
+                <span key={label}>
+                    {label} <span className="text-ink-2">{value}</span>
+                </span>
+            ))}
+        </div>
     );
 }

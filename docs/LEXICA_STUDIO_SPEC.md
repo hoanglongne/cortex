@@ -13,7 +13,10 @@
 > - Bảng nằm trong `public` với tiền tố `studio_` (không dùng schema `studio`) để PostgREST phục vụ được mà không phải mở thêm schema. File: `apps/cortex-core-api/supabase/migration_studio.sql`.
 > - Cortex API gọi Supabase **bằng JWT của editor** (RLS `is_studio_editor()`), không cần service-role key.
 > - Manifest có `current` (drop đang chạy) và `library` (mọi thẻ đã phát hành trước đó + thẻ retired, để người đã học vẫn tra được) thay cho `evergreen`. File pack đặt tên theo hash nội dung: `packs/<id>.<sha12>.json`.
-> - Giai đoạn 0 và 1 đã làm (Lexica `contentRepository`, API `/studio/*`, app `apps/studio`). Giai đoạn 2–3 (collector tự động, event, lifecycle) chưa làm.
+> - Giai đoạn 0–3 đã làm. Thêm cho giai đoạn 2–3: `migration_studio_phase2.sql` (nguồn, tín hiệu, `studio_card_metrics`, RPC `studio_record_events`), `pipeline.service.ts` (collect → cluster → score → generate, lifecycle), `scheduler.ts`, `POST /content/events` (ẩn danh, chỉ đếm theo thẻ), và phía Lexica: `app/lib/content/events.ts`, nút báo cáo, khối "Drop tuần này".
+> - Event không lưu từng dòng (`card_events`) mà cộng thẳng vào `studio_card_metrics` qua RPC; "d7_retention" được thay bằng tỉ lệ đúng khi ôn (`review_correct / (review_correct + review_wrong)`, cần ≥ 20 lượt ôn).
+> - Lịch tự chạy cần `STUDIO_CRON=on` và `SUPABASE_SERVICE_ROLE_KEY` **trên server Cortex API** (không bao giờ đặt ở app client). Không bật thì mọi bước vẫn chạy tay được trong Studio → Hệ thống.
+> - Collector TikTok/Threads vẫn là nhập tay (không có API công khai, cấm scrape).
 
 ---
 

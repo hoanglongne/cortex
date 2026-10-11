@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { ExternalLink, Sparkles } from 'lucide-react';
+import { ExternalLink, Flame, Sparkles } from 'lucide-react';
 import { api, errorText } from '../lib/api';
 import type { Trend, TrendStatus } from '../lib/types';
-import { Badge, Button, Card, ErrorNote, Input, Label, Textarea } from '../components/ui';
+import { Badge, Button, Card, ErrorNote, Input, Label, Select, Textarea } from '../components/ui';
 
 const STATUS_TONE: Record<TrendStatus, 'muted' | 'accent' | 'warning' | 'danger'> = {
     new: 'accent',
@@ -26,14 +26,18 @@ export default function TrendsPage() {
     const [notice, setNotice] = useState('');
     const [busyId, setBusyId] = useState<string | null>(null);
     const [form, setForm] = useState({ label: '', summary: '', url: '', tags: '', words: '' });
+    const [sort, setSort] = useState<'recent' | 'hot'>('hot');
+    const [status, setStatusFilter] = useState<TrendStatus | ''>('');
 
     const load = useCallback(async () => {
         try {
-            setTrends(await api<Trend[]>('/trends'));
+            const params = new URLSearchParams({ sort });
+            if (status) params.set('status', status);
+            setTrends(await api<Trend[]>(`/trends?${params}`));
         } catch (err) {
             setError(errorText(err));
         }
-    }, []);
+    }, [sort, status]);
 
     useEffect(() => {
         void load();
@@ -116,6 +120,20 @@ export default function TrendsPage() {
             </Card>
 
             <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap gap-2">
+                    <Select value={sort} onChange={e => setSort(e.target.value as 'recent' | 'hot')}>
+                        <option value="hot">Nóng nhất</option>
+                        <option value="recent">Mới nhất</option>
+                    </Select>
+                    <Select value={status} onChange={e => setStatusFilter(e.target.value as TrendStatus | '')}>
+                        <option value="">Mọi trạng thái</option>
+                        {(['new', 'queued', 'generated', 'ignored', 'blocked'] as TrendStatus[]).map(s => (
+                            <option key={s} value={s}>
+                                {s}
+                            </option>
+                        ))}
+                    </Select>
+                </div>
                 <ErrorNote error={error} />
                 {notice && <p className="rounded-xl border border-accent/40 bg-accent/10 px-3 py-2 text-sm text-accent">{notice}</p>}
                 {trends.length === 0 && <p className="text-muted">Chưa có trend nào.</p>}
@@ -129,6 +147,17 @@ export default function TrendsPage() {
                             <Badge tone={STATUS_TONE[t.status]}>{t.status}</Badge>
                         </div>
                         <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-subtle">
+                            {t.source && t.source !== 'manual' && <Badge>{t.source}</Badge>}
+                            {!!t.hotness && (
+                                <span className="flex items-center gap-1 text-accent">
+                                    <Flame className="w-3 h-3" /> {t.hotness.toFixed(2)}
+                                </span>
+                            )}
+                            {!!t.signal_count && (
+                                <span>
+                                    {t.signal_count} tín hiệu · {t.source_count} nguồn
+                                </span>
+                            )}
                             {t.tags.map(tag => (
                                 <Badge key={tag}>{tag}</Badge>
                             ))}
