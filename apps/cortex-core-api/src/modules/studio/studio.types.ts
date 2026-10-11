@@ -33,6 +33,9 @@ export interface TrendRow {
   hotness: number;
   tags: string[];
   target_words: string[];
+  signal_count?: number;
+  source_count?: number;
+  first_seen_at?: string;
   generated_at: string | null;
   created_at: string;
 }
@@ -77,6 +80,7 @@ export interface CardRow {
   tags: string[];
   lifecycle: Lifecycle;
   revision: number;
+  flags?: string[];
   created_at: string;
 }
 

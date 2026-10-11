@@ -26,6 +26,7 @@ import {
   pickCandidates,
   PROMPT_VERSION,
 } from './prompt';
+import type { CardMetrics } from './feedback';
 import { StudioLlm } from './studio-llm';
 import type {
   BlockRule,
@@ -88,11 +89,15 @@ export class StudioService {
 
   // ---------------------------------------------------------------- trends
 
-  async listTrends(db: Db, status?: TrendStatus): Promise<TrendRow[]> {
+  async listTrends(
+    db: Db,
+    status?: TrendStatus,
+    sort: 'recent' | 'hot' = 'recent',
+  ): Promise<TrendRow[]> {
     let q = db
       .from('studio_trends')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order(sort === 'hot' ? 'hotness' : 'created_at', { ascending: false })
       .limit(100);
     if (status) q = q.eq('status', status);
     return rows<TrendRow>(await q);
@@ -169,7 +174,7 @@ export class StudioService {
 
   async generateForTrend(
     db: Db,
-    userId: string,
+    userId: string | null,
     trendId: string,
   ): Promise<{ created: number; rejectedAuto: number; model: string }> {
     if ((await this.generationsToday(db)) >= this.maxGenerationsPerDay) {
@@ -404,13 +409,16 @@ export class StudioService {
     }
 
     let trendLabel: string | null = null;
+    let tags: string[] = [];
     if (draft.trend_id) {
       const t = await db
         .from('studio_trends')
-        .select('label')
+        .select('label, tags')
         .eq('id', draft.trend_id)
         .maybeSingle();
-      trendLabel = (t.data as { label: string } | null)?.label ?? null;
+      const trend = t.data as { label: string; tags: string[] } | null;
+      trendLabel = trend?.label ?? null;
+      tags = trend?.tags ?? [];
     }
 
     const base = {
@@ -422,6 +430,7 @@ export class StudioService {
       scenario,
       translation_hint: translationHint,
       trend_label: trendLabel,
+      tags,
     };
     let card: CardRow | null = null;
     for (let attempt = 0; attempt < 3 && !card; attempt++) {
@@ -540,19 +549,26 @@ export class StudioService {
   async listCards(
     db: Db,
     filter: { lifecycle?: Lifecycle; q?: string; unassigned?: boolean },
-  ): Promise<(CardRow & { drops: string[] })[]> {
+  ): Promise<(CardRow & { drops: string[]; metrics: CardMetrics | null })[]> {
     let q = db
       .from('studio_cards')
-      .select('*, studio_drop_cards(drop_id)')
+      .select('*, studio_drop_cards(drop_id), studio_card_metrics(*)')
       .order('created_at', { ascending: false })
       .limit(300);
     if (filter.lifecycle) q = q.eq('lifecycle', filter.lifecycle);
     if (filter.q) q = q.ilike('word', `%${filter.q.toLowerCase()}%`);
-    const list = rows<CardRow & { studio_drop_cards: { drop_id: string }[] }>(
-      await q,
-    ).map(({ studio_drop_cards, ...c }) => ({
+    const list = rows<
+      CardRow & {
+        studio_drop_cards: { drop_id: string }[];
+        // one-to-one embed: PostgREST returns an object (or null)
+        studio_card_metrics: CardMetrics | CardMetrics[] | null;
+      }
+    >(await q).map(({ studio_drop_cards, studio_card_metrics, ...c }) => ({
       ...c,
       drops: studio_drop_cards.map((d) => d.drop_id),
+      metrics: Array.isArray(studio_card_metrics)
+        ? (studio_card_metrics[0] ?? null)
+        : studio_card_metrics,
     }));
     return filter.unassigned ? list.filter((c) => c.drops.length === 0) : list;
   }
@@ -739,7 +755,7 @@ export class StudioService {
 
   async publishDrop(
     db: Db,
-    userId: string,
+    userId: string | null,
     dropId: string,
   ): Promise<{ manifest: Manifest; manifestUrl: string }> {
     const drop = one<DropRow>(
@@ -817,7 +833,7 @@ export class StudioService {
 
   private async writeManifest(
     db: Db,
-    userId: string,
+    userId: string | null,
     manifest: Manifest,
     stats: Record<string, unknown>,
   ): Promise<string> {
@@ -922,6 +938,78 @@ export class StudioService {
       throw new ConflictException(`"${word}" đã có`);
     }
     return one<LexemeRow>(res, 'Lexeme');
+  }
+
+  // ------------------------------------------------------ sources & rules
+
+  async listSources(db: Db) {
+    return rows<Record<string, unknown>>(
+      await db.from('studio_sources').select('*').order('id'),
+    );
+  }
+
+  async updateSource(
+    db: Db,
+    id: string,
+    patch: { enabled?: boolean; weight?: number; feeds?: string[] },
+  ) {
+    const source = one<{ kind: string; config: Record<string, unknown> }>(
+      await db
+        .from('studio_sources')
+        .select('kind, config')
+        .eq('id', id)
+        .maybeSingle(),
+      'Source',
+    );
+    const update: Record<string, unknown> = {};
+    if (patch.enabled !== undefined) update.enabled = patch.enabled;
+    if (patch.weight !== undefined) update.weight = patch.weight;
+    if (patch.feeds) {
+      if (source.kind !== 'rss') {
+        throw new BadRequestException('Chỉ nguồn RSS mới có danh sách feed');
+      }
+      update.config = { ...source.config, feeds: patch.feeds };
+    }
+    return one<Record<string, unknown>>(
+      await db
+        .from('studio_sources')
+        .update(update)
+        .eq('id', id)
+        .select()
+        .single(),
+      'Source',
+    );
+  }
+
+  async listBlocklist(db: Db): Promise<BlockRule[]> {
+    return rows<BlockRule>(
+      await db
+        .from('studio_blocklist')
+        .select('*')
+        .order('kind')
+        .order('pattern'),
+    );
+  }
+
+  async addBlockRule(db: Db, rule: BlockRule & { note?: string }) {
+    if (rule.kind === 'regex') {
+      try {
+        new RegExp(rule.pattern, 'iu');
+      } catch {
+        throw new BadRequestException('Regex không hợp lệ');
+      }
+    }
+    check(
+      await db.from('studio_blocklist').upsert({
+        pattern: rule.pattern,
+        kind: rule.kind,
+        note: rule.note ?? null,
+      }),
+    );
+  }
+
+  async removeBlockRule(db: Db, pattern: string) {
+    check(await db.from('studio_blocklist').delete().eq('pattern', pattern));
   }
 
   // ---------------------------------------------------------------- health

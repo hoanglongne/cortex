@@ -25,8 +25,14 @@ import {
   strList,
   weekDropId,
 } from './input';
+import { JOBS, PipelineService } from './pipeline.service';
 import { StudioService } from './studio.service';
-import type { DraftRow, Lifecycle, TrendStatus } from './studio.types';
+import type {
+  BlockRule,
+  DraftRow,
+  Lifecycle,
+  TrendStatus,
+} from './studio.types';
 
 type Db = SupabaseClient<any, any, any>;
 
@@ -38,6 +44,7 @@ const TREND_STATUSES: TrendStatus[] = [
   'blocked',
 ];
 const LIFECYCLES: Lifecycle[] = ['trend', 'evergreen', 'retired'];
+const BLOCK_KINDS: BlockRule['kind'][] = ['word', 'regex', 'person', 'topic'];
 const DRAFT_STATUSES: DraftRow['status'][] = [
   'pending',
   'rejected_auto',
@@ -50,7 +57,10 @@ const DRAFT_STATUSES: DraftRow['status'][] = [
 @Controller('studio')
 @UseGuards(SupabaseAuthGuard, EditorGuard)
 export class StudioController {
-  constructor(private readonly studio: StudioService) {}
+  constructor(
+    private readonly studio: StudioService,
+    private readonly pipeline: PipelineService,
+  ) {}
 
   @Get('me')
   me(@CurrentUserId() userId: string) {
@@ -64,10 +74,15 @@ export class StudioController {
 
   // trends
   @Get('trends')
-  listTrends(@StudioDb() db: Db, @Query('status') status?: string) {
+  listTrends(
+    @StudioDb() db: Db,
+    @Query('status') status?: string,
+    @Query('sort') sort?: string,
+  ) {
     return this.studio.listTrends(
       db,
       oneOf({ status }, 'status', TREND_STATUSES),
+      sort === 'hot' ? 'hot' : 'recent',
     );
   }
 
@@ -267,5 +282,69 @@ export class StudioController {
       elo: int(o, 'elo', 600, 2000) ?? 1000,
       level: level(o, 'level') ?? 'intermediate',
     });
+  }
+  // pipeline jobs (also run by the scheduler)
+  @Post('jobs/:job')
+  runJob(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('job') job: string,
+  ) {
+    const name = oneOf({ job }, 'job', JOBS);
+    if (!name) throw new BadRequestException('job is required');
+    return this.pipeline.run(db, name, userId);
+  }
+
+  // sources & blocklist
+  @Get('sources')
+  listSources(@StudioDb() db: Db) {
+    return this.studio.listSources(db);
+  }
+
+  @Patch('sources/:id')
+  updateSource(
+    @StudioDb() db: Db,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    const o = obj(body);
+    const enabled = o.enabled;
+    if (enabled !== undefined && typeof enabled !== 'boolean') {
+      throw new BadRequestException('enabled must be a boolean');
+    }
+    const weight = o.weight;
+    if (
+      weight !== undefined &&
+      (typeof weight !== 'number' || weight < 0 || weight > 5)
+    ) {
+      throw new BadRequestException('weight must be a number 0–5');
+    }
+    const feeds = o.feeds === undefined ? undefined : strList(o, 'feeds', 30);
+    if (feeds?.some((f) => !/^https?:\/\//.test(f))) {
+      throw new BadRequestException('feeds must be http(s) URLs');
+    }
+    return this.studio.updateSource(db, id, { enabled, weight, feeds });
+  }
+
+  @Get('blocklist')
+  listBlocklist(@StudioDb() db: Db) {
+    return this.studio.listBlocklist(db);
+  }
+
+  @Post('blocklist')
+  @HttpCode(204)
+  addBlockRule(@StudioDb() db: Db, @Body() body: unknown) {
+    const o = obj(body);
+    return this.studio.addBlockRule(db, {
+      pattern: str(o, 'pattern', { max: 120 })!,
+      kind: oneOf(o, 'kind', BLOCK_KINDS) ?? 'word',
+      note: str(o, 'note', { max: 120, optional: true }),
+    });
+  }
+
+  @Post('blocklist/remove')
+  @HttpCode(204)
+  removeBlockRule(@StudioDb() db: Db, @Body() body: unknown) {
+    return this.studio.removeBlockRule(db, str(obj(body), 'pattern')!);
   }
 }
