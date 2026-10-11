@@ -52,7 +52,7 @@ The Cortex API must be running (`pnpm --filter @cortex/api start:dev`, port 3001
 | Var | Default | |
 |---|---|---|
 | `STUDIO_LLM_PROVIDER` | whichever key is set | `gemini` or `groq` |
-| `STUDIO_LLM_MODEL` | `gemini-2.0-flash` / `llama-3.3-70b-versatile` | |
+| `STUDIO_LLM_MODEL` | `GEMINI_MODEL`, else `gemini-3.8-flash` / `llama-3.3-70b-versatile` | Change when Google retires a model, no deploy needed |
 | `STUDIO_MAX_GENERATIONS_PER_DAY` | `30` | Cost cap (one generation = one LLM call) |
 | `STUDIO_AUTO_GENERATE_PER_RUN` | `10` | Queued trends drafted per "Sinh nháp" run |
 | `STUDIO_CRON` | off | `on` runs the pipeline on a schedule (VN time): collect/cluster/score 6h, 12h, 18h, 23h; generate 1h; lifecycle 3h |
