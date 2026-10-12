@@ -24,6 +24,7 @@ FILES=(
   apps/cortex-core-api/supabase/migration_studio.sql
   apps/cortex-core-api/supabase/seed_studio_lexemes.sql
   apps/cortex-core-api/supabase/migration_studio_phase2.sql
+  apps/cortex-core-api/supabase/migration_studio_capture.sql
 )
 
 OUT=supabase/restore_all.sql

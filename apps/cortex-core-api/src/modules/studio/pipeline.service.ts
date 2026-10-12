@@ -13,6 +13,7 @@ import {
   parseYoutube,
   type RawSignal,
 } from './sources';
+import { CAPTURE_PLACEHOLDER } from './capture';
 import { StudioService } from './studio.service';
 import type { BlockRule, CardRow, Lifecycle, TrendRow } from './studio.types';
 import {
@@ -46,7 +47,7 @@ const QUEUE_TOP_N = 15;
 
 interface SourceRow {
   id: string;
-  kind: 'google_trends' | 'rss' | 'youtube' | 'manual';
+  kind: 'google_trends' | 'rss' | 'youtube' | 'manual' | 'capture';
   label: string;
   enabled: boolean;
   weight: number;
@@ -177,7 +178,7 @@ export class PipelineService {
   async collect(db: Db): Promise<Record<string, unknown>> {
     const sources = rows<SourceRow>(
       await db.from('studio_sources').select('*').eq('enabled', true),
-    ).filter((s) => s.kind !== 'manual');
+    ).filter((s) => s.kind !== 'manual' && s.kind !== 'capture');
     const since = new Date(Date.now() - DAY_MS).toISOString();
     const stats: Record<string, unknown> = {};
 
@@ -242,9 +243,10 @@ export class PipelineService {
         .from('studio_signals')
         .select('id, source_id, phrase, metric, seen_at')
         .gte('seen_at', since)
+        .eq('dismissed', false)
         .order('seen_at', { ascending: true })
         .limit(2000),
-    );
+    ).filter((s) => s.phrase !== CAPTURE_PLACEHOLDER);
     if (signals.length === 0) return { attached: 0, created: 0 };
 
     const assigned = new Set(

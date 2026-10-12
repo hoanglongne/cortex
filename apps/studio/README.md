@@ -17,7 +17,8 @@ The Cortex API must be running (`pnpm --filter @cortex/api start:dev`, port 3001
 ## One-time setup
 
 1. Run `supabase/restore_all.sql` (or just `apps/cortex-core-api/supabase/migration_studio.sql`,
-   `seed_studio_lexemes.sql` and `migration_studio_phase2.sql`) in the Supabase SQL Editor.
+   `seed_studio_lexemes.sql`, `migration_studio_phase2.sql` and `migration_studio_capture.sql`)
+   in the Supabase SQL Editor.
 2. Make yourself an editor:
    ```sql
    insert into studio_editors (user_id) select id from auth.users where email = 'you@example.com';
@@ -71,3 +72,57 @@ Lexica sends anonymous per-card events (impression, reveal, known/unknown, revie
 report) to `POST /content/events`. The daily **lifecycle** step keeps well-liked cards forever
 (evergreen), retires trend cards once their drop ends, hides cards with 3+ reports and flags cards
 almost nobody knows; it then republishes the live drop so learners get the changes.
+
+## Radar: saving posts while browsing
+
+Trend sources can't see what is trending on Threads, Facebook or TikTok, so you send posts
+yourself. They land in **Radar**, where you turn the good ones into trends (optionally drafting
+straight away). Posts you don't act on still go through clustering and scoring.
+
+Every device uses a **capture token**: Studio → **Hệ thống** → **Mã gửi bài** → name it → **Tạo
+mã**. The token is shown once; it can only add posts (`POST /capture`), nothing else. Revoke it
+there if a device is lost. Never paste it in a chat.
+
+### Chrome (Windows, macOS)
+
+1. `chrome://extensions` → turn on **Developer mode** → **Load unpacked** → pick
+   `apps/studio/extension`.
+2. The settings page opens: paste the API address (same as `NEXT_PUBLIC_CORTEX_API_URL`) and the
+   token → **Lưu và kiểm tra**.
+3. Use it:
+   - **Threads**: a **+ Lexica** button sits next to each post's time. Click → optional note →
+     Enter. Shift+click sends without a note. Text, author, link and like/reply counts are read
+     from the page.
+   - **Anywhere else** (Facebook, TikTok, news): select text or right-click a link/page →
+     **Gửi … vào Lexica Studio**, or click the extension icon (adds a note; the selection is
+     filled in).
+
+After `git pull`, press the reload icon on the extension card and reload open Threads tabs.
+Threads changes its page often: if the button disappears, the right-click menu still works.
+
+### Android
+
+1. Open Studio in Chrome on the phone, sign in, then menu → **Add to Home screen / Install app**.
+2. In Threads/Facebook/TikTok: **Share** → **Studio**. A form opens with the link filled in; add a
+   note → **Gửi**. No token needed (you are signed in).
+
+### iPhone (Shortcuts)
+
+iOS doesn't let web apps receive shares, so use a Shortcut with a capture token:
+
+1. Shortcuts → **+** → name it `Gửi Lexica`. Open its settings (ⓘ) → turn on **Show in Share
+   Sheet**, and set the input types to **URLs** and **Text**.
+2. Add **Ask for Input** → Text, prompt `Ghi chú (tuỳ chọn)`.
+3. Add **Get Contents of URL**:
+   - URL: `https://<api-address>/capture`
+   - Method: **POST**
+   - Headers: `Authorization` = `Bearer lxs_…` (your token)
+   - Request Body: **JSON** with `url` = **Shortcut Input**, `note` = **Provided Input**
+4. Add **Show Notification**: `Đã gửi vào Radar`.
+
+In Threads/Facebook/TikTok: **Share** → **Gửi Lexica**. Only the link is sent; the API reads the
+post text from the page preview (Threads works best; Facebook often hides it behind login, so
+add the gist in the note or edit the post in Radar).
+
+If an app shares text with the link inside ("Xem bài của … https://…"), the API pulls the link
+out and keeps the rest as text, so the same Shortcut works.

@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { CaptureController } from './capture.controller';
+import { CaptureService } from './capture.service';
 import { ContentController } from './content.controller';
 import { PipelineService } from './pipeline.service';
 import { StudioScheduler } from './scheduler';
@@ -8,13 +10,14 @@ import { StudioLlm } from './studio-llm';
 import { StudioService } from './studio.service';
 
 @Module({
-  controllers: [StudioController, ContentController],
+  controllers: [StudioController, ContentController, CaptureController],
   providers: [
     StudioService,
     StudioLlm,
     EditorGuard,
     PipelineService,
     StudioScheduler,
+    CaptureService,
   ],
 })
 export class StudioModule {}

@@ -74,7 +74,7 @@ export interface CardMetrics {
 
 export interface Source {
     id: string;
-    kind: 'google_trends' | 'rss' | 'youtube' | 'manual';
+    kind: 'google_trends' | 'rss' | 'youtube' | 'manual' | 'capture';
     label: string;
     enabled: boolean;
     weight: number;
@@ -120,3 +120,28 @@ export const RULE_LABELS: Record<string, string> = {
     word_fatigue: 'Từ vừa dùng gần đây',
     vi_ratio: 'Ít tiếng Việt',
 };
+
+export type CaptureSource = 'capture_threads' | 'capture_facebook' | 'capture_tiktok' | 'capture_web';
+
+/** A post saved while browsing (extension, Android share, iOS Shortcut). */
+export interface Capture {
+    id: number;
+    source_id: CaptureSource;
+    phrase: string;
+    body: string | null;
+    author: string | null;
+    note: string | null;
+    url: string | null;
+    metrics: Record<string, number> | null;
+    seen_at: string;
+    dismissed: boolean;
+    trend?: { id: string; label: string; status: TrendStatus } | null;
+}
+
+export interface CaptureToken {
+    id: string;
+    name: string;
+    created_at: string;
+    last_used_at: string | null;
+    revoked_at: string | null;
+}

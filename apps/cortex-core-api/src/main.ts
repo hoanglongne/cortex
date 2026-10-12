@@ -17,6 +17,10 @@ async function bootstrap() {
         'http://localhost:3005',
         'http://localhost:3012', // Lexica Studio
         /\.vercel\.app$/,
+        // Lexica capture extension (POST /capture with a capture token)
+        /^chrome-extension:\/\/[a-p]{32}$/,
+        /^moz-extension:\/\//,
+        /^safari-web-extension:\/\//,
         // Extra origins (e.g. a custom Studio domain), comma-separated
         ...(process.env.CORS_ORIGINS ?? '')
           .split(',')

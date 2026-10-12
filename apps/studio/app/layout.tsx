@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Shell from "./components/Shell";
+import RegisterSW from "./components/RegisterSW";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
   title: "Lexica Studio",
   description: "Biên tập Trend Drop cho Lexica",
   robots: { index: false, follow: false },
+  icons: { icon: "/icon-192.png", apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "Studio", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = { themeColor: "#0E0F11" };
@@ -28,6 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="vi" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}>
       <body className="min-h-full bg-bg text-ink">
         <Shell>{children}</Shell>
+        <RegisterSW />
       </body>
     </html>
   );

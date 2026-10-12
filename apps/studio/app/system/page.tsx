@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, errorText } from '../lib/api';
 import { LEVELS, type Lexeme, type Level } from '../lib/types';
 import { Badge, Button, Card, ErrorNote, Input, Label, Select } from '../components/ui';
+import { CaptureTokens } from './CaptureTokens';
 import { Blocklist, Jobs, Sources } from './Pipeline';
 
 interface Health {
@@ -58,6 +59,7 @@ export default function SystemPage() {
                 </Card>
             )}
 
+            <CaptureTokens />
             <Sources />
             <Blocklist />
             <Lexemes />
