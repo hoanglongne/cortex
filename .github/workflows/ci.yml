@@ -6,13 +6,27 @@ on:
   pull_request:
     branches: ["main"]
 
+# A newer push to the same PR cancels the run that is still going.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     name: Build and Check
     runs-on: ubuntu-latest
+    env:
+      # PRs only check the apps they change (and the apps that depend on
+      # them); pushes to main check everything. Changing root files such as
+      # the lockfile or turbo.json counts as changing every app.
+      AFFECTED: ${{ github.event_name == 'pull_request' && '--affected' || '' }}
+      TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # --affected compares against the base commit, so it needs history.
+          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -25,20 +39,27 @@ jobs:
           node-version: 20
           cache: "pnpm"
 
+      # Turbo replays tasks whose inputs didn't change; Next.js reuses its
+      # compiler cache for the ones that did.
+      - name: Restore build caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            .turbo/cache
+            apps/*/.next/cache
+          key: build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            build-${{ runner.os }}-
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm turbo run lint
+      - name: Lint, type check and unit tests
+        run: pnpm turbo run lint check-types test $AFFECTED --cache-dir=.turbo/cache
 
-      - name: Type check
-        run: pnpm turbo run check-types
-
-      - name: Unit tests
-        run: pnpm turbo run test
-
-      - name: Build all apps
-        run: pnpm turbo run build
+      - name: Build apps
+        run: pnpm turbo run build $AFFECTED --cache-dir=.turbo/cache
         env:
           NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-key"
