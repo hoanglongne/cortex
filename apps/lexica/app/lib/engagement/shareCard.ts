@@ -8,8 +8,9 @@ import { EDITION_LABEL } from './economy';
 
 const W = 1080;
 const H = 1920;
-const COLORS = { bg: '#0E0F11', surface: '#16171A', ink: '#EDEEF0', muted: '#9A9DA3', accent: '#C6F432', warning: '#F5B83D', silver: '#C9CDD4' };
-const BORDER: Record<Edition, string> = { common: '#34373D', silver: COLORS.silver, holo: COLORS.accent, legendary: COLORS.warning };
+const COLORS = { bg: '#0E0F11', surface: '#16171A', ink: '#EDEEF0', muted: '#9A9DA3', accent: '#C6F432', gold: '#D9C38F', silver: '#8E939B' };
+const BORDER: Record<Edition, string> = { common: '#34373D', silver: COLORS.silver, holo: COLORS.accent, legendary: COLORS.gold };
+const LABEL: Record<Edition, string> = { common: COLORS.muted, silver: '#B8BCC4', holo: COLORS.accent, legendary: COLORS.gold };
 
 export function wrapLines(text: string, maxChars: number): string[] {
     const lines: string[] = [];
@@ -36,31 +37,27 @@ function draw(card: { word: string; ipa?: string; meaning: string; scenario: str
     ctx.fillStyle = COLORS.bg;
     ctx.fillRect(0, 0, W, H);
 
-    // Card
+    // Card: hairline frame; Holo and Legendary get a second inner frame.
     const x = 90, y = 260, w = W - 180, h = 1300;
     ctx.fillStyle = COLORS.surface;
     ctx.strokeStyle = BORDER[card.edition];
-    ctx.lineWidth = card.edition === 'common' ? 4 : 10;
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.roundRect(x, y, w, h, 56);
     ctx.fill();
     ctx.stroke();
-
     if (card.edition === 'holo' || card.edition === 'legendary') {
-        const g = ctx.createLinearGradient(x, y, x + w, y + h);
-        const tint = card.edition === 'legendary' ? '245,184,61' : '198,244,50';
-        g.addColorStop(0.35, `rgba(${tint},0)`);
-        g.addColorStop(0.5, `rgba(${tint},0.18)`);
-        g.addColorStop(0.65, `rgba(${tint},0)`);
-        ctx.fillStyle = g;
+        ctx.globalAlpha = 0.45;
         ctx.beginPath();
-        ctx.roundRect(x, y, w, h, 56);
-        ctx.fill();
+        ctx.roundRect(x + 18, y + 18, w - 36, h - 36, 40);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
     }
 
-    ctx.fillStyle = BORDER[card.edition] === '#34373D' ? COLORS.muted : BORDER[card.edition];
-    ctx.font = `600 40px ${font}`;
-    ctx.fillText(`${EDITION_LABEL[card.edition].toUpperCase()}${card.serial != null ? `  #${String(card.serial).padStart(4, '0')}` : ''}`, x + 70, y + 120);
+    ctx.fillStyle = LABEL[card.edition];
+    ctx.font = `500 36px ${font}`;
+    const tag = card.edition === 'legendary' && card.serial != null ? `${EDITION_LABEL[card.edition].toUpperCase()}  ·  No.${String(card.serial).padStart(4, '0')}` : EDITION_LABEL[card.edition].toUpperCase();
+    ctx.fillText(tag, x + 70, y + 120);
 
     ctx.fillStyle = COLORS.accent;
     ctx.font = `700 ${card.word.length > 11 ? 96 : 120}px ${font}`;

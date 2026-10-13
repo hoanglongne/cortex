@@ -9,7 +9,7 @@ import { getAllCards, getCard, getCurrentDrop, useContentVersion } from '../lib/
 import { buildSets, seasonOpen, setProgress, type CollectionSet } from '../lib/engagement/collection';
 import { AudioService } from '../lib/audio/AudioService';
 import type { UserCardProgress } from '../lib/eloAlgorithm';
-import { EDITION_LABEL, type BoxItem, type Edition, type EconomyState, type OwnedEdition, useEconomy } from '../lib/engagement/economy';
+import { EDITION_LABEL, EDITION_RANK, type BoxItem, type Edition, type EconomyState, type OwnedEdition, useEconomy } from '../lib/engagement/economy';
 import { readClaimed, rememberClaimed } from '../lib/engagement/claims';
 import { RevealModal, useReel } from '../components/RevealReel';
 import AuthGate from '../components/AuthGate';
@@ -36,26 +36,11 @@ function daysLeft(iso?: string): number | null {
     return Math.max(0, Math.ceil((Date.parse(iso) - Date.now()) / 86_400_000));
 }
 
-/** Holo sheen follows the pointer (and phone tilt where allowed). */
-function useTilt() {
-    useEffect(() => {
-        const root = document.documentElement;
-        const onMove = (e: PointerEvent) => {
-            root.style.setProperty('--lx-x', String((e.clientX / window.innerWidth) * 2 - 1));
-            root.style.setProperty('--lx-y', String((e.clientY / window.innerHeight) * 2 - 1));
-        };
-        const onTilt = (e: DeviceOrientationEvent) => {
-            if (e.gamma == null || e.beta == null) return;
-            root.style.setProperty('--lx-x', String(Math.max(-1, Math.min(1, e.gamma / 30))));
-            root.style.setProperty('--lx-y', String(Math.max(-1, Math.min(1, (e.beta - 45) / 30))));
-        };
-        window.addEventListener('pointermove', onMove);
-        window.addEventListener('deviceorientation', onTilt);
-        return () => {
-            window.removeEventListener('pointermove', onMove);
-            window.removeEventListener('deviceorientation', onTilt);
-        };
-    }, []);
+/** Short label printed on a card of this edition (none for Common). */
+function editionTag(owned: OwnedEdition | undefined): string | null {
+    if (!owned || owned.edition === 'common') return null;
+    if (owned.edition === 'legendary') return owned.serial != null ? `No.${String(owned.serial).padStart(4, '0')}` : 'HUYỀN THOẠI';
+    return owned.edition === 'silver' ? 'BẠC' : 'HOLO';
 }
 
 type Reveal =
@@ -72,7 +57,6 @@ export default function AlbumPage() {
     const [reveal, setReveal] = useState<Reveal | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
-    useTilt();
 
     const sets = useMemo(() => {
         void version;
@@ -342,14 +326,14 @@ function SetRow({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`relative aspect-[3/4] rounded-xl border p-2 flex flex-col justify-between text-left transition-transform active:scale-95 ${STATE_STYLE[cp.state]} ${owned ? EDITION_CLASS[owned.edition] : ''}`}
+                                className={`relative aspect-[3/4] rounded-xl border p-2 flex flex-col justify-between text-left transition-transform active:scale-95 ${owned ? `border-line-strong bg-surface-2 text-ink ${EDITION_CLASS[owned.edition]}` : STATE_STYLE[cp.state]}`}
                             >
                                 <span className="flex items-center justify-between">
                                     <Icon className="w-3.5 h-3.5" />
                                     {ready && <span className="w-2 h-2 rounded-full bg-accent animate-pulse" aria-label="Sẵn sàng đúc" />}
-                                    {owned?.serial != null && <span className="font-mono text-[9px] text-warning">#{String(owned.serial).padStart(4, '0')}</span>}
+                                    {editionTag(owned) && <span className={`font-mono text-[8px] tracking-wider lx-edition-label-${owned!.edition}`}>{editionTag(owned)}</span>}
                                 </span>
-                                <span className="relative z-10 text-[10px] font-bold tracking-wide break-all leading-tight">{card?.word ?? id}</span>
+                                <span className={`font-bold leading-tight [overflow-wrap:anywhere] ${(card?.word.length ?? 0) >= 9 ? 'text-[8.5px]' : 'text-[10px] tracking-wide'}`}>{card?.word ?? id}</span>
                             </button>
                         );
                     })}
@@ -392,11 +376,11 @@ function CardSheet({
                 onClick={(e) => e.stopPropagation()}
                 className={`relative w-full max-w-md rounded-2xl border border-line bg-surface p-5 ${owned ? EDITION_CLASS[owned.edition] : ''}`}
             >
-                <div className="relative z-10">
+                <div>
                     {owned && (
-                        <p className="font-mono text-[11px] uppercase text-accent mb-2">
+                        <p className={`font-mono text-[11px] uppercase tracking-wider mb-2 ${owned.edition === 'common' ? 'text-muted' : `lx-edition-label-${owned.edition}`}`}>
                             {EDITION_LABEL[owned.edition]}
-                            {owned.serial != null && ` · #${String(owned.serial).padStart(4, '0')}`}
+                            {owned.serial != null && ` · No.${String(owned.serial).padStart(4, '0')}`}
                         </p>
                     )}
                     <div className="flex items-center gap-2 mb-1">
@@ -497,9 +481,13 @@ function RevealView({ reveal, onClose }: { reveal: Reveal; onClose: () => void }
                     <p className={`text-2xl font-bold ${box.done ? 'text-accent' : 'text-ink-2'}`}>{box.current ? boxLabel(box.current) : ''}</p>
                 </div>
             ) : (
-                <div className={`mx-auto w-40 aspect-[3/4] rounded-2xl border p-3 flex flex-col justify-between text-left bg-surface-2 border-line-strong ${edition.current ? EDITION_CLASS[edition.current] : ''}`}>
-                    <span className="relative z-10 font-mono text-[10px] uppercase text-accent">{edition.current ? EDITION_LABEL[edition.current] : ''}</span>
-                    <span className="relative z-10 text-sm font-bold text-ink break-all">{card?.word}</span>
+                <div
+                    className={`mx-auto w-40 aspect-[3/4] rounded-2xl border p-3 flex flex-col justify-between text-left bg-surface-2 border-line-strong ${edition.current ? EDITION_CLASS[edition.current] : ''} ${done && edition.current && EDITION_RANK[edition.current] >= 2 ? 'lx-reveal-sweep' : ''}`}
+                >
+                    <span className={`font-mono text-[10px] uppercase tracking-wider ${edition.current && edition.current !== 'common' ? `lx-edition-label-${edition.current}` : 'text-muted'}`}>
+                        {edition.current ? EDITION_LABEL[edition.current] : ''}
+                    </span>
+                    <span className="text-sm font-bold text-ink break-all">{card?.word}</span>
                 </div>
             )}
             {done && (
@@ -508,7 +496,7 @@ function RevealView({ reveal, onClose }: { reveal: Reveal; onClose: () => void }
                         <>
                             <p className="text-ink font-semibold">
                                 {EDITION_LABEL[reveal.edition]}
-                                {reveal.serial != null && ` #${String(reveal.serial).padStart(4, '0')}`}
+                                {reveal.serial != null && ` · No.${String(reveal.serial).padStart(4, '0')}`}
                             </p>
                             {reveal.boxes > 0 && <p className="text-accent text-sm">Đúc đủ mốc: +{reveal.boxes} Hộp</p>}
                         </>
