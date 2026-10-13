@@ -221,3 +221,58 @@ svg *:focus {
     padding: 8px 16px !important;
   }
 }
+/* Card editions (album, mint reveal). Holo sheen follows --lx-x / --lx-y
+   (pointer or device tilt) and drifts slowly on its own. */
+.lx-edition-silver {
+  border-color: #C9CDD4 !important;
+  background: linear-gradient(145deg, rgba(201, 205, 212, 0.16), rgba(201, 205, 212, 0.04)) !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.lx-edition-holo,
+.lx-edition-legendary {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--color-accent) !important;
+  background: var(--color-surface-2) !important;
+}
+.lx-edition-holo::after,
+.lx-edition-legendary::after {
+  content: '';
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(198, 244, 50, 0.35) 42%,
+    rgba(120, 220, 255, 0.25) 50%,
+    rgba(198, 244, 50, 0.35) 58%,
+    transparent 70%
+  );
+  transform: translate(calc(var(--lx-x, 0) * 20%), calc(var(--lx-y, 0) * 20%));
+  animation: lx-sheen 5s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
+}
+.lx-edition-legendary {
+  border-color: var(--color-warning) !important;
+  box-shadow: 0 0 18px rgba(245, 184, 61, 0.35);
+}
+.lx-edition-legendary::after {
+  animation-duration: 9s;
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    rgba(245, 184, 61, 0.4) 42%,
+    rgba(198, 244, 50, 0.3) 50%,
+    rgba(245, 184, 61, 0.4) 58%,
+    transparent 72%
+  );
+}
+@keyframes lx-sheen {
+  from { translate: -18% -10%; }
+  to { translate: 18% 10%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lx-edition-holo::after,
+  .lx-edition-legendary::after { animation: none; }
+}
