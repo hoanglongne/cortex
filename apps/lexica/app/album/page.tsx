@@ -126,21 +126,22 @@ export default function AlbumPage() {
         <div className="min-h-screen bg-bg px-4 py-8">
             <div className="max-w-2xl mx-auto">
                 <div className="flex items-center justify-between mb-6">
-                    <Link href="/learned" className="inline-flex items-center gap-2 text-muted hover:text-accent transition-colors text-sm">
-                        ← Từ đã học
+                    <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-accent transition-colors text-sm">
+                        ← Học
                     </Link>
                     <p className="text-ink font-bold">Album</p>
                     <div className="w-16" />
                 </div>
 
                 <div className="rounded-2xl border border-line bg-surface p-5 mb-4">
-                    <p className="text-muted text-sm">Mỗi từ bạn học là một thẻ. Nhớ thật chắc thì đúc được ấn bản: Thường, Bạc, Holo hay Huyền thoại.</p>
-                    <div className="mt-4 grid grid-cols-3 gap-3 font-mono">
+                    <div className="grid grid-cols-3 gap-3 font-mono">
                         <Stat label="Thẻ" value={`${totals.owned}/${totals.all}`} />
                         <Stat label="Bộ đủ" value={`${totals.complete}/${sets.length}`} />
                         <Stat label="Đã đúc" value={String(state ? Object.keys(state.editions).length : 0)} />
                     </div>
                 </div>
+
+                <HowItWorks />
 
                 {economy.status === 'signed-out' && (
                     <div className="mb-4">
@@ -209,10 +210,10 @@ function WalletBar({
     return (
         <div className="rounded-2xl border border-line bg-surface p-4 mb-4 space-y-3">
             <div className="grid grid-cols-4 gap-2 font-mono text-center">
-                <WalletStat icon={<Gift className="w-4 h-4" />} label="Hộp" value={w.boxes} />
-                <WalletStat icon={<Sparkles className="w-4 h-4" />} label="Bụi" value={w.dust} />
-                <WalletStat icon={<Ticket className="w-4 h-4" />} label="Vé" value={w.reroll_tickets} />
-                <WalletStat icon={<Snowflake className="w-4 h-4" />} label="Băng" value={w.streak_freezes} />
+                <WalletStat icon={<Gift className="w-4 h-4" />} label="Hộp" hint="mở ra quà" value={w.boxes} />
+                <WalletStat icon={<Sparkles className="w-4 h-4" />} label="Bụi" hint="nâng cấp thẻ" value={w.dust} />
+                <WalletStat icon={<Ticket className="w-4 h-4" />} label="Vé" hint="đúc lại thẻ" value={w.reroll_tickets} />
+                <WalletStat icon={<Snowflake className="w-4 h-4" />} label="Băng" hint="giữ chuỗi" value={w.streak_freezes} />
             </div>
             <div className="flex flex-wrap gap-2">
                 {state.ready.length > 0 && (
@@ -248,12 +249,84 @@ function WalletBar({
 
 const pct = (p: number) => `${(p * 100).toFixed(p < 0.01 ? 1 : 0)}%`;
 
-function WalletStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
+function WalletStat({ icon, label, hint, value }: { icon: React.ReactNode; label: string; hint: string; value: number }) {
     return (
         <div className="rounded-xl bg-surface-2 py-2">
             <div className="flex items-center justify-center text-accent">{icon}</div>
             <p className="text-lg text-ink">{value}</p>
-            <p className="text-[10px] uppercase text-subtle">{label}</p>
+            <p className="text-[11px] text-ink-2 font-sans">{label}</p>
+            <p className="text-[10px] text-subtle font-sans leading-tight">{hint}</p>
+        </div>
+    );
+}
+
+const GUIDE_KEY = 'lexica-album-guide-seen';
+
+const GUIDE: { icon: React.ReactNode; title: string; body: string }[] = [
+    {
+        icon: <Leaf className="w-4 h-4" />,
+        title: 'Học từ là sưu tầm thẻ',
+        body: 'Mỗi từ bạn nhớ được thành một thẻ, gom theo bộ chủ đề. Đủ bộ thì được thưởng Hộp.',
+    },
+    {
+        icon: <Hammer className="w-4 h-4" />,
+        title: 'Nhớ thật chắc thì Đúc',
+        body: 'Từ lên Thành thạo và học được từ 7 ngày thì đúc được một ấn bản: Thường, Bạc, Holo, hiếm nhất là Huyền thoại.',
+    },
+    {
+        icon: <Gift className="w-4 h-4" />,
+        title: 'Quà để làm gì',
+        body: 'Hộp mở ra Bụi, Vé hoặc Băng. Bụi để nâng thẻ Thường lên Bạc. Vé để đúc lại một thẻ, thử vận may. Băng giữ chuỗi ngày khi lỡ quên học một hôm.',
+    },
+];
+
+/** Plain-language guide to the album: open on the first visit, a toggle after. */
+function HowItWorks() {
+    const [open, setOpen] = useState<boolean | null>(null);
+    useEffect(() => {
+        let seen = false;
+        try {
+            seen = localStorage.getItem(GUIDE_KEY) === '1';
+        } catch {
+            // Storage blocked: show the guide every time.
+        }
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- reads browser storage once after mount
+        setOpen(!seen);
+    }, []);
+    const close = () => {
+        setOpen(false);
+        try {
+            localStorage.setItem(GUIDE_KEY, '1');
+        } catch {
+            // ignore
+        }
+    };
+    if (open === null) return null;
+    if (!open) {
+        return (
+            <button onClick={() => setOpen(true)} className="mb-4 text-xs text-muted hover:text-ink underline underline-offset-4">
+                Album hoạt động thế nào?
+            </button>
+        );
+    }
+    return (
+        <div className="rounded-2xl border border-accent/30 bg-surface p-5 mb-4">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Cách chơi</p>
+            <ol className="mt-3 space-y-3">
+                {GUIDE.map((step, i) => (
+                    <li key={step.title} className="flex gap-3">
+                        <span className="mt-0.5 shrink-0 w-7 h-7 rounded-full bg-accent/10 text-accent flex items-center justify-center">{step.icon}</span>
+                        <div>
+                            <p className="text-sm font-semibold text-ink">{i + 1}. {step.title}</p>
+                            <p className="text-sm text-muted leading-relaxed">{step.body}</p>
+                        </div>
+                    </li>
+                ))}
+            </ol>
+            <p className="mt-4 text-xs text-subtle">Không cần nhớ hết: cứ học đều, quà tự đến.</p>
+            <button onClick={close} className="mt-3 w-full h-11 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-bold">
+                Đã hiểu
+            </button>
         </div>
     );
 }
