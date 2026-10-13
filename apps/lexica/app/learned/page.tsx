@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users } from 'lucide-react';
+import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users, LayoutGrid } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import GameHub from '../components/GameHub';
 import { getProgressStats } from '../lib/eloAlgorithm';
@@ -160,6 +160,22 @@ export default function LearnedPage() {
                                 <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
                             </Link>
                         )}
+
+                        <Link
+                            href="/album"
+                            className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-lg bg-surface-2/50">
+                                    <LayoutGrid className="w-5 h-5 text-ink" />
+                                </div>
+                                <div>
+                                    <div className="text-ink font-semibold text-sm mb-0.5">Album thẻ</div>
+                                    <div className="text-muted text-xs">Sưu tầm đủ từng bộ chủ đề và bộ mùa</div>
+                                </div>
+                            </div>
+                            <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
+                        </Link>
 
                         <Link
                             href="/stories"
