@@ -48,7 +48,7 @@ export default function SwipeDeck() {
     // 10-card sessions with a combo and a recap (lib/engagement/session.ts)
     const [session, setSession] = useState(newSession);
     const [lastCombo, setLastCombo] = useState(0);
-    const [luckyToast, setLuckyToast] = useState<LuckyReward | null>(null);
+    const [luckyToast, setLuckyToast] = useState<(LuckyReward & { explain: boolean }) | null>(null);
     const done = sessionDone(session);
 
     const sets = useMemo(() => {
@@ -151,11 +151,12 @@ export default function SwipeDeck() {
                 if (!result?.paid || !result.item || !result.amount) return;
                 const reward: LuckyReward = { cardId, item: result.item, amount: result.amount };
                 setSession(prev => ({ ...prev, lucky: [...prev.lucky, reward] }));
-                setLuckyToast(reward);
+                const explain = takeLuckyExplainer();
+                setLuckyToast({ ...reward, explain });
                 sparkle();
                 vibrate(HAPTIC.lucky, soundEnabled);
                 capture('lucky_card', { item: result.item, amount: result.amount });
-                setTimeout(() => setLuckyToast(null), 2200);
+                setTimeout(() => setLuckyToast(null), explain ? 3800 : 2200);
             });
         }
     }, [swipeCard, swipeMode, voiceAvailable, cards, swipeRight, swipeLeft, session.combo, comboTick, sparkle, soundEnabled, luckyIds, claimLucky]);
@@ -297,10 +298,17 @@ export default function SwipeDeck() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 top-[calc(50%-272px)] sm:top-[calc(50%-248px)] flex items-center gap-2 rounded-full border border-accent/50 bg-surface px-4 py-2 font-mono text-sm text-accent pointer-events-none"
+                        className="absolute z-50 top-[calc(50%-272px)] sm:top-[calc(50%-248px)] rounded-2xl border border-accent/50 bg-surface px-4 py-2 text-center pointer-events-none max-w-[90%]"
                     >
-                        <Sparkles className="w-4 h-4" />
-                        Thẻ may mắn: +{luckyToast.amount} {luckyToast.item === 'dust' ? 'Bụi' : 'Hộp'}
+                        <p className="flex items-center justify-center gap-2 font-mono text-sm text-accent">
+                            <Sparkles className="w-4 h-4" />
+                            Thẻ may mắn: +{luckyToast.amount} {luckyToast.item === 'dust' ? 'Bụi' : 'Hộp'}
+                        </p>
+                        {luckyToast.explain && (
+                            <p className="mt-0.5 text-xs text-muted">
+                                {luckyToast.item === 'dust' ? 'Bụi dùng để nâng cấp thẻ trong Album' : 'Mở hộp trong Album để nhận quà'}
+                            </p>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -343,7 +351,7 @@ export default function SwipeDeck() {
                                 revealed={index === 0 ? topCardRevealed : undefined}
                                 onReveal={index === 0 ? () => setTopCardRevealed(true) : undefined}
                                 lucky={luckyIds.has(card.id)}
-                                hint={index === 0 ? (levelHint(cardProgress[card.id], card.id) ?? setHint(card.id, sets, cardProgress)) : null}
+                                hint={index === 0 ? (levelHint(cardProgress[card.id], card.id) ?? setHint(card.id, sets, cardProgress) ?? (luckyIds.has(card.id) ? 'Nhớ được thẻ này là có quà' : null)) : null}
                                 sessionCount={index === 0 ? session.count : undefined}
                             />
                         </motion.div>
@@ -374,4 +382,17 @@ export default function SwipeDeck() {
             )}
         </div>
     );
+}
+
+/** The first few lucky rewards say what the reward is for; then just the amount. */
+const LUCKY_EXPLAIN_KEY = 'lexica-lucky-explained';
+function takeLuckyExplainer(): boolean {
+    try {
+        const seen = Number(localStorage.getItem(LUCKY_EXPLAIN_KEY) ?? 0);
+        if (seen >= 3) return false;
+        localStorage.setItem(LUCKY_EXPLAIN_KEY, String(seen + 1));
+        return true;
+    } catch {
+        return false;
+    }
 }

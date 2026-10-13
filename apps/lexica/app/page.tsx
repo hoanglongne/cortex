@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Hand, Brain, Users } from 'lucide-react';
+import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Hand, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
@@ -613,7 +613,7 @@ function HomeContent() {
       )}
 
       {/* Main Content Area - Two Column Layout on Desktop */}
-      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-3 sm:px-4 pt-3 sm:pt-4 pb-16 lg:pt-8 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-3 sm:px-4 pt-3 sm:pt-4 pb-24 lg:pt-8 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
 
         {/* Left Column - Smart Entry or Swipe Deck */}
         <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-center lg:h-full lg:min-h-150">
@@ -673,61 +673,17 @@ function HomeContent() {
         </AnimatePresence>
 
         {/* Mobile Bottom Navigation Bar - Fixed */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-bg/95 backdrop-blur-md border-t border-line">
-          <div className="flex items-stretch max-w-md mx-auto">
-            <button
-              onClick={() => { click(); setShowMobileStats(true); }}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95"
-            >
-              <BarChart3 className="w-4 h-4" />
-              <span className="text-[10px]">Thống kê</span>
-            </button>
-
-            <Link href="/learned" className="flex-1">
-              <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95 h-full relative">
-                <BookOpen className="w-4 h-4" />
-                <span className="text-[10px]">Đã học</span>
-                {learnedCount > 0 && (
-                  <span className="absolute top-2 right-1/4 translate-x-full text-[9px] font-bold text-accent">{learnedCount}</span>
-                )}
-              </div>
-            </Link>
-
-            <Link href="/buddy" className="flex-1">
-              <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-accent hover:text-accent transition-colors active:scale-95 h-full">
-                <Users className="w-4 h-4" />
-                <span className="text-[10px]">Study Buddy</span>
-              </div>
-            </Link>
-
-            {dueToday > 0 && (
-              <Link href="/review" className="flex-1">
-                <div className="flex flex-col items-center justify-center gap-0.5 py-3 text-warning hover:text-warning transition-colors active:scale-95 h-full">
-                  <RotateCcw className="w-4 h-4" />
-                  <span className="text-[10px]">{dueToday} từ</span>
-                </div>
-              </Link>
-            )}
-
-            <button
-              onClick={() => { click(); handleChangeLevel(); }}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95"
-              aria-label="Đổi level"
-            >
-              <Settings className="w-4 h-4" />
-              <span className="text-[10px]">Đổi level</span>
-            </button>
-
-            <button
-              onClick={() => { click(); setShowOnboarding(true); }}
-              className="flex-1 flex flex-col items-center justify-center gap-0.5 py-3 text-muted hover:text-ink-2 transition-colors active:scale-95"
-              aria-label="Hướng dẫn"
-            >
-              <span className="text-sm font-bold leading-none">?</span>
-              <span className="text-[10px]">Trợ giúp</span>
-            </button>
+        <nav
+          aria-label="Điều hướng"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-bg/95 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]"
+        >
+          <div className="grid grid-cols-4 max-w-md mx-auto">
+            <MobileTab href="/review" label="Ôn tập" icon={<RotateCcw className="w-6 h-6" />} badge={dueToday > 0 ? dueToday : undefined} />
+            <MobileTab href="/album" label="Album" icon={<LayoutGrid className="w-6 h-6" />} />
+            <MobileTab href="/buddy" label="Buddy" icon={<Users className="w-6 h-6" />} />
+            <MobileTab label="Tôi" icon={<UserRound className="w-6 h-6" />} onClick={() => { click(); setShowMobileStats(true); }} />
           </div>
-        </div>
+        </nav>
 
         {/* Right Column - Desktop Sidebar */}
         <div className="hidden lg:flex flex-col w-56 xl:w-60 shrink-0 self-center gap-6">
@@ -835,7 +791,7 @@ function HomeContent() {
             >
               {/* Header */}
               <div className="sticky top-0 bg-surface border-b border-line px-6 py-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-ink">Thống kê</h3>
+                <h3 className="text-lg font-bold text-ink">Tôi</h3>
                 <button
                   onClick={() => {
                     click();
@@ -908,6 +864,24 @@ function HomeContent() {
 
                 {/* Action Buttons */}
                 <div className="space-y-2 pt-4 border-t border-line">
+                  <Link
+                    href="/learned"
+                    onClick={() => { click(); setShowMobileStats(false); }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
+                  >
+                    <BookOpen className="w-4 h-4 text-accent" />
+                    Từ đã học
+                    <span className="ml-auto text-muted">{learnedCount}</span>
+                    <ChevronRight className="w-4 h-4 text-subtle" />
+                  </Link>
+                  <button
+                    onClick={() => { click(); setShowMobileStats(false); setShowOnboarding(true); }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
+                  >
+                    <HelpCircle className="w-4 h-4 text-muted" />
+                    Hướng dẫn
+                    <ChevronRight className="w-4 h-4 text-subtle ml-auto" />
+                  </button>
                   <Link href="/stats">
                     <button
                       onClick={() => {
@@ -991,4 +965,21 @@ function DailyProgress({ done, goal }: { done: number; goal: number }) {
       </div>
     </div>
   );
+}
+
+/** One tab of the mobile bottom bar: a link, or a button for the "Tôi" sheet. */
+function MobileTab({ href, label, icon, badge, onClick }: { href?: string; label: string; icon: React.ReactNode; badge?: number; onClick?: () => void }) {
+  const body = (
+    <span className="relative flex flex-col items-center justify-center gap-1 h-16 text-muted hover:text-ink active:scale-95 transition">
+      {icon}
+      <span className="text-xs font-medium">{label}</span>
+      {badge !== undefined && (
+        <span className="absolute top-1.5 left-1/2 ml-2 min-w-5 h-5 px-1 rounded-full bg-warning text-bg text-[11px] font-bold leading-5 text-center">
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
+    </span>
+  );
+  if (href) return <Link href={href} aria-label={badge ? `${label}: ${badge} từ` : label}>{body}</Link>;
+  return <button type="button" onClick={onClick} aria-label={label}>{body}</button>;
 }
