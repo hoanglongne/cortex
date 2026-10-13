@@ -94,6 +94,25 @@ export function useSoundEffects() {
     }, [playTone]);
 
     /**
+     * Combo tick - a short note that climbs a semitone per combo step (caps at an octave).
+     */
+    const comboTick = useCallback((combo: number) => {
+        const step = Math.min(Math.max(combo - 2, 0), 12);
+        playTone(659.25 * Math.pow(2, step / 12), 0.08, 'triangle', 0.18);
+    }, [playTone]);
+
+    /**
+     * Combo milestone (x5, x10…) and lucky card - a quick bright arpeggio.
+     */
+    const sparkle = useCallback(() => {
+        playSequence([
+            { freq: 783.99, duration: 0.08, delay: 0 },
+            { freq: 987.77, duration: 0.08, delay: 60 },
+            { freq: 1318.51, duration: 0.14, delay: 120 },
+        ], 0.2);
+    }, [playSequence]);
+
+    /**
      * Quiz Correct - Success celebration (3-note ascending)
      */
     const quizCorrect = useCallback(() => {
@@ -163,6 +182,8 @@ export function useSoundEffects() {
         levelUp,
         click,
         buttonPress,
+        comboTick,
+        sparkle,
 
         // State
         soundEnabled,

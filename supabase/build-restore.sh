@@ -26,6 +26,7 @@ FILES=(
   apps/cortex-core-api/supabase/migration_studio_phase2.sql
   apps/cortex-core-api/supabase/migration_studio_capture.sql
   apps/lexica/supabase/migration_engagement.sql
+  apps/lexica/supabase/migration_engagement_lucky.sql
 )
 
 OUT=supabase/restore_all.sql

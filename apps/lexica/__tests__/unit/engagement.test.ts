@@ -7,6 +7,7 @@ import { freezeTarget, pendingClaims } from '@/app/lib/engagement/claims';
 import { economyMessage, hasShield } from '@/app/lib/engagement/economy';
 import { readShieldsUsed, spendShield } from '@/app/lib/engagement/shields';
 import { wrapLines } from '@/app/lib/engagement/shareCard';
+import { isComboMilestone, levelHint, nearestSet, newSession, nextSessionTeasers, recordSwipe, sessionDone, setHint } from '@/app/lib/engagement/session';
 
 describe('Liều hay Dừng', () => {
     it('climbs the ladder and caps at x5', () => {
@@ -145,5 +146,42 @@ describe('economy helpers', () => {
         expect(economyMessage('no boxes')).toBe('Bạn chưa có hộp nào.');
         expect(economyMessage('Failed to fetch')).toMatch(/kết nối/);
         expect(wrapLines('một hai ba bốn năm sáu', 8)).toEqual(['một hai', 'ba bốn', 'năm sáu']);
+    });
+});
+
+describe('swipe sessions', () => {
+    const prog = (state: 'seed' | 'sprout' | 'gold' | 'mastered', reviewCount = 1) => ({ cardId: 'x', state, lastReviewedAt: 0, nextReviewAt: 0, reviewCount, wrongCount: 0 });
+
+    it('counts combo, new cards and level-ups, and ends after 10 cards', () => {
+        let s = newSession(0);
+        s = recordSwipe(s, { cardId: 'a', known: true, after: prog('seed') });
+        s = recordSwipe(s, { cardId: 'b', known: true, before: prog('seed'), after: prog('sprout') });
+        s = recordSwipe(s, { cardId: 'c', known: false, before: prog('gold'), after: prog('seed') });
+        expect(s).toMatchObject({ count: 3, known: 2, combo: 0, maxCombo: 2, newCards: ['a'] });
+        expect(s.levelUps).toEqual([{ cardId: 'b', from: 'seed', to: 'sprout' }]);
+        for (let i = 0; i < 7; i++) s = recordSwipe(s, { cardId: `k${i}`, known: true });
+        expect(sessionDone(s)).toBe(true);
+        expect(s.maxCombo).toBe(7);
+        expect(isComboMilestone(5)).toBe(true);
+        expect(isComboMilestone(6)).toBe(false);
+    });
+
+    it('hints at the next level and a set within reach', () => {
+        expect(levelHint(prog('seed', 1), 'x')).toBe('Nhớ lần này → lên Đang nhớ');
+        expect(levelHint(prog('mastered', 9), 'x')).toBeNull();
+        expect(levelHint(undefined, 'x')).toBeNull();
+        const sets = [{ id: 's', label: 'Tiền bạc I', kind: 'topic' as const, cardIds: ['a', 'b', 'c'] }];
+        expect(setHint('c', sets, { a: prog('seed'), b: prog('seed') })).toBe('Từ cuối cùng của bộ Tiền bạc I');
+        expect(setHint('c', sets, { a: prog('seed') })).toBe('Còn 2 từ là đủ bộ Tiền bạc I');
+        expect(setHint('a', sets, { a: prog('seed') })).toBeNull();
+        expect(nearestSet(sets, { a: prog('seed') })).toEqual({ label: 'Tiền bạc I', missing: 2 });
+    });
+
+    it('teases lucky and trend cards in the next session', () => {
+        expect(nextSessionTeasers({ upcoming: [{ id: 'a' }, { id: 'b', trend: {} }], luckyIds: new Set(['a']) })).toEqual([
+            'Phiên sau có 1 thẻ may mắn',
+            'Phiên sau có 1 thẻ Trend mới',
+        ]);
+        expect(nextSessionTeasers({ upcoming: [{ id: 'a' }], luckyIds: new Set() })).toEqual([]);
     });
 });
