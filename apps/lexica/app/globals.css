@@ -221,58 +221,39 @@ svg *:focus {
     padding: 8px 16px !important;
   }
 }
-/* Card editions (album, mint reveal). Holo sheen follows --lx-x / --lx-y
-   (pointer or device tilt) and drifts slowly on its own. */
+/* Card editions. Rarity reads through restraint: hairline frames, a small
+   mono label and colour, no looping effects. */
 .lx-edition-silver {
-  border-color: #C9CDD4 !important;
-  background: linear-gradient(145deg, rgba(201, 205, 212, 0.16), rgba(201, 205, 212, 0.04)) !important;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  border-color: #8E939B !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
-.lx-edition-holo,
+.lx-edition-holo {
+  border-color: rgba(198, 244, 50, 0.7) !important;
+  box-shadow: inset 0 0 0 3px var(--color-surface), inset 0 0 0 4px rgba(198, 244, 50, 0.3);
+}
 .lx-edition-legendary {
-  position: relative;
-  overflow: hidden;
-  border-color: var(--color-accent) !important;
-  background: var(--color-surface-2) !important;
+  border-color: #D9C38F !important;
+  background-color: rgba(217, 195, 143, 0.04) !important;
+  box-shadow: inset 0 0 0 3px var(--color-surface), inset 0 0 0 4px rgba(217, 195, 143, 0.45);
 }
-.lx-edition-holo::after,
-.lx-edition-legendary::after {
+.lx-edition-label-silver { color: #B8BCC4; }
+.lx-edition-label-holo { color: var(--color-accent); }
+.lx-edition-label-legendary { color: #D9C38F; }
+
+/* One light sweep when a Holo/Legendary result lands. Plays once. */
+.lx-reveal-sweep { position: relative; overflow: hidden; }
+.lx-reveal-sweep::after {
   content: '';
   position: absolute;
-  inset: -40%;
+  inset: 0;
   pointer-events: none;
-  background: linear-gradient(
-    115deg,
-    transparent 30%,
-    rgba(198, 244, 50, 0.35) 42%,
-    rgba(120, 220, 255, 0.25) 50%,
-    rgba(198, 244, 50, 0.35) 58%,
-    transparent 70%
-  );
-  transform: translate(calc(var(--lx-x, 0) * 20%), calc(var(--lx-y, 0) * 20%));
-  animation: lx-sheen 5s ease-in-out infinite alternate;
-  mix-blend-mode: screen;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: lx-sweep 1.1s ease-out 0.15s 1 forwards;
 }
-.lx-edition-legendary {
-  border-color: var(--color-warning) !important;
-  box-shadow: 0 0 18px rgba(245, 184, 61, 0.35);
-}
-.lx-edition-legendary::after {
-  animation-duration: 9s;
-  background: linear-gradient(
-    115deg,
-    transparent 28%,
-    rgba(245, 184, 61, 0.4) 42%,
-    rgba(198, 244, 50, 0.3) 50%,
-    rgba(245, 184, 61, 0.4) 58%,
-    transparent 72%
-  );
-}
-@keyframes lx-sheen {
-  from { translate: -18% -10%; }
-  to { translate: 18% 10%; }
+@keyframes lx-sweep {
+  to { transform: translateX(100%); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lx-edition-holo::after,
-  .lx-edition-legendary::after { animation: none; }
+  .lx-reveal-sweep::after { animation: none; }
 }
