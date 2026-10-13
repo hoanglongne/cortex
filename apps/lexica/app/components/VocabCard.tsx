@@ -9,6 +9,7 @@ import { useLexicaStore } from '../store/lexicaStore';
 import { useVoiceAvailable } from '../lib/speechAvailability';
 import { AudioService } from '../lib/audio/AudioService';
 import ReviewQuiz from './ReviewQuiz';
+import { SESSION_SIZE } from '../lib/engagement/session';
 import type { VocabCardData } from '../types/vocab';
 
 interface VocabCardProps {
@@ -17,9 +18,15 @@ interface VocabCardProps {
     onSwipe: (direction: 'left' | 'right', source?: 'manual' | 'voice' | 'quiz') => void;
     revealed?: boolean;
     onReveal?: () => void;
+    /** Lucky card: pays a small reward when marked as known. */
+    lucky?: boolean;
+    /** One line about what knowing this card now would change. */
+    hint?: string | null;
+    /** Cards done in the current 10-card session (top card only). */
+    sessionCount?: number;
 }
 
-export default function VocabCard({ card, index, onSwipe, revealed: controlledRevealed, onReveal }: VocabCardProps) {
+export default function VocabCard({ card, index, onSwipe, revealed: controlledRevealed, onReveal, lucky, hint, sessionCount }: VocabCardProps) {
     const [internalRevealed, setInternalRevealed] = useState(false);
     const [reported, setReported] = useState(false);
     const swipeMode = useLexicaStore(state => state.swipeMode);
@@ -88,7 +95,14 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                 className="w-full"
                 style={{ userSelect: 'none', zIndex: 100 - index }}
             >
-                <div className="relative mx-2 sm:mx-4 h-[450px] sm:h-100 rounded-2xl bg-surface border border-line p-5 sm:p-6 overflow-hidden flex flex-col">
+                <div className={`relative mx-2 sm:mx-4 h-[450px] sm:h-100 rounded-2xl bg-surface border p-5 sm:p-6 overflow-hidden flex flex-col ${lucky ? 'border-accent/60' : 'border-line'}`}>
+                    {sessionCount !== undefined && (
+                        <div className="absolute top-0 left-0 right-0 flex gap-0.5 px-4 pt-2" aria-label={`Phiên: ${sessionCount}/${SESSION_SIZE}`}>
+                            {Array.from({ length: SESSION_SIZE }, (_, i) => (
+                                <span key={i} className={`h-[3px] flex-1 rounded-full transition-colors ${i < sessionCount ? 'bg-accent' : 'bg-surface-3'}`} />
+                            ))}
+                        </div>
+                    )}
                     {/* Meta row */}
                     <div className="flex items-center gap-2 font-mono text-[11px] text-subtle">
                         <span>ELO {card.elo}</span>
@@ -97,6 +111,11 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         )}
                         {isReviewCard && (
                             <span className="flex items-center gap-1 text-warning"><RotateCcw className="w-3 h-3" /> ÔN TẬP</span>
+                        )}
+                        {lucky && (
+                            <span className="flex items-center gap-1 text-accent" title="Nhớ thẻ này để nhận Bụi hoặc Hộp">
+                                <Sparkles className="w-3 h-3" /> MAY MẮN
+                            </span>
                         )}
                         {card.trend && (
                             <span className="flex items-center gap-1 text-accent truncate" title={card.trend.label}>
@@ -134,6 +153,10 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     <p className="mt-6 text-lg sm:text-xl leading-relaxed text-ink-2">
                         {highlightWord(displayScenario, card.word)}
                     </p>
+
+                    {hint && index === 0 && (
+                        <p className="mt-3 font-mono text-[11px] text-accent">{hint}</p>
+                    )}
 
                     {wantsVoice && !voiceAvailable && index === 0 && (
                         <p className="mt-3 font-mono text-[11px] text-warning">

@@ -80,7 +80,7 @@ export function economyMessage(raw: string): string {
     return MESSAGES[raw] ?? (/fetch|network/i.test(raw) ? 'Không kết nối được. Thử lại khi có mạng.' : raw);
 }
 
-async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> {
+export async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> {
     const client = getSupabaseClient();
     if (!client) throw new EconomyError(MESSAGES['not signed in']);
     const { data, error } = await client.rpc(name, args);
@@ -88,7 +88,7 @@ async function rpc<T>(name: string, args?: Record<string, unknown>): Promise<T> 
     return data as T;
 }
 
-async function signedIn(): Promise<boolean> {
+export async function signedIn(): Promise<boolean> {
     const client = getSupabaseClient();
     if (!client) return false;
     const { data } = await client.auth.getSession();
