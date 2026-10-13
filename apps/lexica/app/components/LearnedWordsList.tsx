@@ -3,7 +3,8 @@
 import { useMemo, useCallback, useState, useEffect } from 'react';
 import { HandHeart, Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { getAllCards } from '../lib/content/repository';
+import { getAllCards, getCardByWord } from '../lib/content/repository';
+import { AudioService } from '../lib/audio/AudioService';
 import { type VocabCardData as BaseCardData } from '../types/vocab';
 import { type UserCardProgress } from '../lib/eloAlgorithm';
 import SurgeryLab from './SurgeryLab';
@@ -72,13 +73,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
     }, []);
 
     const speakWord = () => {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(card.word);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.8;
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-        }
+        void AudioService.play(card.id, 'word');
     };
 
     return (
@@ -246,13 +241,9 @@ export default function LearnedWordsList() {
 
     const speakWord = useCallback((e: React.MouseEvent, word: string) => {
         e.stopPropagation();
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.8;
-            window.speechSynthesis.cancel();
-            window.speechSynthesis.speak(utterance);
-        }
+        const card = getCardByWord(word);
+        if (card) void AudioService.play(card.id, 'word');
+        else AudioService.playText(word, 'en');
     }, []);
 
     if (learnedCards.length === 0) {

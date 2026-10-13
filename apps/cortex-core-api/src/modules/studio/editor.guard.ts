@@ -10,6 +10,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AuthedRequest } from '../auth/supabase-auth.guard';
 import { SupabaseService } from '../supabase/supabase.service';
 
+const EDITOR_CACHE_MS = 5 * 60 * 1000;
+
 export type StudioRequest = AuthedRequest & {
   studioDb?: SupabaseClient<any, any, any>;
 };
@@ -21,6 +23,12 @@ export type StudioRequest = AuthedRequest & {
  */
 @Injectable()
 export class EditorGuard implements CanActivate {
+  /**
+   * Users confirmed as editors recently. Skips one Supabase round trip per
+   * request; safe because row-level security still checks every query.
+   */
+  private readonly editors = new Map<string, number>();
+
   constructor(private readonly supabase: SupabaseService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,9 +38,18 @@ export class EditorGuard implements CanActivate {
     const db = this.supabase.clientForToken(req.accessToken);
     if (!db) throw new ServiceUnavailableException('Supabase not configured');
 
-    const res = await db.rpc('is_studio_editor');
-    if (res.error || res.data !== true) {
-      throw new ForbiddenException('Studio editors only');
+    const now = Date.now();
+    const known = req.userId ? this.editors.get(req.userId) : undefined;
+    if (!known || known < now) {
+      const res = await db.rpc('is_studio_editor');
+      if (res.error || res.data !== true) {
+        if (req.userId) this.editors.delete(req.userId);
+        throw new ForbiddenException('Studio editors only');
+      }
+      if (req.userId) {
+        if (this.editors.size > 1000) this.editors.clear();
+        this.editors.set(req.userId, now + EDITOR_CACHE_MS);
+      }
     }
     req.studioDb = db;
     return true;

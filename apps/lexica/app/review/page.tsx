@@ -4,12 +4,14 @@ import { useMemo, useState, useCallback, useEffect, useRef, Suspense } from 'rea
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame } from 'lucide-react';
+import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards } from '../lib/content/repository';
 import { trackCardEvent } from '../lib/content/events';
 import { getDueCards } from '../lib/eloAlgorithm';
 import { useSoundEffects } from '../hooks/useSoundEffects';
+import { answer as riskAnswer, bank, initialRisk, LADDER, multiplier, pickNext, total as riskTotal, type RiskState } from '../lib/engagement/risk';
+import { getGhost, ghostCorrectAt, localDate, recordRun, WIN_STREAK_GOAL, type GhostResult, type GhostRun } from '../lib/engagement/ghost';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -23,6 +25,7 @@ interface Question {
     options: string[];  // 4 shuffled MCQ options (empty for meaning-to-word type-in)
     optionWords?: string[];  // for context-pick: word to blank in each option
     word: string;
+    elo: number;
     ipa: string;
     scenario: string;   // full scenario for post-answer reveal
     meaning: string;    // translationHint for post-answer reveal
@@ -84,6 +87,7 @@ function buildQuestions(dueCardIds: string[]): Question[] {
         const base = {
             cardId,
             word: card.word,
+            elo: card.elo,
             ipa: card.ipa ?? '',
             scenario: card.scenario,
             meaning: card.translationHint,
@@ -384,13 +388,128 @@ function QuestionCard({
     );
 }
 
+/** Pot of "Liều hay Dừng": banked score, current pot and the multiplier ladder. */
+function RiskBar({ risk }: { risk: RiskState }) {
+    return (
+        <div className="flex items-center gap-3 mb-4" aria-label="Hũ điểm">
+            <div className="flex gap-1 flex-1">
+                {LADDER.map((m, i) => (
+                    <div
+                        key={m}
+                        className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${i < risk.step || (i === risk.step && risk.pot > 0) ? 'bg-accent' : 'bg-ink/10'}`}
+                    />
+                ))}
+            </div>
+            <span className="font-mono text-xs text-muted shrink-0">
+                hũ <span className="text-accent font-bold text-sm">{risk.pot}</span> · x{multiplier(risk)}
+            </span>
+            <span className="font-mono text-xs text-muted shrink-0">
+                đã chốt <span className="text-ink font-bold">{risk.banked}</span>
+            </span>
+        </div>
+    );
+}
+
+function RiskChoice({ risk, onBank, onRisk }: { risk: RiskState; onBank: () => void; onRisk: () => void }) {
+    const { buttonPress } = useSoundEffects();
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="w-full max-w-2xl mx-auto rounded-2xl border border-line bg-surface p-6 text-center"
+        >
+            <p className="text-muted text-sm">Hũ đang có</p>
+            <p className="font-mono text-5xl font-bold text-accent my-2">{risk.pot}</p>
+            <p className="text-muted text-sm mb-6">
+                Liều: câu sau khó hơn, nhân <span className="font-mono text-ink">x{multiplier(risk)}</span>. Sai là mất cả hũ.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+                <button
+                    onClick={() => {
+                        buttonPress();
+                        onBank();
+                    }}
+                    className="py-3 rounded-xl border border-ink/20 bg-ink/[0.02] text-ink font-semibold text-sm hover:border-accent/50 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                    <Lock className="w-4 h-4" /> Chốt +{risk.pot}
+                </button>
+                <button
+                    onClick={() => {
+                        buttonPress();
+                        onRisk();
+                    }}
+                    className="py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                    <Flame className="w-4 h-4" /> Liều
+                </button>
+            </div>
+        </motion.div>
+    );
+}
+
+/** Today's correct answers next to yesterday's best run at the same elapsed time. */
+function GhostBar({ ghost, mine, startedAt, scale }: { ghost: GhostRun; mine: number; startedAt: number; scale: number }) {
+    const [now, setNow] = useState(() => Date.now());
+    useEffect(() => {
+        const t = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(t);
+    }, []);
+    const theirs = ghostCorrectAt(ghost, now - startedAt);
+    const pct = (n: number) => `${Math.min(100, (n / Math.max(scale, 1)) * 100)}%`;
+    return (
+        <div className="mb-4 space-y-1.5" aria-label="Đua với hôm qua">
+            <div className="flex items-center gap-2">
+                <span className="w-16 font-mono text-[10px] text-accent">bạn {mine}</span>
+                <div className="flex-1 h-1 rounded-full bg-ink/5 overflow-hidden">
+                    <div className="h-full bg-accent transition-all duration-500" style={{ width: pct(mine) }} />
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                <span className="w-16 font-mono text-[10px] text-subtle flex items-center gap-1">
+                    <Ghost className="w-3 h-3" /> {theirs}
+                </span>
+                <div className="flex-1 h-1 rounded-full bg-ink/5 overflow-hidden">
+                    <div className="h-full bg-subtle transition-all duration-500" style={{ width: pct(theirs) }} />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function GhostSummary({ result }: { result: GhostResult }) {
+    if (result.beat === null) {
+        return <p className="text-muted text-sm text-center mb-5">Mai bạn sẽ đua với chính lượt này.</p>;
+    }
+    const diff = Math.abs(result.scoreDiff);
+    return (
+        <div className={`rounded-xl border p-4 mb-5 text-center ${result.beat ? 'border-accent/40 bg-accent/5' : 'border-line bg-ink/[0.02]'}`}>
+            <p className="text-ink font-semibold flex items-center justify-center gap-2">
+                <Ghost className="w-4 h-4" />
+                {result.beat ? `Hơn hôm qua ${diff} điểm` : diff === 0 ? 'Hoà với hôm qua' : `Kém hôm qua ${diff} điểm`}
+            </p>
+            <p className="text-muted text-xs mt-1 font-mono">
+                {result.correctDiff >= 0 ? '+' : ''}
+                {result.correctDiff} câu đúng · thắng {result.winStreak}/{WIN_STREAK_GOAL} ngày liền
+            </p>
+            {result.streakReached && <p className="text-accent text-sm font-semibold mt-2">Thắng bóng ma {WIN_STREAK_GOAL} ngày liền!</p>}
+        </div>
+    );
+}
+
 function ResultScreen({
     results,
     maxStreak,
+    score,
+    bestPot,
+    ghostResult,
     onRetry,
 }: {
     results: Result[];
     maxStreak: number;
+    score: number;
+    bestPot: number;
+    ghostResult: GhostResult | null;
     onRetry: () => void;
 }) {
     const { buttonPress } = useSoundEffects();
@@ -410,15 +529,21 @@ function ResultScreen({
                 <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center mx-auto mb-3">
                     <Trophy className="w-8 h-8 text-accent" />
                 </div>
-                <p className="text-4xl font-bold text-ink mb-1">{accuracy}%</p>
-                <p className="text-muted text-sm">{correct}/{total} câu đúng</p>
+                <p className="text-4xl font-bold text-ink mb-1 font-mono">{score}</p>
+                <p className="text-muted text-sm">điểm đã chốt · {correct}/{total} câu đúng</p>
             </div>
 
+            {ghostResult && <GhostSummary result={ghostResult} />}
+
             {/* Stats row */}
-            <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="grid grid-cols-3 gap-3 mb-5">
                 <div className="bg-ink/[0.02] border border-ink/20 rounded-xl p-3.5 text-center">
                     <p className="text-xs text-muted font-medium mb-1">Độ chính xác</p>
                     <p className="text-2xl font-bold text-ink">{accuracy}%</p>
+                </div>
+                <div className="bg-ink/[0.02] border border-ink/20 rounded-xl p-3.5 text-center">
+                    <p className="text-xs text-muted font-medium mb-1">Hũ lớn nhất</p>
+                    <p className="text-2xl font-bold text-accent font-mono">{bestPot}</p>
                 </div>
                 <div className="bg-ink/[0.02] border border-ink/20 rounded-xl p-3.5 text-center">
                     <p className="text-xs text-muted font-medium mb-1">Combo cao nhất</p>
@@ -524,6 +649,15 @@ function ReviewPageContent() {
     const [streak, setStreak] = useState(0);
     const [maxStreak, setMaxStreak] = useState(0);
 
+    // Liều hay Dừng + ghost of yesterday
+    const [risk, setRisk] = useState<RiskState>(initialRisk);
+    const [choosing, setChoosing] = useState(false);
+    const [isRetry, setIsRetry] = useState(false);
+    const [ghost] = useState<GhostRun | null>(() => (typeof window === 'undefined' ? null : getGhost()));
+    const [ghostResult, setGhostResult] = useState<GhostResult | null>(null);
+    const [startedAt, setStartedAt] = useState(0);
+    const timeline = useRef<[number, 0 | 1][]>([]);
+
     // Build questions once dueCardIds is known (store may hydrate after mount)
     useEffect(() => {
         if (dueCardIds.length > 0 && questions.length === 0 && !done) {
@@ -532,12 +666,49 @@ function ReviewPageContent() {
         }
     }, [dueCardIds, questions.length, done]);
 
+    useEffect(() => {
+        if (questions.length === 0 || startedAt !== 0) return;
+        const t = setTimeout(() => setStartedAt(Date.now()), 0);
+        return () => clearTimeout(t);
+    }, [questions.length, startedAt]);
+
+    const finish = useCallback((finalRisk: RiskState, finalResults: Result[]) => {
+        const banked = bank(finalRisk);
+        setRisk(banked);
+        setDone(true);
+        if (isRetry) return;
+        setGhostResult(recordRun({
+            date: localDate(),
+            score: banked.banked,
+            correct: finalResults.filter(r => r.correct).length,
+            total: finalResults.length,
+            durationMs: Date.now() - startedAt,
+            bestPot: banked.bestPot,
+            timeline: timeline.current,
+        }));
+    }, [isRetry, startedAt]);
+
+    /** Moves to the next question; after Liều the next one is a harder word. */
+    const advance = useCallback((risky: boolean) => {
+        const next = currentIndex + 1;
+        const rest = questions.slice(next);
+        const pick = pickNext(rest, questions[currentIndex]?.elo ?? 0, risky);
+        if (pick > 0) {
+            const reordered = [...questions];
+            [reordered[next], reordered[next + pick]] = [reordered[next + pick], reordered[next]];
+            setQuestions(reordered);
+        }
+        setChoosing(false);
+        setCurrentIndex(next);
+    }, [questions, currentIndex]);
+
     const handleAnswer = useCallback((correct: boolean) => {
         const q = questions[currentIndex];
         const card = getAllCards().find(c => c.id === q.cardId);
 
         submitReviewAnswer(q.cardId, correct);
         trackCardEvent(q.cardId, correct ? 'review_correct' : 'review_wrong');
+        timeline.current.push([Date.now() - startedAt, correct ? 1 : 0]);
 
         const newStreak = correct ? streak + 1 : 0;
         setStreak(newStreak);
@@ -549,15 +720,20 @@ function ReviewPageContent() {
             correct,
             type: q.type,
         };
+        const allResults = [...results, newResult];
+        setResults(allResults);
 
-        setResults(prev => [...prev, newResult]);
+        const nextRisk = riskAnswer(risk, correct);
+        setRisk(nextRisk);
 
         if (currentIndex + 1 >= questions.length) {
-            setDone(true);
+            finish(nextRisk, allResults);
+        } else if (correct) {
+            setChoosing(true);
         } else {
-            setCurrentIndex(i => i + 1);
+            advance(false);
         }
-    }, [questions, currentIndex, submitReviewAnswer, streak]);
+    }, [questions, currentIndex, submitReviewAnswer, streak, results, risk, finish, advance, startedAt]);
 
     const handleRetry = useCallback(() => {
         const wrongIds = results.filter(r => !r.correct).map(r => r.cardId);
@@ -568,6 +744,10 @@ function ReviewPageContent() {
         setDone(false);
         setStreak(0);
         setMaxStreak(0);
+        setRisk(initialRisk());
+        setChoosing(false);
+        setIsRetry(true);
+        setGhostResult(null);
     }, [results]);
 
     // No due cards (store hydrated, genuinely empty)
@@ -590,7 +770,7 @@ function ReviewPageContent() {
     }
 
     return (
-        <div className="min-h-screen bg-bg px-4 py-8">
+        <div className={`min-h-screen px-4 py-8 transition-colors duration-500 ${risk.step >= 2 && !done ? 'bg-black' : 'bg-bg'}`}>
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
@@ -608,9 +788,41 @@ function ReviewPageContent() {
                     <div className="w-12" /> {/* spacer */}
                 </div>
 
+                {!done && questions.length > 0 && (
+                    <>
+                        <RiskBar risk={risk} />
+                        {ghost && !isRetry && startedAt > 0 && (
+                            <GhostBar
+                                ghost={ghost}
+                                mine={results.filter(r => r.correct).length}
+                                startedAt={startedAt}
+                                scale={Math.max(ghost.correct, questions.length)}
+                            />
+                        )}
+                    </>
+                )}
+
                 <AnimatePresence mode="wait">
                     {done ? (
-                        <ResultScreen key="results" results={results} maxStreak={maxStreak} onRetry={handleRetry} />
+                        <ResultScreen
+                            key="results"
+                            results={results}
+                            maxStreak={maxStreak}
+                            score={riskTotal(risk)}
+                            bestPot={risk.bestPot}
+                            ghostResult={ghostResult}
+                            onRetry={handleRetry}
+                        />
+                    ) : choosing ? (
+                        <RiskChoice
+                            key={`choice-${currentIndex}`}
+                            risk={risk}
+                            onBank={() => {
+                                setRisk(bank(risk));
+                                advance(false);
+                            }}
+                            onRisk={() => advance(true)}
+                        />
                     ) : questions.length === 0 ? (
                         <div key="loading" className="flex justify-center py-20">
                             <div className="w-8 h-8 rounded-full border-2 border-line border-t-accent animate-spin" />

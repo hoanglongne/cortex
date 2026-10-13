@@ -8,6 +8,7 @@ import { getCard, getCardByWord } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
 import StoryComprehensionQuiz from './StoryComprehensionQuiz';
 import { useSoundEffects } from '../hooks/useSoundEffects';
+import { AudioService } from '../lib/audio/AudioService';
 
 
 interface StoryVocabDialogData {
@@ -319,10 +320,9 @@ export default function StoryMode({ storyId, part, onClose, onFinish, onNavigate
                                     <button
                                         onClick={() => {
                                             click();
-                                            const utterance = new SpeechSynthesisUtterance(selectedVocab.word);
-                                            utterance.lang = 'en-US';
-                                            utterance.rate = 0.8;
-                                            speechSynthesis.speak(utterance);
+                                            const vocabCard = getCardByWord(selectedVocab.word);
+                                            if (vocabCard) void AudioService.play(vocabCard.id, 'word');
+                                            else AudioService.playText(selectedVocab.word, 'en');
                                         }}
                                         className="p-1.5 bg-accent/20 hover:bg-accent-strong/30 rounded-lg transition-colors"
                                         title="Hear pronunciation"
