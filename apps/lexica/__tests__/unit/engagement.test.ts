@@ -3,6 +3,10 @@ import { answer, bank, initialRisk, multiplier, pickNext, total } from '@/app/li
 import { getGhost, ghostCorrectAt, localDate, previousDate, recordRun } from '@/app/lib/engagement/ghost';
 import { buildSets, MAX_SET_SIZE, setProgress, topicOf } from '@/app/lib/engagement/collection';
 import { getAllCards } from '@/app/lib/content/repository';
+import { freezeTarget, pendingClaims } from '@/app/lib/engagement/claims';
+import { economyMessage, hasShield } from '@/app/lib/engagement/economy';
+import { readShieldsUsed, spendShield } from '@/app/lib/engagement/shields';
+import { wrapLines } from '@/app/lib/engagement/shareCard';
 
 describe('Liều hay Dừng', () => {
     it('climbs the ladder and caps at x5', () => {
@@ -109,5 +113,37 @@ describe('album sets', () => {
         const p = (state: 'seed' | 'mastered') => ({ cardId: 'x', state, lastReviewedAt: 0, nextReviewAt: 0, reviewCount: 1, wrongCount: 0 });
         expect(setProgress(set, { a: p('mastered') })).toEqual({ owned: 1, mastered: 1, total: 2, complete: false });
         expect(setProgress(set, { a: p('seed'), b: p('seed') }).complete).toBe(true);
+    });
+});
+
+describe('economy helpers', () => {
+    const base = { today: '2026-10-13', dailyProgress: 15, dailyGoal: 15, progressDate: '2026-10-13', currentStreak: 8, claimed: new Set<string>() };
+
+    it('claims the daily goal and reached streak milestones once', () => {
+        expect(pendingClaims(base).map((c) => `${c.kind}:${c.ref}`)).toEqual(['daily_goal:2026-10-13', 'streak_7:7']);
+        expect(pendingClaims({ ...base, claimed: new Set(['daily_goal:2026-10-13', 'streak_7:7']) })).toEqual([]);
+        expect(pendingClaims({ ...base, progressDate: '2026-10-12', currentStreak: 2 })).toEqual([]);
+    });
+
+    it('covers exactly one missed day with a freeze', () => {
+        expect(freezeTarget('2026-10-11', '2026-10-13', previousDate)).toBe('2026-10-12');
+        expect(freezeTarget('2026-10-12', '2026-10-13', previousDate)).toBeNull();
+        expect(freezeTarget('2026-10-01', '2026-10-13', previousDate)).toBeNull();
+        expect(freezeTarget(null, '2026-10-13', previousDate)).toBeNull();
+    });
+
+    it('shields only from Holo up, once per word per day', () => {
+        expect(hasShield({ edition: 'silver', serial: null, rerolls: 0 })).toBe(false);
+        expect(hasShield({ edition: 'holo', serial: null, rerolls: 0 })).toBe(true);
+        localStorage.clear();
+        spendShield('v1', '2026-10-13');
+        expect(readShieldsUsed('2026-10-13').has('v1')).toBe(true);
+        expect(readShieldsUsed('2026-10-14').has('v1')).toBe(false);
+    });
+
+    it('translates server errors and wraps share text', () => {
+        expect(economyMessage('no boxes')).toBe('Bạn chưa có hộp nào.');
+        expect(economyMessage('Failed to fetch')).toMatch(/kết nối/);
+        expect(wrapLines('một hai ba bốn năm sáu', 8)).toEqual(['một hai', 'ba bốn', 'năm sáu']);
     });
 });

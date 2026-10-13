@@ -4,7 +4,7 @@ import { useMemo, useState, useCallback, useEffect, useRef, Suspense } from 'rea
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost } from 'lucide-react';
+import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards } from '../lib/content/repository';
 import { trackCardEvent } from '../lib/content/events';
@@ -12,6 +12,8 @@ import { getDueCards } from '../lib/eloAlgorithm';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { answer as riskAnswer, bank, initialRisk, LADDER, multiplier, pickNext, total as riskTotal, type RiskState } from '../lib/engagement/risk';
 import { getGhost, ghostCorrectAt, localDate, recordRun, WIN_STREAK_GOAL, type GhostResult, type GhostRun } from '../lib/engagement/ghost';
+import { hasShield, useEconomy } from '../lib/engagement/economy';
+import { readShieldsUsed, spendShield } from '../lib/engagement/shields';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -657,6 +659,9 @@ function ReviewPageContent() {
     const [ghostResult, setGhostResult] = useState<GhostResult | null>(null);
     const [startedAt, setStartedAt] = useState(0);
     const timeline = useRef<[number, 0 | 1][]>([]);
+    const editions = useEconomy(s => s.state?.editions);
+    const claimReward = useEconomy(s => s.claim);
+    const [shieldsUsed, setShieldsUsed] = useState<Set<string>>(() => (typeof window === 'undefined' ? new Set() : readShieldsUsed()));
 
     // Build questions once dueCardIds is known (store may hydrate after mount)
     useEffect(() => {
@@ -677,7 +682,7 @@ function ReviewPageContent() {
         setRisk(banked);
         setDone(true);
         if (isRetry) return;
-        setGhostResult(recordRun({
+        const result = recordRun({
             date: localDate(),
             score: banked.banked,
             correct: finalResults.filter(r => r.correct).length,
@@ -685,8 +690,10 @@ function ReviewPageContent() {
             durationMs: Date.now() - startedAt,
             bestPot: banked.bestPot,
             timeline: timeline.current,
-        }));
-    }, [isRetry, startedAt]);
+        });
+        setGhostResult(result);
+        if (result.streakReached) void claimReward('ghost_streak', localDate()).catch(() => undefined);
+    }, [isRetry, startedAt, claimReward]);
 
     /** Moves to the next question; after Liều the next one is a harder word. */
     const advance = useCallback((risky: boolean) => {
@@ -723,7 +730,10 @@ function ReviewPageContent() {
         const allResults = [...results, newResult];
         setResults(allResults);
 
-        const nextRisk = riskAnswer(risk, correct);
+        // A Holo (or better) edition of this word shields the pot once a day.
+        const shielded = !correct && risk.pot > 0 && hasShield(editions?.[q.cardId]) && !shieldsUsed.has(q.cardId);
+        if (shielded) setShieldsUsed(spendShield(q.cardId));
+        const nextRisk = riskAnswer(risk, correct, shielded);
         setRisk(nextRisk);
 
         if (currentIndex + 1 >= questions.length) {
@@ -733,7 +743,7 @@ function ReviewPageContent() {
         } else {
             advance(false);
         }
-    }, [questions, currentIndex, submitReviewAnswer, streak, results, risk, finish, advance, startedAt]);
+    }, [questions, currentIndex, submitReviewAnswer, streak, results, risk, finish, advance, startedAt, editions, shieldsUsed]);
 
     const handleRetry = useCallback(() => {
         const wrongIds = results.filter(r => !r.correct).map(r => r.cardId);
@@ -791,6 +801,11 @@ function ReviewPageContent() {
                 {!done && questions.length > 0 && (
                     <>
                         <RiskBar risk={risk} />
+                        {!choosing && questions[currentIndex] && hasShield(editions?.[questions[currentIndex].cardId]) && !shieldsUsed.has(questions[currentIndex].cardId) && risk.pot > 0 && (
+                            <p className="-mt-2 mb-3 flex items-center gap-1.5 font-mono text-[11px] text-accent">
+                                <Shield className="w-3.5 h-3.5" /> Khiên: thẻ Holo của bạn giữ hũ nếu sai câu này
+                            </p>
+                        )}
                         {ghost && !isRetry && startedAt > 0 && (
                             <GhostBar
                                 ghost={ghost}
