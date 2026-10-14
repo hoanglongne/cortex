@@ -47,8 +47,23 @@ describe('parseVariants', () => {
     expect(out.every((v) => v.card_id === 'v001')).toBe(true);
   });
 
+  it('accepts the shapes models drift into', () => {
+    const asked = new Set(['v001']);
+    const item = { card_id: 'v001', tech: 'a' };
+    for (const raw of [
+      [item],
+      { result: [item] },
+      { v001: { tech: 'a' } },
+      { variants: { v001: { tech: 'a' } } },
+    ]) {
+      expect(parseVariants(raw, asked)).toEqual([
+        { card_id: 'v001', archetype: 'tech', scenario: 'a' },
+      ]);
+    }
+  });
+
   it('throws on output without a variants array', () => {
-    expect(() => parseVariants({ drafts: [] }, new Set())).toThrow();
+    expect(() => parseVariants('nope', new Set())).toThrow();
   });
 });
 

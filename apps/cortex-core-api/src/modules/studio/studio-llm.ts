@@ -82,7 +82,10 @@ export class StudioLlm {
         temperature: 0.9,
       }),
     });
-    if (!res.ok) throw new Error(`Groq error ${res.status}`);
+    if (!res.ok) {
+      const detail = (await res.text().catch(() => '')).slice(0, 300);
+      throw new Error(`Groq error ${res.status}: ${detail}`);
+    }
     const data = (await res.json()) as {
       choices?: Array<{ message?: { content?: string } }>;
     };
@@ -99,5 +102,11 @@ export function parseJson(text: string): unknown {
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/```$/, '')
     .trim();
-  return JSON.parse(trimmed) as unknown;
+  try {
+    return JSON.parse(trimmed) as unknown;
+  } catch {
+    throw new Error(
+      `Model returned invalid JSON (${trimmed.length} chars, ends with "${trimmed.slice(-40)}")`,
+    );
+  }
 }

@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadGatewayException,
+  BadRequestException,
+  HttpException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { StudioLlm } from './studio-llm';
 import { BUCKET, StudioService } from './studio.service';
@@ -19,8 +25,15 @@ import {
 type Db = SupabaseClient<any, any, any>;
 type Res = { data: unknown; error: { message: string } | null };
 
+const message = (err: unknown) =>
+  err instanceof Error ? err.message : String(err);
+
+/** Rows of a query; a failed query surfaces its message instead of a bare 500. */
 function rows<T>(res: Res): T[] {
-  if (res.error) throw new Error(res.error.message);
+  if (res.error)
+    throw new InternalServerErrorException(
+      `Lỗi database: ${res.error.message}`,
+    );
   return (res.data ?? []) as T[];
 }
 
@@ -113,11 +126,19 @@ export class VariantsService {
     }
     if (batch.length === 0) return { cards: 0, saved: 0, rejected: 0 };
 
-    const { json, model } = await this.llm.generateJson(
-      buildVariantsPrompt(batch, Math.floor(Math.random() * 8)),
-    );
     const byId = new Map(batch.map((c) => [c.id, c]));
-    const raw = parseVariants(json, new Set(byId.keys()));
+    let model: string;
+    let raw: ReturnType<typeof parseVariants>;
+    try {
+      const out = await this.llm.generateJson(
+        buildVariantsPrompt(batch, Math.floor(Math.random() * 8)),
+      );
+      model = out.model;
+      raw = parseVariants(out.json, new Set(byId.keys()));
+    } catch (err) {
+      if (err instanceof HttpException) throw err;
+      throw new BadGatewayException(`Model AI lỗi: ${message(err)}`);
+    }
 
     const keep: Omit<VariantRow, 'created_at'>[] = [];
     let rejected = 0;
@@ -138,7 +159,10 @@ export class VariantsService {
         keep.map((k) => ({ ...k, prompt_version: VARIANTS_PROMPT_VERSION })),
         { onConflict: 'card_id,archetype' },
       );
-      if (res.error) throw new Error(res.error.message);
+      if (res.error)
+        throw new InternalServerErrorException(
+          `Không lưu được câu: ${res.error.message}`,
+        );
     }
     return { cards: batch.length, saved: keep.length, rejected };
   }
