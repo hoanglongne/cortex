@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users, LayoutGrid } from 'lucide-react';
+import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users, LayoutGrid, Swords } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import GameHub from '../components/GameHub';
 import { getProgressStats } from '../lib/eloAlgorithm';
@@ -10,7 +10,8 @@ import SRSCalendar from '../components/SRSCalendar';
 import OnboardingModal from '../components/OnboardingModal';
 import { useState, useMemo, useEffect } from 'react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { getAllCards } from '../lib/content/repository';
+import { getAllCards, getCard } from '../lib/content/repository';
+import { hardWords } from '../lib/engagement/hard';
 
 export default function LearnedPage() {
     const [showHelp, setShowHelp] = useState(false);
@@ -23,6 +24,7 @@ export default function LearnedPage() {
     const masteredCount = useLexicaStore(state => state.getMasteredWordsCount());
     const cardProgress = useLexicaStore(state => state.cardProgress);
     const progressStats = getProgressStats(cardProgress);
+    const hard = useMemo(() => hardWords(cardProgress), [cardProgress]);
 
     // Get words with lab modules
     const labWords = useMemo(() => {
@@ -113,6 +115,34 @@ export default function LearnedPage() {
                     </div>
                 )}
             </div>
+
+            {/* Từ khó của bạn: words this learner keeps missing */}
+            {hard.length > 0 && (
+                <div className="max-w-5xl mx-auto mb-6 sm:mb-8 rounded-xl border border-warning/40 bg-warning/5 p-4">
+                    <div className="flex items-center gap-2">
+                        <Swords className="w-5 h-5 text-warning" />
+                        <h2 className="text-base font-bold text-ink">Từ khó của bạn</h2>
+                        <span className="ml-auto font-mono text-xs text-muted">{hard.length} từ</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted">Những từ bạn hay quên. Chúng sẽ quay lại sớm hơn cho tới khi bạn nhớ chắc.</p>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                        {hard.slice(0, 8).map(p => (
+                            <span key={p.cardId} className="px-2.5 py-1 rounded-lg bg-surface border border-line text-sm text-ink lowercase">
+                                {getCard(p.cardId)?.word ?? p.cardId}
+                                <span className="ml-1.5 font-mono text-[10px] text-warning">×{p.wrongCount}</span>
+                            </span>
+                        ))}
+                        {hard.length > 8 && <span className="px-2 py-1 text-xs text-muted">+{hard.length - 8}</span>}
+                    </div>
+                    <Link
+                        href="/review?hard=1"
+                        onClick={() => buttonPress()}
+                        className="mt-3 w-full h-11 rounded-xl bg-warning text-bg font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition"
+                    >
+                        Ôn {hard.length} từ khó ngay
+                    </Link>
+                </div>
+            )}
 
             {/* Vocabulary Games Card */}
             {learnedCount >= 4 && (

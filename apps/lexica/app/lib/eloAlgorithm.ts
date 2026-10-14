@@ -1,3 +1,4 @@
+import { hardInterval, isHard } from './engagement/hard';
 import { getCard, getCurrentDropCards, getDeckCards } from './content/repository';
 import { VocabCardData, DifficultyLevel } from '../types/vocab';
 
@@ -461,7 +462,7 @@ export function updateCardProgress(
         newState = 'seed';
     }
 
-    return {
+    const updated: UserCardProgress = {
         cardId,
         state: newState,
         lastReviewedAt: now,
@@ -469,6 +470,9 @@ export function updateCardProgress(
         reviewCount,
         wrongCount,
     };
+    // Words this learner keeps missing come back sooner.
+    if (isHard(updated)) updated.nextReviewAt = now + hardInterval(updated.nextReviewAt - now);
+    return updated;
 }
 
 /**
@@ -485,7 +489,10 @@ export function isCardDue(progress: UserCardProgress | undefined): boolean {
 export function getDueCards(
     cardProgress: Record<string, UserCardProgress>
 ): UserCardProgress[] {
-    return Object.values(cardProgress).filter(isCardDue);
+    // Hard words first, then the longest overdue.
+    return Object.values(cardProgress)
+        .filter(isCardDue)
+        .sort((a, b) => Number(isHard(b)) - Number(isHard(a)) || a.nextReviewAt - b.nextReviewAt);
 }
 
 /**

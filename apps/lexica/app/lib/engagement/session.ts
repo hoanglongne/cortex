@@ -1,5 +1,6 @@
 import { updateCardProgress, type UserCardProgress } from '../eloAlgorithm';
 import type { CollectionSet } from './collection';
+import { isHard } from './hard';
 
 /**
  * A learning session in the swipe deck: 10 cards, a combo for words known in
@@ -39,6 +40,8 @@ export interface SessionState {
     newCards: string[];
     levelUps: LevelUp[];
     lucky: LuckyReward[];
+    /** Hard words (see hard.ts) recalled in this session. */
+    hardBeaten: string[];
     startedAt: number;
 }
 
@@ -50,6 +53,7 @@ export const newSession = (now = Date.now()): SessionState => ({
     newCards: [],
     levelUps: [],
     lucky: [],
+    hardBeaten: [],
     startedAt: now,
 });
 
@@ -68,6 +72,7 @@ export function recordSwipe(
         combo,
         maxCombo: Math.max(s.maxCombo, combo),
     };
+    if (input.known && isHard(input.before)) next.hardBeaten = [...s.hardBeaten, input.cardId];
     if (input.known && !input.before) next.newCards = [...s.newCards, input.cardId];
     if (input.known && input.before && input.after && RANK[input.after.state] > RANK[input.before.state]) {
         next.levelUps = [...s.levelUps, { cardId: input.cardId, from: input.before.state, to: input.after.state }];

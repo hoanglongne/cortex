@@ -10,6 +10,7 @@ import { useVoiceAvailable } from '../lib/speechAvailability';
 import { AudioService } from '../lib/audio/AudioService';
 import RecallPanel from './RecallPanel';
 import { blankWord, type RecallCheck } from '../lib/engagement/recall';
+import { isHard, mnemonic } from '../lib/engagement/hard';
 import { SESSION_SIZE } from '../lib/engagement/session';
 import type { VocabCardData } from '../types/vocab';
 
@@ -46,6 +47,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
     // Fall back to touch when the browser can't do speech or the mic is blocked
     const isVoiceSwipeRequired = wantsVoice && voiceAvailable;
     const isReviewCard = Boolean(cardProgress);
+    const hard = isHard(cardProgress);
 
     // Personalized scenario selection with fallback
     const displayScenario =
@@ -107,7 +109,11 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         {isBossCard && (
                             <span className="flex items-center gap-1 text-warning"><Swords className="w-3 h-3" /> BOSS</span>
                         )}
-                        {isReviewCard && (
+                        {hard ? (
+                            <span className="flex items-center gap-1 text-warning" title={`Bạn đã quên từ này ${cardProgress?.wrongCount} lần`}>
+                                <Swords className="w-3 h-3" /> TỪ KHÓ
+                            </span>
+                        ) : isReviewCard && (
                             <span className="flex items-center gap-1 text-warning"><RotateCcw className="w-3 h-3" /> ÔN TẬP</span>
                         )}
                         {lucky && (
@@ -173,7 +179,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
 
                     <div className="mt-auto pt-4">
                         {check && index === 0 && onCheckAnswer ? (
-                            <RecallPanel check={check} word={card.word} meaning={card.translationHint} onAnswer={onCheckAnswer} />
+                            <RecallPanel check={check} word={card.word} meaning={card.translationHint} aid={mnemonic(card)} onAnswer={onCheckAnswer} />
                         ) : isVoiceSwipeRequired ? (
                             /* Voice mode: word info always visible + mic controls */
                             <div className="space-y-3">
@@ -211,7 +217,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                                 Xem từ và nghĩa
                             </button>
                         ) : (
-                            <WordBlock card={card} onSpeak={speakWord} />
+                            <WordBlock card={card} onSpeak={speakWord} aid={hard ? mnemonic(card) : null} />
                         )}
                     </div>
                 </div>
@@ -232,7 +238,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
 }
 
 /** Word, IPA, pronunciation button and meaning, in the "Focus" style. */
-function WordBlock({ card, onSpeak }: { card: VocabCardData; onSpeak: () => void }) {
+function WordBlock({ card, onSpeak, aid }: { card: VocabCardData; onSpeak: () => void; aid?: string | null }) {
     return (
         <div className="border-l-2 border-accent pl-4 space-y-1">
             <div className="flex items-center gap-3">
@@ -247,6 +253,7 @@ function WordBlock({ card, onSpeak }: { card: VocabCardData; onSpeak: () => void
             </div>
             {card.ipa && <p className="font-mono text-sm text-muted">/{card.ipa}/</p>}
             <p className="text-base text-ink">{card.translationHint}</p>
+            {aid && <p className="font-mono text-[11px] text-warning leading-relaxed">Mẹo nhớ: {aid}</p>}
         </div>
     );
 }
