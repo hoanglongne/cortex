@@ -8,14 +8,15 @@ import { useVocalSwipe } from '../hooks/useVocalSwipe';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useVoiceAvailable } from '../lib/speechAvailability';
 import { AudioService } from '../lib/audio/AudioService';
-import ReviewQuiz from './ReviewQuiz';
+import RecallPanel from './RecallPanel';
+import { blankWord, type RecallCheck } from '../lib/engagement/recall';
 import { SESSION_SIZE } from '../lib/engagement/session';
 import type { VocabCardData } from '../types/vocab';
 
 interface VocabCardProps {
     card: VocabCardData;
     index: number;
-    onSwipe: (direction: 'left' | 'right', source?: 'manual' | 'voice' | 'quiz') => void;
+    onSwipe: (direction: 'left' | 'right', source?: 'manual' | 'voice') => void;
     revealed?: boolean;
     onReveal?: () => void;
     /** Lucky card: pays a small reward when marked as known. */
@@ -24,14 +25,16 @@ interface VocabCardProps {
     hint?: string | null;
     /** Cards done in the current 10-card session (top card only). */
     sessionCount?: number;
+    /** A recall check in progress on this card (top card only). */
+    check?: RecallCheck | null;
+    onCheckAnswer?: (correct: boolean) => void;
 }
 
-export default function VocabCard({ card, index, onSwipe, revealed: controlledRevealed, onReveal, lucky, hint, sessionCount }: VocabCardProps) {
+export default function VocabCard({ card, index, onSwipe, revealed: controlledRevealed, onReveal, lucky, hint, sessionCount, check, onCheckAnswer }: VocabCardProps) {
     const [internalRevealed, setInternalRevealed] = useState(false);
     const [reported, setReported] = useState(false);
     const swipeMode = useLexicaStore(state => state.swipeMode);
     const cardProgress = useLexicaStore(state => state.cardProgress[card.id]);
-    const markAsMastered = useLexicaStore(state => state.markAsMastered);
     const userArchetype = useLexicaStore(state => state.userArchetype);
 
     const revealed = controlledRevealed !== undefined ? controlledRevealed : internalRevealed;
@@ -50,11 +53,6 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
         card.scenario ||
         (card.scenarios && card.scenarios.casual) ||
         'Scenario not available';
-
-    const handleMarkAsMastered = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        markAsMastered(card.id);
-    };
 
     const speakWord = () => {
         void AudioService.play(card.id, 'word');
@@ -79,7 +77,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
         <div className="relative w-full">
             <motion.div
                 data-tour-id="swipe-actions"
-                drag
+                drag={!check}
                 dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                 dragElastic={0.7}
                 whileDrag={{ scale: 1.05 }}
@@ -151,10 +149,19 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
 
                     {/* Scenario with the target word highlighted */}
                     <p className="mt-6 text-lg sm:text-xl leading-relaxed text-ink-2">
-                        {highlightWord(displayScenario, card.word)}
+                        {check && check.kind !== 'meaning' ? blankWord(displayScenario, card.word) : highlightWord(displayScenario, card.word)}
                     </p>
 
-                    {hint && index === 0 && (
+                    {check && index === 0 && (
+                        <div className="mt-3">
+                            <p className="font-mono text-[11px] text-accent uppercase tracking-wider">
+                                {check.kind === 'meaning' ? 'Kiểm tra nhanh · từ này nghĩa là gì?' : check.kind === 'cloze' ? 'Nhắc lại · từ nào điền vào chỗ trống?' : 'Nhắc lại · gõ từ còn thiếu'}
+                            </p>
+                            {check.kind !== 'meaning' && <p className="mt-1 text-sm text-ink">Nghĩa: {card.translationHint}</p>}
+                        </div>
+                    )}
+
+                    {!check && hint && index === 0 && (
                         <p className="mt-3 font-mono text-[11px] text-accent">{hint}</p>
                     )}
 
@@ -165,7 +172,9 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     )}
 
                     <div className="mt-auto pt-4">
-                        {isVoiceSwipeRequired ? (
+                        {check && index === 0 && onCheckAnswer ? (
+                            <RecallPanel check={check} word={card.word} meaning={card.translationHint} onAnswer={onCheckAnswer} />
+                        ) : isVoiceSwipeRequired ? (
                             /* Voice mode: word info always visible + mic controls */
                             <div className="space-y-3">
                                 <WordBlock card={card} onSpeak={speakWord} />
@@ -201,21 +210,8 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                                 <Eye className="w-4 h-4" />
                                 Xem từ và nghĩa
                             </button>
-                        ) : isReviewCard && index === 0 ? (
-                            <ReviewQuiz card={card} onSwipe={onSwipe} />
                         ) : (
-                            <div className="space-y-3">
-                                <WordBlock card={card} onSpeak={speakWord} />
-                                {!isReviewCard && index === 0 && (
-                                    <button
-                                        onClick={handleMarkAsMastered}
-                                        className="w-full h-11 font-mono text-[11px] text-muted hover:text-accent transition-colors border border-dashed border-line-strong hover:border-accent/50 rounded-xl flex items-center justify-center gap-1.5"
-                                    >
-                                        <Check className="w-3 h-3" />
-                                        TÔI ĐÃ BIẾT TỪ NÀY
-                                    </button>
-                                )}
-                            </div>
+                            <WordBlock card={card} onSpeak={speakWord} />
                         )}
                     </div>
                 </div>
