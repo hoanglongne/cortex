@@ -119,6 +119,7 @@ export const RULE_LABELS: Record<string, string> = {
     dup_near: 'Gần giống câu cũ',
     word_fatigue: 'Từ vừa dùng gần đây',
     vi_ratio: 'Ít tiếng Việt',
+    cliche: 'Câu sáo, nghe gượng',
 };
 
 export type CaptureSource = 'capture_threads' | 'capture_facebook' | 'capture_tiktok' | 'capture_web';

@@ -22,7 +22,7 @@ describe('prompt', () => {
     });
     expect(p).toContain('- frugal (intermediate)');
     expect(p).toContain('lương chưa về');
-    expect(PROMPT_VERSION).toBe('generate.v1');
+    expect(PROMPT_VERSION).toBe('generate.v3');
   });
 
   it('uses forced words verbatim', () => {

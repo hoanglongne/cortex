@@ -114,7 +114,7 @@ export class VariantsService {
     if (batch.length === 0) return { cards: 0, saved: 0, rejected: 0 };
 
     const { json, model } = await this.llm.generateJson(
-      buildVariantsPrompt(batch),
+      buildVariantsPrompt(batch, Math.floor(Math.random() * 8)),
     );
     const byId = new Map(batch.map((c) => [c.id, c]));
     const raw = parseVariants(json, new Set(byId.keys()));

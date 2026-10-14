@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { BlockRule } from './studio.types';
 import { normalize, validateDraft } from './validator';
+import { angleFor, slangFor, VOICE_EXAMPLES, VOICE_RULES } from './voice';
 
 /**
  * Example sentences per learner archetype ("câu ví dụ theo hình mẫu").
@@ -19,7 +20,7 @@ export const ARCHETYPE_LABEL: Record<VariantArchetype, string> = {
   student: 'sinh viên (thi cử, deadline bài tập, ký túc xá, đi làm thêm)',
 };
 
-export const VARIANTS_PROMPT_VERSION = 'variants.v1';
+export const VARIANTS_PROMPT_VERSION = 'variants.v3';
 /** Cards per model call: small enough for one JSON answer. */
 export const VARIANT_BATCH = 10;
 
@@ -36,21 +37,35 @@ export interface RawVariant {
   scenario: string;
 }
 
-export function buildVariantsPrompt(cards: readonly SourceCard[]): string {
+export function buildVariantsPrompt(
+  cards: readonly SourceCard[],
+  angleOffset = 0,
+): string {
   return `Bạn là biên tập viên nội dung cho Lexica, app học từ vựng tiếng Anh cho người Việt 18–30 tuổi.
 Mỗi thẻ có sẵn một câu ví dụ đời thường. Hãy viết thêm cho MỖI thẻ 3 câu mới, mỗi câu cho một kiểu người học:
 ${VARIANT_ARCHETYPES.map((a) => `- ${a}: ${ARCHETYPE_LABEL[a]}`).join('\n')}
 
-Giữ đúng giọng của câu gốc: như bạn thân nhắn tin, hài, hơi khịa, đời thường. Không dạy đời.
+${VOICE_RULES}
+
+${VOICE_EXAMPLES}
+
 Mỗi câu:
 - Là câu tiếng Việt tự nhiên, nhúng đúng 1 từ tiếng Anh là từ của thẻ, viết HOA toàn bộ từ đó. Không viết hoa từ tiếng Anh nào khác.
 - Dùng từ đúng với nghĩa đã cho và đúng từ loại; chỉ dùng dạng gốc hoặc biến thể có quy tắc (-s, -ed, -ing, -ly).
 - Dài 40–140 ký tự. Người đọc đoán được nghĩa từ ngữ cảnh.
-- Tình huống phải đặc trưng cho kiểu người học đó, khác hẳn câu gốc.
+- Tình huống phải là chuyện rất riêng của kiểu người học đó (chi tiết mà người trong nghề mới biết), khác hẳn câu gốc.
+- Ba câu của một thẻ dùng ba góc hài khác nhau.
 - Cấm: chính trị, tôn giáo, miệt thị, tên người thật, chửi thề nặng, nội dung 18+, thảm hoạ/tai nạn/vụ án.
 
+Trước khi trả lời, tự đọc lại: câu nào nghe như sách giáo khoa, như phụ huynh nói, hoặc nhồi slang mà không có tình huống thì viết lại.
+
 THẺ:
-${cards.map((c) => `- id=${c.id} | từ=${c.word.toUpperCase()} | nghĩa=${c.translation_hint} | câu gốc: ${c.scenario}`).join('\n')}
+${cards
+  .map(
+    (c, i) =>
+      `- id=${c.id} | từ=${c.word.toUpperCase()} | nghĩa=${c.translation_hint} | câu gốc: ${c.scenario} | góc [slang] gợi ý: ${VARIANT_ARCHETYPES.map((a, j) => `${a}=${angleFor(i * 3 + j, angleOffset)} [${slangFor(i * 3 + j, angleOffset).join(', ')}]`).join(', ')}`,
+  )
+  .join('\n')}
 
 Chỉ trả về JSON đúng dạng:
 {"variants":[{"card_id":"v001","tech":"...","business":"...","student":"..."}]}`;
@@ -84,7 +99,7 @@ export function parseVariants(
 
 /**
  * Same hard rules as generated drafts (length, one upper-case target word,
- * blocklist, not a copy), minus the lexicon and fatigue rules that only make
+ * blocklist, not a copy) plus no clichés, minus the lexicon and fatigue rules that only make
  * sense for new cards. Returns the failed rule names; empty means usable.
  */
 export function checkVariant(
@@ -105,7 +120,10 @@ export function checkVariant(
     },
   );
   return Object.entries(report.rules)
-    .filter(([name, r]) => !r.pass && (r.hard || name === 'dup_near'))
+    .filter(
+      ([name, r]) =>
+        !r.pass && (r.hard || name === 'dup_near' || name === 'cliche'),
+    )
     .map(([name]) => name);
 }
 
