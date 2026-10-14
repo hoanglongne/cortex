@@ -1,76 +1,121 @@
 /**
  * The Lexica voice, shared by every Studio prompt (new cards and archetype
- * variants), plus the clichés the soft "cliche" rule flags.
+ * variants), plus the soft "cliche" rule.
  *
- * Why the old sentences felt flat: the few-shot examples leaned on the same
- * slang ("vãi", "ông nội", "deadline tới mông") and the same targets (sếp,
- * lương), so the model copied them. In the core deck "vãi" appears in 36
- * sentences, "sếp" in 34, and 31 open with "Mấy cái…". Funny without being
- * forced comes from a specific detail and a small turn at the end, not from
- * slang.
+ * Learners are 18–30, so sentences talk like their group chat: current Gen Z
+ * slang, used the way people actually text. What made the old deck flat was
+ * not slang itself but the same few words everywhere ("vãi" in 36 sentences,
+ * "sếp" in 34, 31 opening with "Mấy cái…"). So each sentence slot gets its own
+ * slang suggestions from a wide palette, and stuffing is flagged.
  */
 
-/** How to be funny without trying too hard. */
-export const VOICE_RULES = `Giọng văn: như kể chuyện với bạn thân, tỉnh, hơi tự giễu. Buồn cười vì ĐÚNG quá, không phải vì cố pha trò.
+/** How to sound like a 20-year-old texting a friend, without cringe. */
+export const VOICE_RULES = `Giọng văn: Gen Z nhắn tin trong group chat bạn thân. Tự nhiên, lầy, hơi mỏ hỗn nhưng dễ thương; buồn cười vì quá relate.
 Bí quyết:
-- Cụ thể hơn chung chung: một chi tiết thật (giờ giấc, con số, món đồ, câu nói) đáng giá hơn mọi từ lóng.
-- Một cú lật nhỏ ở cuối câu: dựng tình huống bình thường rồi kết bằng điều không ngờ nhưng ai cũng gật gù.
-- Không giải thích cái buồn cười, không tự khen câu mình hài, không emoji, không "haha".
-- Từ tiếng Anh nằm đúng chỗ đắt nhất của câu, đọc xong là đoán được nghĩa.
-- Đổi chủ đề liên tục: gia đình, nhóm bạn, đồ ăn, xe buýt, phòng trọ, thú cưng, mạng xã hội, đi chợ, thời tiết, sức khoẻ... chứ không chỉ công sở.
-Tránh (nghe gượng hoặc sáo): "vãi", "ông nội", "toang", "trầm cảm", "deadline tới mông/dí", "luôn á", "thật sự rất", teencode, meme đã cũ; mở đầu bằng "Mấy cái" hoặc "Đừng có"; lôi sếp, người yêu cũ, crush hay lương ra làm trò khi không cần.`;
+- Dùng slang giới trẻ đang xài (danh sách gợi ý ở dưới), 1–2 cái mỗi câu, đặt đúng chỗ như người thật nhắn tin. Không nhồi.
+- Tình huống cụ thể của tuổi 18–30: group chat, crush, deadline, ví cạn, TikTok, Threads, đi cà phê, săn sale, ở trọ, thi cử, đi làm năm nhất, về quê ăn Tết...
+- Một cú chốt ở cuối câu; không giải thích cái buồn cười, không "haha", không emoji.
+- Từ tiếng Anh cần học nằm đúng chỗ đắt nhất của câu, đọc xong là đoán được nghĩa. Slang tiếng Anh (flex, vibe, slay...) viết thường, tối đa 1 cái.
+- Văn nói được phép: "khum", "nha", "nè", "ủa", "zị", "đồ", "á". Không viết teencode kiểu "j", "dc", "ko".
+Tránh: giọng sách giáo khoa hoặc giọng phụ huynh; slang đã cũ nghe quê ("chất như nước cất", "trẻ trâu", "thanh niên nghiêm túc", "hết nước chấm"); câu chỉ có slang mà không có tình huống; mở đầu bằng "Mấy cái" hoặc "Đừng có".`;
+
+/** Current slang, rotated across sentence slots so a batch never leans on one word. */
+export const SLANG = [
+  'ét o ét',
+  'gét gô',
+  'flex',
+  'chằm zn',
+  'u là trời',
+  'đỉnh nóc kịch trần',
+  'out trình',
+  'check var',
+  'báo thủ',
+  'ô dề',
+  'tới công chuyện',
+  'xu cà na',
+  'hết cứu',
+  'red flag',
+  'delulu',
+  'slay',
+  'fomo',
+  'khum',
+  'ủa alo',
+  'kém miếng khó chịu',
+  'ra đường tôi nể mỗi bạn',
+  'ok mom',
+  'manifest',
+  'toang',
+  'xỉu ngang',
+  'hóng biến',
+  'ăn cơm chó',
+  'thao túng tâm lý',
+  'chữa lành',
+  'keo lỳ',
+  'real',
+  'lowkey',
+] as const;
 
 /** Ways a sentence can be funny; each slot gets a different one so a batch is varied. */
 export const ANGLES = [
   'kỳ vọng và thực tế',
   'leo thang phi lý (bắt đầu nhỏ, kết thúc to)',
-  'so sánh bất ngờ',
+  'đoạn chat hai câu',
   'quan sát chuyện nhỏ ai cũng gặp',
   'nói giảm, kể tỉnh bơ',
-  'đoạn chat hai câu',
+  'so sánh bất ngờ',
   'độc thoại trong đầu',
   'tự giễu',
 ] as const;
 
 /** Good and bad examples, with why. Lengths fit the 40–160 character rule. */
 export const VOICE_EXAMPLES = `Câu TỐT (học cách làm, đừng chép chủ đề):
-- [kỳ vọng và thực tế] Kế hoạch sống FRUGAL của tôi kéo dài đúng tới lúc app giao đồ ăn gửi mã giảm 15 nghìn.
-- [leo thang phi lý] Định PROCRASTINATE năm phút, ngẩng lên đã biết cách nuôi ốc mượn hồn và lịch sử cái muỗng nhựa.
-- [so sánh bất ngờ] Tin nhắn "ok" không dấu chấm của mẹ còn AMBIGUOUS hơn đề văn: có thể là đồng ý, có thể là sắp có chuyện.
-- [quan sát chuyện nhỏ] Mặc áo trắng đi ăn thì chuyện một giọt nước lèo bún bò tìm tới nó là INEVITABLE.
-- [nói giảm] Số cân tôi lên sau Tết được cả nhà đánh giá là NEGLIGIBLE, trừ cái quần jean.
-- [đoạn chat hai câu] "Đi lẩu không?" "Thôi tao tiết kiệm." "Tao bao." Một tiếng "ờ" RELUCTANT kéo dài đúng hai giây.
+- [kỳ vọng và thực tế] Đầu tháng manifest sống FRUGAL, giữa tháng thấy mã freeship là tự thao túng tâm lý bản thân chốt đơn.
+- [leo thang phi lý] Định PROCRASTINATE năm phút lướt TikTok, ngẩng lên đã 2 giờ sáng và biết hết drama của một idol mình khum quen.
+- [đoạn chat hai câu] Nhắn crush "ngủ chưa" nhận về đúng chữ "ừ", AMBIGUOUS cỡ này là cả group phải check var tới sáng.
+- [quan sát chuyện nhỏ] Mặc áo trắng đi ăn bún bò thì vụ dính nước lèo là INEVITABLE, u là trời ngay giữa ngực áo.
+- [nói giảm] Ăn Tết xong lên 3 ký, cả nhà bảo NEGLIGIBLE, chỉ có cái quần jean là đang ét o ét.
+- [đoạn chat hai câu] "Đi lẩu khum?" "Thôi tiết kiệm." "Tao bao." Đúng ba giây RELUCTANT rồi "gét gô".
 Câu DỞ (đừng viết kiểu này):
-- "Deadline dí tới mông mà sếp còn bắt họp, việc ABUNDANT vãi luôn ông nội." → nhồi lóng, chủ đề sáo, không có chi tiết.
-- "Tôi rất FRUGAL vì tôi muốn tiết kiệm tiền để mua nhà." → đúng nghĩa nhưng không có gì bất ngờ, đọc như sách giáo khoa.
-- "Haha nhìn cái mặt FRUGAL của nó mà cười xỉu, ai đọc cũng phải cười." → tự khen hài, giải thích cái buồn cười.`;
+- "Hôm nay slay flex chằm zn, việc ABUNDANT ét o ét keo lỳ luôn á." → nhồi slang, không có tình huống nào.
+- "Tôi rất FRUGAL vì tôi muốn tiết kiệm tiền để mua nhà." → giọng sách giáo khoa, không có gì để cười.
+- "Haha nhìn mặt FRUGAL của nó mà cười xỉu, ai đọc cũng phải cười." → tự khen hài, giải thích cái buồn cười.`;
 
 /** Assigns angles to slots in turn, starting at an offset so batches differ. */
 export function angleFor(slot: number, offset = 0): string {
   return ANGLES[(slot + offset) % ANGLES.length];
 }
 
-/** Phrases that make a sentence read forced or stale (soft rule "cliche"). */
+/** Three slang suggestions for a slot; consecutive slots never share one. */
+export function slangFor(slot: number, offset = 0): string[] {
+  const start = (slot + offset) * 3;
+  return [0, 1, 2].map((k) => SLANG[(start + k) % SLANG.length]);
+}
+
+/** Signs a sentence is trying too hard (soft rule "cliche"). */
 export const CLICHES = [
-  'vãi',
-  'ông nội',
-  'toang',
-  'trầm cảm',
-  'tới mông',
-  'luôn á',
-  'thật sự rất',
-  'cười xỉu',
   'haha',
+  'hihi',
+  'cười xỉu',
+  'ai đọc cũng',
+  'thật sự rất',
+  'chất như nước cất',
+  'trẻ trâu',
+  'hết nước chấm',
 ] as const;
 const CLICHE_OPENINGS = ['mấy cái', 'đừng có'] as const;
+/** More slang than this in one sentence reads as stuffed. */
+const MAX_SLANG = 2;
+
+const hasPhrase = (text: string, phrase: string) =>
+  new RegExp(`(^|[^\\p{L}])${phrase}($|[^\\p{L}])`, 'u').test(text);
 
 /** Clichés found in a sentence; empty when it is clean. */
 export function clicheHits(scenario: string): string[] {
   const t = scenario.toLowerCase().normalize('NFC').replace(/\s+/g, ' ').trim();
-  const hits: string[] = CLICHES.filter((c) =>
-    new RegExp(`(^|[^\\p{L}])${c}($|[^\\p{L}])`, 'u').test(t),
-  );
+  const hits: string[] = CLICHES.filter((c) => hasPhrase(t, c));
   for (const o of CLICHE_OPENINGS)
     if (t.startsWith(o)) hits.push(`mở đầu "${o}"`);
+  const slang = SLANG.filter((s) => hasPhrase(t, s));
+  if (slang.length > MAX_SLANG) hits.push(`nhồi ${slang.length} slang`);
   return hits;
 }

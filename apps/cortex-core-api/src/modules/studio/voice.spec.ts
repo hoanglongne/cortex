@@ -1,5 +1,12 @@
 import { validateDraft } from './validator';
-import { angleFor, ANGLES, clicheHits, VOICE_EXAMPLES } from './voice';
+import {
+  angleFor,
+  ANGLES,
+  clicheHits,
+  SLANG,
+  slangFor,
+  VOICE_EXAMPLES,
+} from './voice';
 
 const ctx = (word: string) => ({
   lexicon: new Set([word]),
@@ -41,32 +48,50 @@ describe('voice examples', () => {
     }
   });
 
-  it('the bad examples are caught as clichés or say nothing surprising', () => {
+  it('the bad examples are caught as stuffed or trying too hard', () => {
     const bad = examples('bad');
     expect(bad.length).toBe(3);
-    expect(clicheHits(bad[0])).toEqual(
-      expect.arrayContaining(['vãi', 'ông nội']),
+    expect(clicheHits(bad[0])).toEqual([
+      expect.stringMatching(/^nhồi \d slang$/),
+    ]);
+    expect(clicheHits(bad[2])).toEqual(
+      expect.arrayContaining(['haha', 'cười xỉu', 'ai đọc cũng']),
     );
-    expect(clicheHits(bad[2])).toEqual(expect.arrayContaining(['cười xỉu']));
+  });
+
+  it('good examples actually use current slang', () => {
+    const withSlang = examples('good').filter((s) =>
+      SLANG.some((w) => s.toLowerCase().includes(w)),
+    );
+    expect(withSlang.length).toBe(examples('good').length);
   });
 });
 
 describe('clicheHits', () => {
-  it('flags stale slang and stock openings, whole words only', () => {
-    expect(clicheHits('Mấy cái buổi họp này BORING vãi.')).toEqual([
-      'vãi',
+  it('allows a little slang but flags stuffing and stock openings', () => {
+    expect(
+      clicheHits('Deadline dí sát nút mà sếp còn bắt họp, ét o ét thật sự.'),
+    ).toEqual([]);
+    expect(
+      clicheHits('Ví FRUGAL tới mức ét o ét, u là trời, xu cà na thiệt.'),
+    ).toEqual(['nhồi 3 slang']);
+    expect(clicheHits('Mấy cái buổi họp này BORING ghê.')).toEqual([
       'mở đầu "mấy cái"',
     ]);
     expect(clicheHits('Đừng có COMPLAIN nữa.')).toEqual(['mở đầu "đừng có"']);
-    // whole words only: "toàn" is not "toang"
-    expect(
-      clicheHits('Mưa xong đường toàn ổ gà, ai đi làm về cũng FRUSTRATED.'),
-    ).toEqual([]);
-    expect(
-      clicheHits(
-        'Kế hoạch sống FRUGAL của tôi kéo dài tới lúc có mã giảm giá.',
-      ),
-    ).toEqual([]);
+    // whole words only: "realtime" is not "real"
+    expect(clicheHits('Group chat realtime mà ai cũng FRUSTRATED.')).toEqual(
+      [],
+    );
+  });
+});
+
+describe('slangFor', () => {
+  it('gives neighbouring slots different slang', () => {
+    const a = slangFor(0, 5);
+    const b = slangFor(1, 5);
+    expect(a).toHaveLength(3);
+    expect(a.some((w) => b.includes(w))).toBe(false);
   });
 });
 

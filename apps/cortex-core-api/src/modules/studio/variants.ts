@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { BlockRule } from './studio.types';
 import { normalize, validateDraft } from './validator';
-import { angleFor, VOICE_EXAMPLES, VOICE_RULES } from './voice';
+import { angleFor, slangFor, VOICE_EXAMPLES, VOICE_RULES } from './voice';
 
 /**
  * Example sentences per learner archetype ("câu ví dụ theo hình mẫu").
@@ -20,7 +20,7 @@ export const ARCHETYPE_LABEL: Record<VariantArchetype, string> = {
   student: 'sinh viên (thi cử, deadline bài tập, ký túc xá, đi làm thêm)',
 };
 
-export const VARIANTS_PROMPT_VERSION = 'variants.v2';
+export const VARIANTS_PROMPT_VERSION = 'variants.v3';
 /** Cards per model call: small enough for one JSON answer. */
 export const VARIANT_BATCH = 10;
 
@@ -57,13 +57,13 @@ Mỗi câu:
 - Ba câu của một thẻ dùng ba góc hài khác nhau.
 - Cấm: chính trị, tôn giáo, miệt thị, tên người thật, chửi thề nặng, nội dung 18+, thảm hoạ/tai nạn/vụ án.
 
-Trước khi trả lời, tự đọc lại: câu nào không có chi tiết cụ thể hoặc không có cú lật ở cuối thì viết lại.
+Trước khi trả lời, tự đọc lại: câu nào nghe như sách giáo khoa, như phụ huynh nói, hoặc nhồi slang mà không có tình huống thì viết lại.
 
 THẺ:
 ${cards
   .map(
     (c, i) =>
-      `- id=${c.id} | từ=${c.word.toUpperCase()} | nghĩa=${c.translation_hint} | câu gốc: ${c.scenario} | góc gợi ý: ${VARIANT_ARCHETYPES.map((a, j) => `${a}=${angleFor(i * 3 + j, angleOffset)}`).join(', ')}`,
+      `- id=${c.id} | từ=${c.word.toUpperCase()} | nghĩa=${c.translation_hint} | câu gốc: ${c.scenario} | góc [slang] gợi ý: ${VARIANT_ARCHETYPES.map((a, j) => `${a}=${angleFor(i * 3 + j, angleOffset)} [${slangFor(i * 3 + j, angleOffset).join(', ')}]`).join(', ')}`,
   )
   .join('\n')}
 
