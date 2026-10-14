@@ -12,6 +12,8 @@ import RecallPanel from './RecallPanel';
 import { blankWord, type RecallCheck } from '../lib/engagement/recall';
 import { isHard, mnemonic } from '../lib/engagement/hard';
 import { formatInterval } from '../lib/srs';
+import { scenarioFor } from '../lib/content/persona';
+import { getCard, useContentVersion } from '../lib/content/repository';
 import { updateCardProgress, type UserCardProgress } from '../lib/eloAlgorithm';
 import { SESSION_SIZE } from '../lib/engagement/session';
 import type { VocabCardData } from '../types/vocab';
@@ -51,12 +53,11 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
     const isReviewCard = Boolean(cardProgress);
     const hard = isHard(cardProgress);
 
-    // Personalized scenario selection with fallback
-    const displayScenario =
-        (card.scenarios && userArchetype && card.scenarios[userArchetype]) ||
-        card.scenario ||
-        (card.scenarios && card.scenarios.casual) ||
-        'Scenario not available';
+    // The learner's archetype sentence (Studio variants), else the card's own
+    // Deck cards are snapshots; read sentences from the live content so a
+    // variants overlay that loads later still applies.
+    useContentVersion();
+    const displayScenario = scenarioFor(getCard(card.id) ?? card, userArchetype);
 
     const speakWord = () => {
         void AudioService.play(card.id, 'word');

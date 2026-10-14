@@ -11,7 +11,7 @@ export interface VocabCardData {
     // OLD FORMAT (deprecated): Single scenario string
     scenario?: string;
     // NEW FORMAT: Multiple scenarios by user archetype
-    scenarios?: Record<UserArchetype, string>;
+    scenarios?: Partial<Record<UserArchetype, string>>;
     translationHint: string;
     state: CardState;
     isBossCard?: boolean;

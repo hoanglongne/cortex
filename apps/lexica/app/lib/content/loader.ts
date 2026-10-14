@@ -1,5 +1,5 @@
 import { idbGet, idbSet } from './idb';
-import { parseManifest, parsePack, type ContentManifest, type ContentPack, type PackRef } from './pack';
+import { parseManifest, parsePack, parseVariants, type CardVariants, type ContentManifest, type ContentPack, type PackRef } from './pack';
 import { applyRemoteContent } from './repository';
 
 /** Public URL of packs/manifest.json published by Lexica Studio. Unset = core cards only. */
@@ -29,13 +29,30 @@ async function loadPack(ref: PackRef, allowNetwork: boolean): Promise<ContentPac
     return pack;
 }
 
+/** Same cache-then-verify path as packs, for the archetype variants overlay. */
+async function loadVariants(ref: PackRef | null, allowNetwork: boolean): Promise<CardVariants | undefined> {
+    if (!ref) return undefined;
+    const cached = await idbGet<unknown>(packKey(ref));
+    const fromCache = cached ? parseVariants(cached) : null;
+    if (fromCache || !allowNetwork) return fromCache ?? undefined;
+    const res = await fetch(ref.url);
+    if (!res.ok) return undefined;
+    const text = await res.text();
+    const hash = await sha256Hex(text);
+    if (hash && hash !== ref.sha256) return undefined;
+    const parsed = parseVariants(JSON.parse(text));
+    if (parsed) await idbSet(packKey(ref), JSON.parse(text));
+    return parsed ?? undefined;
+}
+
 async function apply(manifest: ContentManifest, allowNetwork: boolean) {
     const refs = [manifest.current, manifest.library].filter((r): r is PackRef => r !== null);
     const packs = (await Promise.all(refs.map(r => loadPack(r, allowNetwork).catch(() => null))))
         .filter((p): p is ContentPack => p !== null);
     // Never replace good content with nothing because of a network blip.
     if (refs.length > 0 && packs.length === 0) return false;
-    applyRemoteContent({ packs, retired: manifest.retired, currentDropId: manifest.current?.id ?? null });
+    const variants = await loadVariants(manifest.variants, allowNetwork).catch(() => undefined);
+    applyRemoteContent({ packs, retired: manifest.retired, currentDropId: manifest.current?.id ?? null, variants });
     return true;
 }
 

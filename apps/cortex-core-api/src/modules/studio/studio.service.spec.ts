@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { HttpException } from '@nestjs/common';
-import { StudioService } from './studio.service';
+import { MANIFEST_PATH, StudioService } from './studio.service';
+import type { Manifest } from './pack-builder';
 import type { StudioLlm } from './studio-llm';
 import type { CardRow } from './studio.types';
 import { fakeDb } from './__testkit__/fake-db';
@@ -234,5 +235,50 @@ describe('StudioService.publishDrop', () => {
     expect(
       statusUpdates.map((c) => (c.payload as { status: string }).status),
     ).toEqual(['archived', 'published']);
+  });
+});
+
+describe('StudioService manifest', () => {
+  it('a drop publish keeps the archetype variants overlay', async () => {
+    const { db, uploads } = fakeDb((c) => {
+      if (c.table === 'studio_drops' && c.op === 'select') {
+        return { data: { id: 'drop-3', title: 'Tuần 3', expires_at: null } };
+      }
+      if (c.table === 'studio_drop_cards' && c.op === 'select') {
+        const isEarlier = c.filters.some((f) => f[0] === 'in');
+        return isEarlier
+          ? { data: [] }
+          : { data: [{ position: 0, studio_cards: card('t1') }] };
+      }
+      return { data: [] };
+    });
+    const variants = {
+      id: 'variants',
+      url: 'https://cdn/v.json',
+      sha256: 'abc',
+    };
+    uploads.push({
+      path: MANIFEST_PATH,
+      body: JSON.stringify({
+        schema: 1,
+        current: null,
+        library: null,
+        retired: [],
+        updatedAt: 'x',
+        variants,
+      }),
+    });
+
+    const { manifest } = await new StudioService(
+      {} as StudioLlm,
+      config,
+    ).publishDrop(db, 'u1', 'drop-3');
+
+    expect(manifest.variants).toEqual(variants);
+    const written = JSON.parse(
+      uploads.filter((u) => u.path === MANIFEST_PATH).at(-1)!.body,
+    ) as Manifest;
+    expect(written.variants).toEqual(variants);
+    expect(written.current?.id).toBe('drop-3');
   });
 });

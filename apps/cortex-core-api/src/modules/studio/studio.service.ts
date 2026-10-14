@@ -798,6 +798,8 @@ export class StudioService {
       updatedAt: publishedAt,
       current,
       library: libraryRef,
+      // The archetype variants overlay is published on its own; keep it.
+      variants: (await this.readManifest(db))?.variants ?? null,
       retired: [
         ...new Set(
           [...libraryCards.values(), ...cards]
@@ -831,12 +833,33 @@ export class StudioService {
     return { manifest, manifestUrl };
   }
 
-  private async writeManifest(
+  /** The manifest learners currently get, or null before the first publish. */
+  async readManifest(db: Db): Promise<Manifest | null> {
+    const { data, error } = await db.storage
+      .from(BUCKET)
+      .download(MANIFEST_PATH);
+    if (error || !data) return null;
+    try {
+      return JSON.parse(await data.text()) as Manifest;
+    } catch {
+      return null;
+    }
+  }
+
+  async writeManifest(
     db: Db,
     userId: string | null,
     manifest: Manifest,
     stats: Record<string, unknown>,
+    job = 'publish',
   ): Promise<string> {
+    // Drop publishes and rollbacks keep the archetype variants overlay.
+    if (manifest.variants === undefined) {
+      manifest = {
+        ...manifest,
+        variants: (await this.readManifest(db))?.variants ?? null,
+      };
+    }
     const url = await this.upload(
       db,
       MANIFEST_PATH,
@@ -845,7 +868,7 @@ export class StudioService {
     );
     check(
       await db.from('studio_job_runs').insert({
-        job: 'publish',
+        job,
         created_by: userId,
         finished_at: new Date().toISOString(),
         ok: true,
@@ -881,6 +904,7 @@ export class StudioService {
 
     const manifest: Manifest = {
       ...previous,
+      variants: (await this.readManifest(db))?.variants ?? null, // keep today's overlay
       updatedAt: new Date().toISOString(),
     };
     const manifestUrl = await this.writeManifest(db, userId, manifest, {

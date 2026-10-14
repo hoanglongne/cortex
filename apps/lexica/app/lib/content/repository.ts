@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { VOCAB_DATABASE } from '../../data/vocabCards';
-import type { ContentCard, ContentPack } from './pack';
+import type { CardVariants, ContentCard, ContentPack, VariantArchetype } from './pack';
 
 /**
  * Single source of vocabulary cards for the whole app.
@@ -16,6 +16,8 @@ let retired = new Set<string>();
 let currentDropId: string | null = null;
 let currentDropTitle: string | null = null;
 
+let variants: CardVariants = {};
+
 let all: readonly ContentCard[] = VOCAB_DATABASE;
 let byId = new Map<string, ContentCard>(VOCAB_DATABASE.map(c => [c.id, c]));
 let byWord = new Map<string, ContentCard>(VOCAB_DATABASE.map(c => [c.word.trim().toLowerCase(), c]));
@@ -26,7 +28,7 @@ const listeners = new Set<() => void>();
 const CORE_IDS = new Set(VOCAB_DATABASE.map(c => c.id));
 
 function rebuild() {
-    all = [...VOCAB_DATABASE, ...remote];
+    all = [...VOCAB_DATABASE, ...remote].map(c => withVariants(c, variants[c.id]));
     byId = new Map(all.map(c => [c.id, c]));
     byWord = new Map();
     for (const c of all) {
@@ -85,6 +87,7 @@ export function applyRemoteContent(input: {
     packs: ContentPack[];
     retired: string[];
     currentDropId: string | null;
+    variants?: CardVariants;
 }) {
     // Core cards win on id collisions (Studio ids never start with "v").
     const seen = new Set<string>(CORE_IDS);
@@ -99,12 +102,14 @@ export function applyRemoteContent(input: {
     retired = new Set(input.retired);
     currentDropId = input.currentDropId;
     currentDropTitle = input.packs.find(p => p.id === input.currentDropId)?.title ?? null;
+    variants = input.variants ?? {};
     rebuild();
 }
 
 /** Test helper: back to core-only content. */
 export function resetContent() {
     remote = [];
+    variants = {};
     retired = new Set();
     currentDropId = null;
     currentDropTitle = null;
@@ -121,4 +126,23 @@ const getVersion = () => version;
 /** Re-renders the caller when remote content changes. */
 export function useContentVersion(): number {
     return useSyncExternalStore(subscribe, getVersion, getVersion);
+}
+
+/**
+ * Adds a card's archetype sentences as `scenarios` (its own scenario is the
+ * casual one). A sentence that does not contain the card's word is dropped:
+ * recall checks hide the word in it.
+ */
+export function withVariants(card: ContentCard, entry: CardVariants[string] | undefined): ContentCard {
+    if (!entry) return card;
+    const word = card.word.toLowerCase();
+    const scenarios: NonNullable<ContentCard['scenarios']> = { casual: card.scenario };
+    let added = false;
+    for (const [archetype, sentence] of Object.entries(entry)) {
+        if (sentence && sentence.toLowerCase().includes(word)) {
+            scenarios[archetype as VariantArchetype] = sentence;
+            added = true;
+        }
+    }
+    return added ? { ...card, scenarios } : card;
 }

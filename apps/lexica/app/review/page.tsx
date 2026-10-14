@@ -10,6 +10,8 @@ import { getAllCards } from '../lib/content/repository';
 import { trackCardEvent } from '../lib/content/events';
 import { getDueCards, updateCardProgress } from '../lib/eloAlgorithm';
 import { formatInterval } from '../lib/srs';
+import { scenarioFor } from '../lib/content/persona';
+import type { VocabCardData } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { answer as riskAnswer, bank, initialRisk, LADDER, multiplier, pickNext, total as riskTotal, type RiskState } from '../lib/engagement/risk';
 import { getGhost, ghostCorrectAt, localDate, recordRun, WIN_STREAK_GOAL, type GhostResult, type GhostRun } from '../lib/engagement/ghost';
@@ -90,6 +92,8 @@ function highlightWord(sentence: string, word: string) {
 }
 
 function buildQuestions(dueCardIds: string[], hardIds: ReadonlySet<string> = new Set()): Question[] {
+    const archetype = useLexicaStore.getState().userArchetype;
+    const sentence = (c: { scenario?: string; scenarios?: VocabCardData['scenarios'] }) => scenarioFor(c, archetype);
     const wordPool = getAllCards().map(c => c.word);
     const meaningPool = getAllCards().map(c => c.translationHint);
     const types: QuestionType[] = ['word-to-meaning', 'meaning-to-word', 'fill-in', 'context-pick'];
@@ -104,7 +108,7 @@ function buildQuestions(dueCardIds: string[], hardIds: ReadonlySet<string> = new
             word: card.word,
             elo: card.elo,
             ipa: card.ipa ?? '',
-            scenario: card.scenario,
+            scenario: sentence(card),
             meaning: card.translationHint,
             hard: hardIds.has(cardId),
             aid: mnemonic(card),
@@ -119,7 +123,7 @@ function buildQuestions(dueCardIds: string[], hardIds: ReadonlySet<string> = new
         if (type === 'fill-in') {
             return {
                 ...base, type,
-                prompt: blank(card.scenario ?? card.word, card.word),
+                prompt: blank(sentence(card) || card.word, card.word),
                 answer: card.word.toUpperCase(),
                 options: buildOptions(card.word.toUpperCase(), wordPool.map(w => w.toUpperCase())),
             };
@@ -127,14 +131,14 @@ function buildQuestions(dueCardIds: string[], hardIds: ReadonlySet<string> = new
         // context-pick: which sentence fits this word?
         const distractorCards = shuffle(getAllCards().filter(c => c.id !== cardId)).slice(0, 3);
         const allOptions = shuffle([
-            { scenario: card.scenario, word: card.word },
-            ...distractorCards.map(c => ({ scenario: c.scenario, word: c.word }))
+            { scenario: sentence(card), word: card.word },
+            ...distractorCards.map(c => ({ scenario: sentence(c), word: c.word }))
         ]);
         return {
             ...base,
             type,
             prompt: card.word,
-            answer: card.scenario,
+            answer: sentence(card),
             options: allOptions.map(o => o.scenario),
             optionWords: allOptions.map(o => o.word),
         };

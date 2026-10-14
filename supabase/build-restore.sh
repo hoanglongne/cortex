@@ -25,6 +25,8 @@ FILES=(
   apps/cortex-core-api/supabase/seed_studio_lexemes.sql
   apps/cortex-core-api/supabase/migration_studio_phase2.sql
   apps/cortex-core-api/supabase/migration_studio_capture.sql
+  apps/cortex-core-api/supabase/migration_studio_variants.sql
+  apps/cortex-core-api/supabase/seed_studio_core_cards.sql
   apps/lexica/supabase/migration_engagement.sql
   apps/lexica/supabase/migration_engagement_lucky.sql
 )

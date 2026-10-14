@@ -29,6 +29,8 @@ import { parseCaptureInput } from './capture';
 import { CaptureService } from './capture.service';
 import { JOBS, PipelineService } from './pipeline.service';
 import { StudioService } from './studio.service';
+import { VARIANT_ARCHETYPES } from './variants';
+import { VariantsService, type VariantStatus } from './variants.service';
 import type {
   BlockRule,
   DraftRow,
@@ -46,6 +48,7 @@ const TREND_STATUSES: TrendStatus[] = [
   'blocked',
 ];
 const LIFECYCLES: Lifecycle[] = ['trend', 'evergreen', 'retired'];
+const VARIANT_STATUSES: VariantStatus[] = ['pending', 'approved', 'rejected'];
 const BLOCK_KINDS: BlockRule['kind'][] = ['word', 'regex', 'person', 'topic'];
 const DRAFT_STATUSES: DraftRow['status'][] = [
   'pending',
@@ -71,6 +74,7 @@ export class StudioController {
     private readonly studio: StudioService,
     private readonly pipeline: PipelineService,
     private readonly captures: CaptureService,
+    private readonly variants: VariantsService,
   ) {}
 
   @Get('me')
@@ -409,6 +413,60 @@ export class StudioController {
       throw new BadRequestException('feeds must be http(s) URLs');
     }
     return this.studio.updateSource(db, id, { enabled, weight, feeds });
+  }
+
+  // ---------------------------------------------- archetype variants
+
+  @Get('variants/coverage')
+  variantsCoverage(@StudioDb() db: Db) {
+    return this.variants.coverage(db);
+  }
+
+  @Get('variants')
+  listVariants(
+    @StudioDb() db: Db,
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.variants.list(
+      db,
+      oneOf({ status }, 'status', VARIANT_STATUSES) ?? 'pending',
+      Math.min(Math.max(Number(limit) || 20, 1), 100),
+    );
+  }
+
+  @Post('variants/generate')
+  generateVariants(@StudioDb() db: Db, @Body() body: unknown) {
+    return this.variants.generate(db, int(obj(body ?? {}), 'limit', 1, 10));
+  }
+
+  @Post('variants/publish')
+  publishVariants(@StudioDb() db: Db, @CurrentUserId() userId: string) {
+    return this.variants.publish(db, userId);
+  }
+
+  @Post('variants/:cardId/:archetype')
+  @HttpCode(204)
+  reviewVariant(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('cardId') cardId: string,
+    @Param('archetype') archetype: string,
+    @Body() body: unknown,
+  ) {
+    const o = obj(body);
+    const arch = oneOf({ archetype }, 'archetype', VARIANT_ARCHETYPES);
+    if (!arch || !/^[a-z0-9]{2,12}$/.test(cardId)) {
+      throw new BadRequestException('Invalid variant');
+    }
+    return this.variants.review(
+      db,
+      userId,
+      cardId,
+      arch,
+      oneOf(o, 'action', ['approve', 'reject'] as const) ?? 'approve',
+      str(o, 'scenario', { max: 200, optional: true }),
+    );
   }
 
   @Get('blocklist')
