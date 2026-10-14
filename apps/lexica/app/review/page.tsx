@@ -8,7 +8,8 @@ import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield,
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards } from '../lib/content/repository';
 import { trackCardEvent } from '../lib/content/events';
-import { getDueCards } from '../lib/eloAlgorithm';
+import { getDueCards, updateCardProgress } from '../lib/eloAlgorithm';
+import { formatInterval } from '../lib/srs';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { answer as riskAnswer, bank, initialRisk, LADDER, multiplier, pickNext, total as riskTotal, type RiskState } from '../lib/engagement/risk';
 import { getGhost, ghostCorrectAt, localDate, recordRun, WIN_STREAK_GOAL, type GhostResult, type GhostRun } from '../lib/engagement/ghost';
@@ -47,6 +48,14 @@ interface Result {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const TIMER_SECONDS = 15;
+/** Answered right within this many seconds counts as easy (lib/srs.ts). */
+const FAST_SECONDS = 5;
+
+/** "8 ngày": when a right answer brings this word back. */
+function previewNextIn(cardId: string, fast: boolean): string {
+    const progress = useLexicaStore.getState().cardProgress[cardId];
+    return formatInterval(updateCardProgress(progress, cardId, 'right', fast ? 'easy' : 'good').intervalDays ?? 1);
+}
 
 function shuffle<T>(arr: T[]): T[] {
     return [...arr].sort(() => Math.random() - 0.5);
@@ -184,7 +193,7 @@ function QuestionCard({
     index: number;
     total: number;
     streak: number;
-    onAnswer: (correct: boolean) => void;
+    onAnswer: (correct: boolean, fast?: boolean) => void;
 }) {
     const { click } = useSoundEffects();
     const [selected, setSelected] = useState<string | null>(null);
@@ -192,6 +201,7 @@ function QuestionCard({
     const [isCorrect, setIsCorrect] = useState(false);
     const [typedInput, setTypedInput] = useState('');
     const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+    const [nextIn, setNextIn] = useState<string | null>(null);
     const [showReveal, setShowReveal] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -223,7 +233,9 @@ function QuestionCard({
         const correct = option === question.answer;
         setIsCorrect(correct);
         if (correct) {
-            setTimeout(() => onAnswer(true), 900);
+            const fast = timeLeft >= TIMER_SECONDS - FAST_SECONDS;
+            setNextIn(previewNextIn(question.cardId, fast));
+            setTimeout(() => onAnswer(true, fast), 900);
         } else {
             setShowReveal(true);
         }
@@ -236,7 +248,9 @@ function QuestionCard({
         setAnswered(true);
         setIsCorrect(correct);
         if (correct) {
-            setTimeout(() => onAnswer(true), 900);
+            const fast = timeLeft >= TIMER_SECONDS - FAST_SECONDS;
+            setNextIn(previewNextIn(question.cardId, fast));
+            setTimeout(() => onAnswer(true, fast), 900);
         } else {
             setShowReveal(true);
         }
@@ -315,6 +329,9 @@ function QuestionCard({
                     >
                         {isCorrect ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                         {isCorrect ? 'Chính xác!' : timeLeft <= 0 ? 'Hết giờ!' : 'Sai rồi'}
+                        {isCorrect && nextIn && (
+                            <span className="ml-1 font-mono text-[11px] text-muted">{nextIn === 'mai' ? 'Mai ôn lại' : `Ôn lại sau ${nextIn}`}</span>
+                        )}
                     </motion.div>
                 )}
             </div>
@@ -742,11 +759,12 @@ function ReviewPageContent() {
         setCurrentIndex(next);
     }, [questions, currentIndex]);
 
-    const handleAnswer = useCallback((correct: boolean) => {
+    const handleAnswer = useCallback((correct: boolean, fast = false) => {
         const q = questions[currentIndex];
         const card = getAllCards().find(c => c.id === q.cardId);
 
-        submitReviewAnswer(q.cardId, correct);
+        // Recalled fast with most of the timer left: the word can wait longer.
+        submitReviewAnswer(q.cardId, correct, fast ? 'easy' : 'good');
         trackCardEvent(q.cardId, correct ? 'review_correct' : 'review_wrong');
         timeline.current.push([Date.now() - startedAt, correct ? 1 : 0]);
 

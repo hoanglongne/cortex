@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
+import type { Quality } from '../lib/srs';
 import { getStoryCatchUpWordIds, STORIES, canUnlockPart1Naturally, canUnlockPart2Naturally } from '../data/stories';
 
 /**
@@ -119,7 +120,7 @@ interface LexicaStore {
     toggleAutoReview: () => void;
 
     // Actions
-    swipeCard: (cardId: string, direction: 'left' | 'right') => void;
+    swipeCard: (cardId: string, direction: 'left' | 'right', quality?: Quality) => void;
     consumeEnergy: () => boolean; // Returns false if not enough energy
     checkAndResetEnergy: () => void; // Check if midnight passed, reset if needed
     loadNewDeck: () => void;
@@ -158,7 +159,7 @@ interface LexicaStore {
     getStudyStats: () => { totalDays: number; totalSwipes: number; averageAccuracy: number; last30Days: Array<{ date: string; swipes: number; accuracy: number; eloChange: number }> };
 
     // Review Session
-    submitReviewAnswer: (cardId: string, correct: boolean) => void;
+    submitReviewAnswer: (cardId: string, correct: boolean, quality?: Quality) => void;
 
     // Mastered action
     markAsMastered: (cardId: string) => void;
@@ -310,7 +311,7 @@ export const useLexicaStore = create<LexicaStore>()(
 
 
             // Swipe card action
-            swipeCard: (cardId, direction) => {
+            swipeCard: (cardId, direction, quality) => {
                 const { userStats, cardProgress, currentDeck, learnedWords } = get();
 
                 // Update user stats
@@ -318,7 +319,7 @@ export const useLexicaStore = create<LexicaStore>()(
 
                 // Update card progress (SRS)
                 const existingProgress = cardProgress[cardId];
-                const updatedProgress = updateCardProgress(existingProgress, cardId, direction);
+                const updatedProgress = updateCardProgress(existingProgress, cardId, direction, quality);
                 const updatedCardProgress = {
                     ...cardProgress,
                     [cardId]: updatedProgress,
@@ -584,11 +585,11 @@ export const useLexicaStore = create<LexicaStore>()(
                 };
             },
 
-            submitReviewAnswer: (cardId, correct) => {
+            submitReviewAnswer: (cardId, correct, quality) => {
                 const { cardProgress, studyHistory } = get();
                 const existing = cardProgress[cardId];
                 if (!existing) return;
-                const updated = updateCardProgress(existing, cardId, correct ? 'right' : 'left');
+                const updated = updateCardProgress(existing, cardId, correct ? 'right' : 'left', quality);
 
                 // Update study history for review sessions
                 const today = getTodayDateString();
@@ -636,6 +637,9 @@ export const useLexicaStore = create<LexicaStore>()(
                         state: 'mastered' as const,
                         lastReviewedAt: now,
                         nextReviewAt: now + (30 * 24 * 60 * 60 * 1000), // Review in 30 days
+                        ease: 2.8,
+                        intervalDays: 30,
+                        streak: 3,
                         reviewCount: (cardProgress[cardId]?.reviewCount || 0) + 1,
                         wrongCount: cardProgress[cardId]?.wrongCount || 0,
                     },

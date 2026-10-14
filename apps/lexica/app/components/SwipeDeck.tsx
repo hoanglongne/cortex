@@ -31,6 +31,7 @@ import {
 } from '../lib/engagement/session';
 import SessionRecap from './SessionRecap';
 import { buildCheck, RETEST_AFTER, type RecallCheck } from '../lib/engagement/recall';
+import type { Quality } from '../lib/srs';
 
 export default function SwipeDeck() {
     const cards = useLexicaStore(state => state.currentDeck);
@@ -98,7 +99,8 @@ export default function SwipeDeck() {
     const commit = useCallback((
         direction: 'left' | 'right',
         cardId: string,
-        source: 'manual' | 'voice' | 'check' = 'manual'
+        source: 'manual' | 'voice' | 'check' = 'manual',
+        quality: Quality = 'good'
     ) => {
         setLastSwipeDirection(direction);
         setTimeout(() => setLastSwipeDirection(null), 1000);
@@ -135,7 +137,7 @@ export default function SwipeDeck() {
         const shown = shownAtRef.current;
         trackCardEvent(cardId, direction === 'right' ? 'known' : 'unknown', shown?.id === cardId ? Date.now() - shown.at : undefined);
 
-        swipeCard(cardId, direction);
+        swipeCard(cardId, direction, quality);
 
         const after = useLexicaStore.getState().cardProgress[cardId];
         setSession(prev => {
@@ -219,7 +221,8 @@ export default function SwipeDeck() {
             return next;
         });
         capture('recall_check', { kind: check.kind, correct, peeked: check.peeked, is_new: check.isNew });
-        commit(correct ? 'right' : 'left', check.cardId, 'check');
+        // Recalled only after seeing the meaning: right, but it grows more slowly.
+        commit(correct ? 'right' : 'left', check.cardId, 'check', check.peeked ? 'hard' : 'good');
         // An unseen word answered right without peeking: they already knew it.
         if (correct && check.isNew && !check.peeked) markAsMastered(check.cardId);
     }, [activeCheck, commit, markAsMastered]);

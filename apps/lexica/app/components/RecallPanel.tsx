@@ -14,6 +14,7 @@ export default function RecallPanel({
     word,
     meaning,
     aid,
+    nextIn,
     onAnswer,
 }: {
     check: RecallCheck;
@@ -21,6 +22,8 @@ export default function RecallPanel({
     meaning: string;
     /** Memory aid shown after a wrong answer (hard.ts mnemonic). */
     aid?: string | null;
+    /** When a right answer brings the word back, e.g. "8 ngày" (lib/srs.ts). */
+    nextIn?: string;
     onAnswer: (correct: boolean) => void;
 }) {
     const [picked, setPicked] = useState<string | null>(null);
@@ -93,7 +96,7 @@ export default function RecallPanel({
                         Kiểm tra
                     </button>
                 </div>
-                {result !== null && <Verdict correct={result} word={word} meaning={meaning} aid={aid} />}
+                {result !== null && <Verdict correct={result} word={word} meaning={meaning} aid={aid} nextIn={nextIn} />}
                 {result === null && (
                     <button type="button" onClick={() => finish(false)} className="w-full text-center font-mono text-[11px] text-subtle hover:text-ink py-1">
                         Chịu, cho xem đáp án
@@ -125,14 +128,17 @@ export default function RecallPanel({
                     </button>
                 );
             })}
-            {result === false && <Verdict correct={false} word={word} meaning={meaning} aid={aid} />}
+            {result !== null && <Verdict correct={result} word={word} meaning={meaning} aid={aid} nextIn={nextIn} />}
         </div>
     );
 }
 
-function Verdict({ correct, word, meaning, aid }: { correct: boolean; word: string; meaning: string; aid?: string | null }) {
+function Verdict({ correct, word, meaning, aid, nextIn }: { correct: boolean; word: string; meaning: string; aid?: string | null; nextIn?: string }) {
     return correct ? (
-        <p className="text-sm text-accent font-medium">Chuẩn rồi.</p>
+        <p className="text-sm text-accent font-medium">
+            Chuẩn rồi.
+            {nextIn && <span className="ml-1.5 font-mono text-[11px] text-muted">{nextIn === 'mai' ? 'Mai ôn lại' : `Ôn lại sau ${nextIn}`}</span>}
+        </p>
     ) : (
         <p className="text-sm text-ink-2">
             <span className="font-bold text-ink lowercase">{word}</span> · {meaning}
