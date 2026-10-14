@@ -223,6 +223,7 @@ export class StudioService {
         forcedWords: forced,
         wordsPerTrend: WORDS_PER_TREND,
         sentencesPerWord: SENTENCES_PER_WORD,
+        angleOffset: Math.floor(Math.random() * 8),
       });
       const { json, model } = await this.llm.generateJson(prompt);
       const raw = parseDrafts(json).filter(

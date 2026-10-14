@@ -1,4 +1,5 @@
 import type { BlockRule, RuleResult, ValidationReport } from './studio.types';
+import { clicheHits } from './voice';
 
 /** Draft text checked before an editor ever sees it (spec §5.5). */
 export interface DraftInput {
@@ -155,6 +156,9 @@ export function validateDraft(
       ? 0
       : words.filter((w) => VI_MARK.test(w)).length / words.length;
   soft('vi_ratio', viShare >= 0.35, `${Math.round(viShare * 100)}%`);
+
+  const stale = clicheHits(scenario);
+  soft('cliche', stale.length === 0, stale.join(', ') || undefined);
 
   const ok = Object.values(rules).every((r) => r.pass || !r.hard);
   return { ok, rules };
