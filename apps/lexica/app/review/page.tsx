@@ -4,7 +4,7 @@ import { useMemo, useState, useCallback, useEffect, useRef, Suspense } from 'rea
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield } from 'lucide-react';
+import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield, Swords } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards } from '../lib/content/repository';
 import { trackCardEvent } from '../lib/content/events';
@@ -14,6 +14,7 @@ import { answer as riskAnswer, bank, initialRisk, LADDER, multiplier, pickNext, 
 import { getGhost, ghostCorrectAt, localDate, recordRun, WIN_STREAK_GOAL, type GhostResult, type GhostRun } from '../lib/engagement/ghost';
 import { hasShield, useEconomy } from '../lib/engagement/economy';
 import { readShieldsUsed, spendShield } from '../lib/engagement/shields';
+import { hardWords, isHard, mnemonic } from '../lib/engagement/hard';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,6 +32,8 @@ interface Question {
     ipa: string;
     scenario: string;   // full scenario for post-answer reveal
     meaning: string;    // translationHint for post-answer reveal
+    hard: boolean;      // one of the learner's hard words (lib/engagement/hard.ts)
+    aid: string | null; // memory aid from the word's parts
 }
 
 interface Result {
@@ -38,6 +41,7 @@ interface Result {
     word: string;
     correct: boolean;
     type: QuestionType;
+    hard: boolean;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -76,7 +80,7 @@ function highlightWord(sentence: string, word: string) {
     );
 }
 
-function buildQuestions(dueCardIds: string[]): Question[] {
+function buildQuestions(dueCardIds: string[], hardIds: ReadonlySet<string> = new Set()): Question[] {
     const wordPool = getAllCards().map(c => c.word);
     const meaningPool = getAllCards().map(c => c.translationHint);
     const types: QuestionType[] = ['word-to-meaning', 'meaning-to-word', 'fill-in', 'context-pick'];
@@ -93,6 +97,8 @@ function buildQuestions(dueCardIds: string[]): Question[] {
             ipa: card.ipa ?? '',
             scenario: card.scenario,
             meaning: card.translationHint,
+            hard: hardIds.has(cardId),
+            aid: mnemonic(card),
         };
 
         if (type === 'word-to-meaning') {
@@ -150,6 +156,7 @@ function RevealPanel({ question, onContinue }: { question: Question; onContinue:
                 {question.ipa && <p className="text-muted text-sm font-mono">/{question.ipa}/</p>}
             </div>
             <p className="text-accent text-sm mb-3">{question.meaning}</p>
+            {question.aid && <p className="text-warning text-xs font-mono leading-relaxed mb-3">Mẹo nhớ: {question.aid}</p>}
             <p className="text-muted text-sm italic leading-relaxed border-t border-line/60 pt-3">
                 &ldquo;{highlightWord(question.scenario, question.word)}&rdquo;
             </p>
@@ -285,7 +292,10 @@ function QuestionCard({
 
             {/* Question prompt */}
             <div className={`border rounded-xl p-5 mb-4 transition-colors duration-300 ${promptBorder}`}>
-                <p className="text-[10px] text-muted uppercase font-mono font-semibold mb-2.5">{TYPE_LABEL[question.type]}</p>
+                <p className="text-[10px] text-muted uppercase font-mono font-semibold mb-2.5 flex items-center gap-2">
+                    {TYPE_LABEL[question.type]}
+                    {question.hard && <span className="flex items-center gap-1 text-warning"><Swords className="w-3 h-3" /> Từ khó</span>}
+                </p>
 
                 {question.type === 'fill-in' ? (
                     <p className="text-ink text-base leading-relaxed italic">
@@ -519,6 +529,7 @@ function ResultScreen({
     const total = results.length;
     const accuracy = Math.round((correct / total) * 100);
     const wrong = results.filter(r => !r.correct);
+    const beaten = results.filter(r => r.correct && r.hard);
 
     return (
         <motion.div
@@ -562,6 +573,16 @@ function ResultScreen({
                     style={{ width: `${accuracy}%` }}
                 />
             </div>
+
+            {beaten.length > 0 && (
+                <div className="mb-5 px-4 py-3 rounded-xl border border-warning/40 bg-warning/5 flex items-start gap-3">
+                    <Swords className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-ink text-sm font-semibold">Hạ được {beaten.length} từ khó</p>
+                        <p className="text-muted text-sm lowercase">{beaten.map(r => r.word).join(', ')}</p>
+                    </div>
+                </div>
+            )}
 
             {/* Wrong answers review */}
             {wrong.length > 0 && (
@@ -630,6 +651,7 @@ function ResultScreen({
 function ReviewPageContent() {
     const searchParams = useSearchParams();
     const testAll = searchParams.get('all') === '1';
+    const hardOnly = searchParams.get('hard') === '1';
 
     const cardProgress = useLexicaStore(state => state.cardProgress);
     const learnedWords = useLexicaStore(state => state.learnedWords);
@@ -641,8 +663,19 @@ function ReviewPageContent() {
             const vocabIds = new Set(getAllCards().map(c => c.id));
             return Array.from(learnedWords).filter(id => vocabIds.has(id));
         }
+        if (hardOnly) return hardWords(cardProgress).map(p => p.cardId);
         return getDueCards(cardProgress).map(p => p.cardId);
-    }, [cardProgress, learnedWords, testAll]);
+    }, [cardProgress, learnedWords, testAll, hardOnly]);
+
+    // Which words were hard when the run started (kept fixed while answers change progress)
+    const hardIdsRef = useRef<Set<string> | null>(null);
+    const hardIdsNow = () => {
+        if (!hardIdsRef.current) {
+            const progress = useLexicaStore.getState().cardProgress;
+            hardIdsRef.current = new Set(Object.keys(progress).filter(id => isHard(progress[id])));
+        }
+        return hardIdsRef.current;
+    };
 
     const [questions, setQuestions] = useState<Question[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -666,7 +699,7 @@ function ReviewPageContent() {
     // Build questions once dueCardIds is known (store may hydrate after mount)
     useEffect(() => {
         if (dueCardIds.length > 0 && questions.length === 0 && !done) {
-            const t = setTimeout(() => setQuestions(buildQuestions(dueCardIds)), 0);
+            const t = setTimeout(() => setQuestions(buildQuestions(dueCardIds, hardIdsNow())), 0);
             return () => clearTimeout(t);
         }
     }, [dueCardIds, questions.length, done]);
@@ -726,6 +759,7 @@ function ReviewPageContent() {
             word: card?.word ?? q.cardId,
             correct,
             type: q.type,
+            hard: q.hard,
         };
         const allResults = [...results, newResult];
         setResults(allResults);
@@ -747,7 +781,7 @@ function ReviewPageContent() {
 
     const handleRetry = useCallback(() => {
         const wrongIds = results.filter(r => !r.correct).map(r => r.cardId);
-        const retryQuestions = buildQuestions(wrongIds);
+        const retryQuestions = buildQuestions(wrongIds, hardIdsNow());
         setQuestions(retryQuestions);
         setCurrentIndex(0);
         setResults([]);
@@ -767,8 +801,8 @@ function ReviewPageContent() {
                 <div className="w-16 h-16 rounded-xl bg-accent/10 border border-accent/30 flex items-center justify-center mb-2">
                     <Check className="w-8 h-8 text-accent" />
                 </div>
-                <h1 className="text-2xl font-bold text-ink">Không có từ cần ôn!</h1>
-                <p className="text-muted text-sm max-w-xs">Bạn đã ôn hết tất cả từ đến hạn. Tiếp tục học từ mới nhé.</p>
+                <h1 className="text-2xl font-bold text-ink">{hardOnly ? 'Không còn từ khó nào!' : 'Không có từ cần ôn!'}</h1>
+                <p className="text-muted text-sm max-w-xs">{hardOnly ? 'Bạn đã hạ hết từ khó. Từ nào quên nhiều lần sẽ hiện lại ở đây.' : 'Bạn đã ôn hết tất cả từ đến hạn. Tiếp tục học từ mới nhé.'}</p>
                 <Link
                     href="/"
                     className="mt-4 px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors"
@@ -793,7 +827,7 @@ function ReviewPageContent() {
                     </Link>
                     <div className="text-center">
                         <p className="text-ink font-bold">Ôn tập</p>
-                        <p className="text-muted text-xs">{testAll ? `${dueCardIds.length} từ (test)` : `${dueCardIds.length} từ đến hạn`}</p>
+                        <p className="text-muted text-xs">{testAll ? `${dueCardIds.length} từ (test)` : hardOnly ? `${dueCardIds.length} từ khó` : `${dueCardIds.length} từ đến hạn`}</p>
                     </div>
                     <div className="w-12" /> {/* spacer */}
                 </div>

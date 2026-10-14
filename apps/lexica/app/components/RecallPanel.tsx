@@ -13,11 +13,14 @@ export default function RecallPanel({
     check,
     word,
     meaning,
+    aid,
     onAnswer,
 }: {
     check: RecallCheck;
     word: string;
     meaning: string;
+    /** Memory aid shown after a wrong answer (hard.ts mnemonic). */
+    aid?: string | null;
     onAnswer: (correct: boolean) => void;
 }) {
     const [picked, setPicked] = useState<string | null>(null);
@@ -31,7 +34,7 @@ export default function RecallPanel({
         setResult(correct);
         if (correct) quizCorrect();
         else quizWrong();
-        setTimeout(() => onAnswer(correct), correct ? 700 : 1700);
+        setTimeout(() => onAnswer(correct), correct ? 700 : aid ? 2600 : 1700);
     };
 
     const pick = (option: string) => {
@@ -90,7 +93,7 @@ export default function RecallPanel({
                         Kiểm tra
                     </button>
                 </div>
-                {result !== null && <Verdict correct={result} word={word} meaning={meaning} />}
+                {result !== null && <Verdict correct={result} word={word} meaning={meaning} aid={aid} />}
                 {result === null && (
                     <button type="button" onClick={() => finish(false)} className="w-full text-center font-mono text-[11px] text-subtle hover:text-ink py-1">
                         Chịu, cho xem đáp án
@@ -122,17 +125,18 @@ export default function RecallPanel({
                     </button>
                 );
             })}
-            {result === false && <Verdict correct={false} word={word} meaning={meaning} />}
+            {result === false && <Verdict correct={false} word={word} meaning={meaning} aid={aid} />}
         </div>
     );
 }
 
-function Verdict({ correct, word, meaning }: { correct: boolean; word: string; meaning: string }) {
+function Verdict({ correct, word, meaning, aid }: { correct: boolean; word: string; meaning: string; aid?: string | null }) {
     return correct ? (
         <p className="text-sm text-accent font-medium">Chuẩn rồi.</p>
     ) : (
         <p className="text-sm text-ink-2">
             <span className="font-bold text-ink lowercase">{word}</span> · {meaning}
+            {aid && <span className="block font-mono text-[11px] text-warning mt-0.5">Mẹo nhớ: {aid}</span>}
             <span className="block font-mono text-[11px] text-muted mt-0.5">Tính là chưa nhớ, sẽ ôn lại sớm.</span>
         </p>
     );

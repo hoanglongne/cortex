@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Flame, Hammer, LayoutGrid, Sparkles } from 'lucide-react';
+import { ArrowRight, Flame, Hammer, LayoutGrid, Sparkles, Swords } from 'lucide-react';
 import { getCard } from '../lib/content/repository';
 import { STATE_LABEL, type SessionState } from '../lib/engagement/session';
 
@@ -50,6 +50,12 @@ export default function SessionRecap({
                     ))}
                     {session.levelUps.length > 4 && (
                         <p className="font-mono text-[11px] text-muted">+{session.levelUps.length - 4} thẻ lên hạng khác</p>
+                    )}
+                    {session.hardBeaten.length > 0 && (
+                        <p className="flex items-center gap-2 text-ink">
+                            <Swords className="w-4 h-4 text-warning" />
+                            Hạ được từ khó: <span className="font-bold lowercase">{session.hardBeaten.map((id) => getCard(id)?.word ?? id).join(', ')}</span>
+                        </p>
                     )}
                     {(dust > 0 || boxes > 0) && (
                         <p className="flex items-center gap-2 text-accent">

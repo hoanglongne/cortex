@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Hand, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight } from 'lucide-react';
+import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Hand, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
@@ -15,6 +15,7 @@ import OnboardingModal from './components/OnboardingModal';
 // Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
+import { hardWords } from './lib/engagement/hard';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
@@ -124,6 +125,7 @@ function HomeContent() {
   // Debug: Get difficulty analysis
   const analysis = getDifficultyAnalysis(userStats);
   const progressStats = getProgressStats(cardProgress);
+  const hardCount = hardWords(cardProgress).length;
   const dueToday = previewDue || progressStats.dueToday;
 
   // Update badge count when progress changes
@@ -874,6 +876,18 @@ function HomeContent() {
                     <span className="ml-auto text-muted">{learnedCount}</span>
                     <ChevronRight className="w-4 h-4 text-subtle" />
                   </Link>
+                  {hardCount > 0 && (
+                    <Link
+                      href="/review?hard=1"
+                      onClick={() => { click(); setShowMobileStats(false); }}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg bg-warning/5 border border-warning/40 text-ink text-sm font-medium"
+                    >
+                      <Swords className="w-4 h-4 text-warning" />
+                      Ôn từ khó của bạn
+                      <span className="ml-auto text-warning">{hardCount}</span>
+                      <ChevronRight className="w-4 h-4 text-subtle" />
+                    </Link>
+                  )}
                   <button
                     onClick={() => { click(); setShowMobileStats(false); setShowOnboarding(true); }}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
