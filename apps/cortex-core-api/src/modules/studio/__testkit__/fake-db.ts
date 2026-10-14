@@ -62,6 +62,15 @@ export function fakeDb(
         uploads.push({ path, body });
         return Promise.resolve({ error: null });
       },
+      // Latest upload at that path, like a real bucket with upsert.
+      download: (path: string) => {
+        const hit = [...uploads].reverse().find((u) => u.path === path);
+        return Promise.resolve(
+          hit
+            ? { data: { text: () => Promise.resolve(hit.body) }, error: null }
+            : { data: null, error: { message: 'not found' } },
+        );
+      },
       getPublicUrl: (path: string) => ({
         data: { publicUrl: `https://cdn/${path}` },
       }),

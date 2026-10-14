@@ -34,6 +34,8 @@ export interface Manifest {
   current: PackRef | null;
   library: PackRef | null;
   retired: string[];
+  /** Archetype example sentences overlay (variants.ts); absent before the first publish. */
+  variants?: PackRef | null;
 }
 
 /** New Studio card id: 't' + 7 base36 chars. Core cards use 'v###'. */

@@ -16,6 +16,7 @@ import OnboardingModal from './components/OnboardingModal';
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
 import { hardWords } from './lib/engagement/hard';
+import { ARCHETYPE_OPTIONS } from './lib/content/persona';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
@@ -23,6 +24,8 @@ import { analytics } from './lib/analytics';
 function HomeContent() {
   const userStats = useLexicaStore(state => state.userStats);
   const cardProgress = useLexicaStore(state => state.cardProgress);
+  const userArchetype = useLexicaStore(state => state.userArchetype);
+  const setUserArchetype = useLexicaStore(state => state.setUserArchetype);
   const learnedCount = useLexicaStore(state => state.learnedWords.size);
   const selectedLevel = useLexicaStore(state => state.selectedLevel);
   const hasSeenWelcome = useLexicaStore(state => state.hasSeenWelcome);
@@ -828,6 +831,26 @@ function HomeContent() {
                   <p className="text-xs text-muted">
                     Voice mode yêu cầu đọc đúng từ trên cùng 3 lần liên tiếp.
                   </p>
+                </div>
+
+                {/* Example sentences per archetype (Studio variants) */}
+                <div className="space-y-2 pb-4 border-b border-line">
+                  <span className="text-muted text-sm">Câu ví dụ theo kiểu</span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {ARCHETYPE_OPTIONS.map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => { click(); setUserArchetype(opt.id); }}
+                        aria-pressed={(userArchetype ?? 'casual') === opt.id}
+                        className={`h-10 rounded-lg border text-xs font-medium transition-colors ${(userArchetype ?? 'casual') === opt.id
+                          ? 'bg-accent/12 border-accent/40 text-accent'
+                          : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted">Câu ví dụ trên thẻ sẽ theo đời sống của bạn, với những thẻ đã có câu riêng.</p>
                 </div>
 
                 {/* Performance Stats */}

@@ -23,6 +23,8 @@ export interface ContentManifest {
     current: PackRef | null;
     library: PackRef | null;
     retired: string[];
+    /** Example sentences per archetype, laid over every card (see variants below). */
+    variants: PackRef | null;
 }
 
 const LEVELS: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'expert'];
@@ -44,6 +46,7 @@ export function parseManifest(v: unknown): ContentManifest | null {
         current: parsePackRef(v.current),
         library: parsePackRef(v.library),
         retired: Array.isArray(v.retired) ? v.retired.filter(isStr) : [],
+        variants: parsePackRef(v.variants),
     };
 }
 
@@ -91,4 +94,24 @@ export function parsePack(v: unknown): ContentPack | null {
         publishedAt: isStr(v.publishedAt) ? v.publishedAt : '',
         cards: v.cards.map(parseCard).filter((c): c is ContentCard => c !== null),
     };
+}
+
+/** Archetypes with their own example sentence; a card's own scenario is the casual one. */
+export const VARIANT_ARCHETYPES = ['tech', 'business', 'student'] as const;
+export type VariantArchetype = (typeof VARIANT_ARCHETYPES)[number];
+
+/** cardId → sentence per archetype, published by Studio (variants.ts in the API). */
+export type CardVariants = Record<string, Partial<Record<VariantArchetype, string>>>;
+
+/** Parses the variants overlay; sentences that lose the card's word are dropped later. */
+export function parseVariants(v: unknown): CardVariants | null {
+    if (!isObj(v) || v.schema !== 1 || !isObj(v.variants)) return null;
+    const out: CardVariants = {};
+    for (const [cardId, entry] of Object.entries(v.variants)) {
+        if (!isObj(entry)) continue;
+        const kept: Partial<Record<VariantArchetype, string>> = {};
+        for (const a of VARIANT_ARCHETYPES) if (isStr(entry[a])) kept[a] = entry[a] as string;
+        if (Object.keys(kept).length > 0) out[cardId] = kept;
+    }
+    return out;
 }

@@ -8,6 +8,7 @@ import { EditorGuard } from './editor.guard';
 import { StudioController } from './studio.controller';
 import { StudioLlm } from './studio-llm';
 import { StudioService } from './studio.service';
+import { VariantsService } from './variants.service';
 
 @Module({
   controllers: [StudioController, ContentController, CaptureController],
@@ -18,6 +19,7 @@ import { StudioService } from './studio.service';
     PipelineService,
     StudioScheduler,
     CaptureService,
+    VariantsService,
   ],
 })
 export class StudioModule {}
