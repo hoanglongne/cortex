@@ -38,8 +38,9 @@ describe('scheduling', () => {
     });
 
     it('a hard word recalled comes back sooner than a normal one', () => {
-        const normal = updateCardProgress(p('a', 0, 1, 'sprout'), 'a', 'right');
-        const hard = updateCardProgress(p('b', 3, 1, 'sprout'), 'b', 'right');
+        const settled = { ease: 2.5, intervalDays: 10, streak: 3 };
+        const normal = updateCardProgress({ ...p('a', 0, 1, 'sprout'), ...settled }, 'a', 'right');
+        const hard = updateCardProgress({ ...p('b', 3, 1, 'sprout'), ...settled }, 'b', 'right');
         expect(normal.state).toBe('gold');
         expect(hard.state).toBe('gold');
         expect(hard.nextReviewAt - hard.lastReviewedAt).toBeLessThan(normal.nextReviewAt - normal.lastReviewedAt);

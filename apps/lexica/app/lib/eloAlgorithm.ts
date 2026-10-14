@@ -1,4 +1,5 @@
 import { hardInterval, isHard } from './engagement/hard';
+import { currentSchedule, DAY_MS, nextSchedule, type Quality } from './srs';
 import { getCard, getCurrentDropCards, getDeckCards } from './content/repository';
 import { VocabCardData, DifficultyLevel } from '../types/vocab';
 
@@ -42,6 +43,10 @@ export interface UserCardProgress {
     nextReviewAt: number;         // when card should appear again
     reviewCount: number;          // total correct swipes (RIGHT)
     wrongCount: number;           // total wrong swipes (LEFT)
+    /** Per-word schedule (lib/srs.ts); missing on progress saved before it. */
+    ease?: number;
+    intervalDays?: number;
+    streak?: number;
 }
 
 export interface UserStats {
@@ -424,54 +429,45 @@ export function calculateNextReview(state: 'seed' | 'sprout' | 'gold' | 'mastere
 export function updateCardProgress(
     existingProgress: UserCardProgress | undefined,
     cardId: string,
-    direction: 'left' | 'right'
+    direction: 'left' | 'right',
+    quality: Quality = 'good'
 ): UserCardProgress {
     const now = Date.now();
+    const correct = direction === 'right';
 
-    // If card never seen before, create new progress
+    // Level (seed → mastered) follows the count of right answers; a miss resets it.
+    const reviewCount = (existingProgress?.reviewCount ?? 0) + (correct ? 1 : 0);
+    const wrongCount = (existingProgress?.wrongCount ?? 0) + (correct ? 0 : 1);
+    let newState: UserCardProgress['state'] = existingProgress?.state ?? 'seed';
     if (!existingProgress) {
-        const newState: 'seed' | 'sprout' | 'gold' | 'mastered' = 'seed';
-        return {
-            cardId,
-            state: newState,
-            lastReviewedAt: now,
-            nextReviewAt: calculateNextReview(newState),
-            reviewCount: direction === 'right' ? 1 : 0,
-            wrongCount: direction === 'left' ? 1 : 0,
-        };
-    }
-
-    // Update existing progress
-    const reviewCount = direction === 'right' ? existingProgress.reviewCount + 1 : existingProgress.reviewCount;
-    const wrongCount = direction === 'left' ? existingProgress.wrongCount + 1 : existingProgress.wrongCount;
-
-    // Determine new state based on swipe direction
-    let newState = existingProgress.state;
-
-    if (direction === 'right') {
-        // Advance state on correct swipe
-        if (existingProgress.state === 'seed' && reviewCount >= 1) {
-            newState = 'sprout';
-        } else if (existingProgress.state === 'sprout' && reviewCount >= 2) {
-            newState = 'gold';
-        } else if (existingProgress.state === 'gold' && reviewCount >= 3) {
-            newState = 'mastered';
-        }
+        newState = 'seed';
+    } else if (correct) {
+        if (newState === 'seed' && reviewCount >= 1) newState = 'sprout';
+        else if (newState === 'sprout' && reviewCount >= 2) newState = 'gold';
+        else if (newState === 'gold' && reviewCount >= 3) newState = 'mastered';
     } else {
-        // Reset to seed on wrong swipe
         newState = 'seed';
     }
 
+    // When it comes back is per word (lib/srs.ts).
+    const schedule = nextSchedule(currentSchedule(existingProgress), correct, quality);
     const updated: UserCardProgress = {
         cardId,
         state: newState,
         lastReviewedAt: now,
-        nextReviewAt: calculateNextReview(newState),
+        nextReviewAt: now + schedule.intervalDays * DAY_MS,
         reviewCount,
         wrongCount,
+        ease: schedule.ease,
+        intervalDays: schedule.intervalDays,
+        streak: schedule.streak,
     };
     // Words this learner keeps missing come back sooner.
-    if (isHard(updated)) updated.nextReviewAt = now + hardInterval(updated.nextReviewAt - now);
+    if (isHard(updated)) {
+        const ms = hardInterval(schedule.intervalDays * DAY_MS);
+        updated.nextReviewAt = now + ms;
+        updated.intervalDays = Math.round(ms / DAY_MS);
+    }
     return updated;
 }
 

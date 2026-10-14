@@ -11,6 +11,8 @@ import { AudioService } from '../lib/audio/AudioService';
 import RecallPanel from './RecallPanel';
 import { blankWord, type RecallCheck } from '../lib/engagement/recall';
 import { isHard, mnemonic } from '../lib/engagement/hard';
+import { formatInterval } from '../lib/srs';
+import { updateCardProgress, type UserCardProgress } from '../lib/eloAlgorithm';
 import { SESSION_SIZE } from '../lib/engagement/session';
 import type { VocabCardData } from '../types/vocab';
 
@@ -179,7 +181,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
 
                     <div className="mt-auto pt-4">
                         {check && index === 0 && onCheckAnswer ? (
-                            <RecallPanel check={check} word={card.word} meaning={card.translationHint} aid={mnemonic(card)} onAnswer={onCheckAnswer} />
+                            <RecallPanel check={check} word={card.word} meaning={card.translationHint} aid={mnemonic(card)} nextIn={recallNextIn(check, cardProgress)} onAnswer={onCheckAnswer} />
                         ) : isVoiceSwipeRequired ? (
                             /* Voice mode: word info always visible + mic controls */
                             <div className="space-y-3">
@@ -268,4 +270,12 @@ function highlightWord(text: string, word: string): React.ReactNode {
             ? <mark key={i} className="bg-accent text-on-accent px-1">{part.toLowerCase()}</mark>
             : part,
     );
+}
+
+/** When the word comes back if this check is answered right. */
+function recallNextIn(check: RecallCheck, progress: UserCardProgress | undefined): string {
+    // An unseen word known without peeking counts as already known (30 days).
+    if (check.isNew && !check.peeked) return formatInterval(30);
+    const after = updateCardProgress(progress, check.cardId, 'right', check.peeked ? 'hard' : 'good');
+    return formatInterval(after.intervalDays ?? 1);
 }

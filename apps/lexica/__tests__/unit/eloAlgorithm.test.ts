@@ -142,7 +142,7 @@ describe('updateCardProgress() — tiến cấp state khi quẹt đúng', () => 
     vi.useRealTimers();
   });
 
-  it('seed (reviewCount=0) + right → sprout, nextReviewAt = now + 3 ngày', () => {
+  it('seed (reviewCount=0) + right → sprout, lịch ôn theo từng từ', () => {
     // reviewCount sẽ là 0+1=1, và seed+reviewCount>=1 → sprout
     const existing = makeExistingProgress({ state: 'seed', reviewCount: 0 });
     const now = Date.now();
@@ -151,11 +151,12 @@ describe('updateCardProgress() — tiến cấp state khi quẹt đúng', () => 
 
     expect(result.state).toBe('sprout');
     expect(result.reviewCount).toBe(1);
-    expect(result.nextReviewAt).toBeGreaterThanOrEqual(now + SRS_INTERVALS.sprout - TIME_TOLERANCE);
-    expect(result.nextReviewAt).toBeLessThanOrEqual(now + SRS_INTERVALS.sprout + TIME_TOLERANCE);
+    // When it comes back is per word (lib/srs.ts): next = now + its own interval
+    expect(result.intervalDays).toBeGreaterThanOrEqual(1);
+    expect(result.nextReviewAt).toBe(now + (result.intervalDays ?? 0) * DAY_MS);
   });
 
-  it('sprout (reviewCount=1) + right → gold, nextReviewAt = now + 7 ngày', () => {
+  it('sprout (reviewCount=1) + right → gold, lịch ôn theo từng từ', () => {
     // reviewCount 1+1=2 >= 2 → gold
     const existing = makeExistingProgress({ state: 'sprout', reviewCount: 1 });
     const now = Date.now();
@@ -163,11 +164,12 @@ describe('updateCardProgress() — tiến cấp state khi quẹt đúng', () => 
     const result = updateCardProgress(existing, 'v001', 'right');
 
     expect(result.state).toBe('gold');
-    expect(result.nextReviewAt).toBeGreaterThanOrEqual(now + SRS_INTERVALS.gold - TIME_TOLERANCE);
-    expect(result.nextReviewAt).toBeLessThanOrEqual(now + SRS_INTERVALS.gold + TIME_TOLERANCE);
+    // When it comes back is per word (lib/srs.ts): next = now + its own interval
+    expect(result.intervalDays).toBeGreaterThanOrEqual(1);
+    expect(result.nextReviewAt).toBe(now + (result.intervalDays ?? 0) * DAY_MS);
   });
 
-  it('gold (reviewCount=2) + right → mastered, nextReviewAt = now + 14 ngày', () => {
+  it('gold (reviewCount=2) + right → mastered, lịch ôn theo từng từ', () => {
     // reviewCount 2+1=3 >= 3 → mastered
     const existing = makeExistingProgress({ state: 'gold', reviewCount: 2 });
     const now = Date.now();
@@ -175,8 +177,9 @@ describe('updateCardProgress() — tiến cấp state khi quẹt đúng', () => 
     const result = updateCardProgress(existing, 'v001', 'right');
 
     expect(result.state).toBe('mastered');
-    expect(result.nextReviewAt).toBeGreaterThanOrEqual(now + SRS_INTERVALS.mastered - TIME_TOLERANCE);
-    expect(result.nextReviewAt).toBeLessThanOrEqual(now + SRS_INTERVALS.mastered + TIME_TOLERANCE);
+    // When it comes back is per word (lib/srs.ts): next = now + its own interval
+    expect(result.intervalDays).toBeGreaterThanOrEqual(1);
+    expect(result.nextReviewAt).toBe(now + (result.intervalDays ?? 0) * DAY_MS);
   });
 
   it('mastered + right → giữ mastered', () => {
