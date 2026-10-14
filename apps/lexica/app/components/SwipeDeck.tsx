@@ -30,10 +30,13 @@ import {
     type LuckyReward,
 } from '../lib/engagement/session';
 import SessionRecap from './SessionRecap';
+import { buildCheck, RETEST_AFTER, type RecallCheck } from '../lib/engagement/recall';
 
 export default function SwipeDeck() {
     const cards = useLexicaStore(state => state.currentDeck);
     const swipeCard = useLexicaStore(state => state.swipeCard);
+    const deferCard = useLexicaStore(state => state.deferCard);
+    const markAsMastered = useLexicaStore(state => state.markAsMastered);
     const swipeMode = useLexicaStore(state => state.swipeMode);
     const voiceAvailable = useVoiceAvailable();
 
@@ -50,6 +53,12 @@ export default function SwipeDeck() {
     const [lastCombo, setLastCombo] = useState(0);
     const [luckyToast, setLuckyToast] = useState<(LuckyReward & { explain: boolean }) | null>(null);
     const done = sessionDone(session);
+
+    // Recall checks (lib/engagement/recall.ts): "Đã nhớ" only counts once answered.
+    // `asked` is a check on the top card now; `retests` wait for a peeked card to come back.
+    const [asked, setAsked] = useState<RecallCheck | null>(null);
+    const [retests, setRetests] = useState<Record<string, RecallCheck>>({});
+    const [notice, setNotice] = useState<string | null>(null);
 
     const sets = useMemo(() => {
         void contentVersion;
@@ -83,16 +92,14 @@ export default function SwipeDeck() {
         trackCardEvent(topCardId, 'impression');
     }, [topCardId]);
 
-    const handleSwipe = useCallback((
+    const activeCheck = asked?.cardId === topCardId ? asked : (topCardId ? retests[topCardId] ?? null : null);
+
+    /** Records the outcome: progress, session, combo, sound, lucky reward. */
+    const commit = useCallback((
         direction: 'left' | 'right',
         cardId: string,
-        source: 'manual' | 'voice' | 'quiz' = 'manual'
+        source: 'manual' | 'voice' | 'check' = 'manual'
     ) => {
-        // Voice mode requires voice input for swiping right
-        if (swipeMode === 'voice' && voiceAvailable && direction === 'right' && source !== 'voice') {
-            return;
-        }
-
         setLastSwipeDirection(direction);
         setTimeout(() => setLastSwipeDirection(null), 1000);
 
@@ -159,7 +166,63 @@ export default function SwipeDeck() {
                 setTimeout(() => setLuckyToast(null), explain ? 3800 : 2200);
             });
         }
-    }, [swipeCard, swipeMode, voiceAvailable, cards, swipeRight, swipeLeft, session.combo, comboTick, sparkle, soundEnabled, luckyIds, claimLucky]);
+    }, [swipeCard, cards, swipeRight, swipeLeft, session.combo, comboTick, sparkle, soundEnabled, luckyIds, claimLucky]);
+
+    /** A swipe or button press. "Đã nhớ" asks first; "Chưa nhớ" counts right away. */
+    const handleSwipe = useCallback((
+        direction: 'left' | 'right',
+        cardId: string,
+        source: 'manual' | 'voice' = 'manual'
+    ) => {
+        // Voice mode requires voice input for swiping right
+        if (swipeMode === 'voice' && voiceAvailable && direction === 'right' && source !== 'voice') {
+            return;
+        }
+        if (activeCheck) return; // answer the check first
+
+        // Saying the word three times is effort enough; so is admitting you forgot.
+        if (direction === 'left' || source === 'voice') {
+            commit(direction, cardId, source);
+            return;
+        }
+
+        const card = cards.find(c => c.id === cardId);
+        if (!card) return;
+        const progress = useLexicaStore.getState().cardProgress[cardId];
+        const peeked = cardId === topCardId && topCardRevealed;
+
+        if (peeked && cards.length > 1) {
+            // Seen the meaning: ask again a few cards later, with the word hidden.
+            const check = buildCheck({ card, progress, pool: getAllCards(), peeked: true });
+            setRetests(prev => ({ ...prev, [cardId]: check }));
+            setRevealedForCardId(null);
+            deferCard(cardId, RETEST_AFTER);
+            buttonPress();
+            setNotice(takeRetestExplainer()
+                ? 'Đã xem nghĩa thì chưa tính là nhớ. Mình sẽ hỏi lại sau vài thẻ.'
+                : 'Hỏi lại sau vài thẻ');
+            setTimeout(() => setNotice(null), 2400);
+            capture('recall_deferred', { is_new: !progress });
+            return;
+        }
+
+        setAsked(buildCheck({ card, progress, pool: getAllCards(), peeked: false }));
+    }, [swipeMode, voiceAvailable, activeCheck, commit, cards, topCardId, topCardRevealed, deferCard, buttonPress]);
+
+    const answerCheck = useCallback((correct: boolean) => {
+        const check = activeCheck;
+        if (!check) return;
+        setAsked(null);
+        setRetests(prev => {
+            const next = { ...prev };
+            delete next[check.cardId];
+            return next;
+        });
+        capture('recall_check', { kind: check.kind, correct, peeked: check.peeked, is_new: check.isNew });
+        commit(correct ? 'right' : 'left', check.cardId, 'check');
+        // An unseen word answered right without peeking: they already knew it.
+        if (correct && check.isNew && !check.peeked) markAsMastered(check.cardId);
+    }, [activeCheck, commit, markAsMastered]);
 
     const continueSession = useCallback(() => {
         buttonPress();
@@ -183,6 +246,8 @@ export default function SwipeDeck() {
                 }
                 return;
             }
+
+            if (activeCheck) return; // RecallPanel handles its own keys
 
             const isSpaceKey = e.code === 'Space' || e.key === ' ' || e.key === 'Spacebar';
 
@@ -209,7 +274,7 @@ export default function SwipeDeck() {
 
         document.addEventListener('keydown', handleKeyDown, true);
         return () => document.removeEventListener('keydown', handleKeyDown, true);
-    }, [topCardId, handleSwipe, swipeMode, voiceAvailable, setTopCardRevealed, done, continueSession]);
+    }, [topCardId, handleSwipe, swipeMode, voiceAvailable, setTopCardRevealed, done, continueSession, activeCheck]);
 
     if (cards.length === 0) {
         return (
@@ -313,6 +378,20 @@ export default function SwipeDeck() {
                 )}
             </AnimatePresence>
 
+            <AnimatePresence>
+                {notice && (
+                    <motion.div
+                        key="notice"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="absolute z-50 top-[calc(50%-272px)] sm:top-[calc(50%-248px)] rounded-2xl border border-line-strong bg-surface px-4 py-2 text-center text-sm text-ink-2 pointer-events-none max-w-[90%]"
+                    >
+                        {notice}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {done && (
                 <SessionRecap
                     session={session}
@@ -353,6 +432,8 @@ export default function SwipeDeck() {
                                 lucky={luckyIds.has(card.id)}
                                 hint={index === 0 ? (levelHint(cardProgress[card.id], card.id) ?? setHint(card.id, sets, cardProgress) ?? (luckyIds.has(card.id) ? 'Nhớ được thẻ này là có quà' : null)) : null}
                                 sessionCount={index === 0 ? session.count : undefined}
+                                check={index === 0 ? activeCheck : null}
+                                onCheckAnswer={index === 0 ? answerCheck : undefined}
                             />
                         </motion.div>
                     );
@@ -360,7 +441,7 @@ export default function SwipeDeck() {
             </AnimatePresence>
 
             {/* Explicit actions: same as swiping left / right */}
-            {topCardId && !done && (
+            {topCardId && !done && !activeCheck && (
                 <div className="absolute top-[calc(50%+237px)] left-0 right-0 mx-2 sm:mx-4 grid grid-cols-2 gap-2.5">
                     <button
                         onClick={() => handleSwipe('left', topCardId)}
@@ -391,6 +472,19 @@ function takeLuckyExplainer(): boolean {
         const seen = Number(localStorage.getItem(LUCKY_EXPLAIN_KEY) ?? 0);
         if (seen >= 3) return false;
         localStorage.setItem(LUCKY_EXPLAIN_KEY, String(seen + 1));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/** The first two deferrals explain why; after that a short line is enough. */
+const RETEST_EXPLAIN_KEY = 'lexica-retest-explained';
+function takeRetestExplainer(): boolean {
+    try {
+        const seen = Number(localStorage.getItem(RETEST_EXPLAIN_KEY) ?? 0);
+        if (seen >= 2) return false;
+        localStorage.setItem(RETEST_EXPLAIN_KEY, String(seen + 1));
         return true;
     } catch {
         return false;

@@ -162,6 +162,8 @@ interface LexicaStore {
 
     // Mastered action
     markAsMastered: (cardId: string) => void;
+    /** Moves a card further down the current deck (recall retest). */
+    deferCard: (cardId: string, offset: number) => void;
 }
 
 const INITIAL_USER_STATS: UserStats = {
@@ -611,6 +613,15 @@ export const useLexicaStore = create<LexicaStore>()(
                 if (correct) {
                     analytics.swipe('right', cardId, 'quiz');
                 }
+            },
+
+            deferCard: (cardId, offset) => {
+                const deck = [...get().currentDeck];
+                const i = deck.findIndex(card => card.id === cardId);
+                if (i < 0) return;
+                const [card] = deck.splice(i, 1);
+                deck.splice(Math.min(i + offset, deck.length), 0, card);
+                set({ currentDeck: deck });
             },
 
             markAsMastered: (cardId) => {

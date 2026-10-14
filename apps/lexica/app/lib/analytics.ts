@@ -86,7 +86,7 @@ export const analytics = {
         send('app_open');
     },
 
-    swipe(direction: 'left' | 'right', cardId: string, source: 'manual' | 'voice' | 'quiz', word?: string) {
+    swipe(direction: 'left' | 'right', cardId: string, source: 'manual' | 'voice' | 'quiz' | 'check', word?: string) {
         send('swipe', { direction, cardId, source, word });
     },
 
