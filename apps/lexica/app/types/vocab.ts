@@ -13,6 +13,8 @@ export interface VocabCardData {
     // NEW FORMAT: Multiple scenarios by user archetype
     scenarios?: Partial<Record<UserArchetype, string>>;
     translationHint: string;
+    /** Two natural English phrases with the word, e.g. "abundant supply". */
+    collocations?: string[];
     state: CardState;
     isBossCard?: boolean;
 

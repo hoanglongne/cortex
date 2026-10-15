@@ -1,12 +1,5 @@
 import { validateDraft } from './validator';
-import {
-  angleFor,
-  ANGLES,
-  clicheHits,
-  SLANG,
-  slangFor,
-  VOICE_EXAMPLES,
-} from './voice';
+import { angleFor, ANGLES, clicheHits, VOICE_EXAMPLES } from './voice';
 
 const ctx = (word: string) => ({
   lexicon: new Set([word]),
@@ -48,55 +41,37 @@ describe('voice examples', () => {
     }
   });
 
-  it('the bad examples are caught as stuffed or trying too hard', () => {
+  it('the bad examples are caught as clichés', () => {
     const bad = examples('bad');
     expect(bad.length).toBe(3);
-    expect(clicheHits(bad[0])).toEqual([
-      expect.stringMatching(/^nhồi \d slang$/),
-    ]);
+    expect(clicheHits(bad[0])).toEqual(
+      expect.arrayContaining(['vãi', 'ông nội']),
+    );
     expect(clicheHits(bad[2])).toEqual(
       expect.arrayContaining(['haha', 'cười xỉu', 'ai đọc cũng']),
     );
   });
-
-  it('good examples actually use current slang', () => {
-    const withSlang = examples('good').filter((s) =>
-      SLANG.some((w) => s.toLowerCase().includes(w)),
-    );
-    expect(withSlang.length).toBe(examples('good').length);
-  });
 });
 
 describe('clicheHits', () => {
-  it('allows a little slang but flags stuffing and stock openings', () => {
-    expect(
-      clicheHits('Deadline dí sát nút mà sếp còn bắt họp, ét o ét thật sự.'),
-    ).toEqual([]);
-    expect(
-      clicheHits('Ví FRUGAL tới mức ét o ét, u là trời, xu cà na thiệt.'),
-    ).toEqual(['nhồi 3 slang']);
-    expect(clicheHits('Mấy cái buổi họp này BORING ghê.')).toEqual([
+  it('flags jokey or preachy phrases and stock openings, whole words only', () => {
+    expect(clicheHits('Deadline dí sát nút, việc này vãi thật.')).toEqual([
+      'vãi',
+    ]);
+    expect(clicheHits('Mấy cái buổi họp này dài ghê.')).toEqual([
       'mở đầu "mấy cái"',
     ]);
-    expect(clicheHits('Đừng có COMPLAIN nữa.')).toEqual(['mở đầu "đừng có"']);
-    // whole words only: "realtime" is not "real"
-    expect(clicheHits('Group chat realtime mà ai cũng FRUSTRATED.')).toEqual(
-      [],
-    );
-  });
-});
-
-describe('slangFor', () => {
-  it('gives neighbouring slots different slang', () => {
-    const a = slangFor(0, 5);
-    const b = slangFor(1, 5);
-    expect(a).toHaveLength(3);
-    expect(a.some((w) => b.includes(w))).toBe(false);
+    expect(clicheHits('Đừng có bỏ bữa sáng nữa.')).toEqual([
+      'mở đầu "đừng có"',
+    ]);
+    expect(clicheHits('Cuối tuần tôi đi chợ mua rau và trái cây.')).toEqual([]);
+    // whole words only: "toàn" is not "toang"
+    expect(clicheHits('Đường toàn ổ gà sau cơn mưa lớn.')).toEqual([]);
   });
 });
 
 describe('angleFor', () => {
-  it('rotates through every angle', () => {
+  it('rotates through every situation angle', () => {
     const seen = new Set(
       Array.from({ length: ANGLES.length }, (_, i) => angleFor(i, 3)),
     );
