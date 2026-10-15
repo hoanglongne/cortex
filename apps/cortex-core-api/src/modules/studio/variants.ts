@@ -74,14 +74,35 @@ Chỉ trả về JSON đúng dạng:
 const isStr = (v: unknown): v is string =>
   typeof v === 'string' && v.trim().length > 0;
 
+/**
+ * Finds the variant list in model output. Models do not always keep the
+ * asked shape: accept {variants:[…]}, a bare array, any single array
+ * property, or an object keyed by card id.
+ */
+const isList = (v: unknown): v is unknown[] => Array.isArray(v);
+
+function variantList(raw: unknown): unknown[] | null {
+  if (isList(raw)) return raw;
+  if (typeof raw !== 'object' || raw === null) return null;
+  const obj = raw as Record<string, unknown>;
+  if (isList(obj.variants)) return obj.variants;
+  const arrays = Object.values(obj).filter(isList);
+  if (arrays.length === 1) return arrays[0];
+  const keyed = Object.entries(obj.variants ?? obj).filter(
+    ([, v]) => typeof v === 'object' && v !== null && !Array.isArray(v),
+  );
+  return keyed.length > 0
+    ? keyed.map(([id, v]) => ({ card_id: id, ...(v as object) }))
+    : null;
+}
+
 /** Parses model output for the cards asked about; unknown ids and blanks are dropped. */
 export function parseVariants(
   raw: unknown,
   askedIds: ReadonlySet<string>,
 ): RawVariant[] {
-  const list = (raw as { variants?: unknown } | null)?.variants;
-  if (!Array.isArray(list))
-    throw new Error('Model output has no variants array');
+  const list = variantList(raw);
+  if (!list) throw new Error('Model output has no variants array');
   const out: RawVariant[] = [];
   for (const item of list) {
     if (typeof item !== 'object' || item === null) continue;
