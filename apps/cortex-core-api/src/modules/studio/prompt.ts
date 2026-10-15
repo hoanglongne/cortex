@@ -1,7 +1,7 @@
 import { ARCHETYPES, type Archetype, type LexemeRow } from './studio.types';
-import { angleFor, slangFor, VOICE_EXAMPLES, VOICE_RULES } from './voice';
+import { angleFor, VOICE_EXAMPLES, VOICE_RULES } from './voice';
 
-export const PROMPT_VERSION = 'generate.v3';
+export const PROMPT_VERSION = 'generate.v4';
 
 export interface PromptInput {
   trend: { label: string; summary: string | null; tags: string[] };
@@ -11,7 +11,7 @@ export interface PromptInput {
   forcedWords: string[];
   wordsPerTrend: number;
   sentencesPerWord: number;
-  /** Rotates the comic angles offered, so consecutive batches differ. */
+  /** Rotates the situation angles offered, so consecutive batches differ. */
   angleOffset?: number;
 }
 
@@ -24,8 +24,7 @@ export function buildPrompt(input: PromptInput): string {
           .join('\n')}`;
   const angles = Array.from(
     { length: Math.max(input.sentencesPerWord, 3) },
-    (_, i) =>
-      `${angleFor(i, input.angleOffset ?? 0)} (slang gợi ý: ${slangFor(i, input.angleOffset ?? 0).join(', ')})`,
+    (_, i) => angleFor(i, input.angleOffset ?? 0),
   );
 
   return `Bạn là biên tập viên nội dung cho Lexica, app học từ vựng tiếng Anh cho người Việt 18–30 tuổi.
@@ -38,17 +37,17 @@ NGỮ CẢNH: ${input.trend.summary ?? '(không có)'}
 ${input.trend.tags.length ? `CHỦ ĐỀ: ${input.trend.tags.join(', ')}\n` : ''}
 ${words}
 
-Với MỖI từ, viết ${input.sentencesPerWord} câu, mỗi câu một góc hài khác nhau, lần lượt:\n${angles.map((a) => `- ${a}`).join('\n')}\nSlang gợi ý chỉ để đổi gió, chọn cái nào hợp, không bắt buộc. Mỗi câu:
+Với MỖI từ, viết ${input.sentencesPerWord} câu, mỗi câu một tình huống khác nhau, lần lượt:\n${angles.map((a) => `- ${a}`).join('\n')}\nMỗi câu:
 - Là câu tiếng Việt tự nhiên, nhúng đúng 1 từ tiếng Anh, viết HOA toàn bộ từ đó (ví dụ FRUGAL). Không viết hoa từ tiếng Anh nào khác.
 - Dùng từ đúng nghĩa và đúng từ loại; chỉ dùng dạng gốc hoặc biến thể có quy tắc (-s, -ed, -ing, -ly).
 - Dài 40–140 ký tự. Người đọc phải đoán được nghĩa từ ngữ cảnh.
 - Gắn với trend nhưng vẫn hiểu được nếu không biết trend.
 - Cấm: chính trị, tôn giáo, miệt thị giới tính/vùng miền/ngoại hình, tên người thật, chửi thề nặng, nội dung 18+, thảm hoạ/tai nạn/vụ án.
 
-Trước khi trả lời, tự đọc lại từng câu: câu nào nghe như sách giáo khoa, như phụ huynh nói, hoặc nhồi slang mà không có tình huống thì viết lại.
+Trước khi trả lời, tự đọc lại từng câu: câu nào chưa có tình huống cụ thể, hoặc đọc như định nghĩa thì viết lại.
 
 Với mỗi từ, kèm "translation_hint": nghĩa tiếng Việt ngắn gọn (dưới 40 ký tự).
-"archetype" là một trong: ${ARCHETYPES.join(', ')}. "angle" là góc hài đã dùng.
+"archetype" là một trong: ${ARCHETYPES.join(', ')}. "angle" là tình huống đã dùng.
 
 Chỉ trả về JSON đúng dạng:
 {"drafts":[{"word":"frugal","scenario":"...","translation_hint":"...","archetype":"casual","angle":"tự giễu"}]}`;
@@ -82,7 +81,7 @@ export function parseDrafts(raw: unknown): RawDraft[] {
       archetype: ARCHETYPES.includes(d.archetype as Archetype)
         ? (d.archetype as Archetype)
         : null,
-      // The comic angle is stored as the draft's tone.
+      // The situation angle is stored as the draft's tone.
       tone: isStr(d.angle)
         ? d.angle.trim().slice(0, 40)
         : isStr(d.tone)

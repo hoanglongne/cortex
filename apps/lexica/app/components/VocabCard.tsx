@@ -256,6 +256,9 @@ function WordBlock({ card, onSpeak, aid }: { card: VocabCardData; onSpeak: () =>
             </div>
             {card.ipa && <p className="font-mono text-sm text-muted">/{card.ipa}/</p>}
             <p className="text-base text-ink">{card.translationHint}</p>
+            {card.collocations && card.collocations.length > 0 && (
+                <p className="text-sm text-ink-2">Hay đi với: {card.collocations.join(' · ')}</p>
+            )}
             {aid && <p className="font-mono text-[11px] text-warning leading-relaxed">Mẹo nhớ: {aid}</p>}
         </div>
     );
