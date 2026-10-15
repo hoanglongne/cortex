@@ -19,7 +19,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈbʌndənt",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Lương chưa về mà bill thì ABUNDANT vãi, nhìn cái app ngân hàng mà muốn trầm cảm.",
+    "scenario": "Về quê ba ngày, mẹ gói đồ ăn ABUNDANT đỉnh nóc kịch trần, cả dãy trọ ăn ké, chủ trọ cũng ghé xin một hộp.",
     "translationHint": "Dư thừa, nhiều hơn cần thiết",
     "upgradeModule": {
       "simpleSentence": "There is a very big amount of food in the fridge.",
@@ -42,7 +42,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkɒɡnətɪv",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Sáng thứ Hai mà chưa có cà phê thì khả năng COGNITIVE của tôi chỉ bằng con tôm luộc.",
+    "scenario": "Ôn thi xuyên đêm tới 4 giờ sáng, khả năng COGNITIVE còn đủ đọc tên môn, đề hỏi gì thì toang.",
     "translationHint": "Liên quan đến nhận thức, tri giác",
     "upgradeModule": {
       "simpleSentence": "The patient's thinking ability is being tested.",
@@ -65,7 +65,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈlemə",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Đứng trước cái DILEMMA: Fix tiếp cái bug này hay đi ngủ để mai còn có sức mà bị sếp chửi?",
+    "scenario": "DILEMMA cuối tháng: còn 50 nghìn, mua cơm cho no hay mua trà sữa cho đỡ chằm zn vì nghèo.",
     "translationHint": "Tình huống khó xử, lưỡng nan",
     "surgeryModule": {
       "prefix": { "text": "di-", "meaning": "hai/gấp đôi", "relatedWords": [{ "word": "diverge", "meaning": "phân tách" }, { "word": "dimorphism", "meaning": "lưỡng hình" }, { "word": "dioxide", "meaning": "đioxit" }] },
@@ -78,7 +78,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfiːzəbl",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Dậy lúc 5h sáng để chạy bộ nghe có vẻ không FEASIBLE lắm với cái nết của tôi.",
+    "scenario": "Kế hoạch học xong ba chương trong một đêm nghe không FEASIBLE lắm, nhưng cả nhóm vẫn hô gét gô.",
     "translationHint": "Khả thi, có thể thực hiện được",
     "upgradeModule": {
       "simpleSentence": "This plan is possible to do.",
@@ -100,7 +100,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈevɪtəbl",
     "elo": 890,
     "level": "beginner",
-    "scenario": "Code lẹ để kịp deadline mà không unit test thì bug lòi ra là điều INEVITABLE thôi.",
+    "scenario": "Lướt app mua sắm lúc nửa đêm thì chốt đơn là INEVITABLE, sáng ra mới hỏi mua máy làm bánh để làm gì, u là trời.",
     "translationHint": "Không thể tránh khỏi",
     "upgradeModule": {
       "simpleSentence": "Changes will surely happen in the future.",
@@ -123,7 +123,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "præɡˈmætɪk",
     "elo": 920,
     "level": "beginner",
-    "scenario": "Sống PRAGMATIC lên tí đi, bớt mơ mộng trúng crypto rồi nghỉ việc, lo mà học Next.js đi kìa.",
+    "scenario": "Bạn mình PRAGMATIC lắm, đi date chọn quán có ổ cắm với wifi mạnh, tình chưa tới nhưng pin thì đầy, ra đường tôi nể mỗi bạn.",
     "translationHint": "Thực dụng, thực tế",
     "upgradeModule": {
       "simpleSentence": "We need a realistic way to solve this.",
@@ -145,7 +145,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "æmˈbɪɡjuəs",
     "elo": 950,
     "level": "beginner",
-    "scenario": "Mấy cái yêu cầu của khách hàng lúc nào cũng AMBIGUOUS, sửa xong kiểu gì cũng bị nói là 'không đúng ý'.",
+    "scenario": "Crush thả tim story rồi seen tin nhắn ba ngày, AMBIGUOUS cỡ này thì delulu cũng phải nghỉ giữa hiệp.",
     "translationHint": "Mơ hồ, không rõ ràng",
     "upgradeModule": {
       "simpleSentence": "The wording in the contract is not clear.",
@@ -168,7 +168,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "rɪˈzɪliənt",
     "elo": 940,
     "level": "beginner",
-    "scenario": "Cái server này RESILIENT thật, bị ddos liên tục mà vẫn chưa sập hoàn toàn.",
+    "scenario": "Nhỏ bạn RESILIENT thật, trưa bị từ chối tỏ tình, tối đã đăng story caption chữa lành kèm ly matcha.",
     "translationHint": "Kiên cường, phục hồi nhanh",
     "upgradeModule": {
       "simpleSentence": "The economy is strong enough to recover from the crisis.",
@@ -191,7 +191,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtiːdiəs",
     "elo": 910,
     "level": "beginner",
-    "scenario": "Ngồi đặt tên lại cho 100 cái file ảnh là một công việc TEDIOUS nhất thế kỷ.",
+    "scenario": "Ngồi gõ điểm danh 200 người từ ảnh chụp vào Excel, việc TEDIOUS tới mức con mắt xin nghỉ phép, ét o ét.",
     "translationHint": "Buồn tẻ, nhàm chán",
     "upgradeModule": {
       "simpleSentence": "Filling in forms is a very boring task.",
@@ -213,7 +213,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsʌtl",
     "elo": 930,
     "level": "beginner",
-    "scenario": "Bồ tôi bảo 'Em sao cũng được' là một dấu hiệu SUBTLE rằng tôi sắp tới số rồi.",
+    "scenario": "Mẹ khen 'dạo này con có da có thịt ha', lời nhắc SUBTLE rằng Tết này bớt đụng vô nồi bánh chưng, ok mom.",
     "translationHint": "Tinh tế, khó nhận ra",
     "upgradeModule": {
       "simpleSentence": "There is a small difference between the two colors.",
@@ -235,7 +235,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "məˈtɪkjələs",
     "elo": 1050,
     "level": "intermediate",
-    "scenario": "Phải METICULOUS lắm mới tìm ra được cái lỗi logic mà thằng dev cũ giấu kỹ như vậy.",
+    "scenario": "Nhỏ bàn trên METICULOUS tới mức note ôn thi có bốn màu bút với mục lục, keo lỳ thật, mình xin photo mà muốn lạy.",
     "translationHint": "Tỉ mỉ, cẩn thận",
     "upgradeModule": {
       "simpleSentence": "He is very careful with his work.",
@@ -257,7 +257,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "juːˈbɪkwɪtəs",
     "elo": 1080,
     "level": "intermediate",
-    "scenario": "Mấy cái app giao đồ ăn giờ UBIQUITOUS quá, bước ra ngõ là thấy shipper đứng đầy đường.",
+    "scenario": "Bài nhạc trend đó giờ UBIQUITOUS thật, từ TikTok tới quán phở đầu hẻm đều bật, tối nằm mơ cũng nghe, u là trời.",
     "translationHint": "Phổ biến khắp nơi",
     "upgradeModule": {
       "simpleSentence": "Computers are everywhere nowadays.",
@@ -278,7 +278,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈfemərəl",
     "elo": 1100,
     "level": "intermediate",
-    "scenario": "Cái cảm giác giàu sang khi vừa nhận lương thật là EPHEMERAL, trả nợ xong là hết.",
+    "scenario": "Cảm giác được chữa lành sau chuyến Đà Lạt EPHEMERAL thật, sáng thứ Hai mở mail ra là bay sạch.",
     "translationHint": "Phù du, ngắn ngủi",
     "upgradeModule": {
       "simpleSentence": "Fame is short-lived.",
@@ -300,7 +300,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈeləkwənt",
     "elo": 1020,
     "level": "intermediate",
-    "scenario": "Hắn ta giải trình về lý do đi trễ ELOQUENT đến mức sếp quên luôn định phạt.",
+    "scenario": "Bình thường nói chuyện ấp úng, mà tới lúc xin mẹ tiền mua laptop là ELOQUENT như diễn giả, out trình cả thầy dạy thuyết trình.",
     "translationHint": "Hùng biện, lưu loát",
     "upgradeModule": {
       "simpleSentence": "She gave a very good speech.",
@@ -322,7 +322,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈplɔːzəbl",
     "elo": 1010,
     "level": "intermediate",
-    "scenario": "Lý do 'nhà mất mạng' nghe có vẻ PLAUSIBLE đấy, nhưng tiếc là tôi thấy ông đang on Facebook.",
+    "scenario": "'Xe tao xẹp lốp' là lý do PLAUSIBLE, nếu story của nó không đang check-in quán nướng, ủa alo.",
     "translationHint": "Hợp lý, đáng tin",
     "upgradeModule": {
       "simpleSentence": "Your explanation sounds like it could be true.",
@@ -343,7 +343,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈskruːtənaɪz",
     "elo": 1040,
     "level": "intermediate",
-    "scenario": "Mỗi lần push code là sợ bị ông lead SCRUTINIZE từng dòng, soi còn hơn mẹ soi con dâu.",
+    "scenario": "Người yêu cũ đăng ảnh mới là cả group SCRUTINIZE từng pixel, check var còn kỹ hơn chấm thi.",
     "translationHint": "Xem xét kỹ lưỡng",
     "upgradeModule": {
       "simpleSentence": "The manager looked at the report carefully.",
@@ -365,7 +365,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkændɪd",
     "elo": 1030,
     "level": "intermediate",
-    "scenario": "Nói CANDID nhé, cái UI này trông phèn lắm Long ạ, làm lại đi.",
+    "scenario": "Nhờ bạn thân nhận xét CANDID về outfit đi date, nó phán 'kém miếng khó chịu', giờ mình đang thay bộ thứ năm.",
     "translationHint": "Thẳng thắn, chân thành",
     "upgradeModule": {
       "simpleSentence": "I want your honest opinion.",
@@ -386,7 +386,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkɒntəmpleɪt",
     "elo": 1060,
     "level": "intermediate",
-    "scenario": "Đang ngồi CONTEMPLATE về ý nghĩa cuộc đời thì mẹ bảo đi đổ rác.",
+    "scenario": "Nằm CONTEMPLATE nửa tiếng xem nên dậy hay ngủ tiếp, cuối cùng ngủ tiếp vì nghĩ nhiều lowkey mệt quá.",
     "translationHint": "Suy ngẫm, trầm tư",
     "upgradeModule": {
       "simpleSentence": "I am thinking about quitting my job.",
@@ -408,7 +408,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "mʌnˈdeɪn",
     "elo": 1000,
     "level": "intermediate",
-    "scenario": "Mấy cái task MUNDANE như update data này làm tốn thời gian mà chẳng học thêm được gì.",
+    "scenario": "Đi làm năm nhất delulu tưởng được đụng dự án lớn, ai ngờ ngày nào cũng việc MUNDANE: photo, scan, pha cà phê.",
     "translationHint": "Tầm thường, nhàm chán",
     "upgradeModule": {
       "simpleSentence": "I am tired of my boring daily life.",
@@ -429,7 +429,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈhɪrənt",
     "elo": 1070,
     "level": "intermediate",
-    "scenario": "Làm freelance thì rủi ro bị bùng tiền là một đặc điểm INHERENT rồi, phải chịu thôi.",
+    "scenario": "Ở trọ thì phòng bên hát karaoke lúc 11 giờ đêm là rủi ro INHERENT, hợp đồng không ghi mà ai cũng biết, real.",
     "translationHint": "Vốn có, cố hữu",
     "upgradeModule": {
       "simpleSentence": "Every job has its basic risks.",
@@ -451,7 +451,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəˈnʌndrəm",
     "elo": 1150,
     "level": "intermediate",
-    "scenario": "Một cái CONUNDRUM: Muốn có kinh nghiệm thì phải có việc, mà muốn có việc thì phải có kinh nghiệm?",
+    "scenario": "CONUNDRUM mỗi sáng: dậy sớm thì buồn ngủ cả ngày, dậy muộn thì trễ học, còn ngủ sớm thì chưa từng, hết cứu.",
     "translationHint": "Vấn đề hóc búa",
     "upgradeModule": {
       "simpleSentence": "This is a very difficult problem to solve.",
@@ -472,7 +472,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪɡˈzæsərbeɪt",
     "elo": 1180,
     "level": "intermediate",
-    "scenario": "Đang stress mà còn gặp thêm mấy tin nhắn 'Deadline tới đâu rồi em' chỉ làm EXACERBATE tình hình thôi.",
+    "scenario": "Thi rớt xong mở TikTok toàn clip người ta flex học bổng, càng lướt càng EXACERBATE nỗi đau.",
     "translationHint": "Làm tệ hại thêm",
     "upgradeModule": {
       "simpleSentence": "Loud music will make your headache worse.",
@@ -494,7 +494,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmɪtɪɡeɪt",
     "elo": 1120,
     "level": "intermediate",
-    "scenario": "Uống một ly trà sữa để MITIGATE sự mệt mỏi sau 8 tiếng dán mắt vào màn hình.",
+    "scenario": "Hai ly cà phê đá chỉ MITIGATE được cơn buồn ngủ tới 10 giờ, sau đó vẫn gục lên bàn phím như cũ, toang.",
     "translationHint": "Giảm nhẹ, làm dịu",
     "upgradeModule": {
       "simpleSentence": "We need to reduce the damage of the flood.",
@@ -516,7 +516,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnjuːɑːns",
     "elo": 1140,
     "level": "intermediate",
-    "scenario": "Phải hiểu được cái NUANCE trong lời nói của sếp, 'Anh thấy cũng được' thường có nghĩa là 'Dở tệ'.",
+    "scenario": "Phải hiểu NUANCE giữa 'ok' và 'okk' trong tin nhắn crush, sai một chữ k là cả tối nằm check var như trọng tài.",
     "translationHint": "Sắc thái nhỏ",
     "upgradeModule": {
       "simpleSentence": "The translator must understand the small details of the language.",
@@ -537,7 +537,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prəˈlɪfɪk",
     "elo": 1160,
     "level": "intermediate",
-    "scenario": "Ông nội này PROLIFIC vãi, tuần nào cũng thấy ra 2-3 cái open source project mới.",
+    "scenario": "Đứa em họ PROLIFIC thật, một tuần đăng 20 video TikTok, còn mình một video edit chưa xong, bị out trình.",
     "translationHint": "Hiệu suất cao, đẻ nhiều",
     "upgradeModule": {
       "simpleSentence": "He is a very busy writer who writes many books.",
@@ -559,7 +559,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "rɪˈdʌndənt",
     "elo": 1110,
     "level": "intermediate",
-    "scenario": "Code gì mà REDUNDANT quá vậy, mười mấy dòng này gom lại thành 1 dòng là xong rồi.",
+    "scenario": "Mua sạc dự phòng thứ ba trong năm, balo giờ toàn đồ REDUNDANT mà điện thoại vẫn sập nguồn, xu cà na gì đâu.",
     "translationHint": "Thừa thãi",
     "upgradeModule": {
       "simpleSentence": "This information is not needed.",
@@ -581,7 +581,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtænʤəbl",
     "elo": 1130,
     "level": "intermediate",
-    "scenario": "Học xong khóa này hy vọng sẽ có kết quả TANGIBLE chút, chứ đừng có mỗi cái certificate ảo.",
+    "scenario": "Ba tháng đi gym, kết quả TANGIBLE duy nhất để flex là cái thẻ hội viên, cái bụng thì vẫn y chang.",
     "translationHint": "Hữu hình, rõ rệt",
     "upgradeModule": {
       "simpleSentence": "We need to see real results.",
@@ -603,7 +603,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈzenɪθ",
     "elo": 1190,
     "level": "intermediate",
-    "scenario": "Cái app này đạt ZENITH về số lượng người dùng vào năm ngoái, giờ thì đang tụt dốc.",
+    "scenario": "ZENITH đời sinh viên là tuần nhận học bổng, ăn lẩu ba bữa liền như đại gia, sau đó là chuỗi ngày mì gói, toang.",
     "translationHint": "Đỉnh cao",
     "upgradeModule": {
       "simpleSentence": "He is at the highest point of his career.",
@@ -624,7 +624,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəʊˈhɪrənt",
     "elo": 1170,
     "level": "intermediate",
-    "scenario": "Nói chuyện kiểu gì mà chẳng thấy COHERENT tí nào, trước sau đá nhau chan chát.",
+    "scenario": "Ba giờ sáng gửi crush một đoạn văn ô dề mà chẳng COHERENT tí nào, sáng dậy đọc lại muốn đổi luôn tên Zalo.",
     "translationHint": "Mạch lạc, logic",
     "upgradeModule": {
       "simpleSentence": "He failed to give a clear explanation.",
@@ -646,7 +646,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɑːrbɪtreri",
     "elo": 1100,
     "level": "intermediate",
-    "scenario": "Việc chọn màu cho cái button này cảm giác hoàn toàn ARBITRARY, chẳng theo cái design system nào cả.",
+    "scenario": "Cách thầy chấm thuyết trình nghe ARBITRARY quá, nhóm làm ba tuần được 7, nhóm làm ba tiếng được 9, đòi check var gấp.",
     "translationHint": "Tùy hứng, tùy tiện",
     "upgradeModule": {
       "simpleSentence": "The decision was based on chance, not a rule.",
@@ -669,7 +669,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bəˈlɪdʒərənt",
     "elo": 1250,
     "level": "advanced",
-    "scenario": "Mấy ông thần nhậu vào là bắt đầu BELLIGERENT, nhìn ai cũng muốn kiếm chuyện làm như mình là hổ báo trường mẫu giáo.",
+    "scenario": "Chưa ăn sáng là bạn cùng phòng BELLIGERENT liền, hỏi 'mày ổn không' cũng bị lườm như kẻ thù, tới công chuyện.",
     "translationHint": "Hiếu chiến, hung hăng",
     "upgradeModule": {
       "simpleSentence": "The drunk man was very aggressive.",
@@ -691,7 +691,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈluːsɪdeɪt",
     "elo": 1220,
     "level": "advanced",
-    "scenario": "Ông giải thích nãy giờ tôi vẫn chưa hiểu, ELUCIDATE lại giùm cái logic tại sao cái component này lại render 10 lần vậy?",
+    "scenario": "Nhờ bạn học giỏi ELUCIDATE lại bài đạo hàm, nó giảng mười phút, mình chỉ hiểu ra là mình hết cứu.",
     "translationHint": "Làm sáng tỏ, giải thích rõ",
     "upgradeModule": {
       "simpleSentence": "Can you explain this point more clearly?",
@@ -714,7 +714,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "esəˈterɪk",
     "elo": 1280,
     "level": "advanced",
-    "scenario": "Mấy cái kiến thức về blockchain này ban đầu nghe có vẻ ESOTERIC, nhưng đọc kỹ thì... vẫn thấy khó hiểu vãi.",
+    "scenario": "Group chat có mấy inside joke ESOTERIC tới mức người mới vào đọc ba ngày vẫn tưởng mật mã, fomo muốn khóc.",
     "translationHint": "Bí truyền, chuyên sâu khó hiểu",
     "upgradeModule": {
       "simpleSentence": "This topic is only understood by a few experts.",
@@ -736,7 +736,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɡrɪˈɡeəriəs",
     "elo": 1240,
     "level": "advanced",
-    "scenario": "Mấy đứa GREGARIOUS đi networking lúc nào cũng như cá gặp nước, còn tôi thì chỉ muốn tìm cái góc nào có ổ điện để cắm sạc.",
+    "scenario": "Nhỏ bạn GREGARIOUS tới mức đi vệ sinh ở quán cà phê ra đã có thêm hai người bạn và một nhóm Zalo, ra đường tôi nể mỗi bạn.",
     "translationHint": "Hòa đồng, thích giao du",
     "upgradeModule": {
       "simpleSentence": "He is a very social person.",
@@ -758,7 +758,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪmˈpetʃuəs",
     "elo": 1260,
     "level": "advanced",
-    "scenario": "Đừng có IMPETUOUS mà chốt mua cái bàn phím 5 củ đó, cuối tháng ăn mì tôm bây giờ.",
+    "scenario": "Một phút IMPETUOUS tự báo thủ mái tóc theo trend TikTok, giờ đi học phải đội mũ lưỡi trai cả tuần.",
     "translationHint": "Hấp tấp, bốc đồng",
     "upgradeModule": {
       "simpleSentence": "Don't make quick decisions without thinking.",
@@ -780,7 +780,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ʤʌksˈtæpəʊz",
     "elo": 1230,
     "level": "advanced",
-    "scenario": "Thử JUXTAPOSE cái hình sống ảo trên mạng với cái mặt thật lúc vừa ngủ dậy đi, đảm bảo trầm cảm.",
+    "scenario": "Thử JUXTAPOSE ảnh mẫu trên shop với bộ đồ giao tới, thấy rõ hai vũ trụ song song, u là trời.",
     "translationHint": "Đặt cạnh nhau để so sánh",
     "upgradeModule": {
       "simpleSentence": "The artist put two different things next to each other.",
@@ -802,7 +802,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "məˈlevələnt",
     "elo": 1270,
     "level": "advanced",
-    "scenario": "Cái nụ cười MALEVOLENT của bà chị HR khi bảo 'Em ở lại họp tí nhé' làm tôi thấy lạnh cả sống lưng.",
+    "scenario": "Con mèo nhìn ly cà phê trên bàn bằng ánh mắt MALEVOLENT, ba giây sau bàn phím laptop ướt sũng, báo thủ chính hiệu.",
     "translationHint": "Độc ác, có ác ý",
     "upgradeModule": {
       "simpleSentence": "He has a very bad and evil look.",
@@ -825,7 +825,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɒbˈfʌskeɪt",
     "elo": 1290,
     "level": "advanced",
-    "scenario": "Đừng có dùng mấy cái thuật ngữ chuyên môn để OBFUSCATE cái lỗi sơ đẳng của ông, tôi biết thừa ông quên handle lỗi.",
+    "scenario": "Hỏi 'hôm qua đi đâu' mà người yêu trả lời vòng vo ba đoạn, cố OBFUSCATE kiểu này là red flag rồi.",
     "translationHint": "Làm mờ mịt, che giấu",
     "upgradeModule": {
       "simpleSentence": "The lawyer tried to hide the truth with long words.",
@@ -848,7 +848,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpɑːrsɪməni",
     "elo": 1210,
     "level": "advanced",
-    "scenario": "Công ty này thực hành chính sách PARSIMONY cực độ, đến cái khăn giấy trong toilet cũng phải tiết kiệm.",
+    "scenario": "PARSIMONY của thằng bạn đỉnh nóc kịch trần, đi chơi năm lần thì đúng năm lần nó quên ví.",
     "translationHint": "Sự bủn xỉn, keo kiệt",
     "upgradeModule": {
       "simpleSentence": "The government's extreme stinginess is a problem.",
@@ -870,7 +870,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kwɪntɪˈsenʃl",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Ăn bát phở vỉa hè lúc sáng sớm là một trải nghiệm QUINTESSENTIAL khi ở Việt Nam rồi.",
+    "scenario": "Ngồi ghế nhựa ăn bánh tráng trộn, uống trà đá, hóng biến group lớp, một buổi chiều QUINTESSENTIAL của sinh viên.",
     "translationHint": "Tinh túy, điển hình",
     "upgradeModule": {
       "simpleSentence": "This is a perfect example of French style.",
@@ -893,7 +893,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "rɪˈkælsɪtrənt",
     "elo": 1350,
     "level": "expert",
-    "scenario": "Cái con chatbot RECALCITRANT này, dạy mãi mà nó vẫn cứ trả lời kiểu huề vốn.",
+    "scenario": "Mái tóc RECALCITRANT này sấy, uốn, xịt keo đủ kiểu vẫn dựng đứng y như vừa ngủ dậy, hết cứu.",
     "translationHint": "Ngoan cố, bướng bỉnh",
     "upgradeModule": {
       "simpleSentence": "The stubborn student refused to follow rules.",
@@ -916,7 +916,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈseɪliənt",
     "elo": 1320,
     "level": "expert",
-    "scenario": "Điểm SALIENT nhất trong cái CV của ông là 'biết nấu mì tôm', còn kỹ năng code thì chưa thấy đâu.",
+    "scenario": "Điểm SALIENT nhất trong profile hẹn hò của nó là tấm ảnh ôm chó, mà con chó là của hàng xóm, red flag.",
     "translationHint": "Nổi bật, đáng chú ý",
     "upgradeModule": {
       "simpleSentence": "What are the most important points of the book?",
@@ -938,7 +938,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtæsɪtɜn",
     "elo": 1340,
     "level": "expert",
-    "scenario": "Bình thường ông ấy TACITURN lắm, nhưng cứ nhắc đến chuyện lương lậu là nói như súng liên thanh.",
+    "scenario": "Về quê ăn Tết, mình TACITURN cả buổi, bị hỏi lương bao nhiêu mới chằm zn nói đúng ba chữ 'cũng tạm ạ'.",
     "translationHint": "Ít nói, lầm lì",
     "upgradeModule": {
       "simpleSentence": "He is a quiet man who doesn't talk much.",
@@ -960,7 +960,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "vɪˈkeəriəs",
     "elo": 1310,
     "level": "expert",
-    "scenario": "Không có tiền đi du lịch nên tôi toàn ngồi xem vlog của mấy ông travel blogger để hưởng thụ VICARIOUS.",
+    "scenario": "Ví cạn nên du lịch kiểu VICARIOUS, coi vlog Nhật tới 2 giờ sáng, manifest xong ngủ như vừa đi về.",
     "translationHint": "Trải nghiệm gián tiếp",
     "upgradeModule": {
       "simpleSentence": "She feels happy by watching her daughter's success.",
@@ -982,7 +982,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈzelət",
     "elo": 1330,
     "level": "expert",
-    "scenario": "Mấy ông ZEALOT của một cái framework nào đó thường rất hay đi gây chiến với cộng đồng framework khác.",
+    "scenario": "Nhỏ bạn là ZEALOT của trà sữa, ai chê trân châu đường đen là kick khỏi group liền, ô dề hết sức.",
     "translationHint": "Người cuồng tín",
     "upgradeModule": {
       "simpleSentence": "He is a crazy fan of this political party.",
@@ -1004,7 +1004,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈmiːliəreɪt",
     "elo": 1360,
     "level": "expert",
-    "scenario": "Tôi đang cố AMELIORATE cái mối quan hệ với sếp bằng cách đi làm đúng giờ, dù hơi khó.",
+    "scenario": "Sắm cây xanh, đèn vàng, nến thơm để AMELIORATE phòng trọ 12 mét vuông, giờ chật hơn nhưng lowkey xinh.",
     "translationHint": "Cải thiện, làm tốt hơn",
     "upgradeModule": {
       "simpleSentence": "The government wants to make the living conditions better.",
@@ -1026,7 +1026,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəˈkɒfəni",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Sáng sớm mà tiếng còi xe, tiếng karaoke hàng xóm trộn vào nhau tạo thành một bản CACOPHONY nhức cả đầu.",
+    "scenario": "Bảy giờ sáng Chủ nhật: khoan tường, gà gáy, loa bán hàng, một bản CACOPHONY ngay trên đầu phòng trọ, tới công chuyện.",
     "translationHint": "Âm thanh hỗn tạp, chói tai",
     "upgradeModule": {
       "simpleSentence": "The noise from the street was terrible.",
@@ -1049,7 +1049,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɒɡˈmætɪk",
     "elo": 1300,
     "level": "expert",
-    "scenario": "Làm việc với mấy ông DOGMATIC mệt lắm, lúc nào cũng khư khư giữ cái tư duy cũ rích không chịu đổi mới.",
+    "scenario": "Ông chú DOGMATIC tới mức tin học IT là phải sửa được tủ lạnh, giải thích cỡ nào cũng không nghe, xỉu ngang.",
     "translationHint": "Giáo điều, độc đoán",
     "upgradeModule": {
       "simpleSentence": "He is very sure he is right and won't listen to others.",
@@ -1071,7 +1071,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈenərveɪt",
     "elo": 1390,
     "level": "expert",
-    "scenario": "Ngồi họp 3 tiếng đồng hồ liên tục chỉ để nghe sếp hứa hẹn làm tôi thấy bị ENERVATE hoàn toàn.",
+    "scenario": "Ba tiếng xếp hàng săn vé concert vì fomo đủ ENERVATE cả người, mua được vé xong ngồi bệt luôn ra vỉa hè.",
     "translationHint": "Làm suy yếu, làm kiệt sức",
     "upgradeModule": {
       "simpleSentence": "The heat makes me feel very weak.",
@@ -1094,7 +1094,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhæknid",
     "elo": 1410,
     "level": "expert",
-    "scenario": "Mấy cái câu quote 'Vượt qua giới hạn bản thân' nghe HACKNEYED quá rồi, có cái gì mới hơn không?",
+    "scenario": "Caption 'đi đâu không quan trọng, quan trọng là đi với ai' HACKNEYED lắm rồi, mà đi biển lần nào mình cũng xài, real.",
     "translationHint": "Sáo rỗng, tầm thường",
     "upgradeModule": {
       "simpleSentence": "The movie's plot was very old and unoriginal.",
@@ -1115,7 +1115,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɡrændɪˈləʊkwənt",
     "elo": 1450,
     "level": "expert",
-    "scenario": "Cái văn phong GRANDILOQUENT của ông nghe thì sang đấy, nhưng thực tế là chẳng ai hiểu ông muốn nói gì.",
+    "scenario": "Bài luận học bổng viết GRANDILOQUENT như diễn văn, đọc ba trang mới thấy ý chính là 'em cần tiền', ô dề ghê.",
     "translationHint": "Khoa trương, hoa mỹ",
     "upgradeModule": {
       "simpleSentence": "His speech was full of big, fancy words.",
@@ -1138,7 +1138,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "aɪˈkɒnəklæst",
     "elo": 1440,
     "level": "expert",
-    "scenario": "Hắn ta đúng là một ICONOCLAST khi dám lên tiếng phản đối cái quy trình mà cả công ty đã dùng 10 năm nay.",
+    "scenario": "Đứa ICONOCLAST của nhóm dám nói lẩu Thái dở, cả bàn im bặt như vừa nghe tin chia tay, ra đường tôi nể mỗi bạn.",
     "translationHint": "Người đả phá những quan điểm cũ",
     "upgradeModule": {
       "simpleSentence": "He is a person who attacks established beliefs.",
@@ -1160,7 +1160,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ləˈkɒnɪk",
     "elo": 1430,
     "level": "expert",
-    "scenario": "Câu trả lời LACONIC 'Không' của cô ấy làm tôi hiểu rằng mình không còn cơ hội nào nữa rồi.",
+    "scenario": "Gửi crush một tin dài 500 chữ, nhận về câu trả lời LACONIC đúng một chữ 'ok', đọc xong xỉu ngang.",
     "translationHint": "Ngắn gọn, súc tích",
     "upgradeModule": {
       "simpleSentence": "He gave a very short answer.",
@@ -1181,7 +1181,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əbˈsiːkwiəs",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Nhìn cái cách ông kia OBSEQUIOUS với sếp mà tôi thấy phát ngốt, nịnh hót vừa thôi chứ.",
+    "scenario": "Tuần trước thi cả lớp OBSEQUIOUS với lớp trưởng lạ thường, mời trà sữa liên tục để xin đề cương, thao túng tâm lý.",
     "translationHint": "Khúm núm, xu nịnh",
     "upgradeModule": {
       "simpleSentence": "The waiter was too polite and trying too hard to please.",
@@ -1204,7 +1204,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pərˈnɪʃəs",
     "elo": 1470,
     "level": "expert",
-    "scenario": "Cái thói quen so sánh mình với người khác trên mạng xã hội là một thói quen PERNICIOUS cho sức khỏe tinh thần.",
+    "scenario": "Thói quen 'xem thêm một tập thôi' PERNICIOUS hơn mình tưởng, giờ đã hết season ba và trời đã sáng, toang.",
     "translationHint": "Độc hại, nguy hiểm ngầm",
     "upgradeModule": {
       "simpleSentence": "This trend has a very harmful effect on children.",
@@ -1226,7 +1226,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kwɪkˈsɒtɪk",
     "elo": 1480,
     "level": "expert",
-    "scenario": "Cái kế hoạch xây dựng một mạng xã hội mới để lật đổ Facebook nghe có vẻ QUIXOTIC quá không Long?",
+    "scenario": "Kế hoạch mua nhà bằng lương thực tập 3 triệu nghe QUIXOTIC quá, nhưng tối nào mình cũng manifest.",
     "translationHint": "Viển vông, không thực tế",
     "upgradeModule": {
       "simpleSentence": "Building a city on Mars is an unrealistic dream.",
@@ -1247,7 +1247,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈrɪzəbl",
     "elo": 1400,
     "level": "expert",
-    "scenario": "Lý do đi muộn của anh ấy thật sự RISIBLE vãi, bảo là bị... người ngoài hành tinh bắt cóc.",
+    "scenario": "Bài thuyết trình nhóm RISIBLE tới mức slide 3 còn nguyên dòng 'chèn nội dung vào đây', ét o ét.",
     "translationHint": "Đáng cười, lố bịch",
     "upgradeModule": {
       "simpleSentence": "The amount of money they offered was laughable.",
@@ -1269,7 +1269,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsɪkəfənt",
     "elo": 1490,
     "level": "expert",
-    "scenario": "Ông đừng có làm cái trò SYCOPHANT đó nữa, sếp thừa biết ông nịnh để xin tăng lương thôi.",
+    "scenario": "Group lớp có một SYCOPHANT chính hiệu, cô đăng gì cũng thả tim đầu tiên kèm 'bài giảng hay quá ạ', thao túng tâm lý.",
     "translationHint": "Kẻ nịnh hót",
     "upgradeModule": {
       "simpleSentence": "He is a person who praises powerful people to get advantage.",
@@ -1291,7 +1291,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "vɪtriˈɒlɪk",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Mấy cái comment VITRIOLIC trên mạng đôi khi có thể giết chết một con người đấy, bớt khẩu nghiệp lại.",
+    "scenario": "Đăng ảnh tự nấu cơm lên Threads, nhận ngay comment VITRIOLIC 'nhìn như đồ ăn cho mèo', ủa alo.",
     "translationHint": "Châm chọc, cay độc",
     "upgradeModule": {
       "simpleSentence": "The politician made a very mean attack on his opponent.",
@@ -1313,7 +1313,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "æbˈstruːs",
     "elo": 1490,
     "level": "expert",
-    "scenario": "Cái bài báo khoa học này viết bằng thuật ngữ gì mà ABSTRUSE thế không biết, đọc xong còn thấy lú hơn lúc chưa đọc.",
+    "scenario": "Tài liệu triết thầy gửi ABSTRUSE tới mức đọc xong một trang, mình cần thêm một trang để hiểu trang đó, xỉu ngang.",
     "translationHint": "Thâm thúy, khó hiểu",
     "upgradeModule": {
       "simpleSentence": "This philosophy book is too difficult for me.",
@@ -1337,7 +1337,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈæŋkʃəs",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Cứ mỗi lần sếp nhắn 'Em có rảnh không' là tôi lại thấy ANXIOUS ngang, dù chẳng làm gì sai.",
+    "scenario": "Mẹ gọi đủ cả họ cả tên, chưa bắt máy mà đã ANXIOUS rà lại cả tuần mình làm gì, ét o ét.",
     "translationHint": "Lo lắng, bồn chồn",
     "upgradeModule": {
       "simpleSentence": "I am very worried about the exam.",
@@ -1359,7 +1359,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "blʌnt",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Thằng bạn tôi nó BLUNT lắm, nó bảo 'Code ông rác vãi' mà tôi không biết nên khóc hay cười.",
+    "scenario": "Hỏi em gái bộ này mặc đi phỏng vấn được không, nó BLUNT luôn: 'nhìn như đi đám giỗ'.",
     "translationHint": "Thẳng thắn đến mức thô lỗ",
     "upgradeModule": {
       "simpleSentence": "He was very honest and told me the truth.",
@@ -1380,7 +1380,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkɔːʃəs",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Phải CAUTIOUS khi bấm vào mấy cái link lạ trên Telegram, không là bay màu cái ví crypto ngay.",
+    "scenario": "Đi buffet lần đầu nên CAUTIOUS lấy ít ít, no rồi mới phát hiện khu hải sản nằm ở bên kia, xu cà na.",
     "translationHint": "Thận trọng, cẩn thận",
     "upgradeModule": {
       "simpleSentence": "The driver was very careful on the icy road.",
@@ -1402,7 +1402,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈmɑːnd",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Khách hàng DEMAND thêm tính năng mới nhưng lại không muốn chi thêm một đồng nào.",
+    "scenario": "Bạn cùng phòng DEMAND mình tắt đèn lúc 11 giờ, trong khi nó cày phim tới 3 giờ sáng bằng loa ngoài, ủa alo.",
     "translationHint": "Yêu cầu, đòi hỏi",
     "upgradeModule": {
       "simpleSentence": "The boss asked for the report immediately.",
@@ -1424,7 +1424,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈfɪʃnt",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Dùng phím tắt là cách EFFICIENT nhất để code nhanh mà không bị sếp soi là đang lười.",
+    "scenario": "Cách ôn thi EFFICIENT nhất của mình là đợi tới đêm cuối, áp lực tự bật não lên chế độ tua nhanh, keo lỳ.",
     "translationHint": "Hiệu quả, năng suất",
     "upgradeModule": {
       "simpleSentence": "We need a faster way to finish the project.",
@@ -1447,7 +1447,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfleksəbl",
     "elo": 835,
     "level": "beginner",
-    "scenario": "Thời gian làm việc ở đây khá FLEXIBLE, miễn là ông nộp task đúng hạn thì ông ngủ đến trưa cũng được.",
+    "scenario": "Lịch hẹn của nhóm bạn FLEXIBLE quá mức, hẹn 7 giờ thì 8 rưỡi đứa đầu tiên mới nhắn 'đang ra nè', real.",
     "translationHint": "Linh hoạt, dễ thích nghi",
     "upgradeModule": {
       "simpleSentence": "The rules are not strict.",
@@ -1469,7 +1469,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenjuɪn",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Cái nụ cười GENUINE của crush làm tôi quên hết mệt mỏi sau một ngày bị bug hành.",
+    "scenario": "Lời khen GENUINE nhất tuần này là cô bán xôi nói 'dạo này con nhìn tươi ghê', chữa lành hơn đi spa.",
     "translationHint": "Thật thà, chân thành",
     "upgradeModule": {
       "simpleSentence": "Is this a real diamond?",
@@ -1491,7 +1491,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhezɪteɪt",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Đừng HESITATE khi thấy lương không xứng đáng với công sức, cứ mạnh dạn mà deal lại.",
+    "scenario": "Săn sale 0 đồng thì mình không HESITATE nửa giây, còn trả lời tin nhắn crush thì soạn ba tiếng chưa gửi.",
     "translationHint": "Do dự, ngập ngừng",
     "upgradeModule": {
       "simpleSentence": "Don't stop and wait, just do it.",
@@ -1513,7 +1513,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪmpækt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Cái đợt layoff vừa rồi có IMPACT cực lớn đến tâm lý của anh em trong team.",
+    "scenario": "Một câu 'ăn gì cũng được' có IMPACT tới cả buổi tối, đi bốn quán vẫn chưa ai được ăn, tới công chuyện.",
     "translationHint": "Tác động, ảnh hưởng mạnh",
     "upgradeModule": {
       "simpleSentence": "His music had a big effect on many people.",
@@ -1535,7 +1535,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒʌstɪfaɪ",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Làm sao để JUSTIFY cái việc tôi ngủ gật trong cuộc họp là do 'đang suy nghĩ quá sâu' đây?",
+    "scenario": "Mua đôi giày thứ tư trong tháng rồi tự JUSTIFY là đầu tư cho đôi chân, đúng chuẩn báo thủ ví tiền.",
     "translationHint": "Biện minh, thanh minh",
     "upgradeModule": {
       "simpleSentence": "Can you give a reason for your behavior?",
@@ -1557,7 +1557,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kiːn",
     "elo": 835,
     "level": "beginner",
-    "scenario": "Tôi rất KEEN với mấy cái framework mới, nhưng lười học quá nên toàn đọc qua loa.",
+    "scenario": "Lớp trưởng KEEN tổ chức đi biển lắm, tạo group, làm bình chọn, riêng tin nhắn thu tiền là không ai rep, chằm zn.",
     "translationHint": "Hăng hái, nhiệt tình",
     "upgradeModule": {
       "simpleSentence": "He is very interested in learning English.",
@@ -1578,7 +1578,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈlɒdʒɪkl",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Giải thích kiểu gì cho LOGICAL một tí đi, đừng có đổ thừa tại máy tính nó tự xóa file nữa.",
+    "scenario": "Mượn tiền đi lẩu, hứa trả bằng tiền tiết kiệm được nhờ ăn lẩu ở nhà, nghe LOGICAL mà sai sai, thao túng tâm lý.",
     "translationHint": "Hợp lý, theo logic",
     "upgradeModule": {
       "simpleSentence": "The conclusion was based on facts.",
@@ -1600,7 +1600,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmæsɪv",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Có một sự MASSIVE khác biệt giữa việc 'biết code' và 'biết code sạch'.",
+    "scenario": "Đặt online gấu bông 'size lớn', hàng tới MASSIVE tới mức phòng trọ phải chọn giữ gấu hay giữ giường, u là trời.",
     "translationHint": "Khổng lồ, to lớn",
     "upgradeModule": {
       "simpleSentence": "There was a very big explosion.",
@@ -1622,7 +1622,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "nɪˈɡlekt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Vì quá mải mê fix bug mà tôi NEGLECT luôn cả việc ăn tối, giờ thì đau dạ dày rồi.",
+    "scenario": "Cày rank cả tuần nên NEGLECT luôn chậu sen đá, nghe nói sen đá khó chết mà nó vẫn bỏ mình đi.",
     "translationHint": "Bỏ bê, xao nhãng",
     "upgradeModule": {
       "simpleSentence": "He didn't pay attention to his duties.",
@@ -1644,7 +1644,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒbviəs",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Lỗi syntax sờ sờ ra đó mà tìm mãi không thấy, đúng là OBVIOUS quá nên mới mù quáng.",
+    "scenario": "Nó bảo 'tao với ổng chỉ là bạn' mà ngày nào cũng ăn trưa chung, OBVIOUS tới mức cả lớp ăn cơm chó.",
     "translationHint": "Rõ ràng, hiển nhiên",
     "upgradeModule": {
       "simpleSentence": "The answer is very easy to see.",
@@ -1667,7 +1667,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈsɪstənt",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Mấy cái quảng cáo nhà đất nó PERSISTENT gọi cho tôi cả ngày, block số này nó gọi số khác.",
+    "scenario": "Con mèo PERSISTENT thật, đóng cửa phòng là nó cào tới khi mở, mở rồi thì nó lại khum vào.",
     "translationHint": "Kiên trì, dai dẳng",
     "upgradeModule": {
       "simpleSentence": "He kept trying until he won.",
@@ -1690,7 +1690,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈreləvənt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Nói chuyện vào trọng tâm đi ông ơi, mấy cái ví dụ này không RELEVANT gì đến vấn đề mình đang gặp cả.",
+    "scenario": "Hỏi bạn 'thi xong chưa', nó gửi lại ba cái meme mèo khóc, chẳng RELEVANT gì mà hiểu kết quả luôn.",
     "translationHint": "Liên quan, phù hợp",
     "upgradeModule": {
       "simpleSentence": "This information is connected to our topic.",
@@ -1713,7 +1713,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "sɪɡˈnɪfɪkənt",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Tìm được một con mentor tốt sẽ tạo ra thay đổi SIGNIFICANT cho con đường sự nghiệp của ông.",
+    "scenario": "Chuyển qua phòng trọ có máy lạnh là thay đổi SIGNIFICANT: ngủ ngon hẳn, còn hóa đơn điện thì tỉnh cả ngủ.",
     "translationHint": "Quan trọng, đáng kể",
     "upgradeModule": {
       "simpleSentence": "There is a big difference between the two products.",
@@ -1735,7 +1735,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtɒləreɪt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Tôi không thể TOLERATE nổi cái thói lười biếng mà còn hay đổ lỗi của ông đồng nghiệp cùng team.",
+    "scenario": "Mình TOLERATE được bạn cùng phòng ngáy, chứ vụ ăn mì xong để tô qua đêm là tới công chuyện.",
     "translationHint": "Tha thứ, chịu đựng",
     "upgradeModule": {
       "simpleSentence": "I can't put up with his bad temper anymore.",
@@ -1757,7 +1757,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈjuːtɪlaɪz",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Phải biết cách UTILIZE tối đa sức mạnh của AI để làm việc nhanh hơn, chứ đừng để nó thay thế mình.",
+    "scenario": "Biết UTILIZE từng voucher freeship, mã giảm 10k với xu tích điểm, đơn 300 nghìn còn đúng 87 nghìn, slay.",
     "translationHint": "Sử dụng, tận dụng",
     "upgradeModule": {
       "simpleSentence": "We should use all the available tools.",
@@ -1779,7 +1779,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvælɪd",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Cái argument của ông nghe cũng VALID đấy, nhưng áp dụng vào thực tế thì chắc chắn là tạch.",
+    "scenario": "Đưa thẻ sinh viên hết hạn hai năm để xin giảm giá, chị thu ngân nhìn kỹ rồi nói 'hết VALID rồi em ơi'.",
     "translationHint": "Hợp lệ, có cơ sở",
     "upgradeModule": {
       "simpleSentence": "Is your ticket still good for today?",
@@ -1800,7 +1800,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɪlɪŋ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Tôi WILLING làm thêm giờ nếu công ty trả lương OT sòng phẳng, còn không thì cứ 5h là 'phắn'.",
+    "scenario": "Nhắn group 'ai WILLING đi chợ mua đồ lẩu nè', ba mươi người seen, đúng một đứa thả like.",
     "translationHint": "Sẵn lòng, tự nguyện",
     "upgradeModule": {
       "simpleSentence": "Are you ready to help us?",
@@ -1822,7 +1822,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈæbstrækt",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Mấy cái định nghĩa về Clean Architecture này nghe ABSTRACT quá, cho tôi ví dụ code thực tế đi.",
+    "scenario": "Hỏi crush thích kiểu người nào, nhận câu trả lời ABSTRACT 'ai có vibe dễ chịu', nghe xong vẫn chưa biết nên sửa mình từ đâu.",
     "translationHint": "Trừu tượng",
     "upgradeModule": {
       "simpleSentence": "The idea is not clear and hard to understand.",
@@ -1844,7 +1844,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbenɪfɪt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Làm ở công ty lớn thì BENEFIT tốt thiệt, nhưng bù lại là quy trình rườm rà phát mệt.",
+    "scenario": "BENEFIT lớn nhất ở công ty đầu tiên là máy lạnh mát, còn lương thì đủ mua cà phê để ngồi máy lạnh.",
     "translationHint": "Lợi ích, phúc lợi",
     "upgradeModule": {
       "simpleSentence": "Exercising is good for your health.",
@@ -1866,7 +1866,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkɒnfɪdənt",
     "elo": 835,
     "level": "beginner",
-    "scenario": "Lúc phỏng vấn thì CONFIDENT lắm, vô làm thật mới biết mình còn non và xanh như trái chuối.",
+    "scenario": "Mặc đồ mới đi học CONFIDENT slay cả buổi sáng, trưa mới phát hiện còn nguyên cái tem giá sau lưng.",
     "translationHint": "Tự tin",
     "upgradeModule": {
       "simpleSentence": "I am sure about my answer.",
@@ -1889,7 +1889,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "daɪˈvɜːs",
     "elo": 865,
     "level": "beginner",
-    "scenario": "Bộ sưu tập cốc cà phê của tôi DIVERSE hơn cả kinh nghiệm sống.",
+    "scenario": "Tủ lạnh phòng trọ DIVERSE ghê: nửa hộp cơm, ba quả trứng, chai tương ớt và một miếng mặt nạ dưỡng da.",
     "translationHint": "Đa dạng",
     "upgradeModule": {
       "simpleSentence": "The museum has many different kinds of paintings.",
@@ -1911,7 +1911,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈevɪdənt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "EVIDENT là tôi không ngủ đủ giấc: mắt tôi trông như panda mỗi sáng.",
+    "scenario": "Sau đêm chạy deadline, quầng thâm EVIDENT tới mức đồng nghiệp hỏi có phải đang thử trend makeup khói.",
     "translationHint": "Rõ ràng, hiển nhiên",
     "upgradeModule": {
       "simpleSentence": "It is clear that he is lying.",
@@ -1934,7 +1934,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfəʊkəs",
     "elo": 820,
     "level": "beginner",
-    "scenario": "FOCUS của tôi kéo dài đúng bằng thời gian YouTube ad trước khi skip được.",
+    "scenario": "Định FOCUS học từ vựng hai tiếng, năm phút sau đã đứng trước tủ lạnh lần thứ ba dù không đói.",
     "translationHint": "Tập trung",
     "upgradeModule": {
       "simpleSentence": "You should pay more attention to your studies.",
@@ -1955,7 +1955,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenəreɪt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Dùng ChatGPT để GENERATE đống dữ liệu mẫu này cho nhanh, chứ ngồi gõ tay chắc đến mùa quýt.",
+    "scenario": "Đăng một tấm ảnh đi biển lên story là GENERATE ra hai chục tin nhắn hóng biến 'đi với ai đó'.",
     "translationHint": "Tạo ra",
     "upgradeModule": {
       "simpleSentence": "The wind can make electricity.",
@@ -1977,7 +1977,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhaɪlaɪt",
     "elo": 830,
     "level": "beginner",
-    "scenario": "HIGHLIGHT của buổi tiệc tối qua là lúc sếp say rượu rồi bắt đầu đi múa cột.",
+    "scenario": "HIGHLIGHT đám cưới chị họ là màn bốc thăm, mình trúng nồi cơm điện kèm câu hỏi 'chừng nào tới con'.",
     "translationHint": "Điểm nhấn, nổi bật",
     "upgradeModule": {
       "simpleSentence": "He pointed out the main problem.",
@@ -2001,7 +2001,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈædvəkeɪtɪŋ",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Dù sếp muốn OT không lương, tôi vẫn luôn ADVOCATING cho việc cân bằng cuộc sống, làm xong là về.",
+    "scenario": "Cả phòng trọ đang ADVOCATING cho luật ai nấu thì người khác rửa chén, riêng đứa chỉ biết úp mì thì im re, chằm zn.",
     "translationHint": "Ủng hộ, vận động cho",
     "upgradeModule": {
       "simpleSentence": "He is supporting the use of new technology.",
@@ -2023,7 +2023,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "æmˈbɪvələnt",
     "elo": 980,
     "level": "intermediate",
-    "scenario": "Cảm giác AMBIVALENT vãi: muốn nghỉ việc để tự do nhưng lại sợ không có tiền đóng tiền nhà.",
+    "scenario": "Người yêu cũ nhắn lúc nửa đêm, cảm xúc AMBIVALENT dữ lắm: vừa muốn block, vừa lowkey muốn đọc lại ba lần.",
     "translationHint": "Mâu thuẫn, vừa thích vừa ghét",
     "upgradeModule": {
       "simpleSentence": "I am not sure how I feel about the new rules.",
@@ -2046,7 +2046,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnæləɡəs",
     "elo": 1050,
     "level": "intermediate",
-    "scenario": "Việc giải thích code cho sếp không biết kỹ thuật nó ANALOGOUS với việc dạy cá leo cây vậy.",
+    "scenario": "Ôn cả học kỳ trong một đêm ANALOGOUS với việc đổ nguyên bình nước vào cái ly, sáng ra nhớ được mỗi tên môn.",
     "translationHint": "Tương tự, giống như",
     "upgradeModule": {
       "simpleSentence": "The human brain is like a computer.",
@@ -2069,7 +2069,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɑːˈtɪkjʊlət",
     "elo": 1000,
     "level": "intermediate",
-    "scenario": "Hắn ta ARTICULATE cái plan nghe hay vãi chưởng, dù thực tế là team chưa làm được cái gì cả.",
+    "scenario": "Trong đầu có nguyên bài TED talk, lên thuyết trình ARTICULATE được đúng câu 'dạ em xin hết', toang.",
     "translationHint": "Diễn đạt lưu loát",
     "upgradeModule": {
       "simpleSentence": "He is good at expressing his ideas.",
@@ -2091,7 +2091,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈsɜːtɪv",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Đi phỏng vấn là phải ASSERTIVE lên, mình biết cái gì thì nói chắc cái đó, đừng có 'em nghĩ là'.",
+    "scenario": "Tập cả tuần để ASSERTIVE với chủ trọ vụ tăng giá điện, gặp mặt cái tự nói 'dạ anh tính sao cũng được', hết cứu.",
     "translationHint": "Quyết đoán, tự tin khẳng định",
     "upgradeModule": {
       "simpleSentence": "You need to be confident and say what you want.",
@@ -2114,7 +2114,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbaɪəst",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Đừng có BIASED cho cái framework ông thích mà chê mấy cái khác, cái nào cũng có cái dở thôi.",
+    "scenario": "Nhờ đứa bạn thân chấm outfit đi date là vô ích, nó BIASED quá, mặc bao tải nó cũng khen slay.",
     "translationHint": "Thiên vị, có thành kiến",
     "upgradeModule": {
       "simpleSentence": "The news report was not fair.",
@@ -2135,7 +2135,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌbjʊərəˈkrætɪk",
     "elo": 1080,
     "level": "intermediate",
-    "scenario": "Cái quy trình hoàn tiền ở đây BUREAUCRATIC vãi, bắt ký 7749 cái giấy tờ chỉ để nhận lại 200k.",
+    "scenario": "Xin cái giấy xác nhận sinh viên mà BUREAUCRATIC tới mức đi ba phòng, ký năm chữ, cuối cùng hẹn tuần sau, u là trời.",
     "translationHint": "Quan liêu, nhiều thủ tục",
     "upgradeModule": {
       "simpleSentence": "The system has too many rules and paperwork.",
@@ -2157,7 +2157,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkætəlɪst",
     "elo": 1020,
     "level": "intermediate",
-    "scenario": "Việc bị người yêu cũ cắm sừng chính là CATALYST giúp tôi quyết tâm học code để đổi đời.",
+    "scenario": "Bị crush seen không rep chính là CATALYST để mình đăng ký gym 6 giờ sáng, flex body là chuyện tháng sau.",
     "translationHint": "Chất xúc tác, nhân tố kích thích",
     "upgradeModule": {
       "simpleSentence": "The new law was the reason for the change.",
@@ -2179,7 +2179,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkrɒnɪk",
     "elo": 975,
     "level": "intermediate",
-    "scenario": "Cái bệnh trì hoãn của tôi nó thành CHRONIC rồi, cứ phải sát nút mới bắt đầu vắt chân lên cổ.",
+    "scenario": "Bệnh đặt 7 cái báo thức rồi tắt cả 7 của mình là CHRONIC rồi, lên 8 cái cũng khum cứu nổi.",
     "translationHint": "Mãn tính, kinh niên",
     "upgradeModule": {
       "simpleSentence": "He has a long-term back pain.",
@@ -2200,7 +2200,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌkɒmprɪˈhensɪv",
     "elo": 990,
     "level": "intermediate",
-    "scenario": "Tôi cần một cái document COMPREHENSIVE hơn, chứ viết sơ sài thế này bố ai mà hiểu code kiểu gì.",
+    "scenario": "Group project kêu làm bản tóm tắt COMPREHENSIVE, nhóm trưởng gửi đúng ba gạch đầu dòng kèm chữ 'tự hiểu nha', báo thủ.",
     "translationHint": "Toàn diện, bao quát",
     "upgradeModule": {
       "simpleSentence": "We need a full and detailed plan.",
@@ -2223,7 +2223,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈtenʃəs",
     "elo": 1060,
     "level": "intermediate",
-    "scenario": "Việc có nên dùng Tailwind hay không là một chủ đề CONTENTIOUS trong giới frontend hiện nay.",
+    "scenario": "Trà sữa bao nhiêu phần trăm đường là chủ đề CONTENTIOUS nhất group chat, lỡ nói 100% là bị kick liền, real.",
     "translationHint": "Gây tranh cãi",
     "upgradeModule": {
       "simpleSentence": "Abortion is a very controversial topic.",
@@ -2246,7 +2246,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌkaʊntəprəˈdʌktɪv",
     "elo": 1100,
     "level": "intermediate",
-    "scenario": "Thức đêm để làm việc nhưng hôm sau ngủ bù cả ngày thì đúng là COUNTERPRODUCTIVE thật sự.",
+    "scenario": "Thức tới 4 giờ sáng ôn thi rồi ngủ quên luôn giờ thi, đúng chuẩn COUNTERPRODUCTIVE, u là trời.",
     "translationHint": "Phản tác dụng",
     "upgradeModule": {
       "simpleSentence": "Too much exercise can be bad for your health.",
@@ -2268,7 +2268,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkredɪbl",
     "elo": 980,
     "level": "intermediate",
-    "scenario": "Cái website này nhìn phèn quá, nhìn chẳng CREDIBLE tí nào, ai mà dám nhập thẻ credit vào đây.",
+    "scenario": "Shop online toàn feedback năm sao mà ảnh nào cũng cùng một bàn tay, nhìn khum CREDIBLE xíu nào.",
     "translationHint": "Đáng tin",
     "upgradeModule": {
       "simpleSentence": "We need a believable witness.",
@@ -2290,7 +2290,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkjuːmjʊlətɪv",
     "elo": 1040,
     "level": "intermediate",
-    "scenario": "Hệ quả CUMULATIVE của việc mỗi ngày học 5 từ vựng là sau một năm ông sẽ khác bọt hẳn.",
+    "scenario": "Mỗi ngày một ly trà sữa 35k nghe nhỏ xíu, nhưng con số CUMULATIVE tới cuối tháng là ví ét o ét.",
     "translationHint": "Tích lũy, dồn lại",
     "upgradeModule": {
       "simpleSentence": "The total effect of the changes is big.",
@@ -2312,7 +2312,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsɪnɪkl",
     "elo": 965,
     "level": "intermediate",
-    "scenario": "Làm nghề này lâu năm khiến tôi trở nên CYNICAL, ai hứa hẹn gì tôi cũng thấy nghi nghi.",
+    "scenario": "Sau ba lần bị bùng kèo, giờ group rủ đi Đà Lạt là mình CYNICAL liền: hết delulu rồi, chắc lại nói cho vui.",
     "translationHint": "Hoài nghi, yếm thế",
     "upgradeModule": {
       "simpleSentence": "He is very suspicious of people's motives.",
@@ -2334,7 +2334,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈsaɪsɪv",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Làm leader là phải DECISIVE, chứ cứ phân vân mãi thì team biết đường nào mà lần.",
+    "scenario": "Chọn món ở quán mất 15 phút mà đổi chuyên ngành thì DECISIVE ghê, nghĩ đúng một đêm là nộp đơn, ra đường tôi nể mỗi bạn.",
     "translationHint": "Quyết đoán",
     "upgradeModule": {
       "simpleSentence": "The general made a quick and firm move.",
@@ -2357,7 +2357,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌdetrɪˈmentl",
     "elo": 1030,
     "level": "intermediate",
-    "scenario": "Việc ngồi sai tư thế cả ngày rất DETRIMENTAL cho cái cột sống của anh em dev mình.",
+    "scenario": "Nằm lướt TikTok tư thế con tôm cả đêm cực kỳ DETRIMENTAL cho cái cổ, sáng dậy quay đầu như robot, tới công chuyện.",
     "translationHint": "Có hại, bất lợi",
     "upgradeModule": {
       "simpleSentence": "Smoking is bad for your lungs.",
@@ -2379,7 +2379,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "daɪˈnæmɪk",
     "elo": 955,
     "level": "intermediate",
-    "scenario": "Thấy JD ghi 'môi trường DYNAMIC' là hiểu chuẩn bị tinh thần task bay tới tấp, thay đổi xoành xoạch nhé.",
+    "scenario": "Đi làm năm nhất mới hiểu môi trường DYNAMIC nghĩa là sáng một yêu cầu, chiều đổi hai lần, tối hỏi sao chưa xong.",
     "translationHint": "Năng động, thay đổi liên tục",
     "upgradeModule": {
       "simpleSentence": "We work in a fast-changing market.",
@@ -2401,7 +2401,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈlæbərət",
     "elo": 990,
     "level": "intermediate",
-    "scenario": "Ông có thể ELABORATE thêm về cái tính năng này không? Nghe còn mơ hồ quá.",
+    "scenario": "Crush nhắn 'mình cần nói chuyện', xin ELABORATE thêm thì nó bảo 'mai nói', đêm đó ét o ét luôn.",
     "translationHint": "Giải thích chi tiết",
     "upgradeModule": {
       "simpleSentence": "The plan was very detailed.",
@@ -2424,7 +2424,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪmˈpɪrɪkl",
     "elo": 1070,
     "level": "intermediate",
-    "scenario": "Đừng có nói suông, đưa bằng chứng EMPIRICAL ra đây xem tốc độ load app nó tăng được bao nhiêu?",
+    "scenario": "Bằng chứng EMPIRICAL sau ba năm ở trọ: cứ mở nắp ly mì là chủ trọ gõ cửa thu tiền điện, xu cà na.",
     "translationHint": "Dựa trên thực tế, thực nghiệm",
     "upgradeModule": {
       "simpleSentence": "The theory is based on real experience.",
@@ -2446,7 +2446,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪkˈsplɪsɪt",
     "elo": 1000,
     "level": "intermediate",
-    "scenario": "Tôi đã dặn EXPLICIT là không được sửa cái file này rồi mà ông vẫn cứ táy máy tay chân nhỉ?",
+    "scenario": "Ủa alo, đã nói EXPLICIT là tao không ăn hành, nó vẫn gọi bánh mì full hành rồi bảo tưởng giỡn.",
     "translationHint": "Rõ ràng, dứt khoát",
     "upgradeModule": {
       "simpleSentence": "The instructions were very clear.",
@@ -2468,7 +2468,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfɔːmɪdəbl",
     "elo": 1050,
     "level": "intermediate",
-    "scenario": "Đối thủ lần này FORMIDABLE vãi, tech stack của tụi nó toàn thứ dữ, mình phải cẩn thận.",
+    "scenario": "Đối thủ FORMIDABLE nhất mùa săn sale không phải người khác, mà là cái app lag đúng lúc 0 giờ, hết cứu.",
     "translationHint": "Đáng gờm",
     "upgradeModule": {
       "simpleSentence": "He is a very strong opponent.",
@@ -2490,7 +2490,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfræɡməntɪd",
     "elo": 1020,
     "level": "intermediate",
-    "scenario": "Hệ sinh thái của Android hơi bị FRAGMENTED, test app trên đống máy này mệt xỉu.",
+    "scenario": "Giấc ngủ ở trọ FRAGMENTED cỡ này: 1 giờ phòng bên hát karaoke, 3 giờ mèo đánh nhau, 5 giờ gà gáy, u là trời.",
     "translationHint": "Phân mảnh, rời rạc",
     "upgradeModule": {
       "simpleSentence": "The market is broken into small parts.",
@@ -2512,7 +2512,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌfʌndəˈmentl",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Mấy cái kiến thức FUNDAMENTAL về JavaScript mà không vững thì học framework chỉ có nát.",
+    "scenario": "Đi làm năm nhất mới thấy kỹ năng FUNDAMENTAL nhất là gật gù như hiểu trong cuộc họp, còn lại học sau, real.",
     "translationHint": "Cơ bản, thiết yếu",
     "upgradeModule": {
       "simpleSentence": "This is a basic rule of economics.",
@@ -2533,7 +2533,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌhaɪpəˈθetɪkl",
     "elo": 1080,
     "level": "intermediate",
-    "scenario": "Đây chỉ là tình huống HYPOTHETICAL thôi, nhưng nếu bị hack hết database thì ông tính làm gì?",
+    "scenario": "Câu hỏi HYPOTHETICAL thôi nha: nếu mày trúng Vietlott thì có trả tao 200k tháng trước khum?",
     "translationHint": "Giả định, giả thuyết",
     "upgradeModule": {
       "simpleSentence": "Let's think about an imaginary situation.",
@@ -2555,7 +2555,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪmˈplɪsɪt",
     "elo": 1040,
     "level": "intermediate",
-    "scenario": "Dù sếp không nói ra, nhưng sự im lặng đó mang một thông điệp IMPLICIT là 'lo mà làm đi'.",
+    "scenario": "Mẹ nhắn 'Tết này về dẫn ai về cũng được', lời nhắc IMPLICIT nặng ký nhất năm, ok mom.",
     "translationHint": "Ngầm định, ẩn ý",
     "upgradeModule": {
       "simpleSentence": "The message was hidden in the text.",
@@ -2577,7 +2577,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɪndɪˈspensəbl",
     "elo": 1090,
     "level": "intermediate",
-    "scenario": "Cái thư viện này INDISPENSABLE cho project luôn rồi, gỡ ra cái là app tạch ngay.",
+    "scenario": "Cục sạc dự phòng là món INDISPENSABLE khi đi concert, mất nó là mất luôn cơ hội đăng story flex.",
     "translationHint": "Không thể thiếu",
     "upgradeModule": {
       "simpleSentence": "Water is very important for life.",
@@ -2600,7 +2600,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪntɪɡreɪt",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Phải INTEGRATE thêm cái cổng thanh toán này vào app ngay trong tuần tới cho khách.",
+    "scenario": "Bạn cùng phòng đòi INTEGRATE lịch tắm vào Google Calendar, ai trễ năm phút là bị tag lên group, ô dề thật.",
     "translationHint": "Tích hợp",
     "upgradeModule": {
       "simpleSentence": "The company wants to combine the two systems.",
@@ -2622,7 +2622,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈtjuːɪtɪv",
     "elo": 1010,
     "level": "intermediate",
-    "scenario": "Thiết kế UI phải làm sao cho nó INTUITIVE vào, để người dùng nhìn cái biết bấm đâu luôn.",
+    "scenario": "Máy giặt chung ở trọ có 14 nút mà chẳng nút nào INTUITIVE, cả xóm giặt đồ bằng niềm tin với manifest.",
     "translationHint": "Trực quan, dễ hiểu",
     "upgradeModule": {
       "simpleSentence": "The software is easy to use.",
@@ -2645,7 +2645,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈliːvərɪdʒ",
     "elo": 1000,
     "level": "intermediate",
-    "scenario": "Cố gắng LEVERAGE đống code cũ đi, đừng có lúc nào cũng đòi viết lại từ đầu cho mệt.",
+    "scenario": "Biết bà chủ quán quý mình nên LEVERAGE triệt để, gọi ly 25k mà topping như ly 40k, nước đi keo lỳ.",
     "translationHint": "Tận dụng lợi thế",
     "upgradeModule": {
       "simpleSentence": "We should use our brand name to sell more products.",
@@ -2667,7 +2667,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmɒdɪkəm",
     "elo": 1030,
     "level": "intermediate",
-    "scenario": "Chỉ cần sếp có một MODICUM thấu hiểu cho anh em thôi là không khí văn phòng đã đỡ ngộp thở hơn rồi.",
+    "scenario": "Ủa alo, chỉ xin một MODICUM tôn trọng thôi: ăn mì của tao thì ít ra chừa lại gói gia vị.",
     "translationHint": "Một chút, lượng nhỏ tối thiểu",
     "upgradeModule": {
       "simpleSentence": "He has a small amount of common sense.",
@@ -2688,7 +2688,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "məˈmentəm",
     "elo": 990,
     "level": "intermediate",
-    "scenario": "Đang có MOMENTUM code ngon lành thì thằng đồng nghiệp sang rủ đi hút thuốc làm đứt mạch luôn.",
+    "scenario": "Đang có MOMENTUM dọn phòng ngon lành thì lục ra album ảnh cũ, ngồi chữa lành tới tối, phòng vẫn y nguyên.",
     "translationHint": "Đà tiến, sức đẩy",
     "upgradeModule": {
       "simpleSentence": "The campaign is getting more speed.",
@@ -2710,7 +2710,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "məˈnɒtənəs",
     "elo": 975,
     "level": "intermediate",
-    "scenario": "Mấy cái task MONOTONOUS như copy-paste data này làm tôi thấy mình giống robot hơn là kỹ sư.",
+    "scenario": "Thực tập tháng đầu MONOTONOUS cỡ nào? Ngày nào cũng nhập Excel, tối mơ thấy mình là ô B12, chằm zn.",
     "translationHint": "Đơn điệu, tẻ nhạt",
     "upgradeModule": {
       "simpleSentence": "His voice was very boring and the same all the time.",
@@ -2733,7 +2733,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnævɪɡeɪt",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Việc NAVIGATE trong đống legacy code không có document giống như đi lạc trong rừng rậm vậy.",
+    "scenario": "Lần đầu NAVIGATE chợ Bến Thành không có Google Maps, đi một vòng quay về đúng chỗ bán móc khóa, hết cứu.",
     "translationHint": "Điều hướng, tìm cách vượt qua",
     "upgradeModule": {
       "simpleSentence": "He helped me find the way through the complex rules.",
@@ -2755,7 +2755,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əbˈdʒektɪv",
     "elo": 950,
     "level": "intermediate",
-    "scenario": "Nói một cách OBJECTIVE thì cái tính năng này chẳng giúp ích gì cho người dùng, chỉ tổ tốn tài nguyên.",
+    "scenario": "Nói OBJECTIVE nha, ảnh thẻ của mày đâu có xấu, chỉ là nhìn như vừa thức ba đêm chạy deadline thôi.",
     "translationHint": "Khách quan, mục tiêu",
     "upgradeModule": {
       "simpleSentence": "Try to look at the situation without being personal.",
@@ -2777,7 +2777,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌəʊvəˈwelmɪŋ",
     "elo": 980,
     "level": "intermediate",
-    "scenario": "Nhìn cái backlog còn 50 task mà deadline chỉ còn 2 ngày, cảm giác thật sự OVERWHELMING.",
+    "scenario": "Mở app ngân hàng sau 11.11 thấy sao kê dài ba trang, cảm giác OVERWHELMING tới mức xỉu ngang tại chỗ.",
     "translationHint": "Choáng ngợp, quá tải",
     "upgradeModule": {
       "simpleSentence": "The work is too much for me to handle.",
@@ -2799,7 +2799,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpærədɒks",
     "elo": 1050,
     "level": "intermediate",
-    "scenario": "Đúng là một cái PARADOX: Code càng phức tạp thì càng dễ lỗi, mà muốn fix lỗi lại phải thêm code phức tạp hơn.",
+    "scenario": "PARADOX của tuổi 22: có thời gian thì không có tiền, có tiền thì bị deadline giữ chân, real.",
     "translationHint": "Nghịch lý",
     "upgradeModule": {
       "simpleSentence": "It is a strange situation that seems impossible but is true.",
@@ -2821,7 +2821,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈsiːv",
     "elo": 1010,
     "level": "intermediate",
-    "scenario": "Khách hàng PERCEIVE cái app mình là cao cấp chỉ vì mình đổi cái font chữ nhìn nó 'sang' hơn.",
+    "scenario": "Đứa bạn PERCEIVE dấu chấm trong tin 'ok.' như lời tuyên chiến, nên giờ cả group nhắn tin khỏi chấm câu, ô dề.",
     "translationHint": "Nhận thức, cảm nhận",
     "upgradeModule": {
       "simpleSentence": "People think of him as a great leader.",
@@ -2843,7 +2843,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈpetʃuəl",
     "elo": 1060,
     "level": "intermediate",
-    "scenario": "Tôi luôn ở trong trạng thái PERPETUAL mệt mỏi, ngủ bao nhiêu cũng thấy không đủ.",
+    "scenario": "Sinh viên năm ba sống trong trạng thái PERPETUAL thiếu ngủ, ngủ trưa hai tiếng dậy vẫn hỏi nay thứ mấy.",
     "translationHint": "Liên tục, vĩnh cửu",
     "upgradeModule": {
       "simpleSentence": "They live in a state of never-ending war.",
@@ -2866,7 +2866,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈprevələnt",
     "elo": 1020,
     "level": "intermediate",
-    "scenario": "Cái văn hóa 'làm màu' đang ngày càng PREVALENT trong mấy cái startup bây giờ.",
+    "scenario": "Trend quay 'một ngày của tôi' PREVALENT tới mức đứa bạn fomo quay luôn cảnh ngủ gục ở thư viện.",
     "translationHint": "Phổ biến, thịnh hành",
     "upgradeModule": {
       "simpleSentence": "Smoking is common among teenagers.",
@@ -2889,7 +2889,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌprəʊˈæktɪv",
     "elo": 975,
     "level": "intermediate",
-    "scenario": "Thay vì đợi sếp nhắc, ông nên PROACTIVE cập nhật tình hình dự án đi cho đỡ bị ăn chửi.",
+    "scenario": "Đứa PROACTIVE nhất nhóm là đứa tạo file Drive đầu tiên, rồi biến mất tới ngày thuyết trình, báo thủ đúng nghĩa.",
     "translationHint": "Chủ động",
     "upgradeModule": {
       "simpleSentence": "You should take action before problems happen.",
@@ -2911,7 +2911,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prəˈfaʊnd",
     "elo": 1040,
     "level": "intermediate",
-    "scenario": "Những chia sẻ của anh ấy về nghề nghiệp mang lại cho tôi một sự thay đổi PROFOUND trong tư duy.",
+    "scenario": "Chú xe ôm bảo 'xe hư thì sửa, tuổi trẻ thì không', câu nói PROFOUND tới mức mình ngồi im lố nhà, chữa lành.",
     "translationHint": "Sâu sắc, thâm thúy",
     "upgradeModule": {
       "simpleSentence": "The book has a very deep meaning.",
@@ -2933,7 +2933,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈræʃnəl",
     "elo": 965,
     "level": "intermediate",
-    "scenario": "Đừng có cáu gắt, hãy đưa ra một cái giải trình RATIONAL xem tại sao dự án lại bị delay?",
+    "scenario": "Mua áo khoác thứ năm vì đang giảm 50%, tự thao túng tâm lý bằng lý do nghe RATIONAL lắm, cho tới khi tủ đồ không đóng lại được.",
     "translationHint": "Hợp lý, dựa trên lý trí",
     "upgradeModule": {
       "simpleSentence": "Make a choice based on logic, not emotions.",
@@ -2954,7 +2954,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈskeptɪkl",
     "elo": 990,
     "level": "intermediate",
-    "scenario": "Tôi hơi SKEPTICAL về mấy cái lời hứa 'lương tháng 13, 14' của mấy công ty này, nghe ảo lắm.",
+    "scenario": "Tin tuyển dụng ghi 'việc nhẹ lương 20 triệu, không cần kinh nghiệm', red flag to đùng, ai tỉnh cũng SKEPTICAL.",
     "translationHint": "Hoài nghi, ngờ vực",
     "upgradeModule": {
       "simpleSentence": "I don't really believe what he said.",
@@ -2975,7 +2975,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "spɒnˈteɪniəs",
     "elo": 1000,
     "level": "intermediate",
-    "scenario": "Một chuyến đi du lịch SPONTANEOUS cuối tuần này có vẻ là ý hay để xả stress đấy.",
+    "scenario": "Chuyến đi Vũng Tàu SPONTANEOUS lúc 11 giờ đêm, sáng ra cả đám ngồi ngắm biển còn ví thì toang.",
     "translationHint": "Ngẫu hứng, bột phát",
     "upgradeModule": {
       "simpleSentence": "He made a quick decision without planning.",
@@ -2996,7 +2996,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "səbˈdʒektɪv",
     "elo": 975,
     "level": "intermediate",
-    "scenario": "Cái đẹp là SUBJECTIVE, ông thấy cái UI này đẹp nhưng khách hàng thấy nó 'nhức mắt' thì vẫn phải sửa.",
+    "scenario": "Cái đẹp là SUBJECTIVE, nên tóc nhuộm tím của mày được cả họ bình luận đủ 7 kiểu dịp Tết, hết cứu.",
     "translationHint": "Chủ quan",
     "upgradeModule": {
       "simpleSentence": "That is just your personal opinion.",
@@ -3018,7 +3018,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "səˈsteɪnəbl",
     "elo": 955,
     "level": "intermediate",
-    "scenario": "Làm việc 14 tiếng một ngày không phải là cách làm SUSTAINABLE đâu, trụ được 1 tháng là ông cháy sạch năng lượng.",
+    "scenario": "Ăn mì gói 30 ngày để mua vé concert nghe slay thật, nhưng chẳng SUSTAINABLE gì với cái bao tử của mày.",
     "translationHint": "Bền vững",
     "upgradeModule": {
       "simpleSentence": "We need a plan that can last a long time.",
@@ -3040,7 +3040,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "trænsˈpærənt",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Công ty cần TRANSPARENT hơn trong việc xét duyệt tăng lương, chứ cứ mập mờ thế này anh em nản.",
+    "scenario": "Quỹ lớp cần TRANSPARENT hơn nha, thu 100k mỗi đứa mà cuối kỳ chỉ thấy một bịch hướng dương, check var gấp.",
     "translationHint": "Minh bạch",
     "upgradeModule": {
       "simpleSentence": "The process should be clear for everyone to see.",
@@ -3062,7 +3062,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtrɪviəl",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Đừng có tốn thời gian cãi nhau về mấy cái vấn đề TRIVIAL như dùng dấu nháy đơn hay nháy đôi nữa.",
+    "scenario": "Cãi nhau 3 tiếng với người yêu vì chuyện TRIVIAL là ăn bún hay phở, cuối cùng đi ăn cơm tấm, rồi bắt cả group ăn cơm chó.",
     "translationHint": "Tầm thường, vụn vặt",
     "upgradeModule": {
       "simpleSentence": "It's just a small and unimportant problem.",
@@ -3084,7 +3084,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ʌnˈpresɪdentɪd",
     "elo": 1070,
     "level": "intermediate",
-    "scenario": "Đợt sụt giảm thị trường crypto vừa rồi là một sự kiện UNPRECEDENTED, không ai lường trước nổi.",
+    "scenario": "Thằng keo kiệt nhất xóm trọ bỗng bao cả phòng trà sữa, sự kiện UNPRECEDENTED tới mức cả đám phải check var.",
     "translationHint": "Chưa từng có tiền lệ",
     "upgradeModule": {
       "simpleSentence": "This has never happened before.",
@@ -3106,7 +3106,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvʌlnərəbl",
     "elo": 1010,
     "level": "intermediate",
-    "scenario": "Cái hệ thống này đang rất VULNERABLE trước các đợt tấn công mạng vì chưa update bản vá.",
+    "scenario": "Ba giờ sáng nghe nhạc buồn là lúc mình VULNERABLE nhất, một cái story của người cũ cũng đủ khóc, chằm zn.",
     "translationHint": "Dễ bị tổn thương",
     "upgradeModule": {
       "simpleSentence": "The old house is weak against the storm.",
@@ -3128,7 +3128,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɒrəntɪd",
     "elo": 1080,
     "level": "intermediate",
-    "scenario": "Sự lo lắng của khách hàng là hoàn toàn WARRANTED khi app cứ crash liên tục thế này.",
+    "scenario": "Nỗi lo của mẹ hoàn toàn WARRANTED: con nói đi Đà Lạt 'tiết kiệm' mà story toàn quán cà phê view đồi, check var là lộ.",
     "translationHint": "Có cơ sở, được cho phép",
     "upgradeModule": {
       "simpleSentence": "The extra cost is justified by the quality.",
@@ -3149,7 +3149,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌækrɪˈməʊniəs",
     "elo": 1150,
     "level": "advanced",
-    "scenario": "Buổi họp kết thúc bằng một cuộc tranh cãi ACRIMONIOUS giữa bên dev và bên design.",
+    "scenario": "Vụ chia tiền lẩu trong group kết thúc cực ACRIMONIOUS chỉ vì một đĩa bò 120k, cả lớp kéo vào hóng biến.",
     "translationHint": "Cay nghiệt, đầy ác ý",
     "upgradeModule": {
       "simpleSentence": "The divorce was very bitter and angry.",
@@ -3171,7 +3171,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ədˈmɒnɪʃ",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Sếp ADMONISH tôi vì cái tội dám 'commit' code thẳng lên branch main mà không thèm qua review.",
+    "scenario": "Cô ADMONISH đứa bạn vì điểm danh hộ năm người, tính ra một mình nó gánh nửa lớp, keo lỳ thiệt.",
     "translationHint": "Cảnh cáo, khiển trách nhẹ",
     "upgradeModule": {
       "simpleSentence": "The teacher warned the student for talking in class.",
@@ -3193,7 +3193,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈæfluənt",
     "elo": 1120,
     "level": "advanced",
-    "scenario": "Nhìn nhà cửa xe cộ là biết gia đình hắn ta thuộc hàng AFFLUENT rồi, đi làm chắc chỉ để trải nghiệm.",
+    "scenario": "Nhìn đôi giày của thành viên mới là đoán gia đình AFFLUENT, check var xong cả đám im re.",
     "translationHint": "Giàu có, thịnh vượng",
     "upgradeModule": {
       "simpleSentence": "They live in a very rich neighborhood.",
@@ -3215,7 +3215,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈliːvieɪt",
     "elo": 1140,
     "level": "advanced",
-    "scenario": "Có thêm một bạn intern hỗ trợ sẽ giúp ALLEVIATE được phần nào khối lượng công việc cho tôi.",
+    "scenario": "Một ly bạc xỉu giúp ALLEVIATE nỗi đau thứ hai đầu tuần, ly thứ hai thì làm tim đập như vừa thi xong.",
     "translationHint": "Giảm nhẹ, làm vơi bớt",
     "upgradeModule": {
       "simpleSentence": "This medicine will make the pain less.",
@@ -3237,7 +3237,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌæltruˈɪstɪk",
     "elo": 1180,
     "level": "advanced",
-    "scenario": "Ông đừng có tỏ ra ALTRUISTIC, tôi biết ông giúp tôi là để sau này nhờ tôi gánh task hộ chứ gì.",
+    "scenario": "Tưởng nó ALTRUISTIC nhường mình giường gần quạt, ai ngờ chỗ đó muỗi đông nhất phòng, thao túng tâm lý đỉnh.",
     "translationHint": "Vị tha, không vụ lợi",
     "upgradeModule": {
       "simpleSentence": "He does charity work because he is a selfless person.",
@@ -3259,7 +3259,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "æˈberənt",
     "elo": 1130,
     "level": "advanced",
-    "scenario": "Cái hành vi ABERRANT của hệ thống lúc 12h đêm làm tôi phải thức trắng để tìm nguyên nhân.",
+    "scenario": "Thằng bạn tự dậy 6 giờ sáng chạy bộ, hành vi ABERRANT tới mức cả phòng hỏi nó có đang thất tình khum.",
     "translationHint": "Bất thường, lệch lạc",
     "upgradeModule": {
       "simpleSentence": "The test results showed some unusual behavior.",
@@ -3281,7 +3281,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˌnækrəˈnɪstɪk",
     "elo": 1280,
     "level": "advanced",
-    "scenario": "Cái tư duy quản lý nhân viên theo kiểu chấm công từng phút thật sự là ANACHRONISTIC trong thời đại WFH này.",
+    "scenario": "Thầy bắt viết tay tiểu luận rồi scan thành PDF, quy định ANACHRONISTIC tới mức cả lớp phải đi mua bút lại.",
     "translationHint": "Lỗi thời, sai thời điểm",
     "upgradeModule": {
       "simpleSentence": "Using a typewriter in a modern office is out of date.",
@@ -3303,7 +3303,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌænɪkˈdəʊtl",
     "elo": 1160,
     "level": "advanced",
-    "scenario": "Mấy cái tin đồn công ty sắp phá sản chỉ là ANECDOTAL thôi, đừng có nghe rồi hoảng loạn.",
+    "scenario": "Vụ 'uống cà phê muối là qua môn' chỉ là bằng chứng ANECDOTAL từ một anh khóa trên, vậy mà cả lớp xếp hàng.",
     "translationHint": "Dựa trên lời kể, không chính thức",
     "upgradeModule": {
       "simpleSentence": "The doctor's report was based on personal stories, not science.",
@@ -3325,7 +3325,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnɒməli",
     "elo": 1170,
     "level": "advanced",
-    "scenario": "Cái bug này đúng là một ANOMALY, test cả trăm lần không sao mà cứ hễ demo cho khách là nó hiện ra.",
+    "scenario": "Một ANOMALY của xóm trọ: tuần này wifi mạnh bất thường, hóa ra cả xóm về quê hết, fomo dễ sợ.",
     "translationHint": "Sự bất thường, dị thường",
     "upgradeModule": {
       "simpleSentence": "There is a strange thing in the data.",
@@ -3347,7 +3347,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈæntɪkweɪtɪd",
     "elo": 1220,
     "level": "advanced",
-    "scenario": "Dùng mấy cái tool ANTIQUATED này để quản lý dự án thì bảo sao năng suất không thấp cho được.",
+    "scenario": "Cái laptop ANTIQUATED đời ông cố mở Word mất ba phút, đủ để úp mì và ăn xong, nồi cơm điện còn out trình nó.",
     "translationHint": "Cổ lỗ sĩ, cũ kỹ",
     "upgradeModule": {
       "simpleSentence": "This law is very old and should be changed.",
@@ -3369,7 +3369,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌæprɪˈhensɪv",
     "elo": 1150,
     "level": "advanced",
-    "scenario": "Tôi thấy hơi APPREHENSIVE về đợt update hệ thống tối nay, linh tính mách bảo là có gì đó không ổn.",
+    "scenario": "Thấy mẹ nhắn 'tối nay gọi video nha con', mình APPREHENSIVE liền, phòng trọ đang như bãi chiến trường, ét o ét.",
     "translationHint": "E sợ, lo lắng về điều gì đó sắp xảy ra",
     "upgradeModule": {
       "simpleSentence": "I am a bit worried about the future.",
@@ -3392,7 +3392,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɑːdjuəs",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Quá trình refactor lại toàn bộ đống code rác này là một hành trình ARDUOUS và đầy nước mắt.",
+    "scenario": "Hành trình ARDUOUS nhất năm: xách hai thùng mì với bao gạo lên tầng 5 không thang máy, tới nơi xỉu ngang.",
     "translationHint": "Gian nan, cực nhọc",
     "upgradeModule": {
       "simpleSentence": "It was a very difficult and long journey.",
@@ -3414,7 +3414,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɒˈstɪə",
     "elo": 1240,
     "level": "advanced",
-    "scenario": "Lối sống AUSTERE của ông ấy: chỉ ăn cơm hộp và code 16 tiếng mỗi ngày để tiết kiệm tiền mua nhà.",
+    "scenario": "Tháng này sống AUSTERE thật: cơm trắng, trứng chiên, nước lọc, wifi thì xài ké quán cà phê.",
     "translationHint": "Khắc khổ, giản dị quá mức",
     "upgradeModule": {
       "simpleSentence": "The room is very simple with no decoration.",
@@ -3435,7 +3435,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bəˈnɑːl",
     "elo": 1180,
     "level": "advanced",
-    "scenario": "Mấy cái bài post 'Cố gắng lên bạn ơi' trên LinkedIn nghe BANAL vãi, sáo rỗng chẳng giúp ích gì.",
+    "scenario": "Caption 'cuộc sống là những chuyến đi' nghe BANAL thật, nhưng ảnh Đà Lạt đẹp quá nên vẫn đăng, slay.",
     "translationHint": "Tầm thường, vô vị, sáo rỗng",
     "upgradeModule": {
       "simpleSentence": "The plot of the movie is very common and boring.",
@@ -3456,7 +3456,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bəˈnevələnt",
     "elo": 1160,
     "level": "advanced",
-    "scenario": "Anh lead này BENEVOLENT lắm, thấy anh em mệt là tự bỏ tiền túi ra order trà sữa về bồi bổ ngay.",
+    "scenario": "Chủ trọ BENEVOLENT đỉnh nóc kịch trần: Tết không tăng giá, còn tặng mỗi phòng một hộp mứt.",
     "translationHint": "Nhân từ, rộng lượng",
     "upgradeModule": {
       "simpleSentence": "He is a very kind old man.",
@@ -3478,7 +3478,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkæləs",
     "elo": 1190,
     "level": "advanced",
-    "scenario": "Cái cách công ty sa thải nhân viên thâm niên đúng là CALLOUS, không một lời thông báo trước.",
+    "scenario": "Chia tay qua tin nhắn đúng ngày sinh nhật, kèm câu 'chúc vui', CALLOUS cỡ đó là red flag hạng nặng.",
     "translationHint": "Vô tâm, nhẫn tâm",
     "upgradeModule": {
       "simpleSentence": "She was very cold and didn't care about his feelings.",
@@ -3499,7 +3499,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəˈpɪtʃʊleɪt",
     "elo": 1250,
     "level": "advanced",
-    "scenario": "Sau 2 tiếng tranh luận gay gắt, tôi đành phải CAPITULATE và làm theo cái yêu cầu vô lý của khách hàng.",
+    "scenario": "Thề không ăn sau 8 giờ tối, tới 11 giờ group rủ đi ăn ốc là CAPITULATE trong hai giây, gét gô.",
     "translationHint": "Đầu hàng, chịu khuất phục",
     "upgradeModule": {
       "simpleSentence": "The army finally gave up.",
@@ -3521,7 +3521,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌsɜːkəmˈvent",
     "elo": 1230,
     "level": "advanced",
-    "scenario": "Thằng đó luôn tìm cách CIRCUMVENT mấy cái quy trình an mật của công ty để cài phần mềm lậu.",
+    "scenario": "Thư viện cấm mang đồ ăn, nó CIRCUMVENT bằng cách giấu bánh mì trong hộp bút, thơm nguyên dãy bàn, ra đường tôi nể mỗi bạn.",
     "translationHint": "Dùng mưu mẹo để lách luật",
     "upgradeModule": {
       "simpleSentence": "They tried to go around the rules.",
@@ -3543,7 +3543,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "klænˈdestɪn",
     "elo": 1270,
     "level": "advanced",
-    "scenario": "Mấy ông nội đang có một cuộc họp CLANDESTINE trong phòng kín, chắc lại sắp có biến gì rồi.",
+    "scenario": "Có một nhóm chat CLANDESTINE lowkey thiếu đúng một đứa, vì tuần sau là sinh nhật nó.",
     "translationHint": "Bí mật, lén lút",
     "upgradeModule": {
       "simpleSentence": "The spies had a secret meeting.",
@@ -3564,7 +3564,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəʊˈɜːs",
     "elo": 1210,
     "level": "advanced",
-    "scenario": "Đừng có dùng chức quyền để COERCE nhân viên làm thêm giờ mà không trả lương, kỳ lắm.",
+    "scenario": "Bạn thân COERCE mình đi coi phim kinh dị bằng cách mua sẵn vé, giờ mình ngủ phải bật đèn, báo thủ.",
     "translationHint": "Ép buộc, cưỡng bức",
     "upgradeModule": {
       "simpleSentence": "He was forced to sign the paper.",
@@ -3586,7 +3586,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəmˈpleɪsnt",
     "elo": 1170,
     "level": "advanced",
-    "scenario": "Đừng có COMPLACENT với những gì mình đang biết, công nghệ nó thay đổi nhanh lắm, không học là bị đào thải ngay.",
+    "scenario": "Giữa kỳ được 9 điểm nên COMPLACENT, cuối kỳ lướt TikTok thay vì ôn, kết quả tới công chuyện.",
     "translationHint": "Tự mãn, hài lòng với bản thân",
     "upgradeModule": {
       "simpleSentence": "He is too happy with his current success and doesn't want to try harder.",
@@ -3608,7 +3608,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈsiːd",
     "elo": 1150,
     "level": "advanced",
-    "scenario": "Tôi buộc phải CONCEDE là giải pháp của ông tối ưu hơn của tôi, mặc dù tôi không thích ông tí nào.",
+    "scenario": "Cãi cả buổi rồi cũng phải CONCEDE là mẹ nói đúng: áo trắng đừng giặt chung với quần jean, ok mom.",
     "translationHint": "Thừa nhận (thường là miễn cưỡng)",
     "upgradeModule": {
       "simpleSentence": "He finally agreed that he was wrong.",
@@ -3630,7 +3630,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌkɒndɪˈsendɪŋ",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Cái giọng CONDESCENDING của hắn khi nói chuyện với intern làm ai nhìn vào cũng thấy ngứa mắt.",
+    "scenario": "Anh khóa trên giảng bài bằng giọng CONDESCENDING, rồi tự giải sai đúng câu đầu tiên, ô dề thật sự.",
     "translationHint": "Ra vẻ bề trên, khinh khỉnh",
     "upgradeModule": {
       "simpleSentence": "He talks to people like they are stupid.",
@@ -3652,7 +3652,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkɒnvəluːtɪd",
     "elo": 1220,
     "level": "advanced",
-    "scenario": "Cái logic xử lý của cái module này CONVOLUTED quá, đọc muốn nổ cả não mà chưa hiểu gì.",
+    "scenario": "Cách tính điểm rèn luyện CONVOLUTED tới mức đứa học Toán ứng dụng cũng bó tay, hết cứu.",
     "translationHint": "Phức tạp, rắc rối",
     "upgradeModule": {
       "simpleSentence": "The explanation was very complex and hard to follow.",
@@ -3675,7 +3675,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkredjʊləs",
     "elo": 1180,
     "level": "advanced",
-    "scenario": "Sao ông CREDULOUS thế? Nó bảo 'việc nhẹ lương cao' mà ông cũng tin cho được à?",
+    "scenario": "Đứa CREDULOUS nhất phòng tin lời shop 'mặc vào cao thêm 5 phân', giờ áo dài tới gối, delulu thật sự.",
     "translationHint": "Cả tin, dễ tin người",
     "upgradeModule": {
       "simpleSentence": "He is very easy to trick because he believes everything.",
@@ -3697,7 +3697,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kɜːˈteɪl",
     "elo": 1190,
     "level": "advanced",
-    "scenario": "Công ty đang tìm cách CURTAIL mọi khoản chi phí không cần thiết sau một năm làm ăn thua lỗ.",
+    "scenario": "Quyết tâm CURTAIL trà sữa còn hai ly một tuần, mới thứ hai đã xài hết suất vì fomo món mới.",
     "translationHint": "Cắt bớt, rút ngắn",
     "upgradeModule": {
       "simpleSentence": "We need to limit the time of the meeting.",
@@ -3719,7 +3719,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsɪnɪsɪzəm",
     "elo": 1160,
     "level": "advanced",
-    "scenario": "Sự CYNICISM của ông ấy đối với các startup mới là do ông ấy đã từng bị lừa trắng tay 3 lần.",
+    "scenario": "CYNICISM của mình với chữ 'sale sốc' có lý do: ba lần mua xong tuần sau giá còn rẻ hơn, xu cà na.",
     "translationHint": "Thái độ hoài nghi, yếm thế",
     "upgradeModule": {
       "simpleSentence": "He has a very negative view of life.",
@@ -3741,7 +3741,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈbɪlɪteɪtɪŋ",
     "elo": 1240,
     "level": "advanced",
-    "scenario": "Cái bệnh đau lưng DEBILITATING này làm tôi không thể tập trung ngồi code quá 15 phút.",
+    "scenario": "Cơn buồn ngủ sau bữa trưa DEBILITATING cỡ nào? Ngồi họp mà lowkey gật gù như đang nghe nhạc chill.",
     "translationHint": "Làm suy yếu, làm kiệt sức",
     "upgradeModule": {
       "simpleSentence": "The disease makes him very weak.",
@@ -3763,7 +3763,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈlɪnieɪt",
     "elo": 1260,
     "level": "advanced",
-    "scenario": "Dự án này cần DELINEATE rõ ràng trách nhiệm của từng người, chứ không là cứ đùn đẩy nhau suốt.",
+    "scenario": "Trước khi ở ghép phải DELINEATE ai đổ rác, ai rửa chén, chứ không là tháng sau toang.",
     "translationHint": "Vạch ra, mô tả chi tiết",
     "upgradeModule": {
       "simpleSentence": "Can you describe the plan more clearly?",
@@ -3786,7 +3786,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈskrepənsi",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Có một sự DISCREPANCY cực lớn giữa số tiền ghi trên hóa đơn và số tiền thực tế nhận được.",
+    "scenario": "Ảnh menu thì tô bún đầy thịt, ra tới bàn còn ba lát, DISCREPANCY cỡ này là lừa tình, ủa alo.",
     "translationHint": "Sự khác nhau, không thống nhất",
     "upgradeModule": {
       "simpleSentence": "There is a difference between the two reports.",
@@ -3808,7 +3808,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪsˈmɪsɪv",
     "elo": 1170,
     "level": "advanced",
-    "scenario": "Ông đừng có thái độ DISMISSIVE với ý kiến của người khác như vậy, lỡ họ nói đúng thì sao?",
+    "scenario": "Gửi idea vào group, nhóm trưởng đáp đúng chữ 'ừm', DISMISSIVE vậy là red flag, tuần sau tự làm nha.",
     "translationHint": "Gạt bỏ, coi thường",
     "upgradeModule": {
       "simpleSentence": "He ignored my idea and didn't think it was important.",
@@ -3830,7 +3830,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdɪspərət",
     "elo": 1210,
     "level": "advanced",
-    "scenario": "Phải kết hợp đống dữ liệu DISPARATE này thành một cái report hoàn chỉnh đúng là một cực hình.",
+    "scenario": "Tủ đồ toàn món DISPARATE: áo hoa đi biển, quần tây đi làm, giày leo núi, ghép lại ra bộ đi đám cưới.",
     "translationHint": "Khác hẳn nhau, tạp nham",
     "upgradeModule": {
       "simpleSentence": "The team has very different groups of people.",
@@ -3852,7 +3852,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "drəˈkəʊniən",
     "elo": 1280,
     "level": "advanced",
-    "scenario": "Chính sách phạt tiền khi đi muộn ở đây đúng là DRACONIAN, đi trễ 1 phút phạt 100k.",
+    "scenario": "Luật phòng trọ DRACONIAN thật: sau 10 giờ khóa cổng, gọi cháy máy cũng chỉ nghe tiếng chó sủa, toang.",
     "translationHint": "Hà khắc, khắc nghiệt",
     "upgradeModule": {
       "simpleSentence": "The new rules are very strict and unfair.",
@@ -3873,7 +3873,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "djuːˈplɪsɪtəs",
     "elo": 1300,
     "level": "advanced",
-    "scenario": "Cái thằng đó sống DUPLICITOUS lắm, trước mặt thì anh anh em em, sau lưng thì đâm chọt đủ điều.",
+    "scenario": "Đứa bạn DUPLICITOUS nhất: trước mặt khen váy xinh, quay qua group khác chụp màn hình bàn tán, ra đường tôi nể mỗi bạn.",
     "translationHint": "Hai mặt, gian trá",
     "upgradeModule": {
       "simpleSentence": "I don't trust him because he is a liar.",
@@ -3895,7 +3895,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈluːsɪv",
     "elo": 1190,
     "level": "advanced",
-    "scenario": "Cái bug này ELUSIVE thật sự, cứ tưởng fix được rồi mà lúc sau nó lại hiện ra ở chỗ khác.",
+    "scenario": "Chiếc tất còn lại của đôi nào cũng ELUSIVE, giặt hai chiếc mà phơi lên chỉ còn một.",
     "translationHint": "Khó nắm bắt, hay lảng tránh",
     "upgradeModule": {
       "simpleSentence": "The answer was hard to find.",
@@ -3917,7 +3917,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈemjʊleɪt",
     "elo": 1160,
     "level": "advanced",
-    "scenario": "Tôi luôn cố gắng EMULATE cái cách mà anh lead xử lý vấn đề, cực kỳ bình tĩnh và hiệu quả.",
+    "scenario": "Manifest làm cô gái 5 giờ sáng, cố EMULATE routine mấy chị trên TikTok được hai ngày, ngày ba ngủ tới trưa.",
     "translationHint": "Noi gương, học tập theo",
     "upgradeModule": {
       "simpleSentence": "He tried to copy his father's success.",
@@ -3938,7 +3938,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈkwɪvəkeɪt",
     "elo": 1290,
     "level": "advanced",
-    "scenario": "Đừng có EQUIVOCATE nữa, trả lời thẳng vào vấn đề đi: Dự án này bao giờ thì xong?",
+    "scenario": "Hỏi thẳng 'tối qua mày ăn hết bánh của tao hả', nó EQUIVOCATE kiểu 'ai biết, chắc chuột', thao túng tâm lý.",
     "translationHint": "Nói mập mờ, lập lờ để lừa dối",
     "upgradeModule": {
       "simpleSentence": "He didn't give a straight answer.",
@@ -3960,7 +3960,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪɡˈzɔːbɪtənt",
     "elo": 1220,
     "level": "advanced",
-    "scenario": "Cái giá cho một cốc cà phê ở khu vực này đúng là EXORBITANT, bằng mẹ nó tiền ăn cả ngày của tôi.",
+    "scenario": "Ly cà phê ở phố đi bộ giá EXORBITANT, sinh viên ví mỏng như mình chỉ dám chụp hình cái menu, u là trời.",
     "translationHint": "Quá mức, cắt cổ (về giá cả)",
     "upgradeModule": {
       "simpleSentence": "The rent for this apartment is too high.",
@@ -3982,7 +3982,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪkˈspiːdiənt",
     "elo": 1230,
     "level": "advanced",
-    "scenario": "Thôi cứ dùng giải pháp EXPEDIENT này đi, fix tạm cho app chạy cái đã rồi mai tính tiếp, deadline tới mông rồi.",
+    "scenario": "Mì gói ba bữa liền là lựa chọn EXPEDIENT nhất mùa thi, còn cái dạ dày thì đang ét o ét gửi đơn khiếu nại.",
     "translationHint": "Tiện lợi nhất thời, thực dụng",
     "upgradeModule": {
       "simpleSentence": "This is a quick way to solve the problem for now.",
@@ -4004,7 +4004,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪkˈstreɪniəs",
     "elo": 1250,
     "level": "advanced",
-    "scenario": "Ông xóa bớt mấy cái log EXTRANEOUS này đi, nhìn rối cả mắt mà chẳng giúp ích gì cho việc debug cả.",
+    "scenario": "Hỏi crush tối nay đi xem phim không, nó gửi lại 12 tin EXTRANEOUS về con mèo nhà nó, câu hỏi chính thì lowkey bị bơ.",
     "translationHint": "Không liên quan, ngoài lề",
     "upgradeModule": {
       "simpleSentence": "The report has too much unnecessary information.",
@@ -4026,7 +4026,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fəˈleɪʃəs",
     "elo": 1270,
     "level": "advanced",
-    "scenario": "Cái lập luận 'app chậm là do người dùng mạng yếu' của ông đúng là FALLACIOUS, do code ông tối ưu kém thì có.",
+    "scenario": "Lập luận 'sale 50% tức là mình lời 50%' nghe FALLACIOUS rõ ràng, vậy mà tui vẫn bị nó thao túng tâm lý, chốt đơn liền.",
     "translationHint": "Sai lầm, ngụy biện",
     "upgradeModule": {
       "simpleSentence": "His argument is based on false ideas.",
@@ -4048,7 +4048,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fæˈstɪdiəs",
     "elo": 1240,
     "level": "advanced",
-    "scenario": "Lão khách hàng này FASTIDIOUS vãi, lệch 1 pixel thôi lão cũng bắt chỉnh lại bằng được mới chịu trả tiền.",
+    "scenario": "Bạn cùng phòng trọ FASTIDIOUS tới mức xếp dép theo màu, tui để lệch một chiếc là tới công chuyện liền.",
     "translationHint": "Khó tính, cầu kỳ thái quá",
     "upgradeModule": {
       "simpleSentence": "He is very careful and hard to please.",
@@ -4070,7 +4070,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfɜːvənt",
     "elo": 1180,
     "level": "advanced",
-    "scenario": "Hắn ta là một người FERVENT tin vào tiền ảo, lúc nào cũng rủ rê anh em đầu tư để 'đổi đời'.",
+    "scenario": "Fan FERVENT cỡ nó canh vé concert từ 5 giờ sáng với ba cái báo thức, săn vé thì keo lỳ, bài tập nhóm thì chưa mở lần nào.",
     "translationHint": "Nồng nhiệt, tha thiết",
     "upgradeModule": {
       "simpleSentence": "He has a very strong belief in his religion.",
@@ -4091,7 +4091,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfleɪɡrənt",
     "elo": 1210,
     "level": "advanced",
-    "scenario": "Việc ông copy nguyên si code của project khác rồi bảo mình tự viết là một sự vi phạm bản quyền FLAGRANT.",
+    "scenario": "Nó chép nguyên bài essay của tui, đổi đúng cái tên rồi nộp, FLAGRANT tới mức thầy hỏi luôn hai đứa ai là bản gốc, u là trời.",
     "translationHint": "Trắng trợn, lộ liễu",
     "upgradeModule": {
       "simpleSentence": "This is a very obvious and bad mistake.",
@@ -4112,7 +4112,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfliːtɪŋ",
     "elo": 1130,
     "level": "advanced",
-    "scenario": "Cái động lực làm việc của tôi nó FLEETING lắm, hăng hái được 5 phút xong lại nằm lướt TikTok tiếp.",
+    "scenario": "Động lực đi gym sau khi xem clip lột xác trên TikTok cực kỳ FLEETING, lướt hết clip là nằm luôn, hết cứu.",
     "translationHint": "Thoáng qua, phù du",
     "upgradeModule": {
       "simpleSentence": "I caught a very quick look at the movie star.",
@@ -4133,7 +4133,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfɔːθraɪt",
     "elo": 1160,
     "level": "advanced",
-    "scenario": "Tôi thích cái cách ông ấy FORTHRIGHT thừa nhận sai lầm trong thiết kế hệ thống, bớt tốn thời gian đổ lỗi.",
+    "scenario": "Hỏi đứa FORTHRIGHT nhất nhóm outfit này ổn không, nó bảo 'giống rèm cửa nhà bà ngoại tao', đau mà real.",
     "translationHint": "Thẳng thắn, bộc trực",
     "upgradeModule": {
       "simpleSentence": "He is very direct and honest in his speech.",
@@ -4155,7 +4155,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfruːɡl",
     "elo": 1140,
     "level": "advanced",
-    "scenario": "Lối sống FRUGAL của anh em dev: đi làm mang cơm theo cho tiết kiệm để tiền đấy mua bàn phím cơ.",
+    "scenario": "Tuần cuối tháng sống FRUGAL đúng nghĩa: cơm trắng, trứng chiên và chai nước mắm mẹ gửi lên, cái ví đang ét o ét.",
     "translationHint": "Tiết kiệm, thanh đạm",
     "upgradeModule": {
       "simpleSentence": "She is very careful with money and lives simply.",
@@ -4176,7 +4176,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈfjuːtaɪl",
     "elo": 1170,
     "level": "advanced",
-    "scenario": "Mọi nỗ lực giải thích cho bà chị HR hiểu về tech stack đều trở nên FUTILE vì bả chỉ quan tâm đến bằng cấp.",
+    "scenario": "Giải thích cho mẹ vì sao 2 giờ sáng còn thức là nỗ lực FUTILE, kiểu gì cũng quy về cái điện thoại, hết cứu.",
     "translationHint": "Vô ích, không kết quả",
     "upgradeModule": {
       "simpleSentence": "All his attempts to fix the machine were useless.",
@@ -4197,7 +4197,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɡrəˈtjuːɪtəs",
     "elo": 1260,
     "level": "advanced",
-    "scenario": "Mấy cái hiệu ứng chuyển trang GRATUITOUS này làm app nặng thêm chứ chẳng giúp trải nghiệm tốt hơn tí nào.",
+    "scenario": "Clip review quán cà phê có 30 giây nội dung với 3 phút cảnh rót nước quay chậm GRATUITOUS, ô dề gì đâu.",
     "translationHint": "Vô lý, không cần thiết",
     "upgradeModule": {
       "simpleSentence": "The movie has too much unnecessary violence.",
@@ -4218,7 +4218,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "hɪˈɡeməni",
     "elo": 1300,
     "level": "advanced",
-    "scenario": "Sự thống trị của Google trong mảng tìm kiếm là một cái HEGEMONY mà chưa ai có thể lật đổ được.",
+    "scenario": "Trong group chat lớp, HEGEMONY của phe gửi sticker con vịt là tuyệt đối, ai nhắn chữ tử tế là lạc loài.",
     "translationHint": "Sự bá quyền, thống trị",
     "upgradeModule": {
       "simpleSentence": "The large country has control over its neighbors.",
@@ -4239,7 +4239,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhjuːbrɪs",
     "elo": 1280,
     "level": "advanced",
-    "scenario": "Chính cái HUBRIS khi nghĩ mình là senior 'không bao giờ sai' đã khiến ông ta làm bay màu sạch database.",
+    "scenario": "Tự tin không ôn vì 'môn này dễ mà', HUBRIS cỡ đó nên vào phòng thi lật đề ra là toang.",
     "translationHint": "Sự ngạo mạn quá mức",
     "upgradeModule": {
       "simpleSentence": "His extreme pride led to his failure.",
@@ -4260,7 +4260,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌhɪpəˈkrɪtɪkl",
     "elo": 1190,
     "level": "advanced",
-    "scenario": "Thật là HYPOCRITICAL khi sếp bắt anh em đi làm đúng giờ trong khi lão toàn 10h mới có mặt.",
+    "scenario": "Nó chửi người ta seen không rep là thiếu tôn trọng, trong khi đang ngâm 40 tin nhắn của tui, HYPOCRITICAL kiểu này đúng red flag.",
     "translationHint": "Đạo đức giả",
     "upgradeModule": {
       "simpleSentence": "He says one thing but does another.",
@@ -4282,7 +4282,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "aɪˌdɪəˈlɪstɪk",
     "elo": 1150,
     "level": "advanced",
-    "scenario": "Cái suy nghĩ 'làm vì đam mê không cần lương' nghe thật IDEALISTIC, nhưng thực tế là tiền nhà không ai đóng hộ.",
+    "scenario": "Kế hoạch dậy 5 giờ tập yoga, đọc sách, nấu bữa sáng healthy nghe IDEALISTIC quá, sáng ra tui ngủ tới 10 giờ, delulu thiệt.",
     "translationHint": "Lý tưởng hóa, xa rời thực tế",
     "upgradeModule": {
       "simpleSentence": "He has very high goals that are hard to reach.",
@@ -4304,7 +4304,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɪnədˈvɜːtnt",
     "elo": 1230,
     "level": "advanced",
-    "scenario": "Tôi lỡ tay bấm INADVERTENT vào nút delete toàn bộ data, giờ thì chuẩn bị dọn đồ về vườn thôi.",
+    "scenario": "Cú thả tim INADVERTENT vào ảnh năm 2019 của crush lúc 1 giờ sáng, gỡ ra thì người ta nhận thông báo rồi, xu cà na.",
     "translationHint": "Vô ý, không chủ tâm",
     "upgradeModule": {
       "simpleSentence": "I accidentally deleted the file.",
@@ -4327,7 +4327,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈkɒŋɡruənt",
     "elo": 1260,
     "level": "advanced",
-    "scenario": "Cái hành động của ông nó hoàn toàn INCONGRUENT với những gì ông hứa trong buổi họp tuần trước.",
+    "scenario": "Caption ghi 'đang chữa lành ở Đà Lạt' mà ảnh là cảnh ngồi chạy deadline trong homestay, nhìn INCONGRUENT gì đâu.",
     "translationHint": "Không phù hợp, mâu thuẫn",
     "upgradeModule": {
       "simpleSentence": "His behavior doesn't match his words.",
@@ -4349,7 +4349,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪndələnt",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Cái nết INDOLENT này của ông mà không sửa thì chẳng có cái task nào hoàn thành đúng hạn được đâu.",
+    "scenario": "Chủ nhật INDOLENT tới mức với cái remote cách nửa mét cũng phải cân nhắc năm phút xem có đáng không, lowkey hạnh phúc.",
     "translationHint": "Lười biếng, nhác làm",
     "upgradeModule": {
       "simpleSentence": "He is a very lazy person who hates working.",
@@ -4371,7 +4371,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈeksərəbl",
     "elo": 1310,
     "level": "advanced",
-    "scenario": "Sự tiến bộ của AI là một xu hướng INEXORABLE, thay vì sợ hãi thì mình nên tìm cách sống chung với nó.",
+    "scenario": "Ngày đóng tiền trọ tới INEXORABLE như mặt trời mọc, dù tui đã manifest đủ kiểu cho nó lùi lại một tuần.",
     "translationHint": "Không thể lay chuyển/ngăn cản",
     "upgradeModule": {
       "simpleSentence": "The process cannot be stopped.",
@@ -4394,7 +4394,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈsɪdiəs",
     "elo": 1270,
     "level": "advanced",
-    "scenario": "Mấy cái nợ kỹ thuật (tech debt) nó INSIDIOUS lắm, ban đầu không thấy gì nhưng sau này gỡ mệt xỉu.",
+    "scenario": "Mỗi ngày một ly trà sữa nghe vô hại, cái INSIDIOUS là cuối tháng mở app ngân hàng mới thấy bay mất tiền nhà, xỉu ngang.",
     "translationHint": "Âm thầm nguy hại",
     "upgradeModule": {
       "simpleSentence": "The disease spreads secretly and dangerously.",
@@ -4416,7 +4416,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈtrænsɪdʒənt",
     "elo": 1290,
     "level": "advanced",
-    "scenario": "Lão sếp INTRANSIGENT đến mức không chịu lắng nghe bất kỳ góp ý nào về việc thay đổi quy trình làm việc.",
+    "scenario": "Mẹ tui INTRANSIGENT vụ áo khoác, 35 độ vẫn bắt mang theo, cãi kiểu gì cũng ra câu 'lỡ trời trở gió', thôi ok mom.",
     "translationHint": "Cố chấp, không nhượng bộ",
     "upgradeModule": {
       "simpleSentence": "He refuses to change his mind.",
@@ -4438,7 +4438,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈrevəkəbl",
     "elo": 1300,
     "level": "advanced",
-    "scenario": "Một khi đã bấm deploy lên production thì quyết định đó coi như là IRREVOCABLE, sướng hay khổ phải chịu.",
+    "scenario": "Tin nhắn gửi nhầm vào group gia đình đã quá 24 tiếng, giờ nó IRREVOCABLE rồi, toang thật, chỉ còn cách đổi họ.",
     "translationHint": "Không thể thu hồi/thay đổi",
     "upgradeModule": {
       "simpleSentence": "The damage is done and cannot be fixed.",
@@ -4461,7 +4461,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈlæməntəbl",
     "elo": 1220,
     "level": "advanced",
-    "scenario": "Tình trạng code của project này thật sự là LAMENTABLE, nát đến mức không thể cứu vãn nổi.",
+    "scenario": "Tủ lạnh phòng trọ cuối tháng LAMENTABLE: một quả trứng, nửa chai tương ớt và hộp cơm vô chủ, u là trời.",
     "translationHint": "Đáng buồn, đáng tiếc",
     "upgradeModule": {
       "simpleSentence": "The company's lack of safety is very bad.",
@@ -4483,7 +4483,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ləˈθɑːdʒɪk",
     "elo": 1180,
     "level": "advanced",
-    "scenario": "Sáng nay thức dậy thấy người LETHARGIC quá, chắc do đêm qua thức cày code muộn quá đây mà.",
+    "scenario": "Ăn trưa no xong vào tiết 1 giờ chiều, cả lớp LETHARGIC như bật chế độ tiết kiệm pin, cô hỏi gì cũng khum ai rep.",
     "translationHint": "Uể oải, lờ đờ",
     "upgradeModule": {
       "simpleSentence": "The hot weather makes me feel tired and slow.",
@@ -4504,7 +4504,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈluːsɪd",
     "elo": 1140,
     "level": "advanced",
-    "scenario": "Lâu lắm mới thấy ông này có một cái giải trình LUCID và dễ hiểu đến như vậy, chắc mới uống cà phê xong.",
+    "scenario": "Đứa bạn đang ngái ngủ bỗng có một phút LUCID, dặn 'đừng nhắn cho người yêu cũ nha' rồi ngáy tiếp, lời khuyên real nhất năm.",
     "translationHint": "Sáng suốt, rõ ràng",
     "upgradeModule": {
       "simpleSentence": "He gave a very clear and easy to understand speech.",
@@ -4525,7 +4525,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "mæɡˈnænɪməs",
     "elo": 1250,
     "level": "advanced",
-    "scenario": "Lead mình rất MAGNANIMOUS, sẵn sàng gánh tội thay cho anh em khi dự án bị chậm tiến độ.",
+    "scenario": "Thua kèo mà vẫn MAGNANIMOUS bao nguyên nhóm trà sữa, đúng là ra đường tôi nể mỗi bạn.",
     "translationHint": "Hào hiệp, cao thượng",
     "upgradeModule": {
       "simpleSentence": "He was very kind and forgave his enemy.",
@@ -4547,7 +4547,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmæliəbl",
     "elo": 1210,
     "level": "advanced",
-    "scenario": "Mấy đứa intern mới vào thường rất MALLEABLE, dạy gì nghe nấy, dễ uốn nắn hơn mấy ông senior cứng đầu.",
+    "scenario": "Ý chí ăn kiêng của tui MALLEABLE như cục đất sét, đứa bạn rủ ăn ốc một câu là gét gô liền.",
     "translationHint": "Dễ bị tác động, dễ uốn nắn",
     "upgradeModule": {
       "simpleSentence": "Children's minds are easy to influence.",
@@ -4569,7 +4569,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "menˈdeɪʃəs",
     "elo": 1320,
     "level": "advanced",
-    "scenario": "Cái bản báo cáo MENDACIOUS này nhằm che đậy sự thật là dự án đang nát bét, đừng hòng lừa được tôi.",
+    "scenario": "Bài đăng 'phòng rộng, sát trường' MENDACIOUS hết cỡ, check var tới nơi thì phòng 9 mét, cách trường 7 cây số.",
     "translationHint": "Sai sự thật, giả dối",
     "upgradeModule": {
       "simpleSentence": "The politician made many false statements.",
@@ -4591,7 +4591,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmelənkɒli",
     "elo": 1160,
     "level": "advanced",
-    "scenario": "Chiều Chủ nhật ngồi nghe nhạc trịnh xong thấy lòng MELANCHOLY vãi, nghĩ đến cảnh mai đi làm mà nản.",
+    "scenario": "Tối Chủ nhật nghe playlist nhạc buồn, tự nhiên MELANCHOLY nhớ cơm mẹ nấu, mở tủ lạnh chỉ có gói mì, cần chữa lành gấp.",
     "translationHint": "U sầu, buồn bã",
     "upgradeModule": {
       "simpleSentence": "He felt a very deep sadness.",
@@ -4613,7 +4613,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmɒlɪfaɪ",
     "elo": 1130,
     "level": "advanced",
-    "scenario": "Tôi phải hứa dắt crush đi ăn lẩu mới có thể MOLLIFY được cơn giận của bả vì tội quên reply tin nhắn.",
+    "scenario": "Lỡ quên sinh nhật bạn thân, tui ship hộp bánh tráng trộn mới MOLLIFY được nó, vậy mà nó vẫn đòi thêm ly trà sữa, đàm phán keo lỳ thật.",
     "translationHint": "Làm nguôi đi, xoa dịu",
     "upgradeModule": {
       "simpleSentence": "The manager tried to make the angry customer calm down.",
@@ -4635,7 +4635,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "mɜːˈkjʊəriəl",
     "elo": 1110,
     "level": "advanced",
-    "scenario": "Cái nết MERCURIAL của lão sếp làm anh em mệt mỏi vãi, sáng vừa khen lấy khen để, chiều đã quay sang chửi như tát nước vào mặt.",
+    "scenario": "Thời tiết Sài Gòn MERCURIAL thật, sáng nắng cháy da, chiều mưa ầm ầm, tối lại mát rượi như chưa có gì, ủa alo.",
     "translationHint": "Thất thường, hay thay đổi",
     "upgradeModule": {
       "simpleSentence": "He has a mood that changes very quickly.",
@@ -4656,7 +4656,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "nɪˈfeəriəs",
     "elo": 1310,
     "level": "advanced",
-    "scenario": "Tôi nghi ngờ có âm mưu NEFARIOUS đằng sau việc toàn bộ server bị 'wipe' sạch data ngay trước ngày bàn giao.",
+    "scenario": "Bạn cùng phòng NEFARIOUS: ăn vụng mì của tui rồi giấu vỏ dưới gầm giường, ai ngờ báo thủ bị mùi tôm chua tố cáo.",
     "translationHint": "Hung ác, bất chính",
     "upgradeModule": {
       "simpleSentence": "They have a very evil plan to steal the money.",
@@ -4679,7 +4679,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌnɒnʃəˈlɑːnt",
     "elo": 1190,
     "level": "advanced",
-    "scenario": "Server sập mà lão lead vẫn cứ NONCHALANT ngồi húp mì tôm như không có chuyện gì xảy ra, nể thật sự.",
+    "scenario": "Cả nhóm hóng biến tới nóng máy, còn nhân vật chính thì NONCHALANT đăng story đi ăn lẩu như chưa có gì.",
     "translationHint": "Thờ ơ, lãnh đạm",
     "upgradeModule": {
       "simpleSentence": "He behaved in a calm way that showed he didn't care.",
@@ -4701,7 +4701,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "nɒˈstældʒɪk",
     "elo": 1130,
     "level": "advanced",
-    "scenario": "Ngồi nhìn đống code cũ hồi mới tập tành làm web mà thấy NOSTALGIC vãi, hồi đó ngu ngơ nhưng mà vui.",
+    "scenario": "Lục lại ảnh Facebook năm lớp 8 với mấy dòng status emo ô dề, vừa NOSTALGIC vừa muốn xóa sạch trước khi ai thấy.",
     "translationHint": "Hoài niệm",
     "upgradeModule": {
       "simpleSentence": "Looking at old photos makes me feel sad and happy about the past.",
@@ -4723,7 +4723,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈblɪviəs",
     "elo": 1160,
     "level": "advanced",
-    "scenario": "Thằng đó OBLIVIOUS đến mức không nhận ra là cả team đang 'cạch mặt' nó vì cái thói hay báo task.",
+    "scenario": "Cả lớp biết nó thích bạn bàn trên, chỉ có bạn bàn trên là OBLIVIOUS, vẫn hồn nhiên nhờ nó chép bài giùm, hết cứu.",
     "translationHint": "Vô tâm, không nhận thấy",
     "upgradeModule": {
       "simpleSentence": "He was not aware of the danger.",
@@ -4745,7 +4745,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒmɪnəs",
     "elo": 1180,
     "level": "advanced",
-    "scenario": "Cái thông báo 'Meeting khẩn toàn công ty' lúc 5h chiều thứ Sáu nghe OMINOUS vãi, chắc lại sắp layoff rồi.",
+    "scenario": "Mẹ nhắn đúng ba chữ 'về nói chuyện' kèm dấu chấm, OMINOUS hơn mọi phim kinh dị tui từng xem, tới công chuyện rồi.",
     "translationHint": "Điềm xấu, đáng lo ngại",
     "upgradeModule": {
       "simpleSentence": "The black clouds look like a bad sign.",
@@ -4766,7 +4766,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əʊˈpeɪk",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Cái cơ chế tính bonus của công ty này OPAQUE vãi, chẳng ai biết tại sao người được nhiều người được ít.",
+    "scenario": "Cách app giao đồ ăn tính phí OPAQUE gì đâu, món 30 nghìn cộng phí dịch vụ, phí đóng gói, ra gần 70, ví lowkey khóc.",
     "translationHint": "Mập mờ, không minh bạch",
     "upgradeModule": {
       "simpleSentence": "The rules of the game are very hard to understand.",
@@ -4787,7 +4787,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɒstənˈteɪʃəs",
     "elo": 1300,
     "level": "advanced",
-    "scenario": "Mấy cái văn phòng startup cứ thích trang trí OSTENTATIOUS cho cố vào, trong khi lương nhân viên thì nợ mấy tháng trời.",
+    "scenario": "Đi cà phê mà đặt chìa khóa xe với điện thoại mới ngay giữa bàn, kiểu flex OSTENTATIOUS cỡ đó ai cũng nhìn ra.",
     "translationHint": "Phô trương, khoe mẽ",
     "upgradeModule": {
       "simpleSentence": "He bought a very expensive car just to show off.",
@@ -4809,7 +4809,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pɪˈdæntɪk",
     "elo": 1250,
     "level": "advanced",
-    "scenario": "Lão Reviewer PEDANTIC vãi, code chạy ngon ơ mà lão cứ bắt sửa từng cái dấu cách với xuống dòng cho đúng chuẩn lão mới chịu.",
+    "scenario": "Rủ đi ăn mà đứa bạn PEDANTIC chỉ trả lời bằng cách sửa 'dzậy' thành 'vậy', đi hay không thì im re, u là trời.",
     "translationHint": "Câu nệ, soi xét tiểu tiết",
     "upgradeModule": {
       "simpleSentence": "The teacher is too worried about small, unimportant rules.",
@@ -4830,7 +4830,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈfɪdiəs",
     "elo": 1330,
     "level": "advanced",
-    "scenario": "Hành động PERFIDIOUS nhất là rủ anh em cùng nghỉ việc, xong mình thì ở lại nhận chức team lead của những người đã đi.",
+    "scenario": "Hứa cùng nhau ế tới 30, vậy mà nó lặng lẽ có bồ rồi đăng ảnh, cú quay xe PERFIDIOUS nhất năm, cả group ăn cơm chó.",
     "translationHint": "Phản bội, xảo trá",
     "upgradeModule": {
       "simpleSentence": "He was a disloyal friend who told my secrets.",
@@ -4852,7 +4852,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpɜːtɪnənt",
     "elo": 1150,
     "level": "advanced",
-    "scenario": "Trong buổi họp 3 tiếng, chỉ có đúng một câu hỏi của ông là PERTINENT vào vấn đề, còn lại toàn nói nhảm.",
+    "scenario": "Họp nhóm hai tiếng toàn bàn trưa ăn gì, câu PERTINENT duy nhất là 'ủa alo, mai nộp bài rồi đó'.",
     "translationHint": "Đúng trọng tâm, liên quan trực tiếp",
     "upgradeModule": {
       "simpleSentence": "Your point is very relevant to the discussion.",
@@ -4874,7 +4874,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fleɡˈmætɪk",
     "elo": 1280,
     "level": "advanced",
-    "scenario": "Bạn thân tôi PHLEGMATIC đến mức nghe tin xấu cũng chỉ 'ừ, vậy à'.",
+    "scenario": "Rớt môn, lỡ xe về quê, crush có bồ trong cùng một tuần mà nó vẫn PHLEGMATIC bảo 'đời mà', chằm zn ăn bánh tráng tiếp.",
     "translationHint": "Điềm tĩnh, lạnh lùng",
     "upgradeModule": {
       "simpleSentence": "He is always calm and doesn't get excited easily.",
@@ -4895,7 +4895,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈplæsɪd",
     "elo": 1200,
     "level": "advanced",
-    "scenario": "Vẻ ngoài PLACID của khách hàng lúc này làm tôi thấy lo hơn, chắc là đang chuẩn bị gom hết lỗi để chửi một thể đây.",
+    "scenario": "Mặt hồ buổi sáng PLACID tới mức ngồi nhìn một lúc là quên luôn deadline, chữa lành được đúng năm phút thì điện thoại rung.",
     "translationHint": "Điềm tĩnh, lặng lẽ",
     "upgradeModule": {
       "simpleSentence": "The lake was very peaceful and quiet.",
@@ -4916,7 +4916,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpəʊləraɪzɪŋ",
     "elo": 1170,
     "level": "advanced",
-    "scenario": "Vấn đề dùng 'Tab' hay 'Space' đúng là cực kỳ POLARIZING trong cộng đồng dev, cãi nhau cả chục năm chưa xong.",
+    "scenario": "Món trà sữa sầu riêng POLARIZING cỡ này: nửa group xin công thức, nửa kia đòi rời nhóm, admin thì ngồi hóng biến.",
     "translationHint": "Gây chia rẽ, phân cực",
     "upgradeModule": {
       "simpleSentence": "The new law divided the people into two opposing groups.",
@@ -4937,7 +4937,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpɒmpəs",
     "elo": 1220,
     "level": "advanced",
-    "scenario": "Mấy ông diễn giả hay dùng giọng POMPOUS để nói về những đạo lý ai cũng biết, nghe mà buồn ngủ.",
+    "scenario": "Ông anh khóa trên họp lớp flex giọng POMPOUS về 'tư duy triệu đô', hỏi ra thì vẫn xin tiền nhà đóng trọ.",
     "translationHint": "Hợm hĩnh, vênh váo",
     "upgradeModule": {
       "simpleSentence": "He was behaving like he was more important than he really was.",
@@ -4958,7 +4958,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pʌŋkˈtɪliəs",
     "elo": 1280,
     "level": "advanced",
-    "scenario": "Bà kế toán PUNCTILIOUS vãi, sai một chữ cái trong hóa đơn thôi cũng bắt về viết lại từ đầu.",
+    "scenario": "Ra mắt nhà người yêu, bố bạn ấy PUNCTILIOUS từ cách rót trà tới cách cầm đũa, tui ngồi thẳng lưng mà trong lòng ét o ét.",
     "translationHint": "Kỹ lưỡng, câu nệ nghi thức",
     "upgradeModule": {
       "simpleSentence": "He is very careful about following rules and behavior.",
@@ -4979,7 +4979,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prɪˈkeəriəs",
     "elo": 1190,
     "level": "advanced",
-    "scenario": "Cái hệ thống này đang ở trong tình trạng PRECARIOUS vãi, chỉ cần một con bot ddos nhẹ thôi là sập toàn tập.",
+    "scenario": "Chồng bát chưa rửa trong bồn đang ở thế PRECARIOUS, đứa nào trong phòng trọ đụng vào là tới công chuyện.",
     "translationHint": "Bấp bênh, nguy hiểm",
     "upgradeModule": {
       "simpleSentence": "His job is in a dangerous situation and might be lost.",
@@ -5000,7 +5000,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prɪˈzʌmptʃuəs",
     "elo": 1260,
     "level": "advanced",
-    "scenario": "Thật là PRESUMPTUOUS khi ông nghĩ rằng mình giỏi hơn cả cái team đã làm project này 3 năm nay.",
+    "scenario": "Mới nói chuyện hai ngày đã tính tên con chung, PRESUMPTUOUS cỡ này thì delulu cũng phải gọi bằng sư phụ.",
     "translationHint": "Tự phụ, quá trớn",
     "upgradeModule": {
       "simpleSentence": "It was rude of him to assume I would pay for him.",
@@ -5022,7 +5022,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prɪˈtenʃəs",
     "elo": 1230,
     "level": "advanced",
-    "scenario": "Cái profile LinkedIn của lão trông PRETENTIOUS vãi, ghi toàn chức danh nghe kêu như chuông mà hỏi kiến thức thì rỗng tuếch.",
+    "scenario": "Menu quán ghi 'nước lọc tinh khiết từ tầng sâu cảm xúc' giá 45 nghìn, PRETENTIOUS tới mức tui gọi luôn để chụp, fomo mà.",
     "translationHint": "Giả tạo, tự cao tự đại",
     "upgradeModule": {
       "simpleSentence": "The restaurant is trying too hard to look fancy and expensive.",
@@ -5044,7 +5044,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pʌɡˈneɪʃəs",
     "elo": 1260,
     "level": "advanced",
-    "scenario": "Ông đừng có PUGNACIOUS thế, người ta chỉ góp ý nhẹ thôi mà đã nhảy dựng lên muốn đánh người ta rồi.",
+    "scenario": "Con ngỗng nhà ngoại PUGNACIOUS dữ lắm, tui đi ngang sân thôi cũng bị rượt như nợ tiền nó, báo thủ của cả xóm.",
     "translationHint": "Hay gây gổ, hiếu chiến",
     "upgradeModule": {
       "simpleSentence": "He is always ready to fight or argue.",
@@ -5065,7 +5065,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌæbnɪˈɡeɪʃn",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Sự ABNEGATION của anh ấy đối với đời sống cá nhân để tập trung cứu dự án làm ai cũng nể, nhưng mà hơi cực đoan.",
+    "scenario": "Nhường miếng gà rán cuối cho đứa bạn đang thất tình, mức ABNEGATION slay cỡ đó đáng ghi vào sử sách của nhóm.",
     "translationHint": "Sự hy sinh, từ bỏ quyền lợi",
     "upgradeModule": {
       "simpleSentence": "The king gave up his power for his people.",
@@ -5087,7 +5087,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əbˈstiːmiəs",
     "elo": 1420,
     "level": "expert",
-    "scenario": "Bác sĩ bảo phải ABSTEMIOUS với trà sữa và cà phê nếu không muốn cái dạ dày biểu tình, nhưng khó quá Long ơi.",
+    "scenario": "Đầu tuần thề sống ABSTEMIOUS, bỏ trà sữa bỏ đồ chiên, tối thứ Hai bạn rủ đi gà rán là gét gô liền.",
     "translationHint": "Tiết chế, điều độ (ăn uống)",
     "upgradeModule": {
       "simpleSentence": "He doesn't eat or drink much because he wants to be healthy.",
@@ -5109,7 +5109,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈsɜːbɪk",
     "elo": 1390,
     "level": "expert",
-    "scenario": "Mấy cái nhận xét ACERBIC của ông lead làm intern khóc sưng cả mắt, biết là đúng nhưng mà gắt quá.",
+    "scenario": "Đăng ảnh tóc mới lên, bà chị họ comment ACERBIC 'cắt tiếc tiền ha', 50 like trong 5 phút, out trình luôn bài gốc.",
     "translationHint": "Chua cay, gay gắt",
     "upgradeModule": {
       "simpleSentence": "He made a very sharp and mean comment.",
@@ -5130,7 +5130,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈækjʊmən",
     "elo": 1400,
     "level": "expert",
-    "scenario": "Cái ACUMEN trong kinh doanh của lão sếp đúng là không đùa được, nhìn đâu cũng thấy ra tiền.",
+    "scenario": "Đứa bạn có ACUMEN kinh doanh đỉnh nóc kịch trần, lấy sỉ bánh tráng về bán trong ký túc xá, một tuần đủ tiền đi Đà Lạt.",
     "translationHint": "Sự nhạy bén, sắc sảo",
     "upgradeModule": {
       "simpleSentence": "He has a great ability to understand and make good decisions in business.",
@@ -5151,7 +5151,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈædʌmbreɪt",
     "elo": 1470,
     "level": "expert",
-    "scenario": "Trong buổi kickoff, sếp chỉ ADUMBRATE sơ qua về tầm nhìn của dự án, còn chi tiết thì... đợi khi nào có rồi tính.",
+    "scenario": "Trưởng nhóm chỉ ADUMBRATE kế hoạch du lịch đúng một dòng 'đi biển', còn ai đặt phòng ai lo xe thì tùy duyên, toang chắc.",
     "translationHint": "Phác thảo, ám chỉ sơ lược",
     "upgradeModule": {
       "simpleSentence": "The report only gave a brief and dark outline of the problem.",
@@ -5173,7 +5173,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnækrənɪzəm",
     "elo": 1440,
     "level": "expert",
-    "scenario": "Thời buổi này mà vẫn dùng jQuery cho project mới thì đúng là một cái ANACHRONISM không thể chấp nhận được.",
+    "scenario": "Bố tui vẫn in bản đồ ra giấy trước mỗi chuyến đi, ANACHRONISM vậy mà đọc đường keo lỳ hơn cả Google Maps.",
     "translationHint": "Sự lỗi thời, sai thời đại",
     "upgradeModule": {
       "simpleSentence": "The character in the movie wearing a watch in 1700 was a mistake.",
@@ -5195,7 +5195,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnæθəmə",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Họp hành vô tội vạ là một cái ANATHEMA đối với dân dev mình, chỉ tổ tốn thời gian chứ chẳng giải quyết được gì.",
+    "scenario": "Với dân ở trọ, tin nhắn 'tháng sau tăng giá điện' là ANATHEMA, đọc xong xỉu ngang, chỉ muốn chặn số chủ nhà.",
     "translationHint": "Điều cực kỳ ghét bỏ",
     "upgradeModule": {
       "simpleSentence": "Violence is something he hates very much.",
@@ -5217,7 +5217,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈpɒkrɪfl",
     "elo": 1450,
     "level": "expert",
-    "scenario": "Mấy cái câu chuyện về 'thần đồng code 10 tuổi' thường là APOCRYPHAL thôi, đừng có tin rồi tự tạo áp lực cho mình.",
+    "scenario": "Chuyện 'anh kia học tiếng Anh hai tuần nói như người bản xứ' nghe APOCRYPHAL ghê, vậy mà cả lớp vẫn lưu lại để manifest.",
     "translationHint": "Không xác thực, bị bịa đặt",
     "upgradeModule": {
       "simpleSentence": "The story about the ghost is probably not true.",
@@ -5239,7 +5239,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˌɒθiˈəʊsɪs",
     "elo": 1490,
     "level": "expert",
-    "scenario": "Được làm việc tại Google từng là APOTHEOSIS của sự nghiệp dev, nhưng giờ thì mọi chuyện đã khác nhiều rồi.",
+    "scenario": "Giật được deal 0 đồng đúng 0 giờ 0 phút là APOTHEOSIS của sự nghiệp săn sale, tui flex với cả group tới sáng.",
     "translationHint": "Đỉnh cao, sự thần thánh hóa",
     "upgradeModule": {
       "simpleSentence": "Winning the Nobel prize was the best point of his life.",
@@ -5261,7 +5261,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌæprəˈbeɪʃn",
     "elo": 1430,
     "level": "expert",
-    "scenario": "Phải vất vả lắm tôi mới nhận được sự APPROBATION của ông CTO cho cái kiến trúc hệ thống mới này.",
+    "scenario": "Mặc áo mới về quê, cả họ check var từ đầu tới chân, phải có APPROBATION của bà nội thì mới thôi bàn tán.",
     "translationHint": "Sự tán thành, chấp thuận",
     "upgradeModule": {
       "simpleSentence": "The crowd showed their formal approval.",
@@ -5283,7 +5283,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɑːˈkeɪn",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Mấy cái thuật ngữ ARCANE trong smart contract này làm tôi đọc muốn nổ não, đúng là chỉ có mấy ông thần crypto mới hiểu nổi.",
+    "scenario": "Luật chơi board game đứa bạn mang tới ARCANE thật, đọc hướng dẫn 40 phút mà cả đám chưa ai biết đi lượt đầu, ủa alo.",
     "translationHint": "Bí ẩn, kỳ bí, khó hiểu",
     "upgradeModule": {
       "simpleSentence": "The rules of the game were very old and secret.",
@@ -5304,7 +5304,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈærənt",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Việc ông bảo code này 'tự chạy' mà không cần server đúng là một sự ARRANT bốc phét, định lừa trẻ con à?",
+    "scenario": "Hứa làm slide rồi biến mất cả tuần, hôm thuyết trình hỏi 'mình làm phần nào ta', đúng là báo thủ ARRANT.",
     "translationHint": "Hoàn toàn, hết sức (nghĩa xấu)",
     "upgradeModule": {
       "simpleSentence": "That is a complete lie.",
@@ -5325,7 +5325,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɑːtɪfɪs",
     "elo": 1420,
     "level": "expert",
-    "scenario": "Cái vẻ ngoài 'quan tâm nhân viên' của công ty thực ra chỉ là ARTIFICE để che đậy việc cắt giảm thưởng thôi.",
+    "scenario": "Bài đăng 'pass lại vì không vừa size' của shop thực ra là ARTIFICE để đẩy hàng tồn, tui bị thao túng tâm lý hai lần rồi.",
     "translationHint": "Mưu mẹo, sự đánh tráo giả tạo",
     "upgradeModule": {
       "simpleSentence": "He used a clever trick to win the game.",
@@ -5347,7 +5347,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈsetɪk",
     "elo": 1440,
     "level": "expert",
-    "scenario": "Cuộc sống ASCETIC của ông thần CTO: không dùng smartphone, chỉ xài máy tính bàn và ăn cơm chay để tập trung tối đa.",
+    "scenario": "Tuần thi cuối kỳ tui sống ASCETIC: xóa TikTok, ăn cơm hộp, ngủ bốn tiếng, fomo cỡ nào cũng không cài lại.",
     "translationHint": "Khổ hạnh, tu hành",
     "upgradeModule": {
       "simpleSentence": "He lives a very simple life without any pleasure.",
@@ -5368,7 +5368,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈsɪdjuəs",
     "elo": 1390,
     "level": "expert",
-    "scenario": "Phải công nhận ông intern này ASSIDUOUS thật, ngồi fix cái bug vặt vãnh mà cũng thức trắng đêm để tìm nguyên nhân.",
+    "scenario": "Đứa bạn ASSIDUOUS nhất lớp ghi chép bằng năm màu bút, vở đẹp đỉnh nóc kịch trần, mùa thi cả lớp xếp hàng xin chụp.",
     "translationHint": "Cần cù, siêng năng",
     "upgradeModule": {
       "simpleSentence": "She is a very hard-working student.",
@@ -5390,7 +5390,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌætəˈvɪstɪk",
     "elo": 1480,
     "level": "expert",
-    "scenario": "Cái nỗi sợ ATAVISTIC khi thấy server đỏ lòm lúc nửa đêm là thứ mà dev đời nào cũng phải nếm trải qua.",
+    "scenario": "Nghe tiếng mở cửa lúc đang lén chơi game là bật dậy giả bộ học, phản xạ ATAVISTIC từ hồi lớp 5 vẫn còn nguyên.",
     "translationHint": "Mang tính bản năng nguyên thủy",
     "upgradeModule": {
       "simpleSentence": "The fear of the dark is a very old human feeling.",
@@ -5411,7 +5411,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈtenjueɪt",
     "elo": 1410,
     "level": "expert",
-    "scenario": "Dùng thêm mấy lớp cache này sẽ giúp ATTENUATE áp lực lên database, chứ không là nó sập sớm thôi.",
+    "scenario": "Tai nghe chống ồn cũng chỉ ATTENUATE được phần nào tiếng karaoke nhà hàng xóm, phần còn lại thấm thẳng vào tim.",
     "translationHint": "Làm yếu đi, giảm cường độ",
     "upgradeModule": {
       "simpleSentence": "The earplugs helped make the noise lower.",
@@ -5433,7 +5433,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɔːˈɡʌst",
     "elo": 1370,
     "level": "expert",
-    "scenario": "Được đứng phát biểu trước các chuyên gia AUGUST trong ngành làm tôi thấy vừa run vừa tự hào vãi.",
+    "scenario": "Bước vào hội trường AUGUST của lễ tốt nghiệp, áo cử nhân thì đi thuê, dưới tà áo là đôi dép tổ ong, vẫn slay.",
     "translationHint": "Uy nghi, đáng kính",
     "upgradeModule": {
       "simpleSentence": "The old university is a very respected place.",
@@ -5454,7 +5454,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈævərɪs",
     "elo": 1430,
     "level": "expert",
-    "scenario": "Chính cái sự AVARICE của ban lãnh đạo, chỉ muốn thu lợi nhuận ngắn hạn, đã làm nát bét cái định hướng dài hạn của dự án.",
+    "scenario": "Chủ trọ tăng tiền điện lên 4 nghìn một số, AVARICE lộ liễu tới mức cả dãy trọ lập group riêng để than, red flag to đùng.",
     "translationHint": "Lòng tham tiền bạc",
     "upgradeModule": {
       "simpleSentence": "He was driven by his desire for more money.",
@@ -5475,7 +5475,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbelɪkəʊs",
     "elo": 1400,
     "level": "expert",
-    "scenario": "Sếp bữa nay có vẻ BELLICOSE vãi, ai nói gì cũng muốn 'bật' lại, chắc là mới bị vợ mắng ở nhà rồi.",
+    "scenario": "Đói mà chưa được ăn trưa là tui thành BELLICOSE liền, ai hỏi 'ăn gì' cũng muốn cãi tay đôi.",
     "translationHint": "Hiếu chiến, thích gây hấn",
     "upgradeModule": {
       "simpleSentence": "The leader's speech was very aggressive and sounded like he wanted war.",
@@ -5497,7 +5497,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbɪzəntiːn",
     "elo": 1470,
     "level": "expert",
-    "scenario": "Quy trình xin cấp quyền truy cập server ở cái tập đoàn này BYZANTINE vãi, qua 5 tầng 7 lớp ký duyệt mới xong.",
+    "scenario": "Thủ tục xin giấy xác nhận sinh viên BYZANTINE thật: ba phòng, bốn con dấu, hai tuần và một câu 'mai quay lại em', ét o ét.",
     "translationHint": "Rắc rối, cực kỳ phức tạp",
     "upgradeModule": {
       "simpleSentence": "The law is very complicated and difficult to follow.",
@@ -5518,7 +5518,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəˈprɪʃəs",
     "elo": 1390,
     "level": "expert",
-    "scenario": "Tính tình CAPRICIOUS của khách hàng làm team xoay như chong chóng, sáng đòi làm cái này chiều lại bảo 'thôi bỏ đi'.",
+    "scenario": "Crush CAPRICIOUS tới mức hôm qua rep sau năm giây, hôm nay seen ba tiếng, tui check var lịch sử chat vẫn không ra quy luật.",
     "translationHint": "Thất thường, hay thay đổi",
     "upgradeModule": {
       "simpleSentence": "The weather is very unstable today.",
@@ -5539,7 +5539,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkæstɪɡeɪt",
     "elo": 1450,
     "level": "expert",
-    "scenario": "Lead mình thường xuyên CASTIGATE mấy thanh niên hay viết code 'bẩn' mà không chịu format lại.",
+    "scenario": "Cô chủ nhiệm CASTIGATE cả lớp mười lăm phút vì vụ trốn tiết, xong mới phát hiện thủ phạm là lớp kế bên, ủa alo.",
     "translationHint": "Chỉ trích dữ dội",
     "upgradeModule": {
       "simpleSentence": "The manager shouted at the employee for the mistake.",
@@ -5561,7 +5561,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkɔːstɪk",
     "elo": 1410,
     "level": "expert",
-    "scenario": "Mấy cái lời nhận xét CAUSTIC trong code review có thể làm một anh dev yếu lòng phải suy nghĩ về việc bỏ nghề.",
+    "scenario": "Đứa em họ comment CAUSTIC dưới ảnh tui đi Đà Lạt: 'cảnh đẹp, tiếc là có người', tới công chuyện với nó.",
     "translationHint": "Cay nghiệt, châm chọc",
     "upgradeModule": {
       "simpleSentence": "He made a very sharp and unkind remark.",
@@ -5582,7 +5582,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ʃɪˈkeɪnəri",
     "elo": 1480,
     "level": "expert",
-    "scenario": "Lão ta dùng đủ mọi CHICANERY để đẩy hết trách nhiệm sai sót sang cho team khác, đúng là cáo già.",
+    "scenario": "Shop xài đủ CHICANERY: giá gạch, mã giảm 'chỉ còn 2 phút', đồng hồ đếm ngược reset mỗi lần vào lại, thao túng tâm lý dữ.",
     "translationHint": "Mánh khóe, thủ thuật lừa dối",
     "upgradeModule": {
       "simpleSentence": "The lawyer used clever tricks to win.",
@@ -5603,7 +5603,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtʃɜːlɪʃ",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Hành động không thèm trả lời tin nhắn công việc của khách hàng là cực kỳ CHURLISH, dù ông có giận cỡ nào đi nữa.",
+    "scenario": "Bạn cùng phòng mượn sạc ba ngày chưa trả, nhắc thì đáp 'gì căng' cực CHURLISH, tui lặng lẽ đổi mật khẩu wifi.",
     "translationHint": "Thô lỗ, mất lịch sự",
     "upgradeModule": {
       "simpleSentence": "It was very rude of him to refuse the gift.",
@@ -5624,7 +5624,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌsɜːkəmləˈkjuːʃn",
     "elo": 1490,
     "level": "expert",
-    "scenario": "Bớt dùng CIRCUMLOCUTION lại đi ông nội, nói thẳng ra là dự án này khi nào xong cho tôi nhờ cái.",
+    "scenario": "Hỏi 'có đi chơi khum' mà nó trả lời cả đoạn CIRCUMLOCUTION về lịch học với thời tiết, dịch ra là khum.",
     "translationHint": "Cách nói vòng vo, dài dòng",
     "upgradeModule": {
       "simpleSentence": "He used too many words to explain a simple thing.",
@@ -5646,7 +5646,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kleəˈvɔɪənt",
     "elo": 1420,
     "level": "expert",
-    "scenario": "Lão lead như có khả năng CLAIRVOYANT vậy, nhìn qua là biết ngay chỗ nào trong code sắp tới sẽ nổ bug.",
+    "scenario": "Mẹ tui CLAIRVOYANT thật, chưa kịp kể đã biết tháng này cháy túi, gọi video câu đầu là 'gửi thêm hả con', out trình thầy bói.",
     "translationHint": "Sáng suốt, có khả năng tiên đoán",
     "upgradeModule": {
       "simpleSentence": "She seems to know the future.",
@@ -5668,7 +5668,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈklɔɪɪŋ",
     "elo": 1360,
     "level": "expert",
-    "scenario": "Cái giọng nịnh hót CLOYING của thằng đó với sếp làm tôi nghe mà muốn nổi hết da gà, giả trân vãi.",
+    "scenario": "Cặp đôi phòng bên gọi nhau 'bé iu' cả buổi tối, độ CLOYING cỡ này thì cả dãy trọ ăn cơm chó tới no.",
     "translationHint": "Ngọt xớt, giả tạo đến phát ngấy",
     "upgradeModule": {
       "simpleSentence": "The music was too sweet and sentimental.",
@@ -5689,7 +5689,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkəʊdʒənt",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Bài thuyết trình của ông rất COGENT, thuyết phục hoàn toàn ban giám đốc rót vốn cho dự án này.",
+    "scenario": "Tui soạn 10 slide lý lẽ COGENT xin bố mẹ cho đi Đà Lạt, bố xem hết rồi hỏi đúng một câu 'tiền ai trả', toang.",
     "translationHint": "Vững chắc, có sức thuyết phục",
     "upgradeModule": {
       "simpleSentence": "He gave a very strong and clear reason.",
@@ -5711,7 +5711,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəmˈpʌŋkʃn",
     "elo": 1430,
     "level": "expert",
-    "scenario": "Hắn ta lẳng lặng nghỉ việc ngay giữa lúc dự án đang cháy mà không hề có một chút COMPUNCTION nào, tệ thật sự.",
+    "scenario": "Nó ăn hết hộp bánh tui mua mà không có chút COMPUNCTION nào, còn trách tui mua ít, ra đường tôi nể mỗi bạn.",
     "translationHint": "Sự hối hận, cắn rứt lương tâm",
     "upgradeModule": {
       "simpleSentence": "He felt no regret for what he did.",
@@ -5733,7 +5733,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌkɒnfləˈɡreɪʃn",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Một cái bug nhỏ xíu ở module thanh toán đã gây ra một cuộc CONFLAGRATION khủng khiếp, làm app bay màu cả ngày.",
+    "scenario": "Câu hỏi 'pizza có nên bỏ dứa không' biến group lớp thành một CONFLAGRATION ba trăm tin nhắn, cả đám hóng biến tới khuya.",
     "translationHint": "Đám cháy lớn, sự xung đột dữ dội",
     "upgradeModule": {
       "simpleSentence": "The small fire grew into a giant blaze.",
@@ -5755,7 +5755,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌkɒnstəˈneɪʃn",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Nỗi CONSTERNATION bao trùm cả phòng họp khi sếp thông báo dự án chính thức bị 'cancel' sau 1 năm cày cuốc.",
+    "scenario": "Cả phòng thi chìm trong CONSTERNATION khi đề ra đúng chương cô dặn 'phần này không cần học đâu', xu cà na gì đâu.",
     "translationHint": "Sự kinh hoàng, tiệt vọng",
     "upgradeModule": {
       "simpleSentence": "The news caused a lot of shock and worry.",
@@ -5777,7 +5777,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkreɪvən",
     "elo": 1400,
     "level": "expert",
-    "scenario": "Thật là CRAVEN khi ông đẩy thằng intern ra chịu trận trước khách hàng để bảo vệ cái ghế của mình.",
+    "scenario": "Chó nhà hàng xóm sủa một tiếng là nó đẩy tui lên trước rồi chạy, màn CRAVEN nhất tui từng thấy, red flag tình bạn.",
     "translationHint": "Hèn nhát",
     "upgradeModule": {
       "simpleSentence": "His behavior was very cowardly.",
@@ -5798,7 +5798,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkɒntraɪt",
     "elo": 1370,
     "level": "expert",
-    "scenario": "Nhìn bộ dạng CONTRITE của thằng đệ sau khi làm mất con server của khách mà tôi cũng không nỡ mắng.",
+    "scenario": "Đứa bạn làm đổ trà sữa lên laptop tui, mặt CONTRITE tới mức tui phải quay qua an ủi ngược lại nó.",
     "translationHint": "Ăn năn, hối lỗi",
     "upgradeModule": {
       "simpleSentence": "He felt very sorry for his mistake.",
@@ -5820,7 +5820,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈvɪviəl",
     "elo": 1360,
     "level": "expert",
-    "scenario": "Buổi tiệc tất niên diễn ra trong không khí CONVIVIAL vãi, bao nhiêu mệt mỏi cả năm coi như tan biến sạch.",
+    "scenario": "Bữa lẩu ở trọ CONVIVIAL tới nỗi phòng bên sang xin nước mắm rồi ngồi lại luôn tới khuya, chữa lành thật sự.",
     "translationHint": "Vui vẻ, thân thiện",
     "upgradeModule": {
       "simpleSentence": "The party was full of life and friendly people.",
@@ -5842,7 +5842,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkəʊpiəs",
     "elo": 1370,
     "level": "expert",
-    "scenario": "Ông ghi chép COPIOUS thế kia mà lúc vào họp vẫn hỏi lại mấy cái vấn đề cơ bản là sao?",
+    "scenario": "Bà ngoại gói đồ COPIOUS cho tui lên lại thành phố: ba bao gạo, hai can nước mắm và một con gà còn đang gáy, đỉnh nóc kịch trần.",
     "translationHint": "Dồi dào, phong phú",
     "upgradeModule": {
       "simpleSentence": "She took many pages of notes.",
@@ -5863,7 +5863,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kjuːˈpɪdɪti",
     "elo": 1450,
     "level": "expert",
-    "scenario": "Chính cái CUPIDITY muốn giàu nhanh đã khiến bao nhiêu người sập bẫy mấy cái sàn crypto lừa đảo.",
+    "scenario": "CUPIDITY trỗi dậy đúng lúc thấy livestream xả kho đồng giá 1 nghìn, canh tới 3 giờ sáng được đúng cái móc khóa, fomo mà.",
     "translationHint": "Lòng tham (đặc biệt là tiền bạc)",
     "upgradeModule": {
       "simpleSentence": "The man's greed was his downfall.",
@@ -5884,7 +5884,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɜːθ",
     "elo": 1390,
     "level": "expert",
-    "scenario": "Hiện nay đang có một sự DEARTH trầm trọng nhân lực biết làm blockchain chất lượng, hèn gì lương cao vãi.",
+    "scenario": "Mùa thi ở thư viện là DEARTH ổ cắm trầm trọng, ai ngồi gần ổ điện là người quyền lực nhất tầng, real.",
     "translationHint": "Sự khan hiếm, thiếu thốn",
     "upgradeModule": {
       "simpleSentence": "There is a lack of water in the desert.",
@@ -5905,7 +5905,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdefərəns",
     "elo": 1400,
     "level": "expert",
-    "scenario": "Ông ấy luôn đối xử với các bậc tiền bối trong ngành với sự DEFERENCE tuyệt đối, đúng chuẩn người có học thức.",
+    "scenario": "Về quê ăn Tết, tui chào họ hàng với DEFERENCE tuyệt đối, cho tới khi nghe câu 'có bồ chưa' là tới công chuyện.",
     "translationHint": "Sự tôn trọng, cung kính",
     "upgradeModule": {
       "simpleSentence": "He showed respect to his boss's decision.",
@@ -5927,7 +5927,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌdelɪˈtɪəriəs",
     "elo": 1440,
     "level": "expert",
-    "scenario": "Cái thói quen ngồi code xuyên đêm mà không vận động thật sự có ảnh hưởng DELETERIOUS đến cột sống của ông đấy, lo mà tập gym đi.",
+    "scenario": "Thức tới 3 giờ cày phim rồi sáng nốc ba ly cà phê, combo DELETERIOUS cho da mặt đỉnh nóc kịch trần luôn á.",
     "translationHint": "Gây hại, có tác động xấu",
     "upgradeModule": {
       "simpleSentence": "Stress is bad for your health.",
@@ -5948,7 +5948,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "deɪˈnuːmɒŋ",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Cái DENOUEMENT của dự án này thật không thể tin nổi: sếp ôm tiền chạy, để lại anh em với đống code rác nợ lương 3 tháng.",
+    "scenario": "Drama group lớp cãi nhau ba ngày ba đêm, DENOUEMENT là cả đám rủ nhau đi ăn lẩu như chưa có gì, hóng biến uổng công.",
     "translationHint": "Kết cục, hạ màn",
     "upgradeModule": {
       "simpleSentence": "The end of the movie was very surprising.",
@@ -5970,7 +5970,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdesəltri",
     "elo": 1470,
     "level": "expert",
-    "scenario": "Ông học tiếng Anh kiểu DESULTORY thế này thì mùa quýt sang năm mới đạt được N2, học hành cho nó ra hệ thống tí đi.",
+    "scenario": "Ôn tiếng Anh kiểu DESULTORY, hôm nay Writing, mai lướt TikTok tips, tuần sau quên luôn mình đang học tới đâu, hết cứu.",
     "translationHint": "Rời rạc, thiếu hệ thống",
     "upgradeModule": {
       "simpleSentence": "He worked in a random way without a plan.",
@@ -5991,7 +5991,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈvetərət",
     "elo": 1410,
     "level": "expert",
-    "scenario": "Thằng đó là một kẻ INVETERATE nói dối, nó bảo 'fix xong rồi' nghĩa là nó còn chưa thèm mở code ra xem nữa.",
+    "scenario": "Nó là đứa INVETERATE trễ hẹn, hẹn 7 giờ thì đúng 7 giờ mới bắt đầu đi tắm, red flag mà cả group quen luôn rồi.",
     "translationHint": "Thâm căn cố đế, khó bỏ",
     "upgradeModule": {
       "simpleSentence": "He is a long-time gambler.",
@@ -6013,7 +6013,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈlækrɪməʊs",
     "elo": 1450,
     "level": "expert",
-    "scenario": "Mấy cái phim quảng cáo Tết lúc nào cũng dùng kịch bản LACHRYMOSE để lấy nước mắt người xem rồi chèn cái logo vào.",
+    "scenario": "Bộ phim Hàn này LACHRYMOSE dữ thần, mới tập hai mà hộp khăn giấy của cả phòng trọ đã toang.",
     "translationHint": "Hay khóc, ủy mị, gây xúc động mạnh",
     "upgradeModule": {
       "simpleSentence": "The movie was very sad and made everyone cry.",
@@ -6035,7 +6035,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "læmˈbeɪst",
     "elo": 1420,
     "level": "expert",
-    "scenario": "Cộng đồng mạng đang LAMBASTE cái app mới ra của công ty vì lỗi bảo mật sơ đẳng làm lộ thông tin người dùng.",
+    "scenario": "Quán trà sữa tăng giá mà ly còn nhỏ lại, dân Threads LAMBASTE suốt đêm, sáng ra quán lặng lẽ xóa bài, tới công chuyện.",
     "translationHint": "Chỉ trích gay gắt",
     "upgradeModule": {
       "simpleSentence": "The critics attacked the play severely.",
@@ -6057,7 +6057,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈlæŋɡwɪd",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Thời tiết Sài Gòn buổi chiều nóng đến mức làm ai cũng thấy LANGUID, chỉ muốn nằm điều hòa chứ code gì tầm này.",
+    "scenario": "Ăn xong cơm trưa văn phòng là cả team LANGUID như cá phơi khô, sếp hỏi gì cũng gật, lowkey đang ngủ gục.",
     "translationHint": "Uể oải, lờ đờ",
     "upgradeModule": {
       "simpleSentence": "We had a slow and relaxed afternoon by the pool.",
@@ -6078,7 +6078,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ləˈkweɪʃəs",
     "elo": 1390,
     "level": "expert",
-    "scenario": "Gặp mấy ông khách hàng LOQUACIOUS mệt lắm, nói chuyện 2 tiếng đồng hồ mà chẳng chốt được cái yêu cầu nào ra hồn.",
+    "scenario": "Bác tài Grab LOQUACIOUS cỡ nào mà đi có mười lăm phút, mình đã thuộc hết lịch sử tình trường của bác, out trình podcast.",
     "translationHint": "Nói nhiều, huyên thuyên",
     "upgradeModule": {
       "simpleSentence": "He is a very talkative person.",
@@ -6100,7 +6100,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌmækiəˈveliən",
     "elo": 1490,
     "level": "expert",
-    "scenario": "Lão ta dùng những thủ đoạn MACHIAVELLIAN để leo lên cái ghế giám đốc, sẵn sàng đạp đổ mọi đồng nghiệp cũ.",
+    "scenario": "Nó khen mình nấu ăn ngon đúng hôm tới lượt nó rửa chén, nước cờ MACHIAVELLIAN thao túng tâm lý này mình nhận ra quá trễ.",
     "translationHint": "Xảo quyệt, mưu mô chính trị",
     "upgradeModule": {
       "simpleSentence": "He used clever and dishonest ways to get power.",
@@ -6121,7 +6121,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "mæɡˈnɪləkwənt",
     "elo": 1480,
     "level": "expert",
-    "scenario": "Mấy cái diễn ngôn MAGNILOQUENT về 'thay đổi thế giới' của mấy founder startup nghe thì hay, nhưng thực tế là đang đốt tiền nhà đầu tư.",
+    "scenario": "Bio Tinder ghi \"kiến tạo tương lai\" nghe MAGNILOQUENT vậy chứ hỏi ra là đang bán sim số đẹp, ô dề ghê.",
     "translationHint": "Nói khoác lác, khoa trương",
     "upgradeModule": {
       "simpleSentence": "The leader used very grand and impressive words.",
@@ -6143,7 +6143,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌmæləˈdrɔɪt",
     "elo": 1420,
     "level": "expert",
-    "scenario": "Cách xử lý khủng hoảng truyền thông của công ty đúng là MALADROIT, càng giải thích thì dân tình càng chửi hăng hơn.",
+    "scenario": "Định thả thính crush bằng một câu thơ, gõ sai chính tả ngay chữ \"yêu\", màn MALADROIT nhất học kỳ, u là trời.",
     "translationHint": "Vụng về, thiếu khéo léo",
     "upgradeModule": {
       "simpleSentence": "His handling of the situation was very clumsy.",
@@ -6165,7 +6165,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "məˈleɪz",
     "elo": 1400,
     "level": "expert",
-    "scenario": "Cảm giác MALAISE khi nhận ra mình đã làm dev 3 năm mà vẫn chưa có gì trong tay, kiến thức thì dở dở ương ương.",
+    "scenario": "Tối chủ nhật nào cũng lowkey có một cái MALAISE khó tả, chưa ai nhắc mà cơ thể đã biết mai là thứ hai.",
     "translationHint": "Sự khó chịu, bất an mơ hồ",
     "upgradeModule": {
       "simpleSentence": "The country is in a general feeling of unhappiness.",
@@ -6187,7 +6187,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌmerɪˈtrɪʃəs",
     "elo": 1470,
     "level": "expert",
-    "scenario": "Cái UI này nhìn qua thì MERETRICIOUS đấy, màu mè hoa lá hẹ nhưng trải nghiệm người dùng thì tệ không tả nổi.",
+    "scenario": "Quán cà phê decor MERETRICIOUS hết cỡ, chụp ảnh slay thật nhưng ly bạc xỉu uống y nước đường.",
     "translationHint": "Hào nhoáng nhưng vô giá trị",
     "upgradeModule": {
       "simpleSentence": "The decorations were cheap and flashy.",
@@ -6208,7 +6208,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmetlsəm",
     "elo": 1440,
     "level": "expert",
-    "scenario": "Phải là một người cực kỳ METTLESOME mới dám bỏ việc lương cao để đi khởi nghiệp trong cái giai đoạn kinh tế khó khăn này.",
+    "scenario": "Đứa bạn METTLESOME dám tỏ tình crush ngay giữa tiệc sinh nhật đông người, cả bàn nín thở, ra đường tôi nể mỗi bạn.",
     "translationHint": "Dũng cảm, đầy nghị lực",
     "upgradeModule": {
       "simpleSentence": "The young soldier was very brave.",
@@ -6229,7 +6229,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌmɪzənˈθrɒpɪk",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Làm nghề này lâu xong tôi thấy mình hơi MISANTHROPIC, chỉ thích ở một mình với máy tính hơn là đi xã giao với người thật.",
+    "scenario": "Sau ba tháng ở trọ chung năm người, mình thành MISANTHROPIC lúc nào không hay, giờ chỉ chữa lành bằng cách nói chuyện với con mèo.",
     "translationHint": "Ghét người, lánh đời",
     "upgradeModule": {
       "simpleSentence": "He hates people and avoids society.",
@@ -6251,7 +6251,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "nɪˈmɒnɪk",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Dùng mấy cái MNEMONIC kiểu này để nhớ từ vựng cũng hay, nhưng quan trọng vẫn là phải áp dụng vào thực tế mới nhớ lâu được.",
+    "scenario": "Cô dạy cái MNEMONIC để nhớ thứ tự các hành tinh, giờ mình nhớ y câu thần chú mà quên mất nó dùng để làm gì, hết cứu.",
     "translationHint": "Thuật ghi nhớ",
     "upgradeModule": {
       "simpleSentence": "This is a good way to help you remember names.",
@@ -6272,7 +6272,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmɔːdnt",
     "elo": 1430,
     "level": "expert",
-    "scenario": "Cái khiếu hài hước MORDANT của lão lead nhiều khi làm anh em hơi thốn, toàn lôi mấy pha 'bóp' của team ra để khịa.",
+    "scenario": "Thằng bạn comment MORDANT dưới ảnh mới của mình: \"Filter xịn đó, gửi tên app đi\". Kém miếng khó chịu.",
     "translationHint": "Châm chọc, cay nghiệt",
     "upgradeModule": {
       "simpleSentence": "He has a very sharp and critical sense of humor.",
@@ -6293,7 +6293,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "mjuːˈnɪfɪsnt",
     "elo": 1410,
     "level": "expert",
-    "scenario": "Công ty cũ của tôi cực kỳ MUNIFICENT trong khoản thiết bị, cứ vào làm là được phát ngay combo Macbook Pro và màn hình 4K.",
+    "scenario": "Bà ngoại MUNIFICENT đỉnh nóc kịch trần, về quê ba ngày mà được dúi tiền, gà, gạo, cả bao xoài mang lên trọ.",
     "translationHint": "Hào phóng, cực kỳ rộng rãi",
     "upgradeModule": {
       "simpleSentence": "The rich man gave a very big gift to the hospital.",
@@ -6315,7 +6315,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnebjʊləs",
     "elo": 1390,
     "level": "expert",
-    "scenario": "Mấy cái lời hứa hẹn về tương lai dự án của sếp vẫn còn NEBULOUS lắm, chưa thấy một cái roadmap nào rõ ràng cả.",
+    "scenario": "Hỏi \"mình là gì của nhau\", người ta đáp \"thì cứ vậy đi\", câu trả lời NEBULOUS cỡ này là red flag rồi.",
     "translationHint": "Mơ hồ, mù mờ",
     "upgradeModule": {
       "simpleSentence": "His ideas for the project are still very unclear.",
@@ -6336,7 +6336,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnɔɪsəm",
     "elo": 1420,
     "level": "expert",
-    "scenario": "Cái mùi NOISOME từ đống rác tích tụ lâu ngày ở pantry làm tôi không bao giờ dám bén mảng lại gần đó nữa.",
+    "scenario": "Mở tủ lạnh phòng trọ sau kỳ nghỉ Tết, mùi NOISOME xộc ra làm cả dãy trọ ét o ét.",
     "translationHint": "Hôi thối, khó chịu kinh khủng",
     "upgradeModule": {
       "simpleSentence": "There is a very bad smell coming from the kitchen.",
@@ -6357,7 +6357,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒbdjʊrət",
     "elo": 1440,
     "level": "expert",
-    "scenario": "Dù team đã đưa ra đủ mọi bằng chứng là công nghệ này đã cũ, nhưng lão CTO vẫn OBDURATE bắt dùng cho bằng được.",
+    "scenario": "Ba mình OBDURATE lắm, nói mạng chậm là do trời mưa, check var cỡ nào cũng không chịu thay cái router đời 2015.",
     "translationHint": "Cứng đầu, ngoan cố",
     "upgradeModule": {
       "simpleSentence": "The leader was very stubborn and refused to change.",
@@ -6379,7 +6379,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əbˈstrepərəs",
     "elo": 1470,
     "level": "expert",
-    "scenario": "Gặp mấy thằng cha OBSTREPEROUS trong buổi họp đúng là cực hình, cứ hở tí là hét toáng lên để át tiếng người khác.",
+    "scenario": "Nhóm bàn bên OBSTREPEROUS từ đầu tới cuối, hát karaoke ngay trong quán cà phê học bài, nhắc ba lần vẫn hát, đúng báo thủ.",
     "translationHint": "Ồn ào bướng bỉnh, khó kiểm soát",
     "upgradeModule": {
       "simpleSentence": "The noisy and difficult crowd was hard to manage.",
@@ -6401,7 +6401,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əbˈtjuːs",
     "elo": 1380,
     "level": "expert",
-    "scenario": "Tôi giải thích đến lần thứ 10 rồi mà ông vẫn chưa hiểu thì đúng là ông OBTUSE thật, hay là đang giả vờ thế?",
+    "scenario": "Crush thả tim mọi story của mình mà mình tưởng người ta lỡ tay, nhìn lại mới thấy bản thân OBTUSE cỡ nào, u là trời.",
     "translationHint": "Chậm hiểu, đần độn",
     "upgradeModule": {
       "simpleSentence": "Are you being intentionally stupid?",
@@ -6423,7 +6423,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈfɪʃəs",
     "elo": 1410,
     "level": "expert",
-    "scenario": "Mấy bà hàng xóm OFFICIOUS vãi, chuyện gì trong nhà tôi bả cũng biết còn rõ hơn cả tôi nữa.",
+    "scenario": "Cô chủ trọ OFFICIOUS tới mức biết mình chia tay trước cả mình, còn ghé hỏi \"có cần cô giới thiệu đứa khác khum\".",
     "translationHint": "Hay lanh chanh, thích can thiệp chuyện người khác",
     "upgradeModule": {
       "simpleSentence": "He is always trying to tell people what to do when they don't want help.",
@@ -6444,7 +6444,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌəʊliˈædʒɪnəs",
     "elo": 1490,
     "level": "expert",
-    "scenario": "Cái nụ cười OLEAGINOUS của lão khách hàng làm tôi thấy nổi hết cả da gà, biết ngay là sắp có yêu cầu oái oăm gì rồi.",
+    "scenario": "Tin nhắn OLEAGINOUS kiểu \"dạo này em xinh lên á\" từ đứa bạn cũ, đọc tới dòng ba là thấy link đa cấp, ủa alo.",
     "translationHint": "Nịnh bợ, bóng bẩy (nghĩa bóng)",
     "upgradeModule": {
       "simpleSentence": "He has a very oily and fake personality.",
@@ -6465,7 +6465,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒnərəs",
     "elo": 1370,
     "level": "expert",
-    "scenario": "Việc một mình phải gánh trách nhiệm bảo trì hệ thống cho cả công ty là một công việc cực kỳ ONEROUS.",
+    "scenario": "Làm thủ tục nhập học online mà cần mười loại giấy tờ công chứng, nhiệm vụ ONEROUS hơn cả đề thi đại học, xỉu ngang.",
     "translationHint": "Nặng nề, khó nhọc",
     "upgradeModule": {
       "simpleSentence": "The task was very difficult and tiring.",
@@ -6486,7 +6486,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈprəʊbriəm",
     "elo": 1460,
     "level": "expert",
-    "scenario": "Ông ta phải đối mặt với sự OPPROBRIUM từ cộng đồng dev sau khi bị phát hiện ăn cắp mã nguồn của đồng nghiệp.",
+    "scenario": "Lỡ spoil cái kết phim trong group chat, mình hứng OPPROBRIUM cả tuần, bị loại khỏi kèo xem phần hai, báo thủ thì chịu.",
     "translationHint": "Sự chỉ trích dữ dội, vết nhục",
     "upgradeModule": {
       "simpleSentence": "He suffered a lot of public shame after the scandal.",
@@ -6508,7 +6508,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌpɑːsɪˈməʊniəs",
     "elo": 1430,
     "level": "expert",
-    "scenario": "Công ty này PARSIMONIOUS đến mức cắt luôn cả tiền trà nước, bánh kẹo cho nhân viên vào buổi xế.",
+    "scenario": "Rủ đi ăn mà nó PARSIMONIOUS tới mức chia bill tới từng 500 đồng tiền trà đá, keo lỳ có hạng.",
     "translationHint": "Bủn xỉn, cực kỳ keo kiệt",
     "upgradeModule": {
       "simpleSentence": "He is very stingy and doesn't want to spend money.",
@@ -6529,7 +6529,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pɪˈdʒɒrətɪv",
     "elo": 1420,
     "level": "expert",
-    "scenario": "Đừng dùng từ 'thợ code' như một danh từ PEJORATIVE, mỗi nghề đều có cái giá trị riêng của nó cả.",
+    "scenario": "Mẹ gọi mình là \"con nghiện điện thoại\" bằng giọng PEJORATIVE, mình đáp \"ok mom\" trong lúc mẹ đang lướt TikTok.",
     "translationHint": "Mang nghĩa xấu, có tính miệt thị",
     "upgradeModule": {
       "simpleSentence": "The word was used in a negative and insulting way.",
@@ -6550,7 +6550,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pɪˈnjʊəriəs",
     "elo": 1450,
     "level": "expert",
-    "scenario": "Trong cái tình cảnh PENURIOUS hiện tại, việc chi 200k cho một bữa ăn đối với tôi là một sự xa xỉ tột độ.",
+    "scenario": "Cuối tháng PENURIOUS tới mức nhìn gói mì tôm như món sang trọng, phải chia ra ăn hai bữa, ví toang thật.",
     "translationHint": "Nghèo túng, thiếu thốn tột cùng",
     "upgradeModule": {
       "simpleSentence": "He lives in a very poor state.",
@@ -6571,7 +6571,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈspektɪv",
     "elo": 920,
     "level": "intermediate",
-    "scenario": "Thay vì ngồi cãi nhau, hãy thử đổi PERSPECTIVE xem, bồ ông cũng chỉ muốn tốt cho ông nên mới càm ràm thôi.",
+    "scenario": "Thử đổi PERSPECTIVE coi: crush không rep chưa chắc là ghét mình, có khi người ta chỉ... không quan tâm thôi, bớt delulu.",
     "translationHint": "Góc nhìn, quan điểm",
     "upgradeModule": {
       "simpleSentence": "He has a different way of looking at things.",
@@ -6593,7 +6593,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "æmˈbɪʃəs",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Cái plan 'làm chủ tiếng Nhật sau 3 tháng' nghe AMBITIOUS đấy, nhưng thực tế là ông vẫn đang kẹt ở bảng chữ cái thôi.",
+    "scenario": "Plan hè của mình AMBITIOUS lắm, manifest đủ thứ: học code, tập gym, đọc mười cuốn sách; thực tế cày xong ba bộ phim.",
     "translationHint": "Tham vọng",
     "upgradeModule": {
       "simpleSentence": "This is a very big plan that needs a lot of work.",
@@ -6615,7 +6615,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəˈlæbəreɪt",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Muốn làm một cái party ra trò thì cả nhóm phải biết COLLABORATE, chứ ai cũng làm theo ý mình thì nát.",
+    "scenario": "Làm bài nhóm mà COLLABORATE kiểu một người làm, bốn người thả tim vào file Drive, ủa alo.",
     "translationHint": "Hợp tác, cộng tác",
     "upgradeModule": {
       "simpleSentence": "The two teams worked together on the project.",
@@ -6637,7 +6637,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈdæptəbl",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Cuộc sống ở thành phố lớn dạy mình phải cực kỳ ADAPTABLE, sáng nắng chiều mưa kẹt xe liên miên vẫn phải cười tươi.",
+    "scenario": "Ở trọ ba năm mình ADAPTABLE dữ lắm, mất điện thì học bằng đèn điện thoại, cúp nước thì ra tiệm gội đầu, keo lỳ chưa.",
     "translationHint": "Dễ thích nghi",
     "upgradeModule": {
       "simpleSentence": "He is very good at changing to fit new situations.",
@@ -6660,7 +6660,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈsɪstənt",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Học từ vựng quan trọng nhất là phải CONSISTENT, mỗi ngày 5 từ thôi còn hơn là một ngày 50 từ rồi bỏ cả tháng.",
+    "scenario": "Mình CONSISTENT đúng một thứ: tối nào cũng hứa sáng mai dậy sớm chạy bộ, hứa thì keo lỳ, dậy thì chưa.",
     "translationHint": "Nhất quán, kiên trì",
     "upgradeModule": {
       "simpleSentence": "He is always the same in his work and never changes.",
@@ -6682,7 +6682,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əbˈteɪn",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Phải vất vả lắm tôi mới OBTAIN được cái visa du lịch, làm đống giấy tờ muốn tiền đình luôn.",
+    "scenario": "Canh 0 giờ ba đêm liền mới OBTAIN được vé concert, giờ mới nhớ ra là chưa xin nghỉ phép, tới công chuyện.",
     "translationHint": "Đạt được, giành được",
     "upgradeModule": {
       "simpleSentence": "He got the permission from his boss.",
@@ -6704,7 +6704,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "spəˈsɪfɪk",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Nói SPECIFIC vào, ông muốn quà gì cho sinh nhật? Cứ 'gì cũng được' là tôi tặng cho cái nịt đấy.",
+    "scenario": "Hỏi ăn gì thì nói SPECIFIC giùm cái, \"gì cũng được\" xong mình đề xuất món nào cũng bị chê, ủa alo.",
     "translationHint": "Cụ thể, rõ ràng",
     "upgradeModule": {
       "simpleSentence": "I need clear instructions on what to do.",
@@ -6726,7 +6726,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvæljuəbl",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Mấy cái kinh nghiệm 'bị lừa' hồi sinh viên thực ra là những bài học VALUABLE nhất cho sau này đấy.",
+    "scenario": "Kho sticker meme trong máy là tài sản VALUABLE nhất mình có, đổi điện thoại là backup đầu tiên, lowkey quý hơn ảnh gia đình.",
     "translationHint": "Quý giá, có giá trị",
     "upgradeModule": {
       "simpleSentence": "This experience is very useful for my career.",
@@ -6748,7 +6748,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈestɪmeɪt",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Ông thử ESTIMATE xem đi từ đây ra sân bay mất bao lâu, kẹt xe tầm này là mệt lắm đấy.",
+    "scenario": "Mình ESTIMATE làm slide mất một tiếng, cuối cùng mất bốn tiếng vì ngồi chọn font, ô dề thật.",
     "translationHint": "Ước tính",
     "upgradeModule": {
       "simpleSentence": "Can you guess how much it will cost?",
@@ -6770,7 +6770,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtɪpɪkl",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Hứa thật nhiều xong lại quên, đúng là phong cách TYPICAL của thằng bạn thân tôi.",
+    "scenario": "Tủ quần áo đầy ứ mà vẫn thấy chẳng có gì mặc, tình trạng TYPICAL của mọi buổi sáng đi học, ô dề chứ đâu.",
     "translationHint": "Điển hình, đặc trưng",
     "upgradeModule": {
       "simpleSentence": "This is a normal example of his work.",
@@ -6791,7 +6791,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvɜːsətaɪl",
     "elo": 1050,
     "level": "intermediate",
-    "scenario": "Cái áo này VERSATILE vãi, mặc đi làm cũng lịch sự mà mặc đi quẩy cũng hết bài.",
+    "scenario": "Cái hoodie đen VERSATILE nhất tủ, đi học, đi cà phê, đi phỏng vấn cũng khoác được, slay mọi hoàn cảnh.",
     "translationHint": "Linh hoạt, đa năng",
     "upgradeModule": {
       "simpleSentence": "He is a person with many different skills.",
@@ -6813,7 +6813,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "səˈfɪʃnt",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Ăn một bát phở là SUFFICIENT năng lượng cho cả buổi sáng rồi, không cần ăn thêm gì đâu.",
+    "scenario": "Lương thực tập SUFFICIENT để trả tiền trọ, còn tiền ăn thì tùy vào lòng tốt của mẹ ở quê.",
     "translationHint": "Đầy đủ, đủ dùng",
     "upgradeModule": {
       "simpleSentence": "We have enough evidence to win.",
@@ -6835,7 +6835,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "praɪˈɒrəti",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Ngủ đủ 8 tiếng phải là PRIORITY hàng đầu nếu ông không muốn trông như panda mỗi sáng.",
+    "scenario": "Trước kỳ thi, PRIORITY số một là ôn bài, vậy mà mình lại dọn phòng sạch nhất từ đầu năm tới giờ, hết cứu.",
     "translationHint": "Sự ưu tiên",
     "upgradeModule": {
       "simpleSentence": "Safety is the most important thing for us.",
@@ -6857,7 +6857,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈprəʊtʃ",
     "elo": 920,
     "level": "intermediate",
-    "scenario": "Cái APPROACH của ông để tán crush có vẻ hơi sai sai, thử chuyển sang nhắn tin 'Ok.' xem.",
+    "scenario": "APPROACH của nó với crush là like hết ảnh từ năm 2019 trong một đêm, crush xỉu ngang rồi block luôn.",
     "translationHint": "Cách tiếp cận, phương pháp",
     "upgradeModule": {
       "simpleSentence": "We need a new way to solve the problem.",
@@ -6879,7 +6879,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈvɪns",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Làm sao để CONVINCE mẹ cho đi phượt với hội bạn bây giờ? Khó hơn giải toán lý lượng tử.",
+    "scenario": "Mất nguyên buổi tối để CONVINCE mẹ cho đi Đà Lạt với hội bạn, mẹ gật với điều kiện gọi video mỗi hai tiếng, ok mom.",
     "translationHint": "Thuyết phục",
     "upgradeModule": {
       "simpleSentence": "He tried to make me believe his story.",
@@ -6901,7 +6901,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prəˈsiːdʒə",
     "elo": 950,
     "level": "intermediate",
-    "scenario": "Cứ làm đúng cái PROCEDURE khi nấu mì tôm: nước sôi, mì vào, gia vị sau. Đừng có sáng tạo quá.",
+    "scenario": "PROCEDURE xin nghỉ ốm ở công ty mới cần ba chữ ký, tới khi xin xong thì mình khỏi bệnh luôn, u là trời.",
     "translationHint": "Quy trình, thủ tục",
     "upgradeModule": {
       "simpleSentence": "You must follow the steps to finish the task.",
@@ -6923,7 +6923,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "sɪɡˈnɪfɪkəns",
     "elo": 1020,
     "level": "intermediate",
-    "scenario": "Nhiều người không hiểu được cái SIGNIFICANCE của việc đeo khẩu trang cho đến khi bị dính bụi mịn sml.",
+    "scenario": "Mất điện thoại rồi mới hiểu SIGNIFICANCE của việc nhớ số mẹ, vì trong đầu chỉ còn số của shipper, xu cà na.",
     "translationHint": "Tầm quan trọng, ý nghĩa",
     "upgradeModule": {
       "simpleSentence": "What is the importance of this event?",
@@ -6945,7 +6945,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "rɪˈviːl",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Vừa REVEAL cái ảnh selfie lên Story là crush 'unseen' luôn, đúng là trái đắng.",
+    "scenario": "Đứa bạn REVEAL người yêu mới trên story, cả group chat hóng biến rồi nhận ra là anh bán bánh mì đầu hẻm.",
     "translationHint": "Tiết lộ, hé lộ",
     "upgradeModule": {
       "simpleSentence": "The test results showed a health problem.",
@@ -6967,7 +6967,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtʃælɪndʒɪŋ",
     "elo": 890,
     "level": "beginner",
-    "scenario": "Học tiếng Nhật là một việc cực kỳ CHALLENGING, nhưng mà vì ghẹ Nhật tôi sẽ cố hết sức.",
+    "scenario": "Môn Kinh tế lượng CHALLENGING tới mức cả lớp lập group chat riêng chỉ để than, khum ai hỏi bài.",
     "translationHint": "Đầy thách thức",
     "upgradeModule": {
       "simpleSentence": "The task was very difficult for the team.",
@@ -6988,7 +6988,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈkwaɪə",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Phải mất 2 năm đi làm tôi mới ACQUIRE được kỹ năng 'giả vờ bận rộn' mỗi khi sếp đi ngang qua.",
+    "scenario": "Sau một năm ở trọ, mình ACQUIRED kỹ năng nấu ba món chỉ bằng nồi cơm điện, slay nhẹ.",
     "translationHint": "Có được, thu nhận được",
     "upgradeModule": {
       "simpleSentence": "He got many new skills during his trip.",
@@ -7010,7 +7010,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌbenɪˈfɪʃl",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Uống nước cam mỗi sáng cực kỳ BENEFICIAL cho sức khỏe, nhất là mấy ông hay nhậu nhẹt.",
+    "scenario": "Ngủ trưa hai mươi phút cực BENEFICIAL cho não, ngủ hai tiếng thì dậy khum biết mình là ai.",
     "translationHint": "Có lợi",
     "upgradeModule": {
       "simpleSentence": "Regular exercise is good for your heart.",
@@ -7032,7 +7032,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkeɪpəbl",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Tôi biết ông CAPABLE mà, mấy cái task hóc búa này chỉ có ông mới giải quyết nổi thôi.",
+    "scenario": "Mình hoàn toàn CAPABLE dậy lúc 5 giờ sáng, chỉ cần có một chuyến bay giá rẻ đang chờ là gét gô liền.",
     "translationHint": "Có khả năng, năng lực",
     "upgradeModule": {
       "simpleSentence": "He is a very good worker who can do anything.",
@@ -7054,7 +7054,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌkɒntrəˈdɪkt",
     "elo": 980,
     "level": "intermediate",
-    "scenario": "Lời nói của sếp luôn CONTRADICT với hành động, miệng bảo 'anh em là nhà' mà lại bắt OT xuyên lễ.",
+    "scenario": "Story ghi \"đang ôn thi chăm chỉ\" mà giờ đó online Liên Quân, CONTRADICT nhau vậy check var là lộ liền.",
     "translationHint": "Mâu thuẫn, trái ngược",
     "upgradeModule": {
       "simpleSentence": "What he said today is different from what he said yesterday.",
@@ -7076,7 +7076,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈstɪŋkt",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Có một sự DISTINCT rõ rệt giữa cơm mẹ nấu và cơm quán, dù cơm quán cũng ngon nhưng thiếu cái 'tâm'.",
+    "scenario": "Hai ly trà sữa giá chênh 30 nghìn mà vị chẳng có gì DISTINCT, mình bị thao túng tâm lý trả thêm cho cái logo thôi.",
     "translationHint": "Khác biệt rõ ràng",
     "upgradeModule": {
       "simpleSentence": "There is a clear difference between the two styles.",
@@ -7098,7 +7098,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈlɪmɪneɪt",
     "elo": 930,
     "level": "intermediate",
-    "scenario": "Mục tiêu của tôi năm nay là ELIMINATE toàn bộ đống mỡ bụng này để tự tin đi bơi.",
+    "scenario": "Quyết ELIMINATE trà sữa khỏi chế độ ăn, tuần sau mình ghiền luôn sinh tố bơ thêm kem, toang.",
     "translationHint": "Loại bỏ, triệt tiêu",
     "upgradeModule": {
       "simpleSentence": "We need to get rid of all the waste.",
@@ -7120,7 +7120,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenrəlaɪz",
     "elo": 950,
     "level": "intermediate",
-    "scenario": "Đừng có GENERALIZE là tất cả mọi người đều lười, thực ra chỉ có mỗi ông là lười thôi đấy.",
+    "scenario": "Gặp một người yêu cũ tệ rồi GENERALIZE cả thế giới đều red flag là hơi quá rồi đó bà.",
     "translationHint": "Khái quát hóa, đánh đồng",
     "upgradeModule": {
       "simpleSentence": "Don't say that everything is the same based on one example.",
@@ -7142,7 +7142,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhɪndə",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Mấy cái tin nhắn rác đang HINDER sự tập trung của tôi, chắc phải bật chế độ máy bay thôi.",
+    "scenario": "Group chat gia đình nổ 99 tin nhắn về đám giỗ, HINDER công cuộc chạy deadline của mình trầm trọng, ét o ét.",
     "translationHint": "Cản trở, kìm hãm",
     "upgradeModule": {
       "simpleSentence": "The bad weather stopped the project from moving forward.",
@@ -7163,7 +7163,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪmplɪment",
     "elo": 920,
     "level": "intermediate",
-    "scenario": "Cái plan này hay đấy, nhưng vấn đề là ai sẽ là người đứng ra IMPLEMENT đây?",
+    "scenario": "Kế hoạch tiết kiệm nghe hay lắm, tới lúc IMPLEMENT thì đụng ngay đợt sale 10.10, fomo thắng.",
     "translationHint": "Triển khai, thực hiện",
     "upgradeModule": {
       "simpleSentence": "The company decided to use the new rules.",
@@ -7185,7 +7185,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈædɪkwət",
     "elo": 990,
     "level": "intermediate",
-    "scenario": "Kỹ năng thả thính của tôi vẫn còn INADEQUATE vãi, tán bả mà bả toàn rep bằng sticker.",
+    "scenario": "Ba tiếng ôn cho môn học cả kỳ là INADEQUATE thấy rõ, nhưng mình vẫn manifest được điểm A.",
     "translationHint": "Thiếu hụt, không thỏa đáng",
     "upgradeModule": {
       "simpleSentence": "The money was not enough for the trip.",
@@ -7207,7 +7207,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "meɪnˈteɪn",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Muốn MAINTAIN được cái body 6 múi thì ông phải bớt ăn trà sữa lại, thực tế lên.",
+    "scenario": "MAINTAIN chuỗi Duolingo 300 ngày là thành tựu lớn nhất đời mình để flex, dù tiếng Pháp vẫn chỉ biết \"bonjour\".",
     "translationHint": "Duy trì, bảo trì",
     "upgradeModule": {
       "simpleSentence": "He wants to keep his good reputation.",
@@ -7229,7 +7229,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnəʊtəbl",
     "elo": 890,
     "level": "beginner",
-    "scenario": "Một thay đổi NOTABLE nhất sau khi ông đi tập gym là... ông ăn nhiều hơn gấp đôi bình thường.",
+    "scenario": "Thay đổi NOTABLE nhất sau năm đầu đi làm: mình đọc giá trước, chằm zn tính nhẩm rồi mới đọc tên món.",
     "translationHint": "Đáng chú ý, nổi bật",
     "upgradeModule": {
       "simpleSentence": "This is a very important difference.",
@@ -7251,7 +7251,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɒptɪˈmɪstɪk",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Dù lương chưa về nhưng ông vẫn OPTIMISTIC chốt đơn Shopee, đúng là tấm gương vượt khó.",
+    "scenario": "Còn đúng một tuần mà mình vẫn OPTIMISTIC lắm, tin rằng đọc slide hai đêm là qua môn, delulu nhẹ thôi.",
     "translationHint": "Lạc quan",
     "upgradeModule": {
       "simpleSentence": "He is very positive about the future.",
@@ -7273,7 +7273,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpɑːʃl",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Đây mới chỉ là PARTIAL sự thật thôi, muốn nghe hết drama thì ông phải bao tôi chầu cà phê đã.",
+    "scenario": "Mẹ PARTIAL rõ ràng, em trai làm vỡ chén thì \"không sao con\", mình làm vỡ thì nghe giảng tới tối, kém miếng khó chịu ghê.",
     "translationHint": "Một phần, thiên vị",
     "upgradeModule": {
       "simpleSentence": "The plan was only a small success.",
@@ -7295,7 +7295,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpræktɪkl",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Thôi bớt nói lý thuyết đi, đưa ra giải pháp nào PRACTICAL một tí xem, ví dụ như làm sao để có bồ chẳng hạn.",
+    "scenario": "Món quà sinh nhật PRACTICAL nhất mình từng nhận là một thùng mì, tới đúng tuần cuối tháng, keo lỳ.",
     "translationHint": "Thực tế, thực tiễn",
     "upgradeModule": {
       "simpleSentence": "We need a realistic solution.",
@@ -7316,7 +7316,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɪkli",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Dọn dẹp bãi chiến trường này QUICKLY đi ông ơi, mẹ sắp về tới đầu ngõ rồi kìa.",
+    "scenario": "Nghe tiếng xe mẹ đầu ngõ, mình QUICKLY tắt game, mở sách, bày đủ bút highlight, diễn out trình luôn.",
     "translationHint": "Nhanh chóng",
     "upgradeModule": {
       "simpleSentence": "The technology is changing very fast.",
@@ -7338,7 +7338,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "riˈækʃn",
     "elo": 820,
     "level": "beginner",
-    "scenario": "REACTION của con mèo khi tôi đưa miếng xúc xắc cho nó thật sự là 'vô giá'.",
+    "scenario": "REACTION của mẹ khi thấy mình nhuộm tóc hồng: im lặng ba giây rồi hỏi đúng một câu \"bao nhiêu tiền\", tới công chuyện.",
     "translationHint": "Phản ứng",
     "upgradeModule": {
       "simpleSentence": "What was his answer to your question?",
@@ -7360,7 +7360,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈskeptɪsɪzəm",
     "elo": 1040,
     "level": "intermediate",
-    "scenario": "Tôi nhìn cái quảng cáo 'kem tan mỡ bụng sau 1 đêm' với một sự SKEPTICISM cực lớn.",
+    "scenario": "Xem review \"quán ngon nhất Sài Gòn\" trên TikTok với đầy SKEPTICISM, vì clip nào cũng kèm mã giảm giá, phải check var.",
     "translationHint": "Sự hoài nghi",
     "upgradeModule": {
       "simpleSentence": "There is a lot of doubt about the new plan.",
@@ -7382,7 +7382,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtendənsi",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Bạn thân tôi có TENDENCY nói rất nhiều mỗi khi nó thấy NERVOUS.",
+    "scenario": "Mình có TENDENCY mở tủ lạnh mỗi lần bí bài, đề chưa giải xong mà tủ lạnh đã ét o ét.",
     "translationHint": "Xu hướng, khuynh hướng",
     "upgradeModule": {
       "simpleSentence": "He usually forgets his keys.",
@@ -7404,7 +7404,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌʌnɪkˈspektɪd",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Một cái UNEXPECTED plot twist cuối phim làm tôi đứng hình mất 5 giây, không thể tin nổi.",
+    "scenario": "Tin nhắn UNEXPECTED nhất năm nay: người yêu cũ hỏi mượn tài khoản Netflix, cả group hóng biến.",
     "translationHint": "Bất ngờ, không mong đợi",
     "upgradeModule": {
       "simpleSentence": "The rain was a surprise to us.",
@@ -7427,7 +7427,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvælɪdeɪt",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Đừng có tự huyễn hoặc bản thân, hãy nhờ ai đó khách quan VALIDATE cái ý tưởng khởi nghiệp của ông đi.",
+    "scenario": "Gửi outfit vào group nhờ VALIDATE, cả đám khen đẹp, ra đường mới thấy ba người mặc y chang, xu cà na.",
     "translationHint": "Xác nhận, phê chuẩn",
     "upgradeModule": {
       "simpleSentence": "The expert checked if the painting was real.",
@@ -7449,7 +7449,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌwɜːθˈwaɪl",
     "elo": 900,
     "level": "intermediate",
-    "scenario": "Dù mệt nhưng chuyến leo núi này cực kỳ WORTHWHILE khi được ngắm bình minh trên đỉnh mây.",
+    "scenario": "Xếp hàng hai tiếng vì fomo ổ bánh mì nổi trên TikTok, miếng đầu thấy WORTHWHILE, tới miếng hai thì hết chắc.",
     "translationHint": "Đáng công, xứng đáng",
     "upgradeModule": {
       "simpleSentence": "Learning a new language is a good thing to do.",
@@ -7471,7 +7471,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "jiːld",
     "elo": 1020,
     "level": "intermediate",
-    "scenario": "Chế độ ăn kiêng này bắt đầu YIELD những kết quả khả quan sau 1 tháng tôi kiên trì nhịn trà sữa.",
+    "scenario": "Ba tháng nhắn chào buổi sáng cuối cùng cũng YIELD kết quả: crush rủ mình vô nhóm làm bài tập, delulu tưởng hẹn hò.",
     "translationHint": "Mang lại, sản sinh ra, nhượng bộ",
     "upgradeModule": {
       "simpleSentence": "The farm produced a lot of corn this year.",
@@ -7492,7 +7492,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈbændən",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Đừng có ABANDON cái ước mơ của mình chỉ vì một vài lời chê bai từ mấy đứa chẳng biết gì.",
+    "scenario": "Mua bộ màu nước về để chữa lành, vẽ đúng một bức rồi ABANDON nó trong góc tủ tới giờ.",
     "translationHint": "Từ bỏ, bỏ rơi",
     "upgradeModule": {
       "simpleSentence": "They had to stop the project because of money.",
@@ -7514,7 +7514,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "briːf",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Cho tôi một cái BRIEF về những gì đã xảy ra tối qua đi, tôi không nhớ nổi mình đã uống bao nhiêu nữa.",
+    "scenario": "Ai BRIEF giùm mình drama group lớp với, mới ngủ trưa dậy mà đã 300 tin nhắn chưa đọc, fomo dữ.",
     "translationHint": "Ngắn gọn, tóm tắt",
     "upgradeModule": {
       "simpleSentence": "The meeting was very short.",
@@ -7535,7 +7535,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsɜːtn",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Tôi CERTAIN 100% là ông đã lén ăn cái bánh kem của tôi trong tủ lạnh rồi, đừng có chối.",
+    "scenario": "Mình CERTAIN là đã khóa cửa phòng trọ rồi, nhưng vẫn quay xe về check var lần thứ ba.",
     "translationHint": "Chắc chắn",
     "upgradeModule": {
       "simpleSentence": "I am sure that the shop is closed.",
@@ -7556,7 +7556,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈklaɪn",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Tôi buộc phải DECLINE lời mời đi nhậu vì tối nay phải về 'nộp bài' cho vợ rồi.",
+    "scenario": "Lịch sự DECLINE thiệp cưới của đứa bạn cấp hai mười năm không nói chuyện, cái ví thở phào, chữa lành.",
     "translationHint": "Từ chối, suy giảm",
     "upgradeModule": {
       "simpleSentence": "The number of smokers is going down.",
@@ -7578,7 +7578,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈkɒmədeɪt",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Khách sạn này nhỏ quá, không đủ chỗ để ACCOMMODATE cả hội bạn thân của ông đâu.",
+    "scenario": "Phòng trọ 12 mét vuông mà phải ACCOMMODATE cả hội bạn từ quê lên thi, ngủ xếp như cá mòi, real.",
     "translationHint": "Đáp ứng, cung cấp chỗ ở",
     "upgradeModule": {
       "simpleSentence": "We will try to follow your special requests.",
@@ -7601,7 +7601,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈlɪbərət",
     "elo": 980,
     "level": "intermediate",
-    "scenario": "Tôi nghĩ hắn ta DELIBERATE lờ tin nhắn của ông đấy, chứ làm gì có chuyện ngủ từ 8h tối.",
+    "scenario": "Seen tin nhắn rồi ba ngày sau mới rep là DELIBERATE chứ ai mà bận dữ vậy trời, red flag.",
     "translationHint": "Cố ý, thận trọng",
     "upgradeModule": {
       "simpleSentence": "It was not an accident; he did it on purpose.",
@@ -7623,7 +7623,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "faɪˈnænʃl",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Tình hình FINANCIAL của tôi dạo này hơi 'báo động đỏ' sau khi nạp tiền vào game quá đà.",
+    "scenario": "Tình hình FINANCIAL giữa tháng của mình: một trăm nghìn, hai gói mì và niềm tin vào ngày lãnh lương.",
     "translationHint": "Thuộc về tài chính",
     "upgradeModule": {
       "simpleSentence": "The company is having money problems.",
@@ -7645,7 +7645,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenərəs",
     "elo": 835,
     "level": "beginner",
-    "scenario": "Hôm nay ông GENEROUS đột xuất vậy, mời cả hội đi ăn lẩu luôn à?",
+    "scenario": "Nó GENEROUS bất ngờ, bao cả nhóm trà sữa, hóa ra là thao túng tâm lý để nhờ cả đám làm hộ phần thuyết trình.",
     "translationHint": "Hào phóng, rộng lượng",
     "upgradeModule": {
       "simpleSentence": "He gave a very big tip to the waiter.",
@@ -7666,7 +7666,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈmiːdiət",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Tôi cần một câu trả lời IMMEDIATE, chứ cứ 'để mình suy nghĩ' thì biết bao giờ mới xong.",
+    "scenario": "Nhắn \"đi ăn khum\" là nó phản hồi IMMEDIATE, còn nhắc trả tiền nợ thì đọc ba ngày chưa rep.",
     "translationHint": "Ngay lập tức",
     "upgradeModule": {
       "simpleSentence": "We need to take action right now.",
@@ -7688,7 +7688,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnɒlɪdʒəbl",
     "elo": 950,
     "level": "intermediate",
-    "scenario": "Anh ấy rất KNOWLEDGEABLE về mảng ẩm thực Sài Gòn, hỏi quán nào cũng biết hết.",
+    "scenario": "Đứa bạn KNOWLEDGEABLE về mọi quán ốc trong thành phố, out trình food reviewer, nhưng hỏi bài Kinh tế vi mô thì ngơ ngác.",
     "translationHint": "Am hiểu, có kiến thức rộng",
     "upgradeModule": {
       "simpleSentence": "He knows a lot about computers.",
@@ -7711,7 +7711,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈməʊtɪveɪt",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Nhìn vào cái số dư tài khoản là cách tốt nhất để MOTIVATE bản thân dậy đi làm mỗi sáng.",
+    "scenario": "Thứ duy nhất MOTIVATE mình đi học sáng thứ hai là ổ bánh mì chảo trước cổng trường.",
     "translationHint": "Thúc đẩy, tạo động lực",
     "upgradeModule": {
       "simpleSentence": "The teacher tried to make the students want to learn.",
@@ -7733,7 +7733,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈneɡətɪv",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Bớt suy nghĩ NEGATIVE lại ông ơi, đời còn dài, gái còn nhiều, lo gì cái chuyện lẻ bóng.",
+    "scenario": "Đọc comment NEGATIVE dưới clip đầu tay xong mình xóa app, tối lại cài lại để đọc tiếp, hết cứu.",
     "translationHint": "Tiêu cực",
     "upgradeModule": {
       "simpleSentence": "The feedback from the customers was bad.",
@@ -7755,7 +7755,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒləti",
     "elo": 805,
     "level": "beginner",
-    "scenario": "Thà có một vài người bạn QUALITY còn hơn là có cả nghìn bạn trên Facebook mà chẳng ai thèm hỏi thăm.",
+    "scenario": "Áo sale 50 nghìn QUALITY đúng giá, giặt lần đầu là co lại thành áo của em mình, toang.",
     "translationHint": "Chất lượng",
     "upgradeModule": {
       "simpleSentence": "The food in this restaurant is very good.",
@@ -7776,7 +7776,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈriːznəbl",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Mức giá cho cái áo này là khá REASONABLE, không quá đắt mà mặc lại chất lừ.",
+    "scenario": "Giá phòng trọ nghe REASONABLE lắm, tới lúc chủ nhà báo tiền điện 4 nghìn một số là mình xỉu ngang.",
     "translationHint": "Hợp lý, phải chăng",
     "upgradeModule": {
       "simpleSentence": "The price of the house is fair.",
@@ -7798,7 +7798,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈʌltɪmət",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Mục tiêu ULTIMATE của tôi là được nghỉ hưu sớm và đi du lịch khắp thế giới cùng người yêu.",
+    "scenario": "Mục tiêu ULTIMATE của mùa thi: đậu hết, ngủ đủ, không học lại môn nào để còn về quê ăn Tết, manifest gấp.",
     "translationHint": "Cuối cùng, tối thượng",
     "upgradeModule": {
       "simpleSentence": "What is the final goal of your project?",
@@ -7819,7 +7819,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "veɪɡ",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Lời hứa 'hôm nào cà phê nhé' là cái thứ VAGUE nhất trần đời, thường là chẳng bao giờ có cái 'hôm nào' đó.",
+    "scenario": "\"Hôm nào cà phê nha\" là lời hẹn VAGUE đỉnh nóc kịch trần, hai đứa nói câu này từ hồi tốt nghiệp tới giờ.",
     "translationHint": "Mơ hồ, mập mờ",
     "upgradeModule": {
       "simpleSentence": "The instructions were not clear.",
@@ -7840,7 +7840,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈpendəbl",
     "elo": 930,
     "level": "intermediate",
-    "scenario": "Thằng bạn thân tôi là một người cực kỳ DEPENDABLE, lúc nào hoạn nạn cũng thấy mặt nó đầu tiên.",
+    "scenario": "Đứa bạn DEPENDABLE nhất group nhớ lịch thi giùm cả lớp, còn gửi đề cương lúc 12 giờ đêm, ra đường tôi nể mỗi bạn.",
     "translationHint": "Đáng tin cậy",
     "upgradeModule": {
       "simpleSentence": "He is a person you can trust.",
@@ -7862,7 +7862,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈfektɪv",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Uống nước chanh mật ong là cách EFFECTIVE nhất để trị đau họng sau một đêm hát karaoke cháy máy.",
+    "scenario": "Cách học thuộc EFFECTIVE nhất của mình: hẹn đứa bạn dò bài, sai một câu là bao một ly trà sữa, gét gô.",
     "translationHint": "Hiệu quả",
     "upgradeModule": {
       "simpleSentence": "This medicine is good at treating the flu.",
@@ -7884,7 +7884,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈprəʊpriət",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Đi đám cưới mà mặc quần short áo ba lỗ thì thật sự không APPROPRIATE tí nào đâu ông nội.",
+    "scenario": "Mặc đồ ngủ hình con gấu đi họp Zoom với khách hàng, mình thấy cũng APPROPRIATE, cho tới khi phải đứng dậy lấy sạc, u là trời.",
     "translationHint": "Phù hợp, thích hợp",
     "upgradeModule": {
       "simpleSentence": "Is this formal dress right for the party?",
@@ -7906,7 +7906,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈheɪv",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Ra mắt nhà bạn gái thì nhớ BEHAVE cho nó đàng hoàng, đừng có hở tí là văng tục như lúc ở với anh em.",
+    "scenario": "Về quê ăn giỗ, mẹ dặn phải BEHAVE cho đàng hoàng, vậy mà mới ngồi năm phút đã cãi tay đôi với ông chú về lương IT, toang.",
     "translationHint": "Cư xử, ăn ở",
     "upgradeModule": {
       "simpleSentence": "The children acted very well during the trip.",
@@ -7928,7 +7928,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəʊˈɪnsɪdəns",
     "elo": 980,
     "level": "intermediate",
-    "scenario": "Đúng là một cái COINCIDENCE kỳ lạ, vừa mới nhắc đến tên hắn xong là hắn gọi điện tới luôn.",
+    "scenario": "Vừa nói xấu đứa cùng phòng trọ trong group chat thì nó gõ cửa, mong đây chỉ là COINCIDENCE, ét o ét.",
     "translationHint": "Sự trùng hợp ngẫu nhiên",
     "upgradeModule": {
       "simpleSentence": "It was just a chance that we met at the airport.",
@@ -7951,7 +7951,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈtɜːmɪnd",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Thấy bồ cũ có người yêu mới, tôi DETERMINED phải giảm cân để cho bả thấy bả đã đánh mất cái gì.",
+    "scenario": "Tối Chủ nhật DETERMINED từ mai dậy 5 giờ chạy bộ, manifest đủ kiểu, sáng thứ Hai tắt báo thức bằng một ngón tay mà mắt chưa kịp mở.",
     "translationHint": "Quyết tâm, kiên quyết",
     "upgradeModule": {
       "simpleSentence": "He is very firm about finishing the marathon.",
@@ -7973,7 +7973,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈkʌrɪdʒ",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Mẹ tôi luôn ENCOURAGE tôi theo đuổi đam mê, miễn là đừng có về nhà xin tiền mẹ là được.",
+    "scenario": "Cả group ENCOURAGE tao nhắn tin cho crush trước, tới lúc bị seen không rep thì đứa nào cũng bận đi tắm, bạn bè red flag.",
     "translationHint": "Khuyến khích, động viên",
     "upgradeModule": {
       "simpleSentence": "The boss told me to keep working hard.",
@@ -7995,7 +7995,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fəˈmɪliə(r)",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Cái quán cà phê này nhìn FAMILIAR quá, hình như đây là nơi mình bị người yêu cũ đá thì phải.",
+    "scenario": "Mở đề thi ra thấy câu nào cũng FAMILIAR, kiểu đã gặp ở đâu rồi, chắc là trong giấc mơ đêm qua.",
     "translationHint": "Quen thuộc",
     "upgradeModule": {
       "simpleSentence": "I know this place very well.",
@@ -8016,7 +8016,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhɪndə(r)",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Mấy cái tin nhắn rác cứ ting ting suốt đang HINDER sự tập trung của tôi, bực vãi.",
+    "scenario": "Wifi phòng trọ chập chờn đang HINDER sự nghiệp chạy deadline của tôi, mà lướt TikTok thì mượt re, thao túng tâm lý ghê.",
     "translationHint": "Cản trở, kìm hãm",
     "upgradeModule": {
       "simpleSentence": "The noise made it hard to study.",
@@ -8037,7 +8037,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪmɪteɪt",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Đứa em tôi nó suốt ngày IMITATE cái giọng của tôi để đi lừa bố mẹ lấy tiền ăn vặt, nhìn mà ghét.",
+    "scenario": "Đứa bạn IMITATE giọng cô chủ nhiệm y chang, cả lớp đang nghiêng ngả thì phát hiện cô đứng ngay cửa sổ, tới công chuyện.",
     "translationHint": "Bắt chước, nhại lại",
     "upgradeModule": {
       "simpleSentence": "He tried to copy the style of the famous artist.",
@@ -8059,7 +8059,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒeləs",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Mỗi lần thấy tôi đi chơi với bạn nữ khác là người yêu tôi lại JEALOUS ra mặt luôn, dù chỉ là bạn thân.",
+    "scenario": "Thấy bạn thân đăng ảnh đi Đà Lạt với người yêu, tôi khum JEALOUS đâu, chỉ là lỡ tay xem story đó bảy lần.",
     "translationHint": "Ghen tị, ghen tuông",
     "upgradeModule": {
       "simpleSentence": "He was angry because his friend got a new car.",
@@ -8080,7 +8080,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈlɪmɪt",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Tửu lượng của tôi có LIMIT thôi, mấy ông đừng có ép tôi uống thêm nữa kẻo tôi 'huệ' tại chỗ.",
+    "scenario": "Thẻ tín dụng chạm LIMIT từ hôm săn sale 10.10, giờ quẹt mua ly trà sữa cũng nghe máy kêu từ chối, ét o ét.",
     "translationHint": "Giới hạn, hạn mức",
     "upgradeModule": {
       "simpleSentence": "We need to stop the amount of sugar we eat.",
@@ -8101,7 +8101,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnəʊtɪs",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Tôi vừa mới NOTICE là nãy giờ tôi đang mặc áo trái đi ngoài đường, nhục không để đâu cho hết.",
+    "scenario": "Đi làm cả buổi sáng mới NOTICE là mình mang hai chiếc dép khác màu, mà không ai nói, đồng nghiệp lowkey ác.",
     "translationHint": "Để ý thấy, nhận ra",
     "upgradeModule": {
       "simpleSentence": "Did you see the small change in the room?",
@@ -8122,7 +8122,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpeɪʃnt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Muốn tán đổ crush thì phải PATIENT, chứ mới nhắn tin 2 ngày đã đòi yêu thì bả chạy mất dép.",
+    "scenario": "Chờ shipper giao đơn ba ngày tôi PATIENT lắm, nhưng chờ crush rep tin ba phút là đi vòng vòng khắp phòng, hết cứu.",
     "translationHint": "Kiên nhẫn",
     "upgradeModule": {
       "simpleSentence": "You have to wait for the results.",
@@ -8143,7 +8143,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒrəl",
     "elo": 930,
     "level": "intermediate",
-    "scenario": "Mới sáng ra đã nghe thấy nhà hàng xóm QUARREL về việc ai là người đi đổ rác, mệt mỏi thật.",
+    "scenario": "Hai đứa cùng phòng trọ QUARREL cả tối vì ai rửa chén, cuối cùng đặt đồ ăn ngoài cho khỏi có chén mà rửa, keo lỳ.",
     "translationHint": "Cãi vã, tranh chấp",
     "upgradeModule": {
       "simpleSentence": "The couple had a small fight about money.",
@@ -8164,7 +8164,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈstʌbən",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Con mèo nhà tôi STUBBORN lắm, bảo nó xuống khỏi bàn mà nó cứ lỳ ra đó nhìn mình khinh bỉ.",
+    "scenario": "Con laptop cũ STUBBORN thật, bấm cập nhật là nó quay vòng tròn tới sáng, như đang thao túng tâm lý mình.",
     "translationHint": "Bướng bỉnh, lỳ lợm",
     "upgradeModule": {
       "simpleSentence": "He refuses to change his mind.",
@@ -8185,7 +8185,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtemprəri",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Đừng lo, thất nghiệp chỉ là TEMPORARY thôi, lo mà học thêm skill mới đi rồi việc sẽ tới.",
+    "scenario": "Nghỉ việc nói là TEMPORARY để chữa lành, giờ đã tháng thứ tư và tôi quên luôn mật khẩu email công ty.",
     "translationHint": "Tạm thời",
     "upgradeModule": {
       "simpleSentence": "This is a short-term solution.",
@@ -8206,7 +8206,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɜːdʒənt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Đang đi vệ sinh mà sếp gọi điện báo có việc URGENT thì đúng là một trải nghiệm đau khổ.",
+    "scenario": "Mẹ nhắn \"Gọi mẹ gấp, chuyện URGENT\", tôi run tay bấm gọi, hóa ra mẹ hỏi cách gửi sticker trên Zalo, xỉu ngang.",
     "translationHint": "Khẩn cấp",
     "upgradeModule": {
       "simpleSentence": "We need to fix this problem very soon.",
@@ -8227,7 +8227,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɪlɪŋ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Tôi luôn WILLING đi nhậu nếu có ai đó bao, còn chia tiền thì để tôi xem lại lịch đã nha.",
+    "scenario": "Ai rủ đi lẩu nửa đêm tôi WILLING liền, gét gô trong một nốt nhạc; rủ chạy bộ 6 giờ sáng thì tôi xin phép mất sóng.",
     "translationHint": "Sẵn lòng, tự nguyện",
     "upgradeModule": {
       "simpleSentence": "He is ready to help his neighbors.",
@@ -8248,7 +8248,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈækjərət",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Cái cân này có vẻ không ACCURATE lắm, hôm qua tôi cân 70kg mà nay nó nhảy lên 75kg là sao?",
+    "scenario": "App bói tình yêu bảo crush đang thích mình, ACCURATE hay không chưa biết, nhưng mình tin rồi, delulu một chút cho vui.",
     "translationHint": "Chính xác",
     "upgradeModule": {
       "simpleSentence": "The map is very correct.",
@@ -8270,7 +8270,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈliːvəbl",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Ông bảo ông đi làm muộn vì 'cứu người qua đường' nghe chẳng BELIEVABLE tí nào đâu, bớt bốc phét lại.",
+    "scenario": "Lý do trễ hẹn của nó là \"kẹt xe trên cầu\" nghe cũng BELIEVABLE, nếu story của nó khum đang ở quán ốc.",
     "translationHint": "Có thể tin được",
     "upgradeModule": {
       "simpleSentence": "His excuse sounds like it could be true.",
@@ -8292,7 +8292,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈviːniənt",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Cái app này CONVENIENT thật sự, đặt một cái là 15 phút sau đồ ăn đã ship tới tận cửa.",
+    "scenario": "Ở trọ ngay dưới nhà là quán trà sữa, CONVENIENT cực, chỉ có cái ví là lowkey muốn dọn nhà đi chỗ khác.",
     "translationHint": "Tiện lợi",
     "upgradeModule": {
       "simpleSentence": "The location of the hotel is very good for tourists.",
@@ -8314,7 +8314,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈpendəbl",
     "elo": 930,
     "level": "intermediate",
-    "scenario": "Trong nhóm bạn, lúc nào cũng cần một đứa DEPENDABLE để nó đứng ra lo liệu mọi thứ khi đi du lịch.",
+    "scenario": "Trong group du lịch luôn có một đứa DEPENDABLE giữ vé, giữ tiền, giữ luôn sạc dự phòng cho cả đám báo thủ.",
     "translationHint": "Đáng tin cậy",
     "upgradeModule": {
       "simpleSentence": "My car is old but I can trust it.",
@@ -8336,7 +8336,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈfektɪv",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Uống nước chanh mật ong là cách EFFECTIVE nhất để trị đau họng sau một đêm hát karaoke cháy máy.",
+    "scenario": "Thử đủ app học tiếng Anh, cách EFFECTIVE nhất vẫn là con cú xanh nhắc bài kiểu đe dọa lúc nửa đêm, out trình mọi thầy cô.",
     "translationHint": "Hiệu quả",
     "upgradeModule": {
       "simpleSentence": "The new law is working well to reduce crime.",
@@ -8358,7 +8358,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɡreɪtfl",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Tôi rất GRATEFUL vì cuối tháng hết tiền vẫn được thằng bạn thân cho ăn ké mì tôm qua ngày.",
+    "scenario": "Cuối tháng còn 50 nghìn, tôi GRATEFUL vô cùng vì mẹ gửi lên thùng mì với hũ chà bông, kèm câu \"ăn uống cho đàng hoàng\", ok mom.",
     "translationHint": "Biết ơn",
     "upgradeModule": {
       "simpleSentence": "I am very thankful for your help.",
@@ -8379,7 +8379,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒnɪst",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Nói HONEST nhé, cái váy này mặc vào trông bà như cái bánh chưng vậy, đổi cái khác đi.",
+    "scenario": "Nhờ bạn thân cho ý kiến HONEST về ảnh đại diện mới, nó im lặng ba phút rồi hỏi \"chụp lúc đang buồn ngủ hả\", bạn real.",
     "translationHint": "Thành thật, chân thật",
     "upgradeModule": {
       "simpleSentence": "He gave a very true answer.",
@@ -8400,7 +8400,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪɡˈnɔː(r)",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Cách tốt nhất để giữ tâm hồn thanh tịnh là IGNORE mấy cái lời drama, bóc phốt nhảm nhí trên Facebook.",
+    "scenario": "Tôi IGNORE thông báo của group lớp suốt tuần, tới lúc vào hóng biến mới biết mai thi giữa kỳ.",
     "translationHint": "Phớt lờ, lờ đi",
     "upgradeModule": {
       "simpleSentence": "Don't pay attention to his mean comments.",
@@ -8422,7 +8422,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈtenʃn",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Tôi biết INTENTION của ông là muốn giúp bả, nhưng cách ông làm chỉ khiến bả thấy bị làm phiền thêm thôi.",
+    "scenario": "Nó thả tim mọi story của tôi lúc 2 giờ sáng, INTENTION là gì thì chưa rõ, cả group đang check var.",
     "translationHint": "Ý định, mục đích",
     "upgradeModule": {
       "simpleSentence": "What is your plan for the future?",
@@ -8444,7 +8444,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmænɪdʒ",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Cuối tháng mà tài khoản còn 200k thì phải biết MANAGE chi tiêu cực khéo mới sống sót được đến ngày nhận lương.",
+    "scenario": "Lương thực tập 3 triệu, tôi MANAGE được tới ngày 12 rồi bắt đầu sống bằng niềm tin và trà đá.",
     "translationHint": "Quản lý, xoay xở",
     "upgradeModule": {
       "simpleSentence": "He can deal with difficult customers.",
@@ -8465,7 +8465,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnesəsəri",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Mua thêm cái sạc dự phòng là cực kỳ NECESSARY cho mấy chuyến đi phượt xa, không là điện thoại hết pin giữa đường là mệt.",
+    "scenario": "Đi săn sale thì món nào cũng thấy NECESSARY, fomo dữ lắm, về mở hộp ra mới tự hỏi mua máy đánh trứng làm chi.",
     "translationHint": "Cần thiết",
     "upgradeModule": {
       "simpleSentence": "Food is needed for survival.",
@@ -8487,7 +8487,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɒptɪˈmɪstɪk",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Dù bị crush từ chối nhưng hắn vẫn rất OPTIMISTIC, bảo rằng 'chắc tại bả đang thử thách mình thôi'.",
+    "scenario": "Thi trượt môn lần hai mà nó vẫn OPTIMISTIC, bảo học lại lần ba để thân với thầy hơn, hết cứu.",
     "translationHint": "Lạc quan",
     "upgradeModule": {
       "simpleSentence": "He is positive about the new project.",
@@ -8508,7 +8508,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpɑːʃl",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Đây mới chỉ là một PARTIAL sự thật thôi, đợi khi nào ông biết hết cả câu chuyện thì ông mới thấy nó sốc cỡ nào.",
+    "scenario": "Thầy chỉ cho PARTIAL điểm câu cuối vì tôi viết đúng mỗi chữ \"Giải\", nhưng có còn hơn không.",
     "translationHint": "Một phần, thiên vị",
     "upgradeModule": {
       "simpleSentence": "The results were only a small success.",
@@ -8529,7 +8529,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "sɪɡˈnɪfɪkənt",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Việc ông bớt ăn vặt lại sẽ tạo ra thay đổi SIGNIFICANT cho cái bụng mỡ của ông đấy, tin tôi đi.",
+    "scenario": "Bỏ trà sữa một tháng, ví dư ra số tiền SIGNIFICANT tới mức tôi tự thưởng một ly trà sữa size lớn, ủa alo.",
     "translationHint": "Quan trọng, đáng kể",
     "upgradeModule": {
       "simpleSentence": "There is a big difference between the two phones.",
@@ -8551,7 +8551,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtɒləreɪt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Tôi không thể TOLERATE nổi cái thói quen vừa ăn vừa nhai nhóp nhép của ông, nhìn mất lịch sự vãi.",
+    "scenario": "Tôi TOLERATE được bạn cùng phòng ngáy, nói mớ, nhưng ăn vụng gói snack cuối cùng của tôi là tới công chuyện.",
     "translationHint": "Chịu đựng, tha thứ",
     "upgradeModule": {
       "simpleSentence": "I can't put up with this noise anymore.",
@@ -8572,7 +8572,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈjuːtɪlaɪz",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Ông nên UTILIZE cái đống voucher Shopee đi, để lâu nó hết hạn thì tiếc đứt ruột.",
+    "scenario": "Tôi UTILIZE hết mười mã giảm giá trong một đơn, tiết kiệm được 47 nghìn và mua thêm ba món không cần, đỉnh nóc kịch trần.",
     "translationHint": "Sử dụng, tận dụng",
     "upgradeModule": {
       "simpleSentence": "We should use all the tools we have.",
@@ -8593,7 +8593,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvælɪd",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Lý do 'xe hỏng' chỉ VALID khi ông thật sự dắt bộ thôi, chứ tôi thấy ông vừa check-in quán cà phê nhé.",
+    "scenario": "Lý do nghỉ học \"bị cảm\" chỉ VALID khi mày không đăng story check-in Vũng Tàu cùng ngày, báo thủ ghê.",
     "translationHint": "Hợp lệ, có cơ sở",
     "upgradeModule": {
       "simpleSentence": "Do you have a good reason for being late?",
@@ -8614,7 +8614,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwʌndə(r)",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Nhiều khi tôi WONDER không biết tại sao crush lại có thể 'seen' tin nhắn của tôi nhanh đến thế.",
+    "scenario": "Nửa đêm nằm WONDER không biết hồi lớp 3 mình nói gì mà đứa bạn giận, giờ nó có con rồi mà tôi vẫn chằm zn.",
     "translationHint": "Tự hỏi, băn khoăn",
     "upgradeModule": {
       "simpleSentence": "I am thinking about why he left early.",
@@ -8635,7 +8635,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ədˈmɪt",
     "elo": 865,
     "level": "beginner",
-    "scenario": "Cuối cùng thì ông cũng chịu ADMIT là mình đã lỡ tay xóa mất cái folder ảnh cưới của tôi rồi hả?",
+    "scenario": "Cãi nhau ba tiếng, nó cũng ADMIT là ăn hết hộp bánh của tôi, kèm lý do \"tại nó nằm trong tủ lạnh dụ tao\", ra đường tôi nể mỗi bạn.",
     "translationHint": "Thừa nhận, nhận vào",
     "upgradeModule": {
       "simpleSentence": "He agreed that he made a mistake.",
@@ -8657,7 +8657,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbɔːrɪŋ",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Mấy cái buổi họp kéo dài 3 tiếng đồng hồ mà chẳng chốt được gì thật sự rất BORING.",
+    "scenario": "Buổi học online BORING tới mức tôi tắt cam đi nấu mì, quay lại thì cô đang gọi tên tôi lần thứ ba, tới công chuyện.",
     "translationHint": "Buồn chán, tẻ nhạt",
     "upgradeModule": {
       "simpleSentence": "The movie was not interesting at all.",
@@ -8678,7 +8678,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəmˈpleɪn",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Thôi bớt COMPLAIN về việc kẹt xe đi, ở thành phố này thì đó là 'đặc sản' rồi, tập sống chung với nó thôi.",
+    "scenario": "Cả tuần COMPLAIN với group là hết tiền, cuối tuần vẫn có mặt đầy đủ ở buổi đi bar, real nể.",
     "translationHint": "Than phiền, phàn nàn",
     "upgradeModule": {
       "simpleSentence": "The customers said they were unhappy with the service.",
@@ -8700,7 +8700,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "daʊt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Tôi DOUBT là cái shop này bán hàng chính hãng, nhìn cái giá 'rẻ bất ngờ' thế kia là thấy nghi rồi.",
+    "scenario": "Áo khoác \"hàng hiệu\" giá 99 nghìn, tôi có DOUBT nhẹ, nhưng khum đủ mạnh để ngón tay ngừng bấm đặt hàng.",
     "translationHint": "Nghi ngờ",
     "upgradeModule": {
       "simpleSentence": "I am not sure if he is telling the truth.",
@@ -8721,7 +8721,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈiːɡə(r)",
     "elo": 920,
     "level": "intermediate",
-    "scenario": "Bọn trẻ con lúc nào cũng EAGER chờ đến Tết để được nhận lì xì, còn người lớn thì ngược lại.",
+    "scenario": "Đầu năm nhất ai cũng EAGER đi học đủ buổi, tới giữa kỳ check var thì lớp còn đúng thầy và cái máy chiếu.",
     "translationHint": "Háo hức, hăm hở",
     "upgradeModule": {
       "simpleSentence": "The students want to learn more.",
@@ -8742,7 +8742,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fɔːs",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Đừng có FORCE mình phải cười khi đang thấy buồn, cứ khóc một tí cho nó nhẹ lòng đi.",
+    "scenario": "Mẹ FORCE tôi đi xem mắt con của bạn mẹ, ngồi mười phút thì hai đứa phát hiện cùng bị ép, hợp nhau ghê.",
     "translationHint": "Ép buộc, lực lượng",
     "upgradeModule": {
       "simpleSentence": "The weather made them stay inside.",
@@ -8763,7 +8763,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɡæðə(r)",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Cuối tuần anh em mình GATHER lại làm chầu bia rồi chém gió cho đỡ stress đi ông ơi.",
+    "scenario": "Lớp cấp 3 GATHER lại sau 5 năm, nửa bàn dắt theo người yêu, nửa còn lại ngồi ăn cơm chó tới no.",
     "translationHint": "Tập hợp, thu thập",
     "upgradeModule": {
       "simpleSentence": "The scientist collected a lot of data.",
@@ -8784,7 +8784,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhɑːdli",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Dạo này bận quá, tôi HARDLY có thời gian để gọi điện về cho bố mẹ ở quê nữa, tội lỗi thật.",
+    "scenario": "Từ hồi đi làm, tôi HARDLY gặp ánh mặt trời, sáng đi lúc trời chưa sáng, tối về lúc trời đã tối thui, u là trời.",
     "translationHint": "Hầu như không",
     "upgradeModule": {
       "simpleSentence": "I almost never see him these days.",
@@ -8805,7 +8805,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈmædʒɪn",
     "elo": 805,
     "level": "beginner",
-    "scenario": "Không thể IMAGINE nổi cuộc sống sẽ ra sao nếu một ngày đẹp trời ông bị mất cái điện thoại.",
+    "scenario": "Nhắn crush xong, tôi đã IMAGINE luôn cảnh hai đứa nuôi con mèo tên Bơ, trong khi người ta còn chưa seen, delulu.",
     "translationHint": "Tưởng tượng",
     "upgradeModule": {
       "simpleSentence": "Try to think of a world without war.",
@@ -8826,7 +8826,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkaɪndnəs",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Một chút KINDNESS giữa người với người có thể làm một ngày tồi tệ của ông trở nên tươi sáng hơn đấy.",
+    "scenario": "Chị shipper đứng dưới mưa chờ tôi chạy xuống, KINDNESS này xứng đáng năm sao và một ly cà phê sữa, chữa lành ghê.",
     "translationHint": "Sự tử tế, lòng tốt",
     "upgradeModule": {
       "simpleSentence": "We should show love to everyone.",
@@ -8847,7 +8847,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "luːs",
     "elo": 835,
     "level": "beginner",
-    "scenario": "Cái quần này dạo này mặc thấy LOOSE quá, chắc là do tôi mới giảm được vài ký sau đợt thất tình.",
+    "scenario": "Quần mua online size S mà mặc vào LOOSE như quần của ông nội, hình một đằng hàng một nẻo, xỉu ngang.",
     "translationHint": "Lỏng lẻo, rộng",
     "upgradeModule": {
       "simpleSentence": "The rules are very free.",
@@ -8868,7 +8868,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmenʃn",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Đừng có MENTION chuyện người yêu cũ trước mặt bả, bả đang nhạy cảm chuyện đó lắm đấy.",
+    "scenario": "Lỡ MENTION tên người yêu cũ của bạn thân trong buổi cà phê, nguyên bàn im lặng như đang chờ đọc điểm thi, đúng báo thủ.",
     "translationHint": "Đề cập đến",
     "upgradeModule": {
       "simpleSentence": "He said something about the meeting.",
@@ -8889,7 +8889,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒfə(r)",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Công ty đó vừa mới OFFER cho tôi một vị trí khá tốt, đang phân vân không biết có nên đổi việc không.",
+    "scenario": "Công ty mới OFFER mức lương gấp rưỡi, tôi đồng ý trong hai giây rồi giả vờ suy nghĩ thêm hai ngày.",
     "translationHint": "Đề nghị, mời chào",
     "upgradeModule": {
       "simpleSentence": "The shop provided a big discount.",
@@ -8911,7 +8911,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈtɪkjələ(r)",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Tôi không có sở thích gì PARTICULAR cả, cứ cái gì vui thì làm, cái gì ngon thì ăn thôi.",
+    "scenario": "Hỏi muốn ăn gì thì nó bảo không có món nào PARTICULAR, gợi ý thì món nào cũng \"thôi, món khác đi\", ủa alo.",
     "translationHint": "Cụ thể, đặc biệt",
     "upgradeModule": {
       "simpleSentence": "Is there a special reason for your call?",
@@ -8932,7 +8932,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒlɪfaɪ",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Phải cày thêm cái bằng tiếng Anh mới QUALIFY cho cái vị trí quản lý mà sếp đang nhắm cho mình được.",
+    "scenario": "Học bổng yêu cầu điểm 8.0 mới QUALIFY, tôi được 7.98, đúng là kém miếng khó chịu.",
     "translationHint": "Đủ điều kiện, tư cách",
     "upgradeModule": {
       "simpleSentence": "He has the right skills for the job.",
@@ -8954,7 +8954,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈstrʌɡl",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Sáng nào tôi cũng phải STRUGGLE với cái báo thức, tắt đi bật lại 5 lần mới chịu dậy nổi.",
+    "scenario": "Mỗi lần mở file Excel của sếp là tôi STRUGGLE cả buổi, công thức nào cũng lồng nhau như phim trinh thám, xỉu ngang.",
     "translationHint": "Vật lộn, đấu tranh",
     "upgradeModule": {
       "simpleSentence": "He is having a hard time with the math problem.",
@@ -8975,7 +8975,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈθʌrə",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Trước khi dắt xe ra khỏi bãi, nhớ check THOROUGH xem có bị trầy xước chỗ nào không kẻo mất tiền oan.",
+    "scenario": "Trả phòng trọ, bà chủ kiểm tra THOROUGH tới mức soi từng lỗ đinh trên tường để trừ cọc, xu cà na thiệt.",
     "translationHint": "Kỹ lưỡng, thấu đáo",
     "upgradeModule": {
       "simpleSentence": "The police made a full search of the house.",
@@ -8996,7 +8996,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "juˈniːk",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Cái phong cách ăn mặc của ông đúng là UNIQUE thật, ra đường đảm bảo không sợ đụng hàng với ai luôn.",
+    "scenario": "Tự tin mặc chiếc áo UNIQUE săn ở shop đồ si, tới công ty gặp ngay chị kế toán mặc y chang, u là trời.",
     "translationHint": "Độc nhất, độc đáo",
     "upgradeModule": {
       "simpleSentence": "This is a very special case.",
@@ -9017,7 +9017,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɪspə(r)",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Hai đứa nó cứ WHISPER với nhau trong góc lớp, nhìn là biết đang có 'biến' gì to lắm rồi.",
+    "scenario": "Đứa ngồi kế WHISPER đáp án trong giờ kiểm tra, tôi chép theo đầy tin tưởng và hai đứa cùng sai, toang.",
     "translationHint": "Thì thầm",
     "upgradeModule": {
       "simpleSentence": "He talked very quietly so no one could hear.",
@@ -9038,7 +9038,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnɔɪɪŋ",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Mấy cái tin nhắn rác mời chào mua nhà, chứng khoán lúc giữa trưa thật sự ANNOYING vãi chưởng.",
+    "scenario": "Không gì ANNOYING bằng đứa gửi tin nhắn thoại 5 phút chỉ để hỏi \"mày rảnh không\", red flag.",
     "translationHint": "Làm phiền, khó chịu",
     "upgradeModule": {
       "simpleSentence": "That sound is very bad.",
@@ -9059,7 +9059,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈliːv",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Tôi không thể BELIEVE nổi là thằng bạn thân mình lại đi tin mấy cái lời 'thả thính' dạo trên mạng.",
+    "scenario": "Nó khoe tự nấu nồi lẩu Thái, tôi đã định BELIEVE, cho tới khi check var thấy cái hộp có logo quán trong góc ảnh.",
     "translationHint": "Tin tưởng",
     "upgradeModule": {
       "simpleSentence": "I think that he is right.",
@@ -9080,7 +9080,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkrɪtɪkl",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Đây là giai đoạn CRITICAL của dự án, sai một li là đi một dặm nên anh em cẩn thận giùm cái.",
+    "scenario": "Pin điện thoại còn 2% đúng lúc đang chốt hẹn với crush, giai đoạn CRITICAL nhất đời tôi, ét o ét.",
     "translationHint": "Quan trọng, nguy cấp, phê bình",
     "upgradeModule": {
       "simpleSentence": "This is a very important time for the company.",
@@ -9101,7 +9101,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈlaɪtɪd",
     "elo": 890,
     "level": "beginner",
-    "scenario": "Mẹ tôi cực kỳ DELIGHTED khi thấy tôi đem về tặng mẹ một bó hoa vào ngày 8/3, dù mẹ vẫn mắng tôi tốn tiền.",
+    "scenario": "Bà ngoại DELIGHTED ra mặt khi tôi về quê, rồi quay qua hỏi \"sao ốm vậy con\" dù tôi vừa lên 3 ký.",
     "translationHint": "Vui mừng, hài lòng",
     "upgradeModule": {
       "simpleSentence": "She was very happy with the news.",
@@ -9123,7 +9123,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "frʌˈstreɪtɪd",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Cảm giác FRUSTRATED nhất là khi đang chuẩn bị thanh toán thì app ngân hàng bị lỗi bảo trì, đứng hình tại quầy luôn.",
+    "scenario": "Code chạy ngon trên máy tôi, lên máy trưởng nhóm thì lỗi đỏ màn hình, FRUSTRATED tới mức muốn đi bán trà chanh, toang.",
     "translationHint": "Bực bội, nản lòng",
     "upgradeModule": {
       "simpleSentence": "I feel bad because I can't finish my work.",
@@ -9144,7 +9144,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪnfluəns",
     "elo": 915,
     "level": "intermediate",
-    "scenario": "Mấy cái video trên TikTok có INFLUENCE cực lớn đến cách tiêu xài của giới trẻ bây giờ đấy, cẩn thận kẻo 'cháy túi'.",
+    "scenario": "Một video review 30 giây có INFLUENCE ghê thật, fomo cái là tôi chốt máy làm bánh waffle, dùng đúng một lần.",
     "translationHint": "Ảnh hưởng, tác động",
     "upgradeModule": {
       "simpleSentence": "He had a big effect on my choice.",
@@ -9166,7 +9166,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dʒʌdʒ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Đừng có vội JUDGE người khác qua vẻ bề ngoài, nhìn bặm trợn thế thôi chứ ổng hiền khô hà.",
+    "scenario": "Đồng nghiệp mới nhìn khó gần, tôi lỡ JUDGE là red flag, ai ngờ ổng là người duy nhất mang bánh chia cả phòng.",
     "translationHint": "Đánh giá, phán xét",
     "upgradeModule": {
       "simpleSentence": "He looked at the work and gave his opinion.",
@@ -9188,7 +9188,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnɒlɪdʒ",
     "elo": 840,
     "level": "beginner",
-    "scenario": "KNOWLEDGE là thứ duy nhất mà không ai có thể lấy mất của ông, nên cứ đầu tư vào bản thân đi.",
+    "scenario": "Cày phim Hàn ba năm, KNOWLEDGE tiếng Hàn của tôi gồm đúng chữ \"saranghae\" và cách gọi oppa, keo lỳ.",
     "translationHint": "Kiến thức, sự hiểu biết",
     "upgradeModule": {
       "simpleSentence": "He has a lot of information about history.",
@@ -9209,7 +9209,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "læk",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Cái món canh này hơi LACK vị chua, cho thêm tí chanh vào là đảm bảo cực phẩm luôn.",
+    "scenario": "Bài thuyết trình nhóm tôi LACK đúng một thứ: người chịu làm slide, còn người góp ý thì dư, xu cà na.",
     "translationHint": "Thiếu hụt",
     "upgradeModule": {
       "simpleSentence": "There is not enough water in the village.",
@@ -9230,7 +9230,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "meɪnˈteɪn",
     "elo": 865,
     "level": "beginner",
-    "scenario": "Muốn MAINTAIN một mối quan hệ lâu dài thì cả hai đều phải biết nhường nhịn nhau một tí.",
+    "scenario": "Tôi MAINTAIN chuỗi học tiếng Anh 200 ngày liên tục, toàn bằng cách mở app lúc 11 giờ 59 tối, slay.",
     "translationHint": "Duy trì, giữ vững",
     "upgradeModule": {
       "simpleSentence": "You should keep your car in good condition.",
@@ -9252,7 +9252,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnɜːvəs",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Lần đầu ra mắt nhà vợ mà NERVOUS quá nên tôi trả lời cứ ấp a ấp úng, nhạc phụ đại nhân cười mãi.",
+    "scenario": "Lần đầu thuyết trình trước cả phòng, tôi NERVOUS tới mức tự giới thiệu sai tên của chính mình, xỉu ngang.",
     "translationHint": "Lo lắng, hồi hộp",
     "upgradeModule": {
       "simpleSentence": "She felt worried before the interview.",
@@ -9273,7 +9273,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɒpəˈtjuːnəti",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Cơ hội không đến lần hai đâu, thấy OPPORTUNITY là phải 'vồ' lấy ngay đừng có chần chừ.",
+    "scenario": "Crush hỏi \"có ai về chung đường không\", OPPORTUNITY ngàn năm có một, vậy mà tôi trả lời \"tao đi xe buýt\", hết cứu.",
     "translationHint": "Cơ hội",
     "upgradeModule": {
       "simpleSentence": "This is a good chance to improve your skills.",
@@ -9295,7 +9295,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prɪˈfɜː(r)",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Tôi PREFER đi cà phê vỉa hè hơn là vào mấy quán máy lạnh sang chảnh, thấy nó thoải mái hơn.",
+    "scenario": "Tôi PREFER nhắn tin hơn gọi điện, điện thoại mà reo là tim đập như bị gọi lên bảng.",
     "translationHint": "Thích hơn",
     "upgradeModule": {
       "simpleSentence": "I like tea more than coffee.",
@@ -9317,7 +9317,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒləti",
     "elo": 805,
     "level": "beginner",
-    "scenario": "Mua đồ thì nên chọn QUALITY hơn là quantity, thà mặc một cái áo xịn còn hơn mười cái áo dỏm.",
+    "scenario": "Mua áo 50 nghìn ba cái, QUALITY đỉnh nóc kịch trần: giặt một lần là từ áo thun thành áo croptop.",
     "translationHint": "Chất lượng, đặc tính",
     "upgradeModule": {
       "simpleSentence": "The work is of a very high standard.",
@@ -9338,7 +9338,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈrekəɡnaɪz",
     "elo": 875,
     "level": "beginner",
-    "scenario": "Dạo này ông thay đổi nhiều quá, suýt nữa là tôi không RECOGNIZE ra ông luôn đấy.",
+    "scenario": "Họp lớp sau 5 năm, tôi không RECOGNIZE nổi đứa lớp trưởng, cho tới khi nó mở miệng nhắc đóng quỹ, ra đường tôi nể mỗi bạn.",
     "translationHint": "Nhận ra, công nhận",
     "upgradeModule": {
       "simpleSentence": "The company said his hard work was good.",
@@ -9360,7 +9360,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsensətɪv",
     "elo": 935,
     "level": "intermediate",
-    "scenario": "Bả đang ở trong giai đoạn SENSITIVE, ông nói năng gì cũng phải uốn lưỡi 7 lần kẻo ăn tát.",
+    "scenario": "Răng tôi đang SENSITIVE, ăn kem thì ê buốt, mà bỏ kem thì tâm hồn còn ê buốt hơn, chằm zn.",
     "translationHint": "Nhạy cảm",
     "upgradeModule": {
       "simpleSentence": "He is very easily hurt by what people say.",
@@ -9381,7 +9381,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtrʌstwɜːði",
     "elo": 925,
     "level": "intermediate",
-    "scenario": "Phải chọn người nào thật sự TRUSTWORTHY mới dám giao cái 'quỹ đen' này cho mà giữ hộ.",
+    "scenario": "Giao quỹ lớp cho đứa TRUSTWORTHY nhất nhóm, cuối kỳ nó báo cáo từng đồng kèm hóa đơn, flex nhẹ sự minh bạch.",
     "translationHint": "Đáng tin cậy",
     "upgradeModule": {
       "simpleSentence": "She is a very honest person who you can trust.",
@@ -9403,7 +9403,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɜːdʒənt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Có tin nhắn URGENT từ bồ: 'Anh ơi em đói'. Thế là phải xách xe đi mua đồ ăn ngay không bả dỗi.",
+    "scenario": "Group công ty báo \"việc URGENT, vào gấp\", vào thì thấy sếp hỏi trưa nay ai ăn cơm gà, ủa alo.",
     "translationHint": "Khẩn cấp",
     "upgradeModule": {
       "simpleSentence": "This problem needs to be fixed right now.",
@@ -9424,7 +9424,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvæljuəbl",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Đừng tốn thời gian VALUABLE của mình để đi giải thích với những người không muốn hiểu.",
+    "scenario": "Ở phòng trọ năm người, thứ VALUABLE nhất không phải laptop mà là cái ổ cắm còn trống lúc 11 giờ đêm, giành được là flex cả phòng.",
     "translationHint": "Quý giá",
     "upgradeModule": {
       "simpleSentence": "Gold is a very expensive metal.",
@@ -9445,7 +9445,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈtɪkjələ(r)",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Tôi không có sở thích gì PARTICULAR cả, cứ cái gì vui thì làm, cái gì ngon thì ăn thôi.",
+    "scenario": "Tôi không kén ăn, chỉ có một yêu cầu PARTICULAR: trà sữa 30% đường, ít đá, thêm trân châu trắng.",
     "translationHint": "Cụ thể, đặc biệt",
     "upgradeModule": {
       "simpleSentence": "Is there a special reason for your visit?",
@@ -9466,7 +9466,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒlɪfaɪ",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Phải cày thêm cái bằng tiếng Nhật mới QUALIFY cho cái vị trí sang Tokyo làm việc của công ty.",
+    "scenario": "Tin tuyển thực tập sinh đòi 3 năm kinh nghiệm, đọc xong biết ngay mình khum QUALIFY cho cả vị trí thực tập.",
     "translationHint": "Đủ điều kiện, đủ tư cách",
     "upgradeModule": {
       "simpleSentence": "He has the right skills to do the job.",
@@ -9488,7 +9488,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈriːznəbl",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Cái quán lẩu này giá cả khá REASONABLE, đồ ăn lại tươi, hèn gì lúc nào cũng đông nghịt khách.",
+    "scenario": "Quán cơm gần trường giá REASONABLE, cơm thêm miễn phí, bà chủ keo lỳ tới mức cả lớp coi như mẹ nuôi tập thể.",
     "translationHint": "Hợp lý, giá cả phải chăng",
     "upgradeModule": {
       "simpleSentence": "The price is okay for most people.",
@@ -9509,7 +9509,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈstrʌɡl",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Sáng nào tôi cũng phải STRUGGLE với cái báo thức, tắt đi bật lại 5 lần mới chịu dậy nổi.",
+    "scenario": "Tôi STRUGGLE với cái nắp hũ dưa cải mười phút, đưa đứa cùng phòng vặn một cái là mở, out trình.",
     "translationHint": "Vật lộn, đấu tranh",
     "upgradeModule": {
       "simpleSentence": "He is having a hard time with his new job.",
@@ -9530,7 +9530,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈθʌrə",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Trước khi dắt xe ra khỏi bãi, nhớ check THOROUGH xem có bị trầy xước chỗ nào không kẻo mất tiền oan.",
+    "scenario": "Trước khi chốt đơn, tôi ô dề đọc review THOROUGH tới từng bình luận một sao, xong vẫn mua cái rẻ nhất.",
     "translationHint": "Kỹ lưỡng, thấu đáo",
     "upgradeModule": {
       "simpleSentence": "He did a full job of cleaning the house.",
@@ -9551,7 +9551,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "juˈniːk",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Cái phong cách ăn mặc của ông đúng là UNIQUE thật, ra đường đảm bảo không sợ đụng hàng với ai luôn.",
+    "scenario": "Bạn tôi đặt tên mèo là Mì Tôm Trứng, cái tên UNIQUE tới mức bác sĩ thú y đọc tên cũng phải nhịn cười, slay.",
     "translationHint": "Độc nhất, độc đáo",
     "upgradeModule": {
       "simpleSentence": "This is a very special opportunity.",
@@ -9572,7 +9572,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɪspə(r)",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Hai đứa nó cứ WHISPER với nhau trong góc lớp, nhìn là biết đang có 'biến' gì to lắm rồi.",
+    "scenario": "Trong rạp phim, đứa ngồi sau WHISPER với bồ nó mà nguyên hàng ghế đều biết luôn cái kết, ủa alo.",
     "translationHint": "Thì thầm",
     "upgradeModule": {
       "simpleSentence": "She said it very quietly.",
@@ -9593,7 +9593,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnɔɪɪŋ",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Mấy cái tin nhắn rác mời chào mua nhà, chứng khoán lúc giữa trưa thật sự ANNOYING vãi chưởng.",
+    "scenario": "Tiếng muỗi vo ve lúc 2 giờ sáng là thứ ANNOYING nhất đời, bật đèn lên thì nó tàng hình.",
     "translationHint": "Làm phiền, khó chịu",
     "upgradeModule": {
       "simpleSentence": "The noise is very bad.",
@@ -9614,7 +9614,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈliːv",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Tôi không thể BELIEVE nổi là thằng bạn thân mình lại đi tin mấy cái lời 'thả thính' dạo trên mạng.",
+    "scenario": "Tôi vẫn BELIEVE cuối tuần này mình sẽ dọn phòng trọ, manifest đều đều, niềm tin đó đã sống khỏe suốt ba tháng nay.",
     "translationHint": "Tin tưởng",
     "upgradeModule": {
       "simpleSentence": "I think that his story is true.",
@@ -9635,7 +9635,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkrɪtɪkl",
     "elo": 970,
     "level": "intermediate",
-    "scenario": "Đây là giai đoạn CRITICAL của dự án, sai một li là đi một dặm nên anh em cẩn thận giùm cái.",
+    "scenario": "Thầy hướng dẫn CRITICAL với đề cương của tôi tới mức sửa luôn cả dấu chấm, tôi chằm zn hai ngày.",
     "translationHint": "Quan trọng, nguy cấp, phê bình",
     "upgradeModule": {
       "simpleSentence": "The situation is very dangerous and important.",
@@ -9656,7 +9656,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈlaɪtɪd",
     "elo": 890,
     "level": "beginner",
-    "scenario": "Mẹ tôi cực kỳ DELIGHTED khi thấy tôi đem về tặng mẹ một bó hoa vào ngày 8/3, dù mẹ mắng tôi tốn tiền.",
+    "scenario": "Sếp bảo nay về sớm, cả phòng DELIGHTED được đúng mười giây thì sếp nói thêm \"nhớ mang laptop về\".",
     "translationHint": "Vui mừng, hài lòng",
     "upgradeModule": {
       "simpleSentence": "She was very happy with the gift.",
@@ -9678,7 +9678,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "frʌˈstreɪtɪd",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Cảm giác FRUSTRATED nhất là khi đang chuẩn bị thanh toán thì app ngân hàng bị lỗi bảo trì, đứng hình luôn.",
+    "scenario": "Chụp 87 tấm mới được một tấm ưng, đăng lên bị app làm mờ, xu cà na thật, tôi FRUSTRATED tới mức xóa luôn app.",
     "translationHint": "Bực bội, nản lòng",
     "upgradeModule": {
       "simpleSentence": "He feels bad because he can't solve the problem.",
@@ -9699,7 +9699,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenjuɪn",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Tìm được một người bạn GENUINE trong cái thời đại vật chất này khó hơn cả tìm kim đáy bể.",
+    "scenario": "Bạn GENUINE là đứa thấy mình đăng ảnh xấu thì nhắn riêng bảo xóa, chứ không vào khen \"xinh quá\" cho vui.",
     "translationHint": "Thật lòng, chân thành",
     "upgradeModule": {
       "simpleSentence": "Is this a real leather bag?",
@@ -9720,7 +9720,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhezɪteɪt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Đừng HESITATE khi muốn nói lời xin lỗi, để lâu quá là cái 'tôi' nó to lên rồi khó nói lắm.",
+    "scenario": "Tôi HESITATE nửa tiếng trước nút thanh toán giỏ hàng 2 triệu, tới khi mã giảm giá hết hạn, vũ trụ quyết giùm luôn.",
     "translationHint": "Do dự, ngập ngừng",
     "upgradeModule": {
       "simpleSentence": "Don't wait, just do it.",
@@ -9741,7 +9741,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪnfluəns",
     "elo": 915,
     "level": "intermediate",
-    "scenario": "Mấy cái video trên TikTok có INFLUENCE cực lớn đến gu thời trang của giới trẻ bây giờ.",
+    "scenario": "Bạn cùng phòng mở nhạc buồn mỗi tối, INFLUENCE tới mức tôi chưa thất tình mà cũng thấy cần chữa lành.",
     "translationHint": "Ảnh hưởng, tác động",
     "upgradeModule": {
       "simpleSentence": "The leader had a big effect on the group.",
@@ -9763,7 +9763,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɜːdʒənt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Ba tôi gọi điện báo có việc URGENT ở quê nên tôi phải bắt xe về gấp ngay trong đêm.",
+    "scenario": "Ba gọi lúc 6 giờ sáng bảo về quê gấp vì việc URGENT, về tới nơi thì ba nhờ đăng nhập lại Facebook.",
     "translationHint": "Khẩn cấp",
     "upgradeModule": {
       "simpleSentence": "We need help right now.",
@@ -9784,7 +9784,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvæljuəbl",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Những người bạn dám nói thẳng cái sai của mình mới là những người VALUABLE nhất.",
+    "scenario": "Trước mùa thi, cuốn vở ghi chép của đứa học giỏi nhất lớp còn VALUABLE hơn vàng, xin photo phải xếp hàng, fomo cả lớp.",
     "translationHint": "Quý giá, có giá trị",
     "upgradeModule": {
       "simpleSentence": "This watch is very expensive.",
@@ -9805,7 +9805,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈprəʊpriət",
     "elo": 960,
     "level": "intermediate",
-    "scenario": "Đi đám cưới mà mặc quần short áo ba lỗ thì thật sự không APPROPRIATE tí nào đâu ông nội.",
+    "scenario": "Đi phỏng vấn mặc hoodie in hình mèo, mẹ hỏi vậy có APPROPRIATE khum, tôi bảo đây là văn hóa startup.",
     "translationHint": "Phù hợp, thích hợp",
     "upgradeModule": {
       "simpleSentence": "Is this formal dress right for the party?",
@@ -9827,7 +9827,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈheɪv",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Ra mắt nhà bạn gái thì nhớ BEHAVE cho nó đàng hoàng, đừng có hở tí là văng tục như lúc ở với anh em.",
+    "scenario": "Về quê ăn Tết, mẹ dặn BEHAVE cho đàng hoàng, vậy mà cô Ba vừa hỏi lương bao nhiêu là tôi suýt báo thủ tại chỗ.",
     "translationHint": "Cư xử, ăn ở",
     "upgradeModule": {
       "simpleSentence": "The children acted very well during the trip.",
@@ -9849,7 +9849,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəʊˈɪnsɪdəns",
     "elo": 980,
     "level": "intermediate",
-    "scenario": "Đúng là một cái COINCIDENCE kỳ lạ, vừa mới nhắc đến tên hắn xong là hắn gọi điện tới luôn.",
+    "scenario": "Vừa đăng story than đói thì crush nhắn rủ ăn lẩu, nó bảo COINCIDENCE thôi mà tôi đã manifest tới đám cưới.",
     "translationHint": "Sự trùng hợp ngẫu nhiên",
     "upgradeModule": {
       "simpleSentence": "It was just a chance that we met at the airport.",
@@ -9872,7 +9872,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈtɜːmɪnd",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Thấy bồ cũ có người yêu mới, tôi DETERMINED phải giảm cân để cho bả thấy bả đã đánh mất cái gì.",
+    "scenario": "Đăng ký gym 12 tháng, DETERMINED lắm, tới buổi thứ ba thì lý do nghỉ là trời hơi âm u, hết cứu.",
     "translationHint": "Quyết tâm, kiên quyết",
     "upgradeModule": {
       "simpleSentence": "He is very firm about finishing the marathon.",
@@ -9894,7 +9894,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈkʌrɪdʒ",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Mẹ tôi luôn ENCOURAGE tôi theo đuổi đam mê, miễn là đừng có về nhà xin tiền mẹ là được.",
+    "scenario": "Cả group chat ENCOURAGE tôi nhắn tin cho crush, gửi xong thì cả lũ đồng loạt offline, red flag cả đám.",
     "translationHint": "Khuyến khích, động viên",
     "upgradeModule": {
       "simpleSentence": "The boss told me to keep working hard.",
@@ -9916,7 +9916,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fəˈmɪliə(r)",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Cái quán cà phê này nhìn FAMILIAR quá, hình như đây là nơi mình bị người yêu cũ đá thì phải.",
+    "scenario": "Mở đề thi thấy bài nào cũng FAMILIAR y như người yêu cũ: nhớ mặt mà không nhớ làm sao, chằm zn.",
     "translationHint": "Quen thuộc",
     "upgradeModule": {
       "simpleSentence": "I know this place very well.",
@@ -9937,7 +9937,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenərəs",
     "elo": 835,
     "level": "beginner",
-    "scenario": "Ông bà chủ trọ nhà tôi cực kỳ GENEROUS, Tết nào cũng bớt cho nửa tháng tiền phòng lấy lộc.",
+    "scenario": "Thằng keo lỳ nhất nhóm bỗng GENEROUS bao trà sữa cả phòng, hóa ra là để mọi người vote cho clip của nó.",
     "translationHint": "Hào phóng, rộng lượng",
     "upgradeModule": {
       "simpleSentence": "He gave a very big tip to the waiter.",
@@ -9958,7 +9958,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhezɪteɪt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Thấy gái xinh thì cứ lại gần mà làm quen, đừng có HESITATE mãi kẻo thằng khác nó hốt mất.",
+    "scenario": "Đứng trước quầy trà sữa HESITATE mười phút giữa trân châu đen và trắng, quay lại thì quán hết cả hai, xu cà na.",
     "translationHint": "Do dự, ngập ngừng",
     "upgradeModule": {
       "simpleSentence": "Don't wait, just do it.",
@@ -9979,7 +9979,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪmɪteɪt",
     "elo": 940,
     "level": "intermediate",
-    "scenario": "Đứa em tôi nó suốt ngày IMITATE cái giọng của tôi để đi lừa bố mẹ, nhìn mà ghét.",
+    "scenario": "Em gái IMITATE y chang giọng tôi gọi cho mẹ xin tiền, mẹ chuyển khoản liền, giờ tôi mới là đứa bị nghi, báo thủ chính hiệu.",
     "translationHint": "Bắt chước, nhại lại",
     "upgradeModule": {
       "simpleSentence": "He tried to copy the style of the famous artist.",
@@ -10000,7 +10000,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒeləs",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Mỗi lần thấy tôi đi chơi với bạn nữ khác là người yêu tôi lại JEALOUS ra mặt luôn.",
+    "scenario": "Thấy bạn cùng phòng được mẹ gửi lên nguyên thùng đồ ăn, tôi JEALOUS tới mức gọi về nhà nhắc khéo ba lần, ô dề ghê.",
     "translationHint": "Ghen tị, ghen tuông",
     "upgradeModule": {
       "simpleSentence": "He was angry because his friend got a new car.",
@@ -10021,7 +10021,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnɒlɪdʒəbl",
     "elo": 950,
     "level": "intermediate",
-    "scenario": "Ba tôi rất KNOWLEDGEABLE về xe cộ, xe hỏng chỗ nào chỉ cần nghe tiếng máy là biết ngay.",
+    "scenario": "Ông bạn KNOWLEDGEABLE về cà phê cỡ ngửi là biết hạt gì, vậy mà ra quán lần nào cũng gọi bạc xỉu thêm đường, ủa alo.",
     "translationHint": "Am hiểu, có kiến thức rộng",
     "upgradeModule": {
       "simpleSentence": "He knows a lot about computers.",
@@ -10043,7 +10043,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈlɪmɪt",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Tửu lượng của tôi có LIMIT thôi, mấy ông đừng có ép tôi uống thêm nữa kẻo tôi 'huệ' tại chỗ.",
+    "scenario": "Thẻ tín dụng thì có LIMIT, còn lòng tham của tôi mùa sale 11.11 thì khum.",
     "translationHint": "Giới hạn",
     "upgradeModule": {
       "simpleSentence": "We need to stop the amount of sugar we eat.",
@@ -10064,7 +10064,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈməʊtɪveɪt",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Cái bụng mỡ chính là thứ duy nhất MOTIVATE tôi xách giày ra sân đá bóng mỗi cuối tuần.",
+    "scenario": "Nói real, thứ duy nhất MOTIVATE tôi dậy sớm là cái mã giảm 50% chỉ áp dụng trước 9 giờ sáng.",
     "translationHint": "Thúc đẩy, tạo động lực",
     "upgradeModule": {
       "simpleSentence": "The teacher tried to make the students want to learn.",
@@ -10085,7 +10085,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnəʊtɪs",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Tôi vừa mới NOTICE là nãy giờ tôi đang mặc áo trái đi ngoài đường, nhục không để đâu cho hết.",
+    "scenario": "Đi cà phê cả buổi mới NOTICE mình mang hai chiếc dép khác màu, đứa bạn thấy từ đầu mà im re ngồi chụp hình, ra đường tôi nể mỗi bạn.",
     "translationHint": "Để ý thấy, nhận ra",
     "upgradeModule": {
       "simpleSentence": "Did you see the small change in the room?",
@@ -10106,7 +10106,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒbviəs",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Lý do bả đòi chia tay quá OBVIOUS rồi: bả có mối khác ngon hơn, thế thôi.",
+    "scenario": "Nó bảo không thích crush, nhưng tối nào cũng xem story người ta đầu tiên, OBVIOUS tới mức cả group khỏi cần check var.",
     "translationHint": "Rõ ràng, hiển nhiên",
     "upgradeModule": {
       "simpleSentence": "The answer is very easy to see.",
@@ -10128,7 +10128,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpeɪʃnt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Muốn tán đổ crush thì phải PATIENT, chứ mới nhắn tin 2 ngày đã đòi yêu thì bả chạy mất dép.",
+    "scenario": "Chờ shipper mười lăm phút vẫn PATIENT, tới khi app báo giao thành công mà trước cửa trống trơn là tới công chuyện.",
     "translationHint": "Kiên nhẫn",
     "upgradeModule": {
       "simpleSentence": "You have to wait for the results.",
@@ -10149,7 +10149,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒrəl",
     "elo": 930,
     "level": "intermediate",
-    "scenario": "Mới sáng ra đã nghe thấy nhà hàng xóm QUARREL về việc ai là người đi đổ rác, mệt mỏi thật.",
+    "scenario": "Hai đứa cùng phòng QUARREL suốt một tiếng xem ai rửa chén, cuối cùng gọi đồ ăn ngoài cho khỏi rửa, keo lỳ.",
     "translationHint": "Cãi vã, tranh chấp",
     "upgradeModule": {
       "simpleSentence": "The couple had a small fight about money.",
@@ -10170,7 +10170,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈriːznəbl",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Cái shop này bán đồ giá cực kỳ REASONABLE, phù hợp với túi tiền của sinh viên nghèo như tôi.",
+    "scenario": "Quán cơm sau ký túc giá REASONABLE tới mức tôi nghi chủ quán đang làm dự án chữa lành sinh viên.",
     "translationHint": "Hợp lý, phải chăng",
     "upgradeModule": {
       "simpleSentence": "The price of the house is fair.",
@@ -10191,7 +10191,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈstʌbən",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Con mèo nhà tôi STUBBORN lắm, bảo nó xuống khỏi bàn mà nó cứ lỳ ra đó nhìn mình khinh bỉ.",
+    "scenario": "Cái laptop STUBBORN lắm, bấm cập nhật thì nhất quyết không chịu, đúng lúc nộp bài thì tự cập nhật 40 phút, thao túng tâm lý.",
     "translationHint": "Bướng bỉnh, lỳ lợm",
     "upgradeModule": {
       "simpleSentence": "He refuses to change his mind.",
@@ -10212,7 +10212,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtemprəri",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Đừng lo, thất nghiệp chỉ là TEMPORARY thôi, lo mà học thêm skill mới đi rồi việc sẽ tới.",
+    "scenario": "Ở phòng trọ không cửa sổ chỉ là TEMPORARY thôi, tôi tự nhủ vậy từ hồi năm nhất tới giờ đi làm năm hai, delulu.",
     "translationHint": "Tạm thời",
     "upgradeModule": {
       "simpleSentence": "This is a short-term solution.",
@@ -10233,7 +10233,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɜːdʒənt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Đang đi vệ sinh mà sếp gọi điện báo có việc URGENT thì đúng là một trải nghiệm đau khổ.",
+    "scenario": "Group lớp ghi \"URGENT, vào gấp\", cả đám vào đủ thì lớp trưởng hỏi ai có sạc dự phòng cho mượn, ủa alo.",
     "translationHint": "Khẩn cấp",
     "upgradeModule": {
       "simpleSentence": "We need to fix this problem very soon.",
@@ -10254,7 +10254,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "veɪɡ",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Câu trả lời 'Để em xem đã' của bồ thường rất VAGUE, đa phần là bả không muốn đi rồi.",
+    "scenario": "Hỏi cả nhóm chừng nào đi biển, nhận về câu 'để tính', VAGUE cỡ này là kèo toang chắc rồi.",
     "translationHint": "Mơ hồ, không rõ ràng",
     "upgradeModule": {
       "simpleSentence": "The instructions were not clear.",
@@ -10275,7 +10275,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɪlɪŋ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Tôi luôn WILLING đi nhậu nếu có ai đó bao, còn chia tiền thì để tôi xem lại lịch đã nha.",
+    "scenario": "Cả nhóm rủ dậy 4 giờ sáng săn bình minh, tôi WILLING liền, gét gô, miễn có người chụp hộ còn tôi ngủ trên xe.",
     "translationHint": "Sẵn lòng, tự nguyện",
     "upgradeModule": {
       "simpleSentence": "He is ready to help his neighbors.",
@@ -10296,7 +10296,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈækjərət",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Cái cân này có vẻ không ACCURATE lắm, hôm qua tôi cân 70kg mà nay nó nhảy lên 75kg là sao?",
+    "scenario": "Nhỏ bạn đoán drama nhà tôi ACCURATE hơn app thời tiết, nói trước ba ngày là xảy ra y chang, out trình.",
     "translationHint": "Chính xác",
     "upgradeModule": {
       "simpleSentence": "The map is very correct.",
@@ -10318,7 +10318,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈliːvəbl",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Ông bảo ông đi làm muộn vì 'cứu người qua đường' nghe chẳng BELIEVABLE tí nào đâu.",
+    "scenario": "Bảo lớp trưởng quên nộp vì mạng rớt nghe còn BELIEVABLE, chứ bảo con mèo xóa file thì hơi xu cà na.",
     "translationHint": "Có thể tin được",
     "upgradeModule": {
       "simpleSentence": "His excuse sounds like it could be true.",
@@ -10339,7 +10339,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈviːniənt",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Cái app này CONVENIENT thật sự, đặt một cái là 15 phút sau đồ ăn đã ship tới tận cửa.",
+    "scenario": "Ở trọ ngay trên tiệm tạp hóa CONVENIENT thật, mỗi tội đêm nào cũng xuống mua đồ ăn vặt, ví đang ét o ét.",
     "translationHint": "Tiện lợi",
     "upgradeModule": {
       "simpleSentence": "The hotel location is very good for tourists.",
@@ -10361,7 +10361,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dɪˈpendəbl",
     "elo": 930,
     "level": "intermediate",
-    "scenario": "Trong nhóm bạn, lúc nào cũng cần một đứa DEPENDABLE để nó đứng ra lo liệu mọi thứ khi đi du lịch.",
+    "scenario": "Đứa DEPENDABLE nhất nhóm là đứa nhớ mang sạc dự phòng, ô, khăn giấy và cả tiền lẻ gửi xe, đỉnh nóc kịch trần.",
     "translationHint": "Đáng tin cậy",
     "upgradeModule": {
       "simpleSentence": "My car is old but I can trust it.",
@@ -10383,7 +10383,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈfektɪv",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Uống nước chanh mật ong là cách EFFECTIVE nhất để trị đau họng sau một đêm hát karaoke cháy máy.",
+    "scenario": "Cách học thuộc bài EFFECTIVE nhất của tôi lowkey hơi kỳ: giảng lại cho con mèo nghe, nó ngủ, tôi thuộc.",
     "translationHint": "Hiệu quả",
     "upgradeModule": {
       "simpleSentence": "The new law is working well.",
@@ -10405,7 +10405,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɡreɪtfl",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Tôi rất GRATEFUL vì cuối tháng hết tiền vẫn được thằng bạn thân cho ăn ké mì tôm.",
+    "scenario": "Ví ét o ét, cuối tháng còn hai chục nghìn, tôi GRATEFUL với gói mì tôm cuối cùng như với ân nhân cứu mạng.",
     "translationHint": "Biết ơn",
     "upgradeModule": {
       "simpleSentence": "I am very thankful for your help.",
@@ -10426,7 +10426,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒnɪst",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Nói HONEST nhé, cái váy này mặc vào trông bà như cái bánh chưng vậy.",
+    "scenario": "Nhỏ bạn hỏi tóc mới đẹp không, tôi HONEST khen đẹp, nó bảo nói thật đi, u là trời, biết đường nào mà sống.",
     "translationHint": "Thành thật",
     "upgradeModule": {
       "simpleSentence": "He gave a very true answer.",
@@ -10447,7 +10447,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪɡˈnɔː(r)",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Cách tốt nhất để giữ tâm hồn thanh tịnh là IGNORE mấy cái lời drama, bóc phốt nhảm nhí trên Facebook.",
+    "scenario": "Group lớp nhắn 99+ tin, tôi IGNORE hết, tới khi thấy chữ 'điểm danh' là đọc lại từ đầu trong ba giây.",
     "translationHint": "Phớt lờ, lờ đi",
     "upgradeModule": {
       "simpleSentence": "Don't pay attention to his mean comments.",
@@ -10469,7 +10469,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪnˈtenʃn",
     "elo": 910,
     "level": "intermediate",
-    "scenario": "Tôi biết INTENTION của ông là muốn giúp bả, nhưng cách ông làm chỉ khiến bả thấy bị làm phiền thêm thôi.",
+    "scenario": "INTENTION ban đầu là vào app mua cục sạc, thoát app ra thì giỏ hàng có thêm cái đèn ngủ hình cây nấm, thao túng tâm lý.",
     "translationHint": "Ý định, mục đích",
     "upgradeModule": {
       "simpleSentence": "What is your plan for the future?",
@@ -10491,7 +10491,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmænɪdʒ",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Cuối tháng mà tài khoản còn 200k thì phải biết MANAGE chi tiêu cực khéo mới sống sót được đến ngày nhận lương.",
+    "scenario": "Đi làm năm nhất, tôi MANAGE lương bằng cách chia năm cái hũ, tới ngày mười thì cả năm hũ cùng trống, toang.",
     "translationHint": "Quản lý, xoay xở",
     "upgradeModule": {
       "simpleSentence": "He can deal with difficult customers.",
@@ -10512,7 +10512,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnesəsəri",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Mua thêm cái sạc dự phòng là cực kỳ NECESSARY cho mấy chuyến đi phượt xa, không là điện thoại hết pin giữa đường là mệt.",
+    "scenario": "Đi Đà Lạt ô dề mang sáu cái áo khoác, cái nào cũng NECESSARY, rốt cuộc mặc đúng một cái hoodie từ đầu tới cuối.",
     "translationHint": "Cần thiết",
     "upgradeModule": {
       "simpleSentence": "Food is needed for survival.",
@@ -10534,7 +10534,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɒptɪˈmɪstɪk",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Dù bị crush từ chối nhưng hắn vẫn rất OPTIMISTIC, bảo rằng 'chắc tại bả đang thử thách lòng kiên nhẫn của mình thôi'.",
+    "scenario": "Bị từ chối lần thứ ba mà nó vẫn OPTIMISTIC, bảo crush đang test độ kiên trì, delulu cỡ này là có hệ thống.",
     "translationHint": "Lạc quan",
     "upgradeModule": {
       "simpleSentence": "He is very positive about the new project.",
@@ -10556,7 +10556,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈpɑːʃl",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Đây mới chỉ là một PARTIAL sự thật thôi, đợi khi nào ông biết hết cả câu chuyện thì ông mới thấy nó sốc cỡ nào.",
+    "scenario": "Mẹ PARTIAL với con mèo ra mặt: nó làm vỡ ly thì là bé ngoan, tôi làm vỡ thì là báo thủ.",
     "translationHint": "Một phần, thiên vị",
     "upgradeModule": {
       "simpleSentence": "The results were only a small success.",
@@ -10577,7 +10577,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɪkli",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Ăn QUICKLY đi rồi còn đi làm, cứ nhai như mèo mửa thế kia thì bao giờ mới xong hả ông nội?",
+    "scenario": "Thấy tin 'tới cổng rồi' là tôi trang điểm QUICKLY như đang thi chạy, ra tới nơi mới biết quên kẻ một bên mày, ét o ét.",
     "translationHint": "Nhanh chóng",
     "upgradeModule": {
       "simpleSentence": "The technology is changing very fast.",
@@ -10598,7 +10598,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "riˈækʃn",
     "elo": 820,
     "level": "beginner",
-    "scenario": "REACTION của sếp khi thấy tôi đi làm muộn: không nói gì nhưng ánh mắt ấy làm tôi lạnh sống lưng.",
+    "scenario": "REACTION của ba khi thấy tôi nhuộm tóc hồng: im lặng ba giây, rồi hỏi có đổi lại được khum.",
     "translationHint": "Phản ứng",
     "upgradeModule": {
       "simpleSentence": "What was his answer to your question?",
@@ -10620,7 +10620,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "sɪɡˈnɪfɪkənt",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Việc có thêm một đứa bạn thân cùng tiến bộ sẽ tạo ra thay đổi SIGNIFICANT cho cuộc đời ông đấy.",
+    "scenario": "Đổi từ trà sữa full topping sang ít đường là bước tiến SIGNIFICANT, ít nhất tôi tự thấy mình slay.",
     "translationHint": "Quan trọng, đáng kể",
     "upgradeModule": {
       "simpleSentence": "There is a big difference between the two products.",
@@ -10642,7 +10642,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtɒləreɪt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Tôi không thể TOLERATE nổi cái thói quen vừa ăn vừa bấm điện thoại của ông, nhìn mất lịch sự vãi.",
+    "scenario": "Tôi TOLERATE được bạn cùng phòng ngáy, hát karaoke nửa đêm, nhưng ăn vụng mì của tôi là tới công chuyện.",
     "translationHint": "Chịu đựng, tha thứ",
     "upgradeModule": {
       "simpleSentence": "I can't put up with his bad temper anymore.",
@@ -10663,7 +10663,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈjuːtɪlaɪz",
     "elo": 860,
     "level": "beginner",
-    "scenario": "Phải biết UTILIZE mấy cái voucher giảm giá trên app, tích tiểu thành đại cũng đỡ được khối tiền đấy.",
+    "scenario": "Nhỏ bạn UTILIZE tối đa voucher, freeship với xu, đơn hai trăm nghìn mà chỉ trả ba chục, đúng là out trình.",
     "translationHint": "Tận dụng, sử dụng",
     "upgradeModule": {
       "simpleSentence": "We should use all the available tools.",
@@ -10684,7 +10684,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvælɪd",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Lý do 'em bận' chỉ VALID khi ông thật sự bận thôi, còn đang ngồi đánh rank mà bảo bận là bùa chú rồi.",
+    "scenario": "Xin nghỉ vì đau bụng là lý do VALID, nhưng lỡ đăng ảnh check-in quán lẩu cùng ngày thì hết cứu.",
     "translationHint": "Hợp lệ, có cơ sở",
     "upgradeModule": {
       "simpleSentence": "Is your ticket still good for today?",
@@ -10705,7 +10705,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwʌndə(r)",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Đôi khi tôi WONDER không biết tại sao mình lại có thể kiên trì với cái công việc này lâu đến thế.",
+    "scenario": "Lướt TikTok lúc 3 giờ sáng, tôi WONDER sao mình thuộc công thức làm bánh mà vẫn không biết nấu cơm, hết cứu.",
     "translationHint": "Tự hỏi, băn khoăn",
     "upgradeModule": {
       "simpleSentence": "I am thinking about why he left early.",
@@ -10726,7 +10726,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ədˈmɪt",
     "elo": 865,
     "level": "beginner",
-    "scenario": "Cuối cùng hắn cũng chịu ADMIT là mình đã sai, sau khi làm cả team phải làm lại từ đầu.",
+    "scenario": "Cãi nhau cả buổi về đường đi, cuối cùng nó ADMIT là mở nhầm bản đồ, lúc đó cả nhóm đã lạc sang tỉnh khác, tới công chuyện.",
     "translationHint": "Thừa nhận",
     "upgradeModule": {
       "simpleSentence": "He agreed that he made a mistake.",
@@ -10748,7 +10748,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbɔːrɪŋ",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Mấy cái buổi họp kéo dài cả tiếng đồng hồ mà chẳng chốt được gì thật sự rất BORING.",
+    "scenario": "Phim được review đỉnh nóc kịch trần mà BORING tới mức tôi ngủ gật, tỉnh dậy nhân vật vẫn đang ngồi uống trà.",
     "translationHint": "Buồn chán",
     "upgradeModule": {
       "simpleSentence": "The movie was not interesting at all.",
@@ -10769,7 +10769,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəmˈpleɪn",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Thôi bớt COMPLAIN về lương thấp đi, thay vào đó hãy lo mà nâng cấp cái kỹ năng của mình lên.",
+    "scenario": "Cả phòng COMPLAIN wifi chậm suốt ba tuần, tới khi check var mới phát hiện phòng bên đang ké mạng để cày phim.",
     "translationHint": "Than phiền, phàn nàn",
     "upgradeModule": {
       "simpleSentence": "The customers said they were unhappy with the service.",
@@ -10791,7 +10791,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "daʊt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Tôi DOUBT là cái shop này bán hàng chính hãng, giá rẻ bất ngờ thế kia thì nghi lắm.",
+    "scenario": "Áo hiệu giá 99 nghìn kèm freeship, tôi DOUBT ngay, rồi vẫn chốt đơn vì lỡ nó real thì sao.",
     "translationHint": "Nghi ngờ",
     "upgradeModule": {
       "simpleSentence": "I am not sure if he is telling the truth.",
@@ -10812,7 +10812,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈiːɡə(r)",
     "elo": 920,
     "level": "intermediate",
-    "scenario": "Vừa nghe tin có quán nướng mới mở, lũ bạn tôi đã EAGER rủ nhau đi thử ngay cuối tuần này.",
+    "scenario": "Nghe có quán trà sữa mới gần trường, cả lớp fomo, EAGER rủ nhau đi, tới nơi thì hàng dài hơn cả hàng đăng ký tín chỉ.",
     "translationHint": "Háo hức, hăm hở",
     "upgradeModule": {
       "simpleSentence": "The students want to learn more.",
@@ -10833,7 +10833,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fɔːs",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Bố mẹ không nên FORCE con cái phải học những ngành mà chúng nó không hề có đam mê.",
+    "scenario": "Hồi nhỏ mẹ FORCE tôi đi học bơi, giờ đi biển tôi là đứa duy nhất không phải ôm phao chụp hình, flex nhẹ.",
     "translationHint": "Ép buộc",
     "upgradeModule": {
       "simpleSentence": "The weather made them stay inside.",
@@ -10854,7 +10854,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɡæðə(r)",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Cả nhà GATHER lại ăn bữa cơm cuối năm là khoảnh khắc ý nghĩa nhất đối với tôi.",
+    "scenario": "Cả xóm trọ GATHER trước phòng số 3 lúc nửa đêm, tưởng hóng biến, hóa ra chủ phòng đang nấu mì cay.",
     "translationHint": "Tụ họp, tập hợp",
     "upgradeModule": {
       "simpleSentence": "The scientist collected a lot of data.",
@@ -10875,7 +10875,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhɑːdli",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Dạo này bận bù đầu, tôi HARDLY có thời gian để lướt Facebook hay xem phim nữa.",
+    "scenario": "Từ hồi đi làm năm nhất, tôi HARDLY thấy mặt trời, đi lúc trời chưa sáng, về thì đèn đường đã bật, chằm zn.",
     "translationHint": "Hầu như không",
     "upgradeModule": {
       "simpleSentence": "I almost never see him these days.",
@@ -10896,7 +10896,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈmædʒɪn",
     "elo": 805,
     "level": "beginner",
-    "scenario": "Ông có thể IMAGINE được cảnh mình trúng số độc đắc thì việc đầu tiên ông làm là gì không?",
+    "scenario": "Ngồi IMAGINE cảnh crush rep tin nhắn trong năm phút, delulu thôi, thực tế là rep sau năm ngày bằng một cái like.",
     "translationHint": "Tưởng tượng",
     "upgradeModule": {
       "simpleSentence": "Try to think of a world without war.",
@@ -10917,7 +10917,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkaɪndnəs",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Đôi khi chỉ một chút KINDNESS nhỏ như nhường ghế cho người già cũng làm ngày mới tốt đẹp hơn.",
+    "scenario": "Cô bán xôi đầu hẻm biết tôi ở trọ một mình nên hay cho thêm trứng, KINDNESS kiểu này chữa lành cả dạ dày lẫn tâm hồn.",
     "translationHint": "Lòng tốt, sự tử tế",
     "upgradeModule": {
       "simpleSentence": "We should show love to everyone.",
@@ -10938,7 +10938,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "luːs",
     "elo": 835,
     "level": "beginner",
-    "scenario": "Cái ốc này bị LOOSE rồi, hèn gì cái bàn cứ lung lay mãi, lấy cái tua vít siết lại đi.",
+    "scenario": "Cái ghế ở quán cà phê LOOSE từ chân tới lưng, ngồi chill mà như đang tập thăng bằng, u là trời.",
     "translationHint": "Lỏng, lỏng lẻo",
     "upgradeModule": {
       "simpleSentence": "The rules are very free.",
@@ -10959,7 +10959,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈmenʃn",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Đừng MENTION chuyện nợ nần trước mặt hắn, hắn đang stress chuyện tiền bạc lắm đấy.",
+    "scenario": "Lỡ MENTION người yêu cũ trong buổi họp lớp, cả bàn im bặt, rồi có đứa lặng lẽ mở story của người ta ra hóng biến.",
     "translationHint": "Đề cập đến",
     "upgradeModule": {
       "simpleSentence": "He said something about the meeting.",
@@ -10980,7 +10980,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnəʊtɪs",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Tôi vừa NOTICE là bồ ông mới đổi màu tóc à? Nhìn cũng hợp phết đấy chứ.",
+    "scenario": "Đổi avatar từ hôm qua, mẹ NOTICE trước cả crush, còn nhắn hỏi sao ảnh này con trông ốm thế, ok mom.",
     "translationHint": "Nhận ra, để ý thấy",
     "upgradeModule": {
       "simpleSentence": "Did you see the small change in the room?",
@@ -11001,7 +11001,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒfə(r)",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Công ty đó OFFER mức lương khá hời, nhưng bắt làm cả thứ Bảy nên tôi vẫn đang phân vân.",
+    "scenario": "Công ty OFFER lương cao hơn chỗ cũ 2 triệu, đọc kỹ thì thấy dòng 'sẵn sàng làm cuối tuần', red flag.",
     "translationHint": "Đề nghị, mời chào",
     "upgradeModule": {
       "simpleSentence": "The shop provided a big discount.",
@@ -11023,7 +11023,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "pəˈsiːv",
     "elo": 1010,
     "level": "intermediate",
-    "scenario": "Nhiều người PERCEIVE việc làm freelancer là nhàn hạ, nhưng thực ra là cày ngày cày đêm không nghỉ.",
+    "scenario": "Ba mẹ PERCEIVE việc tôi làm content là ngồi chơi điện thoại cả ngày, nói real thì cũng đúng một nửa.",
     "translationHint": "Nhận thức, nhìn nhận",
     "upgradeModule": {
       "simpleSentence": "People think of him as a great leader.",
@@ -11045,7 +11045,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒləti",
     "elo": 805,
     "level": "beginner",
-    "scenario": "Đi ăn quán lề đường thì đừng đòi hỏi QUALITY phục vụ như trong nhà hàng 5 sao nha mấy ông.",
+    "scenario": "Mua áo khoác 70 nghìn mà đòi QUALITY như hàng hiệu, giặt lần đầu nó co lại thành áo của em bé.",
     "translationHint": "Chất lượng",
     "upgradeModule": {
       "simpleSentence": "The food in this restaurant is very good.",
@@ -11066,7 +11066,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈrekəɡnaɪz",
     "elo": 875,
     "level": "beginner",
-    "scenario": "Ra đường đeo khẩu trang kín mít thế kia thì bố ai mà RECOGNIZE ra được ông là ai.",
+    "scenario": "Cắt tóc mái xong đi học, bác bảo vệ không RECOGNIZE nổi tôi, đòi xem thẻ sinh viên.",
     "translationHint": "Nhận ra",
     "upgradeModule": {
       "simpleSentence": "The company said his hard work was good.",
@@ -11088,7 +11088,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsensətɪv",
     "elo": 935,
     "level": "intermediate",
-    "scenario": "Bà sếp dạo này SENSITIVE vãi, chỉ cần nói đùa một câu thôi là bả cũng tưởng mình đang nói đểu bả.",
+    "scenario": "Răng tôi SENSITIVE tới mức uống trà đá phải nhai một bên, cắn kem một miếng là xỉu ngang.",
     "translationHint": "Nhạy cảm",
     "upgradeModule": {
       "simpleSentence": "He is very easily hurt by what people say.",
@@ -11109,7 +11109,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtrʌstwɜːði",
     "elo": 925,
     "level": "intermediate",
-    "scenario": "Muốn tìm người TRUSTWORTHY để gửi gắm chìa khóa nhà lúc đi du lịch cũng khó phết đấy.",
+    "scenario": "Gửi mèo cho đứa TRUSTWORTHY nhất nhóm trông ba ngày, về thì mèo béo lên, còn nó lowkey thành fan cứng của con mèo.",
     "translationHint": "Đáng tin cậy",
     "upgradeModule": {
       "simpleSentence": "She is a very honest person who you can trust.",
@@ -11131,7 +11131,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌʌnɪkˈspektɪd",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Đang đi chơi với ghẹ mà gặp ngay UNEXPECTED 'ông già vợ' tương lai đang đi tập thể dục thì đúng là cạn lời.",
+    "scenario": "Điều UNEXPECTED nhất buổi hẹn đầu: nguyên lớp đại học ngồi ngay bàn bên ăn cơm chó, có đứa còn vẫy tay chào.",
     "translationHint": "Bất ngờ, không mong đợi",
     "upgradeModule": {
       "simpleSentence": "The rain was a surprise to us.",
@@ -11153,7 +11153,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvæljuəbl",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Mấy đứa bạn thân mà dám nói thẳng cái sai của mình mới là những người VALUABLE nhất.",
+    "scenario": "Món đồ VALUABLE nhất phòng trọ không phải laptop, mà là cái quạt duy nhất còn chịu quay đủ ba số, keo lỳ.",
     "translationHint": "Quý giá, có giá trị",
     "upgradeModule": {
       "simpleSentence": "This watch is very expensive.",
@@ -11174,7 +11174,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɪlɪŋ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Tôi rất WILLING chở ông đi nếu ông bao tôi chầu cà phê, chứ xăng dạo này lên giá quá.",
+    "scenario": "Ai cần người xếp hàng mua vé concert, tôi WILLING liền, chỉ cần bao một ly trà chanh với cho sạc ké điện thoại, gét gô.",
     "translationHint": "Sẵn lòng, tự nguyện",
     "upgradeModule": {
       "simpleSentence": "He is ready to help his neighbors.",
@@ -11195,7 +11195,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnɔɪɪŋ",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Cái tiếng chuông báo thức lúc 6h sáng thật sự ANNOYING, muốn ném luôn cái điện thoại vào tường.",
+    "scenario": "Ủa alo, tiếng khoan tường nhà bên lúc 7 giờ sáng Chủ nhật ANNOYING kinh khủng, tôi nghi họ khoan thẳng vào giấc mơ của tôi.",
     "translationHint": "Làm phiền, gây khó chịu",
     "upgradeModule": {
       "simpleSentence": "That sound is very bad.",
@@ -11216,7 +11216,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈliːvəbl",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Lý do 'em bị đau bụng' nghe Believable hơn là 'em bị bắt cóc' khi xin nghỉ học đấy.",
+    "scenario": "Story 'đang ôn bài nghiêm túc' sẽ BELIEVABLE hơn nếu góc ảnh không lộ cái tay cầm máy chơi game, check var là ra.",
     "translationHint": "Có thể tin được",
     "upgradeModule": {
       "simpleSentence": "His excuse sounds like it could be true.",
@@ -11237,7 +11237,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈviːniənt",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Nhà gần VinMart tiện (CONVENIENT) thật, đêm hôm thèm mì tôm chỉ cần chạy xuống 2 phút là có.",
+    "scenario": "Mua nồi chiên không dầu xong mới thấy CONVENIENT thật, giờ tôi chiên luôn cả bánh mì, trứng với nỗi buồn.",
     "translationHint": "Tiện lợi",
     "upgradeModule": {
       "simpleSentence": "The hotel location is very good for tourists.",
@@ -11259,7 +11259,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "daʊt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Tôi DOUBT là hắn ta sẽ trả tiền đúng hạn, cái nết của hắn là 'hứa thật nhiều thất hứa thật nhiều'.",
+    "scenario": "Nó hứa mai trả tiền ăn lẩu, tôi DOUBT nhẹ, vì chữ mai của nó đã kéo dài từ học kỳ trước, red flag.",
     "translationHint": "Nghi ngờ",
     "upgradeModule": {
       "simpleSentence": "I am not sure if he is telling the truth.",
@@ -11280,7 +11280,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈfɪʃnt",
     "elo": 920,
     "level": "intermediate",
-    "scenario": "Cách EFFICIENT nhất để giảm cân là bớt miệng lại, chứ cứ ăn xong nằm thì gym cũng chịu.",
+    "scenario": "Tôi học EFFICIENT nhất vào đêm trước hôm thi, nửa học kỳ gói gọn trong sáu tiếng và hai lon nước tăng lực, slay.",
     "translationHint": "Hiệu quả, năng suất",
     "upgradeModule": {
       "simpleSentence": "We need a faster way to finish the project.",
@@ -11302,7 +11302,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "frʌˈstreɪtɪd",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Cảm thấy cực kỳ FRUSTRATED khi đang nhắn tin tỏ tình mà máy hết pin đột ngột.",
+    "scenario": "Canh săn vé concert từ 9 giờ, tới lượt thì web báo hết vé, FRUSTRATED tới mức muốn úp mặt vào bàn phím, kém miếng khó chịu.",
     "translationHint": "Bực bội, nản lòng",
     "upgradeModule": {
       "simpleSentence": "He feels bad because he can't solve the problem.",
@@ -11323,7 +11323,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenjuɪn",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Cái nụ cười GENUINE của cô ấy làm tôi tin rằng trên đời này vẫn còn nhiều điều tốt đẹp.",
+    "scenario": "Lời khen GENUINE nhất tôi từng nhận là của chú bán bánh mì: 'con ăn khỏe vậy chú bán vui'.",
     "translationHint": "Thật lòng, chân thành",
     "upgradeModule": {
       "simpleSentence": "Is this a real leather bag?",
@@ -11344,7 +11344,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhezɪteɪt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Đừng HESITATE khi thấy đồ sale, vì chớp mắt thôi là mấy chị em khác hốt sạch rồi.",
+    "scenario": "Thấy cái áo giảm 70% mà HESITATE đúng ba giây, quay lại thì hết size, fomo nguyên tuần.",
     "translationHint": "Do dự, ngập ngừng",
     "upgradeModule": {
       "simpleSentence": "Don't wait, just do it.",
@@ -11365,7 +11365,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪnfluəns",
     "elo": 915,
     "level": "intermediate",
-    "scenario": "Thằng bạn thân nó INFLUENCE cái gu âm nhạc của tôi hơi bị nhiều, giờ toàn nghe nhạc buồn.",
+    "scenario": "Một video review trên TikTok INFLUENCE tôi fomo mua máy làm sữa hạt, giờ nó là cái kệ để chìa khóa đắt nhất nhà.",
     "translationHint": "Ảnh hưởng, tác động",
     "upgradeModule": {
       "simpleSentence": "The leader had a big effect on the group.",
@@ -11387,7 +11387,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dʒʌdʒ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Đừng vội JUDGE một người qua cái xe họ đi, nhiều ông đi xe cà tàng nhưng tài khoản mấy tỷ đấy.",
+    "scenario": "Mọi người hay JUDGE tôi vì mặc pijama đi siêu thị, chưa ai biết đó là bộ đồ đẹp nhất của tôi, slay.",
     "translationHint": "Đánh giá, phán xét",
     "upgradeModule": {
       "simpleSentence": "He looked at the work and gave his opinion.",
@@ -11409,7 +11409,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "læk",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Món phở này ngon nhưng hơi LACK vị đậm đà của xương, chắc cho thêm tí muối vào.",
+    "scenario": "Bài thuyết trình nhóm tôi chẳng LACK thứ gì, slide có, nhạc nền có, chỉ thiếu đứa dám đứng lên nói, toang.",
     "translationHint": "Thiếu hụt",
     "upgradeModule": {
       "simpleSentence": "There is not enough water in the village.",
@@ -11430,7 +11430,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "meɪnˈteɪn",
     "elo": 865,
     "level": "beginner",
-    "scenario": "MAINTAIN cái thói quen đọc sách mỗi ngày khó vãi, toàn đọc được 2 trang là lăn ra ngủ.",
+    "scenario": "MAINTAIN chuỗi học tiếng Anh 100 ngày liên tục, ngày 101 quên mở app, con cú xanh nhắn y như người yêu cũ, thao túng tâm lý.",
     "translationHint": "Duy trì, giữ vững",
     "upgradeModule": {
       "simpleSentence": "You should keep your car in good condition.",
@@ -11452,7 +11452,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnɜːvəs",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Lần đầu đi làm mà NERVOUS quá, cứ lo không biết đồng nghiệp có khó tính không.",
+    "scenario": "Ngày đầu đi làm NERVOUS tới mức cúi chào luôn cái tượng ở sảnh, đồng nghiệp thấy nhưng giả vờ không thấy.",
     "translationHint": "Lo lắng, hồi hộp",
     "upgradeModule": {
       "simpleSentence": "She felt worried before the interview.",
@@ -11473,7 +11473,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɒpəˈtjuːnəti",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Mất lượt này là mất luôn OPPORTUNITY thăng tiến trong năm nay, tiếc đứt ruột.",
+    "scenario": "Crush rủ đi xem phim đúng hôm tôi sốt, OPPORTUNITY ngàn năm có một mà tôi nằm đắp chăn nhìn trần nhà, xu cà na.",
     "translationHint": "Cơ hội",
     "upgradeModule": {
       "simpleSentence": "This is a good chance to improve your skills.",
@@ -11495,7 +11495,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prɪˈfɜː(r)",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Tôi PREFER ở nhà ngủ hơn là đi quẩy lúc 10h đêm, tuổi già sức yếu rồi.",
+    "scenario": "Tối thứ Sáu tôi PREFER nằm nhà xem phim với gói snack hơn đi bar, nghe ô dề nhưng năm nay tôi chọn chữa lành.",
     "translationHint": "Thích hơn",
     "upgradeModule": {
       "simpleSentence": "I like tea more than coffee.",
@@ -11517,7 +11517,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒləti",
     "elo": 805,
     "level": "beginner",
-    "scenario": "Đi ăn lề đường thì QUALITY đồ ăn là quan trọng nhất, chứ phục vụ thì đừng mong đợi gì nhiều.",
+    "scenario": "Shop quảng cáo QUALITY cao cấp, nhận hàng thì cái túi da dính mưa một cái đã đổi sang màu khác, ủa alo.",
     "translationHint": "Chất lượng",
     "upgradeModule": {
       "simpleSentence": "The work is of a very high standard.",
@@ -11538,7 +11538,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈrekəɡnaɪz",
     "elo": 875,
     "level": "beginner",
-    "scenario": "Dạo này béo lên hay sao mà RECOGNIZE ông không ra luôn, bụng bia to quá rồi.",
+    "scenario": "Họp lớp sau 5 năm, tôi không RECOGNIZE nổi lớp trưởng, cho tới khi nó mở miệng nhắc đóng quỹ, ra đường tôi nể mỗi bạn.",
     "translationHint": "Nhận ra",
     "upgradeModule": {
       "simpleSentence": "The company said his hard work was good.",
@@ -11560,7 +11560,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɜːdʒənt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Có tin nhắn URGENT từ mẹ: 'Về nhà ăn cơm ngay'. Không về là ăn chửi đủ.",
+    "scenario": "Group chat bắn tin URGENT liên tục, vào hóng biến thì hóa ra cả bọn đang chọn quán lẩu tối nay.",
     "translationHint": "Khẩn cấp",
     "upgradeModule": {
       "simpleSentence": "This problem needs to be fixed right now.",
@@ -11581,7 +11581,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ədˈmɪt",
     "elo": 865,
     "level": "beginner",
-    "scenario": "Tôi phải ADMIT là con bé đó hát hay thật, dù tôi không ưa nó tí nào.",
+    "scenario": "Tôi phải ADMIT là cái nồi cơm điện mẹ bắt mang lên trọ đã cứu tôi khỏi ăn mì cả tháng, ok mom.",
     "translationHint": "Thừa nhận",
     "upgradeModule": {
       "simpleSentence": "He agreed that he made a mistake.",
@@ -11603,7 +11603,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbɔːrɪŋ",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Cuối tuần mà không có kèo đi chơi thì đúng là BORING chết đi được.",
+    "scenario": "Buổi đi chơi BORING nhất lowkey là hẹn nhau ra cà phê rồi mỗi đứa cắm mặt lướt điện thoại riêng ba tiếng.",
     "translationHint": "Buồn chán",
     "upgradeModule": {
       "simpleSentence": "The movie was not interesting at all.",
@@ -11624,7 +11624,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəmˈpleɪn",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Ngưng COMPLAIN về việc kẹt xe đi, ở thành phố này thì đó là 'đặc sản' rồi.",
+    "scenario": "Nó COMPLAIN suốt về chuyện ế, tới khi có người rủ đi date thì bảo hôm đó bận giặt đồ, hết cứu.",
     "translationHint": "Than phiền, phàn nàn",
     "upgradeModule": {
       "simpleSentence": "The customers said they were unhappy with the service.",
@@ -11646,7 +11646,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fɔːs",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Đừng FORCE mình phải cười khi đang thấy buồn, cứ khóc một tí cho nó nhẹ lòng.",
+    "scenario": "Bạn thân FORCE tôi nhảy trend TikTok cùng, quay 30 lần mới xong, clip nổi nhất lại là cảnh tôi té, u là trời.",
     "translationHint": "Ép buộc",
     "upgradeModule": {
       "simpleSentence": "The weather made them stay inside.",
@@ -11667,7 +11667,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhɑːdli",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Từ lúc đi làm, tôi HARDLY có thời gian để chơi game với anh em, nhớ quá.",
+    "scenario": "Mua máy chạy bộ về phòng trọ xong tôi HARDLY đụng tới, giờ nó là cây phơi đồ xịn nhất xóm, flex nhẹ.",
     "translationHint": "Hầu như không",
     "upgradeModule": {
       "simpleSentence": "I almost never see him these days.",
@@ -11688,7 +11688,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒfə(r)",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Tiệm này OFFER gói combo khá rẻ, hời quá nên tôi chốt luôn không suy nghĩ.",
+    "scenario": "Quán lẩu mới OFFER combo bốn người giá ba người, cả nhóm bỗng nhớ ra là lâu lắm rồi chưa gặp nhau, gét gô.",
     "translationHint": "Đề nghị, mời chào",
     "upgradeModule": {
       "simpleSentence": "The shop provided a big discount.",
@@ -11710,7 +11710,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnəʊtɪs",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Tôi mới NOTICE là dạo này ông hay đi làm sớm, bộ mới bị sếp cảnh cáo à?",
+    "scenario": "Bạn cùng bàn NOTICE tôi ngáp tới lần thứ mười, lặng lẽ đẩy qua một ly cà phê sữa đá, tình bạn đỉnh nóc kịch trần.",
     "translationHint": "Để ý thấy, nhận ra",
     "upgradeModule": {
       "simpleSentence": "Did you see the small change in the room?",
@@ -11731,7 +11731,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈsensətɪv",
     "elo": 935,
     "level": "intermediate",
-    "scenario": "Bà sếp dạo này SENSITIVE vãi, chỉ cần nói đùa một câu thôi là bả cũng tưởng mình đang nói đểu bả.",
+    "scenario": "Răng tôi SENSITIVE tới mức uống trà đá phải nhai một bên, cắn kem một miếng là xỉu ngang.",
     "translationHint": "Nhạy cảm",
     "upgradeModule": {
       "simpleSentence": "He is very easily hurt by what people say.",
@@ -11752,7 +11752,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈtrʌstwɜːði",
     "elo": 925,
     "level": "intermediate",
-    "scenario": "Muốn tìm người TRUSTWORTHY để gửi gắm chìa khóa nhà lúc đi du lịch cũng khó phết đấy.",
+    "scenario": "Gửi mèo cho đứa TRUSTWORTHY nhất nhóm trông ba ngày, về thì mèo béo lên, còn nó lowkey thành fan cứng của con mèo.",
     "translationHint": "Đáng tin cậy",
     "upgradeModule": {
       "simpleSentence": "She is a very honest person who you can trust.",
@@ -11774,7 +11774,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌʌnɪkˈspektɪd",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Đang đi chơi với ghẹ mà gặp ngay UNEXPECTED 'ông già vợ' tương lai đang đi tập thể dục thì đúng là cạn lời.",
+    "scenario": "Điều UNEXPECTED nhất buổi hẹn đầu: nguyên lớp đại học ngồi ngay bàn bên ăn cơm chó, có đứa còn vẫy tay chào.",
     "translationHint": "Bất ngờ, không mong đợi",
     "upgradeModule": {
       "simpleSentence": "The rain was a surprise to us.",
@@ -11796,7 +11796,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈvæljuəbl",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Mấy đứa bạn thân mà dám nói thẳng cái sai của mình mới là những người VALUABLE nhất.",
+    "scenario": "Món đồ VALUABLE nhất phòng trọ không phải laptop, mà là cái quạt duy nhất còn chịu quay đủ ba số, keo lỳ.",
     "translationHint": "Quý giá, có giá trị",
     "upgradeModule": {
       "simpleSentence": "This watch is very expensive.",
@@ -11817,7 +11817,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈwɪlɪŋ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Tôi rất WILLING chở ông đi nếu ông bao tôi chầu cà phê, chứ xăng dạo này lên giá quá.",
+    "scenario": "Ai cần người xếp hàng mua vé concert, tôi WILLING liền, chỉ cần bao một ly trà chanh với cho sạc ké điện thoại, gét gô.",
     "translationHint": "Sẵn lòng, tự nguyện",
     "upgradeModule": {
       "simpleSentence": "He is ready to help his neighbors.",
@@ -11838,7 +11838,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "əˈnɔɪɪŋ",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Cái tiếng chuông báo thức lúc 6h sáng thật sự ANNOYING, muốn ném luôn cái điện thoại vào tường.",
+    "scenario": "Ủa alo, tiếng khoan tường nhà bên lúc 7 giờ sáng Chủ nhật ANNOYING kinh khủng, tôi nghi họ khoan thẳng vào giấc mơ của tôi.",
     "translationHint": "Làm phiền, gây khó chịu",
     "upgradeModule": {
       "simpleSentence": "That sound is very bad.",
@@ -11859,7 +11859,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "bɪˈliːvəbl",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Lý do 'em bị đau bụng' nghe Believable hơn là 'em bị bắt cóc' khi xin nghỉ học đấy.",
+    "scenario": "Story 'đang ôn bài nghiêm túc' sẽ BELIEVABLE hơn nếu góc ảnh không lộ cái tay cầm máy chơi game, check var là ra.",
     "translationHint": "Có thể tin được",
     "upgradeModule": {
       "simpleSentence": "His excuse sounds like it could be true.",
@@ -11880,7 +11880,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kənˈviːniənt",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Nhà gần VinMart tiện (CONVENIENT) thật, đêm hôm thèm mì tôm chỉ cần chạy xuống 2 phút là có.",
+    "scenario": "Mua nồi chiên không dầu xong mới thấy CONVENIENT thật, giờ tôi chiên luôn cả bánh mì, trứng với nỗi buồn.",
     "translationHint": "Tiện lợi",
     "upgradeModule": {
       "simpleSentence": "The hotel location is very good for tourists.",
@@ -11902,7 +11902,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "daʊt",
     "elo": 855,
     "level": "beginner",
-    "scenario": "Tôi DOUBT là hắn ta sẽ trả tiền đúng hạn, cái nết của hắn là 'hứa thật nhiều thất hứa thật nhiều'.",
+    "scenario": "Nó hứa mai trả tiền ăn lẩu, tôi DOUBT nhẹ, vì chữ mai của nó đã kéo dài từ học kỳ trước, red flag.",
     "translationHint": "Nghi ngờ",
     "upgradeModule": {
       "simpleSentence": "I am not sure if he is telling the truth.",
@@ -11923,7 +11923,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ɪˈfɪʃnt",
     "elo": 920,
     "level": "intermediate",
-    "scenario": "Cách EFFICIENT nhất để giảm cân là bớt miệng lại, chứ cứ ăn xong nằm thì gym cũng chịu.",
+    "scenario": "Tôi học EFFICIENT nhất vào đêm trước hôm thi, nửa học kỳ gói gọn trong sáu tiếng và hai lon nước tăng lực, slay.",
     "translationHint": "Hiệu quả, năng suất",
     "upgradeModule": {
       "simpleSentence": "We need a faster way to finish the project.",
@@ -11945,7 +11945,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "frʌˈstreɪtɪd",
     "elo": 870,
     "level": "beginner",
-    "scenario": "Cảm thấy cực kỳ FRUSTRATED khi đang nhắn tin tỏ tình mà máy hết pin đột ngột.",
+    "scenario": "Canh săn vé concert từ 9 giờ, tới lượt thì web báo hết vé, FRUSTRATED tới mức muốn úp mặt vào bàn phím, kém miếng khó chịu.",
     "translationHint": "Bực bội, nản lòng",
     "upgradeModule": {
       "simpleSentence": "He feels bad because he can't solve the problem.",
@@ -11966,7 +11966,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈdʒenjuɪn",
     "elo": 880,
     "level": "beginner",
-    "scenario": "Cái nụ cười GENUINE của cô ấy làm tôi tin rằng trên đời này vẫn còn nhiều điều tốt đẹp.",
+    "scenario": "Lời khen GENUINE nhất tôi từng nhận là của chú bán bánh mì: 'con ăn khỏe vậy chú bán vui'.",
     "translationHint": "Thật lòng, chân thành",
     "upgradeModule": {
       "simpleSentence": "Is this a real leather bag?",
@@ -11987,7 +11987,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhezɪteɪt",
     "elo": 825,
     "level": "beginner",
-    "scenario": "Đừng HESITATE khi thấy đồ sale, vì chớp mắt thôi là mấy chị em khác hốt sạch rồi.",
+    "scenario": "Thấy cái áo giảm 70% mà HESITATE đúng ba giây, quay lại thì hết size, fomo nguyên tuần.",
     "translationHint": "Do dự, ngập ngừng",
     "upgradeModule": {
       "simpleSentence": "Don't wait, just do it.",
@@ -12008,7 +12008,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɪnfluəns",
     "elo": 915,
     "level": "intermediate",
-    "scenario": "Thằng bạn thân nó INFLUENCE cái gu âm nhạc của tôi hơi bị nhiều, giờ toàn nghe nhạc buồn.",
+    "scenario": "Một video review trên TikTok INFLUENCE tôi fomo mua máy làm sữa hạt, giờ nó là cái kệ để chìa khóa đắt nhất nhà.",
     "translationHint": "Ảnh hưởng, tác động",
     "upgradeModule": {
       "simpleSentence": "The leader had a big effect on the group.",
@@ -12030,7 +12030,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "dʒʌdʒ",
     "elo": 830,
     "level": "beginner",
-    "scenario": "Đừng vội JUDGE một người qua cái xe họ đi, nhiều ông đi xe cà tàng nhưng tài khoản mấy tỷ đấy.",
+    "scenario": "Mọi người hay JUDGE tôi vì mặc pijama đi siêu thị, chưa ai biết đó là bộ đồ đẹp nhất của tôi, slay.",
     "translationHint": "Đánh giá, phán xét",
     "upgradeModule": {
       "simpleSentence": "He looked at the work and gave his opinion.",
@@ -12052,7 +12052,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "læk",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Món phở này ngon nhưng hơi LACK vị đậm đà của xương, chắc cho thêm tí muối vào.",
+    "scenario": "Bài thuyết trình nhóm tôi chẳng LACK thứ gì, slide có, nhạc nền có, chỉ thiếu đứa dám đứng lên nói, toang.",
     "translationHint": "Thiếu hụt",
     "upgradeModule": {
       "simpleSentence": "There is not enough water in the village.",
@@ -12073,7 +12073,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "meɪnˈteɪn",
     "elo": 865,
     "level": "beginner",
-    "scenario": "MAINTAIN cái thói quen đọc sách mỗi ngày khó vãi, toàn đọc được 2 trang là lăn ra ngủ.",
+    "scenario": "MAINTAIN chuỗi học tiếng Anh 100 ngày liên tục, ngày 101 quên mở app, con cú xanh nhắn y như người yêu cũ, thao túng tâm lý.",
     "translationHint": "Duy trì, giữ vững",
     "upgradeModule": {
       "simpleSentence": "You should keep your car in good condition.",
@@ -12095,7 +12095,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnɜːvəs",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Lần đầu đi làm mà NERVOUS quá, cứ lo không biết đồng nghiệp có khó tính không.",
+    "scenario": "Ngày đầu đi làm NERVOUS tới mức cúi chào luôn cái tượng ở sảnh, đồng nghiệp thấy nhưng giả vờ không thấy.",
     "translationHint": "Lo lắng, hồi hộp",
     "upgradeModule": {
       "simpleSentence": "She felt worried before the interview.",
@@ -12116,7 +12116,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˌɒpəˈtjuːnəti",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Mất lượt này là mất luôn OPPORTUNITY thăng tiến trong năm nay, tiếc đứt ruột.",
+    "scenario": "Crush rủ đi xem phim đúng hôm tôi sốt, OPPORTUNITY ngàn năm có một mà tôi nằm đắp chăn nhìn trần nhà, xu cà na.",
     "translationHint": "Cơ hội",
     "upgradeModule": {
       "simpleSentence": "This is a good chance to improve your skills.",
@@ -12138,7 +12138,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "prɪˈfɜː(r)",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Tôi PREFER ở nhà ngủ hơn là đi quẩy lúc 10h đêm, tuổi già sức yếu rồi.",
+    "scenario": "Tối thứ Sáu tôi PREFER nằm nhà xem phim với gói snack hơn đi bar, nghe ô dề nhưng năm nay tôi chọn chữa lành.",
     "translationHint": "Thích hơn",
     "upgradeModule": {
       "simpleSentence": "I like tea more than coffee.",
@@ -12160,7 +12160,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈkwɒləti",
     "elo": 805,
     "level": "beginner",
-    "scenario": "Đi ăn lề đường thì QUALITY đồ ăn là quan trọng nhất, chứ phục vụ thì đừng mong đợi gì nhiều.",
+    "scenario": "Shop quảng cáo QUALITY cao cấp, nhận hàng thì cái túi da dính mưa một cái đã đổi sang màu khác, ủa alo.",
     "translationHint": "Chất lượng",
     "upgradeModule": {
       "simpleSentence": "The work is of a very high standard.",
@@ -12181,7 +12181,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈrekəɡnaɪz",
     "elo": 875,
     "level": "beginner",
-    "scenario": "Dạo này béo lên hay sao mà RECOGNIZE ông không ra luôn, bụng bia to quá rồi.",
+    "scenario": "Họp lớp sau 5 năm, tôi không RECOGNIZE nổi lớp trưởng, cho tới khi nó mở miệng nhắc đóng quỹ, ra đường tôi nể mỗi bạn.",
     "translationHint": "Nhận ra",
     "upgradeModule": {
       "simpleSentence": "The company said his hard work was good.",
@@ -12203,7 +12203,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɜːdʒənt",
     "elo": 845,
     "level": "beginner",
-    "scenario": "Có tin nhắn URGENT từ mẹ: 'Về nhà ăn cơm ngay'. Không về là ăn chửi đủ.",
+    "scenario": "Group chat bắn tin URGENT liên tục, vào hóng biến thì hóa ra cả bọn đang chọn quán lẩu tối nay.",
     "translationHint": "Khẩn cấp",
     "upgradeModule": {
       "simpleSentence": "This problem needs to be fixed right now.",
@@ -12224,7 +12224,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ədˈmɪt",
     "elo": 865,
     "level": "beginner",
-    "scenario": "Tôi phải ADMIT là con bé đó hát hay thật, dù tôi không ưa nó tí nào.",
+    "scenario": "Tôi phải ADMIT là cái nồi cơm điện mẹ bắt mang lên trọ đã cứu tôi khỏi ăn mì cả tháng, ok mom.",
     "translationHint": "Thừa nhận",
     "upgradeModule": {
       "simpleSentence": "He agreed that he made a mistake.",
@@ -12246,7 +12246,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈbɔːrɪŋ",
     "elo": 800,
     "level": "beginner",
-    "scenario": "Cuối tuần mà không có kèo đi chơi thì đúng là BORING chết đi được.",
+    "scenario": "Buổi đi chơi BORING nhất lowkey là hẹn nhau ra cà phê rồi mỗi đứa cắm mặt lướt điện thoại riêng ba tiếng.",
     "translationHint": "Buồn chán",
     "upgradeModule": {
       "simpleSentence": "The movie was not interesting at all.",
@@ -12267,7 +12267,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "kəmˈpleɪn",
     "elo": 820,
     "level": "beginner",
-    "scenario": "Ngưng COMPLAIN về việc kẹt xe đi, ở thành phố này thì đó là 'đặc sản' rồi.",
+    "scenario": "Nó COMPLAIN suốt về chuyện ế, tới khi có người rủ đi date thì bảo hôm đó bận giặt đồ, hết cứu.",
     "translationHint": "Than phiền, phàn nàn",
     "upgradeModule": {
       "simpleSentence": "The customers said they were unhappy with the service.",
@@ -12289,7 +12289,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "fɔːs",
     "elo": 840,
     "level": "beginner",
-    "scenario": "Đừng FORCE mình phải cười khi đang thấy buồn, cứ khóc một tí cho nó nhẹ lòng.",
+    "scenario": "Bạn thân FORCE tôi nhảy trend TikTok cùng, quay 30 lần mới xong, clip nổi nhất lại là cảnh tôi té, u là trời.",
     "translationHint": "Ép buộc",
     "upgradeModule": {
       "simpleSentence": "The weather made them stay inside.",
@@ -12310,7 +12310,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈhɑːdli",
     "elo": 815,
     "level": "beginner",
-    "scenario": "Từ lúc đi làm, tôi HARDLY có thời gian để chơi game với anh em, nhớ quá.",
+    "scenario": "Mua máy chạy bộ về phòng trọ xong tôi HARDLY đụng tới, giờ nó là cây phơi đồ xịn nhất xóm, flex nhẹ.",
     "translationHint": "Hầu như không",
     "upgradeModule": {
       "simpleSentence": "I almost never see him these days.",
@@ -12331,7 +12331,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈɒfə(r)",
     "elo": 850,
     "level": "beginner",
-    "scenario": "Tiệm này OFFER gói combo khá rẻ, hời quá nên tôi chốt luôn không suy nghĩ.",
+    "scenario": "Quán lẩu mới OFFER combo bốn người giá ba người, cả nhóm bỗng nhớ ra là lâu lắm rồi chưa gặp nhau, gét gô.",
     "translationHint": "Đề nghị, mời chào",
     "upgradeModule": {
       "simpleSentence": "The shop provided a big discount.",
@@ -12353,7 +12353,7 @@ export const VOCAB_DATABASE: Omit<VocabCardData, 'state'>[] = [
     "ipa": "ˈnəʊtɪs",
     "elo": 810,
     "level": "beginner",
-    "scenario": "Tôi mới NOTICE là dạo này ông hay đi làm sớm, bộ mới bị sếp cảnh cáo à?",
+    "scenario": "Bạn cùng bàn NOTICE tôi ngáp tới lần thứ mười, lặng lẽ đẩy qua một ly cà phê sữa đá, tình bạn đỉnh nóc kịch trần.",
     "translationHint": "Để ý thấy, nhận ra",
     "upgradeModule": {
       "simpleSentence": "Did you see the small change in the room?",
