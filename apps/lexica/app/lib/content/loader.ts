@@ -1,5 +1,5 @@
 import { idbGet, idbSet } from './idb';
-import { parseManifest, parsePack, parseVariants, type CardVariants, type ContentManifest, type ContentPack, type PackRef } from './pack';
+import { parseManifest, parsePack, parseQuotes, parseVariants, type CardQuotes, type CardVariants, type ContentManifest, type ContentPack, type PackRef } from './pack';
 import { applyRemoteContent } from './repository';
 
 /** Public URL of packs/manifest.json published by Lexica Studio. Unset = core cards only. */
@@ -29,20 +29,24 @@ async function loadPack(ref: PackRef, allowNetwork: boolean): Promise<ContentPac
     return pack;
 }
 
-/** Same cache-then-verify path as packs, for the archetype variants overlay. */
-async function loadVariants(ref: PackRef | null, allowNetwork: boolean): Promise<CardVariants | undefined> {
+/** Same cache-then-verify path as packs, for the variants overlay (sentences and quotes). */
+async function loadOverlay(ref: PackRef | null, allowNetwork: boolean): Promise<{ variants: CardVariants; quotes: CardQuotes } | undefined> {
     if (!ref) return undefined;
+    const pick = (raw: unknown) => {
+        const variants = parseVariants(raw);
+        return variants ? { variants, quotes: parseQuotes(raw) } : undefined;
+    };
     const cached = await idbGet<unknown>(packKey(ref));
-    const fromCache = cached ? parseVariants(cached) : null;
-    if (fromCache || !allowNetwork) return fromCache ?? undefined;
+    const fromCache = cached ? pick(cached) : undefined;
+    if (fromCache || !allowNetwork) return fromCache;
     const res = await fetch(ref.url);
     if (!res.ok) return undefined;
     const text = await res.text();
     const hash = await sha256Hex(text);
     if (hash && hash !== ref.sha256) return undefined;
-    const parsed = parseVariants(JSON.parse(text));
+    const parsed = pick(JSON.parse(text));
     if (parsed) await idbSet(packKey(ref), JSON.parse(text));
-    return parsed ?? undefined;
+    return parsed;
 }
 
 async function apply(manifest: ContentManifest, allowNetwork: boolean) {
@@ -51,8 +55,14 @@ async function apply(manifest: ContentManifest, allowNetwork: boolean) {
         .filter((p): p is ContentPack => p !== null);
     // Never replace good content with nothing because of a network blip.
     if (refs.length > 0 && packs.length === 0) return false;
-    const variants = await loadVariants(manifest.variants, allowNetwork).catch(() => undefined);
-    applyRemoteContent({ packs, retired: manifest.retired, currentDropId: manifest.current?.id ?? null, variants });
+    const overlay = await loadOverlay(manifest.variants, allowNetwork).catch(() => undefined);
+    applyRemoteContent({
+        packs,
+        retired: manifest.retired,
+        currentDropId: manifest.current?.id ?? null,
+        variants: overlay?.variants,
+        quotes: overlay?.quotes,
+    });
     return true;
 }
 

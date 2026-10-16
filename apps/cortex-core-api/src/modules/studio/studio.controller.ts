@@ -31,6 +31,8 @@ import { JOBS, PipelineService } from './pipeline.service';
 import { StudioService } from './studio.service';
 import { VARIANT_ARCHETYPES } from './variants';
 import { VariantsService, type VariantStatus } from './variants.service';
+import { QuotesService } from './quotes.service';
+import { QUOTE_KINDS, type QuoteKind } from './quotes';
 import type {
   BlockRule,
   DraftRow,
@@ -75,6 +77,7 @@ export class StudioController {
     private readonly pipeline: PipelineService,
     private readonly captures: CaptureService,
     private readonly variants: VariantsService,
+    private readonly quotes: QuotesService,
   ) {}
 
   @Get('me')
@@ -443,6 +446,55 @@ export class StudioController {
   @Post('variants/publish')
   publishVariants(@StudioDb() db: Db, @CurrentUserId() userId: string) {
     return this.variants.publish(db, userId);
+  }
+
+  // ------------------------------------------- "Ngoài đời" quotes
+  @Get('quotes')
+  listQuotes(@StudioDb() db: Db, @Query('status') status?: string) {
+    const s = VARIANT_STATUSES.includes(status as VariantStatus)
+      ? (status as VariantStatus)
+      : 'pending';
+    return this.quotes.list(db, s);
+  }
+
+  @Post('quotes/find-books')
+  findBookQuotes(@StudioDb() db: Db, @Body() body: unknown) {
+    return this.quotes.findBooks(db, int(obj(body ?? {}), 'limit', 1, 10));
+  }
+
+  @Post('quotes')
+  addQuote(@StudioDb() db: Db, @Body() body: unknown) {
+    const o = obj(body);
+    const kind = str(o, 'kind') ?? '';
+    if (!QUOTE_KINDS.includes(kind as QuoteKind))
+      throw new BadRequestException('kind không hợp lệ');
+    return this.quotes.add(db, str(o, 'card_id') ?? '', {
+      kind: kind as QuoteKind,
+      text: str(o, 'text') ?? '',
+      source: str(o, 'source') ?? '',
+      url: str(o, 'url', { optional: true }),
+      translation: str(o, 'translation', { optional: true }),
+    });
+  }
+
+  @Post('quotes/:id/:action')
+  reviewQuote(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+    @Param('action') action: string,
+    @Body() body: unknown,
+  ) {
+    if (action !== 'approve' && action !== 'reject')
+      throw new BadRequestException('action must be approve or reject');
+    const o = obj(body ?? {});
+    return this.quotes.review(
+      db,
+      userId,
+      id,
+      action,
+      typeof o.text === 'string' ? o.text : undefined,
+    );
   }
 
   @Post('variants/:cardId/:archetype')
