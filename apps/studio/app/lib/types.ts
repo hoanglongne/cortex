@@ -34,6 +34,7 @@ export interface Draft {
     level: Level;
     scenario: string;
     translation_hint: string;
+    collocations?: string[];
     archetype: string | null;
     tone: string | null;
     model: string;

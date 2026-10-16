@@ -67,6 +67,10 @@ export function parseCard(v: unknown): ContentCard | null {
         translationHint,
     };
     if (isStr(v.ipa)) card.ipa = v.ipa;
+    if (Array.isArray(v.collocations)) {
+        const cols = v.collocations.filter(isStr).slice(0, 3);
+        if (cols.length > 0) card.collocations = cols;
+    }
     if (typeof v.revision === 'number') card.revision = v.revision;
     if (isObj(v.trend) && isStr(v.trend.label)) {
         card.trend = {

@@ -245,6 +245,7 @@ export class StudioService {
           word: d.word,
           scenario: d.scenario,
           translation_hint: d.translation_hint,
+          collocations: d.collocations,
           archetype: d.archetype,
           tone: d.tone,
           model,
@@ -430,6 +431,7 @@ export class StudioService {
       level: edits.level ?? lexeme.level,
       scenario,
       translation_hint: translationHint,
+      collocations: draft.collocations ?? [],
       trend_label: trendLabel,
       tags,
     };

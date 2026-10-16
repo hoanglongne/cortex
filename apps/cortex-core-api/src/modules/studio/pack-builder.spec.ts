@@ -60,6 +60,16 @@ describe('pack builder', () => {
     expect(pack.cards[1].trend?.expiresAt).toBeUndefined();
   });
 
+  it('carries collocations only when the card has some', () => {
+    const pack = buildDropPack(
+      { id: 'drop-1', title: 't', expires_at: null },
+      [card('t1', { collocations: ['frugal lifestyle'] }), card('t2')],
+      '2026-10-19T00:00:00Z',
+    );
+    expect(pack.cards[0].collocations).toEqual(['frugal lifestyle']);
+    expect('collocations' in pack.cards[1]).toBe(false);
+  });
+
   it('marks past trend cards expired in the library, keeps evergreen dealable', () => {
     const pack = buildLibraryPack(
       [card('t1'), card('t2', { lifecycle: 'evergreen' })],

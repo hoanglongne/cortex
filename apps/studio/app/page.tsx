@@ -295,6 +295,9 @@ function DraftCard({
                         <p className="text-2xl font-bold tracking-tight">{draft.word}</p>
                         {draft.ipa && <p className="font-mono text-sm text-muted">/{draft.ipa}/</p>}
                         <p className="text-ink mt-1">{draft.translation_hint}</p>
+                        {draft.collocations && draft.collocations.length > 0 && (
+                            <p className="font-mono text-xs text-muted mt-1">Hay đi với: {draft.collocations.join(' · ')}</p>
+                        )}
                     </div>
                 </>
             )}

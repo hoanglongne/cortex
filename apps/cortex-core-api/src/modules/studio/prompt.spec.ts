@@ -1,5 +1,6 @@
 import {
   buildPrompt,
+  parseCollocations,
   parseDrafts,
   pickCandidates,
   PROMPT_VERSION,
@@ -79,5 +80,37 @@ describe('prompt', () => {
     const picked = pickCandidates(lex, 6, () => 0);
     expect(picked.filter((p) => p.level === 'beginner')).toHaveLength(3);
     expect(new Set(picked.map((p) => p.word)).size).toBe(6);
+  });
+});
+
+describe('parseCollocations', () => {
+  it('keeps two short phrases that contain the word', () => {
+    expect(
+      parseCollocations(
+        ['Abundant  Supply', 'an abundant harvest', 'third abundant one'],
+        'abundant',
+      ),
+    ).toEqual(['abundant supply', 'an abundant harvest']);
+  });
+
+  it('drops phrases without the word and non-strings', () => {
+    expect(
+      parseCollocations(['plenty of food', 42, 'abundantly clear'], 'abundant'),
+    ).toEqual([]);
+    expect(parseCollocations('abundant supply', 'abundant')).toEqual([]);
+  });
+
+  it('is filled in by parseDrafts', () => {
+    const [d] = parseDrafts({
+      drafts: [
+        {
+          word: 'frugal',
+          scenario: 'x',
+          translation_hint: 'tiết kiệm',
+          collocations: ['frugal lifestyle', 'a frugal meal'],
+        },
+      ],
+    });
+    expect(d.collocations).toEqual(['frugal lifestyle', 'a frugal meal']);
   });
 });
