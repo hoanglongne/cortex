@@ -118,6 +118,12 @@ describe('progressFingerprint', () => {
         const b = raw({ cardProgress: { v001: 2 } });
         expect(progressFingerprint(a)).not.toBe(progressFingerprint(b));
     });
+
+    it('changes when the learner saves their own sentence', () => {
+        const a = raw({ cardProgress: { v001: 1 } });
+        const b = raw({ cardProgress: { v001: 1 }, mySentences: { v001: { text: 'x ABUNDANT', kind: 'written', at: 1 } } });
+        expect(progressFingerprint(a)).not.toBe(progressFingerprint(b));
+    });
 });
 
 describe('hasProgress', () => {

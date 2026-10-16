@@ -42,6 +42,8 @@ export interface SessionState {
     lucky: LuckyReward[];
     /** Hard words (see hard.ts) recalled in this session. */
     hardBeaten: string[];
+    /** Words seen before and remembered in this session (offered for "Câu của bạn"). */
+    remembered: string[];
     startedAt: number;
 }
 
@@ -54,6 +56,7 @@ export const newSession = (now = Date.now()): SessionState => ({
     levelUps: [],
     lucky: [],
     hardBeaten: [],
+    remembered: [],
     startedAt: now,
 });
 
@@ -74,6 +77,7 @@ export function recordSwipe(
     };
     if (input.known && isHard(input.before)) next.hardBeaten = [...s.hardBeaten, input.cardId];
     if (input.known && !input.before) next.newCards = [...s.newCards, input.cardId];
+    if (input.known && input.before) next.remembered = [...(s.remembered ?? []), input.cardId];
     if (input.known && input.before && input.after && RANK[input.after.state] > RANK[input.before.state]) {
         next.levelUps = [...s.levelUps, { cardId: input.cardId, from: input.before.state, to: input.after.state }];
     }

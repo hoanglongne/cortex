@@ -1,10 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Flame, Hammer, LayoutGrid, Sparkles, Swords } from 'lucide-react';
+import { ArrowRight, Flame, Hammer, LayoutGrid, PenLine, Sparkles, Swords } from 'lucide-react';
 import { getCard } from '../lib/content/repository';
+import { canOffer, pickCandidate } from '../lib/engagement/mySentence';
 import { STATE_LABEL, type SessionState } from '../lib/engagement/session';
+import { useLexicaStore } from '../store/lexicaStore';
+import MySentencePanel from './MySentencePanel';
 
 /**
  * End of a 10-card session: what moved, and a reason to do one more.
@@ -23,6 +27,20 @@ export default function SessionRecap({
     teasers: string[];
     onContinue: () => void;
 }) {
+    // "Câu của bạn": one optional offer, on a word remembered in this session.
+    const mySentences = useLexicaStore((st) => st.mySentences);
+    const prompt = useLexicaStore((st) => st.mySentencePrompt);
+    const setMySentence = useLexicaStore((st) => st.setMySentence);
+    const skipMySentence = useLexicaStore((st) => st.skipMySentence);
+    // Chosen once, so saving does not swap in another word.
+    const [candidateId] = useState(() => (canOffer(prompt) ? pickCandidate(session.remembered ?? [], mySentences, getCard) : null));
+    const [offer, setOffer] = useState<'idle' | 'open' | 'saved' | 'hidden'>('idle');
+    const candidate = candidateId ? getCard(candidateId) : undefined;
+    const later = () => {
+        skipMySentence();
+        setOffer('hidden');
+    };
+
     const dust = session.lucky.filter((l) => l.item === 'dust').reduce((n, l) => n + l.amount, 0);
     const boxes = session.lucky.filter((l) => l.item === 'box').reduce((n, l) => n + l.amount, 0);
 
@@ -42,38 +60,72 @@ export default function SessionRecap({
                 </div>
 
                 <div className="mt-4 space-y-1.5 text-sm overflow-y-auto min-h-0 flex-1">
-                    {session.levelUps.slice(0, 4).map((l) => (
-                        <p key={l.cardId} className="flex items-center gap-2 text-ink-2">
-                            <span className="font-bold text-ink lowercase">{getCard(l.cardId)?.word ?? l.cardId}</span>
-                            <span className="font-mono text-[11px] text-muted">→ {STATE_LABEL[l.to]}</span>
-                        </p>
-                    ))}
-                    {session.levelUps.length > 4 && (
-                        <p className="font-mono text-[11px] text-muted">+{session.levelUps.length - 4} thẻ lên hạng khác</p>
+                    {candidate && offer === 'open' && (
+                        <MySentencePanel
+                            card={candidate}
+                            onSave={(text, kind) => {
+                                setMySentence(candidate.id, text, kind);
+                                setOffer('saved');
+                            }}
+                            onLater={later}
+                        />
                     )}
-                    {session.hardBeaten.length > 0 && (
-                        <p className="flex items-center gap-2 text-ink">
-                            <Swords className="w-4 h-4 text-warning" />
-                            Hạ được từ khó: <span className="font-bold lowercase">{session.hardBeaten.map((id) => getCard(id)?.word ?? id).join(', ')}</span>
+                    {candidate && offer === 'idle' && (
+                        <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2 mb-1">
+                            <PenLine className="w-4 h-4 text-accent shrink-0" />
+                            <p className="flex-1 text-ink">
+                                Gắn <span className="font-bold lowercase">{candidate.word}</span> với đời bạn?
+                            </p>
+                            <button type="button" onClick={() => setOffer('open')} className="text-xs font-bold text-accent hover:underline">
+                                Chọn câu
+                            </button>
+                            <button type="button" onClick={later} className="font-mono text-[11px] text-muted hover:text-ink">
+                                Để sau
+                            </button>
+                        </div>
+                    )}
+                    {candidate && offer === 'saved' && (
+                        <p className="flex items-center gap-2 text-accent mb-1">
+                            <PenLine className="w-4 h-4" />
+                            Đã lưu. Lần sau gặp <span className="font-bold lowercase">{candidate.word}</span>, bạn sẽ thấy câu của mình.
                         </p>
                     )}
-                    {(dust > 0 || boxes > 0) && (
-                        <p className="flex items-center gap-2 text-accent">
-                            <Sparkles className="w-4 h-4" />
-                            Thẻ may mắn: {[dust > 0 && `+${dust} Bụi`, boxes > 0 && `+${boxes} Hộp`].filter(Boolean).join(' · ')}
-                        </p>
-                    )}
-                    {readyToMint > 0 && (
-                        <Link href="/album" className="flex items-center gap-2 text-ink hover:text-accent">
-                            <Hammer className="w-4 h-4 text-accent" />
-                            {readyToMint} thẻ sẵn sàng đúc
-                        </Link>
-                    )}
-                    {nearest && (
-                        <p className="flex items-center gap-2 text-ink-2">
-                            <LayoutGrid className="w-4 h-4 text-muted" />
-                            Còn {nearest.missing} từ là đủ bộ {nearest.label}
-                        </p>
+                    {offer !== 'open' && (
+                        <>
+                            {session.levelUps.slice(0, 4).map((l) => (
+                                <p key={l.cardId} className="flex items-center gap-2 text-ink-2">
+                                    <span className="font-bold text-ink lowercase">{getCard(l.cardId)?.word ?? l.cardId}</span>
+                                    <span className="font-mono text-[11px] text-muted">→ {STATE_LABEL[l.to]}</span>
+                                </p>
+                            ))}
+                            {session.levelUps.length > 4 && (
+                                <p className="font-mono text-[11px] text-muted">+{session.levelUps.length - 4} thẻ lên hạng khác</p>
+                            )}
+                            {session.hardBeaten.length > 0 && (
+                                <p className="flex items-center gap-2 text-ink">
+                                    <Swords className="w-4 h-4 text-warning" />
+                                    Hạ được từ khó: <span className="font-bold lowercase">{session.hardBeaten.map((id) => getCard(id)?.word ?? id).join(', ')}</span>
+                                </p>
+                            )}
+                            {(dust > 0 || boxes > 0) && (
+                                <p className="flex items-center gap-2 text-accent">
+                                    <Sparkles className="w-4 h-4" />
+                                    Thẻ may mắn: {[dust > 0 && `+${dust} Bụi`, boxes > 0 && `+${boxes} Hộp`].filter(Boolean).join(' · ')}
+                                </p>
+                            )}
+                            {readyToMint > 0 && (
+                                <Link href="/album" className="flex items-center gap-2 text-ink hover:text-accent">
+                                    <Hammer className="w-4 h-4 text-accent" />
+                                    {readyToMint} thẻ sẵn sàng đúc
+                                </Link>
+                            )}
+                            {nearest && (
+                                <p className="flex items-center gap-2 text-ink-2">
+                                    <LayoutGrid className="w-4 h-4 text-muted" />
+                                    Còn {nearest.missing} từ là đủ bộ {nearest.label}
+                                </p>
+                            )}
+                        </>
                     )}
                 </div>
 
