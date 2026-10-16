@@ -474,6 +474,13 @@ export class StudioController {
       source: str(o, 'source') ?? '',
       url: str(o, 'url', { optional: true }),
       translation: str(o, 'translation', { optional: true }),
+      clip: str(o, 'youtube', { optional: true })
+        ? {
+            link: str(o, 'youtube') ?? '',
+            start: Number(o.start),
+            end: Number(o.end),
+          }
+        : undefined,
     });
   }
 

@@ -114,6 +114,17 @@ export interface CardQuote {
     source: string;
     url?: string;
     translation?: string;
+    /** Songs: a short clip of the official video, loaded only on tap. */
+    media?: { provider: 'youtube'; id: string; start: number; end: number };
+}
+
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
+
+function parseMedia(v: unknown): CardQuote['media'] | undefined {
+    if (!isObj(v) || v.provider !== 'youtube' || !isStr(v.id) || !YOUTUBE_ID.test(v.id)) return undefined;
+    const { start, end } = v;
+    if (typeof start !== 'number' || typeof end !== 'number' || start < 0 || end <= start) return undefined;
+    return { provider: 'youtube', id: v.id, start, end };
 }
 
 /** cardId → quotes, published with the variants overlay (quotes.ts in the API). */
@@ -137,6 +148,7 @@ export function parseQuotes(v: unknown): CardQuotes {
                 source: q.source,
                 ...(isStr(q.url) ? { url: q.url } : {}),
                 ...(isStr(q.translation) ? { translation: q.translation } : {}),
+                ...(parseMedia(q.media) ? { media: parseMedia(q.media) } : {}),
             });
             if (kept.length === 2) break;
         }
