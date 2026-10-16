@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { StudioLlm } from './studio-llm';
+import { buildQuotesMap, type QuoteRow } from './quotes';
 import { BUCKET, StudioService } from './studio.service';
 import type { CardRow } from './studio.types';
 import {
@@ -241,11 +242,18 @@ export class VariantsService {
         .select('card_id, archetype, scenario')
         .eq('status', 'approved'),
     );
-    if (approved.length === 0) {
-      throw new BadRequestException('Chưa có biến thể nào được duyệt');
+    const quoteRows = rows<QuoteRow>(
+      await db
+        .from('studio_card_quotes')
+        .select('card_id, kind, text, translation, source, url, status')
+        .eq('status', 'approved'),
+    );
+    if (approved.length === 0 && quoteRows.length === 0) {
+      throw new BadRequestException('Chưa có câu nào được duyệt');
     }
     const publishedAt = new Date().toISOString();
-    const file = buildVariantsFile(approved, publishedAt);
+    const quotes = buildQuotesMap(quoteRows);
+    const file = buildVariantsFile(approved, publishedAt, quotes);
     const body = JSON.stringify(file);
     const { path, hash } = variantsPath(body);
     const { error } = await db.storage.from(BUCKET).upload(path, body, {
@@ -270,13 +278,20 @@ export class VariantsService {
       db,
       userId,
       manifest,
-      { variants: approved.length, cards: Object.keys(file.variants).length },
+      {
+        variants: approved.length,
+        quotes: quoteRows.length,
+        cards: new Set([...Object.keys(file.variants), ...Object.keys(quotes)])
+          .size,
+      },
       'publish_variants',
     );
     return {
       manifestUrl,
       variants: approved.length,
-      cards: Object.keys(file.variants).length,
+      quotes: quoteRows.length,
+      cards: new Set([...Object.keys(file.variants), ...Object.keys(quotes)])
+        .size,
     };
   }
 }

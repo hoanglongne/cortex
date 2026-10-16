@@ -11,6 +11,8 @@ import { angleFor, VOICE_EXAMPLES, VOICE_RULES } from './voice';
  * once at publish time, so there is no per-learner AI cost. Pure, unit tested.
  */
 
+import type { PublishedQuote } from './quotes';
+
 export const VARIANT_ARCHETYPES = ['tech', 'business', 'student'] as const;
 export type VariantArchetype = (typeof VARIANT_ARCHETYPES)[number];
 
@@ -153,6 +155,8 @@ export interface VariantsFile {
   id: 'variants';
   publishedAt: string;
   variants: Record<string, Partial<Record<VariantArchetype, string>>>;
+  /** "Ngoài đời" quotes per card (quotes.ts); absent in files published before them. */
+  quotes?: Record<string, PublishedQuote[]>;
 }
 
 /** The overlay Lexica downloads: approved variants keyed by card id. */
@@ -163,6 +167,7 @@ export function buildVariantsFile(
     scenario: string;
   }[],
   publishedAt: string,
+  quotes: Record<string, PublishedQuote[]> = {},
 ): VariantsFile {
   const variants: VariantsFile['variants'] = {};
   for (const r of [...rows].sort((a, b) =>
@@ -170,7 +175,13 @@ export function buildVariantsFile(
   )) {
     (variants[r.card_id] ??= {})[r.archetype] = r.scenario;
   }
-  return { schema: 1, id: 'variants', publishedAt, variants };
+  return {
+    schema: 1,
+    id: 'variants',
+    publishedAt,
+    variants,
+    ...(Object.keys(quotes).length > 0 ? { quotes } : {}),
+  };
 }
 
 export function variantsPath(body: string): { path: string; hash: string } {

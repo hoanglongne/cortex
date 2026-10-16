@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { VOCAB_DATABASE } from '../../data/vocabCards';
-import type { CardVariants, ContentCard, ContentPack, VariantArchetype } from './pack';
+import type { CardQuote, CardQuotes, CardVariants, ContentCard, ContentPack, VariantArchetype } from './pack';
 
 /**
  * Single source of vocabulary cards for the whole app.
@@ -17,6 +17,7 @@ let currentDropId: string | null = null;
 let currentDropTitle: string | null = null;
 
 let variants: CardVariants = {};
+let quotes: CardQuotes = {};
 
 let all: readonly ContentCard[] = VOCAB_DATABASE;
 let byId = new Map<string, ContentCard>(VOCAB_DATABASE.map(c => [c.id, c]));
@@ -88,6 +89,7 @@ export function applyRemoteContent(input: {
     retired: string[];
     currentDropId: string | null;
     variants?: CardVariants;
+    quotes?: CardQuotes;
 }) {
     // Core cards win on id collisions (Studio ids never start with "v").
     const seen = new Set<string>(CORE_IDS);
@@ -103,13 +105,20 @@ export function applyRemoteContent(input: {
     currentDropId = input.currentDropId;
     currentDropTitle = input.packs.find(p => p.id === input.currentDropId)?.title ?? null;
     variants = input.variants ?? {};
+    quotes = input.quotes ?? {};
     rebuild();
+}
+
+/** "Ngoài đời" quotes for a card; empty when Studio has published none. */
+export function getQuotes(cardId: string): CardQuote[] {
+    return quotes[cardId] ?? [];
 }
 
 /** Test helper: back to core-only content. */
 export function resetContent() {
     remote = [];
     variants = {};
+    quotes = {};
     retired = new Set();
     currentDropId = null;
     currentDropTitle = null;

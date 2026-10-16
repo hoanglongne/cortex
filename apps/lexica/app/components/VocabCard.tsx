@@ -13,7 +13,8 @@ import { blankWord, type RecallCheck } from '../lib/engagement/recall';
 import { isHard, mnemonic } from '../lib/engagement/hard';
 import { formatInterval } from '../lib/srs';
 import { scenarioFor } from '../lib/content/persona';
-import { getCard, useContentVersion } from '../lib/content/repository';
+import { getCard, getQuotes, useContentVersion } from '../lib/content/repository';
+import InTheWild from './InTheWild';
 import { updateCardProgress, type UserCardProgress } from '../lib/eloAlgorithm';
 import { SESSION_SIZE } from '../lib/engagement/session';
 import type { VocabCardData } from '../types/vocab';
@@ -256,6 +257,7 @@ function WordBlock({ card, onSpeak, aid }: { card: VocabCardData; onSpeak: () =>
             </div>
             {card.ipa && <p className="font-mono text-sm text-muted">/{card.ipa}/</p>}
             <p className="text-base text-ink">{card.translationHint}</p>
+            <InTheWild word={card.word} quotes={getQuotes(card.id)} />
             {card.collocations && card.collocations.length > 0 && (
                 <p className="text-sm text-ink-2">Hay đi với: {card.collocations.join(' · ')}</p>
             )}

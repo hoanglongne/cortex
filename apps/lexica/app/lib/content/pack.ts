@@ -103,6 +103,44 @@ export type VariantArchetype = (typeof VARIANT_ARCHETYPES)[number];
 /** cardId → sentence per archetype, published by Studio (variants.ts in the API). */
 export type CardVariants = Record<string, Partial<Record<VariantArchetype, string>>>;
 
+/** A real quote that contains the card's word ("Ngoài đời"), reviewed in Studio. */
+export interface CardQuote {
+    kind: 'book' | 'news' | 'song';
+    text: string;
+    source: string;
+    url?: string;
+    translation?: string;
+}
+
+/** cardId → quotes, published with the variants overlay (quotes.ts in the API). */
+export type CardQuotes = Record<string, CardQuote[]>;
+
+const QUOTE_KINDS = ['book', 'news', 'song'];
+
+/** Parses the quotes in the overlay; malformed entries are skipped. */
+export function parseQuotes(v: unknown): CardQuotes {
+    const out: CardQuotes = {};
+    if (!isObj(v) || !isObj(v.quotes)) return out;
+    for (const [cardId, list] of Object.entries(v.quotes)) {
+        if (!Array.isArray(list)) continue;
+        const kept: CardQuote[] = [];
+        for (const q of list) {
+            if (!isObj(q) || !QUOTE_KINDS.includes(q.kind as string)) continue;
+            if (!isStr(q.text) || !isStr(q.source)) continue;
+            kept.push({
+                kind: q.kind as CardQuote['kind'],
+                text: q.text,
+                source: q.source,
+                ...(isStr(q.url) ? { url: q.url } : {}),
+                ...(isStr(q.translation) ? { translation: q.translation } : {}),
+            });
+            if (kept.length === 2) break;
+        }
+        if (kept.length > 0) out[cardId] = kept;
+    }
+    return out;
+}
+
 /** Parses the variants overlay; sentences that lose the card's word are dropped later. */
 export function parseVariants(v: unknown): CardVariants | null {
     if (!isObj(v) || v.schema !== 1 || !isObj(v.variants)) return null;
