@@ -1,8 +1,6 @@
 import {
-  bookSentences,
   buildQuotesMap,
   checkQuote,
-  plainTextUrl,
   songMedia,
   youtubeId,
   type QuoteRow,
@@ -57,12 +55,23 @@ describe('checkQuote', () => {
     ).toContain('blocklist');
   });
 
-  it('matches whole words only', () => {
+  it('accepts simple forms of the word but not other words', () => {
     expect(
       checkQuote(
         {
           kind: 'news',
           text: 'Fortunes of the family changed overnight',
+          source: 'x',
+        },
+        'fortune',
+        [],
+      ),
+    ).not.toContain('no_word');
+    expect(
+      checkQuote(
+        {
+          kind: 'news',
+          text: 'Fortunately the family changed overnight',
           source: 'x',
         },
         'fortune',
@@ -103,32 +112,6 @@ describe('buildQuotesMap', () => {
       url: 'https://example.com',
       translation: 'ok',
     });
-  });
-});
-
-describe('bookSentences', () => {
-  it('returns sentences that contain the word, up to the limit', () => {
-    const body = [
-      'Chapter One. The garden was abundant with roses in the early summer months of that year.',
-      'Nothing here matches at all in this short line of text.',
-      'Another line says that fortune favours the bold in every story that is ever told to children.',
-    ].join('\n');
-    const out = bookSentences(body, 'abundant', 3);
-    expect(out).toHaveLength(1);
-    expect(out[0]).toContain('abundant');
-  });
-});
-
-describe('plainTextUrl', () => {
-  it('finds the plain-text edition', () => {
-    expect(
-      plainTextUrl({
-        'text/html': 'https://x/a.html',
-        'text/plain; charset=utf-8': 'https://x/a.txt',
-      }),
-    ).toBe('https://x/a.txt');
-    expect(plainTextUrl({ 'text/html': 'https://x/a.html' })).toBeNull();
-    expect(plainTextUrl(undefined)).toBeNull();
   });
 });
 

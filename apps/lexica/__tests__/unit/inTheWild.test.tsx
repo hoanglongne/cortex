@@ -40,3 +40,16 @@ describe('parseQuotes media', () => {
         expect(out.v002[0].media).toBeUndefined();
     });
 });
+
+describe('InTheWild preview', () => {
+    const book = { kind: 'book' as const, text: 'It was just like Ellen to place the family in such dilemmas.', source: 'The Age of Innocence — Edith Wharton' };
+
+    it('shows the first quote without a tap', () => {
+        render(<InTheWild word="dilemma" quotes={[book, song]} />);
+        const preview = screen.getByTestId('wild-preview');
+        expect(preview.textContent).toBe(book.text);
+        // the plural form is marked too
+        expect(preview.querySelector('mark')?.textContent).toBe('dilemmas');
+        expect(screen.getByText(/2 câu thật/)).toBeTruthy();
+    });
+});

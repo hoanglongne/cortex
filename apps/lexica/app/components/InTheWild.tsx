@@ -5,17 +5,23 @@ import { Play } from 'lucide-react';
 import type { CardQuote } from '../lib/content/pack';
 
 /**
- * "Ngoài đời": real quotes that contain the word, collapsed by default so the
- * card stays simple. Each quote shows its source and, when Studio kept one, a
- * link to the original. A song line can play its few seconds from the official
- * video; the player is only loaded after a tap.
+ * "Ngoài đời": real quotes that contain the word. The first line of the first
+ * quote is shown straight away; a tap opens all of them. Each quote shows its
+ * source and, when Studio kept one, a link to the original. A song line can
+ * play its few seconds from the official video; the player is only loaded
+ * after a tap.
  */
 export default function InTheWild({ word, quotes }: { word: string; quotes: CardQuote[] }) {
     if (quotes.length === 0) return null;
     return (
-        <details className="mt-3 rounded-lg border border-line bg-surface-2 px-3 py-2" onClick={e => e.stopPropagation()}>
-            <summary className="cursor-pointer font-mono text-[11px] text-accent uppercase tracking-wider">
-                Ngoài đời · {quotes.length} câu thật
+        <details className="group mt-3 rounded-lg border border-line bg-surface-2 px-3 py-2" onClick={e => e.stopPropagation()}>
+            <summary className="cursor-pointer list-none">
+                <span className="font-mono text-[11px] text-accent uppercase tracking-wider">
+                    Ngoài đời · {quotes.length} câu thật
+                </span>
+                <span data-testid="wild-preview" className="mt-1 block truncate text-sm text-ink-2 group-open:hidden">
+                    {highlight(quotes[0].text, word)}
+                </span>
             </summary>
             <ul className="mt-2 space-y-3">
                 {quotes.map((q, i) => (
@@ -70,12 +76,13 @@ function Clip({ media, title }: { media: NonNullable<CardQuote['media']>; title:
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
-/** Marks each whole-word, case-insensitive occurrence of `word`. */
+/** Marks each case-insensitive occurrence of `word` or a simple form of it ("dilemmas"). */
 function highlight(text: string, word: string): React.ReactNode {
     const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const parts = text.split(new RegExp(`(\\b${escaped}\\b)`, 'gi'));
+    const form = new RegExp(`^${escaped}(?:s|es|d|ed|ing|ly)?$`, 'i');
+    const parts = text.split(new RegExp(`(\\b${escaped}(?:s|es|d|ed|ing|ly)?\\b)`, 'gi'));
     return parts.map((part, i) =>
-        part.toLowerCase() === word.toLowerCase() ? (
+        form.test(part) ? (
             <mark key={i} className="bg-accent text-on-accent px-1">
                 {part}
             </mark>

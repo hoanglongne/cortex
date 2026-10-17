@@ -31,6 +31,8 @@ export function fakeDb(
       'is',
       'single',
       'maybeSingle',
+      'range',
+      'contains',
     ]) {
       chain[m] = (...args: unknown[]) => {
         if (m !== 'select' || call.op === 'select')

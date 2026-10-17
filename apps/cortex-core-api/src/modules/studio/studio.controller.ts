@@ -450,16 +450,38 @@ export class StudioController {
 
   // ------------------------------------------- "Ngoài đời" quotes
   @Get('quotes')
-  listQuotes(@StudioDb() db: Db, @Query('status') status?: string) {
+  listQuotes(
+    @StudioDb() db: Db,
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
     const s = VARIANT_STATUSES.includes(status as VariantStatus)
       ? (status as VariantStatus)
       : 'pending';
-    return this.quotes.list(db, s);
+    const n = Math.min(100, Math.max(1, Number(limit) || 30));
+    const from = Math.max(0, Number(offset) || 0);
+    return this.quotes.list(db, s, n, from);
   }
 
-  @Post('quotes/find-books')
-  findBookQuotes(@StudioDb() db: Db, @Body() body: unknown) {
-    return this.quotes.findBooks(db, int(obj(body ?? {}), 'limit', 1, 10));
+  @Get('quotes/stats')
+  quoteStats(@StudioDb() db: Db) {
+    return this.quotes.stats(db);
+  }
+
+  @Post('quotes/build-corpus')
+  buildQuoteCorpus(@StudioDb() db: Db, @Body() body: unknown) {
+    return this.quotes.buildCorpus(db, int(obj(body ?? {}), 'books', 1, 10));
+  }
+
+  @Post('quotes/find')
+  findQuotes(@StudioDb() db: Db, @Body() body: unknown) {
+    return this.quotes.findQuotes(db, int(obj(body ?? {}), 'limit', 1, 100));
+  }
+
+  @Get('cards/search')
+  searchCards(@StudioDb() db: Db, @Query('q') q?: string) {
+    return this.quotes.searchCards(db, (q ?? '').slice(0, 40));
   }
 
   @Post('quotes')
