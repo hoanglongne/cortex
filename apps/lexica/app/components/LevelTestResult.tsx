@@ -4,6 +4,8 @@ import { useEffect } from 'react';
 import { Sprout, Leaf, Sparkles, Trophy, Lightbulb, Target as TargetIcon, CheckCircle } from 'lucide-react';
 import { DifficultyLevel } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
+import { eloRangeText, levelDef, levelStats } from '../lib/levels';
+import { getDeckCards } from '../lib/content/repository';
 
 interface LevelTestResultProps {
     score: number;
@@ -17,43 +19,31 @@ interface LevelTestResultProps {
 const LEVEL_INFO = {
     beginner: {
         icon: Sprout,
-        label: 'Cơ bản',
         color: 'text-accent',
         bgColor: 'bg-accent/10',
         borderColor: 'border-accent/30',
-        description: 'Bạn đang ở giai đoạn xây dựng nền tảng. Từ vựng cơ bản sẽ giúp bạn tự tin hơn!',
-        cardCount: '40 từ',
-        eloRange: 'ELO 800-950'
+        description: 'Bạn đang ở giai đoạn xây dựng nền tảng. Từ vựng cơ bản sẽ giúp bạn tự tin hơn!'
     },
     intermediate: {
         icon: Leaf,
-        label: 'Trung cấp',
         color: 'text-accent',
         bgColor: 'bg-accent/10',
         borderColor: 'border-accent/30',
-        description: 'Bạn đã có nền tảng tốt! Các từ vựng phổ biến trong IELTS sẽ nâng band điểm của bạn.',
-        cardCount: '72 từ',
-        eloRange: 'ELO 950-1200'
+        description: 'Bạn đã có nền tảng tốt! Các từ vựng phổ biến trong IELTS sẽ nâng band điểm của bạn.'
     },
     advanced: {
         icon: Sparkles,
-        label: 'Nâng cao',
         color: 'text-accent',
         bgColor: 'bg-accent/10',
         borderColor: 'border-accent/30',
-        description: 'Ấn tượng! Bạn đã sẵn sàng với từ vựng học thuật phức tạp hơn.',
-        cardCount: '98 từ',
-        eloRange: 'ELO 1100-1400'
+        description: 'Ấn tượng! Bạn đã sẵn sàng với từ vựng học thuật phức tạp hơn.'
     },
     expert: {
         icon: Trophy,
-        label: 'Chuyên gia',
         color: 'text-warning',
         bgColor: 'bg-warning/10',
         borderColor: 'border-warning/30',
-        description: 'Xuất sắc! Bạn thuộc top tier. Từ vựng advanced cho band 8+ đang chờ bạn!',
-        cardCount: '90 từ',
-        eloRange: 'ELO 1350-1500'
+        description: 'Xuất sắc! Bạn thuộc top tier. Từ vựng advanced cho band 8+ đang chờ bạn!'
     }
 };
 
@@ -66,6 +56,8 @@ export default function LevelTestResult({
     onChooseManually
 }: LevelTestResultProps) {
     const levelInfo = LEVEL_INFO[recommendedLevel];
+    const def = levelDef(recommendedLevel);
+    const count = levelStats(getDeckCards(), {})[recommendedLevel].total;
     const percentage = Math.round((score / totalQuestions) * 100);
     const { levelUp, buttonPress, click } = useSoundEffects();
 
@@ -138,7 +130,7 @@ export default function LevelTestResult({
                             <div className="flex-1 space-y-3">
                                 <div>
                                     <h3 className={`text-xl md:text-2xl font-bold ${levelInfo.color} mb-1`}>
-                                        Level: {levelInfo.label}
+                                        Level: {def.label} · {def.cefr}
                                     </h3>
                                     <p className="text-ink-2 text-xs md:text-sm leading-relaxed">
                                         {levelInfo.description}
@@ -149,13 +141,13 @@ export default function LevelTestResult({
                                     <div className="bg-bg/50 rounded-lg p-3">
                                         <div className="text-muted mb-1">Số lượng từ</div>
                                         <div className={`font-bold ${levelInfo.color}`}>
-                                            {levelInfo.cardCount}
+                                            {count} từ
                                         </div>
                                     </div>
                                     <div className="bg-bg/50 rounded-lg p-3">
                                         <div className="text-muted mb-1">Độ khó</div>
                                         <div className={`font-bold font-mono text-xs ${levelInfo.color}`}>
-                                            {levelInfo.eloRange}
+                                            {eloRangeText(def)}
                                         </div>
                                     </div>
                                 </div>
@@ -174,7 +166,7 @@ export default function LevelTestResult({
                         >
                             <span className="flex items-center justify-center gap-2">
                                 <CheckCircle className="w-5 h-5" />
-                                Bắt đầu với level {levelInfo.label}
+                                Bắt đầu với level {def.label}
                             </span>
                         </button>
 

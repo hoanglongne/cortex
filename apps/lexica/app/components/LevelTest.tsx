@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Lightbulb, Target as TargetIcon } from 'lucide-react';
 import { DifficultyLevel } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
+import { levelForElo } from '../lib/levels';
 
 interface TestQuestion {
     id: string;
@@ -157,7 +158,7 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
         } else {
             const score = calculateScore(newAnswers);
             const calibratedElo = calculateCalibratedElo(newAnswers);
-            const recommendedLevel = getRecommendedLevel(calibratedElo);
+            const recommendedLevel = levelForElo(calibratedElo);
             onComplete(score, recommendedLevel, calibratedElo);
         }
     };
@@ -174,7 +175,7 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
         } else {
             const score = calculateScore(newAnswers);
             const calibratedElo = calculateCalibratedElo(newAnswers);
-            const recommendedLevel = getRecommendedLevel(calibratedElo);
+            const recommendedLevel = levelForElo(calibratedElo);
             onComplete(score, recommendedLevel, calibratedElo);
         }
     };
@@ -194,12 +195,6 @@ export default function LevelTest({ onComplete, onBack }: LevelTestProps) {
         return Math.round(correctElos.reduce((a, b) => a + b, 0) / correctElos.length);
     };
 
-    const getRecommendedLevel = (elo: number): DifficultyLevel => {
-        if (elo < 950) return 'beginner';
-        if (elo < 1150) return 'intermediate';
-        if (elo < 1350) return 'advanced';
-        return 'expert';
-    };
 
     return (
         <div className="w-full h-full px-4">
