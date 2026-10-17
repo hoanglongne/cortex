@@ -10,6 +10,8 @@ import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentenceP
 import { getCard } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import type { SpeakLevel } from '../lib/pronunciation/score';
+import type { LearningPath } from '../lib/journey/path';
+import type { Stage, TodayLog } from '../lib/journey/today';
 import { countSteps, journeysFromProgress, knownAlready, meet, recall, sayClearly, understand, type Journeys, type StepCounts } from '../lib/journey/steps';
 
 /**
@@ -71,6 +73,20 @@ interface LexicaStore {
     stepHistory: Record<string, StepCounts>;
     /** Gặp: words met in English text (a passage, a quote). */
     markMet: (cardIds: string[]) => void;
+
+    // The 30-day path and the Today session (lib/journey/path.ts, today.ts)
+    path: LearningPath | null;
+    setPath: (path: LearningPath | null) => void;
+    seeCheckpoint: (day: number) => void;
+    finishPath: (finished: NonNullable<LearningPath['finished']>) => void;
+    /** Local dates on which the whole Today session was finished. */
+    daysDone: string[];
+    todayLog: TodayLog | null;
+    /** Opens today's log (keeps it if it is already today's). */
+    startToday: () => void;
+    finishStage: (stage: Stage) => void;
+    /** The last stage is done: today counts as a day of the path. */
+    completeToday: () => void;
 
     // Reading ("Đọc", lib/engagement/reading.ts)
     /** Cards added from a passage with "Thêm vào phiên học"; dealt first in the next deck. */
@@ -322,6 +338,45 @@ export const useLexicaStore = create<LexicaStore>()(
             speakMisses: {},
             journeys: {},
             stepHistory: {},
+            path: null,
+            daysDone: [],
+            todayLog: null,
+            setPath: (path) => {
+                set({ path });
+                if (path) {
+                    set({ dailyGoal: path.pace || get().dailyGoal });
+                    if (get().selectedLevel !== path.level) get().setSelectedLevel(path.level);
+                }
+            },
+            seeCheckpoint: (day) => {
+                const { path } = get();
+                if (path && !path.seen.includes(day)) set({ path: { ...path, seen: [...path.seen, day] } });
+            },
+            finishPath: (finished) => {
+                const { path } = get();
+                if (path) set({ path: { ...path, finished, seen: [...new Set([...path.seen, 30])] } });
+            },
+            startToday: () => {
+                const today = getTodayDateString();
+                if (get().todayLog?.date === today) return;
+                set({ todayLog: { date: today, done: [], start: countSteps(get().journeys) } });
+            },
+            finishStage: (stage) => {
+                get().startToday();
+                const log = get().todayLog!;
+                if (!log.done.includes(stage)) set({ todayLog: { ...log, done: [...log.done, stage] } });
+            },
+            completeToday: () => {
+                const today = getTodayDateString();
+                const { daysDone, lastActivityDate, currentStreak, longestStreak } = get();
+                if (daysDone.includes(today)) return;
+                // A finished day counts for the streak even with no new word swiped (review only).
+                const streak = lastActivityDate === today ? {} : (() => {
+                    const next = lastActivityDate === getYesterdayDateString() ? currentStreak + 1 : 1;
+                    return { currentStreak: next, longestStreak: Math.max(longestStreak, next), lastActivityDate: today };
+                })();
+                set({ daysDone: [...daysDone, today].slice(-400), ...streak });
+            },
             markMet: (cardIds) => {
                 const now = Date.now();
                 const journeys = { ...get().journeys };
@@ -506,6 +561,9 @@ export const useLexicaStore = create<LexicaStore>()(
                     speakMisses: {},
                     journeys: {},
                     stepHistory: {},
+                    path: null,
+                    daysDone: [],
+                    todayLog: null,
                     // Reset streak
                     currentStreak: 0,
                     longestStreak: 0,
@@ -805,6 +863,9 @@ export const useLexicaStore = create<LexicaStore>()(
                 speakMisses: state.speakMisses,
                 journeys: state.journeys,
                 stepHistory: state.stepHistory,
+                path: state.path,
+                daysDone: state.daysDone,
+                todayLog: state.todayLog,
                 studyHistory: state.studyHistory,
                 // Daily Goals - persist daily progress tracking
                 dailyGoal: state.dailyGoal,

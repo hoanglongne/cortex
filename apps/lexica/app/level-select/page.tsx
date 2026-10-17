@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useLexicaStore } from '../store/lexicaStore';
 import LevelSelector from '../components/LevelSelector';
-import InstallPWAPrompt from '../components/InstallPWAPrompt';
 import { DifficultyLevel } from '../types/vocab';
 import { ArrowLeft } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
@@ -38,9 +37,6 @@ export default function LevelSelectPage() {
                 onSelect={handleSelectLevel}
                 currentLevel={selectedLevel}
             />
-
-            {/* PWA Install Prompt */}
-            <InstallPWAPrompt />
         </div>
     );
 }

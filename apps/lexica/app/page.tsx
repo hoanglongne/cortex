@@ -4,14 +4,15 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords } from 'lucide-react';
+import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords, Route, Home as HomeIcon, ArrowLeft, School } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
-import LiveDropBanner from './components/LiveDropBanner';
-import SmartEntry from './components/SmartEntry';
 import HomeHeader from './components/HomeHeader';
-import HomeSide from './components/HomeSide';
+import TodayCard from './components/TodayCard';
+import StepNumbers from './components/StepNumbers';
+import MoreList from './components/MoreList';
+import Motivation from './components/Motivation';
 import DailyProgress from './components/DailyProgress';
 import OnboardingModal from './components/OnboardingModal';
 // Level selection now handled by route: /level-select
@@ -20,7 +21,8 @@ import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
 import { hardWords } from './lib/engagement/hard';
 import { ARCHETYPE_OPTIONS } from './lib/content/persona';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { useIsDesktop } from './hooks/useIsDesktop';
+import { BRANCH_LABEL, currentDay, PACES, PATH_DAYS } from './lib/journey/path';
+import { localDate } from './lib/engagement/ghost';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
 
@@ -39,13 +41,15 @@ function HomeContent() {
   const hasSeenOnboarding = useLexicaStore(state => state.hasSeenOnboarding);
   const dailyGoal = useLexicaStore(state => state.dailyGoal);
   const dailyProgress = useLexicaStore(state => state.dailyProgress);
+  const path = useLexicaStore(state => state.path);
+  const daysDone = useLexicaStore(state => state.daysDone);
+  const setPath = useLexicaStore(state => state.setPath);
 
   const setSelectedLevel = useLexicaStore(state => state.setSelectedLevel);
   const resetProgress = useLexicaStore(state => state.resetProgress);
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isDesktop = useIsDesktop();
   const { buttonPress, click } = useSoundEffects();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -58,7 +62,6 @@ function HomeContent() {
     }
     setSelectedLevel(null);
   };
-  const previewDue = Number(searchParams.get('reviewPreview') ?? 0);
   const forceCortexReminder = searchParams.get('cortexReminder') === '1';
 
   // Session state - track if user has started learning session
@@ -66,7 +69,6 @@ function HomeContent() {
 
   // Mobile stats modal state
   const [showMobileStats, setShowMobileStats] = useState(false);
-  const [showReviewPrompt, setShowReviewPrompt] = useState(() => false);
   const [showCortexReminder, setShowCortexReminder] = useState(false);
 
   // Goal celebration state
@@ -92,7 +94,7 @@ function HomeContent() {
   // Redirect to onboarding or test if needed
   useEffect(() => {
     // Skip redirects if we're in preview mode (for testing modals)
-    if (forceCortexReminder || previewDue > 0) {
+    if (forceCortexReminder) {
       return;
     }
 
@@ -127,13 +129,19 @@ function HomeContent() {
       router.replace('/level-select');
       return;
     }
-  }, [hasSeenOnboarding, selectedLevel, isInTest, testScore, hasSeenWelcome, router, forceCortexReminder, previewDue]);
+
+    // Level known but no path yet: pick the branch and the pace (docs/LEXICA_DIRECTION.md).
+    if (selectedLevel && !path) {
+      router.replace('/path/setup');
+    }
+  }, [hasSeenOnboarding, selectedLevel, isInTest, testScore, hasSeenWelcome, router, forceCortexReminder, path]);
 
   // Debug: Get difficulty analysis
   const analysis = getDifficultyAnalysis(userStats);
   const progressStats = getProgressStats(cardProgress);
   const hardCount = hardWords(cardProgress).length;
-  const dueToday = previewDue || progressStats.dueToday;
+  const dueToday = progressStats.dueToday;
+  const pathDay = path ? currentDay(path, daysDone, localDate()) : null;
 
   // Update badge count when progress changes
   useEffect(() => {
@@ -141,21 +149,6 @@ function HomeContent() {
       navigator.setAppBadge(progressStats.dueToday).catch(console.error);
     }
   }, [progressStats.dueToday]);
-
-  // Show review prompt once per day when there are due cards
-  useEffect(() => {
-    // ?reviewPreview=N forces the modal instantly (dev/preview only)
-    if (previewDue > 0) {
-      const t = setTimeout(() => setShowReviewPrompt(true), 0);
-      return () => clearTimeout(t);
-    }
-    const todayKey = `reviewPromptShown_${new Date().toDateString()}`;
-    if (progressStats.dueToday > 0 && !sessionStorage.getItem(todayKey)) {
-      sessionStorage.setItem(todayKey, '1');
-      const t = setTimeout(() => setShowReviewPrompt(true), 800);
-      return () => clearTimeout(t);
-    }
-  }, [progressStats.dueToday, previewDue]);
 
   // Show Cortex Hub reminder after every 25 words learned (if not connected)
   useEffect(() => {
@@ -304,61 +297,6 @@ function HomeContent() {
 
   return (
     <div className="relative h-screen flex flex-col bg-bg overflow-hidden">
-      {/* Review Prompt Modal */}
-      <AnimatePresence>
-        {showReviewPrompt && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center px-4"
-            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-          >
-            <motion.div
-              initial={{ scale: 0.92, opacity: 0, y: 16 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 8 }}
-              transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-              className="w-full max-w-sm bg-surface border border-line rounded-2xl p-6 shadow-2xl"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 rounded-xl bg-warning/20">
-                  <RotateCcw className="w-6 h-6 text-warning" />
-                </div>
-                <h2 className="text-lg font-bold text-ink">Ôn tập hôm nay</h2>
-              </div>
-              <p className="text-ink-2 text-sm mb-1">
-                Bạn có <span className="text-warning font-bold">{previewDue || progressStats.dueToday} từ</span> cần ôn lại hôm nay.
-              </p>
-              <p className="text-muted text-xs mb-6">
-                Ôn tập giúp củng cố trí nhớ và tăng tốc độ ghi nhớ dài hạn.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    click();
-                    setShowReviewPrompt(false);
-                  }}
-                  className="flex-1 py-2.5 rounded-xl border border-line-strong text-ink-2 text-sm font-medium hover:border-line-strong hover:text-ink transition-colors"
-                >
-                  Để sau
-                </button>
-                <button
-                  onClick={() => {
-                    buttonPress();
-                    setShowReviewPrompt(false);
-                    router.push('/review');
-                  }}
-                  className="flex-1 py-2.5 rounded-xl bg-warning hover:bg-warning text-on-accent text-sm font-bold transition-colors"
-                >
-                  Ôn ngay →
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Cortex Hub Reminder Modal */}
       <AnimatePresence>
         {showCortexReminder && (
@@ -609,42 +547,40 @@ function HomeContent() {
         ?
       </button>
 
-      {/* Mobile Progress Bar - shown above main when session is active */}
-      {sessionStarted && (
-        <div className="lg:hidden w-full shrink-0 px-4 pt-3 pb-2">
-          <DailyProgress done={dailyProgress} goal={dailyGoal} />
-        </div>
-      )}
+      {/* Main: learning first (Today, the four numbers, Luyện thêm); the game layer after it on mobile, in a narrow right column on desktop */}
+      <main className={`flex-1 flex flex-col items-center gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-24 max-w-6xl xl:max-w-7xl mx-auto w-full lg:grid lg:items-start lg:content-start lg:gap-8 lg:px-8 lg:pt-8 lg:pb-8 lg:overflow-y-auto ${sessionStarted ? 'justify-center overflow-hidden lg:grid-cols-1' : 'overflow-y-auto lg:grid-cols-[1fr_280px]'}`}>
 
-      {/* Main: one column on mobile; on desktop the "Hôm nay" column and a 340px side column */}
-      <main className="flex-1 flex flex-col items-center justify-center gap-6 px-3 sm:px-4 pt-3 sm:pt-4 pb-24 max-w-6xl xl:max-w-7xl mx-auto w-full overflow-hidden lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:content-start lg:gap-8 lg:px-8 lg:pt-8 lg:pb-8 lg:overflow-y-auto">
-
-        {/* Main column - Smart Entry or Swipe Deck */}
-        <div className="w-full flex flex-col items-center justify-center lg:items-stretch lg:justify-start">
-          {/* "Hôm nay" during a session - desktop only (mobile version is above <main>) */}
-          {sessionStarted && (
-            <div className="hidden lg:block w-full rounded-2xl bg-surface border border-line px-6 py-4 mb-6">
-              <DailyProgress done={dailyProgress} goal={dailyGoal} />
+        {sessionStarted ? (
+          <div className="w-full flex flex-col items-center">
+            <div className="w-full max-w-md lg:max-w-xl flex items-center gap-3 mb-3">
+              <button onClick={() => { click(); setSessionStarted(false); }} className="h-9 px-3 rounded-lg border border-line text-sm text-muted hover:text-ink flex items-center gap-1.5" aria-label="Về trang chủ">
+                <ArrowLeft className="w-4 h-4" /> Về
+              </button>
+              <div className="flex-1"><DailyProgress done={dailyProgress} goal={dailyGoal} /></div>
             </div>
-          )}
-
-          <div className={`w-full max-w-md flex items-center justify-center ${sessionStarted ? 'mb-28 lg:mb-24 lg:max-w-xl lg:mx-auto' : 'lg:max-w-none'}`} data-tour-id="swipe-deck">
-            <ErrorBoundary>
-              {sessionStarted ? (
+            <div className="w-full max-w-md lg:max-w-xl flex items-center justify-center mb-28 lg:mb-24" data-tour-id="swipe-deck">
+              <ErrorBoundary>
                 <SwipeDeck />
-              ) : (
-                isDesktop ? (
-                  <SmartEntry variant="card" onStartSession={() => setSessionStarted(true)} />
-                ) : (
-                  <div className="w-full flex flex-col items-center">
-                    <LiveDropBanner onStart={() => setSessionStarted(true)} />
-                    <SmartEntry onStartSession={() => setSessionStarted(true)} />
-                  </div>
-                )
-              )}
-            </ErrorBoundary>
+              </ErrorBoundary>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="w-full max-w-xl mx-auto flex flex-col gap-4 lg:max-w-none">
+            {/* Mobile: where the learner is on the path */}
+            <div className="lg:hidden flex items-center justify-between text-xs text-muted px-1">
+              <span className="font-semibold text-ink text-base">LEXICA</span>
+              <span className="font-mono">{pathDay ? `Ngày ${pathDay}/${PATH_DAYS}` : ''}{path ? ` · ${BRANCH_LABEL[path.branch]}` : ''}</span>
+            </div>
+            <ErrorBoundary>
+              <TodayCard onLearnMore={() => setSessionStarted(true)} />
+            </ErrorBoundary>
+            <StepNumbers />
+            <MoreList onLearnMore={() => setSessionStarted(true)} />
+            <div className="lg:hidden">
+              <Motivation variant="strip" />
+            </div>
+          </div>
+        )}
 
         {/* Difficulty Status Notification - Fixed to avoid layout shift */}
         <AnimatePresence>
@@ -686,15 +622,15 @@ function HomeContent() {
           className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-bg/95 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]"
         >
           <div className="grid grid-cols-4 max-w-md mx-auto">
-            <MobileTab href="/review" label="Ôn tập" icon={<RotateCcw className="w-6 h-6" />} badge={dueToday > 0 ? dueToday : undefined} />
+            <MobileTab label="Học" icon={<HomeIcon className="w-6 h-6" />} onClick={() => { click(); setSessionStarted(false); }} active />
+            <MobileTab href="/path" label="Lộ trình" icon={<Route className="w-6 h-6" />} />
             <MobileTab href="/album" label="Album" icon={<LayoutGrid className="w-6 h-6" />} />
-            <MobileTab href="/buddy" label="Buddy" icon={<Users className="w-6 h-6" />} />
             <MobileTab label="Tôi" icon={<UserRound className="w-6 h-6" />} onClick={() => { click(); setShowMobileStats(true); }} />
           </div>
         </nav>
 
-        {/* Side column - desktop only: due words, hard words, next album set, the drop */}
-        <HomeSide onStartDrop={() => setSessionStarted(true)} />
+        {/* Desktop: the game layer, narrow and quiet */}
+        {!sessionStarted && <Motivation variant="column" />}
       </main>
 
       {/* Mobile Stats Modal */}
@@ -734,6 +670,57 @@ function HomeContent() {
 
               {/* Content */}
               <div className="p-6 space-y-5">
+                {/* The path: branch and pace (docs/LEXICA_DIRECTION.md) */}
+                {path && (
+                  <div className="space-y-3 pb-4 border-b border-line">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted text-sm">Nhánh</span>
+                      <div className="flex gap-1.5">
+                        {(['cert', 'talk'] as const).map(b => (
+                          <button
+                            key={b}
+                            onClick={() => { click(); setPath({ ...path, branch: b }); }}
+                            aria-pressed={path.branch === b}
+                            className={`h-9 px-3 rounded-lg border text-xs font-medium ${path.branch === b ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
+                          >
+                            {BRANCH_LABEL[b]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-muted text-sm">Nhịp học</span>
+                      <div className="flex gap-1.5">
+                        {PACES.map(n => (
+                          <button
+                            key={n}
+                            onClick={() => { click(); setPath({ ...path, pace: n }); }}
+                            aria-pressed={path.pace === n}
+                            className={`h-9 px-3 rounded-lg border text-xs font-medium ${path.pace === n ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
+                          >
+                            {n} từ/ngày
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href="/path" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
+                    <Route className="w-4 h-4 text-accent" /> Lộ trình
+                  </Link>
+                  <Link href="/class" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
+                    <School className="w-4 h-4 text-accent" /> Lớp học
+                  </Link>
+                  <Link href="/buddy" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
+                    <Users className="w-4 h-4 text-accent" /> Buddy
+                  </Link>
+                  <Link href="/review" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
+                    <RotateCcw className="w-4 h-4 text-accent" /> Ôn tập
+                  </Link>
+                </div>
+
                 {/* Speaking practice: its own drill, it no longer blocks swiping */}
                 <Link
                   href="/speak"
@@ -915,9 +902,9 @@ export default function Home() {
 }
 
 /** One tab of the mobile bottom bar: a link, or a button for the "Tôi" sheet. */
-function MobileTab({ href, label, icon, badge, onClick }: { href?: string; label: string; icon: React.ReactNode; badge?: number; onClick?: () => void }) {
+function MobileTab({ href, label, icon, badge, onClick, active }: { href?: string; label: string; icon: React.ReactNode; badge?: number; onClick?: () => void; active?: boolean }) {
   const body = (
-    <span className="relative flex flex-col items-center justify-center gap-1 h-16 text-muted hover:text-ink active:scale-95 transition">
+    <span className={`relative flex flex-col items-center justify-center gap-1 h-16 hover:text-ink active:scale-95 transition ${active ? 'text-accent' : 'text-muted'}`}>
       {icon}
       <span className="text-xs font-medium">{label}</span>
       {badge !== undefined && (

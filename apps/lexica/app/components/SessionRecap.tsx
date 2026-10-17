@@ -21,12 +21,15 @@ export default function SessionRecap({
     nearest,
     teasers,
     onContinue,
+    continueLabel,
 }: {
     session: SessionState;
     readyToMint: number;
     nearest: { label: string; missing: number } | null;
     teasers: string[];
     onContinue: () => void;
+    /** Set inside the Today session ("Tiếp: Đọc"); the side links are hidden there. */
+    continueLabel?: string;
 }) {
     // "Câu của bạn": one optional offer, on a word remembered in this session.
     const mySentences = useLexicaStore((st) => st.mySentences);
@@ -93,7 +96,20 @@ export default function SessionRecap({
                             Đã lưu. Lần sau gặp <span className="font-bold lowercase">{candidate.word}</span>, bạn sẽ thấy câu của mình.
                         </p>
                     )}
-                    {offer !== 'open' && (
+                    {continueLabel && (
+                        <div data-testid="learn-recap">
+                            {session.newCards.length > 0 ? (
+                                <>
+                                    <p className="text-ink">{session.newCards.length} từ mới tới bước Hiểu:</p>
+                                    <p className="mt-1 text-ink-2 lowercase">{session.newCards.map((id) => getCard(id)?.word ?? id).join(' · ')}</p>
+                                    <p className="mt-3 text-xs text-muted">Vài ngày nữa ôn đúng hai lần là chúng lên Nhớ.</p>
+                                </>
+                            ) : (
+                                <p className="text-muted">Chưa có từ nào nhớ trong lượt này. Các từ &ldquo;Chưa nhớ&rdquo; sẽ quay lại sau.</p>
+                            )}
+                        </div>
+                    )}
+                    {offer !== 'open' && !continueLabel && (
                         <>
                             {session.levelUps.slice(0, 4).map((l) => (
                                 <p key={l.cardId} className="flex items-center gap-2 text-ink-2">
@@ -154,11 +170,13 @@ export default function SessionRecap({
                         onClick={onContinue}
                         className="w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition"
                     >
-                        Thêm 10 thẻ nữa <ArrowRight className="w-4 h-4" />
+                        {continueLabel ?? 'Thêm 10 thẻ nữa'} <ArrowRight className="w-4 h-4" />
                     </button>
-                    <Link href="/album" className="block text-center font-mono text-[11px] text-muted hover:text-ink py-1">
-                        Xem Album
-                    </Link>
+                    {!continueLabel && (
+                        <Link href="/album" className="block text-center font-mono text-[11px] text-muted hover:text-ink py-1">
+                            Xem Album
+                        </Link>
+                    )}
                 </div>
             </div>
         </motion.div>

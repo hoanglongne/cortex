@@ -40,7 +40,7 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     await page.goto('/onboarding');
 
     // Modal phải xuất hiện với tiêu đề chào mừng
-    await expect(page.getByText('Chào mừng đến LEXICA')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
   });
 
   // -------------------------------------------------------------------------
@@ -50,15 +50,17 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     await page.goto('/onboarding');
 
     // Đợi modal xuất hiện
-    await expect(page.getByText('Chào mừng đến LEXICA')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
 
-    // Bước 1 → Bước 2 (Persona Selection) bằng cách click nút "Tiếp theo"
-    // Tìm nút điều hướng sang bước tiếp theo
+    // Bước 1 → Bước 2 (chọn nhánh) → Bước 3 (Persona Selection)
     const nextButton = page.getByRole('button', { name: /tiếp theo/i });
     await nextButton.click();
+    await expect(page.getByText('Bạn học tiếng Anh để làm gì?')).toBeVisible({ timeout: 5_000 });
+    await page.getByTestId('branch-talk').click();
+    await page.getByRole('button', { name: /tiếp theo/i }).click();
 
     // Đợi bước persona selection xuất hiện
-    await expect(page.getByText('Chọn ngữ cảnh học phù hợp')).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText('Câu ví dụ theo đời bạn')).toBeVisible({ timeout: 5_000 });
 
     // Click chọn archetype 'Lập trình viên / Tech'
     const techOption = page.getByText('Lập trình viên / Tech');
@@ -68,9 +70,9 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     await expect(techOption).toBeVisible();
 
     // Tiếp tục qua các bước còn lại bằng cách click "Tiếp theo" nhiều lần
-    // Số bước = 7 (STEPS.length trong OnboardingModal.tsx)
-    // Đã ở bước 2, cần đến bước cuối (bước 7, index 6)
-    const REMAINING_STEPS = 5; // từ bước 2 đến bước cuối
+    // Số bước = 6 (STEPS.length trong OnboardingModal.tsx)
+    // Đã ở bước 3, cần đến bước cuối
+    const REMAINING_STEPS = 3;
     for (let i = 0; i < REMAINING_STEPS; i++) {
       const btn = page.getByRole('button', { name: /tiếp theo/i });
       if (await btn.isVisible()) {
@@ -83,7 +85,7 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     }
 
     // Bước cuối — nút có thể là "Bắt đầu" hoặc tương tự
-    const startButton = page.getByRole('button', { name: /bắt đầu/i });
+    const startButton = page.getByRole('button', { name: /làm bài test level/i });
     if (await startButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await startButton.click();
     } else {
@@ -103,6 +105,8 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     });
 
     expect(page.url()).not.toContain('/onboarding');
+    // The branch picked here is waiting for the path setup after the level test.
+    expect(await page.evaluate(() => localStorage.getItem('lexica-branch-pick'))).toBe('talk');
   });
 
   // -------------------------------------------------------------------------
@@ -111,23 +115,10 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
   test('nút Skip (X) bỏ qua toàn bộ onboarding', async ({ page }) => {
     await page.goto('/onboarding');
 
-    await expect(page.getByText('Chào mừng đến LEXICA')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
 
     // Click nút X (Skip)
-    const skipButton = page.getByRole('button').filter({ has: page.locator('svg') }).first();
-    // Thử tìm chính xác hơn — nút close/skip thường ở góc phải trên
-    const closeBtn = page.locator('button').filter({ hasText: '' }).last();
-
-    // Sử dụng keyboard Escape như một alternative nếu cần
-    // Hoặc tìm nút X trực tiếp
-    const xButton = page.locator('[class*="absolute"][class*="top"]').locator('button').first();
-
-    if (await xButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await xButton.click();
-    } else {
-      // Fallback: tìm nút có SVG X icon
-      await page.locator('button:has(svg)').last().click();
-    }
+    await page.getByRole('button', { name: 'Bỏ qua' }).click();
 
     // Sau khi skip, phải chuyển ra khỏi /onboarding
     await page.waitForURL((url) => !url.pathname.includes('/onboarding'), {

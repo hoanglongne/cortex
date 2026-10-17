@@ -9,10 +9,8 @@
  *     - "Xem danh sách từ vựng" → /learned
  *  3. Cả 2 nút đều clickable và điều hướng đúng
  *
- * Chiến lược:
- *  - Swipe hết 10 thẻ mặc định bằng keyboard (ArrowLeft) để đạt dead-end
- *  - Hoặc: inject cardProgress với tất cả cards không còn là "mới" và
- *    seenCardIds che phủ toàn bộ database → deck = rỗng
+ * Chiến lược: inject cardProgress cho mọi thẻ của level, chưa đến hạn
+ * → bộ thẻ không còn gì để chia → dead-end.
  *
  * Lưu ý: energy = 0 không tự động tạo dead-end view trong SwipeDeck hiện tại.
  * Dead-end chỉ xảy ra khi cards.length === 0 (tất cả thẻ đã được swipe).
@@ -20,23 +18,20 @@
 
 import { test, expect } from '@playwright/test';
 import { injectLexicaState, makeBypassState } from './helpers';
+import { VOCAB_DATABASE } from '../../app/data/vocabCards';
 
-// ---------------------------------------------------------------------------
-// Helper: swipe qua N thẻ bằng keyboard
-// ---------------------------------------------------------------------------
-async function swipeCardsWithKeyboard(
-  page: import('@playwright/test').Page,
-  count: number,
-  direction: 'left' | 'right' = 'left'
-): Promise<void> {
-  const key = direction === 'left' ? 'ArrowLeft' : 'ArrowRight';
-
-  for (let i = 0; i < count; i++) {
-    await page.keyboard.press('Space'); // reveal card nếu cần
-    await page.waitForTimeout(150);
-    await page.keyboard.press(key);
-    await page.waitForTimeout(400); // đợi animation swipe
-  }
+/**
+ * Every card of the level already learned and not due: the deck has nothing
+ * new to deal, which is the real dead end (a 10-card session alone ends in
+ * a recap and the deck refills).
+ */
+function exhaustedState() {
+  const later = Date.now() + 30 * 86_400_000;
+  const ids = VOCAB_DATABASE.filter((c) => c.level === 'intermediate').map((c) => c.id);
+  const cardProgress = Object.fromEntries(
+    ids.map((id) => [id, { cardId: id, state: 'gold', lastReviewedAt: Date.now(), nextReviewAt: later, reviewCount: 3, wrongCount: 0 }]),
+  );
+  return makeBypassState({ cardProgress, learnedWords: ids });
 }
 
 // ---------------------------------------------------------------------------
@@ -47,23 +42,15 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // Test 1: Swipe hết tất cả thẻ → dead-end view xuất hiện
   // -------------------------------------------------------------------------
   test('swipe hết tất cả thẻ → hiển thị màn hình "Hoàn thành bộ bài!"', async ({ page }) => {
-    await injectLexicaState(page, makeBypassState({ lastGoalSetDate: null }));
+    await injectLexicaState(page, exhaustedState());
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
 
     // Bắt đầu phiên học
-    await page.locator('input[type="range"]').waitFor({ timeout: 8_000 });
-    await page.getByRole('button', { name: 'Bắt đầu học' }).click();
+    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
 
     const swipeDeck = page.locator('[data-tour-id="swipe-deck"]');
     await expect(swipeDeck).toBeVisible({ timeout: 8_000 });
-    await page.waitForTimeout(1_000);
-
-    // Swipe hết 10 thẻ (deck mặc định = 10)
-    await swipeCardsWithKeyboard(page, 10, 'left');
-
-    // Đợi deck trống và dead-end view render
-    await page.waitForTimeout(1_000);
 
     // Dead-end view phải xuất hiện
     await expect(page.getByText('Hoàn thành bộ bài!')).toBeVisible({ timeout: 8_000 });
@@ -73,19 +60,14 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // Test 2: Dead-end — KHÔNG hiển thị thêm thẻ nào
   // -------------------------------------------------------------------------
   test('dead-end: không còn thẻ nào trong SwipeDeck', async ({ page }) => {
-    await injectLexicaState(page, makeBypassState({ lastGoalSetDate: null }));
+    await injectLexicaState(page, exhaustedState());
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
 
-    await page.locator('input[type="range"]').waitFor({ timeout: 8_000 });
-    await page.getByRole('button', { name: 'Bắt đầu học' }).click();
+    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
 
     const swipeDeck = page.locator('[data-tour-id="swipe-deck"]');
     await expect(swipeDeck).toBeVisible({ timeout: 8_000 });
-    await page.waitForTimeout(1_000);
-
-    await swipeCardsWithKeyboard(page, 10, 'left');
-    await page.waitForTimeout(1_000);
 
     // "Hoàn thành bộ bài!" xuất hiện
     await expect(page.getByText('Hoàn thành bộ bài!')).toBeVisible({ timeout: 8_000 });
@@ -101,17 +83,13 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // Test 3: Nút CTA "Đọc 2 phút" có thể click
   // -------------------------------------------------------------------------
   test('nút "Đọc 2 phút" xuất hiện và click được', async ({ page }) => {
-    await injectLexicaState(page, makeBypassState({ lastGoalSetDate: null }));
+    await injectLexicaState(page, exhaustedState());
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
 
-    await page.locator('input[type="range"]').waitFor({ timeout: 8_000 });
-    await page.getByRole('button', { name: 'Bắt đầu học' }).click();
+    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
 
     await expect(page.locator('[data-tour-id="swipe-deck"]')).toBeVisible({ timeout: 8_000 });
-    await page.waitForTimeout(1_000);
-    await swipeCardsWithKeyboard(page, 10, 'left');
-    await page.waitForTimeout(1_000);
 
     // Nút CTA chính: "Đọc 2 phút"
     const storiesBtn = page.getByRole('link', { name: 'Đọc 2 phút' });
@@ -128,17 +106,13 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // Test 4: Nút CTA "Xem danh sách từ vựng" có thể click
   // -------------------------------------------------------------------------
   test('nút "Xem danh sách từ vựng" xuất hiện và click được', async ({ page }) => {
-    await injectLexicaState(page, makeBypassState({ lastGoalSetDate: null }));
+    await injectLexicaState(page, exhaustedState());
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
 
-    await page.locator('input[type="range"]').waitFor({ timeout: 8_000 });
-    await page.getByRole('button', { name: 'Bắt đầu học' }).click();
+    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
 
     await expect(page.locator('[data-tour-id="swipe-deck"]')).toBeVisible({ timeout: 8_000 });
-    await page.waitForTimeout(1_000);
-    await swipeCardsWithKeyboard(page, 10, 'left');
-    await page.waitForTimeout(1_000);
 
     // Nút CTA phụ: "Xem danh sách từ vựng"
     const learnedBtn = page.getByRole('link', { name: 'Xem danh sách từ vựng' });
@@ -172,9 +146,8 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
 
-    // SmartEntry xuất hiện
-    await page.locator('input[type="range"]').waitFor({ timeout: 8_000 });
-    await page.getByRole('button', { name: 'Bắt đầu học' }).click();
+    // "Luyện thêm" → "Học thêm từ mới" mở bộ thẻ ngay trên Home
+    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
 
     const swipeDeck = page.locator('[data-tour-id="swipe-deck"]');
     await expect(swipeDeck).toBeVisible({ timeout: 8_000 });
@@ -203,8 +176,7 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
 
-    // Vì lastGoalSetDate = today, SmartEntry sẽ hiển thị "Smart CTA" thay vì slider
-    // Tìm nút tiếp tục học
+    // Home luôn có thẻ Hôm nay; mục tiêu đã đạt không chặn gì
     await page.waitForTimeout(2_000);
 
     // Trang chủ vẫn load được (không crash)

@@ -29,6 +29,8 @@ export interface Passage {
     words: string[];
     /** Up to two optional comprehension questions. */
     questions?: PassageQuestion[];
+    /** 'dialogue' for the Giao tiếp branch: lines "A: ..." / "B: ..."; plain text otherwise. */
+    kind?: 'text' | 'dialogue';
 }
 
 export const PASSAGE_TOPICS = ['Đời sống', 'Công việc', 'Tiền bạc', 'Công nghệ', 'Giáo dục', 'Sức khoẻ', 'Du lịch', 'Môi trường', 'Xã hội'] as const;
@@ -74,6 +76,7 @@ export function parsePassage(v: unknown): Passage | null {
         newWords,
         words: words.filter((w) => !newWords.includes(w)),
         ...(questions.length > 0 ? { questions } : {}),
+        ...(v.kind === 'dialogue' ? { kind: 'dialogue' as const } : {}),
     };
 }
 

@@ -45,9 +45,12 @@ export interface SessionState {
     /** Words seen before and remembered in this session (offered for "Câu của bạn"). */
     remembered: string[];
     startedAt: number;
+    /** Cards in this session; SESSION_SIZE when not set (the Today session sets the day's pace). */
+    size?: number;
 }
 
-export const newSession = (now = Date.now()): SessionState => ({
+export const newSession = (now = Date.now(), size?: number): SessionState => ({
+    ...(size ? { size } : {}),
     count: 0,
     known: 0,
     combo: 0,
@@ -84,7 +87,7 @@ export function recordSwipe(
     return next;
 }
 
-export const sessionDone = (s: SessionState) => s.count >= SESSION_SIZE;
+export const sessionDone = (s: SessionState) => s.count >= (s.size ?? SESSION_SIZE);
 
 /** True when this combo count deserves the big celebration. */
 export const isComboMilestone = (combo: number) => COMBO_MILESTONES.includes(combo);

@@ -26,5 +26,5 @@ export default function OnboardingPage() {
         return null;
     }
 
-    return <OnboardingModal onComplete={handleComplete} />;
+    return <OnboardingModal firstTime onComplete={handleComplete} />;
 }
