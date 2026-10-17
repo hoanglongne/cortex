@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Hand, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords } from 'lucide-react';
+import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
@@ -36,14 +36,12 @@ function HomeContent() {
   const hasSeenWelcome = useLexicaStore(state => state.hasSeenWelcome);
   const isInTest = useLexicaStore(state => state.isInTest);
   const testScore = useLexicaStore(state => state.testScore);
-  const swipeMode = useLexicaStore(state => state.swipeMode);
   const hasSeenOnboarding = useLexicaStore(state => state.hasSeenOnboarding);
   const dailyGoal = useLexicaStore(state => state.dailyGoal);
   const dailyProgress = useLexicaStore(state => state.dailyProgress);
 
   const setSelectedLevel = useLexicaStore(state => state.setSelectedLevel);
   const resetProgress = useLexicaStore(state => state.resetProgress);
-  const setSwipeMode = useLexicaStore(state => state.setSwipeMode);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -231,7 +229,6 @@ function HomeContent() {
   };
 
   const statusDisplay = getStatusDisplay(analysis.status);
-  const isVoiceMode = swipeMode === 'voice';
 
   // Track status changes and show notification
   useEffect(() => {
@@ -737,28 +734,16 @@ function HomeContent() {
 
               {/* Content */}
               <div className="p-6 space-y-5">
-                {/* Voice/Touch Mode Toggle */}
-                <div className="space-y-3 pb-4 border-b border-line">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted text-sm">Chế độ swipe</span>
-                    <button
-                      onClick={() => {
-                        click();
-                        setSwipeMode(isVoiceMode ? 'touch' : 'voice');
-                      }}
-                      className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${isVoiceMode
- ? 'bg-accent/12 border-accent/35 text-accent'
- : 'bg-surface-2/40 border-line-strong/50 text-ink hover:border-line-strong/60'
- }`}
-                    >
-                      {isVoiceMode ? <Mic className="w-3.5 h-3.5" /> : <Hand className="w-3.5 h-3.5" />}
-                      {isVoiceMode ? 'Voice Mode' : 'Touch Mode'}
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted">
-                    Voice mode yêu cầu đọc đúng từ trên cùng 3 lần liên tiếp.
-                  </p>
-                </div>
+                {/* Speaking practice: its own drill, it no longer blocks swiping */}
+                <Link
+                  href="/speak"
+                  onClick={() => { click(); setShowMobileStats(false); }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
+                >
+                  <Mic className="w-4 h-4 text-accent" />
+                  Luyện nói 2 phút
+                  <ChevronRight className="w-4 h-4 text-subtle ml-auto" />
+                </Link>
 
                 {/* Example sentences per archetype (Studio variants) */}
                 <div className="space-y-2 pb-4 border-b border-line">

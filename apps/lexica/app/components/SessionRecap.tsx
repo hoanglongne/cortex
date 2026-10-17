@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, Flame, Hammer, LayoutGrid, PenLine, Sparkles, Swords } from 'lucide-react';
+import { ArrowRight, BookOpen, Flame, Hammer, LayoutGrid, Mic, PenLine, Sparkles, Swords } from 'lucide-react';
 import { getCard, getPassages } from '../lib/content/repository';
 import { passageWith, readPassages } from '../lib/engagement/reading';
 import { canOffer, pickCandidate } from '../lib/engagement/mySentence';
@@ -127,6 +127,12 @@ export default function SessionRecap({
                                     <LayoutGrid className="w-4 h-4 text-muted" />
                                     Còn {nearest.missing} từ là đủ bộ {nearest.label}
                                 </p>
+                            )}
+                            {(session.newCards.length > 0 || (session.remembered ?? []).length > 0) && (
+                                <Link href="/speak" className="flex items-center gap-2 text-ink hover:text-accent">
+                                    <Mic className="w-4 h-4 text-muted" />
+                                    Luyện nói các từ vừa học (2 phút)
+                                </Link>
                             )}
                             {passage && (
                                 <Link href={`/read/${passage.id}`} className="flex items-center gap-2 text-ink hover:text-accent">

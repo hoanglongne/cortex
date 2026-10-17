@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, Mic, RotateCcw, TrendingUp, Flag } from 'lucide-react';
+import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, RotateCcw, TrendingUp, Flag } from 'lucide-react';
 import { flushCardEvents, trackCardEvent } from '../lib/content/events';
-import { useVocalSwipe } from '../hooks/useVocalSwipe';
 import { useLexicaStore } from '../store/lexicaStore';
-import { useVoiceAvailable } from '../lib/speechAvailability';
 import { AudioService } from '../lib/audio/AudioService';
 import RecallPanel from './RecallPanel';
 import { blankWord, type RecallCheck } from '../lib/engagement/recall';
@@ -40,7 +38,6 @@ interface VocabCardProps {
 export default function VocabCard({ card, index, onSwipe, revealed: controlledRevealed, onReveal, lucky, hint, sessionCount, check, onCheckAnswer }: VocabCardProps) {
     const [internalRevealed, setInternalRevealed] = useState(false);
     const [reported, setReported] = useState(false);
-    const swipeMode = useLexicaStore(state => state.swipeMode);
     const cardProgress = useLexicaStore(state => state.cardProgress[card.id]);
     const userArchetype = useLexicaStore(state => state.userArchetype);
 
@@ -48,10 +45,6 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
     const handleReveal = onReveal ?? (() => setInternalRevealed(true));
 
     const isBossCard = card.isBossCard || false;
-    const voiceAvailable = useVoiceAvailable();
-    const wantsVoice = isBossCard || (swipeMode === 'voice' && index === 0);
-    // Fall back to touch when the browser can't do speech or the mic is blocked
-    const isVoiceSwipeRequired = wantsVoice && voiceAvailable;
     const isReviewCard = Boolean(cardProgress);
     const hard = isHard(cardProgress);
 
@@ -70,21 +63,6 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
         void AudioService.play(card.id, 'word');
     };
 
-    const {
-        state: vocalState,
-        hitsRemaining,
-        startListening,
-        stopListening,
-        setHolding,
-        canStartListening,
-    } = useVocalSwipe({
-        targetWord: card.word,
-        onSuccess: () => {
-            onSwipe('right', 'voice');
-        },
-        enabled: isVoiceSwipeRequired,
-    });
-
     return (
         <div className="relative w-full">
             <motion.div
@@ -97,7 +75,6 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     const threshold = 150;
                     if (Math.abs(info.offset.x) > threshold) {
                         const direction = info.offset.x > 0 ? 'right' : 'left';
-                        if (direction === 'right' && isVoiceSwipeRequired) return;
                         onSwipe(direction);
                     }
                 }}
@@ -182,43 +159,10 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         <p className="mt-3 font-mono text-[11px] text-accent">{hint}</p>
                     )}
 
-                    {wantsVoice && !voiceAvailable && index === 0 && (
-                        <p className="mt-3 font-mono text-[11px] text-warning">
-                            Không dùng được micro trên trình duyệt này, tạm chuyển sang vuốt thẻ.
-                        </p>
-                    )}
-
                     {/* min-h-0 + scroll: a safety net if the panel ever outgrows the card */}
                     <div data-testid="card-panel" className="mt-auto pt-4 min-h-0 overflow-y-auto">
                         {check && index === 0 && onCheckAnswer ? (
                             <RecallPanel check={check} word={card.word} meaning={card.translationHint} aid={mnemonic(card)} nextIn={recallNextIn(check, cardProgress)} onAnswer={onCheckAnswer} />
-                        ) : isVoiceSwipeRequired ? (
-                            /* Voice mode: word info always visible + mic controls */
-                            <div className="space-y-3">
-                                <WordBlock card={card} onSpeak={speakWord} onUseOriginal={useOriginal} />
-                                <button
-                                    onPointerDown={(e) => { e.preventDefault(); setHolding(true); startListening(); }}
-                                    onPointerUp={() => { setHolding(false); stopListening(); }}
-                                    onPointerLeave={() => { setHolding(false); stopListening(); }}
-                                    disabled={!canStartListening}
-                                    className={`w-full h-12 px-4 rounded-xl font-medium text-sm transition-colors flex items-center justify-center gap-2 select-none touch-none disabled:cursor-not-allowed disabled:opacity-50 ${vocalState === 'LISTENING' ? 'bg-accent text-on-accent scale-[0.98]' :
-                                        vocalState === 'SUCCESS' ? 'bg-accent text-on-accent' :
-                                            vocalState === 'FAIL' ? 'bg-surface-2 border border-danger/40 text-ink' :
-                                                'bg-surface-2 border border-line-strong text-ink hover:bg-surface-3'
-                                        }`}
-                                >
-                                    <Mic className={`w-4 h-4 ${vocalState === 'LISTENING' ? 'animate-pulse' : ''}`} />
-                                    {vocalState === 'LISTENING' ? 'Đang nghe...' :
-                                        vocalState === 'SUCCESS' ? 'Hoàn hảo' :
-                                            vocalState === 'FAIL' ? 'Thử lại' :
-                                                'Giữ để nói'}
-                                    <span className="ml-auto flex gap-1" aria-label={`${3 - hitsRemaining}/3 lần đúng`}>
-                                        {[0, 1, 2].map((i) => (
-                                            <span key={i} className={`w-4 h-1 ${i < 3 - hitsRemaining ? 'bg-accent' : 'bg-surface-3'}`} />
-                                        ))}
-                                    </span>
-                                </button>
-                            </div>
                         ) : !revealed ? (
                             <button
                                 data-tour-id="reveal-button"
@@ -234,16 +178,12 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     </div>
                 </div>
 
-                {!isVoiceSwipeRequired && (
-                    <>
-                        <motion.div className="absolute top-1/2 left-8 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
-                            <XIcon className="w-16 h-16 text-danger" />
-                        </motion.div>
-                        <motion.div className="absolute top-1/2 right-8 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
-                            <Check className="w-16 h-16 text-accent" />
-                        </motion.div>
-                    </>
-                )}
+                <motion.div className="absolute top-1/2 left-8 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
+                    <XIcon className="w-16 h-16 text-danger" />
+                </motion.div>
+                <motion.div className="absolute top-1/2 right-8 -translate-y-1/2 opacity-0" style={{ opacity: 0 }}>
+                    <Check className="w-16 h-16 text-accent" />
+                </motion.div>
             </motion.div>
         </div>
     );

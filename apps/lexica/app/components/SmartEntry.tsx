@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon, Cloud, BookOpen, RotateCcw, Zap, BookMarked, ArrowRight } from 'lucide-react';
+import { Sun, Moon, Cloud, BookOpen, RotateCcw, Zap, BookMarked, ArrowRight, Mic } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getDueCards } from '../lib/eloAlgorithm';
 import { useSoundEffects } from '../hooks/useSoundEffects';
@@ -326,6 +326,14 @@ export default function SmartEntry({ onStartSession, variant = 'full' }: SmartEn
                         Đổi mục tiêu
                     </button>
                 </div>
+                <Link
+                    href="/speak"
+                    onClick={() => buttonPress()}
+                    className="flex items-center justify-center gap-2 p-3 rounded-xl bg-surface-2/50 hover:bg-surface-2 border border-line-strong transition-all text-ink-2 text-sm font-medium"
+                >
+                    <Mic className="w-4 h-4" />
+                    Luyện nói 2 phút
+                </Link>
             </div>
         </motion.div>
     );

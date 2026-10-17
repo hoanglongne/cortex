@@ -8,6 +8,8 @@ import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCa
 import type { Quality } from '../lib/srs';
 import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentencePrompt } from '../lib/engagement/mySentence';
 import { getCard } from '../lib/content/repository';
+import { applySpeakResult } from '../lib/pronunciation/drill';
+import type { SpeakLevel } from '../lib/pronunciation/score';
 
 /**
  * LEXICA Global State Store (Zustand + localStorage persistence)
@@ -57,6 +59,10 @@ interface LexicaStore {
     isInTest: boolean; // Currently taking the test
     testScore: number | null; // Test score (0-5)
     recommendedLevel: DifficultyLevel | null; // AI recommended level from test
+
+    // Speaking ("Luyện nói", lib/pronunciation/drill.ts)
+    /** "Chưa rõ" count per card; the words hard to say. */
+    speakMisses: Record<string, number>;
 
     // Reading ("Đọc", lib/engagement/reading.ts)
     /** Cards added from a passage with "Thêm vào phiên học"; dealt first in the next deck. */
@@ -124,6 +130,9 @@ interface LexicaStore {
     skipToManual: () => void;
     completeTest: (score: number, recommendedLevel: DifficultyLevel, calibratedElo?: number) => void;
     acceptRecommendedLevel: () => void;
+
+    // Speaking actions
+    recordSpeak: (cardId: string, level: SpeakLevel) => void;
 
     // Reading actions
     /** Adds cards to the front of the next deck (as new cards). Returns how many were added. */
@@ -294,6 +303,7 @@ export const useLexicaStore = create<LexicaStore>()(
             },
 
             queuedCardIds: [],
+            speakMisses: {},
 
 
             // Swipe card action
@@ -452,6 +462,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     testScore: null,
                     recommendedLevel: null,
                     queuedCardIds: [],
+                    speakMisses: {},
                     // Reset streak
                     currentStreak: 0,
                     longestStreak: 0,
@@ -640,6 +651,10 @@ export const useLexicaStore = create<LexicaStore>()(
                 }
             },
 
+            recordSpeak: (cardId, level) => {
+                set({ speakMisses: applySpeakResult(get().speakMisses, cardId, level) });
+            },
+
             queueCards: (cardIds) => {
                 const { queuedCardIds, cardProgress, currentDeck } = get();
                 const fresh = [...new Set(cardIds)].filter(id => !cardProgress[id] && !queuedCardIds.includes(id) && !currentDeck.some(c => c.id === id) && getCard(id));
@@ -736,6 +751,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 // Highest ELO
                 highestElo: state.highestElo,
                 queuedCardIds: state.queuedCardIds,
+                speakMisses: state.speakMisses,
                 studyHistory: state.studyHistory,
                 // Daily Goals - persist daily progress tracking
                 dailyGoal: state.dailyGoal,

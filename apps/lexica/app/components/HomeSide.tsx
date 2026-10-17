@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { BookOpen, ChevronRight, LayoutGrid, RotateCcw, Swords, TrendingUp } from 'lucide-react';
+import { BookOpen, ChevronRight, LayoutGrid, Mic, RotateCcw, Swords, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import { hardWords } from '../lib/engagement/hard';
@@ -31,6 +31,8 @@ export default function HomeSide({ onStartDrop }: { onStartDrop: () => void }) {
 
     const due = getProgressStats(cardProgress).dueToday;
     const hard = hardWords(cardProgress).length;
+    const speakMisses = useLexicaStore((s) => s.speakMisses);
+    const hardSay = Object.values(speakMisses).filter((m) => m > 0).length;
     const drop = getCurrentDrop(now);
     const dropKey = drop ? `${drop.id}\n${drop.title}` : '';
     const nextSet = useMemo(() => {
@@ -72,6 +74,15 @@ export default function HomeSide({ onStartDrop }: { onStartDrop: () => void }) {
                     label="Đọc 2 phút"
                     title={passage.title}
                     hint={`${unknownIn(passage, cardProgress).length} từ mới · ${passage.topic}`}
+                />
+            )}
+            {Object.keys(cardProgress).length > 0 && (
+                <SideCard
+                    href="/speak"
+                    icon={<Mic className="w-4 h-4" />}
+                    label="Luyện nói 2 phút"
+                    title={hardSay > 0 ? `${hardSay} từ khó nói` : '5 từ vừa học'}
+                    hint="Nghe phân biệt, nói, xem máy nghe được gì"
                 />
             )}
             {nextSet && (
