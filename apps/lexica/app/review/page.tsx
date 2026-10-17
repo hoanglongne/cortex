@@ -4,7 +4,7 @@ import { useMemo, useState, useCallback, useEffect, useRef, Suspense } from 'rea
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield, Swords } from 'lucide-react';
+import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield, Swords, Package } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards } from '../lib/content/repository';
 import { trackCardEvent } from '../lib/content/events';
@@ -14,7 +14,8 @@ import { scenarioFor } from '../lib/content/persona';
 import type { VocabCardData } from '../types/vocab';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { answer as riskAnswer, bank, initialRisk, LADDER, multiplier, pickNext, total as riskTotal, type RiskState } from '../lib/engagement/risk';
-import { getGhost, ghostCorrectAt, localDate, recordRun, WIN_STREAK_GOAL, type GhostResult, type GhostRun } from '../lib/engagement/ghost';
+import { getRival, ghostCorrectAt, localDate, recordRun, WIN_STREAK_GOAL, type GhostResult, type Rival } from '../lib/engagement/ghost';
+import { reviewDustLine, type ReviewDust } from '../lib/engagement/reviewDust';
 import { hasShield, useEconomy } from '../lib/engagement/economy';
 import { readShieldsUsed, spendShield } from '../lib/engagement/shields';
 import { hardWords, isHard, mnemonic } from '../lib/engagement/hard';
@@ -191,12 +192,15 @@ function QuestionCard({
     index,
     total,
     streak,
+    rail,
     onAnswer,
 }: {
     question: Question;
     index: number;
     total: number;
     streak: number;
+    /** The "Liều hay Dừng" pot, drawn as a column beside the question. */
+    rail?: React.ReactNode;
     onAnswer: (correct: boolean, fast?: boolean) => void;
 }) {
     const { click } = useSoundEffects();
@@ -260,7 +264,6 @@ function QuestionCard({
         }
     };
 
-    const timerPct = (timeLeft / TIMER_SECONDS) * 100;
     const promptBorder = answered
         ? 'bg-ink/[0.03] border-ink/30'
         : 'bg-ink/[0.02] border-ink/20';
@@ -273,15 +276,16 @@ function QuestionCard({
             transition={{ duration: 0.22 }}
             className="w-full max-w-2xl mx-auto"
         >
-            {/* Progress bar + counter + streak badge */}
+            {/* The only bar: question progress. The timer is the ring around the number. */}
             <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 h-1 bg-ink/5 border border-ink/10 rounded-full overflow-hidden">
+                <TimerRing seconds={timeLeft} total={TIMER_SECONDS} label={index + 1} />
+                <div className="flex-1 h-1 bg-ink/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={index} aria-valuemax={total} aria-label="Tiến độ">
                     <div
                         className="h-full bg-accent rounded-full transition-all duration-500"
                         style={{ width: `${(index / total) * 100}%` }}
                     />
                 </div>
-                <span className="text-muted text-xs font-medium shrink-0">{index + 1}/{total}</span>
+                <span className="text-muted text-xs font-mono shrink-0">{index + 1}/{total}</span>
                 <AnimatePresence>
                     {streak >= 3 && (
                         <motion.span
@@ -289,7 +293,7 @@ function QuestionCard({
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0, opacity: 0 }}
-                            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/10 border border-accent/30 text-accent text-xs font-bold shrink-0"
+                            className="flex items-center gap-1 text-accent text-xs font-bold shrink-0"
                         >
                             <Flame className="w-3 h-3" /> {streak}
                         </motion.span>
@@ -297,32 +301,23 @@ function QuestionCard({
                 </AnimatePresence>
             </div>
 
-            {/* Timer bar */}
-            <div className="h-1 bg-ink/5 rounded-full overflow-hidden mb-5">
-                {!answered && (
-                    <motion.div
-                        className="h-full bg-accent rounded-full"
-                        animate={{ width: `${timerPct}%` }}
-                        transition={{ duration: 0.95, ease: 'linear' }}
-                    />
-                )}
-            </div>
-
+            <div className="flex gap-2 sm:gap-3">
+            <div className="flex-1 min-w-0">
             {/* Question prompt */}
             <div className={`border rounded-xl p-5 mb-4 transition-colors duration-300 ${promptBorder}`}>
-                <p className="text-[10px] text-muted uppercase font-mono font-semibold mb-2.5 flex items-center gap-2">
+                <p data-testid="review-type" className="text-[10px] text-muted uppercase font-mono font-semibold mb-2.5 flex items-center gap-2">
                     {TYPE_LABEL[question.type]}
                     {question.hard && <span className="flex items-center gap-1 text-warning"><Swords className="w-3 h-3" /> Từ khó</span>}
                 </p>
 
                 {question.type === 'fill-in' ? (
-                    <p className="text-ink text-base leading-relaxed italic">
+                    <p data-testid="review-prompt" className="text-ink text-base leading-relaxed italic">
                         &ldquo;{highlightBlank(question.prompt)}&rdquo;
                     </p>
                 ) : question.type === 'meaning-to-word' ? (
-                    <p className="text-ink text-base leading-relaxed">{question.prompt}</p>
+                    <p data-testid="review-prompt" className="text-ink text-base leading-relaxed">{question.prompt}</p>
                 ) : (
-                    <p className="text-3xl font-bold text-ink tracking-wide">{question.prompt}</p>
+                    <p data-testid="review-prompt" className="text-3xl font-bold text-ink tracking-wide">{question.prompt}</p>
                 )}
 
                 {answered && (
@@ -417,113 +412,135 @@ function QuestionCard({
             {showReveal && (
                 <RevealPanel question={question} onContinue={() => { setShowReveal(false); onAnswer(false); }} />
             )}
+            </div>
+            {rail}
+            </div>
         </motion.div>
     );
 }
 
-/** Pot of "Liều hay Dừng": banked score, current pot and the multiplier ladder. */
-function RiskBar({ risk }: { risk: RiskState }) {
+/** A small countdown ring around the question number. */
+function TimerRing({ seconds, total, label }: { seconds: number; total: number; label: number }) {
+    const r = 13;
+    const c = 2 * Math.PI * r;
+    const left = Math.max(0, seconds) / total;
     return (
-        <div className="flex items-center gap-3 mb-4" aria-label="Hũ điểm">
-            <div className="flex gap-1 flex-1">
+        <span className="relative w-8 h-8 shrink-0 flex items-center justify-center" aria-label={`Câu ${label}, còn ${seconds} giây`}>
+            <svg viewBox="0 0 32 32" className="absolute inset-0 -rotate-90">
+                <circle cx="16" cy="16" r={r} fill="none" strokeWidth="2.5" className="stroke-ink/10" />
+                <circle
+                    cx="16"
+                    cy="16"
+                    r={r}
+                    fill="none"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeDasharray={c}
+                    strokeDashoffset={c * (1 - left)}
+                    className={`transition-[stroke-dashoffset] duration-1000 ease-linear ${seconds <= 5 ? 'stroke-warning' : 'stroke-accent'}`}
+                />
+            </svg>
+            <span className="font-mono text-xs font-bold text-ink">{label}</span>
+        </span>
+    );
+}
+
+/**
+ * "Liều hay Dừng" as a narrow column beside the question: the steps x1…x5
+ * from the bottom up, lit by the run of right answers; the pot on top and a
+ * small Chốt button below. Not banking means the next word is harder.
+ */
+function RiskRail({ risk, shield, lost, onBank }: { risk: RiskState; shield: boolean; lost: { pot: number; key: number } | null; onBank: () => void }) {
+    const { buttonPress } = useSoundEffects();
+    // One step lights up per right answer in a row; the next one is outlined.
+    const lit = (i: number) => i < risk.step || (i === LADDER.length - 1 && risk.step === i && risk.pot > 0);
+    const next = (i: number) => !lit(i) && i === risk.step && risk.pot > 0;
+    return (
+        <div data-testid="risk-rail" className="relative self-start w-7 sm:w-11 shrink-0 flex flex-col items-center gap-1.5" aria-label={`Hũ ${risk.pot} điểm, nhân x${multiplier(risk)}, đã chốt ${risk.banked}`}>
+            <span className="h-4 flex items-center" title={shield ? 'Khiên: thẻ Holo của bạn giữ hũ nếu sai câu này' : undefined}>
+                {shield && <Shield className="w-3.5 h-3.5 text-accent" aria-label="Có khiên" />}
+            </span>
+            <motion.span key={risk.pot} initial={{ scale: 1.3 }} animate={{ scale: 1 }} className="font-mono text-[11px] sm:text-sm font-bold text-accent leading-none">
+                {risk.pot}
+            </motion.span>
+            <div className="w-full flex flex-col-reverse gap-1">
                 {LADDER.map((m, i) => (
                     <div
                         key={m}
-                        className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${i < risk.step || (i === risk.step && risk.pot > 0) ? 'bg-accent' : 'bg-ink/10'}`}
-                    />
+                        className={`h-8 sm:h-10 w-full rounded-md flex items-center justify-center font-mono text-[10px] transition-colors duration-300 ${lit(i) ? 'bg-accent text-on-accent' : next(i) ? 'border border-accent/60 text-accent' : 'bg-ink/[0.06] text-subtle'}`}
+                    >
+                        <span className="hidden sm:inline">x{m}</span>
+                    </div>
                 ))}
             </div>
-            <span className="font-mono text-xs text-muted shrink-0">
-                hũ <span className="text-accent font-bold text-sm">{risk.pot}</span> · x{multiplier(risk)}
-            </span>
-            <span className="font-mono text-xs text-muted shrink-0">
-                đã chốt <span className="text-ink font-bold">{risk.banked}</span>
-            </span>
+            <button
+                type="button"
+                onClick={() => {
+                    buttonPress();
+                    onBank();
+                }}
+                disabled={risk.pot === 0}
+                aria-label={`Chốt ${risk.pot} điểm`}
+                className="w-full h-8 rounded-lg border border-line-strong bg-surface text-ink text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent/60 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition"
+            >
+                <Lock className="w-3 h-3 sm:hidden" />
+                <span className="hidden sm:inline">Chốt</span>
+            </button>
+            <span className="font-mono text-[10px] text-subtle leading-none" title="Điểm đã chốt">{risk.banked}</span>
+            {/* A wrong answer: the pot falls out of the column */}
+            <AnimatePresence>
+                {lost && (
+                    <motion.span
+                        key={lost.key}
+                        initial={{ opacity: 1, y: 0 }}
+                        animate={{ opacity: 0, y: 60 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.7, ease: 'easeIn' }}
+                        className="pointer-events-none absolute top-5 font-mono text-xs font-bold text-danger"
+                    >
+                        -{lost.pot}
+                    </motion.span>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
 
-function RiskChoice({ risk, onBank, onRisk }: { risk: RiskState; onBank: () => void; onRisk: () => void }) {
-    const { buttonPress } = useSoundEffects();
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            className="w-full max-w-2xl mx-auto rounded-2xl border border-line bg-surface p-6 text-center"
-        >
-            <p className="text-muted text-sm">Hũ đang có</p>
-            <p className="font-mono text-5xl font-bold text-accent my-2">{risk.pot}</p>
-            <p className="text-muted text-sm mb-6">
-                Liều: câu sau khó hơn, nhân <span className="font-mono text-ink">x{multiplier(risk)}</span>. Sai là mất cả hũ.
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-                <button
-                    onClick={() => {
-                        buttonPress();
-                        onBank();
-                    }}
-                    className="py-3 rounded-xl border border-ink/20 bg-ink/[0.02] text-ink font-semibold text-sm hover:border-accent/50 active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                    <Lock className="w-4 h-4" /> Chốt +{risk.pot}
-                </button>
-                <button
-                    onClick={() => {
-                        buttonPress();
-                        onRisk();
-                    }}
-                    className="py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                    <Flame className="w-4 h-4" /> Liều
-                </button>
-            </div>
-        </motion.div>
-    );
-}
-
-/** Today's correct answers next to yesterday's best run at the same elapsed time. */
-function GhostBar({ ghost, mine, startedAt, scale }: { ghost: GhostRun; mine: number; startedAt: number; scale: number }) {
+/** "Bạn 7 · Hôm qua 6 ▲": right answers so far against the rival at the same time. */
+function GhostLine({ rival, mine, startedAt }: { rival: Rival; mine: number; startedAt: number }) {
     const [now, setNow] = useState(() => Date.now());
     useEffect(() => {
         const t = setInterval(() => setNow(Date.now()), 1000);
         return () => clearInterval(t);
     }, []);
-    const theirs = ghostCorrectAt(ghost, now - startedAt);
-    const pct = (n: number) => `${Math.min(100, (n / Math.max(scale, 1)) * 100)}%`;
+    const theirs = ghostCorrectAt(rival.run, now - startedAt);
+    const sign = mine > theirs ? '▲' : mine < theirs ? '▼' : '=';
     return (
-        <div className="mb-4 space-y-1.5" aria-label="Đua với hôm qua">
-            <div className="flex items-center gap-2">
-                <span className="w-16 font-mono text-[10px] text-accent">bạn {mine}</span>
-                <div className="flex-1 h-1 rounded-full bg-ink/5 overflow-hidden">
-                    <div className="h-full bg-accent transition-all duration-500" style={{ width: pct(mine) }} />
-                </div>
-            </div>
-            <div className="flex items-center gap-2">
-                <span className="w-16 font-mono text-[10px] text-subtle flex items-center gap-1">
-                    <Ghost className="w-3 h-3" /> {theirs}
-                </span>
-                <div className="flex-1 h-1 rounded-full bg-ink/5 overflow-hidden">
-                    <div className="h-full bg-subtle transition-all duration-500" style={{ width: pct(theirs) }} />
-                </div>
-            </div>
-        </div>
+        <p data-testid="ghost-line" className="font-mono text-[11px] text-muted text-center" aria-label={`Bạn ${mine} câu đúng, ${rival.label} ${theirs} câu`}>
+            Bạn <span className="text-ink">{mine}</span> · {rival.short} {theirs}{' '}
+            <span className={mine > theirs ? 'text-accent' : mine < theirs ? 'text-warning' : ''}>{sign}</span>
+        </p>
     );
 }
 
-function GhostSummary({ result }: { result: GhostResult }) {
+function GhostSummary({ result, rival }: { result: GhostResult; rival: Rival | null }) {
     if (result.beat === null) {
         return <p className="text-muted text-sm text-center mb-5">Mai bạn sẽ đua với chính lượt này.</p>;
     }
     const diff = Math.abs(result.scoreDiff);
+    const who = `bạn ${rival?.label ?? 'hôm qua'}`;
     return (
         <div className={`rounded-xl border p-4 mb-5 text-center ${result.beat ? 'border-accent/40 bg-accent/5' : 'border-line bg-ink/[0.02]'}`}>
             <p className="text-ink font-semibold flex items-center justify-center gap-2">
                 <Ghost className="w-4 h-4" />
-                {result.beat ? `Hơn hôm qua ${diff} điểm` : diff === 0 ? 'Hoà với hôm qua' : `Kém hôm qua ${diff} điểm`}
+                {result.beat ? `Hơn ${who} ${diff} điểm` : diff === 0 ? `Hoà với ${who}` : `Kém ${who} ${diff} điểm`}
             </p>
             <p className="text-muted text-xs mt-1 font-mono">
                 {result.correctDiff >= 0 ? '+' : ''}
-                {result.correctDiff} câu đúng · thắng {result.winStreak}/{WIN_STREAK_GOAL} ngày liền
+                {result.correctDiff} câu đúng
+            </p>
+            <p className="text-muted text-xs mt-1 flex items-center justify-center gap-1.5">
+                <Package className="w-3.5 h-3.5" /> Vượt lượt trước {WIN_STREAK_GOAL} ngày liền → 1 Hộp · đang {result.winStreak}/{WIN_STREAK_GOAL}
             </p>
             {result.streakReached && <p className="text-accent text-sm font-semibold mt-2">Thắng bóng ma {WIN_STREAK_GOAL} ngày liền!</p>}
         </div>
@@ -536,6 +553,8 @@ function ResultScreen({
     score,
     bestPot,
     ghostResult,
+    rival,
+    dust,
     onRetry,
 }: {
     results: Result[];
@@ -543,6 +562,9 @@ function ResultScreen({
     score: number;
     bestPot: number;
     ghostResult: GhostResult | null;
+    rival: Rival | null;
+    /** What the banked points turned into (null while asking, or on a retry). */
+    dust: ReviewDust | null;
     onRetry: () => void;
 }) {
     const { buttonPress } = useSoundEffects();
@@ -565,9 +587,10 @@ function ResultScreen({
                 </div>
                 <p className="text-4xl font-bold text-ink mb-1 font-mono">{score}</p>
                 <p className="text-muted text-sm">điểm đã chốt · {correct}/{total} câu đúng</p>
+                {dust && <p data-testid="review-dust" className="mt-2 text-sm text-accent">{reviewDustLine(dust)}</p>}
             </div>
 
-            {ghostResult && <GhostSummary result={ghostResult} />}
+            {ghostResult && <GhostSummary result={ghostResult} rival={rival} />}
 
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-3 mb-5">
@@ -669,6 +692,25 @@ function ResultScreen({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+/** Shown once: what the pot is for. */
+const INTRO_KEY = 'lexica-review-intro-v1';
+
+function readFlag(key: string): boolean {
+    try {
+        return typeof window !== 'undefined' && localStorage.getItem(key) === '1';
+    } catch {
+        return false;
+    }
+}
+
+function writeFlag(key: string) {
+    try {
+        localStorage.setItem(key, '1');
+    } catch {
+        // Private mode: the line just shows again next time.
+    }
+}
+
 function ReviewPageContent() {
     const searchParams = useSearchParams();
     const testAll = searchParams.get('all') === '1';
@@ -705,16 +747,19 @@ function ReviewPageContent() {
     const [streak, setStreak] = useState(0);
     const [maxStreak, setMaxStreak] = useState(0);
 
-    // Liều hay Dừng + ghost of yesterday
+    // Liều hay Dừng + race against an earlier session
     const [risk, setRisk] = useState<RiskState>(initialRisk);
-    const [choosing, setChoosing] = useState(false);
+    const [lost, setLost] = useState<{ pot: number; key: number } | null>(null);
     const [isRetry, setIsRetry] = useState(false);
-    const [ghost] = useState<GhostRun | null>(() => (typeof window === 'undefined' ? null : getGhost()));
+    const [rival] = useState<Rival | null>(() => (typeof window === 'undefined' ? null : getRival()));
     const [ghostResult, setGhostResult] = useState<GhostResult | null>(null);
+    const [dust, setDust] = useState<ReviewDust | null>(null);
+    const [showIntro, setShowIntro] = useState(() => !readFlag(INTRO_KEY));
     const [startedAt, setStartedAt] = useState(0);
     const timeline = useRef<[number, 0 | 1][]>([]);
     const editions = useEconomy(s => s.state?.editions);
     const claimReward = useEconomy(s => s.claim);
+    const reviewDust = useEconomy(s => s.reviewDust);
     const [shieldsUsed, setShieldsUsed] = useState<Set<string>>(() => (typeof window === 'undefined' ? new Set() : readShieldsUsed()));
 
     // Build questions once dueCardIds is known (store may hydrate after mount)
@@ -747,7 +792,9 @@ function ReviewPageContent() {
         });
         setGhostResult(result);
         if (result.streakReached) void claimReward('ghost_streak', localDate()).catch(() => undefined);
-    }, [isRetry, startedAt, claimReward]);
+        // Banked points become Bụi (10 = 1, capped per day on the server).
+        void reviewDust(banked.banked).then(setDust);
+    }, [isRetry, startedAt, claimReward, reviewDust]);
 
     /** Moves to the next question; after Liều the next one is a harder word. */
     const advance = useCallback((risky: boolean) => {
@@ -759,7 +806,6 @@ function ReviewPageContent() {
             [reordered[next], reordered[next + pick]] = [reordered[next + pick], reordered[next]];
             setQuestions(reordered);
         }
-        setChoosing(false);
         setCurrentIndex(next);
     }, [questions, currentIndex]);
 
@@ -791,13 +837,13 @@ function ReviewPageContent() {
         if (shielded) setShieldsUsed(spendShield(q.cardId));
         const nextRisk = riskAnswer(risk, correct, shielded);
         setRisk(nextRisk);
+        if (!correct && risk.pot > 0 && nextRisk.pot === 0) setLost({ pot: risk.pot, key: Date.now() });
 
         if (currentIndex + 1 >= questions.length) {
             finish(nextRisk, allResults);
-        } else if (correct) {
-            setChoosing(true);
         } else {
-            advance(false);
+            // Leaving points in the pot is the "Liều": the next word is harder.
+            advance(nextRisk.pot > 0);
         }
     }, [questions, currentIndex, submitReviewAnswer, streak, results, risk, finish, advance, startedAt, editions, shieldsUsed]);
 
@@ -811,9 +857,10 @@ function ReviewPageContent() {
         setStreak(0);
         setMaxStreak(0);
         setRisk(initialRisk());
-        setChoosing(false);
+        setLost(null);
         setIsRetry(true);
         setGhostResult(null);
+        setDust(null);
     }, [results]);
 
     // No due cards (store hydrated, genuinely empty)
@@ -836,10 +883,10 @@ function ReviewPageContent() {
     }
 
     return (
-        <div className={`min-h-screen px-4 py-8 transition-colors duration-500 ${risk.step >= 2 && !done ? 'bg-black' : 'bg-bg'}`}>
+        <div className="min-h-screen px-4 py-8 bg-bg">
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between mb-2">
                     <Link
                         href="/"
                         className="inline-flex items-center gap-2 text-muted hover:text-accent transition-colors group text-sm"
@@ -854,23 +901,26 @@ function ReviewPageContent() {
                     <div className="w-12" /> {/* spacer */}
                 </div>
 
-                {!done && questions.length > 0 && (
-                    <>
-                        <RiskBar risk={risk} />
-                        {!choosing && questions[currentIndex] && hasShield(editions?.[questions[currentIndex].cardId]) && !shieldsUsed.has(questions[currentIndex].cardId) && risk.pot > 0 && (
-                            <p className="-mt-2 mb-3 flex items-center gap-1.5 font-mono text-[11px] text-accent">
-                                <Shield className="w-3.5 h-3.5" /> Khiên: thẻ Holo của bạn giữ hũ nếu sai câu này
-                            </p>
-                        )}
-                        {ghost && !isRetry && startedAt > 0 && (
-                            <GhostBar
-                                ghost={ghost}
-                                mine={results.filter(r => r.correct).length}
-                                startedAt={startedAt}
-                                scale={Math.max(ghost.correct, questions.length)}
-                            />
-                        )}
-                    </>
+                <div className="h-5 mb-5">
+                    {!done && rival && !isRetry && startedAt > 0 && (
+                        <GhostLine rival={rival} mine={results.filter(r => r.correct).length} startedAt={startedAt} />
+                    )}
+                </div>
+
+                {!done && showIntro && questions.length > 0 && (
+                    <p data-testid="risk-intro" className="mb-4 text-xs text-muted flex items-start gap-2">
+                        <span className="flex-1">Đúng liên tiếp thì hũ nhân lên. Sai là mất phần chưa chốt. Bấm Chốt để giữ điểm.</span>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                writeFlag(INTRO_KEY);
+                                setShowIntro(false);
+                            }}
+                            className="text-ink underline shrink-0"
+                        >
+                            Hiểu rồi
+                        </button>
+                    </p>
                 )}
 
                 <AnimatePresence mode="wait">
@@ -882,17 +932,9 @@ function ReviewPageContent() {
                             score={riskTotal(risk)}
                             bestPot={risk.bestPot}
                             ghostResult={ghostResult}
+                            rival={rival}
+                            dust={dust}
                             onRetry={handleRetry}
-                        />
-                    ) : choosing ? (
-                        <RiskChoice
-                            key={`choice-${currentIndex}`}
-                            risk={risk}
-                            onBank={() => {
-                                setRisk(bank(risk));
-                                advance(false);
-                            }}
-                            onRisk={() => advance(true)}
                         />
                     ) : questions.length === 0 ? (
                         <div key="loading" className="flex justify-center py-20">
@@ -906,6 +948,14 @@ function ReviewPageContent() {
                             total={questions.length}
                             streak={streak}
                             onAnswer={handleAnswer}
+                            rail={
+                                <RiskRail
+                                    risk={risk}
+                                    lost={lost}
+                                    shield={hasShield(editions?.[questions[currentIndex].cardId]) && !shieldsUsed.has(questions[currentIndex].cardId) && risk.pot > 0}
+                                    onBank={() => setRisk(bank(risk))}
+                                />
+                            }
                         />
                     )}
                 </AnimatePresence>

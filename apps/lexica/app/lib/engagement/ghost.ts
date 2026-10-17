@@ -54,6 +54,39 @@ function write(store: GhostStore) {
     }
 }
 
+const WEEKDAY = ['Chủ nhật', 'thứ Hai', 'thứ Ba', 'thứ Tư', 'thứ Năm', 'thứ Sáu', 'thứ Bảy'];
+
+export interface Rival {
+    run: GhostRun;
+    date: string;
+    /** "hôm qua" or "hôm thứ Ba", to put after "Bạn" / "Hơn bạn". */
+    label: string;
+    /** "Hôm qua" or "Thứ Ba", for the live line. */
+    short: string;
+}
+
+function rivalIn(runs: Record<string, GhostRun>, today: string): Rival | null {
+    let d = today;
+    for (let i = 1; i <= KEEP_DAYS; i++) {
+        d = previousDate(d);
+        const run = runs[d];
+        if (!run) continue;
+        if (i === 1) return { run, date: d, label: 'hôm qua', short: 'Hôm qua' };
+        const [y, m, day] = d.split('-').map(Number);
+        const name = WEEKDAY[new Date(y, m - 1, day, 12).getDay()];
+        return { run, date: d, label: `hôm ${name}`, short: name.charAt(0).toUpperCase() + name.slice(1) };
+    }
+    return null;
+}
+
+/**
+ * Who to race: yesterday's best session, or else the most recent one in the
+ * last 7 days ("Bạn hôm thứ Ba"). Null when there is none.
+ */
+export function getRival(today = localDate()): Rival | null {
+    return rivalIn(read().runs, today);
+}
+
 /** Yesterday's best session, if there was one. */
 export function getGhost(today = localDate()): GhostRun | null {
     return read().runs[previousDate(today)] ?? null;
@@ -89,7 +122,8 @@ function winStreakEnding(wins: string[], date: string): number {
 /** Saves the session (keeping the day's best) and compares it with yesterday. */
 export function recordRun(run: Omit<GhostRun, 'timeline'> & { timeline: [number, 0 | 1][] }): GhostResult {
     const store = read();
-    const ghost = store.runs[previousDate(run.date)] ?? null;
+    // Same rival as the live line: yesterday, else the latest run this week.
+    const ghost = rivalIn(store.runs, run.date)?.run ?? null;
     const prevBest = store.runs[run.date];
     const trimmed = { ...run, timeline: run.timeline.slice(0, MAX_TIMELINE) };
     if (!prevBest || run.score > prevBest.score || (run.score === prevBest.score && run.correct > prevBest.correct)) {

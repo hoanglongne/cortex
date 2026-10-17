@@ -32,6 +32,7 @@ FILES=(
   apps/cortex-core-api/supabase/seed_studio_core_cards.sql
   apps/lexica/supabase/migration_engagement.sql
   apps/lexica/supabase/migration_engagement_lucky.sql
+  apps/lexica/supabase/migration_engagement_review_dust.sql
 )
 
 OUT=supabase/restore_all.sql
