@@ -1,6 +1,6 @@
 # Lexica: task từ góp ý (2026-10-17)
 
-Chưa task nào được làm. Đường dẫn `app/...` là `apps/lexica/app/...`.
+Plan đã được chủ dự án duyệt (2026-10-17), cứ thế làm theo. Chưa task nào được làm. Đường dẫn `app/...` là `apps/lexica/app/...`.
 
 **Quy tắc chung**
 - Mỗi tính năng phải trả lời được câu: *"Nó giúp người học nhớ hoặc dùng từ tốt hơn thế nào?"*. Không trả lời được thì cắt.
