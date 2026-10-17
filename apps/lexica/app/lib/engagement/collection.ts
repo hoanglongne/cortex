@@ -102,13 +102,20 @@ export interface SetProgress {
     complete: boolean;
 }
 
-/** A card is "owned" once the user has learned it (any state). */
-export function setProgress(set: CollectionSet, progress: Record<string, UserCardProgress>): SetProgress {
+/**
+ * A card is "owned" once it was really remembered: marked known (after its
+ * recall check) at least once, not just seen and swiped away.
+ */
+export function isOwned(p: Pick<UserCardProgress, 'reviewCount'> | undefined): boolean {
+    return (p?.reviewCount ?? 0) >= 1;
+}
+
+export function setProgress(set: CollectionSet, progress: Record<string, UserCardProgress | undefined>): SetProgress {
     let owned = 0;
     let mastered = 0;
     for (const id of set.cardIds) {
         const p = progress[id];
-        if (!p) continue;
+        if (!p || !isOwned(p)) continue;
         owned++;
         if (p.state === 'mastered') mastered++;
     }

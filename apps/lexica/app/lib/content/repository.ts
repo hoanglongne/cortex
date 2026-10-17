@@ -1,6 +1,8 @@
 import { useSyncExternalStore } from 'react';
 import { VOCAB_DATABASE } from '../../data/vocabCards';
 import type { CardQuote, CardQuotes, CardVariants, ContentCard, ContentPack, VariantArchetype } from './pack';
+import { deckWordsIn, type Passage } from './passages';
+import { CORE_PASSAGES } from '../../data/passages';
 
 /**
  * Single source of vocabulary cards for the whole app.
@@ -18,6 +20,8 @@ let currentDropTitle: string | null = null;
 
 let variants: CardVariants = {};
 let quotes: CardQuotes = {};
+let remotePassages: Passage[] = [];
+let passageCache: Passage[] | null = null;
 
 let all: readonly ContentCard[] = VOCAB_DATABASE;
 let byId = new Map<string, ContentCard>(VOCAB_DATABASE.map(c => [c.id, c]));
@@ -36,6 +40,7 @@ function rebuild() {
         const key = c.word.trim().toLowerCase();
         if (!byWord.has(key)) byWord.set(key, c);
     }
+    passageCache = null;
     version++;
     listeners.forEach(l => l());
 }
@@ -90,6 +95,7 @@ export function applyRemoteContent(input: {
     currentDropId: string | null;
     variants?: CardVariants;
     quotes?: CardQuotes;
+    passages?: Passage[];
 }) {
     // Core cards win on id collisions (Studio ids never start with "v").
     const seen = new Set<string>(CORE_IDS);
@@ -106,6 +112,7 @@ export function applyRemoteContent(input: {
     currentDropTitle = input.packs.find(p => p.id === input.currentDropId)?.title ?? null;
     variants = input.variants ?? {};
     quotes = input.quotes ?? {};
+    remotePassages = input.passages ?? [];
     rebuild();
 }
 
@@ -114,11 +121,34 @@ export function getQuotes(cardId: string): CardQuote[] {
     return quotes[cardId] ?? [];
 }
 
+/**
+ * Every "Đọc" passage: core ones first, then Studio's. Core passages get
+ * their `words` (other deck words in the text) from the deck here.
+ */
+export function getPassages(): readonly Passage[] {
+    if (passageCache) return passageCache;
+    const deck = [...byWord.values()].map(c => ({ id: c.id, word: c.word }));
+    const seen = new Set<string>();
+    passageCache = [];
+    for (const p of [...CORE_PASSAGES, ...remotePassages]) {
+        if (seen.has(p.id)) continue;
+        seen.add(p.id);
+        const words = p.words.length > 0 ? p.words : deckWordsIn(p.text, deck).filter(id => !p.newWords.includes(id));
+        passageCache.push({ ...p, words });
+    }
+    return passageCache;
+}
+
+export function getPassage(id: string): Passage | undefined {
+    return getPassages().find(p => p.id === id);
+}
+
 /** Test helper: back to core-only content. */
 export function resetContent() {
     remote = [];
     variants = {};
     quotes = {};
+    remotePassages = [];
     retired = new Set();
     currentDropId = null;
     currentDropTitle = null;

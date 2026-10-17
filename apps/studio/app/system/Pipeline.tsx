@@ -12,6 +12,7 @@ const JOBS = [
     { id: 'score', label: 'Chấm điểm', hint: 'Tính độ nóng, đưa top 15 vào hàng chờ' },
     { id: 'generate', label: 'Sinh nháp', hint: 'Sinh nháp cho trend trong hàng chờ (tốn lượt AI)' },
     { id: 'lifecycle', label: 'Lifecycle', hint: 'Giữ / cho nghỉ thẻ theo phản hồi, phát hành lại drop đang chạy' },
+    { id: 'quotes', label: 'Câu ngoài đời', hint: 'Dựng thêm sách vào kho câu, rồi tìm câu trích cho thẻ chưa tìm (chạy mỗi đêm)' },
 ];
 
 export function Jobs({ onDone }: { onDone: () => void }) {

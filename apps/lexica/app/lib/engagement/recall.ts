@@ -101,6 +101,23 @@ export function matchesTyped(input: string, word: string): boolean {
     return b.length >= 6 && editDistance(a, b) <= 1;
 }
 
+/** A meaning cut at its first comma: "dồi dào, phong phú" → "dồi dào". */
+export function shortMeaning(text: string): string {
+    const head = text.split(',')[0].trim();
+    return head || text.trim();
+}
+
+/**
+ * One-line labels for meaning options. An option keeps its full text when
+ * shortening would make it look like another option.
+ */
+export function optionLabels(options: readonly string[]): string[] {
+    const short = options.map(shortMeaning);
+    return options.map((option, i) =>
+        short.some((s, j) => j !== i && norm(s) === norm(short[i])) ? option : short[i],
+    );
+}
+
 /** "f _ _ _ _ _" for FRUGAL. */
 export function typeHint(word: string): string {
     const w = word.toLowerCase();

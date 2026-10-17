@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { getSupabaseClient } from '../supabase';
 import { syncNow } from '../cloudSync';
+import { POINTS_PER_DUST, type ReviewDust } from './reviewDust';
 
 /**
  * Card editions, boxes and dust (docs/LEXICA_ENGAGEMENT_SPEC.md §2.2–2.5).
@@ -112,6 +113,8 @@ interface EconomyStore {
     buyTicket: () => Promise<void>;
     claim: (kind: ClaimKind, ref: string) => Promise<{ claimed: boolean; boxes: number; pending: number }>;
     spendFreeze: (missedDate: string) => Promise<boolean>;
+    /** Banked review points → Bụi (10 = 1, at most 30 a day). */
+    reviewDust: (points: number) => Promise<ReviewDust>;
 }
 
 export const useEconomy = create<EconomyStore>((set, get) => {
@@ -201,6 +204,18 @@ export const useEconomy = create<EconomyStore>((set, get) => {
             const result = await rpc<{ used: boolean; wallet: Wallet }>('lexica_use_freeze', { p_missed_date: missedDate });
             withWallet(result.wallet);
             return result.used;
+        },
+
+        reviewDust: async (points) => {
+            if (points < POINTS_PER_DUST) return { status: 'none', points };
+            if (!(await signedIn())) return { status: 'signed-out', points };
+            try {
+                const result = await rpc<{ dust: number; earned_today: number; cap: number; wallet: Wallet }>('lexica_review_dust', { p_points: points });
+                withWallet(result.wallet);
+                return { status: 'paid', points, dust: result.dust, capped: result.earned_today >= result.cap };
+            } catch {
+                return { status: 'error', points };
+            }
         },
     };
 });

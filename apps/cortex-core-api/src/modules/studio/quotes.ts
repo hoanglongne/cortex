@@ -1,9 +1,10 @@
 /**
  * "Ngoài đời": real quotes that contain a card's word, shown on the back of
- * the card. Only public-domain books are fetched automatically; headlines and
- * song lines are entered by an editor (with a source link). Every quote is
- * reviewed before it is published.
+ * the card. Book lines come from the public-domain corpus (corpus/), headlines
+ * from the RSS signals the trend collector stores; song lines are entered by
+ * an editor. Every quote is reviewed before it is published.
  */
+import { hasWord } from './corpus/corpus';
 import { validateDraft } from './validator';
 import type { BlockRule } from './studio.types';
 
@@ -117,11 +118,8 @@ export function checkQuote(
   const [min, max] = LENGTH[q.kind] ?? LENGTH.book;
   if (text.length < min || text.length > max) failed.push('length');
   const w = word.trim().toLowerCase();
-  const hits = text
-    .toLowerCase()
-    .split(/[^\p{L}\p{N}]+/u)
-    .filter((t) => t === w);
-  if (hits.length === 0) failed.push('no_word');
+  // Any simple form counts: "dilemmas" is a quote for DILEMMA.
+  if (!hasWord(text, w)) failed.push('no_word');
   if (!q.source.trim()) failed.push('no_source');
   if (q.url && !isUrl(q.url.trim())) failed.push('bad_url');
   // Reuse the draft blocklist check (topic and word rules).
@@ -160,37 +158,4 @@ export function buildQuotesMap(
     });
   }
   return out;
-}
-
-/**
- * Sentences in a plain-text book that contain the word. Gutenberg files are
- * long; this splits on sentence ends and keeps the first few matches.
- */
-export function bookSentences(body: string, word: string, limit = 3): string[] {
-  const w = word.trim().toLowerCase();
-  const out: string[] = [];
-  const flat = body.replace(/\r/g, '').replace(/\s+/g, ' ');
-  for (const s of flat.split(/(?<=[.!?"”])\s+/)) {
-    const t = s.trim();
-    if (t.length < LENGTH.book[0] || t.length > LENGTH.book[1]) continue;
-    if (
-      !t
-        .toLowerCase()
-        .split(/[^\p{L}\p{N}]+/u)
-        .includes(w)
-    )
-      continue;
-    out.push(t);
-    if (out.length >= limit) break;
-  }
-  return out;
-}
-
-/** Picks the plain-text format of a Gutendex book, if it has one. */
-export function plainTextUrl(
-  formats: Record<string, string> | undefined,
-): string | null {
-  if (!formats) return null;
-  const key = Object.keys(formats).find((k) => k.startsWith('text/plain'));
-  return key ? formats[key] : null;
 }

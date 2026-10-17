@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
@@ -14,6 +14,7 @@ import {
   type RawSignal,
 } from './sources';
 import { CAPTURE_PLACEHOLDER } from './capture';
+import { QuotesService } from './quotes.service';
 import { StudioService } from './studio.service';
 import type { BlockRule, CardRow, Lifecycle, TrendRow } from './studio.types';
 import {
@@ -33,13 +34,15 @@ export type JobName =
   | 'cluster'
   | 'score'
   | 'generate'
-  | 'lifecycle';
+  | 'lifecycle'
+  | 'quotes';
 export const JOBS: JobName[] = [
   'collect',
   'cluster',
   'score',
   'generate',
   'lifecycle',
+  'quotes',
 ];
 
 const DAY_MS = 86_400_000;
@@ -87,6 +90,7 @@ export class PipelineService {
   constructor(
     private readonly studio: StudioService,
     private readonly config: ConfigService,
+    @Optional() private readonly quotes?: QuotesService,
   ) {}
 
   async run(
@@ -111,7 +115,9 @@ export class PipelineService {
             ? await this.cluster(db)
             : job === 'score'
               ? await this.score(db)
-              : await this.lifecycle(db, userId);
+              : job === 'quotes'
+                ? await this.runQuotes(db)
+                : await this.lifecycle(db, userId);
       await db
         .from('studio_job_runs')
         .update({ finished_at: new Date().toISOString(), ok: true, stats })
@@ -130,6 +136,12 @@ export class PipelineService {
       await this.alert(`Studio job "${job}" failed: ${message}`);
       throw err;
     }
+  }
+
+  /** "Ngoài đời": a few more corpus books, then a quote search pass. */
+  private runQuotes(db: Db): Promise<Record<string, unknown>> {
+    if (!this.quotes) throw new Error('QuotesService is not available');
+    return this.quotes.nightly(db);
   }
 
   // ------------------------------------------------------------- collect

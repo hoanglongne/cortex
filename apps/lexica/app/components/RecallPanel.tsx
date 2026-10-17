@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Check, X } from 'lucide-react';
-import { matchesTyped, typeHint, type RecallCheck } from '../lib/engagement/recall';
+import { matchesTyped, optionLabels, typeHint, type RecallCheck } from '../lib/engagement/recall';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 
 /**
@@ -71,7 +71,8 @@ export default function RecallPanel({
                     e.preventDefault();
                     if (typed.trim()) finish(matchesTyped(typed, word));
                 }}
-                className="space-y-2"
+                // Tall enough for a wrong-answer verdict with a memory aid
+                className="relative min-h-40 flex flex-col justify-end gap-2"
             >
                 <p className="font-mono text-xs text-muted">{typeHint(word)} · {word.length} chữ cái</p>
                 <div className="flex gap-2">
@@ -86,28 +87,30 @@ export default function RecallPanel({
                         spellCheck={false}
                         placeholder="Gõ từ tiếng Anh"
                         aria-label="Gõ từ còn thiếu"
-                        className={`flex-1 h-12 rounded-xl bg-surface-2 border px-4 text-base text-ink outline-none ${result === null ? 'border-line-strong focus:border-accent' : result ? 'border-accent' : 'border-danger'}`}
+                        className={`flex-1 min-w-0 h-12 rounded-xl bg-surface-2 border px-4 text-base text-ink outline-none ${result === null ? 'border-line-strong focus:border-accent' : result ? 'border-accent' : 'border-danger'}`}
                     />
                     <button
                         type="submit"
                         disabled={result !== null || !typed.trim()}
-                        className="h-12 px-5 rounded-xl bg-accent text-on-accent font-bold disabled:opacity-40"
+                        className="h-12 px-5 shrink-0 rounded-xl bg-accent text-on-accent font-bold disabled:opacity-40"
                     >
                         Kiểm tra
                     </button>
                 </div>
                 {result !== null && <Verdict correct={result} word={word} meaning={meaning} aid={aid} nextIn={nextIn} />}
-                {result === null && (
-                    <button type="button" onClick={() => finish(false)} className="w-full text-center font-mono text-[11px] text-subtle hover:text-ink py-1">
-                        Chịu, cho xem đáp án
-                    </button>
-                )}
+                {/* Kept (hidden) after answering so the verdict has the same room */}
+                <button type="button" onClick={() => finish(false)} disabled={result !== null} className={`w-full text-center font-mono text-[11px] text-subtle hover:text-ink py-1 ${result !== null ? 'invisible' : ''}`}>
+                    Chịu, cho xem đáp án
+                </button>
             </form>
         );
     }
 
+    // Meanings are cut to one line; the full text stays the answer key.
+    const labels = check.kind === 'meaning' ? optionLabels(check.options) : check.options;
+
     return (
-        <div className="space-y-1.5">
+        <div className="relative space-y-1.5">
             {check.options.map((option, i) => {
                 const isAnswer = option === check.answer;
                 let cls = 'bg-surface-2 border-line-strong text-ink hover:border-accent/60 active:scale-[0.99]';
@@ -119,10 +122,11 @@ export default function RecallPanel({
                         key={option}
                         onClick={() => pick(option)}
                         disabled={result !== null}
-                        className={`w-full min-h-11 px-3 py-2 rounded-xl border text-left text-sm flex items-center gap-2.5 transition ${cls} ${check.kind === 'cloze' ? 'font-bold lowercase' : ''}`}
+                        title={labels[i] !== option ? option : undefined}
+                        className={`w-full h-11 px-3 rounded-xl border text-left text-sm flex items-center gap-2.5 transition ${cls} ${check.kind === 'cloze' ? 'font-bold lowercase' : ''}`}
                     >
                         <span className="font-mono text-[10px] text-subtle w-3 shrink-0 hidden sm:inline">{i + 1}</span>
-                        <span className="line-clamp-2 flex-1">{option}</span>
+                        <span className="truncate flex-1 min-w-0">{labels[i]}</span>
                         {result !== null && isAnswer && <Check className="w-4 h-4 text-accent shrink-0" />}
                         {result !== null && option === picked && !isAnswer && <X className="w-4 h-4 text-danger shrink-0" />}
                     </button>
@@ -133,7 +137,23 @@ export default function RecallPanel({
     );
 }
 
+/**
+ * Sits on top of the options (or the input) instead of below them, so a long
+ * meaning or memory aid never pushes the panel past the bottom of the card.
+ */
 function Verdict({ correct, word, meaning, aid, nextIn }: { correct: boolean; word: string; meaning: string; aid?: string | null; nextIn?: string }) {
+    return (
+        <div
+            role="status"
+            data-testid="recall-verdict"
+            className={`absolute inset-0 overflow-y-auto flex flex-col justify-center rounded-xl border bg-surface px-4 py-2 ${correct ? 'border-accent/60' : 'border-danger/50'}`}
+        >
+            <VerdictText correct={correct} word={word} meaning={meaning} aid={aid} nextIn={nextIn} />
+        </div>
+    );
+}
+
+function VerdictText({ correct, word, meaning, aid, nextIn }: { correct: boolean; word: string; meaning: string; aid?: string | null; nextIn?: string }) {
     return correct ? (
         <p className="text-sm text-accent font-medium">
             Chuẩn rồi.

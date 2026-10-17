@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Hand, Mic, RotateCcw, Trash2 } from 'lucide-react';
+import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Mic, RotateCcw, Trash2 } from 'lucide-react';
 import CortexSection from '../components/CortexSection';
 import AuthGate from '../components/AuthGate';
 import { useAuth } from '../context/AuthContext';
@@ -27,8 +27,6 @@ function StatsPageContent() {
     const studyHistory = useLexicaStore(state => state.studyHistory);
     const soundEnabled = useLexicaStore(state => state.soundEnabled);
     const toggleSound = useLexicaStore(state => state.toggleSound);
-    const swipeMode = useLexicaStore(state => state.swipeMode);
-    const setSwipeMode = useLexicaStore(state => state.setSwipeMode);
     const autoReviewInDeck = useLexicaStore(state => state.autoReviewInDeck);
     const toggleAutoReview = useLexicaStore(state => state.toggleAutoReview);
     const resetProgress = useLexicaStore(state => state.resetProgress);
@@ -98,38 +96,19 @@ function StatsPageContent() {
                             </button>
                         </div>
 
-                        {/* Swipe Mode Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line">
+                        {/* Speaking practice (it no longer blocks swiping) */}
+                        <Link href="/speak" className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line hover:border-line-strong">
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${swipeMode === 'voice' ? 'bg-accent/15' : 'bg-accent/15'
- }`}>
-                                    {swipeMode === 'voice' ? (
-                                        <Mic className="w-5 h-5 text-accent" />
-                                    ) : (
-                                        <Hand className="w-5 h-5 text-accent" />
-                                    )}
+                                <div className="p-2 rounded-lg bg-accent/15">
+                                    <Mic className="w-5 h-5 text-accent" />
                                 </div>
                                 <div>
-                                    <p className="text-ink font-medium text-sm">Chế độ học</p>
-                                    <p className="text-muted text-xs">
-                                        {swipeMode === 'voice' ? 'Voice (nói để học)' : 'Touch (vuốt thẻ)'}
-                                    </p>
+                                    <p className="text-ink font-medium text-sm">Luyện nói 2 phút</p>
+                                    <p className="text-muted text-xs">Nghe phân biệt, nói và xem máy nghe được gì</p>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => {
-                                    click();
-                                    setSwipeMode(swipeMode === 'touch' ? 'voice' : 'touch');
-                                }}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${swipeMode === 'voice' ? 'bg-accent' : 'bg-accent'
- }`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-ink transition-transform ${swipeMode === 'voice' ? 'translate-x-6' : 'translate-x-1'
- }`}
-                                />
-                            </button>
-                        </div>
+                            <span className="text-muted">→</span>
+                        </Link>
 
                         {/* Auto-Review Toggle */}
                         <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line md:col-span-2">

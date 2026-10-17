@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
-import { Inbox, LogOut, Flame, Layers, Package, Activity, Radar, Users, BookOpen } from 'lucide-react';
+import { Inbox, LogOut, Flame, Layers, Package, Activity, Radar, Users, BookOpen, FileText } from 'lucide-react';
 import { getSupabase } from '../lib/supabase';
 import { api, ApiError, errorText } from '../lib/api';
 
@@ -15,6 +15,7 @@ const NAV = [
     { href: '/cards', label: 'Thẻ', icon: Layers },
     { href: '/variants', label: 'Câu mẫu', icon: Users },
     { href: '/quotes', label: 'Ngoài đời', icon: BookOpen },
+    { href: '/passages', label: 'Đọc', icon: FileText },
     { href: '/drops', label: 'Drop', icon: Package },
     { href: '/system', label: 'Hệ thống', icon: Activity },
 ];

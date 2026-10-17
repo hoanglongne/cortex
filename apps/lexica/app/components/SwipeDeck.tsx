@@ -10,7 +10,6 @@ import VocabCard from './VocabCard';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { analytics } from '../lib/analytics';
-import { useVoiceAvailable } from '../lib/speechAvailability';
 import { capture } from '../lib/productAnalytics';
 import { getAllCards, getCurrentDrop, useContentVersion } from '../lib/content/repository';
 import { buildSets } from '../lib/engagement/collection';
@@ -38,8 +37,6 @@ export default function SwipeDeck() {
     const swipeCard = useLexicaStore(state => state.swipeCard);
     const deferCard = useLexicaStore(state => state.deferCard);
     const markAsMastered = useLexicaStore(state => state.markAsMastered);
-    const swipeMode = useLexicaStore(state => state.swipeMode);
-    const voiceAvailable = useVoiceAvailable();
 
     const { swipeRight, swipeLeft, buttonPress, comboTick, sparkle, soundEnabled } = useSoundEffects();
     const cardProgress = useLexicaStore(state => state.cardProgress);
@@ -176,10 +173,6 @@ export default function SwipeDeck() {
         cardId: string,
         source: 'manual' | 'voice' = 'manual'
     ) => {
-        // Voice mode requires voice input for swiping right
-        if (swipeMode === 'voice' && voiceAvailable && direction === 'right' && source !== 'voice') {
-            return;
-        }
         if (activeCheck) return; // answer the check first
 
         // Saying the word three times is effort enough; so is admitting you forgot.
@@ -209,7 +202,7 @@ export default function SwipeDeck() {
         }
 
         setAsked(buildCheck({ card, progress, pool: getAllCards(), peeked: false }));
-    }, [swipeMode, voiceAvailable, activeCheck, commit, cards, topCardId, topCardRevealed, deferCard, buttonPress]);
+    }, [activeCheck, commit, cards, topCardId, topCardRevealed, deferCard, buttonPress]);
 
     const answerCheck = useCallback((correct: boolean) => {
         const check = activeCheck;
@@ -268,20 +261,17 @@ export default function SwipeDeck() {
 
             if (e.key === 'ArrowRight') {
                 e.preventDefault();
-                if (swipeMode === 'voice' && voiceAvailable) {
-                    return;
-                }
                 handleSwipe('right', topCardId);
             }
         };
 
         document.addEventListener('keydown', handleKeyDown, true);
         return () => document.removeEventListener('keydown', handleKeyDown, true);
-    }, [topCardId, handleSwipe, swipeMode, voiceAvailable, setTopCardRevealed, done, continueSession, activeCheck]);
+    }, [topCardId, handleSwipe, setTopCardRevealed, done, continueSession, activeCheck]);
 
     if (cards.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-100 px-8 text-center">
+            <div className="flex flex-col items-center justify-center h-[460px] px-8 text-center">
                 <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -297,13 +287,13 @@ export default function SwipeDeck() {
                 </p>
 
                 <div className="flex flex-col gap-3 w-full max-w-xs">
-                    {/* Primary CTA: Stories */}
+                    {/* Primary CTA: read a short passage */}
                     <Link
-                        href="/stories"
+                        href="/read"
                         onClick={() => buttonPress()}
                         className="w-full px-6 py-3 bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
                     >
-                        Đọc truyện thực hành
+                        Đọc 2 phút
                     </Link>
 
                     {/* Secondary CTA: Learned */}
@@ -320,7 +310,7 @@ export default function SwipeDeck() {
     }
 
     return (
-        <div className="relative w-full h-100 flex items-center justify-center">
+        <div className="relative w-full h-[460px] flex items-center justify-center">
             {/* Swipe Feedback */}
             <AnimatePresence>
                 {lastSwipeDirection && (
@@ -366,7 +356,7 @@ export default function SwipeDeck() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 top-[calc(50%-272px)] sm:top-[calc(50%-248px)] rounded-2xl border border-accent/50 bg-surface px-4 py-2 text-center pointer-events-none max-w-[90%]"
+                        className="absolute z-50 top-[calc(50%-277px)] rounded-2xl border border-accent/50 bg-surface px-4 py-2 text-center pointer-events-none max-w-[90%]"
                     >
                         <p className="flex items-center justify-center gap-2 font-mono text-sm text-accent">
                             <Sparkles className="w-4 h-4" />
@@ -388,7 +378,7 @@ export default function SwipeDeck() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 top-[calc(50%-272px)] sm:top-[calc(50%-248px)] rounded-2xl border border-line-strong bg-surface px-4 py-2 text-center text-sm text-ink-2 pointer-events-none max-w-[90%]"
+                        className="absolute z-50 top-[calc(50%-277px)] rounded-2xl border border-line-strong bg-surface px-4 py-2 text-center text-sm text-ink-2 pointer-events-none max-w-[90%]"
                     >
                         {notice}
                     </motion.div>
@@ -445,7 +435,7 @@ export default function SwipeDeck() {
 
             {/* Explicit actions: same as swiping left / right */}
             {topCardId && !done && !activeCheck && (
-                <div className="absolute top-[calc(50%+237px)] left-0 right-0 mx-2 sm:mx-4 grid grid-cols-2 gap-2.5">
+                <div className="absolute top-[calc(50%+242px)] left-0 right-0 mx-2 sm:mx-4 grid grid-cols-2 gap-2.5">
                     <button
                         onClick={() => handleSwipe('left', topCardId)}
                         className="h-14 rounded-xl border border-line bg-surface text-ink font-medium flex items-center justify-center gap-2 hover:bg-surface-2 active:scale-[0.98] transition"
@@ -455,8 +445,6 @@ export default function SwipeDeck() {
                     </button>
                     <button
                         onClick={() => handleSwipe('right', topCardId)}
-                        disabled={swipeMode === 'voice' && voiceAvailable}
-                        title={swipeMode === 'voice' && voiceAvailable ? 'Chế độ giọng nói: nói từ để ghi nhớ' : undefined}
                         className="h-14 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2 hover:bg-accent-strong active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         Đã nhớ

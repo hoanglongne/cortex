@@ -15,6 +15,7 @@ export const SCHEDULE: { job: JobName; hours: number[] }[] = [
   { job: 'score', hours: [6, 12, 18, 23] },
   { job: 'generate', hours: [1] },
   { job: 'lifecycle', hours: [3] },
+  { job: 'quotes', hours: [2] },
 ];
 
 const VN_OFFSET_MS = 7 * 3_600_000;

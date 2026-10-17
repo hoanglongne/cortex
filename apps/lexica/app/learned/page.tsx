@@ -208,7 +208,7 @@ export default function LearnedPage() {
                         </Link>
 
                         <Link
-                            href="/stories"
+                            href="/read"
                             className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group"
                         >
                             <div className="flex items-center gap-3">
@@ -216,9 +216,9 @@ export default function LearnedPage() {
                                     <BookMarked className="w-5 h-5 text-ink" />
                                 </div>
                                 <div>
-                                    <div className="text-ink font-semibold text-sm mb-0.5">Story Packs</div>
+                                    <div className="text-ink font-semibold text-sm mb-0.5">Đọc 2 phút</div>
                                     <div className="text-muted text-xs">
-                                        Thực hành qua câu chuyện dark comedy
+                                        Đoạn văn ngắn có từ bạn đang học
                                     </div>
                                 </div>
                             </div>
@@ -324,7 +324,6 @@ export default function LearnedPage() {
 
 
 
-            {/* Story unlock now handled by /story/[id]/unlock route */}
         </div>
     );
 }

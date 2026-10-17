@@ -286,6 +286,17 @@ export class VariantsService {
       },
       'publish_variants',
     );
+    // Lexica now has exactly the approved quotes (studio "chưa xuất bản" count).
+    const quotesRes = await db
+      .from('studio_card_quotes')
+      .update({ published_at: publishedAt })
+      .eq('status', 'approved');
+    if (quotesRes.error) throw new Error(quotesRes.error.message);
+    const rejectedRes = await db
+      .from('studio_card_quotes')
+      .update({ published_at: null })
+      .eq('status', 'rejected');
+    if (rejectedRes.error) throw new Error(rejectedRes.error.message);
     return {
       manifestUrl,
       variants: approved.length,

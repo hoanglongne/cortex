@@ -27,14 +27,20 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
     const session = (await getSupabase()?.auth.getSession())?.data.session;
     if (!session) throw new ApiError('Chưa đăng nhập', 401, null);
 
-    const res = await fetch(`${API_URL}/studio${path}`, {
-        method: init.method ?? 'GET',
-        headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
-        },
-        body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
-    });
+    let res: Response;
+    try {
+        res = await fetch(`${API_URL}/studio${path}`, {
+            method: init.method ?? 'GET',
+            headers: {
+                Authorization: `Bearer ${session.access_token}`,
+                ...(init.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+            },
+            body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+        });
+    } catch {
+        // fetch only throws when the request never got an answer.
+        throw new ApiError('Lỗi mạng: không kết nối được tới Cortex API. Kiểm tra mạng rồi thử lại.', 0, null);
+    }
     if (res.status === 204) return undefined as T;
     const text = await res.text();
     let body: unknown = null;

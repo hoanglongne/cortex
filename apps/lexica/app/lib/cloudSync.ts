@@ -72,12 +72,9 @@ export function progressFingerprint(rawState: string | null): string {
             s.cardProgress,
             s.learnedWords,
             s.userStats,
-            s.unlockedStories,
-            s.unlockedStoryPart1,
-            s.readStories,
-            s.readStoryPart1,
             s.studyHistory,
             s.mySentences,
+            s.speakMisses,
         ]);
     } catch {
         return '';

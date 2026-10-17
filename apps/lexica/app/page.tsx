@@ -4,20 +4,23 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Hand, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords } from 'lucide-react';
+import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
 import LiveDropBanner from './components/LiveDropBanner';
 import SmartEntry from './components/SmartEntry';
+import HomeHeader from './components/HomeHeader';
+import HomeSide from './components/HomeSide';
+import DailyProgress from './components/DailyProgress';
 import OnboardingModal from './components/OnboardingModal';
-// Story modals now handled by routes: /story/[id], /story/[id]/unlock-quiz, /story/[id]/unlock
 // Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
 import { hardWords } from './lib/engagement/hard';
 import { ARCHETYPE_OPTIONS } from './lib/content/persona';
 import { useSoundEffects } from './hooks/useSoundEffects';
+import { useIsDesktop } from './hooks/useIsDesktop';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
 
@@ -33,17 +36,16 @@ function HomeContent() {
   const hasSeenWelcome = useLexicaStore(state => state.hasSeenWelcome);
   const isInTest = useLexicaStore(state => state.isInTest);
   const testScore = useLexicaStore(state => state.testScore);
-  const swipeMode = useLexicaStore(state => state.swipeMode);
   const hasSeenOnboarding = useLexicaStore(state => state.hasSeenOnboarding);
   const dailyGoal = useLexicaStore(state => state.dailyGoal);
   const dailyProgress = useLexicaStore(state => state.dailyProgress);
 
   const setSelectedLevel = useLexicaStore(state => state.setSelectedLevel);
   const resetProgress = useLexicaStore(state => state.resetProgress);
-  const setSwipeMode = useLexicaStore(state => state.setSwipeMode);
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isDesktop = useIsDesktop();
   const { buttonPress, click } = useSoundEffects();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -227,7 +229,6 @@ function HomeContent() {
   };
 
   const statusDisplay = getStatusDisplay(analysis.status);
-  const isVoiceMode = swipeMode === 'voice';
 
   // Track status changes and show notification
   useEffect(() => {
@@ -596,12 +597,8 @@ function HomeContent() {
         <OnboardingModal onComplete={() => setShowOnboarding(false)} />
       )}
 
-      {/* Logo - Desktop Only */}
-      <div className="hidden lg:block fixed top-4 left-4 md:top-6 md:left-6 z-50">
-        <h1 className="text-2xl md:text-3xl font-bold text-ink tracking-tight">
-          LEXICA
-        </h1>
-      </div>
+      {/* Desktop header: logo, level, streak and the places to go */}
+      <HomeHeader due={dueToday} onChangeLevel={() => { click(); handleChangeLevel(); }} onOpenMe={() => { click(); setShowMobileStats(true); }} />
 
       {/* Help Button - Desktop Only */}
       <button
@@ -619,27 +616,31 @@ function HomeContent() {
         </div>
       )}
 
-      {/* Main Content Area - Two Column Layout on Desktop */}
-      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 px-3 sm:px-4 pt-3 sm:pt-4 pb-24 lg:pt-8 lg:pb-8 max-w-6xl mx-auto w-full overflow-hidden">
+      {/* Main: one column on mobile; on desktop the "Hôm nay" column and a 340px side column */}
+      <main className="flex-1 flex flex-col items-center justify-center gap-6 px-3 sm:px-4 pt-3 sm:pt-4 pb-24 max-w-6xl xl:max-w-7xl mx-auto w-full overflow-hidden lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:content-start lg:gap-8 lg:px-8 lg:pt-8 lg:pb-8 lg:overflow-y-auto">
 
-        {/* Left Column - Smart Entry or Swipe Deck */}
-        <div className="w-full lg:flex-1 lg:max-w-lg flex flex-col items-center justify-center lg:h-full lg:min-h-150">
-          {/* Daily Progress Bar - desktop only (mobile version is above <main>) */}
+        {/* Main column - Smart Entry or Swipe Deck */}
+        <div className="w-full flex flex-col items-center justify-center lg:items-stretch lg:justify-start">
+          {/* "Hôm nay" during a session - desktop only (mobile version is above <main>) */}
           {sessionStarted && (
-            <div className="hidden lg:block w-full max-w-md mb-6 px-4">
+            <div className="hidden lg:block w-full rounded-2xl bg-surface border border-line px-6 py-4 mb-6">
               <DailyProgress done={dailyProgress} goal={dailyGoal} />
             </div>
           )}
 
-          <div className={`w-full max-w-md flex items-center justify-center ${sessionStarted ? 'mb-28' : ''}`} data-tour-id="swipe-deck">
+          <div className={`w-full max-w-md flex items-center justify-center ${sessionStarted ? 'mb-28 lg:mb-24 lg:max-w-xl lg:mx-auto' : 'lg:max-w-none'}`} data-tour-id="swipe-deck">
             <ErrorBoundary>
               {sessionStarted ? (
                 <SwipeDeck />
               ) : (
-                <div className="w-full flex flex-col items-center">
-                  <LiveDropBanner onStart={() => setSessionStarted(true)} />
-                  <SmartEntry onStartSession={() => setSessionStarted(true)} />
-                </div>
+                isDesktop ? (
+                  <SmartEntry variant="card" onStartSession={() => setSessionStarted(true)} />
+                ) : (
+                  <div className="w-full flex flex-col items-center">
+                    <LiveDropBanner onStart={() => setSessionStarted(true)} />
+                    <SmartEntry onStartSession={() => setSessionStarted(true)} />
+                  </div>
+                )
               )}
             </ErrorBoundary>
           </div>
@@ -692,87 +693,8 @@ function HomeContent() {
           </div>
         </nav>
 
-        {/* Right Column - Desktop Sidebar */}
-        <div className="hidden lg:flex flex-col w-56 xl:w-60 shrink-0 self-center gap-6">
-
-          {/* Mode Toggle */}
-          <button
-            data-tour-id="voice-mode-toggle"
-            onClick={() => { click(); setSwipeMode(isVoiceMode ? 'touch' : 'voice'); }}
-            className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors w-full ${isVoiceMode
- ? 'bg-accent/10 border-accent/30 text-accent'
- : 'bg-surface/40 border-line/60 text-muted hover:text-ink-2 hover:border-line-strong'
- }`}
-          >
-            {isVoiceMode ? <Mic className="w-4 h-4 shrink-0" /> : <Hand className="w-4 h-4 shrink-0" />}
-            {isVoiceMode ? 'Voice Mode' : 'Touch Mode'}
-          </button>
-
-          {/* Stats */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center" data-tour-id="elo-rating">
-              <span className="text-sm text-muted">ELO</span>
-              <span className="text-sm font-mono text-accent">{userStats.currentElo}</span>
-            </div>
-            <div className="flex justify-between items-center" data-tour-id="learned-counter">
-              <span className="text-sm text-muted">Đã học</span>
-              <span className="text-sm font-semibold text-ink">{learnedCount}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted">Thành thạo</span>
-              <span className="text-sm font-semibold text-ink">{progressStats.mastered}</span>
-            </div>
-          </div>
-
-          {/* Nav Links */}
-          <div className="border-t border-line pt-4 space-y-0.5">
-            <Link href="/learned" data-tour-id="learned-words-link"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-ink hover:bg-surface/60 transition-colors">
-              <BookOpen className="w-4 h-4 shrink-0" />
-              <span>Từ đã học</span>
-              {learnedCount > 0 && <span className="ml-auto text-xs text-subtle">{learnedCount}</span>}
-            </Link>
-            <Link href="/buddy" data-tour-id="buddy-link"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-accent hover:text-accent hover:bg-surface/60 transition-colors">
-              <Users className="w-4 h-4 shrink-0" />
-              <span>Study Buddy</span>
-            </Link>
-            {dueToday > 0 && (
-              <Link href="/review" data-tour-id="review-link"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-warning hover:text-warning hover:bg-surface/60 transition-colors">
-                <RotateCcw className="w-4 h-4 shrink-0" />
-                <span>Ôn tập</span>
-                <span className="ml-auto text-xs">{dueToday} từ</span>
-              </Link>
-            )}
-            <Link href="/stats"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-ink hover:bg-surface/60 transition-colors">
-              <BarChart3 className="w-4 h-4 shrink-0" />
-              <span>Thống kê</span>
-            </Link>
-          </div>
-
-          {/* Settings */}
-          <div className="border-t border-line pt-4 space-y-0.5">
-            <button
-              onClick={() => { click(); handleChangeLevel(); }}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-muted hover:text-ink-2 hover:bg-surface/60 transition-colors w-full text-left"
-            >
-              <Settings className="w-4 h-4 shrink-0" />
-              <span>Đổi level</span>
-            </button>
-            {process.env.NODE_ENV === 'development' && (
-              <button
-                onClick={() => { click(); resetProgress(); }}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-subtle hover:text-muted hover:bg-surface/60 transition-colors w-full text-left"
-              >
-                <RotateCcw className="w-4 h-4 shrink-0" />
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-
-        </div>
+        {/* Side column - desktop only: due words, hard words, next album set, the drop */}
+        <HomeSide onStartDrop={() => setSessionStarted(true)} />
       </main>
 
       {/* Mobile Stats Modal */}
@@ -785,7 +707,7 @@ function HomeContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowMobileStats(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             />
 
             {/* Bottom Sheet */}
@@ -794,7 +716,7 @@ function HomeContent() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-surface border-t-2 border-accent/30 rounded-t-3xl z-50 lg:hidden max-h-[85vh] overflow-y-auto"
+              className="fixed bottom-0 left-0 right-0 bg-surface border-t-2 border-accent/30 rounded-t-3xl z-50 max-h-[85vh] overflow-y-auto lg:left-auto lg:right-6 lg:bottom-6 lg:w-96 lg:rounded-3xl lg:border-2"
             >
               {/* Header */}
               <div className="sticky top-0 bg-surface border-b border-line px-6 py-4 flex items-center justify-between">
@@ -812,28 +734,16 @@ function HomeContent() {
 
               {/* Content */}
               <div className="p-6 space-y-5">
-                {/* Voice/Touch Mode Toggle */}
-                <div className="space-y-3 pb-4 border-b border-line">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted text-sm">Chế độ swipe</span>
-                    <button
-                      onClick={() => {
-                        click();
-                        setSwipeMode(isVoiceMode ? 'touch' : 'voice');
-                      }}
-                      className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${isVoiceMode
- ? 'bg-accent/12 border-accent/35 text-accent'
- : 'bg-surface-2/40 border-line-strong/50 text-ink hover:border-line-strong/60'
- }`}
-                    >
-                      {isVoiceMode ? <Mic className="w-3.5 h-3.5" /> : <Hand className="w-3.5 h-3.5" />}
-                      {isVoiceMode ? 'Voice Mode' : 'Touch Mode'}
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted">
-                    Voice mode yêu cầu đọc đúng từ trên cùng 3 lần liên tiếp.
-                  </p>
-                </div>
+                {/* Speaking practice: its own drill, it no longer blocks swiping */}
+                <Link
+                  href="/speak"
+                  onClick={() => { click(); setShowMobileStats(false); }}
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
+                >
+                  <Mic className="w-4 h-4 text-accent" />
+                  Luyện nói 2 phút
+                  <ChevronRight className="w-4 h-4 text-subtle ml-auto" />
+                </Link>
 
                 {/* Example sentences per archetype (Studio variants) */}
                 <div className="space-y-2 pb-4 border-b border-line">
@@ -1001,25 +911,6 @@ export default function Home() {
     <Suspense fallback={<HomePageFallback />}>
       <HomeContent />
     </Suspense>
-  );
-}
-
-/** Segmented daily-goal bar in the design system's "Focus" style. */
-function DailyProgress({ done, goal }: { done: number; goal: number }) {
-  const segments = Math.max(1, Math.min(goal, 30));
-  const filled = Math.min(segments, Math.round((done / Math.max(goal, 1)) * segments));
-  return (
-    <div className="space-y-2" aria-label={`Tiến độ hôm nay ${done}/${goal} từ`}>
-      <div className="flex items-center justify-between font-mono text-xs text-muted">
-        <span>Hôm nay</span>
-        <span><span className="text-ink">{done}</span><span className="text-subtle">/{goal}</span> từ</span>
-      </div>
-      <div className="grid gap-[3px]" style={{ gridTemplateColumns: `repeat(${segments}, minmax(0, 1fr))` }}>
-        {Array.from({ length: segments }, (_, i) => (
-          <div key={i} className={`h-[3px] ${i < filled ? 'bg-accent' : 'bg-surface-3'}`} />
-        ))}
-      </div>
-    </div>
   );
 }
 

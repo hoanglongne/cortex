@@ -796,13 +796,15 @@ export class StudioService {
     const libraryRef = library.cards.length
       ? await this.uploadPack(db, library)
       : null;
+    const live = await this.readManifest(db);
     const manifest: Manifest = {
       schema: 1,
       updatedAt: publishedAt,
       current,
       library: libraryRef,
-      // The archetype variants overlay is published on its own; keep it.
-      variants: (await this.readManifest(db))?.variants ?? null,
+      // The variants overlay and the passages are published on their own; keep them.
+      variants: live?.variants ?? null,
+      passages: live?.passages ?? null,
       retired: [
         ...new Set(
           [...libraryCards.values(), ...cards]
@@ -856,11 +858,19 @@ export class StudioService {
     stats: Record<string, unknown>,
     job = 'publish',
   ): Promise<string> {
-    // Drop publishes and rollbacks keep the archetype variants overlay.
-    if (manifest.variants === undefined) {
+    // Drop publishes and rollbacks keep the variants overlay and the passages.
+    if (manifest.variants === undefined || manifest.passages === undefined) {
+      const live = await this.readManifest(db);
       manifest = {
         ...manifest,
-        variants: (await this.readManifest(db))?.variants ?? null,
+        variants:
+          manifest.variants === undefined
+            ? (live?.variants ?? null)
+            : manifest.variants,
+        passages:
+          manifest.passages === undefined
+            ? (live?.passages ?? null)
+            : manifest.passages,
       };
     }
     const url = await this.upload(
@@ -905,9 +915,12 @@ export class StudioService {
       throw new ConflictException('Không có bản phát hành trước để quay lại');
     }
 
+    const today = await this.readManifest(db);
     const manifest: Manifest = {
       ...previous,
-      variants: (await this.readManifest(db))?.variants ?? null, // keep today's overlay
+      // keep today's overlay and passages
+      variants: today?.variants ?? null,
+      passages: today?.passages ?? null,
       updatedAt: new Date().toISOString(),
     };
     const manifestUrl = await this.writeManifest(db, userId, manifest, {

@@ -81,9 +81,9 @@ export async function play(cardId: string, clip: Clip = 'word'): Promise<AudioTi
     return systemFallback(cardId, clip);
 }
 
-/** Speaks free text (words the user looked up, story passages). */
-export function playText(text: string, lang: 'en' | 'vi' = 'en'): AudioTier {
-    return speakWithSystem(text, lang) ? 'system' : 'none';
+/** Speaks free text (words the user looked up, "Đọc" passages); `rate` defaults per language. */
+export function playText(text: string, lang: 'en' | 'vi' = 'en', rate?: number): AudioTier {
+    return speakWithSystem(text, lang, rate) ? 'system' : 'none';
 }
 
 /** Warms the cache for the next cards' word clips. */

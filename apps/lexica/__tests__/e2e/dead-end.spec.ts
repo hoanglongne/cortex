@@ -5,7 +5,7 @@
  * Mục tiêu:
  *  1. SwipeDeck KHÔNG hiển thị thẻ khi deck rỗng
  *  2. Hiển thị màn hình "Hoàn thành bộ bài!" với 2 nút CTA:
- *     - "Đọc truyện thực hành" → /stories
+ *     - "Đọc 2 phút" → /read
  *     - "Xem danh sách từ vựng" → /learned
  *  3. Cả 2 nút đều clickable và điều hướng đúng
  *
@@ -98,9 +98,9 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   });
 
   // -------------------------------------------------------------------------
-  // Test 3: Nút CTA "Đọc truyện thực hành" có thể click
+  // Test 3: Nút CTA "Đọc 2 phút" có thể click
   // -------------------------------------------------------------------------
-  test('nút "Đọc truyện thực hành" xuất hiện và click được', async ({ page }) => {
+  test('nút "Đọc 2 phút" xuất hiện và click được', async ({ page }) => {
     await injectLexicaState(page, makeBypassState({ lastGoalSetDate: null }));
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
@@ -113,15 +113,15 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
     await swipeCardsWithKeyboard(page, 10, 'left');
     await page.waitForTimeout(1_000);
 
-    // Nút CTA chính: "Đọc truyện thực hành"
-    const storiesBtn = page.getByRole('link', { name: 'Đọc truyện thực hành' });
+    // Nút CTA chính: "Đọc 2 phút"
+    const storiesBtn = page.getByRole('link', { name: 'Đọc 2 phút' });
     await expect(storiesBtn).toBeVisible({ timeout: 8_000 });
 
-    // Click và kiểm tra điều hướng đến /stories
+    // Click và kiểm tra điều hướng đến /read
     await storiesBtn.click();
-    await page.waitForURL(/\/stories/, { timeout: 8_000 });
+    await page.waitForURL(/\/read/, { timeout: 8_000 });
 
-    expect(page.url()).toContain('/stories');
+    expect(page.url()).toContain('/read');
   });
 
   // -------------------------------------------------------------------------

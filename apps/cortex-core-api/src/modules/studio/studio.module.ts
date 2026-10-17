@@ -10,6 +10,7 @@ import { StudioLlm } from './studio-llm';
 import { StudioService } from './studio.service';
 import { VariantsService } from './variants.service';
 import { QuotesService } from './quotes.service';
+import { PassagesService } from './passages.service';
 
 @Module({
   controllers: [StudioController, ContentController, CaptureController],
@@ -22,6 +23,7 @@ import { QuotesService } from './quotes.service';
     CaptureService,
     VariantsService,
     QuotesService,
+    PassagesService,
   ],
 })
 export class StudioModule {}

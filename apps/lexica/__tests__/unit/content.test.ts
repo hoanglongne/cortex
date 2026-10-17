@@ -52,7 +52,7 @@ describe('pack parsing', () => {
 
     it('parses a manifest with null refs', () => {
         const m = parseManifest({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9', 3] });
-        expect(m).toEqual({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9'], variants: null });
+        expect(m).toEqual({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9'], variants: null, passages: null });
     });
 });
 

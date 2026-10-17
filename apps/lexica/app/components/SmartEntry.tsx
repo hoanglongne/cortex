@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon, Cloud, BookOpen, RotateCcw, Zap, BookMarked, ArrowRight } from 'lucide-react';
+import { Sun, Moon, Cloud, BookOpen, RotateCcw, Zap, BookMarked, ArrowRight, Mic } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getDueCards } from '../lib/eloAlgorithm';
-import { STORIES, isStoryPreviewVisible } from '../data/stories';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import Link from 'next/link';
 
@@ -27,16 +26,23 @@ function getGreeting(): { text: string; icon: typeof Sun } {
 
 interface SmartEntryProps {
     onStartSession: () => void;
+    /**
+     * 'card': the desktop "Hôm nay" card, in the same style as the other
+     * pages, with one accent button (due words, hard words and the drop sit
+     * in the side column). 'full' (default): the mobile screen, unchanged.
+     */
+    variant?: 'full' | 'card';
 }
 
-export default function SmartEntry({ onStartSession }: SmartEntryProps) {
+const GOAL_STEPS = [5, 10, 15, 20, 25, 30];
+
+export default function SmartEntry({ onStartSession, variant = 'full' }: SmartEntryProps) {
     const { buttonPress } = useSoundEffects();
 
     const lastGoalSetDate = useLexicaStore(state => state.lastGoalSetDate);
     const dailyGoal = useLexicaStore(state => state.dailyGoal);
     const dailyProgress = useLexicaStore(state => state.dailyProgress);
     const cardProgress = useLexicaStore(state => state.cardProgress);
-    const learnedWords = useLexicaStore(state => state.learnedWords);
     const setDailyGoal = useLexicaStore(state => state.setDailyGoal);
     const checkAndResetDailyGoal = useLexicaStore(state => state.checkAndResetDailyGoal);
 
@@ -60,9 +66,6 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
     // Get context data for Smart CTA
     const dueCards = getDueCards(cardProgress);
     const dueCount = dueCards.length;
-    const learnedWordIds = Array.from(learnedWords);
-    const visibleStories = STORIES.filter(story => isStoryPreviewVisible(story, learnedWordIds));
-    const hasUnreadStory = visibleStories.length > 0;
     const remaining = Math.max(0, dailyGoal - dailyProgress);
 
     const handleStartWithGoal = () => {
@@ -76,6 +79,80 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
         buttonPress();
         onStartSession();
     };
+
+    if (variant === 'card') {
+        const done = Math.min(dailyProgress, dailyGoal);
+        return (
+            <section data-testid="today-card" className="w-full rounded-2xl bg-surface border border-line p-6">
+                <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-subtle">
+                    <GreetingIcon className="w-3.5 h-3.5" /> Hôm nay · {greeting.text.toLowerCase()}
+                </p>
+                <h2 className="mt-3 text-2xl font-semibold text-ink">
+                    {showSlider ? 'Hôm nay bạn muốn học bao nhiêu từ?' : remaining > 0 ? `Còn ${remaining} từ để đạt mục tiêu` : `Đã đạt mục tiêu ${dailyGoal} từ`}
+                </h2>
+                {showSlider ? (
+                    <div className="mt-5">
+                        <div className="flex items-baseline justify-between">
+                            <span className="font-mono text-xs text-muted">Mục tiêu</span>
+                            <span className="text-ink">
+                                <span className="text-3xl font-bold text-accent">{sliderValue}</span> từ
+                            </span>
+                        </div>
+                        <input
+                            type="range"
+                            min={GOAL_STEPS[0]}
+                            max={GOAL_STEPS[GOAL_STEPS.length - 1]}
+                            step={5}
+                            value={sliderValue}
+                            onChange={(e) => setSliderValue(Number(e.target.value))}
+                            aria-label="Số từ muốn học hôm nay"
+                            className="mt-3 w-full h-2 rounded-lg appearance-none cursor-pointer accent-accent"
+                            style={{
+                                background: `linear-gradient(to right, var(--color-accent) 0%, var(--color-accent) ${((sliderValue - 5) / 25) * 100}%, var(--color-surface-3) ${((sliderValue - 5) / 25) * 100}%, var(--color-surface-3) 100%)`,
+                            }}
+                        />
+                        <div className="mt-2 flex justify-between font-mono text-[11px] text-subtle">
+                            {GOAL_STEPS.map((n) => (
+                                <span key={n}>{n}</span>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mt-5">
+                        <div className="flex items-center justify-between font-mono text-xs text-muted">
+                            <span>Mục tiêu</span>
+                            <span>
+                                <span className="text-ink">{dailyProgress}</span>/{dailyGoal} từ
+                            </span>
+                        </div>
+                        <div className="mt-2 h-1.5 rounded-full bg-surface-3 overflow-hidden">
+                            <div className="h-full bg-accent rounded-full" style={{ width: `${(done / Math.max(1, dailyGoal)) * 100}%` }} />
+                        </div>
+                    </div>
+                )}
+                <div className="mt-6 flex items-center gap-4">
+                    <button
+                        onClick={showSlider ? handleStartWithGoal : handleContinue}
+                        className="h-12 px-6 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold transition-colors active:scale-[0.98] flex items-center gap-2"
+                    >
+                        {showSlider ? 'Bắt đầu học' : remaining > 0 ? 'Tiếp tục học' : 'Học thêm'}
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                    {!showSlider && (
+                        <button
+                            onClick={() => {
+                                buttonPress();
+                                setManualShowSlider(true);
+                            }}
+                            className="text-sm text-muted hover:text-ink"
+                        >
+                            Đổi mục tiêu
+                        </button>
+                    )}
+                </div>
+            </section>
+        );
+    }
 
     // Show Daily Slider (First open of the day)
     if (showSlider) {
@@ -189,25 +266,23 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                     </Link>
                 )}
 
-                {/* Priority 2: Story Ready */}
-                {hasUnreadStory && (
-                    <Link
-                        href="/stories"
-                        onClick={() => buttonPress()}
-                        className="flex items-center justify-between p-5 rounded-xl bg-surface-2/50 hover:bg-surface-2 border-2 border-line-strong hover:border-line-strong transition-all group hover:scale-[1.02] active:scale-95"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-xl bg-surface-3/50">
-                                <BookMarked className="w-6 h-6 text-ink" />
-                            </div>
-                            <div>
-                                <p className="text-ink font-bold text-lg">Câu chuyện mới</p>
-                                <p className="text-muted text-sm">Thực hành qua story mode</p>
-                            </div>
+                {/* Priority 2: a short passage, always open */}
+                <Link
+                    href="/read"
+                    onClick={() => buttonPress()}
+                    className="flex items-center justify-between p-5 rounded-xl bg-surface-2/50 hover:bg-surface-2 border-2 border-line-strong hover:border-line-strong transition-all group hover:scale-[1.02] active:scale-95"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-surface-3/50">
+                            <BookMarked className="w-6 h-6 text-ink" />
                         </div>
-                        <ArrowRight className="w-5 h-5 text-ink-2 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                )}
+                        <div>
+                            <p className="text-ink font-bold text-lg">Đọc 2 phút</p>
+                            <p className="text-muted text-sm">Gặp từ mới trong đoạn văn ngắn</p>
+                        </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-ink-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
 
                 {/* Priority 3: Continue Learning (Default) */}
                 <button
@@ -251,6 +326,14 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
                         Đổi mục tiêu
                     </button>
                 </div>
+                <Link
+                    href="/speak"
+                    onClick={() => buttonPress()}
+                    className="flex items-center justify-center gap-2 p-3 rounded-xl bg-surface-2/50 hover:bg-surface-2 border border-line-strong transition-all text-ink-2 text-sm font-medium"
+                >
+                    <Mic className="w-4 h-4" />
+                    Luyện nói 2 phút
+                </Link>
             </div>
         </motion.div>
     );

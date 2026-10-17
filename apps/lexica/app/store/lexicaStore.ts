@@ -7,7 +7,9 @@ import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
 import type { Quality } from '../lib/srs';
 import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentencePrompt } from '../lib/engagement/mySentence';
-import { getStoryCatchUpWordIds, STORIES, canUnlockPart1Naturally, canUnlockPart2Naturally } from '../data/stories';
+import { getCard } from '../lib/content/repository';
+import { applySpeakResult } from '../lib/pronunciation/drill';
+import type { SpeakLevel } from '../lib/pronunciation/score';
 
 /**
  * LEXICA Global State Store (Zustand + localStorage persistence)
@@ -58,26 +60,13 @@ interface LexicaStore {
     testScore: number | null; // Test score (0-5)
     recommendedLevel: DifficultyLevel | null; // AI recommended level from test
 
-    // Story Mode
-    unlockedStories: string[]; // IDs of stories user has unlocked (Part 2 / Full)
-    unlockedStoryPart1: string[]; // IDs of stories where Part 1 is unlocked
-    readStories: string[]; // IDs of stories user has read (full)
-    readStoryPart1: string[]; // IDs of stories where Part 1 has been read
+    // Speaking ("Luyện nói", lib/pronunciation/drill.ts)
+    /** "Chưa rõ" count per card; the words hard to say. */
+    speakMisses: Record<string, number>;
 
-    // DEPRECATED: Modal states migrated to routes - kept for backwards compat during transition
-    // currentStoryId: string | null; // Currently viewing story
-    // currentStoryPart: 'part1' | 'part2' | 'full' | null; // Which part viewing
-    // showStoryUnlock: boolean; // Show "Story Unlocked!" modal -> now /story/[id]/unlock
-    // showStoryMode: boolean; // Show story reading screen -> now /story/[id]
-    // showStoryQuiz: boolean; // Show quiz modal -> now /story/[id]/unlock-quiz
-    // storyQuizPart: 1 | 2 | null; // Which part quiz is for
-
-    storyQuizAttempts: Record<string, {
-        part1Passed?: boolean;
-        part1LastAttempt?: number;
-        part2Passed?: boolean;
-        part2LastAttempt?: number;
-    }>; // Track quiz attempts and cooldowns
+    // Reading ("Đọc", lib/engagement/reading.ts)
+    /** Cards added from a passage with "Thêm vào phiên học"; dealt first in the next deck. */
+    queuedCardIds: string[];
 
     // Streak
     currentStreak: number;
@@ -142,21 +131,14 @@ interface LexicaStore {
     completeTest: (score: number, recommendedLevel: DifficultyLevel, calibratedElo?: number) => void;
     acceptRecommendedLevel: () => void;
 
-    // Story Mode actions
-    checkStoryUnlock: () => void; // Check if user should unlock a new story
-    unlockStoryPart1: (storyId: string) => void; // Unlock Part 1 of a story
-    unlockStoryPart2: (storyId: string) => void; // Unlock Part 2 (full story)
+    // Speaking actions
+    recordSpeak: (cardId: string, level: SpeakLevel) => void;
 
-    // DEPRECATED: Modal actions migrated to routes - kept for fallback during transition
-    openStoryUnlockModal?: (storyId: string, part: 1 | 2) => void; // -> now router.push(/story/${id}/unlock?part=${part})
-    closeStoryUnlockModal?: () => void; // -> now router.back()
-    openStory?: (storyId: string, part: 'part1' | 'part2' | 'full') => void; // -> now router.push(/story/${id}?part=${part})
-    closeStory?: () => void; // -> now router.back()
-    openStoryQuizModal?: (storyId: string, part: 1 | 2) => void; // -> now router.push(/story/${id}/unlock-quiz?part=${part})
-    closeStoryQuizModal?: () => void; // -> now router.back()
-
-    markStoryAsRead: (storyId: string, part: 'part1' | 'full') => void; // Mark story/part as read
-    submitStoryQuiz: (storyId: string, part: 1 | 2, score: number) => void; // Submit quiz (5 questions, need 4+ correct)
+    // Reading actions
+    /** Adds cards to the front of the next deck (as new cards). Returns how many were added. */
+    queueCards: (cardIds: string[]) => number;
+    /** A light "good" review for each card (reading a passage). */
+    lightReview: (cardIds: string[]) => void;
 
     // Cortex Integration
     syncAllToCortex: () => Promise<void>;
@@ -320,19 +302,8 @@ export const useLexicaStore = create<LexicaStore>()(
                 }
             },
 
-            // Story Mode state
-            unlockedStories: [],
-            unlockedStoryPart1: [],
-            readStories: [],
-            readStoryPart1: [],
-            // DEPRECATED: Modal states commented out (migrated to routes)
-            // currentStoryId: null,
-            // currentStoryPart: null,
-            // showStoryUnlock: false,
-            // showStoryMode: false,
-            // showStoryQuiz: false,
-            // storyQuizPart: null,
-            storyQuizAttempts: {},
+            queuedCardIds: [],
+            speakMisses: {},
 
 
             // Swipe card action
@@ -421,9 +392,6 @@ export const useLexicaStore = create<LexicaStore>()(
                 // analytics.swipe is already called in SwipeDeck.tsx, so we don't need it here
                 // to avoid double logging.
 
-                // Check if user should unlock a story (every 10 words)
-                get().checkStoryUnlock();
-
                 // If deck is empty, load new deck
                 if (updatedDeck.length === 0) {
                     get().loadNewDeck();
@@ -456,11 +424,10 @@ export const useLexicaStore = create<LexicaStore>()(
 
             // Load new deck
             loadNewDeck: () => {
-                const { userStats, cardProgress, selectedLevel, learnedWords } = get();
-                const learnedWordIds = Array.from(learnedWords);
+                const { userStats, cardProgress, selectedLevel, queuedCardIds } = get();
 
-                // If any story pack is at 7-9/10, inject missing words regardless of ELO.
-                const forcedCardIds = getStoryCatchUpWordIds(learnedWordIds, 3);
+                // Words added from a passage ("Thêm vào phiên học") come first, as new cards.
+                const forcedCardIds = queuedCardIds.filter(id => !cardProgress[id]);
 
                 // Only inject review cards if:
                 // 1. Auto-review is enabled
@@ -470,10 +437,12 @@ export const useLexicaStore = create<LexicaStore>()(
                 const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview);
 
                 // Mark that we've injected review cards (so it won't happen again on next loadNewDeck)
+                const dealt = new Set(newDeck.map(c => c.id));
+                const queued = forcedCardIds.filter(id => !dealt.has(id));
                 if (shouldInjectReview) {
-                    set({ currentDeck: newDeck, reviewCardsInjectedThisSession: true });
+                    set({ currentDeck: newDeck, queuedCardIds: queued, reviewCardsInjectedThisSession: true });
                 } else {
-                    set({ currentDeck: newDeck });
+                    set({ currentDeck: newDeck, queuedCardIds: queued });
                 }
             },
 
@@ -492,19 +461,8 @@ export const useLexicaStore = create<LexicaStore>()(
                     isInTest: false,
                     testScore: null,
                     recommendedLevel: null,
-                    // Reset Story Mode state
-                    unlockedStories: [],
-                    unlockedStoryPart1: [],
-                    readStories: [],
-                    readStoryPart1: [],
-                    // DEPRECATED: Modal states removed (migrated to routes)
-                    // currentStoryId: null,
-                    // currentStoryPart: null,
-                    // showStoryUnlock: false,
-                    // showStoryMode: false,
-                    // showStoryQuiz: false,
-                    // storyQuizPart: null,
-                    storyQuizAttempts: {},
+                    queuedCardIds: [],
+                    speakMisses: {},
                     // Reset streak
                     currentStreak: 0,
                     longestStreak: 0,
@@ -693,185 +651,27 @@ export const useLexicaStore = create<LexicaStore>()(
                 }
             },
 
-            // Story Mode: Check if user should unlock a new story part
-            checkStoryUnlock: () => {
-                const { learnedWords, unlockedStories, unlockedStoryPart1, storyQuizAttempts } = get();
-                const learnedWordsList = Array.from(learnedWords);
-
-                // Check each story for Part 1 or Part 2 unlock
-                for (const story of STORIES) {
-                    const storyId = story.id;
-
-                    // Check Part 2 unlock (full story) - higher priority
-                    if (!unlockedStories.includes(storyId) &&
-                        !storyQuizAttempts[storyId]?.part2Passed &&
-                        canUnlockPart2Naturally(story, learnedWordsList)) {
-                        get().unlockStoryPart2(storyId);
-                        return; // Only unlock one at a time
-                    }
-
-                    // Check Part 1 unlock (only if Part 2 not already unlocked)
-                    if (!unlockedStories.includes(storyId) && // Part 2 not unlocked yet
-                        !unlockedStoryPart1.includes(storyId) &&
-                        !storyQuizAttempts[storyId]?.part1Passed &&
-                        canUnlockPart1Naturally(story, learnedWordsList)) {
-                        get().unlockStoryPart1(storyId);
-                        return; // Only unlock one at a time
-                    }
-                }
+            recordSpeak: (cardId, level) => {
+                set({ speakMisses: applySpeakResult(get().speakMisses, cardId, level) });
             },
 
-            unlockStoryPart1: (storyId) => {
-                const { unlockedStoryPart1 } = get();
-                if (!unlockedStoryPart1.includes(storyId)) {
-                    set({
-                        unlockedStoryPart1: [...unlockedStoryPart1, storyId],
-                    });
-                    get().openStoryUnlockModal?.(storyId, 1);
-                    analytics.storyPart1Unlocked(storyId, 'natural');
-                }
+            queueCards: (cardIds) => {
+                const { queuedCardIds, cardProgress, currentDeck } = get();
+                const fresh = [...new Set(cardIds)].filter(id => !cardProgress[id] && !queuedCardIds.includes(id) && !currentDeck.some(c => c.id === id) && getCard(id));
+                if (fresh.length === 0) return 0;
+                // Cards already dealt stay put; queued ones go first in the next deck.
+                set({ queuedCardIds: [...fresh, ...queuedCardIds] });
+                return fresh.length;
             },
 
-            unlockStoryPart2: (storyId) => {
-                const { unlockedStories, unlockedStoryPart1 } = get();
-                if (!unlockedStories.includes(storyId)) {
-                    // Auto-unlock Part 1 if not already
-                    const newPart1List = unlockedStoryPart1.includes(storyId)
-                        ? unlockedStoryPart1
-                        : [...unlockedStoryPart1, storyId];
-
-                    set({
-                        unlockedStoryPart1: newPart1List,
-                        unlockedStories: [...unlockedStories, storyId],
-                    });
-                    get().openStoryUnlockModal?.(storyId, 2);
-                    analytics.storyPart2Unlocked(storyId, 'natural');
+            lightReview: (cardIds) => {
+                const { cardProgress } = get();
+                const updated = { ...cardProgress };
+                for (const id of cardIds) {
+                    if (!updated[id]) continue;
+                    updated[id] = updateCardProgress(updated[id], id, 'right', 'good');
                 }
-            },
-
-            // DEPRECATED: Modal actions - kept for backwards compat but should use router instead
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            openStoryUnlockModal: (..._args: unknown[]) => {
-                console.warn('[DEPRECATED] openStoryUnlockModal: Use router.push(/story/${storyId}/unlock?part=${part}) instead');
-                // No-op: Modal state removed, navigation should use router
-            },
-
-            closeStoryUnlockModal: () => {
-                console.warn('[DEPRECATED] closeStoryUnlockModal: Use router.back() instead');
-                // No-op: Modal state removed
-            },
-
-            openStory: (storyId, part) => {
-                console.warn('[DEPRECATED] openStory: Use router.push(/story/${storyId}?part=${part}) instead');
-                // Fallback for components not yet migrated: redirect via window.location
-                if (typeof window !== 'undefined') {
-                    window.location.href = `/story/${storyId}?part=${part}`;
-                }
-            },
-
-            closeStory: () => {
-                console.warn('[DEPRECATED] closeStory: Use router.back() instead');
-                // Fallback: go back
-                if (typeof window !== 'undefined') {
-                    window.history.back();
-                }
-            },
-
-            markStoryAsRead: (storyId, part) => {
-                if (part === 'part1') {
-                    const { readStoryPart1 } = get();
-                    if (!readStoryPart1.includes(storyId)) {
-                        set({
-                            readStoryPart1: [...readStoryPart1, storyId],
-                        });
-                        analytics.storyPart1Read(storyId);
-                    }
-                } else if (part === 'full') {
-                    const { readStories, readStoryPart1 } = get();
-                    if (!readStories.includes(storyId)) {
-                        // Auto-mark Part 1 as read too
-                        const newPart1List = readStoryPart1.includes(storyId)
-                            ? readStoryPart1
-                            : [...readStoryPart1, storyId];
-
-                        set({
-                            readStoryPart1: newPart1List,
-                            readStories: [...readStories, storyId],
-                        });
-                        analytics.storyFullRead(storyId);
-                    }
-                }
-            },
-
-            openStoryQuizModal: (storyId, part) => {
-                console.warn('[DEPRECATED] openStoryQuizModal: Use router.push(/story/${storyId}/unlock-quiz?part=${part}) instead');
-                // Fallback: redirect via window.location
-                if (typeof window !== 'undefined') {
-                    window.location.href = `/story/${storyId}/unlock-quiz?part=${part}`;
-                }
-            },
-
-            closeStoryQuizModal: () => {
-                console.warn('[DEPRECATED] closeStoryQuizModal: Use router.back() instead');
-                // Fallback: go back
-                if (typeof window !== 'undefined') {
-                    window.history.back();
-                }
-            },
-
-            submitStoryQuiz: (storyId, part, score) => {
-                const passed = score >= 4; // Need 4/5 correct
-                const { storyQuizAttempts, unlockedStoryPart1, unlockedStories } = get();
-                const now = Date.now();
-
-                // Update quiz attempts
-                const updated = {
-                    ...storyQuizAttempts,
-                    [storyId]: {
-                        ...storyQuizAttempts[storyId],
-                        ...(part === 1 ? {
-                            part1Passed: passed || storyQuizAttempts[storyId]?.part1Passed,
-                            part1LastAttempt: now,
-                        } : {
-                            part2Passed: passed || storyQuizAttempts[storyId]?.part2Passed,
-                            part2LastAttempt: now,
-                        }),
-                    },
-                };
-
-                set({ storyQuizAttempts: updated });
-
-                // Analytics
-                if (passed) {
-                    analytics.storyQuizAttempt(storyId, part, score, true);
-                } else {
-                    analytics.storyQuizFailed(storyId, part, score);
-                }
-
-                // If passed, unlock the part
-                if (passed) {
-                    if (part === 1 && !unlockedStoryPart1.includes(storyId)) {
-                        set({
-                            unlockedStoryPart1: [...unlockedStoryPart1, storyId],
-                        });
-                        analytics.storyPart1Unlocked(storyId, 'quiz');
-                        // Navigation to unlock page handled by component via onSuccess callback
-                    } else if (part === 2 && !unlockedStories.includes(storyId)) {
-                        // Auto-unlock Part 1 too
-                        const newPart1List = unlockedStoryPart1.includes(storyId)
-                            ? unlockedStoryPart1
-                            : [...unlockedStoryPart1, storyId];
-
-                        set({
-                            unlockedStoryPart1: newPart1List,
-                            unlockedStories: [...unlockedStories, storyId],
-                        });
-                        analytics.storyPart2Unlocked(storyId, 'quiz');
-                        // Navigation to unlock page handled by component via onSuccess callback
-                    }
-                }
-
-                // Note: Modal close and navigation now handled by component
+                set({ cardProgress: updated });
             },
 
             syncAllToCortex: async () => {
@@ -950,12 +750,8 @@ export const useLexicaStore = create<LexicaStore>()(
                 lastActivityDate: state.lastActivityDate,
                 // Highest ELO
                 highestElo: state.highestElo,
-                // Story Mode persistence
-                unlockedStories: state.unlockedStories,
-                unlockedStoryPart1: state.unlockedStoryPart1,
-                readStories: state.readStories,
-                readStoryPart1: state.readStoryPart1,
-                storyQuizAttempts: state.storyQuizAttempts,
+                queuedCardIds: state.queuedCardIds,
+                speakMisses: state.speakMisses,
                 studyHistory: state.studyHistory,
                 // Daily Goals - persist daily progress tracking
                 dailyGoal: state.dailyGoal,
