@@ -50,7 +50,7 @@ export default function SessionRecap({
             animate={{ opacity: 1, scale: 1 }}
             className="absolute w-full top-1/2 -translate-y-1/2 px-2 sm:px-4"
         >
-            <div className="h-[450px] sm:h-100 rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col">
+            <div className="h-[460px] rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Xong phiên</p>
 
                 <div className="mt-3 grid grid-cols-3 gap-2 font-mono">

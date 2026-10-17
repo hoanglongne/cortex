@@ -281,7 +281,7 @@ export default function SwipeDeck() {
 
     if (cards.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-100 px-8 text-center">
+            <div className="flex flex-col items-center justify-center h-[460px] px-8 text-center">
                 <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -320,7 +320,7 @@ export default function SwipeDeck() {
     }
 
     return (
-        <div className="relative w-full h-100 flex items-center justify-center">
+        <div className="relative w-full h-[460px] flex items-center justify-center">
             {/* Swipe Feedback */}
             <AnimatePresence>
                 {lastSwipeDirection && (
@@ -366,7 +366,7 @@ export default function SwipeDeck() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 top-[calc(50%-272px)] sm:top-[calc(50%-248px)] rounded-2xl border border-accent/50 bg-surface px-4 py-2 text-center pointer-events-none max-w-[90%]"
+                        className="absolute z-50 top-[calc(50%-277px)] rounded-2xl border border-accent/50 bg-surface px-4 py-2 text-center pointer-events-none max-w-[90%]"
                     >
                         <p className="flex items-center justify-center gap-2 font-mono text-sm text-accent">
                             <Sparkles className="w-4 h-4" />
@@ -388,7 +388,7 @@ export default function SwipeDeck() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 top-[calc(50%-272px)] sm:top-[calc(50%-248px)] rounded-2xl border border-line-strong bg-surface px-4 py-2 text-center text-sm text-ink-2 pointer-events-none max-w-[90%]"
+                        className="absolute z-50 top-[calc(50%-277px)] rounded-2xl border border-line-strong bg-surface px-4 py-2 text-center text-sm text-ink-2 pointer-events-none max-w-[90%]"
                     >
                         {notice}
                     </motion.div>
@@ -445,7 +445,7 @@ export default function SwipeDeck() {
 
             {/* Explicit actions: same as swiping left / right */}
             {topCardId && !done && !activeCheck && (
-                <div className="absolute top-[calc(50%+237px)] left-0 right-0 mx-2 sm:mx-4 grid grid-cols-2 gap-2.5">
+                <div className="absolute top-[calc(50%+242px)] left-0 right-0 mx-2 sm:mx-4 grid grid-cols-2 gap-2.5">
                     <button
                         onClick={() => handleSwipe('left', topCardId)}
                         className="h-14 rounded-xl border border-line bg-surface text-ink font-medium flex items-center justify-center gap-2 hover:bg-surface-2 active:scale-[0.98] transition"

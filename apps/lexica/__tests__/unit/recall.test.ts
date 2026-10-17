@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blankWord, buildCheck, checkKind, matchesTyped, pickDistractors, typeHint } from '../../app/lib/engagement/recall';
+import { blankWord, buildCheck, checkKind, matchesTyped, optionLabels, pickDistractors, shortMeaning, typeHint } from '../../app/lib/engagement/recall';
 import type { UserCardProgress } from '../../app/lib/eloAlgorithm';
 
 const card = (id: string, word: string, meaning: string, elo = 1000, level: 'beginner' | 'intermediate' = 'intermediate') =>
@@ -102,5 +102,29 @@ describe('typed answers', () => {
 describe('blankWord', () => {
     it('hides every occurrence regardless of case', () => {
         expect(blankWord('Sống FRUGAL lắm, frugal thật', 'FRUGAL')).toBe('Sống _____ lắm, _____ thật');
+    });
+});
+
+describe('shortMeaning', () => {
+    it('cuts a meaning at its first comma', () => {
+        expect(shortMeaning('Hay lanh chanh, thích can thiệp chuyện người khác')).toBe('Hay lanh chanh');
+    });
+
+    it('keeps a meaning without a comma', () => {
+        expect(shortMeaning('Dồi dào')).toBe('Dồi dào');
+    });
+
+    it('keeps the full text when nothing comes before the comma', () => {
+        expect(shortMeaning(', lạ')).toBe(', lạ');
+    });
+});
+
+describe('optionLabels', () => {
+    it('shortens each meaning to one line', () => {
+        expect(optionLabels(['Dồi dào, phong phú', 'Tỉ mỉ'])).toEqual(['Dồi dào', 'Tỉ mỉ']);
+    });
+
+    it('keeps full text where shortening would make two options look the same', () => {
+        expect(optionLabels(['Nhanh, gọn', 'Nhanh, nhạy', 'Chậm'])).toEqual(['Nhanh, gọn', 'Nhanh, nhạy', 'Chậm']);
     });
 });

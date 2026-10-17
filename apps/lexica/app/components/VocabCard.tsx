@@ -105,7 +105,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                 className="w-full"
                 style={{ userSelect: 'none', zIndex: 100 - index }}
             >
-                <div className={`relative mx-2 sm:mx-4 h-[450px] sm:h-100 rounded-2xl bg-surface border p-5 sm:p-6 overflow-hidden flex flex-col ${lucky ? 'border-accent/60' : 'border-line'}`}>
+                <div data-testid="vocab-card" className={`relative mx-2 sm:mx-4 h-[460px] rounded-2xl bg-surface border p-5 sm:p-6 overflow-hidden flex flex-col ${lucky ? 'border-accent/60' : 'border-line'}`}>
                     {sessionCount !== undefined && (
                         <div className="absolute top-0 left-0 right-0 flex gap-0.5 px-4 pt-2" aria-label={`Phiên: ${sessionCount}/${SESSION_SIZE}`}>
                             {Array.from({ length: SESSION_SIZE }, (_, i) => (
@@ -165,7 +165,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
 
                     {/* Scenario with the target word highlighted */}
                     {shown.mine && <p className="mt-6 font-mono text-[11px] text-accent uppercase tracking-wider">Câu của bạn</p>}
-                    <p className={`${shown.mine ? 'mt-1' : 'mt-6'} text-lg sm:text-xl leading-relaxed text-ink-2`}>
+                    <p className={`${shown.mine ? 'mt-1' : 'mt-6'} ${check && index === 0 ? 'text-base' : 'text-lg sm:text-xl'} leading-relaxed text-ink-2`}>
                         {check && check.kind !== 'meaning' ? blankWord(displayScenario, card.word) : highlightWord(displayScenario, card.word)}
                     </p>
 
@@ -188,7 +188,8 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         </p>
                     )}
 
-                    <div className="mt-auto pt-4">
+                    {/* min-h-0 + scroll: a safety net if the panel ever outgrows the card */}
+                    <div data-testid="card-panel" className="mt-auto pt-4 min-h-0 overflow-y-auto">
                         {check && index === 0 && onCheckAnswer ? (
                             <RecallPanel check={check} word={card.word} meaning={card.translationHint} aid={mnemonic(card)} nextIn={recallNextIn(check, cardProgress)} onAnswer={onCheckAnswer} />
                         ) : isVoiceSwipeRequired ? (
