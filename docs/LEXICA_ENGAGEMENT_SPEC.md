@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Trạng thái | Draft v1, chưa triển khai |
+| Trạng thái | Đã triển khai phần lớn (cập nhật 2026-10-17, xem mục 9). Chưa làm: Bầu trời, tủ trưng bày hồ sơ, video chia sẻ |
 | Phụ thuộc | `contentRepository` (Studio giai đoạn 0), Trend Drop (`docs/LEXICA_STUDIO_SPEC.md`) |
 | Không dùng AI | Toàn bộ tài liệu này chạy bằng luật và số liệu sẵn có |
 
@@ -48,27 +48,30 @@ Khi một thẻ đủ điều kiện **đúc**, hệ thống quay ngẫu nhiên 
 
 **Điều kiện đúc** (chống "cày" vì hiện tại 3 lần quẹt phải liên tiếp là lên `mastered`):
 - `state === 'mastered'`, **và**
-- khoảng cách từ lần gặp đầu đến lúc mastered ≥ 7 ngày, **và**
-- đã trả lời đúng từ đó ít nhất 1 lần trong một trò ôn tập (không phải chỉ quẹt).
+- server thấy thẻ lần đầu ≥ 7 ngày trước (`lexica_card_first_seen`, không sửa được bằng backup), **và**
+- `reviewCount >= 3` (config `mint_rules.min_reviews`; mỗi "Đã nhớ" phải qua câu kiểm tra nhanh nên đã là nhớ thật).
+- Tối đa 30 lần đúc/ngày (`mint_rules.max_per_day`).
 
 **Bảng ấn bản**
 
 | Ấn bản | Tỉ lệ cơ bản | Hình thức | Nội dung độc quyền |
 |---|---|---|---|
 | Thường | 80% | Thẻ Focus chuẩn | — |
-| Bạc | 15% | Viền kim loại xám sáng | Câu ví dụ thứ 2 (bản "khịa" hơn) |
-| Holo | 4.5% | Lớp ánh lime chuyển động theo nghiêng máy (DeviceOrientation; fallback: theo vuốt) | Câu chuyện gốc từ (từ `surgeryModule`) + audio đọc chậm |
-| Huyền thoại | 0.5% | Holo + số seri toàn server (`#0042`) + chuyển động chậm | Một câu "hall of fame" viết tay trong Studio |
+| Bạc | 15% | Viền kim loại xám sáng | Câu ví dụ thứ 2 (câu theo hình mẫu người học khác, từ Studio variants) |
+| Holo | 4.5% | Viền ánh lime tĩnh + một lượt quét sáng khi mở (không lặp, không theo nghiêng máy) | Thêm: gốc từ (`surgeryModule`) + khiên trong "Liều hay Dừng" |
+| Huyền thoại | 0.5% | Holo + số seri toàn server (`No.0042`) | Thêm: câu "Ngoài đời" (câu trích thật, `docs/LEXICA_CONTENT_PLAN.md`) |
+
+Ấn bản cao giữ mọi quyền lợi của ấn bản thấp hơn. Quyền lợi được ghi ngay trên thẻ (sheet chi tiết trong Album) và trong "Từ điển Album" (`app/lib/engagement/albumGuide.ts`, `editionPerks`).
 
 **Bảo hiểm (pity)**
 - Bộ đếm `sinceHolo`: số lần đúc liên tiếp không ra Holo trở lên. Lần thứ **31** chắc chắn ra Holo (hoặc Huyền thoại với 0.5/5).
 - Bộ đếm `sinceLegendary`: từ lần đúc thứ 200 không có Huyền thoại, tỉ lệ Huyền thoại tăng thêm 0.5% mỗi lần (soft pity), reset khi trúng.
 
-**Số seri Huyền thoại**: cấp bởi server (`nextval` sequence), nên chỉ đúc Huyền thoại khi online. Offline → đúc vẫn xảy ra, kết quả quay được hoãn đến lần sync tiếp theo ("Thẻ đang được đúc…").
+**Số seri Huyền thoại**: cấp bởi server (`nextval` sequence). Đúc chỉ chạy khi online (RPC); chưa có hàng đợi đúc offline.
 
 ### 2.3 Quay ở đâu: server hay máy?
 
-- Tỉ lệ quay **ở server** (Cortex API) để không gian lận bằng chỉnh localStorage: client gửi `cardId`, server kiểm tra điều kiện đúc trên dữ liệu đã sync, quay, lưu, trả kết quả.
+- Tỉ lệ quay **ở server** để không gian lận bằng chỉnh localStorage: client gửi `cardId`, server kiểm tra điều kiện đúc trên dữ liệu đã sync, quay, lưu, trả kết quả. Thực tế là các hàm Supabase `security definer` (`apps/lexica/supabase/migration_engagement*.sql`), không phải Cortex API.
 - Người dùng chưa đăng nhập: không đúc (album vẫn hiện thẻ gốc + trạng thái). Đây cũng là lý do mạnh để đăng nhập.
 
 ### 2.4 Bộ (set) và mùa (season)
@@ -79,13 +82,14 @@ Khi một thẻ đủ điều kiện **đúc**, hệ thống quay ngẫu nhiên 
 | Bộ mùa | Mỗi Trend Drop | ~30 thẻ | Chỉ **học mới** được trong mùa (đến `expires_at` của drop) |
 
 - Thẻ của bộ mùa đã học trong mùa thì vẫn ôn và đúc được sau đó; người mới vào sau thì không còn học được.
+- Một thẻ chỉ tính là **có trong bộ** khi đã nhớ thật: `reviewCount ≥ 1` (`isOwned` trong `app/lib/engagement/collection.ts`). Thẻ mới chỉ gặp rồi quẹt "Chưa nhớ" không tính.
 - Album hiện **ô trống có viền** cho thẻ chưa có, kèm `18/30`.
-- Hoàn thành bộ: khung hồ sơ riêng của bộ + danh hiệu + mở chương story liên quan (nếu có).
-- Hoàn thành bộ với toàn Bạc trở lên: phiên bản khung "foil".
+- Hoàn thành bộ: 2 Hộp, nhận tự động ở bất kỳ trang nào (`EngagementSync`), kèm nhãn "Đủ bộ". Chưa làm: khung hồ sơ, danh hiệu, mở chương truyện.
+- Hoàn thành bộ với toàn Bạc trở lên: nhãn và viền "foil".
 
 ### 2.5 Hộp và tài nguyên
 
-Chỉ 2 tài nguyên: **Hộp** và **Bụi**.
+4 tài nguyên: **Hộp**, **Bụi**, **Vé** (quay lại) và **Băng** (đóng băng chuỗi). Đã chốt giữ cả 4 (2026-10-17), nhưng giải thích dần: xem mục 2.10.
 
 **Nguồn**
 
@@ -95,6 +99,9 @@ Chỉ 2 tài nguyên: **Hộp** và **Bụi**.
 | Đúc đủ 10 thẻ (cộng dồn) | 1 Hộp | — |
 | Hoàn thành 1 bộ | 2 Hộp | — |
 | Streak mốc 7/30/100 ngày | 1/3/5 Hộp | 1 lần mỗi mốc |
+| Vượt lượt ôn trước 3 ngày liền (mục 4) | 1 Hộp | |
+| Thẻ may mắn (mục 2.9) | Bụi, hiếm khi 1 Hộp | 5 lần/ngày |
+| Điểm "Liều hay Dừng" đã chốt (mục 3) | 10 điểm = 1 Bụi | 30 Bụi/ngày |
 | **Tổng trần** | | **3 Hộp/ngày** (phần vượt được giữ sang ngày sau, tối đa giữ 10) |
 
 **Mở hộp** (tỉ lệ công khai)
@@ -128,12 +135,12 @@ Người dùng chăm (20 thẻ/ngày, ~5 thẻ đủ điều kiện đúc/ngày 
 
 Người dùng vừa (8 thẻ/ngày): ~2–3 Holo/tháng, Huyền thoại ~3–4 tháng/lần (nhờ soft pity).
 
-Mọi tham số (tỉ lệ, giá, trần) nằm trong một file config phía server (`engagement.config.ts`), đổi không cần deploy client. Theo dõi 2 chỉ số để chỉnh: lượng Bụi tồn trung bình (lạm phát) và % người dùng có ≥1 Holo sau 30 ngày (mục tiêu 40–60%).
+Mọi tham số (tỉ lệ, giá, trần) nằm trong bảng `lexica_engagement_config` (mỗi khoá một dòng JSON), đổi không cần deploy. Theo dõi 2 chỉ số để chỉnh: lượng Bụi tồn trung bình (lạm phát) và % người dùng có ≥1 Holo sau 30 ngày (mục tiêu 40–60%).
 
 ### 2.7 Thẻ dùng vào đâu
 
-1. **Tủ trưng bày hồ sơ**: ghim 3 thẻ. Hồ sơ công khai qua link.
-2. **Ảnh chia sẻ**: xuất thẻ ra ảnh dọc 9:16; Holo/Huyền thoại xuất thành video ngắn có ánh chuyển động.
+1. **Tủ trưng bày hồ sơ**: ghim 3 thẻ. Hồ sơ công khai qua link. *(chưa làm)*
+2. **Ảnh chia sẻ**: xuất thẻ ra ảnh dọc 9:16 (đã làm, `shareCard.ts`); video ngắn cho Holo/Huyền thoại chưa làm.
 3. **Khiên trong "Liều hay Dừng"** (mục 3): gặp lại từ mà mình có Holo trở lên → được 1 khiên cho câu đó.
 4. **Ngôi sao lớn trong "Bầu trời"** (mục 5): ấn bản quyết định kích thước và màu sao.
 
@@ -173,9 +180,24 @@ create table public.lexica_wallet_ledger (     -- mọi thay đổi tài nguyên
 );
 ```
 
-RLS: người dùng chỉ **đọc** dòng của mình; mọi ghi đi qua Cortex API (`/engagement/*`) dùng service role, sau `SupabaseAuthGuard`.
+RLS: người dùng chỉ **đọc** dòng của mình; mọi ghi đi qua hàm Supabase `security definer` gọi bằng session của người dùng.
 
-API: `POST /engagement/mint/:cardId`, `POST /engagement/boxes/open`, `POST /engagement/reroll/:cardId`, `POST /engagement/upgrade/:cardId`, `GET /engagement/me`.
+API thực tế (RPC Supabase): `lexica_engagement_state`, `lexica_mint`, `lexica_open_box`, `lexica_reroll`, `lexica_upgrade`, `lexica_buy_ticket`, `lexica_claim` (daily_goal, set_complete, ghost_streak, streak_7/30/100), `lexica_use_freeze` (tự động khi lỡ đúng 1 ngày), `lexica_lucky_status` / `lexica_lucky_claim`, `lexica_review_dust`. Bảng thực tế có thêm `pending_boxes`, `mints_total`, `mints_today`, `day` trong `lexica_wallet`, và `lexica_card_first_seen`.
+
+### 2.9 Thẻ may mắn (thêm sau spec)
+
+- Khoảng 1/15 thẻ mỗi ngày là "may mắn", quyết định bằng hash (người dùng, thẻ, ngày) ở server, nên app hiện được badge trước khi quẹt nhưng không tự chọn được.
+- Nhớ được thẻ may mắn: 15/30/50 Bụi (70/20/8%) hoặc 1 Hộp (2%). Tối đa 5 lần/ngày.
+- Server trả về số lượt còn lại (`lexica_lucky_status`); hết lượt thì **không thẻ nào hiện badge** nữa, để không hứa quà mà không trả.
+
+### 2.10 Giải thích dần (thêm 2026-10-17)
+
+Người học chỉ cần biết **việc tiếp theo nên làm**, không cần hiểu cả hệ thống:
+- Đầu trang Album là ô **"Tiếp theo"**, 1–2 dòng, mỗi dòng ghi phần thưởng (`nextGoal`): "Còn 3 từ đủ bộ Ăn uống I → 2 Hộp", "COGNITIVE đúc được sau 2 ngày".
+- Mỗi khái niệm được giải thích **đúng 1 lần, lúc gặp lần đầu**, theo thứ tự: Bộ thẻ → Bụi → Hộp → Đúc → Vé → Băng (`nextExplainer`). Bấm "Hiểu rồi" là ẩn.
+- Nút `?` mở "Từ điển Album": một dòng cho mỗi khái niệm và mỗi ấn bản.
+- Ví chỉ hiện khi có gì đó, mỗi loại ghi số dùng được ngay ("Bụi 120 · cần 300 để nâng 1 thẻ").
+- Chưa đăng nhập: chỉ thấy bộ thẻ và ô "Tiếp theo", kèm một dòng "Đăng nhập để nhận quà khi đủ bộ".
 
 ---
 
@@ -190,19 +212,22 @@ API: `POST /engagement/mint/:cardId`, `POST /engagement/boxes/open`, `POST /enga
 - **Khiên**: từ mình sở hữu Holo trở lên → sai câu đó không mất hũ (1 lần/từ/ngày).
 - Hết giờ / thoát ngang = tự Chốt.
 
-**Thưởng**: điểm cuối phiên quy ra tiến độ mục tiêu ngày (không quy ra Hộp trực tiếp, để tránh cày trò chơi thay vì học).
+**Thưởng** (đổi 2026-10-17): điểm đã chốt là điểm của phiên, dùng để vượt lượt ôn trước (mục 4), và cuối phiên **đổi ra Bụi**: 10 điểm = 1 Bụi, tối đa 30 Bụi/ngày (`lexica_review_dust`). Trần ngày giữ cho việc cày không đáng.
 
 **SRS**: kết quả từng câu vẫn cập nhật `cardProgress` như bình thường; "Liều" chỉ chọn câu khó hơn trong số từ đến hạn ôn.
 
-**UI**: hũ là thanh phân đoạn lime phía trên, số nhân bằng mono lớn; khi bấm Liều, nền tối thêm 1 bậc, có nhịp tim âm thanh nhẹ (tắt được).
+**UI** (thực tế, 2026-10-17): trang ôn chỉ có 1 thanh ngang (tiến độ câu), đồng hồ là vòng tròn quanh số thứ tự câu. Hũ là **cột dọc** sát mép phải câu hỏi (`RiskRail`): các nấc x1…x5 từ dưới lên, sáng theo chuỗi đúng; số điểm trong hũ ở đỉnh; nút "Chốt" nhỏ bên dưới; icon khiên khi có. Không chốt nghĩa là Liều (câu sau khó hơn). Sai thì hũ rơi về 0. Lần đầu vào có 1 dòng giải thích.
+
+Hiện chỉ có trong `/review`; chưa đưa vào các mini-game.
 
 ---
 
 ## 4. Đấu với chính mình hôm qua
 
 - Mỗi phiên ôn lưu "bóng ma": dãy `(thời điểm, đúng/sai)` của phiên tốt nhất hôm qua (localStorage, ≤ 2 KB).
-- Phiên hôm nay hiện thanh tiến độ của bóng ma chạy song song (vạch xám) với của mình (vạch lime).
-- Kết thúc: "Hơn hôm qua 3 câu / 12 giây". Thắng bóng ma 3 ngày liền → 1 Hộp (tính vào trần ngày).
+- Phiên hôm nay hiện **một dòng chữ** dưới header: `Bạn 7 · Hôm qua 6 ▲` (không vẽ thanh).
+- Hôm qua không ôn thì đua với lượt gần nhất trong 7 ngày, ghi rõ ngày ("Thứ Ba"), và kết quả so với chính lượt đó.
+- Kết thúc: "Hơn bạn hôm qua 12 điểm". Vượt lượt trước 3 ngày liền → 1 Hộp (tính vào trần ngày).
 - Kết hợp với Liều hay Dừng: mục tiêu là vượt **hũ lớn nhất** hôm qua.
 - Không cần server, không cần bạn bè.
 
@@ -265,3 +290,16 @@ API: `POST /engagement/mint/:cardId`, `POST /engagement/boxes/open`, `POST /enga
 1. Có cho phép xem album của bạn bè (cần hồ sơ công khai) ngay ở v1?
 2. Huyền thoại có nên giới hạn số lượng theo từng thẻ (ví dụ tối đa 100 bản "ABUNDANT" Huyền thoại toàn server) để tăng giá trị?
 3. Đóng băng streak có nên dùng tự động hay người dùng tự bấm?
+
+## 9. Đã triển khai (cập nhật 2026-10-17)
+
+| Bước lộ trình | Trạng thái |
+|---|---|
+| 1. Album + bộ chủ đề | Xong; thêm "Tiếp theo", giải thích dần, Từ điển Album |
+| 2. Liều hay Dừng + bóng ma | Xong trong `/review` (cột hũ dọc, điểm đổi ra Bụi, đối thủ dự phòng); chưa có trong mini-game |
+| 3. Server: ví, đúc, hộp, quay lại, config, ledger | Xong bằng RPC Supabase |
+| 4. UI đúc / hộp / ấn bản + ảnh chia sẻ | Xong, trừ shader nghiêng máy và video |
+| 5. Bộ mùa gắn Trend Drop | Xong |
+| 6. Bầu trời | Chưa làm |
+
+Câu hỏi mở 3 đã chốt: Đóng băng dùng **tự động** khi lỡ đúng 1 ngày.

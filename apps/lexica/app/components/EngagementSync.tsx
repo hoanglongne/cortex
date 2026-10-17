@@ -1,17 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Gift } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useEconomy } from '../lib/engagement/economy';
 import { freezeTarget, pendingClaims, readClaimed, rememberClaimed } from '../lib/engagement/claims';
 import { localDate, previousDate } from '../lib/engagement/ghost';
+import { buildSets, setProgress } from '../lib/engagement/collection';
+import { getAllCards, getCurrentDrop, useContentVersion } from '../lib/content/repository';
 
 /**
  * Mount once in the root layout. For signed-in users it loads the wallet,
  * spends a streak freeze when exactly one day was missed, and claims boxes
- * for the daily goal and streak milestones. Shows a small toast on rewards.
+ * for the daily goal, streak milestones and completed album sets (wherever
+ * the set was completed). Shows a small toast on rewards.
  */
 export default function EngagementSync() {
     const status = useEconomy((s) => s.status);
@@ -23,6 +26,8 @@ export default function EngagementSync() {
     const progressDate = useLexicaStore((s) => s.lastLearnedWordsReset);
     const currentStreak = useLexicaStore((s) => s.currentStreak);
     const lastActivityDate = useLexicaStore((s) => s.lastActivityDate);
+    const cardProgress = useLexicaStore((s) => s.cardProgress);
+    const contentVersion = useContentVersion();
     const [toast, setToast] = useState<string | null>(null);
     const freezeTried = useRef(false);
 
@@ -45,6 +50,14 @@ export default function EngagementSync() {
             .catch(() => undefined);
     }, [status, lastActivityDate, spendFreeze]);
 
+    const completedSets = useMemo(() => {
+        void contentVersion;
+        const drop = getCurrentDrop();
+        return buildSets(getAllCards(), drop ? { [drop.id]: drop.title } : {})
+            .filter((set) => setProgress(set, cardProgress).complete)
+            .map((set) => ({ id: set.id, label: set.label }));
+    }, [contentVersion, cardProgress]);
+
     useEffect(() => {
         if (status !== 'ready') return;
         const todo = pendingClaims({
@@ -54,6 +67,7 @@ export default function EngagementSync() {
             progressDate,
             currentStreak,
             claimed: readClaimed(),
+            completedSets,
         });
         for (const c of todo) {
             rememberClaimed(`${c.kind}:${c.ref}`);
@@ -65,7 +79,7 @@ export default function EngagementSync() {
                 })
                 .catch(() => undefined);
         }
-    }, [status, dailyProgress, dailyGoal, progressDate, currentStreak, claim]);
+    }, [status, dailyProgress, dailyGoal, progressDate, currentStreak, completedSets, claim]);
 
     useEffect(() => {
         if (!toast) return;

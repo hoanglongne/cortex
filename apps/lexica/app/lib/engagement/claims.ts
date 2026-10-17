@@ -9,6 +9,8 @@ export function pendingClaims(input: {
     progressDate: string | null;
     currentStreak: number;
     claimed: Set<string>;
+    /** Album sets the learner has completed (any page, not only the Album). */
+    completedSets?: { id: string; label: string }[];
 }): { kind: ClaimKind; ref: string; label: string }[] {
     const out: { kind: ClaimKind; ref: string; label: string }[] = [];
     const add = (kind: ClaimKind, ref: string, label: string) => {
@@ -20,6 +22,7 @@ export function pendingClaims(input: {
     for (const [days, kind] of [[7, 'streak_7'], [30, 'streak_30'], [100, 'streak_100']] as const) {
         if (input.currentStreak >= days) add(kind, String(days), `Chuỗi ${days} ngày`);
     }
+    for (const set of input.completedSets ?? []) add('set_complete', set.id, `Đủ bộ ${set.label}`);
     return out;
 }
 

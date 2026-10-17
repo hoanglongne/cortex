@@ -1,16 +1,18 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Gift, Hammer, Leaf, Lock, Snowflake, Sparkles, Sprout, Ticket, Trophy, Volume2, Wand2 } from 'lucide-react';
+import { ArrowRight, ChevronDown, Gift, Hammer, HelpCircle, Leaf, Lock, Shield, Snowflake, Sparkles, Sprout, Ticket, Trophy, Volume2, Wand2, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { getAllCards, getCard, getCurrentDrop, useContentVersion } from '../lib/content/repository';
-import { buildSets, seasonOpen, setProgress, type CollectionSet } from '../lib/engagement/collection';
+import { getAllCards, getCard, getCurrentDrop, getQuotes, useContentVersion } from '../lib/content/repository';
+import { buildSets, isOwned, seasonOpen, setProgress, type CollectionSet } from '../lib/engagement/collection';
+import { CONCEPTS, editionPerks, markExplained, nextExplainer, nextGoal, PERK_LABEL, readExplained, secondExample, walletLines, walletVisible, type Concept } from '../lib/engagement/albumGuide';
+import { scenarioFor } from '../lib/content/persona';
+import InTheWild from '../components/InTheWild';
 import { AudioService } from '../lib/audio/AudioService';
 import type { UserCardProgress } from '../lib/eloAlgorithm';
 import { EDITION_LABEL, EDITION_RANK, type BoxItem, type Edition, type EconomyState, type OwnedEdition, useEconomy } from '../lib/engagement/economy';
-import { readClaimed, rememberClaimed } from '../lib/engagement/claims';
 import { RevealModal, useReel } from '../components/RevealReel';
 import AuthGate from '../components/AuthGate';
 import { shareCardImage } from '../lib/engagement/shareCard';
@@ -76,18 +78,10 @@ export default function AlbumPage() {
         return { all, owned, complete };
     }, [sets, cardProgress]);
 
-    // Completing a set pays boxes once.
-    const claim = economy.claim;
-    useEffect(() => {
-        if (economy.status !== 'ready') return;
-        const claimed = readClaimed();
-        for (const set of sets) {
-            const key = `set_complete:${set.id}`;
-            if (claimed.has(key) || !setProgress(set, cardProgress).complete) continue;
-            rememberClaimed(key);
-            void claim('set_complete', set.id).catch(() => undefined);
-        }
-    }, [economy.status, sets, cardProgress, claim]);
+    // Completed sets are claimed by EngagementSync, wherever they were completed.
+    const [seen, setSeen] = useState<Set<Concept>>(() => (typeof window === 'undefined' ? new Set() : readExplained()));
+    const [showGuide, setShowGuide] = useState(false);
+    const [showSignIn, setShowSignIn] = useState(false);
 
     const run = async (fn: () => Promise<void>) => {
         setBusy(true);
@@ -102,6 +96,14 @@ export default function AlbumPage() {
     };
 
     const state = economy.state;
+    const signedOut = economy.status === 'signed-out';
+    const word = (id: string) => getCard(id)?.word ?? id;
+    const goals = nextGoal({ sets, progress: cardProgress, economy: state, word });
+    const explainer = nextExplainer(seen, {
+        wallet: state?.wallet ?? null,
+        readyToMint: state?.ready.length ?? 0,
+        minted: state ? Object.keys(state.editions).length : 0,
+    });
     const actions = {
         mint: (cardId: string) =>
             run(async () => {
@@ -125,30 +127,64 @@ export default function AlbumPage() {
     return (
         <div className="min-h-screen bg-bg px-4 py-8">
             <div className="max-w-2xl mx-auto">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center justify-between mb-1">
                     <Link href="/" className="inline-flex items-center gap-2 text-muted hover:text-accent transition-colors text-sm">
                         ← Học
                     </Link>
                     <p className="text-ink font-bold">Album</p>
-                    <div className="w-16" />
+                    <button onClick={() => setShowGuide(true)} className="w-16 flex justify-end text-muted hover:text-ink" aria-label="Từ điển Album">
+                        <HelpCircle className="w-5 h-5" />
+                    </button>
                 </div>
+                <p className="mb-5 text-center font-mono text-[11px] text-subtle">
+                    {totals.owned}/{totals.all} thẻ · {totals.complete}/{sets.length} bộ đủ
+                    {state && Object.keys(state.editions).length > 0 && ` · ${Object.keys(state.editions).length} đã đúc`}
+                </p>
 
-                <div className="rounded-2xl border border-line bg-surface p-5 mb-4">
-                    <div className="grid grid-cols-3 gap-3 font-mono">
-                        <Stat label="Thẻ" value={`${totals.owned}/${totals.all}`} />
-                        <Stat label="Bộ đủ" value={`${totals.complete}/${sets.length}`} />
-                        <Stat label="Đã đúc" value={String(state ? Object.keys(state.editions).length : 0)} />
-                    </div>
-                </div>
-
-                <HowItWorks />
-
-                {economy.status === 'signed-out' && (
-                    <div className="mb-4">
-                        <AuthGate reason="Đăng nhập để đúc ấn bản thẻ, nhận hộp và Bụi. Không cần mật khẩu." redirectPath="/album" />
+                {explainer && (
+                    <div data-testid="album-explainer" className="mb-3 rounded-2xl border border-accent/30 bg-surface p-4 flex items-start gap-3">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-accent bg-accent/10 rounded-md px-1.5 py-0.5 shrink-0 mt-0.5">Mới</span>
+                        <p className="flex-1 text-sm text-ink-2">
+                            <span className="font-semibold text-ink">{explainer.name}:</span> {explainer.line}
+                        </p>
+                        <button onClick={() => setSeen(markExplained(explainer.id))} className="text-sm text-ink underline underline-offset-4 shrink-0">
+                            Hiểu rồi
+                        </button>
                     </div>
                 )}
-                {state && <WalletBar state={state} busy={busy} onOpenBox={actions.openBox} onBuyTicket={actions.buyTicket} onMintNext={() => state.ready[0] && actions.mint(state.ready[0])} />}
+
+                <div data-testid="album-next" className="mb-4 rounded-2xl border border-line bg-surface p-4">
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Tiếp theo</p>
+                    <ul className="mt-2 space-y-1.5">
+                        {goals.map((g) => (
+                            <li key={g.text} className="flex items-center gap-2 text-sm text-ink">
+                                <span className="flex-1">{g.text}</span>
+                                {g.reward && (
+                                    <span className="flex items-center gap-1 font-mono text-xs text-accent shrink-0">
+                                        <ArrowRight className="w-3.5 h-3.5" /> {g.reward}
+                                    </span>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {signedOut && (
+                    <div className="mb-4">
+                        <p className="text-sm text-muted">
+                            Đăng nhập để nhận quà khi đủ bộ.{' '}
+                            <button onClick={() => setShowSignIn(!showSignIn)} className="text-ink underline underline-offset-4">
+                                Đăng nhập
+                            </button>
+                        </p>
+                        {showSignIn && (
+                            <div className="mt-3">
+                                <AuthGate reason="Không cần mật khẩu: nhận mã qua email." redirectPath="/album" />
+                            </div>
+                        )}
+                    </div>
+                )}
+                {state && walletVisible(state) && <WalletBar state={state} busy={busy} onOpenBox={actions.openBox} onBuyTicket={actions.buyTicket} onMintNext={() => state.ready[0] && actions.mint(state.ready[0])} />}
                 {error && <p className="mb-4 rounded-xl border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">{error}</p>}
 
                 <div className="space-y-3">
@@ -179,15 +215,7 @@ export default function AlbumPage() {
                 )}
             </AnimatePresence>
             <AnimatePresence>{reveal && <RevealView reveal={reveal} onClose={() => setReveal(null)} />}</AnimatePresence>
-        </div>
-    );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-    return (
-        <div>
-            <p className="text-[10px] uppercase text-subtle">{label}</p>
-            <p className="text-xl text-ink">{value}</p>
+            <AnimatePresence>{showGuide && <AlbumDictionary onClose={() => setShowGuide(false)} />}</AnimatePresence>
         </div>
     );
 }
@@ -209,12 +237,17 @@ function WalletBar({
     const price = state.config.prices.ticket;
     return (
         <div className="rounded-2xl border border-line bg-surface p-4 mb-4 space-y-3">
-            <div className="grid grid-cols-4 gap-2 font-mono text-center">
-                <WalletStat icon={<Gift className="w-4 h-4" />} label="Hộp" hint="mở ra quà" value={w.boxes} />
-                <WalletStat icon={<Sparkles className="w-4 h-4" />} label="Bụi" hint="nâng cấp thẻ" value={w.dust} />
-                <WalletStat icon={<Ticket className="w-4 h-4" />} label="Vé" hint="đúc lại thẻ" value={w.reroll_tickets} />
-                <WalletStat icon={<Snowflake className="w-4 h-4" />} label="Băng" hint="giữ chuỗi" value={w.streak_freezes} />
-            </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                {walletLines(state).map((line) => (
+                    <li key={line.key} className="flex items-center gap-2 text-sm">
+                        <span className="text-accent">{WALLET_ICON[line.key]}</span>
+                        <span className="text-ink">
+                            {line.name} <span className="font-mono">{line.amount}</span>
+                        </span>
+                        <span className="text-muted text-xs truncate">· {line.use}</span>
+                    </li>
+                ))}
+            </ul>
             <div className="flex flex-wrap gap-2">
                 {state.ready.length > 0 && (
                     <button disabled={busy} onClick={onMintNext} className="flex-1 min-w-36 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
@@ -232,7 +265,6 @@ function WalletBar({
                     </button>
                 )}
             </div>
-            {w.pending_boxes > 0 && <p className="text-xs text-muted">+{w.pending_boxes} hộp sẽ đến vào ngày mai (tối đa {state.config.boxes.daily_cap} hộp mỗi ngày).</p>}
             <details className="text-xs text-muted">
                 <summary className="cursor-pointer">Tỉ lệ công khai</summary>
                 <p className="mt-2 font-mono leading-relaxed">
@@ -249,87 +281,12 @@ function WalletBar({
 
 const pct = (p: number) => `${(p * 100).toFixed(p < 0.01 ? 1 : 0)}%`;
 
-function WalletStat({ icon, label, hint, value }: { icon: React.ReactNode; label: string; hint: string; value: number }) {
-    return (
-        <div className="rounded-xl bg-surface-2 py-2">
-            <div className="flex items-center justify-center text-accent">{icon}</div>
-            <p className="text-lg text-ink">{value}</p>
-            <p className="text-[11px] text-ink-2 font-sans">{label}</p>
-            <p className="text-[10px] text-subtle font-sans leading-tight">{hint}</p>
-        </div>
-    );
-}
-
-const GUIDE_KEY = 'lexica-album-guide-seen';
-
-const GUIDE: { icon: React.ReactNode; title: string; body: string }[] = [
-    {
-        icon: <Leaf className="w-4 h-4" />,
-        title: 'Học từ là sưu tầm thẻ',
-        body: 'Mỗi từ bạn nhớ được thành một thẻ, gom theo bộ chủ đề. Đủ bộ thì được thưởng Hộp.',
-    },
-    {
-        icon: <Hammer className="w-4 h-4" />,
-        title: 'Nhớ thật chắc thì Đúc',
-        body: 'Từ lên Thành thạo và học được từ 7 ngày thì đúc được một ấn bản: Thường, Bạc, Holo, hiếm nhất là Huyền thoại.',
-    },
-    {
-        icon: <Gift className="w-4 h-4" />,
-        title: 'Quà để làm gì',
-        body: 'Hộp mở ra Bụi, Vé hoặc Băng. Bụi để nâng thẻ Thường lên Bạc. Vé để đúc lại một thẻ, thử vận may. Băng giữ chuỗi ngày khi lỡ quên học một hôm.',
-    },
-];
-
-/** Plain-language guide to the album: open on the first visit, a toggle after. */
-function HowItWorks() {
-    const [open, setOpen] = useState<boolean | null>(null);
-    useEffect(() => {
-        let seen = false;
-        try {
-            seen = localStorage.getItem(GUIDE_KEY) === '1';
-        } catch {
-            // Storage blocked: show the guide every time.
-        }
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- reads browser storage once after mount
-        setOpen(!seen);
-    }, []);
-    const close = () => {
-        setOpen(false);
-        try {
-            localStorage.setItem(GUIDE_KEY, '1');
-        } catch {
-            // ignore
-        }
-    };
-    if (open === null) return null;
-    if (!open) {
-        return (
-            <button onClick={() => setOpen(true)} className="mb-4 text-xs text-muted hover:text-ink underline underline-offset-4">
-                Album hoạt động thế nào?
-            </button>
-        );
-    }
-    return (
-        <div className="rounded-2xl border border-accent/30 bg-surface p-5 mb-4">
-            <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Cách chơi</p>
-            <ol className="mt-3 space-y-3">
-                {GUIDE.map((step, i) => (
-                    <li key={step.title} className="flex gap-3">
-                        <span className="mt-0.5 shrink-0 w-7 h-7 rounded-full bg-accent/10 text-accent flex items-center justify-center">{step.icon}</span>
-                        <div>
-                            <p className="text-sm font-semibold text-ink">{i + 1}. {step.title}</p>
-                            <p className="text-sm text-muted leading-relaxed">{step.body}</p>
-                        </div>
-                    </li>
-                ))}
-            </ol>
-            <p className="mt-4 text-xs text-subtle">Không cần nhớ hết: cứ học đều, quà tự đến.</p>
-            <button onClick={close} className="mt-3 w-full h-11 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-bold">
-                Đã hiểu
-            </button>
-        </div>
-    );
-}
+const WALLET_ICON = {
+    boxes: <Gift className="w-4 h-4" />,
+    dust: <Sparkles className="w-4 h-4" />,
+    ticket: <Ticket className="w-4 h-4" />,
+    freeze: <Snowflake className="w-4 h-4" />,
+} as const;
 
 function SetRow({
     set,
@@ -380,7 +337,7 @@ function SetRow({
                 <div className="px-4 pb-4 grid grid-cols-4 sm:grid-cols-6 gap-2">
                     {set.cardIds.map((id) => {
                         const cp = progress[id];
-                        if (!cp) {
+                        if (!cp || !isOwned(cp)) {
                             return (
                                 <div
                                     key={id}
@@ -432,12 +389,15 @@ function CardSheet({
     actions: { mint: (id: string) => void; reroll: (id: string) => void; upgrade: (id: string) => void };
 }) {
     const card = getCard(cardId);
+    const archetype = useLexicaStore((s) => s.userArchetype);
     if (!card || !progress) return null;
     const Icon = STATE_ICON[progress.state];
     const owned: OwnedEdition | undefined = economy?.editions[cardId];
     const ready = economy?.ready.includes(cardId);
     const waitingUntil = economy?.waiting[cardId];
     const prices = economy?.config.prices;
+    const shownSentence = scenarioFor(card, archetype) || card.scenario || '';
+    const second = secondExample(card, shownSentence);
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" onClick={onClose}>
@@ -464,9 +424,35 @@ function CardSheet({
                     </div>
                     {card.ipa && <p className="text-muted text-sm font-mono mb-2">/{card.ipa}/</p>}
                     <p className="text-ink-2 text-sm mb-3">{card.translationHint}</p>
-                    <p className="text-muted text-sm italic leading-relaxed border-t border-line pt-3">&ldquo;{card.scenario}&rdquo;</p>
+                    <p className="text-muted text-sm italic leading-relaxed border-t border-line pt-3">&ldquo;{shownSentence}&rdquo;</p>
 
-                    {/* Holo and better unlock the word's origin story. */}
+                    {/* What each edition adds for learning; the ones this card has are lit. */}
+                    <ul data-testid="edition-perks" className="mt-3 space-y-1 font-mono text-[11px]">
+                        {(['silver', 'holo', 'legendary'] as const).map((ed) => {
+                            const has = !!owned && EDITION_RANK[owned.edition] >= EDITION_RANK[ed];
+                            const added = editionPerks(ed).filter((p) => !editionPerks(ed === 'silver' ? 'common' : ed === 'holo' ? 'silver' : 'holo').includes(p));
+                            return (
+                                <li key={ed} className={has ? 'text-accent' : 'text-subtle'}>
+                                    {EDITION_LABEL[ed]}: + {added.map((p) => PERK_LABEL[p]).join(', ')}
+                                </li>
+                            );
+                        })}
+                    </ul>
+
+                    {/* Silver and better: a second example sentence. */}
+                    {owned && EDITION_RANK[owned.edition] >= EDITION_RANK.silver && second && (
+                        <div className="mt-3 rounded-xl bg-surface-2 p-3 text-xs text-ink-2">
+                            <p className="font-mono uppercase text-[10px] text-accent mb-1">Câu ví dụ thứ 2</p>
+                            <p className="italic leading-relaxed">&ldquo;{second}&rdquo;</p>
+                        </div>
+                    )}
+
+                    {/* Holo and better: the word's origin, and a shield in "Liều hay Dừng". */}
+                    {owned && EDITION_RANK[owned.edition] >= EDITION_RANK.holo && (
+                        <p className="mt-3 flex items-center gap-1.5 text-xs text-accent">
+                            <Shield className="w-3.5 h-3.5" /> Khiên: sai từ này trong &ldquo;Liều hay Dừng&rdquo; vẫn giữ hũ (1 lần mỗi ngày)
+                        </p>
+                    )}
                     {owned && (owned.edition === 'holo' || owned.edition === 'legendary') && card.surgeryModule && (
                         <div className="mt-3 rounded-xl bg-surface-2 p-3 text-xs text-ink-2 space-y-1">
                             <p className="font-mono uppercase text-[10px] text-accent">Gốc từ</p>
@@ -479,6 +465,9 @@ function CardSheet({
                                 ))}
                         </div>
                     )}
+
+                    {/* Legendary: real quotes with the word. */}
+                    {owned?.edition === 'legendary' && <InTheWild word={card.word} quotes={getQuotes(cardId)} />}
 
                     <div className="mt-4 flex items-center gap-2 font-mono text-xs text-muted">
                         <Icon className="w-3.5 h-3.5" /> {STATE_LABEL[progress.state]} · ôn đúng {progress.reviewCount} · sai {progress.wrongCount}
@@ -587,5 +576,44 @@ function RevealView({ reveal, onClose }: { reveal: Reveal; onClose: () => void }
                 </motion.div>
             )}
         </RevealModal>
+    );
+}
+
+/** "Từ điển Album": one line per idea, opened from the ? button. */
+function AlbumDictionary({ onClose }: { onClose: () => void }) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" onClick={onClose}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 40, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-md rounded-2xl border border-line bg-surface p-5 max-h-[85vh] overflow-y-auto"
+                role="dialog"
+                aria-label="Từ điển Album"
+            >
+                <div className="flex items-center justify-between">
+                    <p className="font-bold text-ink">Từ điển Album</p>
+                    <button onClick={onClose} className="text-muted hover:text-ink" aria-label="Đóng">
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
+                <dl className="mt-4 divide-y divide-line text-sm">
+                    {CONCEPTS.map((c) => (
+                        <div key={c.id} className="py-2 grid grid-cols-[4.5rem_1fr] gap-2">
+                            <dt className="font-semibold text-ink">{c.name}</dt>
+                            <dd className="text-ink-2">{c.line}</dd>
+                        </div>
+                    ))}
+                    {(['silver', 'holo', 'legendary'] as const).map((ed) => (
+                        <div key={ed} className="py-2 grid grid-cols-[4.5rem_1fr] gap-2">
+                            <dt className="font-semibold text-ink">{EDITION_LABEL[ed]}</dt>
+                            <dd className="text-ink-2">Ấn bản mở thêm: {editionPerks(ed).map((p) => PERK_LABEL[p]).join(', ')}.</dd>
+                        </div>
+                    ))}
+                </dl>
+            </motion.div>
+        </div>
     );
 }

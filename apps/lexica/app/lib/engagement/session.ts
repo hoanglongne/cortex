@@ -1,5 +1,5 @@
 import { updateCardProgress, type UserCardProgress } from '../eloAlgorithm';
-import type { CollectionSet } from './collection';
+import { isOwned, type CollectionSet } from './collection';
 import { isHard } from './hard';
 
 /**
@@ -105,10 +105,10 @@ export function setHint(
     progress: Record<string, UserCardProgress>,
     within = 3,
 ): string | null {
-    if (progress[cardId]) return null;
+    if (isOwned(progress[cardId])) return null;
     const set = sets.find((x) => x.cardIds.includes(cardId));
     if (!set) return null;
-    const missing = set.cardIds.filter((id) => !progress[id]).length;
+    const missing = set.cardIds.filter((id) => !isOwned(progress[id])).length;
     if (missing > within) return null;
     return missing === 1 ? `Từ cuối cùng của bộ ${set.label}` : `Còn ${missing} từ là đủ bộ ${set.label}`;
 }
@@ -121,7 +121,7 @@ export function nearestSet(
 ): { label: string; missing: number } | null {
     let best: { label: string; missing: number } | null = null;
     for (const set of sets) {
-        const missing = set.cardIds.filter((id) => !progress[id]).length;
+        const missing = set.cardIds.filter((id) => !isOwned(progress[id])).length;
         if (missing === 0 || missing > within) continue;
         if (!best || missing < best.missing) best = { label: set.label, missing };
     }
