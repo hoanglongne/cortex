@@ -27,9 +27,17 @@ function getGreeting(): { text: string; icon: typeof Sun } {
 
 interface SmartEntryProps {
     onStartSession: () => void;
+    /**
+     * 'card': the desktop "Hôm nay" card, in the same style as the other
+     * pages, with one accent button (due words, hard words and the drop sit
+     * in the side column). 'full' (default): the mobile screen, unchanged.
+     */
+    variant?: 'full' | 'card';
 }
 
-export default function SmartEntry({ onStartSession }: SmartEntryProps) {
+const GOAL_STEPS = [5, 10, 15, 20, 25, 30];
+
+export default function SmartEntry({ onStartSession, variant = 'full' }: SmartEntryProps) {
     const { buttonPress } = useSoundEffects();
 
     const lastGoalSetDate = useLexicaStore(state => state.lastGoalSetDate);
@@ -76,6 +84,80 @@ export default function SmartEntry({ onStartSession }: SmartEntryProps) {
         buttonPress();
         onStartSession();
     };
+
+    if (variant === 'card') {
+        const done = Math.min(dailyProgress, dailyGoal);
+        return (
+            <section data-testid="today-card" className="w-full rounded-2xl bg-surface border border-line p-6">
+                <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-subtle">
+                    <GreetingIcon className="w-3.5 h-3.5" /> Hôm nay · {greeting.text.toLowerCase()}
+                </p>
+                <h2 className="mt-3 text-2xl font-semibold text-ink">
+                    {showSlider ? 'Hôm nay bạn muốn học bao nhiêu từ?' : remaining > 0 ? `Còn ${remaining} từ để đạt mục tiêu` : `Đã đạt mục tiêu ${dailyGoal} từ`}
+                </h2>
+                {showSlider ? (
+                    <div className="mt-5">
+                        <div className="flex items-baseline justify-between">
+                            <span className="font-mono text-xs text-muted">Mục tiêu</span>
+                            <span className="text-ink">
+                                <span className="text-3xl font-bold text-accent">{sliderValue}</span> từ
+                            </span>
+                        </div>
+                        <input
+                            type="range"
+                            min={GOAL_STEPS[0]}
+                            max={GOAL_STEPS[GOAL_STEPS.length - 1]}
+                            step={5}
+                            value={sliderValue}
+                            onChange={(e) => setSliderValue(Number(e.target.value))}
+                            aria-label="Số từ muốn học hôm nay"
+                            className="mt-3 w-full h-2 rounded-lg appearance-none cursor-pointer accent-accent"
+                            style={{
+                                background: `linear-gradient(to right, var(--color-accent) 0%, var(--color-accent) ${((sliderValue - 5) / 25) * 100}%, var(--color-surface-3) ${((sliderValue - 5) / 25) * 100}%, var(--color-surface-3) 100%)`,
+                            }}
+                        />
+                        <div className="mt-2 flex justify-between font-mono text-[11px] text-subtle">
+                            {GOAL_STEPS.map((n) => (
+                                <span key={n}>{n}</span>
+                            ))}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="mt-5">
+                        <div className="flex items-center justify-between font-mono text-xs text-muted">
+                            <span>Mục tiêu</span>
+                            <span>
+                                <span className="text-ink">{dailyProgress}</span>/{dailyGoal} từ
+                            </span>
+                        </div>
+                        <div className="mt-2 h-1.5 rounded-full bg-surface-3 overflow-hidden">
+                            <div className="h-full bg-accent rounded-full" style={{ width: `${(done / Math.max(1, dailyGoal)) * 100}%` }} />
+                        </div>
+                    </div>
+                )}
+                <div className="mt-6 flex items-center gap-4">
+                    <button
+                        onClick={showSlider ? handleStartWithGoal : handleContinue}
+                        className="h-12 px-6 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold transition-colors active:scale-[0.98] flex items-center gap-2"
+                    >
+                        {showSlider ? 'Bắt đầu học' : remaining > 0 ? 'Tiếp tục học' : 'Học thêm'}
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                    {!showSlider && (
+                        <button
+                            onClick={() => {
+                                buttonPress();
+                                setManualShowSlider(true);
+                            }}
+                            className="text-sm text-muted hover:text-ink"
+                        >
+                            Đổi mục tiêu
+                        </button>
+                    )}
+                </div>
+            </section>
+        );
+    }
 
     // Show Daily Slider (First open of the day)
     if (showSlider) {
