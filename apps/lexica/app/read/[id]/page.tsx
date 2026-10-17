@@ -40,6 +40,7 @@ function Reader({ passage }: { passage: Passage }) {
     const queued = useLexicaStore((s) => s.queuedCardIds);
     const queueCards = useLexicaStore((s) => s.queueCards);
     const lightReview = useLexicaStore((s) => s.lightReview);
+    const markMet = useLexicaStore((s) => s.markMet);
     const [showTranslation, setShowTranslation] = useState(false);
     const [rate, setRate] = useState<keyof typeof RATES>('slow');
     const [speaking, setSpeaking] = useState(false);
@@ -63,6 +64,8 @@ function Reader({ passage }: { passage: Passage }) {
         if (result) return;
         const ids = finishPassage(passage, useLexicaStore.getState().cardProgress, localDate());
         lightReview(ids);
+        // Gặp: every word of the deck the learner already understood, seen here in English.
+        markMet(targets.map((t) => t.id));
         setResult({ reviewed: ids.length });
         AudioService.stop();
         setSpeaking(false);

@@ -281,7 +281,9 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
     const phrase = (card.collocations?.[0] ?? word).toLowerCase();
     const syl = stressedSyllables(card.word, card.ipa);
     const stressedPart = syl.fromIpa ? undefined : syl.text.split('·').find((s) => s === s.toUpperCase());
-    const { listening, attempt, toggle } = useAttempt(phrase);
+    const recordSpeak = useLexicaStore((s) => s.recordSpeak);
+    // Said clearly inside its phrase counts as Dùng too; a miss here does not add to "từ khó nói".
+    const { listening, attempt, toggle } = useAttempt(phrase, (level) => level === 'clear' && recordSpeak(card.id, level));
     // Stress per syllable across the phrase: the target word from its IPA, others stressed on the first syllable.
     const flags = useMemo(
         () =>
