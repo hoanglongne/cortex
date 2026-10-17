@@ -15,6 +15,7 @@ import { formatInterval } from '../lib/srs';
 import { scenarioFor } from '../lib/content/persona';
 import { getCard, getQuotes, useContentVersion } from '../lib/content/repository';
 import InTheWild from './InTheWild';
+import { displaySentence } from '../lib/engagement/mySentence';
 import { updateCardProgress, type UserCardProgress } from '../lib/eloAlgorithm';
 import { SESSION_SIZE } from '../lib/engagement/session';
 import type { VocabCardData } from '../types/vocab';
@@ -58,7 +59,12 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
     // Deck cards are snapshots; read sentences from the live content so a
     // variants overlay that loads later still applies.
     useContentVersion();
-    const displayScenario = scenarioFor(getCard(card.id) ?? card, userArchetype);
+    // "Câu của bạn" wins when the learner tied this word to their own sentence.
+    const mine = useLexicaStore(state => state.mySentences[card.id]);
+    const clearMySentence = useLexicaStore(state => state.clearMySentence);
+    const shown = displaySentence(card, mine, scenarioFor(getCard(card.id) ?? card, userArchetype));
+    const displayScenario = shown.text;
+    const useOriginal = shown.mine ? () => clearMySentence(card.id) : undefined;
 
     const speakWord = () => {
         void AudioService.play(card.id, 'word');
@@ -158,7 +164,8 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     </div>
 
                     {/* Scenario with the target word highlighted */}
-                    <p className="mt-6 text-lg sm:text-xl leading-relaxed text-ink-2">
+                    {shown.mine && <p className="mt-6 font-mono text-[11px] text-accent uppercase tracking-wider">Câu của bạn</p>}
+                    <p className={`${shown.mine ? 'mt-1' : 'mt-6'} text-lg sm:text-xl leading-relaxed text-ink-2`}>
                         {check && check.kind !== 'meaning' ? blankWord(displayScenario, card.word) : highlightWord(displayScenario, card.word)}
                     </p>
 
@@ -187,7 +194,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         ) : isVoiceSwipeRequired ? (
                             /* Voice mode: word info always visible + mic controls */
                             <div className="space-y-3">
-                                <WordBlock card={card} onSpeak={speakWord} />
+                                <WordBlock card={card} onSpeak={speakWord} onUseOriginal={useOriginal} />
                                 <button
                                     onPointerDown={(e) => { e.preventDefault(); setHolding(true); startListening(); }}
                                     onPointerUp={() => { setHolding(false); stopListening(); }}
@@ -221,7 +228,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                                 Xem từ và nghĩa
                             </button>
                         ) : (
-                            <WordBlock card={card} onSpeak={speakWord} aid={hard ? mnemonic(card) : null} />
+                            <WordBlock card={card} onSpeak={speakWord} aid={hard ? mnemonic(card) : null} onUseOriginal={useOriginal} />
                         )}
                     </div>
                 </div>
@@ -242,7 +249,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
 }
 
 /** Word, IPA, pronunciation button and meaning, in the "Focus" style. */
-function WordBlock({ card, onSpeak, aid }: { card: VocabCardData; onSpeak: () => void; aid?: string | null }) {
+function WordBlock({ card, onSpeak, aid, onUseOriginal }: { card: VocabCardData; onSpeak: () => void; aid?: string | null; onUseOriginal?: () => void }) {
     return (
         <div className="border-l-2 border-accent pl-4 space-y-1">
             <div className="flex items-center gap-3">
@@ -262,6 +269,11 @@ function WordBlock({ card, onSpeak, aid }: { card: VocabCardData; onSpeak: () =>
                 <p className="text-sm text-ink-2">Hay đi với: {card.collocations.join(' · ')}</p>
             )}
             {aid && <p className="font-mono text-[11px] text-warning leading-relaxed">Mẹo nhớ: {aid}</p>}
+            {onUseOriginal && (
+                <button type="button" onClick={(e) => { e.stopPropagation(); onUseOriginal(); }} className="font-mono text-[11px] text-muted hover:text-ink underline">
+                    Dùng lại câu gốc
+                </button>
+            )}
         </div>
     );
 }

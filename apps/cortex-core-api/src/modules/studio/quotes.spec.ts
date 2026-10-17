@@ -3,6 +3,8 @@ import {
   buildQuotesMap,
   checkQuote,
   plainTextUrl,
+  songMedia,
+  youtubeId,
   type QuoteRow,
 } from './quotes';
 
@@ -127,5 +129,58 @@ describe('plainTextUrl', () => {
     ).toBe('https://x/a.txt');
     expect(plainTextUrl({ 'text/html': 'https://x/a.html' })).toBeNull();
     expect(plainTextUrl(undefined)).toBeNull();
+  });
+});
+
+describe('youtubeId', () => {
+  it('reads the id from the usual link shapes', () => {
+    const id = 'dQw4w9WgXcQ';
+    for (const link of [
+      `https://www.youtube.com/watch?v=${id}&t=42s`,
+      `https://youtu.be/${id}?si=abc`,
+      `https://m.youtube.com/watch?v=${id}`,
+      `https://www.youtube.com/shorts/${id}`,
+      `https://music.youtube.com/watch?v=${id}`,
+    ]) {
+      expect(youtubeId(link)).toBe(id);
+    }
+  });
+
+  it('rejects other sites and malformed ids', () => {
+    expect(youtubeId('https://vimeo.com/123')).toBeNull();
+    expect(youtubeId('https://www.youtube.com/watch?v=short')).toBeNull();
+    expect(youtubeId('not a link')).toBeNull();
+  });
+});
+
+describe('songMedia', () => {
+  it('builds a short clip', () => {
+    expect(songMedia('https://youtu.be/dQw4w9WgXcQ', 42, 50)).toEqual({
+      provider: 'youtube',
+      id: 'dQw4w9WgXcQ',
+      start: 42,
+      end: 50,
+    });
+  });
+
+  it('refuses long clips and bad times', () => {
+    expect(() => songMedia('https://youtu.be/dQw4w9WgXcQ', 0, 31)).toThrow();
+    expect(() => songMedia('https://youtu.be/dQw4w9WgXcQ', 10, 10)).toThrow();
+    expect(() => songMedia('https://example.com', 0, 5)).toThrow();
+  });
+
+  it('is published with the quote', () => {
+    const media = songMedia('https://youtu.be/dQw4w9WgXcQ', 42, 50);
+    const map = buildQuotesMap([
+      {
+        card_id: 'v001',
+        kind: 'song',
+        text: 'never gonna give you up',
+        source: 'Song — Singer',
+        status: 'approved',
+        media,
+      },
+    ]);
+    expect(map.v001[0].media).toEqual(media);
   });
 });

@@ -77,6 +77,7 @@ export function progressFingerprint(rawState: string | null): string {
             s.readStories,
             s.readStoryPart1,
             s.studyHistory,
+            s.mySentences,
         ]);
     } catch {
         return '';

@@ -159,6 +159,8 @@ describe('swipe sessions', () => {
         s = recordSwipe(s, { cardId: 'c', known: false, before: prog('gold'), after: prog('seed') });
         expect(s).toMatchObject({ count: 3, known: 2, combo: 0, maxCombo: 2, newCards: ['a'] });
         expect(s.levelUps).toEqual([{ cardId: 'b', from: 'seed', to: 'sprout' }]);
+        // Only words seen before and remembered now are offered for "Câu của bạn".
+        expect(s.remembered).toEqual(['b']);
         for (let i = 0; i < 7; i++) s = recordSwipe(s, { cardId: `k${i}`, known: true });
         expect(sessionDone(s)).toBe(true);
         expect(s.maxCombo).toBe(7);

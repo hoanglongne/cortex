@@ -18,12 +18,24 @@ const LENGTH: Record<QuoteKind, [number, number]> = {
 };
 export const MAX_QUOTES_PER_CARD = 2;
 
+/** A short clip of the official video, played only when the learner taps it. */
+export interface QuoteMedia {
+  provider: 'youtube';
+  id: string;
+  start: number;
+  end: number;
+}
+
+/** Longest clip we link to: one line of a song, not the song. */
+export const MAX_CLIP_SECONDS = 30;
+
 export interface QuoteInput {
   kind: QuoteKind;
   text: string;
   source: string;
   url?: string | null;
   translation?: string | null;
+  media?: QuoteMedia | null;
 }
 
 export interface QuoteRow extends QuoteInput {
@@ -40,6 +52,53 @@ export interface PublishedQuote {
   source: string;
   url?: string;
   translation?: string;
+  media?: QuoteMedia;
+}
+
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
+
+/** The video id in a YouTube link (watch, youtu.be, shorts, embed), or null. */
+export function youtubeId(link: string): string | null {
+  let u: URL;
+  try {
+    u = new URL(link.trim());
+  } catch {
+    return null;
+  }
+  const host = u.hostname.replace(/^www\.|^m\./, '');
+  let id: string | null = null;
+  if (host === 'youtu.be') id = u.pathname.slice(1).split('/')[0];
+  else if (
+    host === 'youtube.com' ||
+    host === 'music.youtube.com' ||
+    host === 'youtube-nocookie.com'
+  ) {
+    if (u.pathname === '/watch') id = u.searchParams.get('v');
+    else
+      id = /^\/(?:shorts|embed|live)\/([^/?#]+)/.exec(u.pathname)?.[1] ?? null;
+  }
+  return id && YOUTUBE_ID.test(id) ? id : null;
+}
+
+/** Builds the clip for a song quote; throws a readable reason when it is unusable. */
+export function songMedia(
+  link: string,
+  start: number,
+  end: number,
+): QuoteMedia {
+  const id = youtubeId(link);
+  if (!id) throw new Error('Link YouTube không hợp lệ');
+  if (
+    !Number.isInteger(start) ||
+    !Number.isInteger(end) ||
+    start < 0 ||
+    end <= start
+  ) {
+    throw new Error('Giây bắt đầu/kết thúc không hợp lệ');
+  }
+  if (end - start > MAX_CLIP_SECONDS)
+    throw new Error(`Đoạn nhạc tối đa ${MAX_CLIP_SECONDS} giây`);
+  return { provider: 'youtube', id, start, end };
 }
 
 const isUrl = (s: string) => /^https?:\/\/\S+$/i.test(s);
@@ -97,6 +156,7 @@ export function buildQuotesMap(
       source: r.source.trim(),
       ...(r.url ? { url: r.url.trim() } : {}),
       ...(r.translation ? { translation: r.translation.trim() } : {}),
+      ...(r.media ? { media: r.media } : {}),
     });
   }
   return out;

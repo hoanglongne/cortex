@@ -46,19 +46,33 @@ Với MỖI từ, viết ${input.sentencesPerWord} câu, mỗi câu một tình 
 
 Trước khi trả lời, tự đọc lại từng câu: câu nào chưa có tình huống cụ thể, hoặc đọc như định nghĩa thì viết lại.
 
-Với mỗi từ, kèm "translation_hint": nghĩa tiếng Việt ngắn gọn (dưới 40 ký tự).
+Với mỗi từ, kèm "translation_hint": nghĩa tiếng Việt ngắn gọn (dưới 40 ký tự), và "collocations": đúng 2 cụm tiếng Anh ngắn, viết thường, có chứa từ đó, mà người bản xứ hay dùng (ví dụ "abundant supply", "an abundant harvest").
 "archetype" là một trong: ${ARCHETYPES.join(', ')}. "angle" là tình huống đã dùng.
 
 Chỉ trả về JSON đúng dạng:
-{"drafts":[{"word":"frugal","scenario":"...","translation_hint":"...","archetype":"casual","angle":"tự giễu"}]}`;
+{"drafts":[{"word":"frugal","scenario":"...","translation_hint":"...","collocations":["frugal lifestyle","a frugal meal"],"archetype":"casual","angle":"tình huống học tập"}]}`;
 }
 
 export interface RawDraft {
   word: string;
   scenario: string;
   translation_hint: string;
+  collocations: string[];
   archetype: Archetype | null;
   tone: string | null;
+}
+
+/** At most two short phrases that contain the word; anything else is dropped. */
+export function parseCollocations(raw: unknown, word: string): string[] {
+  if (!Array.isArray(raw)) return [];
+  const w = word.toLowerCase();
+  return raw
+    .filter((c): c is string => typeof c === 'string')
+    .map((c) => c.trim().toLowerCase().replace(/\s+/g, ' '))
+    .filter(
+      (c) => c.length > 0 && c.length <= 40 && c.split(/[^a-z'-]+/).includes(w),
+    )
+    .slice(0, 2);
 }
 
 const isStr = (v: unknown): v is string =>
@@ -78,6 +92,7 @@ export function parseDrafts(raw: unknown): RawDraft[] {
       word: d.word.trim().toLowerCase(),
       scenario: d.scenario.trim(),
       translation_hint: d.translation_hint.trim(),
+      collocations: parseCollocations(d.collocations, d.word.trim()),
       archetype: ARCHETYPES.includes(d.archetype as Archetype)
         ? (d.archetype as Archetype)
         : null,

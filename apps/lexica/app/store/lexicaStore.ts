@@ -6,6 +6,7 @@ import { persist } from 'zustand/middleware';
 import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
 import type { Quality } from '../lib/srs';
+import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentencePrompt } from '../lib/engagement/mySentence';
 import { getStoryCatchUpWordIds, STORIES, canUnlockPart1Naturally, canUnlockPart2Naturally } from '../data/stories';
 
 /**
@@ -96,6 +97,14 @@ interface LexicaStore {
     // Personalization (NEW)
     userArchetype: UserArchetype | null; // User's selected context/persona
     setUserArchetype: (type: UserArchetype) => void;
+
+    // "Câu của bạn" (lib/engagement/mySentence.ts)
+    mySentences: Record<string, MySentence>;
+    mySentencePrompt: MySentencePrompt;
+    setMySentence: (cardId: string, text: string, kind: MySentence['kind']) => void;
+    clearMySentence: (cardId: string) => void;
+    skipMySentence: () => void;
+    setMySentenceOff: (off: boolean) => void;
 
     // Daily Goals (NEW)
     dailyGoal: number; // Target number of cards per day (5-30)
@@ -260,6 +269,22 @@ export const useLexicaStore = create<LexicaStore>()(
             // Personalization (NEW)
             userArchetype: null, // Will be set during onboarding
             setUserArchetype: (type) => set({ userArchetype: type }),
+
+            mySentences: {},
+            mySentencePrompt: DEFAULT_PROMPT,
+            setMySentence: (cardId, text, kind) =>
+                set((s) => ({
+                    mySentences: { ...s.mySentences, [cardId]: { text, kind, at: Date.now() } },
+                    mySentencePrompt: afterSave(s.mySentencePrompt),
+                })),
+            clearMySentence: (cardId) =>
+                set((s) => {
+                    const rest = { ...s.mySentences };
+                    delete rest[cardId];
+                    return { mySentences: rest };
+                }),
+            skipMySentence: () => set((s) => ({ mySentencePrompt: afterSkip(s.mySentencePrompt) })),
+            setMySentenceOff: (off) => set((s) => ({ mySentencePrompt: { ...s.mySentencePrompt, off } })),
 
             // Daily Goals (NEW)
             dailyGoal: 15, // Default: 15 cards per day
@@ -457,6 +482,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 set({
                     userStats: INITIAL_USER_STATS,
                     cardProgress: {},
+                    mySentences: {},
                     learnedWords: new Set<string>(),
                     energy: 30,
                     lastEnergyReset: getMidnightTimestamp(),
@@ -937,6 +963,8 @@ export const useLexicaStore = create<LexicaStore>()(
                 lastGoalSetDate: state.lastGoalSetDate,
                 // Personalization
                 userArchetype: state.userArchetype,
+                mySentences: state.mySentences,
+                mySentencePrompt: state.mySentencePrompt,
                 // Speed Quiz - today's learned words
                 todayLearnedWords: Array.from(state.todayLearnedWords),
                 lastLearnedWordsReset: state.lastLearnedWordsReset,

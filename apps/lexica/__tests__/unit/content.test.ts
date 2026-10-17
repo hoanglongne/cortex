@@ -45,6 +45,11 @@ describe('pack parsing', () => {
         expect(c.audio).toEqual({ word: 'https://cdn/w.mp3' });
     });
 
+    it('keeps collocations from Studio cards', () => {
+        expect(parseCard(trendCard('t1', { collocations: ['frugal lifestyle', 3, ''] }))!.collocations).toEqual(['frugal lifestyle']);
+        expect(parseCard(trendCard('t2'))!.collocations).toBeUndefined();
+    });
+
     it('parses a manifest with null refs', () => {
         const m = parseManifest({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9', 3] });
         expect(m).toEqual({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9'], variants: null });

@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Trạng thái | Plan, chưa làm |
+| Trạng thái | A: đã làm (v2, xem mục A). B: đã làm sách, báo nhập tay, bài hát có đoạn YouTube; còn tiêu đề báo tự động. |
 | Phạm vi | `apps/lexica`, `apps/cortex-core-api` (module `studio`), `apps/studio`, Supabase |
 | Đọc trước | `docs/LEXICA_STUDIO_SPEC.md` (Studio, manifest, pack), `docs/LEXICA_ENGAGEMENT_SPEC.md` (phiên học, recall) |
 
@@ -39,52 +39,48 @@
 
 ## A. "Câu của bạn" (người học tự gắn từ với đời mình)
 
-### Vấn đề cần tránh
-Bắt người học tự đặt câu tiếng Anh là rào cản lớn với người còn yếu. Vì vậy thiết kế theo **thang dễ → khó**, và người học **luôn có lối thoát**.
+> Bản thiết kế v2 (đã làm). Bản v1 trước đó đề xuất hỏi ngay sau recall check và có ba mức (chọn, điền khung, viết). Hai điểm đó bị bỏ, lý do ở mục "Vì sao người học nản".
 
-### Thiết kế
+### Vì sao người học nản (và cách tránh)
 
-1. **Khi nào hiện.** Chỉ sau khi người học đã nhớ từ: trả lời đúng recall check ở lần thứ 2 trở đi (`reviewCount >= 2`), và tối đa **1 lần mỗi phiên 10 thẻ**. Không hiện cho thẻ mới.
-2. **Ba mức, người học chọn.** Mặc định mở mức dễ nhất.
-   - **Mức 1, chọn tình huống (không cần gõ).** Hiện 3 câu ngắn: *"Bạn hay gặp SUBTLE ở đâu?"*, mỗi câu thuộc một bối cảnh (học, làm, đời sống), lấy từ `scenarios` của thẻ (variants); thẻ chưa có đủ variants thì bỏ qua mức 1 và mở thẳng mức 2. Người học chạm chọn câu "giống mình nhất", và câu đó thành câu ví dụ hiển thị lần sau. Đây là cá nhân hoá với chi phí 0.
-   - **Mức 2, điền khung.** Một khung câu tiếng Việt có chỗ trống cho tình huống của người học, từ đích đã điền sẵn: *"Ở chỗ làm của mình, ______ thay đổi rất SUBTLE."* Người học gõ vài chữ tiếng Việt.
-   - **Mức 3, viết tự do.** Gõ một câu **tiếng Việt chèn từ tiếng Anh**, đúng định dạng của app. Không bắt viết câu tiếng Anh hoàn chỉnh. Đây là chỗ chính giúp hạ rào cản.
-3. **Kiểm tra (không dùng AI).**
-   - Câu phải chứa từ đích (không phân biệt hoa thường, cho phép biến thể -s/-ed/-ing/-ly).
-   - Dài 10–200 ký tự.
-   - Lọc từ tục bằng danh sách cục bộ đơn giản.
-   - Không chấm đúng/sai về nghĩa. Mục tiêu là gắn trí nhớ, không phải thi.
-4. **Phần thưởng.** Cộng nhẹ vào economy hiện có (`lib/engagement/economy.ts`) và ghi nhận trong SessionRecap ("Bạn đã đặt 1 câu của riêng mình"). Không dùng streak riêng.
-5. **Dùng lại câu.** Lần ôn sau, thẻ hiện **câu của người học** thay cho `scenario`, kèm nhãn nhỏ "Câu của bạn". Có nút "Dùng câu gốc" để đổi lại. Trong recall check kiểu cloze, che từ trong câu của người học (dùng `blankWord`).
-6. **Album / Từ đã học.** Thẻ có câu riêng hiện biểu tượng nhỏ. Màn chi tiết cho sửa hoặc xoá câu.
+| Nguyên nhân | Cách tránh |
+|---|---|
+| Bị hỏi giữa lúc đang quẹt, đứt nhịp | Chỉ gợi ý **ở màn tổng kết cuối phiên**, lúc người học vốn đã dừng lại. Không bao giờ chen vào giữa 10 thẻ. |
+| Sợ viết sai, nhất là tiếng Anh | Mặc định **không phải gõ gì**: chọn một câu có sẵn "giống mình nhất". Viết là tuỳ chọn, viết **tiếng Việt chèn từ** (đúng kiểu câu của app), không chấm đúng sai. |
+| Khung câu điền chỗ trống sai ngữ pháp | Bỏ mức "điền khung": app không có dữ liệu từ loại, khung chung chung sẽ ra câu ngớ ngẩn và làm người học mất tin. |
+| Bị hỏi hoài | Tối đa 1 gợi ý mỗi phiên. Bấm "Để sau" 2 lần liền thì nghỉ 3 ngày. Có công tắc tắt hẳn trong Tôi. |
+| Hỏi đúng lúc khó | Chỉ chọn từ người học **vừa nhớ đúng** trong phiên và đã gặp từ trước. Không bao giờ hỏi từ mới hay từ khó. |
+| Làm xong không thấy gì | Lần sau gặp từ đó, thẻ hiện **câu của chính họ** với nhãn "Câu của bạn". Đây là phần thưởng chính. |
+| Thêm một loại tiền ảo khó hiểu | Không cộng Bụi, Hộp hay điểm. Chỉ một dòng ghi nhận và câu của họ hiện lại. |
+| Muốn đổi ý | Mặt sau thẻ có "Dùng lại câu gốc", một chạm. |
 
-### Dữ liệu
+### Luồng
 
-- Mở rộng `UserCardProgress`: `mySentence?: { text: string; level: 1 | 2 | 3; at: number }`.
-- Lưu cùng `cardProgress` nên tự đi theo `cloudSync`. Kiểm tra `lib/cloudSync.ts` merge field mới đúng: lấy bản có `at` mới hơn.
-- Không gửi câu người học lên Studio hay server nào khác ngoài cloud sync của chính họ (riêng tư). Muốn dùng câu người học làm nội dung chung thì phải có màn đồng ý riêng; ngoài phạm vi v1.
+1. Cuối phiên, `SessionRecap` hiện một dòng nhỏ: **"Gắn SUBTLE với đời bạn?"**, kèm nút **Chọn câu** và nút **Để sau**. Nút "Thêm 10 thẻ nữa" vẫn ở nguyên chỗ, không bị che.
+2. Bấm "Chọn câu" thì mở bảng ngay trong ô tổng kết:
+   - **"Câu nào giống bạn nhất?"**: 2–4 câu khác nhau của cùng thẻ (câu gốc + câu theo hình mẫu tech/văn phòng/sinh viên từ Studio). Chạm một câu là lưu.
+   - Dòng nhỏ **"Hoặc tự viết"** mở ô gõ. Có ví dụ mẫu, nút "+ chèn SUBTLE", và chỉ hai điều kiện: có từ đó và dài 8–160 ký tự. Lỗi duy nhất có thể gặp là "Câu cần có từ SUBTLE", kèm nút chèn ngay.
+   - Thẻ chỉ có câu gốc thì mở thẳng phần tự viết (chọn một câu duy nhất thì vô nghĩa).
+3. Lưu xong: **"Đã lưu. Lần sau gặp SUBTLE, bạn sẽ thấy câu của mình."** Bảng đóng lại.
 
-### Việc cần làm
+### Dữ liệu (Lexica, không có server mới)
 
-1. `eloAlgorithm.ts`: thêm field. Store: action `setMySentence(cardId, text, level)` và `clearMySentence(cardId)`.
-2. `lib/engagement/mysentence.ts` (mới):
-   - `shouldOffer(progress, sessionState)`
-   - `frameFor(card)`: khung câu mức 2, sinh từ `translationHint` và từ loại. Bắt đầu bằng 5–6 khung chung là đủ.
-   - `checkMySentence(text, word)`
-3. `components/MySentencePanel.tsx` (mới): hiện sau RecallPanel khi `shouldOffer`. Ba tab mức, nút "Để sau".
-4. `VocabCard.tsx`: ưu tiên `progress.mySentence?.text` khi hiển thị, kèm nhãn và nút đổi về câu gốc.
-5. `SessionRecap.tsx`: một dòng ghi nhận.
-6. Test:
-   - `shouldOffer` (đúng điều kiện, tối đa 1 lần/phiên)
-   - `checkMySentence` (biến thể từ, độ dài, lọc tục)
-   - cloze che từ trong câu người học
-   - merge cloud sync
-7. Đo lường: đếm ẩn danh `mysentence_offered`, `mysentence_saved{level}`, `mysentence_skipped` qua `lib/content/events.ts`. Sau 2 tuần, nếu tỉ lệ lưu < 10% thì bỏ mức 3, chỉ giữ mức 1–2.
+- Store: `mySentences: Record<cardId, { text: string; kind: 'picked' | 'written'; at: number }>` và `mySentencePrompt: { off: boolean; skips: number; snoozeUntil: number }`. Cả hai được persist trong `lexica-storage`.
+- `mySentences` được đưa vào `progressFingerprint` (`lib/cloudSync.ts`), nên đồng bộ cloud như tiến độ học. Câu người học không đi đâu khác (riêng tư).
+- `SessionState.remembered`: các thẻ trả lời đúng trong phiên mà đã gặp trước đó. Đây là nguồn chọn từ để gợi ý.
 
-### Tiêu chí xong
-- Bỏ qua được bằng 1 chạm, không chặn luồng quẹt.
-- Câu đã lưu hiện lại ở lần ôn sau và qua được recall cloze.
-- Không có request mạng mới ngoài cloud sync sẵn có.
+### Code
+
+- `lib/engagement/mySentence.ts`: `pickCandidate`, `sentenceOptions`, `checkWritten`, `insertWord`, `canOffer`, `afterSkip`, `afterSave`, `displaySentence`. Tất cả là hàm thuần, có test.
+- `components/MySentencePanel.tsx`: phần chọn câu và tự viết.
+- `SessionRecap.tsx`: dòng gợi ý và bảng.
+- `VocabCard.tsx`: ưu tiên câu của người học (nhãn "Câu của bạn"), nút "Dùng lại câu gốc" ở mặt sau. Recall cloze dùng đúng câu đang hiển thị.
+- `page.tsx` (Tôi): công tắc "Gợi ý gắn từ với đời bạn".
+
+### Chưa làm (để sau)
+
+- Đo lường (tỉ lệ lưu / bỏ qua): `lib/content/events.ts` hiện chỉ đếm theo thẻ cho Studio. Cần một kênh sự kiện ẩn danh riêng; làm khi có nhu cầu xem số liệu.
+- Màn sửa câu trong Album / Từ đã học (hiện chỉ có "Dùng lại câu gốc").
 
 ---
 

@@ -56,6 +56,8 @@ export interface DraftRow {
   word: string;
   scenario: string;
   translation_hint: string;
+  /** Two English phrases with the word ("Hay đi với"); empty on older drafts. */
+  collocations?: string[];
   archetype: Archetype | null;
   tone: string | null;
   model: string;
@@ -76,6 +78,7 @@ export interface CardRow {
   level: Level;
   scenario: string;
   translation_hint: string;
+  collocations?: string[];
   trend_label: string | null;
   tags: string[];
   lifecycle: Lifecycle;

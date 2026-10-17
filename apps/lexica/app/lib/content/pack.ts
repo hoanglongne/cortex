@@ -67,6 +67,10 @@ export function parseCard(v: unknown): ContentCard | null {
         translationHint,
     };
     if (isStr(v.ipa)) card.ipa = v.ipa;
+    if (Array.isArray(v.collocations)) {
+        const cols = v.collocations.filter(isStr).slice(0, 3);
+        if (cols.length > 0) card.collocations = cols;
+    }
     if (typeof v.revision === 'number') card.revision = v.revision;
     if (isObj(v.trend) && isStr(v.trend.label)) {
         card.trend = {
@@ -110,6 +114,17 @@ export interface CardQuote {
     source: string;
     url?: string;
     translation?: string;
+    /** Songs: a short clip of the official video, loaded only on tap. */
+    media?: { provider: 'youtube'; id: string; start: number; end: number };
+}
+
+const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
+
+function parseMedia(v: unknown): CardQuote['media'] | undefined {
+    if (!isObj(v) || v.provider !== 'youtube' || !isStr(v.id) || !YOUTUBE_ID.test(v.id)) return undefined;
+    const { start, end } = v;
+    if (typeof start !== 'number' || typeof end !== 'number' || start < 0 || end <= start) return undefined;
+    return { provider: 'youtube', id: v.id, start, end };
 }
 
 /** cardId → quotes, published with the variants overlay (quotes.ts in the API). */
@@ -133,6 +148,7 @@ export function parseQuotes(v: unknown): CardQuotes {
                 source: q.source,
                 ...(isStr(q.url) ? { url: q.url } : {}),
                 ...(isStr(q.translation) ? { translation: q.translation } : {}),
+                ...(parseMedia(q.media) ? { media: parseMedia(q.media) } : {}),
             });
             if (kept.length === 2) break;
         }

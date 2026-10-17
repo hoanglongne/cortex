@@ -245,7 +245,7 @@ export class VariantsService {
     const quoteRows = rows<QuoteRow>(
       await db
         .from('studio_card_quotes')
-        .select('card_id, kind, text, translation, source, url, status')
+        .select('card_id, kind, text, translation, source, url, media, status')
         .eq('status', 'approved'),
     );
     if (approved.length === 0 && quoteRows.length === 0) {

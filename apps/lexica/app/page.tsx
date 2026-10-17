@@ -26,6 +26,8 @@ function HomeContent() {
   const cardProgress = useLexicaStore(state => state.cardProgress);
   const userArchetype = useLexicaStore(state => state.userArchetype);
   const setUserArchetype = useLexicaStore(state => state.setUserArchetype);
+  const mySentenceOff = useLexicaStore(state => state.mySentencePrompt.off);
+  const setMySentenceOff = useLexicaStore(state => state.setMySentenceOff);
   const learnedCount = useLexicaStore(state => state.learnedWords.size);
   const selectedLevel = useLexicaStore(state => state.selectedLevel);
   const hasSeenWelcome = useLexicaStore(state => state.hasSeenWelcome);
@@ -851,6 +853,23 @@ function HomeContent() {
                     ))}
                   </div>
                   <p className="text-xs text-muted">Câu ví dụ trên thẻ sẽ theo đời sống của bạn, với những thẻ đã có câu riêng.</p>
+                </div>
+
+                {/* "Câu của bạn" offers at the end of a session */}
+                <div className="space-y-2 pb-4 border-b border-line">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted text-sm">Gợi ý gắn từ với đời bạn</span>
+                    <button
+                      onClick={() => { click(); setMySentenceOff(!mySentenceOff); }}
+                      aria-pressed={!mySentenceOff}
+                      className={`inline-flex items-center rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${!mySentenceOff
+                        ? 'bg-accent/12 border-accent/35 text-accent'
+                        : 'bg-surface-2/40 border-line-strong/50 text-ink hover:border-line-strong/60'}`}
+                    >
+                      {mySentenceOff ? 'Đang tắt' : 'Đang bật'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted">Cuối phiên, thỉnh thoảng app gợi ý bạn chọn hoặc viết một câu của riêng mình cho một từ vừa nhớ. Không bắt buộc.</p>
                 </div>
 
                 {/* Performance Stats */}

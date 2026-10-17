@@ -10,6 +10,7 @@ import {
   checkQuote,
   plainTextUrl,
   QUOTE_KINDS,
+  songMedia,
   type QuoteKind,
   type QuoteRow,
 } from './quotes';
@@ -90,6 +91,8 @@ export class QuotesService {
       source: string;
       url?: string;
       translation?: string;
+      /** Songs only: YouTube link and the seconds of the line. */
+      clip?: { link: string; start: number; end: number };
     },
   ) {
     if (!QUOTE_KINDS.includes(input.kind))
@@ -102,7 +105,23 @@ export class QuotesService {
       source: input.source.trim(),
       url: input.url?.trim() || null,
       translation: input.translation?.trim() || null,
+      media: null as ReturnType<typeof songMedia> | null,
     };
+    if (input.clip) {
+      if (input.kind !== 'song')
+        throw new BadRequestException('Chỉ bài hát mới có đoạn nhạc');
+      try {
+        quote.media = songMedia(
+          input.clip.link,
+          input.clip.start,
+          input.clip.end,
+        );
+      } catch (err) {
+        throw new BadRequestException((err as Error).message);
+      }
+      // The video is the source link unless the editor gave another one.
+      quote.url ??= input.clip.link.trim();
+    }
     const failed = checkQuote(
       quote,
       card.word,

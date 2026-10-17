@@ -10,6 +10,7 @@ export interface PackCard {
   level: CardRow['level'];
   scenario: string;
   translationHint: string;
+  collocations?: string[];
   revision: number;
   trend?: { label: string; dropId?: string; expiresAt?: string };
 }
@@ -65,6 +66,7 @@ function toPackCard(
     level: card.level,
     scenario: card.scenario,
     translationHint: card.translation_hint,
+    ...(card.collocations?.length ? { collocations: card.collocations } : {}),
     revision: card.revision,
     ...(trend ? { trend } : {}),
   };
