@@ -115,6 +115,9 @@ CREATE INDEX IF NOT EXISTS idx_ielts_questions_difficulty ON public.ielts_questi
 CREATE INDEX IF NOT EXISTS idx_match_queue_status ON public.match_queue(status);
 CREATE INDEX IF NOT EXISTS idx_match_queue_waiting ON public.match_queue(status, created_at) WHERE status = 'waiting';
 CREATE INDEX IF NOT EXISTS idx_match_queue_user ON public.match_queue(user_id);
+-- A match_queue created before the heartbeat column has no last_seen_at yet
+-- (CREATE TABLE IF NOT EXISTS skips it), so add it before indexing it.
+ALTER TABLE public.match_queue ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ DEFAULT NOW();
 CREATE INDEX IF NOT EXISTS idx_match_queue_waiting_seen ON public.match_queue(status, last_seen_at) WHERE status = 'waiting';
 
 -- Matches indexes
