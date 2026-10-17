@@ -13,7 +13,7 @@ describe('Giao tiếp branch', () => {
         expect(TALK_CARDS.length).toBeGreaterThanOrEqual(40);
         for (const c of TALK_CARDS) {
             expect(c.branch).toBe('talk');
-            expect(c.scenario.toLowerCase()).toContain(c.word);
+            expect((c.scenario ?? '').toLowerCase()).toContain(c.word);
             expect(c.situation.model.toLowerCase()).toContain(c.word);
             expect(getCard(c.id)).toBeDefined();
         }
