@@ -44,3 +44,17 @@ Trên cùng là việc học hôm nay (thẻ Hôm nay, 4 con số, Luyện thêm
 ## Trung tâm (B2B)
 
 Lexica nhận phần "giữa hai buổi học". Giáo viên tạo lớp, phát mã, giao từ theo bài, xem bảng lớp (4 con số, chuỗi ngày, ai bỏ học quá 3 ngày) và báo cáo tuần. Học viên vào lớp bằng mã, phiên Hôm nay ưu tiên từ lớp giao, xếp hạng lớp theo số từ Dùng. Dữ liệu: `apps/lexica/supabase/migration_classes.sql`.
+
+## Trạng thái triển khai (2026-10-17)
+
+| Pha | Đã làm | Ở đâu |
+| --- | --- | --- |
+| 1. 4 bước | Mỗi thẻ có hành trình Hiểu/Nhớ/Gặp/Dùng; cập nhật từ bộ thẻ, Ôn tập, Đọc, Ngoài đời, Luyện nói; tiến độ cũ tự chuyển từ lịch SRS; đồng bộ cloud | `app/lib/journey/steps.ts`, store `journeys`, `stepHistory` |
+| 2. Hôm nay + Home | `/today` chạy Ôn → Học → Đọc → Nói, bỏ chặng trống, kết phiên có 4 con số và phần thưởng; Home: thẻ Hôm nay, 4 con số, Luyện thêm, dải/cột Động lực | `app/today`, `app/lib/journey/today.ts`, `app/components/{TodayCard,MoreList,Motivation,StepNumbers}.tsx` |
+| 3. Lộ trình | Chọn nhánh và nhịp, `/path` (30 ô, biểu đồ, mốc), mốc 7/14/21, kiểm tra ngày 30 + ảnh chia sẻ, lộ trình mới/duy trì; onboarding mới; mời cài PWA sau phiên đầu | `app/path`, `app/lib/journey/path.ts`, `OnboardingModal.tsx`, `InstallCard.tsx` |
+| 4. Giao tiếp | Thẻ có `branch`; 40 cụm + 4 hội thoại có sẵn; bước "Nói trong tình huống"; câu hỏi "Nghe → Nghĩa"; Studio sinh cụm (trang Giao tiếp) và hội thoại (trang Đọc), xuất bản pack `talk` | `app/data/talkCards.ts`, `app/data/passages.ts`, API `talk.ts`, `talk.service.ts`, `migration_studio_talk.sql`, `seed_studio_talk_cards.sql` |
+| 5. Trung tâm | Lớp, mã lớp, giao từ theo bài (từ chưa có thẻ gửi về Studio), bảng lớp, báo cáo tuần (in, chép tin nhắn phụ huynh), xếp hạng theo Dùng, trung tâm có số chỗ và quản lý | `app/class`, `app/teach`, `app/lib/classes.ts`, `app/lib/classSync.ts`, `supabase/migration_classes.sql`, API `word-requests.service.ts` |
+
+Chạy lại `supabase/restore_all.sql` (hoặc 3 file mới: `migration_studio_talk.sql`, `seed_studio_talk_cards.sql`, `migration_classes.sql`) trên Supabase để bật nhánh Giao tiếp ở Studio và lớp học. Bản chạy thử trung tâm: tạo trung tâm ở `/teach` (30 chỗ mặc định; đổi `lexica_orgs.seats` trong SQL khi bán).
+
+Chưa làm: nhắc giờ học (push chưa có service worker), mức giá B2B, nội dung đủ ~30 đoạn văn/hội thoại mỗi level (việc của Studio).

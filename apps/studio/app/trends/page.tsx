@@ -117,6 +117,12 @@ export default function TrendsPage() {
                         Thêm
                     </Button>
                 </form>
+                <WordRequests
+                    onPick={(w) => {
+                        const list = splitList(form.words);
+                        if (!list.includes(w) && list.length < 5) setForm({ ...form, words: [...list, w].join(', ') });
+                    }}
+                />
             </Card>
 
             <div className="flex flex-col gap-3">
@@ -194,6 +200,51 @@ export default function TrendsPage() {
                     </Card>
                 ))}
             </div>
+        </div>
+    );
+}
+
+/**
+ * Words teachers assigned that Lexica has no card for yet (Lexica classes).
+ * Pick one into "Từ muốn dạy" to write its cards through a trend, then mark it done.
+ */
+function WordRequests({ onPick }: { onPick: (word: string) => void }) {
+    const [list, setList] = useState<{ word: string; count: number }[] | null>(null);
+    const [error, setError] = useState('');
+    const load = useCallback(async () => {
+        try {
+            setList(await api<{ word: string; count: number }[]>('/word-requests'));
+        } catch (err) {
+            setError(errorText(err));
+        }
+    }, []);
+    useEffect(() => {
+        const t = setTimeout(() => void load(), 0);
+        return () => clearTimeout(t);
+    }, [load]);
+    if (error) return <p className="mt-4 text-xs text-muted">Từ trung tâm yêu cầu: {error}</p>;
+    if (!list || list.length === 0) return null;
+    return (
+        <div className="mt-5 border-t border-line pt-4">
+            <h3 className="text-sm font-bold">Từ trung tâm yêu cầu ({list.length})</h3>
+            <p className="mt-1 text-xs text-subtle">Giáo viên đã giao các từ này nhưng chưa có thẻ. Bấm từ để thêm vào ô trên; viết xong thẻ thì đánh dấu đã có.</p>
+            <ul className="mt-2 flex flex-col gap-1.5">
+                {list.slice(0, 30).map((r) => (
+                    <li key={r.word} className="flex items-center gap-2 text-sm">
+                        <button type="button" onClick={() => onPick(r.word)} className="font-mono text-accent hover:underline">
+                            {r.word}
+                        </button>
+                        {r.count > 1 && <span className="text-xs text-subtle">×{r.count}</span>}
+                        <button
+                            type="button"
+                            onClick={() => void api('/word-requests/done', { method: 'POST', body: { word: r.word } }).then(load)}
+                            className="ml-auto text-xs text-muted hover:text-ink"
+                        >
+                            Đã có thẻ
+                        </button>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }

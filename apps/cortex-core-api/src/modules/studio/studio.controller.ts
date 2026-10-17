@@ -34,6 +34,7 @@ import { VariantsService, type VariantStatus } from './variants.service';
 import { QuotesService } from './quotes.service';
 import { PassagesService, type PassageStatus } from './passages.service';
 import { TalkService, type TalkStatus } from './talk.service';
+import { WordRequestsService } from './word-requests.service';
 import { QUOTE_KINDS, type QuoteKind } from './quotes';
 import type {
   BlockRule,
@@ -82,6 +83,7 @@ export class StudioController {
     private readonly quotes: QuotesService,
     private readonly passages: PassagesService,
     private readonly talk: TalkService,
+    private readonly wordRequests: WordRequestsService,
   ) {}
 
   @Get('me')
@@ -585,6 +587,19 @@ export class StudioController {
       situation_prompt: edit('situation_prompt'),
       situation_model: edit('situation_model'),
     });
+  }
+
+  // ------------------------------------------------ words centers asked for
+  @Get('word-requests')
+  listWordRequests(@StudioDb() db: Db) {
+    return this.wordRequests.list(db);
+  }
+
+  @Post('word-requests/done')
+  closeWordRequest(@StudioDb() db: Db, @Body() body: unknown) {
+    const word = str(obj(body ?? {}), 'word') ?? '';
+    if (!word) throw new BadRequestException('word is required');
+    return this.wordRequests.done(db, word);
   }
 
   @Get('cards/search')

@@ -17,6 +17,7 @@ import {
   type TalkRow,
 } from './talk';
 import { TalkService } from './talk.service';
+import { groupRequests } from './word-requests.service';
 import type { StudioLlm } from './studio-llm';
 import type { StudioService } from './studio.service';
 
@@ -271,5 +272,20 @@ describe('TalkService', () => {
       sha256: 'h',
     });
     expect(manifest.talk).toMatchObject({ id: 'talk' });
+  });
+});
+
+describe('word requests', () => {
+  it('groups open requests by word, most asked first', () => {
+    expect(
+      groupRequests([
+        { word: 'Serendipity', created_at: '2026-10-02' },
+        { word: 'ubiquitous', created_at: '2026-10-01' },
+        { word: 'serendipity ', created_at: '2026-10-01' },
+      ]),
+    ).toEqual([
+      { word: 'serendipity', count: 2, first_at: '2026-10-01' },
+      { word: 'ubiquitous', count: 1, first_at: '2026-10-01' },
+    ]);
   });
 });
