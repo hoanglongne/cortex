@@ -57,7 +57,7 @@ export default function LevelTestResult({
 }: LevelTestResultProps) {
     const levelInfo = LEVEL_INFO[recommendedLevel];
     const def = levelDef(recommendedLevel);
-    const count = levelStats(getDeckCards(), {})[recommendedLevel].total;
+    const count = levelStats(getDeckCards().filter((c) => (c.branch ?? 'cert') === 'cert'), {})[recommendedLevel].total;
     const percentage = Math.round((score / totalQuestions) * 100);
     const { levelUp, buttonPress, click } = useSoundEffects();
 

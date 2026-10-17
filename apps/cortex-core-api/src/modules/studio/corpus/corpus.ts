@@ -55,11 +55,30 @@ export function sentenceLemmas(text: string): string[] {
 
 /** True when the text has the word in any of its simple forms. */
 export function hasWord(text: string, word: string): boolean {
+  if (/\s/.test(word.trim())) return hasPhrase(text, word);
   const key = lemma(word);
   return text
     .toLowerCase()
     .split(/[^a-z]+/)
     .some((t) => t && lemma(t) === key);
+}
+
+/**
+ * A phrase ("follow up", "make sense") in a text: the first word in any
+ * simple form ("followed up", "makes sense"), the others as written.
+ */
+export function hasPhrase(text: string, phrase: string): boolean {
+  const want = phrase.toLowerCase().trim().split(/\s+/);
+  const tokens = text
+    .toLowerCase()
+    .split(/[^a-z']+/)
+    .filter(Boolean);
+  const head = lemma(want[0]);
+  return tokens.some(
+    (t, i) =>
+      (t === want[0] || lemma(t) === head) &&
+      want.slice(1).every((w, k) => tokens[i + 1 + k] === w),
+  );
 }
 
 const START =

@@ -342,7 +342,9 @@ export const useLexicaStore = create<LexicaStore>()(
             daysDone: [],
             todayLog: null,
             setPath: (path) => {
+                const branchChanged = path?.branch !== get().path?.branch;
                 set({ path });
+                if (path && branchChanged) get().loadNewDeck();
                 if (path) {
                     set({ dailyGoal: path.pace || get().dailyGoal });
                     if (get().selectedLevel !== path.level) get().setSelectedLevel(path.level);
@@ -530,7 +532,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 // 2. Haven't injected review cards yet this session
                 // DISABLED: We don't inject review cards into main deck anymore
                 const shouldInjectReview = false;
-                const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview);
+                const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview, get().path?.branch ?? 'cert');
 
                 // Mark that we've injected review cards (so it won't happen again on next loadNewDeck)
                 const dealt = new Set(newDeck.map(c => c.id));

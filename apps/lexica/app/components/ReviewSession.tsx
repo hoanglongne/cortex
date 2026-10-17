@@ -3,7 +3,8 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield, Swords, Package } from 'lucide-react';
+import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield, Swords, Package, Volume2 } from 'lucide-react';
+import { AudioService } from '../lib/audio/AudioService';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards } from '../lib/content/repository';
 import { trackCardEvent } from '../lib/content/events';
@@ -21,7 +22,7 @@ import { isHard, mnemonic } from '../lib/engagement/hard';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type QuestionType = 'word-to-meaning' | 'meaning-to-word' | 'fill-in' | 'context-pick';
+type QuestionType = 'word-to-meaning' | 'meaning-to-word' | 'fill-in' | 'context-pick' | 'listen-meaning';
 
 interface Question {
     cardId: string;
@@ -94,15 +95,24 @@ function highlightWord(sentence: string, word: string) {
 function buildQuestions(dueCardIds: string[], hardIds: ReadonlySet<string> = new Set()): Question[] {
     const archetype = useLexicaStore.getState().userArchetype;
     const sentence = (c: { scenario?: string; scenarios?: VocabCardData['scenarios'] }) => scenarioFor(c, archetype);
-    const wordPool = getAllCards().map(c => c.word);
-    const meaningPool = getAllCards().map(c => c.translationHint);
+    // Distractors from the same branch: a phrase among phrases, a word among words.
+    const pools = (branch: 'cert' | 'talk') => {
+        const cards = getAllCards().filter(c => (c.branch ?? 'cert') === branch);
+        return { words: cards.map(c => c.word), meanings: cards.map(c => c.translationHint) };
+    };
+    const certPools = pools('cert');
+    const talkPools = pools('talk');
     const types: QuestionType[] = ['word-to-meaning', 'meaning-to-word', 'fill-in', 'context-pick'];
+    // Giao tiếp phrases are heard more than read: half their questions are listening ones.
+    const talkTypes: QuestionType[] = ['listen-meaning', 'listen-meaning', 'listen-meaning', 'word-to-meaning', 'fill-in', 'meaning-to-word'];
 
     return shuffle(dueCardIds).map(cardId => {
         const card = getAllCards().find(c => c.id === cardId);
         if (!card) return null;
 
-        const type = types[Math.floor(Math.random() * types.length)];
+        const pool = card.branch === 'talk' ? talkTypes : types;
+        const { words: wordPool, meanings: meaningPool } = card.branch === 'talk' ? talkPools : certPools;
+        const type = pool[Math.floor(Math.random() * pool.length)];
         const base = {
             cardId,
             word: card.word,
@@ -114,7 +124,7 @@ function buildQuestions(dueCardIds: string[], hardIds: ReadonlySet<string> = new
             aid: mnemonic(card),
         };
 
-        if (type === 'word-to-meaning') {
+        if (type === 'word-to-meaning' || type === 'listen-meaning') {
             return { ...base, type, prompt: card.word, answer: card.translationHint, options: buildOptions(card.translationHint, meaningPool) };
         }
         if (type === 'meaning-to-word') {
@@ -152,6 +162,7 @@ const TYPE_LABEL: Record<QuestionType, string> = {
     'meaning-to-word': 'Nghĩa → Từ · gõ đáp án',
     'fill-in': 'Điền từ vào câu',
     'context-pick': 'Câu nào dùng đúng từ này?',
+    'listen-meaning': 'Nghe → Nghĩa',
 };
 
 function RevealPanel({ question, picked, onContinue }: { question: Question; picked: string | null; onContinue: () => void }) {
@@ -324,6 +335,8 @@ function QuestionCard({
                     </p>
                 ) : question.type === 'meaning-to-word' ? (
                     <p data-testid="review-prompt" className="text-ink text-base leading-relaxed">{question.prompt}</p>
+                ) : question.type === 'listen-meaning' ? (
+                    <ListenPrompt key={question.cardId} text={question.prompt} revealed={answered} />
                 ) : (
                     <p data-testid="review-prompt" className="text-3xl font-bold text-ink tracking-wide">{question.prompt}</p>
                 )}
@@ -434,6 +447,29 @@ function QuestionCard({
 }
 
 /** A small countdown ring around the question number. */
+/** "Nghe → Nghĩa": the phrase is played (again on tap) and only shown once answered. */
+function ListenPrompt({ text, revealed }: { text: string; revealed: boolean }) {
+    useEffect(() => {
+        AudioService.playText(text, 'en', 0.85);
+        return () => AudioService.stop();
+    }, [text]);
+    return (
+        <div className="flex items-center gap-3">
+            <button
+                type="button"
+                onClick={() => AudioService.playText(text, 'en', 0.75)}
+                aria-label="Nghe lại"
+                className="w-12 h-12 rounded-xl border border-line-strong bg-surface-2 flex items-center justify-center text-ink hover:border-accent"
+            >
+                <Volume2 className="w-5 h-5" />
+            </button>
+            <p data-testid="review-prompt" className={`text-2xl font-bold tracking-wide ${revealed ? 'text-ink' : 'text-subtle'}`}>
+                {revealed ? text : 'Nghe và chọn nghĩa'}
+            </p>
+        </div>
+    );
+}
+
 function TimerRing({ seconds, total, label }: { seconds: number; total: number; label: number }) {
     const r = 13;
     const c = 2 * Math.PI * r;

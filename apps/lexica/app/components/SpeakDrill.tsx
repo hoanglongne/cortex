@@ -16,6 +16,8 @@ import type { ContentCard } from '../lib/content/pack';
 
 export type Step = 1 | 2 | 3;
 const STEP_LABEL: Record<Step, string> = { 1: 'Nghe phân biệt', 2: 'Nghe mẫu rồi nói', 3: 'Mẹo và nói trong cụm' };
+/** Giao tiếp cards replace the tip with a situation, and skip the minimal pairs (a phrase has none). */
+const SITUATION_LABEL = 'Nói trong tình huống';
 
 /**
  * The speaking drill (docs/LEXICA_FEEDBACK_TASKS.md T8): for each word, hear
@@ -27,10 +29,11 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
     const [index, setIndex] = useState(0);
     const [at, setAt] = useState(0);
     const [results, setResults] = useState<Record<string, SpeakLevel>>({});
-    const step = steps[at];
     const card = getCard(words[index]);
+    const cardSteps = card?.situation ? steps.filter((s) => s !== 1) : steps;
+    const step = cardSteps[Math.min(at, cardSteps.length - 1)];
     const next = () => {
-        if (at + 1 < steps.length) return setAt(at + 1);
+        if (at + 1 < cardSteps.length) return setAt(at + 1);
         setAt(0);
         setIndex(index + 1);
     };
@@ -44,10 +47,10 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
                     Từ {index + 1}/{words.length}
                 </span>
                 <div className="flex-1 h-1 rounded-full bg-surface-3 overflow-hidden">
-                    <div className="h-full bg-accent transition-all" style={{ width: `${((index * steps.length + at) / (words.length * steps.length)) * 100}%` }} />
+                    <div className="h-full bg-accent transition-all" style={{ width: `${((index + at / cardSteps.length) / words.length) * 100}%` }} />
                 </div>
                 <span className="font-mono text-xs text-muted">
-                    Bước {at + 1}/{steps.length} · {STEP_LABEL[step]}
+                    Bước {at + 1}/{cardSteps.length} · {step === 3 && card.situation ? SITUATION_LABEL : STEP_LABEL[step]}
                 </span>
             </div>
             {step === 1 && <ListenStep key={`${card.id}-1`} card={card} onDone={next} />}
@@ -61,7 +64,7 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
                     }}
                 />
             )}
-            {step === 3 && <PhraseStep key={`${card.id}-3`} card={card} onDone={next} />}
+            {step === 3 && (card.situation ? <SituationStep key={`${card.id}-3`} card={card} onDone={next} /> : <PhraseStep key={`${card.id}-3`} card={card} onDone={next} />)}
         </>
     );
 }
@@ -162,12 +165,14 @@ function SayStep({ card, onDone }: { card: ContentCard; onDone: (level: SpeakLev
     const word = card.word.toLowerCase();
     const syl = stressedSyllables(card.word, card.ipa);
     const { listening, attempt, toggle } = useAttempt(word, (level) => recordSpeak(card.id, level));
+    const phrase = word.includes(' ');
 
     return (
         <Panel icon={<Mic className="w-4 h-4" />} title={word}>
             <p data-testid="syllables" className="font-mono text-2xl text-ink tracking-wide">
-                {syl.text}
+                {phrase ? word : syl.text}
             </p>
+            {phrase && <p className="text-sm text-muted">{card.translationHint}</p>}
             {!syl.fromIpa && card.ipa && <p className="font-mono text-sm text-muted">/{card.ipa}/</p>}
             <div className="mt-4 flex flex-wrap gap-2">
                 <button onClick={() => void speakWith(word, englishVoices(1)[0] ?? null, 0.55)} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
@@ -232,6 +237,51 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             <MicButton listening={listening} onClick={() => void toggle()} label={attempt ? 'Nói lại' : 'Bấm rồi nói cả cụm'} />
             {attempt && <AttemptResult attempt={attempt} target={phrase} />}
             {attempt && attempt.pitch.length > 0 && <PitchTrace pitch={attempt.pitch} flags={flags} />}
+            <div className="mt-4 flex justify-end">
+                <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
+                    {attempt ? 'Tiếp' : 'Bỏ qua'}
+                </button>
+            </div>
+        </Panel>
+    );
+}
+
+// ─── Giao tiếp: say the phrase in a situation ────────────────────────────
+
+/**
+ * A situation in Vietnamese ("Bạn kẹt xe, nhắn cho sếp..."), a model sentence
+ * to hear, then the learner says a sentence of their own with the phrase.
+ * Only the phrase is scored: the rest of the sentence is theirs.
+ */
+function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
+    const recordSpeak = useLexicaStore((s) => s.recordSpeak);
+    const phrase = card.word.toLowerCase();
+    const [showModel, setShowModel] = useState(false);
+    const { listening, attempt, toggle } = useAttempt(phrase, (level) => level === 'clear' && recordSpeak(card.id, level));
+    const situation = card.situation!;
+    return (
+        <Panel icon={<Lightbulb className="w-4 h-4" />} title="Tình huống">
+            <p data-testid="situation" className="text-lg text-ink">{situation.prompt}</p>
+            <p className="mt-2 text-sm text-muted">
+                Nói một câu tiếng Anh có <span className="font-semibold text-ink">{phrase}</span>.
+            </p>
+            <div className="mt-4 rounded-xl bg-surface-2 p-4">
+                {showModel ? (
+                    <>
+                        <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Câu mẫu</p>
+                        <p className="mt-1 text-lg text-ink">{situation.model}</p>
+                        <button onClick={() => void speakWith(situation.model, englishVoices(1)[0] ?? null, 0.85)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                            <Play className="w-4 h-4" /> Nghe mẫu
+                        </button>
+                    </>
+                ) : (
+                    <button onClick={() => setShowModel(true)} className="text-sm text-ink underline">
+                        Xem câu mẫu
+                    </button>
+                )}
+            </div>
+            <MicButton listening={listening} onClick={() => void toggle()} label={attempt ? 'Nói lại' : 'Bấm rồi nói cả câu'} />
+            {attempt && <AttemptResult attempt={attempt} target={phrase} />}
             <div className="mt-4 flex justify-end">
                 <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
                     {attempt ? 'Tiếp' : 'Bỏ qua'}

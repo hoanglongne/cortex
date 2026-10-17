@@ -20,10 +20,14 @@ export default function ReadPage() {
     const [read] = useState(() => (typeof window === 'undefined' ? new Set<string>() : readPassages()));
     const [topic, setTopic] = useState<string | null>(null);
 
+    const branch = useLexicaStore((s) => s.path?.branch ?? 'cert');
     const ordered = useMemo(() => {
         void version;
-        return recommendPassages(getPassages(), { level, progress, read });
-    }, [version, level, progress, read]);
+        // The learner's branch first: dialogues for Giao tiếp, passages for Chứng chỉ.
+        const all = recommendPassages(getPassages(), { level, progress, read });
+        const mine = (p: Passage) => (p.kind === 'dialogue') === (branch === 'talk');
+        return [...all.filter(mine), ...all.filter((p) => !mine(p))];
+    }, [version, level, progress, read, branch]);
     const topics = [...new Set(ordered.map((p) => p.topic))];
     const suggested = ordered[0];
     const rest = ordered.slice(1).filter((p) => !topic || p.topic === topic);
@@ -90,7 +94,7 @@ function PassageRow({ passage, progress, read, featured }: { passage: Passage; p
             <span className="flex-1 min-w-0">
                 <span className="block font-medium text-ink truncate">{passage.title}</span>
                 <span className="block mt-0.5 font-mono text-[11px] text-muted">
-                    {levelDef(passage.level).label} · {passage.topic} · {minutes} phút
+                    {levelDef(passage.level).label} · {passage.kind === 'dialogue' ? 'Hội thoại' : passage.topic} · {minutes} phút
                 </span>
                 <span className="block mt-0.5 text-xs text-ink-2">
                     {fresh > 0 ? <span className="text-accent">{fresh} từ mới</span> : 'Không có từ mới'}

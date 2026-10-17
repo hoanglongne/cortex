@@ -151,4 +151,94 @@ Rồi ông vẫn phát minh ra chiếc bánh mì kẹp nguy hiểm. Đến hoàn
             { question: "How does the inventor respond to the time traveler's warning?", options: ['He believes them completely and stops', 'He calls the police immediately', "He calls their logic 'beautifully arbitrary'", 'He ignores them entirely'], answer: 2 },
         ],
     },
+
+    // ── Giao tiếp: short dialogues (docs/LEXICA_DIRECTION.md), one speaker per line ──
+    {
+        id: 'd_cafe_1',
+        kind: 'dialogue',
+        level: 'beginner',
+        topic: 'Đời sống',
+        title: 'Một ly cà phê vội',
+        text: `Staff: Hi! What can I get for you?
+Linh: An iced latte to go, please. I'm running late for work.
+Staff: No worries, it only takes two minutes.
+Linh: Great. Oh, and is this banana bread on sale today?
+Staff: It is. Twenty percent off until noon.
+Linh: Then I'll give it a try.
+Staff: Here you go. Take your time with the card machine, it's a bit slow.
+Linh: Thanks! I'll text my boss that I'm on my way.`,
+        translation: `Nhân viên: Chào bạn! Bạn dùng gì ạ?
+Linh: Cho mình một ly latte đá mang đi. Mình đang trễ giờ làm.
+Nhân viên: Không sao đâu, chỉ mất hai phút thôi.
+Linh: Tuyệt. À, bánh chuối này hôm nay có giảm giá không?
+Nhân viên: Có ạ. Giảm hai mươi phần trăm tới trưa.
+Linh: Vậy mình thử một cái.
+Nhân viên: Của bạn đây. Bạn cứ từ từ với máy quẹt thẻ nhé, máy hơi chậm.
+Linh: Cảm ơn! Mình nhắn sếp là mình đang trên đường tới.`,
+        newWords: ['g016', 'g002', 'g003', 'g015', 'g012', 'g004', 'g001'],
+        words: [],
+    },
+    {
+        id: 'd_hotel_1',
+        kind: 'dialogue',
+        level: 'beginner',
+        topic: 'Du lịch',
+        title: 'Nhận phòng ở Đà Nẵng',
+        text: `Nam: Good evening. I'd like to check in, please. The booking is under Nam Tran.
+Receptionist: Welcome! Your room is ready. Could you fill in this short form?
+Nam: Sure. Also, my friend lands at nine. Is there a shuttle to pick up guests at the airport?
+Receptionist: Yes, but tonight the shuttle is sold out. I can call a taxi for her.
+Nam: That makes sense. Thank you.
+Receptionist: You're welcome. Breakfast starts at six. Enjoy your stay!`,
+        translation: `Nam: Chào buổi tối. Tôi muốn nhận phòng. Phòng đặt tên Nam Trần.
+Lễ tân: Chào mừng anh! Phòng đã sẵn sàng. Anh điền giúp tờ khai ngắn này nhé?
+Nam: Được. À, bạn tôi hạ cánh lúc chín giờ. Có xe đưa đón khách ở sân bay không?
+Lễ tân: Có ạ, nhưng tối nay xe đã kín chỗ. Tôi gọi taxi cho chị ấy nhé.
+Nam: Vậy cũng hợp lý. Cảm ơn chị.
+Lễ tân: Không có gì. Bữa sáng bắt đầu lúc sáu giờ. Chúc anh nghỉ ngơi vui vẻ!`,
+        newWords: ['g005', 'g007', 'g006', 'g010'],
+        words: [],
+    },
+    {
+        id: 'd_work_1',
+        kind: 'dialogue',
+        level: 'intermediate',
+        topic: 'Công việc',
+        title: 'Cuộc gọi đầu tuần',
+        text: `Mai: Hi Tom, thanks for the call. I wanted to touch base about the new website.
+Tom: Sure. Just a heads up, the client asked for one more page.
+Mai: Okay. Let's make sure we're on the same page: is the deadline still Friday?
+Tom: I'm not sure. I'll get back to you this afternoon.
+Mai: Great. I'll follow up with the designer and deal with the new page myself.
+Tom: Perfect. And keep in mind that I'm out of office on Thursday.`,
+        translation: `Mai: Chào Tom, cảm ơn anh đã gọi. Em muốn cập nhật nhanh về trang web mới.
+Tom: Ừ. Báo trước nhé, khách vừa xin thêm một trang nữa.
+Mai: Dạ. Mình thống nhất lại cho chắc: hạn chót vẫn là thứ Sáu ạ?
+Tom: Anh chưa chắc. Chiều nay anh trả lời em.
+Mai: Dạ. Em sẽ nhắc lại với bên thiết kế và tự lo phần trang mới.
+Tom: Tốt quá. Và nhớ là thứ Năm anh không ở văn phòng nhé.`,
+        newWords: ['g018', 'g019', 'g020', 'g021', 'g017', 'g024', 'g026', 'g022'],
+        words: [],
+    },
+    {
+        id: 'd_friends_1',
+        kind: 'dialogue',
+        level: 'intermediate',
+        topic: 'Đời sống',
+        title: 'Hẹn cuối tuần',
+        text: `Huy: Hey, long time no see! Do you want to catch up this weekend?
+An: I'd love to. Let's hang out at that new barbecue place.
+Huy: Good idea. Should I invite Phong too?
+An: Sure, but he never shows up on time.
+Huy: True. Last month he turned down our trip and then came anyway!
+An: Ha! Okay, let's sort out the time in the group chat.`,
+        translation: `Huy: Ê, lâu quá không gặp! Cuối tuần đi cà phê tán gẫu không?
+An: Có chứ. Đi chơi ở quán nướng mới mở đi.
+Huy: Ý hay. Có rủ Phong không?
+An: Rủ đi, nhưng ông ấy chẳng bao giờ đến đúng giờ.
+Huy: Đúng thật. Tháng trước ổng từ chối chuyến đi rồi cuối cùng vẫn tới!
+An: Haha! Thôi, chốt giờ trong nhóm chat nha.`,
+        newWords: ['g008', 'g009', 'g029', 'g031', 'g030'],
+        words: [],
+    },
 ];

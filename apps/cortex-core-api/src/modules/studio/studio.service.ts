@@ -805,6 +805,7 @@ export class StudioService {
       // The variants overlay and the passages are published on their own; keep them.
       variants: live?.variants ?? null,
       passages: live?.passages ?? null,
+      talk: live?.talk ?? null,
       retired: [
         ...new Set(
           [...libraryCards.values(), ...cards]
@@ -858,8 +859,12 @@ export class StudioService {
     stats: Record<string, unknown>,
     job = 'publish',
   ): Promise<string> {
-    // Drop publishes and rollbacks keep the variants overlay and the passages.
-    if (manifest.variants === undefined || manifest.passages === undefined) {
+    // Drop publishes and rollbacks keep the variants overlay, the passages and the talk pack.
+    if (
+      manifest.variants === undefined ||
+      manifest.passages === undefined ||
+      manifest.talk === undefined
+    ) {
       const live = await this.readManifest(db);
       manifest = {
         ...manifest,
@@ -871,6 +876,8 @@ export class StudioService {
           manifest.passages === undefined
             ? (live?.passages ?? null)
             : manifest.passages,
+        talk:
+          manifest.talk === undefined ? (live?.talk ?? null) : manifest.talk,
       };
     }
     const url = await this.upload(
@@ -918,9 +925,10 @@ export class StudioService {
     const today = await this.readManifest(db);
     const manifest: Manifest = {
       ...previous,
-      // keep today's overlay and passages
+      // keep today's overlay, passages and talk pack
       variants: today?.variants ?? null,
       passages: today?.passages ?? null,
+      talk: today?.talk ?? null,
       updatedAt: new Date().toISOString(),
     };
     const manifestUrl = await this.writeManifest(db, userId, manifest, {

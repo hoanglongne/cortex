@@ -33,6 +33,7 @@ import { VARIANT_ARCHETYPES } from './variants';
 import { VariantsService, type VariantStatus } from './variants.service';
 import { QuotesService } from './quotes.service';
 import { PassagesService, type PassageStatus } from './passages.service';
+import { TalkService, type TalkStatus } from './talk.service';
 import { QUOTE_KINDS, type QuoteKind } from './quotes';
 import type {
   BlockRule,
@@ -80,6 +81,7 @@ export class StudioController {
     private readonly variants: VariantsService,
     private readonly quotes: QuotesService,
     private readonly passages: PassagesService,
+    private readonly talk: TalkService,
   ) {}
 
   @Get('me')
@@ -505,6 +507,7 @@ export class StudioController {
       level: str(o, 'level') ?? '',
       topic: str(o, 'topic') ?? '',
       words: int(o, 'words', 3, 5),
+      kind: str(o, 'kind') ?? 'text',
     });
   }
 
@@ -528,6 +531,59 @@ export class StudioController {
       title: str(o, 'title', { optional: true }),
       text: str(o, 'text', { optional: true }),
       translation: str(o, 'translation', { optional: true }),
+    });
+  }
+
+  // ------------------------------------------------ Giao tiếp phrase cards
+  @Get('talk')
+  listTalk(@StudioDb() db: Db, @Query('status') status?: string) {
+    const s: TalkStatus =
+      status === 'approved' || status === 'rejected' ? status : 'pending';
+    return this.talk.list(db, s);
+  }
+
+  @Get('talk/stats')
+  talkStats(@StudioDb() db: Db) {
+    return this.talk.stats(db);
+  }
+
+  @Post('talk/generate')
+  generateTalk(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Body() body: unknown,
+  ) {
+    const o = obj(body ?? {});
+    return this.talk.generate(db, userId, {
+      level: str(o, 'level') ?? '',
+      topic: str(o, 'topic') ?? '',
+      count: int(o, 'count', 3, 8),
+    });
+  }
+
+  @Post('talk/publish')
+  publishTalk(@StudioDb() db: Db, @CurrentUserId() userId: string) {
+    return this.talk.publish(db, userId);
+  }
+
+  @Post('talk/:id/:action')
+  reviewTalk(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+    @Param('action') action: string,
+    @Body() body: unknown,
+  ) {
+    if (action !== 'approve' && action !== 'reject')
+      throw new BadRequestException('action must be approve or reject');
+    const o = obj(body ?? {});
+    const edit = (k: string) => str(o, k, { optional: true });
+    return this.talk.review(db, userId, id, action, {
+      phrase: edit('phrase'),
+      scenario: edit('scenario'),
+      translation_hint: edit('translation_hint'),
+      situation_prompt: edit('situation_prompt'),
+      situation_model: edit('situation_model'),
     });
   }
 

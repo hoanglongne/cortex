@@ -33,6 +33,11 @@ export const PASSAGE_TOPICS = [
 
 /** English words per passage. */
 export const PASSAGE_WORDS: readonly [number, number] = [120, 200];
+/** English words per dialogue (Giao tiếp branch): shorter, one line per turn. */
+export const DIALOGUE_WORDS: readonly [number, number] = [60, 170];
+
+export type PassageKind = 'text' | 'dialogue';
+export const PASSAGE_KINDS: readonly PassageKind[] = ['text', 'dialogue'];
 export const NEW_WORDS: readonly [number, number] = [3, 5];
 
 const LEVEL_TEXT: Record<PassageLevel, string> = {
@@ -58,6 +63,8 @@ export interface PassageDraft {
 
 export interface PassageRow extends PassageDraft {
   id: string;
+  /** 'dialogue' rows teach Giao tiếp phrases; missing on rows saved before. */
+  kind?: PassageKind;
   level: PassageLevel;
   topic: string;
   new_words: string[];
@@ -91,7 +98,7 @@ export function pickNewWords(
   });
   const score = (c: LexiconCard) =>
     (usedCount.get(c.id) ?? 0) * 1000 +
-    (c.id.startsWith('v') ? 0 : 500) +
+    (/^[vg]\d/.test(c.id) ? 0 : 500) +
     (hash(`${seed}:${c.id}`) % 500);
   return [...pool].sort((a, b) => score(a) - score(b)).slice(0, n);
 }
@@ -105,10 +112,27 @@ export function buildPassagePrompt(input: {
   topic: string;
   newWords: readonly LexiconCard[];
   knownWords: readonly string[];
+  kind?: PassageKind;
 }): string {
   const list = input.newWords
     .map((c) => `- ${c.word.toLowerCase()} (${c.translation_hint})`)
     .join('\n');
+  if (input.kind === 'dialogue') {
+    return `You write short everyday dialogues for Vietnamese learners of English (the "Giao tiếp" branch of an app).
+
+Write ONE dialogue:
+- Level: ${LEVEL_TEXT[input.level]}.
+- Topic: ${input.topic} (Vietnamese label; a Vietnamese or international everyday setting: a café, an office, a hotel, a chat between friends).
+- Two people with short first names (one may be Vietnamese), 6–10 turns, ${DIALOGUE_WORDS[0]}–${DIALOGUE_WORDS[1]} English words in total.
+- Each turn is ONE line: "Name: what they say". No narration, no stage directions.
+- It must use EACH of these phrases at least once, naturally, so the meaning is clear (the first word may be inflected: "followed up", "makes sense"):
+${list}
+- Natural spoken English: contractions, short sentences. No slang that depends on wordplay, no politics, religion, violence or brand names.
+- Also give a natural Vietnamese translation with the same lines and the same names, a short Vietnamese title (max 8 words), and 2 simple comprehension questions in English with 3–4 options each (index of the right option in "answer").
+
+Reply with JSON only:
+{"title": "...", "text": "Name: ...\nName: ...", "translation": "Name: ...\nName: ...", "questions": [{"question": "...", "options": ["...", "..."], "answer": 0}]}`;
+  }
   return `You write short reading passages for Vietnamese learners of English (IELTS).
 
 Write ONE passage:
@@ -166,10 +190,13 @@ export function checkPassage(
   draft: Pick<PassageDraft, 'text' | 'translation' | 'title'>,
   newWords: readonly string[],
   blocklist: readonly BlockRule[],
+  kind: PassageKind = 'text',
 ): string[] {
   const failed: string[] = [];
   const n = wordCount(draft.text);
-  if (n < PASSAGE_WORDS[0] || n > PASSAGE_WORDS[1]) failed.push('length');
+  const [min, max] = kind === 'dialogue' ? DIALOGUE_WORDS : PASSAGE_WORDS;
+  if (n < min || n > max) failed.push('length');
+  if (kind === 'dialogue' && !isDialogue(draft.text)) failed.push('dialogue');
   const missing = newWords.filter((w) => !hasWord(draft.text, w));
   if (missing.length > 0) failed.push(`missing:${missing.join('/')}`);
   if (
@@ -192,6 +219,21 @@ export function checkPassage(
   return failed;
 }
 
+/** Every non-empty line is "Name: words", with at least two speakers. */
+export function isDialogue(text: string): boolean {
+  const lines = text
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const speakers = new Set<string>();
+  for (const line of lines) {
+    const m = /^([^:]{1,24}):\s*\S/.exec(line);
+    if (!m) return false;
+    speakers.add(m[1].trim().toLowerCase());
+  }
+  return lines.length >= 4 && speakers.size >= 2;
+}
+
 /** Other deck cards whose word appears in the text (shown as "known" words). */
 export function deckWordsIn(
   text: string,
@@ -206,7 +248,9 @@ export function deckWordsIn(
     const key = c.word.toLowerCase();
     if (skip.has(c.id) || seen.has(key)) continue;
     seen.add(key);
-    if (lemmas.has(lemma(key)) && hasWord(text, key)) out.push(c.id);
+    const phrase = /\s/.test(key);
+    if ((phrase || lemmas.has(lemma(key))) && hasWord(text, key))
+      out.push(c.id);
   }
   return out.slice(0, 60);
 }
@@ -222,6 +266,7 @@ export interface PublishedPassage {
   newWords: string[];
   words: string[];
   questions?: PassageDraft['questions'];
+  kind?: 'dialogue';
 }
 
 export interface PassagesFile {
@@ -255,6 +300,7 @@ export function buildPassagesFile(
         newWords: r.new_words,
         words: r.words,
         ...(r.questions?.length ? { questions: r.questions } : {}),
+        ...(r.kind === 'dialogue' ? { kind: 'dialogue' as const } : {}),
       })),
   };
 }

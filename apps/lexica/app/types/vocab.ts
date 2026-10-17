@@ -15,6 +15,10 @@ export interface VocabCardData {
     translationHint: string;
     /** Two natural English phrases with the word, e.g. "abundant supply". */
     collocations?: string[];
+    /** Which branch deals this card (docs/LEXICA_DIRECTION.md): 'cert' (default) or 'talk'. */
+    branch?: 'cert' | 'talk';
+    /** Giao tiếp cards: a situation to say the phrase in, and a model sentence. */
+    situation?: { prompt: string; model: string };
     state: CardState;
     isBossCard?: boolean;
 

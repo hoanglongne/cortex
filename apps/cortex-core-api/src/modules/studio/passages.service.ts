@@ -15,6 +15,7 @@ import {
   checkPassage,
   deckWordsIn,
   NEW_WORDS,
+  PASSAGE_KINDS,
   parsePassageReply,
   PASSAGE_LEVELS,
   PASSAGE_PROMPT_VERSION,
@@ -22,6 +23,7 @@ import {
   passagesPath,
   pickNewWords,
   type LexiconCard,
+  type PassageKind,
   type PassageLevel,
   type PassageRow,
 } from './passages';
@@ -45,6 +47,7 @@ const RULE_TEXT: Record<string, string> = {
   translation: 'thiếu bản dịch',
   title: 'thiếu tiêu đề',
   blocklist: 'chạm danh sách chặn',
+  dialogue: 'không đúng dạng hội thoại "Tên: câu nói"',
 };
 const describe = (failed: string[]) =>
   failed
@@ -71,6 +74,29 @@ export class PassagesService {
     private readonly studio: StudioService,
   ) {}
 
+  /** Dialogues teach Giao tiếp phrases (studio_talk_cards, core ones included); passages teach deck words. */
+  private async lexiconFor(db: Db, kind: PassageKind): Promise<LexiconCard[]> {
+    if (kind === 'text') return this.lexicon(db);
+    const talk = rows<{
+      card_id: string;
+      phrase: string;
+      level: string;
+      translation_hint: string;
+    }>(
+      await db
+        .from('studio_talk_cards')
+        .select('card_id, phrase, level, translation_hint')
+        .eq('status', 'approved')
+        .order('card_id'),
+    );
+    return talk.map((t) => ({
+      id: t.card_id,
+      word: t.phrase,
+      level: t.level,
+      translation_hint: t.translation_hint,
+    }));
+  }
+
   private async lexicon(db: Db): Promise<LexiconCard[]> {
     const [core, studio] = await Promise.all([
       db
@@ -90,8 +116,11 @@ export class PassagesService {
   async generate(
     db: Db,
     userId: string | null,
-    input: { level: string; topic: string; words?: number },
+    input: { level: string; topic: string; words?: number; kind?: string },
   ) {
+    const kind: PassageKind = PASSAGE_KINDS.includes(input.kind as PassageKind)
+      ? (input.kind as PassageKind)
+      : 'text';
     if (!PASSAGE_LEVELS.includes(input.level as PassageLevel))
       throw new BadRequestException('Level không hợp lệ');
     if (!(PASSAGE_TOPICS as readonly string[]).includes(input.topic))
@@ -100,7 +129,7 @@ export class PassagesService {
     const n = Math.min(NEW_WORDS[1], Math.max(NEW_WORDS[0], input.words ?? 4));
 
     const [cards, used, blocklist] = await Promise.all([
-      this.lexicon(db),
+      this.lexiconFor(db, kind),
       db.from('studio_passages').select('new_words').neq('status', 'rejected'),
       this.studio.listBlocklist(db),
     ]);
@@ -125,6 +154,7 @@ export class PassagesService {
           topic: input.topic,
           newWords,
           knownWords: known,
+          kind,
         }),
       );
       model = out.model;
@@ -136,7 +166,7 @@ export class PassagesService {
     if (!draft) throw new BadGatewayException('Model AI trả về sai định dạng');
 
     const words = newWords.map((c) => c.word);
-    const failed = checkPassage(draft, words, blocklist);
+    const failed = checkPassage(draft, words, blocklist, kind);
     // Saved anyway when only the length is a little off: the editor can fix it.
     if (failed.some((f) => f !== 'length'))
       return { saved: 0, failed: describe(failed) };
@@ -144,6 +174,7 @@ export class PassagesService {
       .from('studio_passages')
       .insert({
         level,
+        kind,
         topic: input.topic,
         title: draft.title,
         text: draft.text,
@@ -182,13 +213,18 @@ export class PassagesService {
       await db
         .from('studio_passages')
         .select(
-          'id, level, topic, title, text, translation, questions, new_words, words, status, created_at, published_at',
+          'id, level, kind, topic, title, text, translation, questions, new_words, words, status, created_at, published_at',
         )
         .eq('status', status)
         .order('created_at', { ascending: status === 'pending' })
         .limit(limit),
     );
-    const words = new Map((await this.lexicon(db)).map((c) => [c.id, c.word]));
+    const words = new Map(
+      [
+        ...(await this.lexicon(db)),
+        ...(await this.lexiconFor(db, 'dialogue')),
+      ].map((c) => [c.id, c.word]),
+    );
     return list.map((p) => ({
       ...p,
       new_word_list: p.new_words.map((id) => ({
@@ -221,12 +257,14 @@ export class PassagesService {
         text: edits?.text?.trim() || row.text,
         translation: edits?.translation?.trim() || row.translation,
       };
-      const cards = await this.lexicon(db);
+      const kind = row.kind ?? 'text';
+      const cards = await this.lexiconFor(db, kind);
       const byId = new Map(cards.map((c) => [c.id, c.word]));
       const failed = checkPassage(
         next,
         row.new_words.map((w) => byId.get(w) ?? w),
         await this.studio.listBlocklist(db),
+        kind,
       );
       if (failed.length > 0)
         throw new BadRequestException(`Đoạn văn chưa đạt: ${describe(failed)}`);

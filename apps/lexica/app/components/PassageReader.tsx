@@ -43,8 +43,12 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                 .filter((t) => t.word),
         [passage],
     );
-    const paragraphs = passage.text.split(/\n\s*\n/);
-    const translation = passage.translation.split(/\n\s*\n/);
+    // A dialogue is one line per turn ("Linh: ..."); a passage is paragraphs split by blank lines.
+    const dialogue = passage.kind === 'dialogue';
+    const split = (t: string) => (dialogue ? t.split(/\n+/) : t.split(/\n\s*\n/));
+    const turns = dialogue ? split(passage.text).map(speakerOf) : [];
+    const paragraphs = dialogue ? turns.map((t) => t.line) : split(passage.text);
+    const translation = dialogue ? split(passage.translation).map((t) => speakerOf(t).line) : split(passage.translation);
 
     const finish = () => {
         if (result) return;
@@ -140,9 +144,10 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                     <span className="text-accent">Từ mới</span> · <span className="underline decoration-ink/30 underline-offset-4">từ đã học</span> · bấm vào từ để xem nghĩa
                 </p>
 
-                <article data-testid="passage-text" className="mt-4 space-y-4">
+                <article data-testid="passage-text" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                     {paragraphs.map((para, i) => (
-                        <div key={i}>
+                        <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
+                            {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
                             <p className="text-lg leading-relaxed text-ink-2">
                                 {splitByWords(para, targets).map((seg, j) =>
                                     seg.cardId ? (
@@ -289,4 +294,10 @@ function Question({ q }: { q: PassageQuestion }) {
             </div>
         </div>
     );
+}
+
+/** "Linh: An iced latte..." → speaker and line; a line with no speaker keeps its text. */
+function speakerOf(line: string): { speaker: string | null; line: string } {
+    const m = /^([^:]{1,24}):\s*(.*)$/.exec(line.trim());
+    return m ? { speaker: m[1], line: m[2] } : { speaker: null, line: line.trim() };
 }

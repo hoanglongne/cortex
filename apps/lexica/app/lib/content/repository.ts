@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { VOCAB_DATABASE } from '../../data/vocabCards';
+import { TALK_CARDS } from '../../data/talkCards';
 import type { CardQuote, CardQuotes, CardVariants, ContentCard, ContentPack, VariantArchetype } from './pack';
 import { deckWordsIn, type Passage } from './passages';
 import { CORE_PASSAGES } from '../../data/passages';
@@ -23,17 +24,20 @@ let quotes: CardQuotes = {};
 let remotePassages: Passage[] = [];
 let passageCache: Passage[] | null = null;
 
-let all: readonly ContentCard[] = VOCAB_DATABASE;
-let byId = new Map<string, ContentCard>(VOCAB_DATABASE.map(c => [c.id, c]));
-let byWord = new Map<string, ContentCard>(VOCAB_DATABASE.map(c => [c.word.trim().toLowerCase(), c]));
+/** Bundled cards: the IELTS deck and the first Giao tiếp deck. */
+const CORE: readonly ContentCard[] = [...VOCAB_DATABASE, ...TALK_CARDS];
+
+let all: readonly ContentCard[] = CORE;
+let byId = new Map<string, ContentCard>(CORE.map(c => [c.id, c]));
+let byWord = new Map<string, ContentCard>(CORE.map(c => [c.word.trim().toLowerCase(), c]));
 
 let version = 0;
 const listeners = new Set<() => void>();
 
-const CORE_IDS = new Set(VOCAB_DATABASE.map(c => c.id));
+const CORE_IDS = new Set(CORE.map(c => c.id));
 
 function rebuild() {
-    all = [...VOCAB_DATABASE, ...remote].map(c => withVariants(c, variants[c.id]));
+    all = [...CORE, ...remote].map(c => withVariants(c, variants[c.id]));
     byId = new Map(all.map(c => [c.id, c]));
     byWord = new Map();
     for (const c of all) {
@@ -127,13 +131,15 @@ export function getQuotes(cardId: string): CardQuote[] {
  */
 export function getPassages(): readonly Passage[] {
     if (passageCache) return passageCache;
-    const deck = [...byWord.values()].map(c => ({ id: c.id, word: c.word }));
+    // Giao tiếp phrases ("to go", "on sale") are common English: only dialogues mark them.
+    const deck = [...byWord.values()].filter(c => c.branch !== 'talk').map(c => ({ id: c.id, word: c.word }));
+    const talkDeck = [...byWord.values()].map(c => ({ id: c.id, word: c.word }));
     const seen = new Set<string>();
     passageCache = [];
     for (const p of [...CORE_PASSAGES, ...remotePassages]) {
         if (seen.has(p.id)) continue;
         seen.add(p.id);
-        const words = p.words.length > 0 ? p.words : deckWordsIn(p.text, deck).filter(id => !p.newWords.includes(id));
+        const words = p.words.length > 0 ? p.words : deckWordsIn(p.text, p.kind === 'dialogue' ? talkDeck : deck).filter(id => !p.newWords.includes(id));
         passageCache.push({ ...p, words });
     }
     return passageCache;

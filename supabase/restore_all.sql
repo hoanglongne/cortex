@@ -2598,6 +2598,103 @@ create policy "studio_passages editors" on studio_passages
 
 
 -- ============================================================
+-- apps/cortex-core-api/supabase/migration_studio_talk.sql
+-- ============================================================
+
+-- Lexica Giao tiếp branch (docs/LEXICA_DIRECTION.md): phrase cards with a
+-- situation to say them in, reviewed by an editor and published as the
+-- `talk` card pack; dialogues are passages of kind 'dialogue'.
+-- Requires migration_studio_passages.sql. Safe to re-run.
+create table if not exists studio_talk_cards (
+  id uuid primary key default gen_random_uuid(),
+  card_id text not null unique,                 -- 'k…' for Studio phrases, 'g###' for the ones bundled in the app
+  core boolean not null default false,          -- bundled in the app: never published in the pack
+  level text not null check (level in ('beginner','intermediate','advanced','expert')),
+  topic text not null,
+  phrase text not null,
+  scenario text not null,
+  translation_hint text not null,
+  situation_prompt text not null,
+  situation_model text not null,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  model text,
+  prompt_version text,
+  created_by uuid references auth.users(id),
+  reviewer_id uuid references auth.users(id),
+  reviewed_at timestamptz,
+  published_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create index if not exists studio_talk_cards_status_idx on studio_talk_cards (status, created_at);
+create unique index if not exists studio_talk_cards_phrase_idx on studio_talk_cards (phrase) where status <> 'rejected';
+
+alter table studio_talk_cards enable row level security;
+drop policy if exists "studio_talk_cards editors" on studio_talk_cards;
+create policy "studio_talk_cards editors" on studio_talk_cards
+  for all using (is_studio_editor()) with check (is_studio_editor());
+
+alter table studio_passages add column if not exists kind text not null default 'text';
+alter table studio_passages drop constraint if exists studio_passages_kind_check;
+alter table studio_passages add constraint studio_passages_kind_check check (kind in ('text','dialogue'));
+
+
+-- ============================================================
+-- apps/cortex-core-api/supabase/seed_studio_talk_cards.sql
+-- ============================================================
+
+-- The Giao tiếp phrases bundled in Lexica (apps/lexica/app/data/talkCards.ts),
+-- so Studio knows them when it writes dialogues and avoids duplicates.
+-- Generated from that file; core rows are never published in the talk pack.
+-- Requires migration_studio_talk.sql. Safe to re-run.
+insert into studio_talk_cards (card_id, core, level, topic, phrase, scenario, translation_hint, situation_prompt, situation_model, status, prompt_version)
+values
+  ('g001', true, 'beginner', 'Lexica', 'on my way', 'Đừng nhắn on my way khi còn đang tắm nha, cả nhóm đứng chờ ngoài quán rồi.', 'đang trên đường tới', 'Bạn đang tới chỗ hẹn, nhắn cho bạn bè.', 'I''m on my way, see you in ten minutes.', 'approved', 'core'),
+  ('g002', true, 'beginner', 'Lexica', 'running late', 'Sáng nay kẹt xe quá, em running late chừng mười lăm phút, mọi người cứ họp trước nha.', 'bị trễ giờ', 'Bạn kẹt xe, nhắn cho sếp là sẽ đến trễ.', 'Sorry, I''m running late. I''ll be there in fifteen minutes.', 'approved', 'core'),
+  ('g003', true, 'beginner', 'Lexica', 'no worries', 'Khách xin lỗi vì làm đổ nước, chị phục vụ cười bảo no worries rồi lau bàn ngay.', 'không sao đâu', 'Đồng nghiệp xin lỗi vì gửi file trễ, bạn trấn an họ.', 'No worries, just send it when you can.', 'approved', 'core'),
+  ('g004', true, 'beginner', 'Lexica', 'take your time', 'Bạn cứ take your time chọn món đi, hôm nay mình không vội đâu.', 'cứ từ từ', 'Người bạn chọn quà lâu quá, bạn bảo họ cứ từ từ.', 'Take your time, there''s no rush.', 'approved', 'core'),
+  ('g005', true, 'beginner', 'Lexica', 'check in', 'Tới sân bay sớm hai tiếng để check in cho thong thả, đừng để sát giờ.', 'làm thủ tục nhận phòng, lên máy bay', 'Bạn tới khách sạn và muốn nhận phòng.', 'Hi, I''d like to check in, please. I have a reservation.', 'approved', 'core'),
+  ('g006', true, 'beginner', 'Lexica', 'sold out', 'Mới mở bán được nửa tiếng mà vé concert đã sold out, tiếc ghê.', 'hết hàng, bán hết', 'Bạn hỏi nhân viên xem mẫu áo này còn hàng không.', 'Is this one sold out, or do you have it in a medium?', 'approved', 'core'),
+  ('g007', true, 'beginner', 'Lexica', 'pick up', 'Chiều nay anh pick up con ở trường giúp em nhé, em họp tới sáu giờ.', 'đón (ai đó)', 'Nhờ bạn đón em gái mình ở sân bay.', 'Could you pick up my sister at the airport at six?', 'approved', 'core'),
+  ('g008', true, 'beginner', 'Lexica', 'catch up', 'Lâu rồi không gặp, cuối tuần đi cà phê catch up chút đi.', 'gặp lại hàn huyên', 'Rủ một người bạn cũ đi cà phê nói chuyện.', 'Let''s grab a coffee and catch up this weekend.', 'approved', 'core'),
+  ('g009', true, 'beginner', 'Lexica', 'hang out', 'Tối thứ Sáu tụi mình hay hang out ở quán nướng gần trường.', 'đi chơi, tụ tập', 'Rủ đồng nghiệp đi chơi tối nay.', 'Do you want to hang out after work tonight?', 'approved', 'core'),
+  ('g010', true, 'beginner', 'Lexica', 'make sense', 'Giải thích vậy thì make sense rồi, ban đầu em cứ tưởng lỗi do máy.', 'hợp lý, hiểu được', 'Sếp giải thích kế hoạch, bạn nói là đã hiểu.', 'Thanks, now the plan starts to make sense.', 'approved', 'core'),
+  ('g011', true, 'beginner', 'Lexica', 'figure out', 'Mất cả buổi tối mới figure out được vì sao wifi ở nhà cứ rớt.', 'tìm ra, nghĩ ra cách', 'Bạn chưa biết cách giải quyết, hứa sẽ tìm ra.', 'I''ll figure out a way and get back to you.', 'approved', 'core'),
+  ('g012', true, 'beginner', 'Lexica', 'give it a try', 'Món này nhìn lạ nhưng cứ give it a try đi, ngon hơn bạn nghĩ đó.', 'thử xem', 'Bạn của bạn ngại thử món mới, bạn khuyến khích.', 'It looks strange, but give it a try.', 'approved', 'core'),
+  ('g013', true, 'beginner', 'Lexica', 'get used to', 'Mới chuyển sang ca đêm nên em chưa get used to việc ngủ ban ngày.', 'quen với', 'Kể với bạn là bạn cần thời gian để quen công việc mới.', 'I need some time to get used to my new job.', 'approved', 'core'),
+  ('g014', true, 'beginner', 'Lexica', 'look forward to', 'Cả phòng đang look forward to chuyến đi Đà Lạt tháng sau.', 'mong chờ', 'Trả lời email mời họp, nói bạn mong được gặp họ.', 'I look forward to meeting you next week.', 'approved', 'core'),
+  ('g015', true, 'beginner', 'Lexica', 'on sale', 'Đôi giày đó đang on sale ba mươi phần trăm, mua liền đi.', 'đang giảm giá', 'Hỏi nhân viên xem chiếc áo khoác này có giảm giá không.', 'Is this jacket on sale this week?', 'approved', 'core'),
+  ('g016', true, 'beginner', 'Lexica', 'to go', 'Cho em một ly bạc xỉu to go, em đang trễ giờ làm.', 'mang đi (đồ ăn, nước)', 'Gọi một ly cà phê mang đi.', 'Can I get an iced latte to go, please?', 'approved', 'core'),
+  ('g017', true, 'intermediate', 'Lexica', 'follow up', 'Họp xong nhớ follow up với khách bằng email, kẻo họ quên những gì đã chốt.', 'theo sát, nhắc lại sau', 'Viết email nhắc khách về báo giá bạn gửi tuần trước.', 'I''m just writing to follow up on the quote I sent last week.', 'approved', 'core'),
+  ('g018', true, 'intermediate', 'Lexica', 'touch base', 'Đầu tuần mình touch base năm phút để xem dự án tới đâu rồi nha.', 'liên lạc nhanh, cập nhật', 'Đề nghị gọi nhanh với đồng nghiệp sáng mai.', 'Can we touch base tomorrow morning?', 'approved', 'core'),
+  ('g019', true, 'intermediate', 'Lexica', 'heads up', 'Cảm ơn anh đã cho em cái heads up về lịch họp đổi sang chiều, suýt nữa em đi nhầm giờ.', 'báo trước', 'Báo trước cho cả nhóm là bạn sẽ nghỉ thứ Sáu.', 'Just a heads up, I''ll be off on Friday.', 'approved', 'core'),
+  ('g020', true, 'intermediate', 'Lexica', 'on the same page', 'Trước khi làm, cả nhóm họp nhanh cho on the same page về hạn chót.', 'cùng hiểu một ý', 'Đề nghị cả nhóm thống nhất trước khi bắt đầu.', 'Let''s make sure we''re on the same page before we start.', 'approved', 'core'),
+  ('g021', true, 'intermediate', 'Lexica', 'get back to', 'Em chưa có số liệu, để em get back to anh trước năm giờ chiều nay nhé.', 'trả lời lại sau', 'Khách hỏi một câu bạn chưa trả lời được ngay.', 'Good question. Let me get back to you by Friday.', 'approved', 'core'),
+  ('g022', true, 'intermediate', 'Lexica', 'out of office', 'Chị ấy out of office cả tuần nên thư gửi giờ chắc thứ Hai mới đọc.', 'vắng mặt, không ở văn phòng', 'Báo cho khách là tuần sau bạn vắng mặt.', 'I''ll be out of office next week, so please contact my colleague.', 'approved', 'core'),
+  ('g023', true, 'intermediate', 'Lexica', 'work from home', 'Mưa ngập thế này, sếp cho cả phòng work from home hôm nay.', 'làm việc ở nhà', 'Xin sếp cho làm ở nhà ngày mai.', 'Would it be okay if I work from home tomorrow?', 'approved', 'core'),
+  ('g024', true, 'intermediate', 'Lexica', 'deal with', 'Tháng cuối năm phải deal with cả đống hoá đơn nên phòng kế toán về muộn.', 'xử lý, đối phó với', 'Nói với đồng nghiệp là bạn sẽ xử lý khiếu nại này.', 'Don''t worry, I''ll deal with this complaint.', 'approved', 'core'),
+  ('g025', true, 'intermediate', 'Lexica', 'come up with', 'Cả nhóm bàn cả buổi mới come up with được cái tên cho quán.', 'nghĩ ra', 'Bạn cần thêm thời gian để nghĩ ra ý tưởng tốt hơn.', 'Give me a day to come up with a better idea.', 'approved', 'core'),
+  ('g026', true, 'intermediate', 'Lexica', 'keep in mind', 'Đặt vé thì keep in mind là hành lý xách tay chỉ được bảy ký thôi.', 'lưu ý, nhớ rằng', 'Nhắc khách hàng về hạn chót của chương trình khuyến mãi.', 'Please keep in mind that the offer ends on Sunday.', 'approved', 'core'),
+  ('g027', true, 'intermediate', 'Lexica', 'fill out', 'Trước khi khám bệnh phải fill out tờ khai ở quầy lễ tân.', 'điền (đơn, tờ khai)', 'Hỏi lễ tân xem bạn có cần điền tờ khai không.', 'Do I need to fill out this form before the appointment?', 'approved', 'core'),
+  ('g028', true, 'intermediate', 'Lexica', 'run out of', 'Đang nấu dở thì run out of gas, cả nhà phải gọi đồ ăn ngoài.', 'hết, cạn', 'Báo cho quản lý là văn phòng sắp hết giấy in.', 'We''re about to run out of paper for the printer.', 'approved', 'core'),
+  ('g029', true, 'intermediate', 'Lexica', 'show up', 'Hẹn bảy giờ mà gần tám giờ anh ấy mới show up, còn không nhắn trước.', 'xuất hiện, có mặt', 'Hỏi bạn bè xem tối nay mấy giờ họ tới.', 'What time are you going to show up tonight?', 'approved', 'core'),
+  ('g030', true, 'intermediate', 'Lexica', 'sort out', 'Lỗi chuyển khoản này để em gọi ngân hàng sort out trong sáng nay.', 'giải quyết ổn thoả', 'Hứa với khách là bạn sẽ giải quyết chuyện giao hàng chậm.', 'We''ll sort out the delivery problem today.', 'approved', 'core'),
+  ('g031', true, 'intermediate', 'Lexica', 'turn down', 'Lương ổn nhưng phải chuyển ra Hà Nội nên em đành turn down lời mời.', 'từ chối', 'Lịch sự từ chối lời mời đi ăn tối nay.', 'Thanks, but I have to turn down the invitation tonight.', 'approved', 'core'),
+  ('g032', true, 'intermediate', 'Lexica', 'point out', 'Cảm ơn chị đã point out lỗi chính tả trong bản trình bày trước khi gửi khách.', 'chỉ ra', 'Lịch sự chỉ ra một lỗi nhỏ trong báo cáo của đồng nghiệp.', 'I just want to point out a small mistake on page two.', 'approved', 'core'),
+  ('g033', true, 'advanced', 'Lexica', 'bring up', 'Đừng bring up chuyện tăng lương ngay đầu buổi họp, đợi lúc sếp vui đã.', 'nêu ra (một vấn đề)', 'Nói rằng bạn muốn nêu thêm một vấn đề trong cuộc họp.', 'I''d like to bring up one more issue before we finish.', 'approved', 'core'),
+  ('g034', true, 'advanced', 'Lexica', 'push back', 'Khách xin push back hạn chót thêm một tuần vì chưa duyệt xong thiết kế.', 'lùi lịch; phản đối', 'Đề nghị dời cuộc họp sang thứ Hai tuần sau.', 'Can we push back the meeting to next Monday?', 'approved', 'core'),
+  ('g035', true, 'advanced', 'Lexica', 'cut corners', 'Xây nhà mà cut corners ở phần móng thì vài năm là nứt hết.', 'làm ẩu cho nhanh, cho rẻ', 'Nói với cả nhóm là gấp mấy cũng không được làm ẩu.', 'We''re in a hurry, but we can''t cut corners on safety.', 'approved', 'core'),
+  ('g036', true, 'advanced', 'Lexica', 'on short notice', 'Xin lỗi vì báo on short notice, nhưng chiều nay em phải nghỉ để đưa mẹ đi khám.', 'báo gấp, sát giờ', 'Xin lỗi vì nhờ đồng nghiệp làm thay vào phút chót.', 'Sorry to ask on short notice, but could you cover for me today?', 'approved', 'core'),
+  ('g037', true, 'advanced', 'Lexica', 'wrap up', 'Còn mười phút nữa là hết giờ, mình wrap up cuộc họp ở đây nhé.', 'kết thúc, chốt lại', 'Đề nghị kết thúc cuộc họp, mai bàn tiếp.', 'Let''s wrap up the meeting here and continue tomorrow.', 'approved', 'core'),
+  ('g038', true, 'advanced', 'Lexica', 'fall through', 'Kế hoạch đi Phú Quốc có thể fall through vì cả nhóm không ai xin nghỉ được.', 'đổ bể, không thành', 'Kể với bạn là thoả thuận với khách có thể không thành.', 'I''m afraid the deal might fall through.', 'approved', 'core'),
+  ('g039', true, 'advanced', 'Lexica', 'think outside the box', 'Ngân sách quảng cáo ít thì phải think outside the box, quay video bằng điện thoại cũng được.', 'nghĩ khác đi, sáng tạo', 'Khuyến khích cả nhóm nghĩ cách mới cho chiến dịch.', 'We need to think outside the box for this campaign.', 'approved', 'core'),
+  ('g040', true, 'advanced', 'Lexica', 'get the hang of', 'Mới đầu dùng phần mềm kế toán thấy rối, làm một tuần là get the hang of liền.', 'bắt đầu quen tay', 'Nói với sếp là bạn đã bắt đầu quen việc.', 'It was hard at first, but I''m starting to get the hang of it.', 'approved', 'core')
+on conflict (card_id) do update set
+  level = excluded.level, phrase = excluded.phrase, scenario = excluded.scenario,
+  translation_hint = excluded.translation_hint, situation_prompt = excluded.situation_prompt,
+  situation_model = excluded.situation_model, core = true, status = 'approved';
+
+
+-- ============================================================
 -- apps/cortex-core-api/supabase/seed_studio_core_cards.sql
 -- ============================================================
 
