@@ -155,31 +155,40 @@ const TYPE_LABEL: Record<QuestionType, string> = {
     'context-pick': 'Câu nào dùng đúng từ này?',
 };
 
-function RevealPanel({ question, onContinue }: { question: Question; onContinue: () => void }) {
+function RevealPanel({ question, picked, onContinue }: { question: Question; picked: string | null; onContinue: () => void }) {
     const { buttonPress } = useSoundEffects();
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-4 rounded-xl border border-ink/20 bg-ink/[0.03] p-4"
+            data-testid="review-reveal"
+            className="rounded-xl border border-ink/20 bg-ink/[0.03] p-4"
         >
-            <p className="text-[10px] text-muted uppercase font-mono font-semibold mb-3">Đáp án đúng</p>
-            <div className="flex items-baseline gap-2.5 mb-1">
+            {picked && (
+                <p className="text-muted text-xs mb-2.5 flex items-center gap-1.5 min-w-0">
+                    <X className="w-3.5 h-3.5 shrink-0" />
+                    <span className="shrink-0">{question.type === 'meaning-to-word' ? 'Bạn gõ:' : 'Bạn chọn:'}</span>
+                    <span className="text-ink-2 truncate">{picked}</span>
+                </p>
+            )}
+            <div className="flex items-baseline gap-2.5 flex-wrap">
+                <Check className="w-4 h-4 text-accent self-center shrink-0" aria-label="Đáp án đúng" />
                 <p className="text-2xl font-bold text-ink tracking-wide">{question.word}</p>
                 {question.ipa && <p className="text-muted text-sm font-mono">/{question.ipa}/</p>}
             </div>
-            <p className="text-accent text-sm mb-3">{question.meaning}</p>
-            {question.aid && <p className="text-warning text-xs font-mono leading-relaxed mb-3">Mẹo nhớ: {question.aid}</p>}
-            <p className="text-muted text-sm italic leading-relaxed border-t border-line/60 pt-3">
+            <p className="text-accent text-sm mb-2">{question.meaning}</p>
+            {question.aid && <p className="text-warning text-xs font-mono leading-relaxed mb-2 line-clamp-2">Mẹo nhớ: {question.aid}</p>}
+            <p className="text-muted text-sm italic leading-relaxed border-t border-line/60 pt-2 line-clamp-2">
                 &ldquo;{highlightWord(question.scenario, question.word)}&rdquo;
             </p>
+            {/* Sticky so the way on is never below the fold on a short phone. */}
             <button
                 onClick={() => {
                     buttonPress();
                     onContinue();
                 }}
-                className="mt-4 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold transition-colors active:scale-95"
+                className="sticky bottom-3 mt-3 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold transition-colors active:scale-95"
             >
                 Tiếp tục →
             </button>
@@ -335,8 +344,10 @@ function QuestionCard({
                 )}
             </div>
 
-            {/* MCQ options (all types except meaning-to-word) */}
-            {question.type !== 'meaning-to-word' && (
+            {/* MCQ options (all types except meaning-to-word). After a wrong
+                answer the reveal takes their place, so the card keeps its
+                height and nothing scrolls off a phone screen. */}
+            {question.type !== 'meaning-to-word' && !showReveal && (
                 <div className="space-y-2">
                     {question.options.map((option, i) => {
                         const isSelected = selected === option;
@@ -371,7 +382,7 @@ function QuestionCard({
             )}
 
             {/* Type-in input (meaning-to-word) */}
-            {question.type === 'meaning-to-word' && (
+            {question.type === 'meaning-to-word' && !showReveal && (
                 <div className="space-y-3">
                     <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 transition-colors ${answered
  ? isCorrect ? 'border-accent/50 bg-accent/5' : 'border-ink/30 bg-ink/[0.03]'
@@ -410,7 +421,11 @@ function QuestionCard({
 
             {/* Reveal panel after wrong answer */}
             {showReveal && (
-                <RevealPanel question={question} onContinue={() => { setShowReveal(false); onAnswer(false); }} />
+                <RevealPanel
+                    question={question}
+                    picked={question.type === 'meaning-to-word' ? typedInput.trim() || null : selected}
+                    onContinue={() => { setShowReveal(false); onAnswer(false); }}
+                />
             )}
             </div>
             {rail}
