@@ -1,5 +1,7 @@
 # Story Progressive Unlock - Technical Specification
 
+> **Đã thay thế (2026-10-17):** Story Mode và cơ chế mở khoá này đã được thay bằng trang "Đọc" (`/read`), xem T7 trong `docs/LEXICA_FEEDBACK_TASKS.md`. Giữ file để tham khảo.
+
 **Created:** 12/05/2026  
 **Status:** 🟡 Planned  
 **Priority:** High - Core engagement feature

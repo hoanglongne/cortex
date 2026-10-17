@@ -37,6 +37,8 @@ export interface Manifest {
   retired: string[];
   /** Archetype example sentences overlay (variants.ts); absent before the first publish. */
   variants?: PackRef | null;
+  /** "Đọc" passages (passages.ts); absent before the first publish. */
+  passages?: PackRef | null;
 }
 
 /** New Studio card id: 't' + 7 base36 chars. Core cards use 'v###'. */

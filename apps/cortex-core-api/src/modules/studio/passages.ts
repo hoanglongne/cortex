@@ -1,0 +1,265 @@
+/**
+ * "Đọc" passages for Lexica (docs/LEXICA_FEEDBACK_TASKS.md T7): a short
+ * English text at one level, on one topic, written around 3–5 deck words the
+ * learner may not know yet. Generated here, reviewed by an editor like
+ * cards, published as a pack the app downloads. Pure functions only.
+ */
+import { createHash } from 'crypto';
+import { hasWord, lemma, sentenceLemmas } from './corpus/corpus';
+import { validateDraft } from './validator';
+import type { BlockRule } from './studio.types';
+
+export const PASSAGE_PROMPT_VERSION = 'passage.v1';
+export const PASSAGE_LEVELS = [
+  'beginner',
+  'intermediate',
+  'advanced',
+  'expert',
+] as const;
+export type PassageLevel = (typeof PASSAGE_LEVELS)[number];
+
+/** Same list as Lexica's lib/content/passages.ts. */
+export const PASSAGE_TOPICS = [
+  'Đời sống',
+  'Công việc',
+  'Tiền bạc',
+  'Công nghệ',
+  'Giáo dục',
+  'Sức khoẻ',
+  'Du lịch',
+  'Môi trường',
+  'Xã hội',
+] as const;
+
+/** English words per passage. */
+export const PASSAGE_WORDS: readonly [number, number] = [120, 200];
+export const NEW_WORDS: readonly [number, number] = [3, 5];
+
+const LEVEL_TEXT: Record<PassageLevel, string> = {
+  beginner: 'CEFR A2–B1 (IELTS 4.5–5.5): short sentences, everyday words',
+  intermediate: 'CEFR B1–B2 (IELTS 5.5–6.5)',
+  advanced: 'CEFR B2–C1 (IELTS 6.5–7.5)',
+  expert: 'CEFR C1 (IELTS 7.5+)',
+};
+
+export interface LexiconCard {
+  id: string;
+  word: string;
+  level: string;
+  translation_hint: string;
+}
+
+export interface PassageDraft {
+  title: string;
+  text: string;
+  translation: string;
+  questions: { question: string; options: string[]; answer: number }[];
+}
+
+export interface PassageRow extends PassageDraft {
+  id: string;
+  level: PassageLevel;
+  topic: string;
+  new_words: string[];
+  words: string[];
+  status: 'pending' | 'approved' | 'rejected';
+}
+
+export function wordCount(text: string): number {
+  return text.split(/\s+/).filter((t) => /[a-z]/i.test(t)).length;
+}
+
+/**
+ * The new words for the next passage: cards of the level used in the fewest
+ * passages so far (core cards first: those are what most learners still
+ * meet), one card per word, spread by a seeded shuffle within the least used.
+ */
+export function pickNewWords(
+  cards: readonly LexiconCard[],
+  usedCount: ReadonlyMap<string, number>,
+  level: PassageLevel,
+  n = 4,
+  seed = 0,
+): LexiconCard[] {
+  const seenWord = new Set<string>();
+  const pool = cards.filter((c) => {
+    if (c.level !== level) return false;
+    const key = c.word.toLowerCase();
+    if (seenWord.has(key)) return false;
+    seenWord.add(key);
+    return true;
+  });
+  const score = (c: LexiconCard) =>
+    (usedCount.get(c.id) ?? 0) * 1000 +
+    (c.id.startsWith('v') ? 0 : 500) +
+    (hash(`${seed}:${c.id}`) % 500);
+  return [...pool].sort((a, b) => score(a) - score(b)).slice(0, n);
+}
+
+function hash(s: string): number {
+  return createHash('md5').update(s).digest().readUInt32BE(0);
+}
+
+export function buildPassagePrompt(input: {
+  level: PassageLevel;
+  topic: string;
+  newWords: readonly LexiconCard[];
+  knownWords: readonly string[];
+}): string {
+  const list = input.newWords
+    .map((c) => `- ${c.word.toLowerCase()} (${c.translation_hint})`)
+    .join('\n');
+  return `You write short reading passages for Vietnamese learners of English (IELTS).
+
+Write ONE passage:
+- Level: ${LEVEL_TEXT[input.level]}.
+- Topic: ${input.topic} (Vietnamese label; write about it in English, in a Vietnamese or international everyday setting).
+- Length: ${PASSAGE_WORDS[0]}–${PASSAGE_WORDS[1]} English words, 2–4 short paragraphs separated by a blank line.
+- It must use EACH of these words at least once, in a way that makes the meaning clear from context:
+${list}
+- You may also use some of these words the learner already knows: ${input.knownWords.slice(0, 20).join(', ') || '(none)'}.
+- Neutral, clear, friendly tone. No slang, no jokes that depend on wordplay, no politics, religion, violence or brand names.
+- Also give a natural Vietnamese translation with the same paragraphs, a short Vietnamese title (max 8 words), and 2 simple comprehension questions in English with 3–4 options each (index of the right option in "answer").
+
+Reply with JSON only:
+{"title": "...", "text": "...", "translation": "...", "questions": [{"question": "...", "options": ["...", "..."], "answer": 0}]}`;
+}
+
+const isStr = (v: unknown): v is string =>
+  typeof v === 'string' && v.trim().length > 0;
+
+/** The model's reply as a draft, or null when it is not usable at all. */
+export function parsePassageReply(json: unknown): PassageDraft | null {
+  if (typeof json !== 'object' || json === null) return null;
+  const o = json as Record<string, unknown>;
+  if (!isStr(o.title) || !isStr(o.text) || !isStr(o.translation)) return null;
+  const questions = Array.isArray(o.questions)
+    ? o.questions
+        .map((q) => {
+          const x = q as Record<string, unknown>;
+          const options = Array.isArray(x?.options)
+            ? x.options.filter(isStr).slice(0, 4)
+            : [];
+          const answer = Number(x?.answer);
+          if (!isStr(x?.question) || options.length < 2) return null;
+          if (
+            !Number.isInteger(answer) ||
+            answer < 0 ||
+            answer >= options.length
+          )
+            return null;
+          return { question: x.question.trim(), options, answer };
+        })
+        .filter((q): q is PassageDraft['questions'][number] => q !== null)
+        .slice(0, 2)
+    : [];
+  return {
+    title: o.title.trim().slice(0, 80),
+    text: o.text.replace(/\r/g, '').trim(),
+    translation: o.translation.replace(/\r/g, '').trim(),
+    questions,
+  };
+}
+
+/** Rules a passage must pass. Returns the failed rule names; empty = usable. */
+export function checkPassage(
+  draft: Pick<PassageDraft, 'text' | 'translation' | 'title'>,
+  newWords: readonly string[],
+  blocklist: readonly BlockRule[],
+): string[] {
+  const failed: string[] = [];
+  const n = wordCount(draft.text);
+  if (n < PASSAGE_WORDS[0] || n > PASSAGE_WORDS[1]) failed.push('length');
+  const missing = newWords.filter((w) => !hasWord(draft.text, w));
+  if (missing.length > 0) failed.push(`missing:${missing.join('/')}`);
+  if (
+    !draft.translation.trim() ||
+    draft.translation.length < draft.text.length / 3
+  )
+    failed.push('translation');
+  if (!draft.title.trim()) failed.push('title');
+  const report = validateDraft(
+    { word: newWords[0] ?? 'x', scenario: draft.text.slice(0, 2000) },
+    {
+      lexicon: new Set(newWords),
+      blocklist,
+      existingScenarios: new Set(),
+      sameWordScenarios: [],
+      recentWords: new Set(),
+    },
+  );
+  if (!report.rules.blocklist?.pass) failed.push('blocklist');
+  return failed;
+}
+
+/** Other deck cards whose word appears in the text (shown as "known" words). */
+export function deckWordsIn(
+  text: string,
+  cards: readonly Pick<LexiconCard, 'id' | 'word'>[],
+  exclude: readonly string[],
+): string[] {
+  const lemmas = new Set(sentenceLemmas(text));
+  const skip = new Set(exclude);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const c of cards) {
+    const key = c.word.toLowerCase();
+    if (skip.has(c.id) || seen.has(key)) continue;
+    seen.add(key);
+    if (lemmas.has(lemma(key)) && hasWord(text, key)) out.push(c.id);
+  }
+  return out.slice(0, 60);
+}
+
+/** The published passage, as Lexica's lib/content/passages.ts reads it. */
+export interface PublishedPassage {
+  id: string;
+  level: PassageLevel;
+  topic: string;
+  title: string;
+  text: string;
+  translation: string;
+  newWords: string[];
+  words: string[];
+  questions?: PassageDraft['questions'];
+}
+
+export interface PassagesFile {
+  schema: 1;
+  id: 'passages';
+  publishedAt: string;
+  passages: PublishedPassage[];
+}
+
+/** Short stable id for a passage row ("s" + 8 hex chars of its uuid). */
+export const publishedId = (rowId: string) =>
+  `s${rowId.replace(/-/g, '').slice(0, 8)}`;
+
+export function buildPassagesFile(
+  rows: readonly PassageRow[],
+  publishedAt: string,
+): PassagesFile {
+  return {
+    schema: 1,
+    id: 'passages',
+    publishedAt,
+    passages: rows
+      .filter((r) => r.status === 'approved')
+      .map((r) => ({
+        id: publishedId(r.id),
+        level: r.level,
+        topic: r.topic,
+        title: r.title,
+        text: r.text,
+        translation: r.translation,
+        newWords: r.new_words,
+        words: r.words,
+        ...(r.questions?.length ? { questions: r.questions } : {}),
+      })),
+  };
+}
+
+export function passagesPath(body: string): { path: string; hash: string } {
+  const hash = createHash('sha256').update(body, 'utf8').digest('hex');
+  return { path: `packs/passages.${hash.slice(0, 12)}.json`, hash };
+}

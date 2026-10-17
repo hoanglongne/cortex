@@ -4,6 +4,7 @@ import { isOwned, setProgress, type CollectionSet } from '@/app/lib/engagement/c
 import { pendingClaims } from '@/app/lib/engagement/claims';
 import { setHint } from '@/app/lib/engagement/session';
 import type { UserCardProgress } from '@/app/lib/eloAlgorithm';
+import type { Wallet } from '@/app/lib/engagement/economy';
 
 vi.mock('@/app/lib/engagement/economy', async (orig) => ({
     ...(await orig<typeof import('@/app/lib/engagement/economy')>()),
@@ -17,7 +18,7 @@ const seen = (reviewCount: number): UserCardProgress => ({ cardId: 'x', state: '
 const food: CollectionSet = { id: 'topic:food:1', label: 'Ăn uống I', kind: 'topic', cardIds: ['a', 'b', 'c', 'd', 'e'] };
 const work: CollectionSet = { id: 'topic:work:1', label: 'Công việc I', kind: 'topic', cardIds: ['f', 'g'] };
 const config = { boxes: { set_complete: 2 }, prices: { upgrade_silver: 300, ticket: 120 } } as never;
-const wallet = { boxes: 0, pending_boxes: 0, dust: 0, reroll_tickets: 0, streak_freezes: 0 } as never;
+const wallet = { boxes: 0, pending_boxes: 0, dust: 0, reroll_tickets: 0, streak_freezes: 0 } as unknown as Wallet;
 const word = (id: string) => ({ a: 'abundant', b: 'cognitive' } as Record<string, string>)[id] ?? id;
 
 describe('ownership', () => {
@@ -58,7 +59,7 @@ describe('nextGoal', () => {
 
 describe('explaining one idea at a time', () => {
     const facts = (w: Partial<{ dust: number; boxes: number; reroll_tickets: number; streak_freezes: number }>, readyToMint = 0) => ({
-        wallet: { ...(wallet as object), ...w } as never,
+        wallet: { ...wallet, ...w },
         readyToMint,
         minted: 0,
     });
@@ -89,7 +90,7 @@ describe('explaining one idea at a time', () => {
 
 describe('wallet', () => {
     it('says what each amount is good for now', () => {
-        const lines = walletLines({ wallet: { ...(wallet as object), dust: 120, boxes: 1 } as never, config, editions: {} });
+        const lines = walletLines({ wallet: { ...wallet, dust: 120, boxes: 1 }, config, editions: {} });
         expect(lines.find((l) => l.key === 'dust')).toMatchObject({ amount: 120, use: 'cần 300 để nâng 1 thẻ' });
         expect(lines.find((l) => l.key === 'boxes')?.use).toBe('mở ngay');
     });

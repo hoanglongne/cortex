@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import { Sun, Moon, Cloud, BookOpen, RotateCcw, Zap, BookMarked, ArrowRight } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getDueCards } from '../lib/eloAlgorithm';
-import { STORIES, isStoryPreviewVisible } from '../data/stories';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import Link from 'next/link';
 
@@ -44,7 +43,6 @@ export default function SmartEntry({ onStartSession, variant = 'full' }: SmartEn
     const dailyGoal = useLexicaStore(state => state.dailyGoal);
     const dailyProgress = useLexicaStore(state => state.dailyProgress);
     const cardProgress = useLexicaStore(state => state.cardProgress);
-    const learnedWords = useLexicaStore(state => state.learnedWords);
     const setDailyGoal = useLexicaStore(state => state.setDailyGoal);
     const checkAndResetDailyGoal = useLexicaStore(state => state.checkAndResetDailyGoal);
 
@@ -68,9 +66,6 @@ export default function SmartEntry({ onStartSession, variant = 'full' }: SmartEn
     // Get context data for Smart CTA
     const dueCards = getDueCards(cardProgress);
     const dueCount = dueCards.length;
-    const learnedWordIds = Array.from(learnedWords);
-    const visibleStories = STORIES.filter(story => isStoryPreviewVisible(story, learnedWordIds));
-    const hasUnreadStory = visibleStories.length > 0;
     const remaining = Math.max(0, dailyGoal - dailyProgress);
 
     const handleStartWithGoal = () => {
@@ -271,25 +266,23 @@ export default function SmartEntry({ onStartSession, variant = 'full' }: SmartEn
                     </Link>
                 )}
 
-                {/* Priority 2: Story Ready */}
-                {hasUnreadStory && (
-                    <Link
-                        href="/stories"
-                        onClick={() => buttonPress()}
-                        className="flex items-center justify-between p-5 rounded-xl bg-surface-2/50 hover:bg-surface-2 border-2 border-line-strong hover:border-line-strong transition-all group hover:scale-[1.02] active:scale-95"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="p-3 rounded-xl bg-surface-3/50">
-                                <BookMarked className="w-6 h-6 text-ink" />
-                            </div>
-                            <div>
-                                <p className="text-ink font-bold text-lg">Câu chuyện mới</p>
-                                <p className="text-muted text-sm">Thực hành qua story mode</p>
-                            </div>
+                {/* Priority 2: a short passage, always open */}
+                <Link
+                    href="/read"
+                    onClick={() => buttonPress()}
+                    className="flex items-center justify-between p-5 rounded-xl bg-surface-2/50 hover:bg-surface-2 border-2 border-line-strong hover:border-line-strong transition-all group hover:scale-[1.02] active:scale-95"
+                >
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-surface-3/50">
+                            <BookMarked className="w-6 h-6 text-ink" />
                         </div>
-                        <ArrowRight className="w-5 h-5 text-ink-2 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                )}
+                        <div>
+                            <p className="text-ink font-bold text-lg">Đọc 2 phút</p>
+                            <p className="text-muted text-sm">Gặp từ mới trong đoạn văn ngắn</p>
+                        </div>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-ink-2 group-hover:translate-x-1 transition-transform" />
+                </Link>
 
                 {/* Priority 3: Continue Learning (Default) */}
                 <button

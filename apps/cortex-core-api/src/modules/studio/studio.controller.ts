@@ -32,6 +32,7 @@ import { StudioService } from './studio.service';
 import { VARIANT_ARCHETYPES } from './variants';
 import { VariantsService, type VariantStatus } from './variants.service';
 import { QuotesService } from './quotes.service';
+import { PassagesService, type PassageStatus } from './passages.service';
 import { QUOTE_KINDS, type QuoteKind } from './quotes';
 import type {
   BlockRule,
@@ -78,6 +79,7 @@ export class StudioController {
     private readonly captures: CaptureService,
     private readonly variants: VariantsService,
     private readonly quotes: QuotesService,
+    private readonly passages: PassagesService,
   ) {}
 
   @Get('me')
@@ -477,6 +479,56 @@ export class StudioController {
   @Post('quotes/find')
   findQuotes(@StudioDb() db: Db, @Body() body: unknown) {
     return this.quotes.findQuotes(db, int(obj(body ?? {}), 'limit', 1, 100));
+  }
+
+  // ------------------------------------------------ "Đọc" passages
+  @Get('passages')
+  listPassages(@StudioDb() db: Db, @Query('status') status?: string) {
+    const s: PassageStatus =
+      status === 'approved' || status === 'rejected' ? status : 'pending';
+    return this.passages.list(db, s);
+  }
+
+  @Get('passages/stats')
+  passageStats(@StudioDb() db: Db) {
+    return this.passages.stats(db);
+  }
+
+  @Post('passages/generate')
+  generatePassage(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Body() body: unknown,
+  ) {
+    const o = obj(body ?? {});
+    return this.passages.generate(db, userId, {
+      level: str(o, 'level') ?? '',
+      topic: str(o, 'topic') ?? '',
+      words: int(o, 'words', 3, 5),
+    });
+  }
+
+  @Post('passages/publish')
+  publishPassages(@StudioDb() db: Db, @CurrentUserId() userId: string) {
+    return this.passages.publish(db, userId);
+  }
+
+  @Post('passages/:id/:action')
+  reviewPassage(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+    @Param('action') action: string,
+    @Body() body: unknown,
+  ) {
+    if (action !== 'approve' && action !== 'reject')
+      throw new BadRequestException('action must be approve or reject');
+    const o = obj(body ?? {});
+    return this.passages.review(db, userId, id, action, {
+      title: str(o, 'title', { optional: true }),
+      text: str(o, 'text', { optional: true }),
+      translation: str(o, 'translation', { optional: true }),
+    });
   }
 
   @Get('cards/search')

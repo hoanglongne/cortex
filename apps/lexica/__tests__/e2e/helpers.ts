@@ -44,11 +44,7 @@ interface LexicaPersistedState {
   dailyProgress: number;
   lastGoalSetDate: string | null;
   userArchetype: string | null;
-  unlockedStories: string[];
-  unlockedStoryPart1: string[];
-  readStories: string[];
-  readStoryPart1: string[];
-  storyQuizAttempts: Record<string, unknown>;
+  queuedCardIds: string[];
   testScore: number | null;
   recommendedLevel: string | null;
   isInTest: boolean;
@@ -105,11 +101,7 @@ export function makeBypassState(
     dailyProgress: 0,
     lastGoalSetDate: null,
     userArchetype: 'tech',
-    unlockedStories: [],
-    unlockedStoryPart1: [],
-    readStories: [],
-    readStoryPart1: [],
-    storyQuizAttempts: {},
+    queuedCardIds: [],
     testScore: null,
     recommendedLevel: null,
     isInTest: false,

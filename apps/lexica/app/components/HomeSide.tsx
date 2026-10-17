@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { ChevronRight, LayoutGrid, RotateCcw, Swords, TrendingUp } from 'lucide-react';
+import { BookOpen, ChevronRight, LayoutGrid, RotateCcw, Swords, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import { hardWords } from '../lib/engagement/hard';
 import { buildSets, setProgress } from '../lib/engagement/collection';
-import { getAllCards, getCurrentDrop, useContentVersion } from '../lib/content/repository';
+import { getAllCards, getCurrentDrop, getPassages, useContentVersion } from '../lib/content/repository';
+import { readPassages, recommendPassages, unknownIn } from '../lib/engagement/reading';
 
 const DAY_MS = 86_400_000;
 
@@ -21,6 +22,12 @@ export default function HomeSide({ onStartDrop }: { onStartDrop: () => void }) {
     const cardProgress = useLexicaStore((s) => s.cardProgress);
     const loadNewDeck = useLexicaStore((s) => s.loadNewDeck);
     const [now] = useState(() => Date.now());
+    const level = useLexicaStore((s) => s.selectedLevel);
+    const [read] = useState(() => (typeof window === 'undefined' ? new Set<string>() : readPassages()));
+    const passage = useMemo(() => {
+        void version;
+        return recommendPassages(getPassages(), { level, progress: cardProgress, read })[0] ?? null;
+    }, [version, level, cardProgress, read]);
 
     const due = getProgressStats(cardProgress).dueToday;
     const hard = hardWords(cardProgress).length;
@@ -58,6 +65,15 @@ export default function HomeSide({ onStartDrop }: { onStartDrop: () => void }) {
                 hint={hard > 0 ? 'Luyện riêng những từ bạn quên nhiều lần' : 'Từ nào quên 3 lần sẽ hiện ở đây'}
                 disabled={hard === 0}
             />
+            {passage && (
+                <SideCard
+                    href={`/read/${passage.id}`}
+                    icon={<BookOpen className="w-4 h-4" />}
+                    label="Đọc 2 phút"
+                    title={passage.title}
+                    hint={`${unknownIn(passage, cardProgress).length} từ mới · ${passage.topic}`}
+                />
+            )}
             {nextSet && (
                 <SideCard
                     href="/album"

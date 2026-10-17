@@ -1,6 +1,7 @@
 import { idbGet, idbSet } from './idb';
 import { parseManifest, parsePack, parseQuotes, parseVariants, type CardQuotes, type CardVariants, type ContentManifest, type ContentPack, type PackRef } from './pack';
 import { applyRemoteContent } from './repository';
+import { parsePassages, type Passage } from './passages';
 
 /** Public URL of packs/manifest.json published by Lexica Studio. Unset = core cards only. */
 export const CONTENT_MANIFEST_URL = process.env.NEXT_PUBLIC_CONTENT_MANIFEST_URL || null;
@@ -49,6 +50,22 @@ async function loadOverlay(ref: PackRef | null, allowNetwork: boolean): Promise<
     return parsed;
 }
 
+/** The passages pack, cache-then-verify like the others. */
+async function loadPassages(ref: PackRef | null, allowNetwork: boolean): Promise<Passage[] | undefined> {
+    if (!ref) return undefined;
+    const cached = await idbGet<unknown>(packKey(ref));
+    const fromCache = cached ? parsePassages(cached) : [];
+    if (fromCache.length > 0 || !allowNetwork) return fromCache.length > 0 ? fromCache : undefined;
+    const res = await fetch(ref.url);
+    if (!res.ok) return undefined;
+    const text = await res.text();
+    const hash = await sha256Hex(text);
+    if (hash && hash !== ref.sha256) return undefined;
+    const list = parsePassages(JSON.parse(text));
+    if (list.length > 0) await idbSet(packKey(ref), JSON.parse(text));
+    return list;
+}
+
 async function apply(manifest: ContentManifest, allowNetwork: boolean) {
     const refs = [manifest.current, manifest.library].filter((r): r is PackRef => r !== null);
     const packs = (await Promise.all(refs.map(r => loadPack(r, allowNetwork).catch(() => null))))
@@ -56,12 +73,14 @@ async function apply(manifest: ContentManifest, allowNetwork: boolean) {
     // Never replace good content with nothing because of a network blip.
     if (refs.length > 0 && packs.length === 0) return false;
     const overlay = await loadOverlay(manifest.variants, allowNetwork).catch(() => undefined);
+    const passages = await loadPassages(manifest.passages, allowNetwork).catch(() => undefined);
     applyRemoteContent({
         packs,
         retired: manifest.retired,
         currentDropId: manifest.current?.id ?? null,
         variants: overlay?.variants,
         quotes: overlay?.quotes,
+        passages,
     });
     return true;
 }

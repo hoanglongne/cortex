@@ -297,13 +297,13 @@ export default function SwipeDeck() {
                 </p>
 
                 <div className="flex flex-col gap-3 w-full max-w-xs">
-                    {/* Primary CTA: Stories */}
+                    {/* Primary CTA: read a short passage */}
                     <Link
-                        href="/stories"
+                        href="/read"
                         onClick={() => buttonPress()}
                         className="w-full px-6 py-3 bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
                     >
-                        Đọc truyện thực hành
+                        Đọc 2 phút
                     </Link>
 
                     {/* Secondary CTA: Learned */}

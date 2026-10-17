@@ -14,7 +14,6 @@ import HomeHeader from './components/HomeHeader';
 import HomeSide from './components/HomeSide';
 import DailyProgress from './components/DailyProgress';
 import OnboardingModal from './components/OnboardingModal';
-// Story modals now handled by routes: /story/[id], /story/[id]/unlock-quiz, /story/[id]/unlock
 // Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';

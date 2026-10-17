@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Flame, Hammer, LayoutGrid, PenLine, Sparkles, Swords } from 'lucide-react';
-import { getCard } from '../lib/content/repository';
+import { ArrowRight, BookOpen, Flame, Hammer, LayoutGrid, PenLine, Sparkles, Swords } from 'lucide-react';
+import { getCard, getPassages } from '../lib/content/repository';
+import { passageWith, readPassages } from '../lib/engagement/reading';
 import { canOffer, pickCandidate } from '../lib/engagement/mySentence';
 import { STATE_LABEL, type SessionState } from '../lib/engagement/session';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -36,6 +37,8 @@ export default function SessionRecap({
     const [candidateId] = useState(() => (canOffer(prompt) ? pickCandidate(session.remembered ?? [], mySentences, getCard) : null));
     const [offer, setOffer] = useState<'idle' | 'open' | 'saved' | 'hidden'>('idle');
     const candidate = candidateId ? getCard(candidateId) : undefined;
+    // "Đọc": a passage with one of the words remembered just now.
+    const [passage] = useState(() => passageWith(getPassages(), [...(session.remembered ?? []), ...session.newCards], typeof window === 'undefined' ? new Set() : readPassages()));
     const later = () => {
         skipMySentence();
         setOffer('hidden');
@@ -124,6 +127,12 @@ export default function SessionRecap({
                                     <LayoutGrid className="w-4 h-4 text-muted" />
                                     Còn {nearest.missing} từ là đủ bộ {nearest.label}
                                 </p>
+                            )}
+                            {passage && (
+                                <Link href={`/read/${passage.id}`} className="flex items-center gap-2 text-ink hover:text-accent">
+                                    <BookOpen className="w-4 h-4 text-muted" />
+                                    Đọc một đoạn có từ bạn vừa học
+                                </Link>
                             )}
                         </>
                     )}

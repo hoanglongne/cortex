@@ -25,6 +25,8 @@ export interface ContentManifest {
     retired: string[];
     /** Example sentences per archetype, laid over every card (see variants below). */
     variants: PackRef | null;
+    /** "Đọc" passages (lib/content/passages.ts). */
+    passages: PackRef | null;
 }
 
 const LEVELS: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'expert'];
@@ -47,6 +49,7 @@ export function parseManifest(v: unknown): ContentManifest | null {
         library: parsePackRef(v.library),
         retired: Array.isArray(v.retired) ? v.retired.filter(isStr) : [],
         variants: parsePackRef(v.variants),
+        passages: parsePackRef(v.passages),
     };
 }
 
