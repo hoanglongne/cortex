@@ -29,7 +29,7 @@ export interface RecallCheck {
 /** Cards a peeked card waits before it comes back. */
 export const RETEST_AFTER = 3;
 
-type Card = Pick<VocabCardData, 'id' | 'word' | 'elo' | 'level' | 'translationHint'>;
+type Card = Pick<VocabCardData, 'id' | 'word' | 'elo' | 'level' | 'translationHint'> & { branch?: 'cert' | 'talk' };
 
 /** Which check to give, from whether they peeked and how well they know it. */
 export function checkKind(progress: UserCardProgress | undefined, peeked: boolean): CheckKind {
@@ -61,7 +61,7 @@ export function buildCheck(input: {
     return { ...base, options: shuffle([answer, ...distractors], rand), answer };
 }
 
-/** Plausible wrong answers: same level first, then the closest difficulty. */
+/** Plausible wrong answers: same branch (a phrase among phrases), then same level, then the closest difficulty. */
 export function pickDistractors(
     card: Card,
     pool: readonly Card[],
@@ -72,8 +72,14 @@ export function pickDistractors(
     const seen = new Set([norm(card[field])]);
     const candidates = pool
         .filter((c) => c.id !== card.id && c[field])
-        .sort((a, b) => Number(b.level === card.level) - Number(a.level === card.level) || Math.abs(a.elo - card.elo) - Math.abs(b.elo - card.elo));
-    const near = shuffle(candidates.slice(0, Math.max(n * 4, 12)), rand);
+        .sort(
+            (a, b) =>
+                Number(sameBranch(b, card)) - Number(sameBranch(a, card)) ||
+                Number(b.level === card.level) - Number(a.level === card.level) ||
+                Math.abs(a.elo - card.elo) - Math.abs(b.elo - card.elo),
+        );
+    const sameCount = candidates.filter((c) => sameBranch(c, card)).length;
+    const near = shuffle(candidates.slice(0, Math.min(Math.max(n * 4, 12), Math.max(sameCount, n))), rand);
     const out: string[] = [];
     for (const c of [...near, ...candidates]) {
         const value = c[field];
@@ -125,6 +131,7 @@ export function typeHint(word: string): string {
 }
 
 const norm = (s: string) => s.trim().toLowerCase();
+const sameBranch = (a: Card, b: Card) => (a.branch ?? 'cert') === (b.branch ?? 'cert');
 const letters = (s: string) => s.toLowerCase().replace(/[^a-z]/g, '');
 
 function shuffle<T>(items: readonly T[], rand: () => number): T[] {
