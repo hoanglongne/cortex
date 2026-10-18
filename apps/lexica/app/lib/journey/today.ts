@@ -93,22 +93,57 @@ export function pickPassage<T extends Pick<Passage, 'id' | 'newWords' | 'words'>
     passages: readonly T[],
     journeys: Journeys,
     read: ReadonlySet<string>,
-    prefer?: (p: T) => boolean,
-): T | null {
-    let best: { p: T; score: number } | null = null;
+    opts: {
+        prefer?: (p: T) => boolean;
+        /** Words learned today (card ids); they count most. */
+        today?: readonly string[];
+        /** The word of a card, so two cards of the same word ("believe") match. Defaults to the id. */
+        wordOf?: (cardId: string) => string | undefined;
+    } = {},
+): { passage: T; today: number; known: number } | null {
+    const wordOf = (id: string) => (opts.wordOf?.(id) ?? id).toLowerCase();
+    const step = new Map<string, number>();
+    for (const [id, j] of Object.entries(journeys)) {
+        const s = stepOf(j) === 'nho' ? 3 : stepOf(j) === 'hieu' ? 1 : 0;
+        if (s > (step.get(wordOf(id)) ?? 0)) step.set(wordOf(id), s);
+    }
+    const todayWords = new Set((opts.today ?? []).map(wordOf));
+    let best: { passage: T; score: number; today: number; known: number } | null = null;
     for (const p of passages) {
         let score = 0;
-        for (const id of [...p.newWords, ...p.words]) {
-            const step = stepOf(journeys[id]);
-            if (step === 'nho') score += 3;
-            else if (step === 'hieu') score += 1;
+        let today = 0;
+        let known = 0;
+        for (const w of new Set([...p.newWords, ...p.words].map(wordOf))) {
+            const s = step.get(w) ?? 0;
+            if (s > 0) known++;
+            if (todayWords.has(w)) {
+                today++;
+                score += 5;
+            } else score += s;
         }
         if (score === 0) continue;
         if (read.has(p.id)) score -= 100;
-        if (prefer && !prefer(p)) score -= 50;
-        if (!best || score > best.score) best = { p, score };
+        if (opts.prefer && !opts.prefer(p)) score -= 50;
+        if (!best || score > best.score) best = { passage: p, score, today, known };
     }
-    return best?.p ?? null;
+    return best ? { passage: best.passage, today: best.today, known: best.known } : null;
+}
+
+/**
+ * Words for a passage written on demand: today's new words first, then
+ * remembered words not met in English yet. One card per word, at most `n`.
+ */
+export function wordsToRead(journeys: Journeys, learnedToday: readonly string[], wordOf: (cardId: string) => string | undefined, n = 5): string[] {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    for (const id of [...learnedToday, ...wordsAt(journeys, 'nho')]) {
+        const w = wordOf(id)?.toLowerCase();
+        if (!w || seen.has(w) || journeys[id]?.metAt) continue;
+        seen.add(w);
+        out.push(id);
+        if (out.length >= n) break;
+    }
+    return out;
 }
 
 /** A word to meet in a quote when no passage fits: understood, not met, with a quote. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { logFor, newWordsLeft, pickPassage, pickQuoteWord, pickSpeakWords, planLine, planToday, REVIEW_CAP, reviewIds, stepDelta } from '../../app/lib/journey/today';
+import { logFor, newWordsLeft, pickPassage, wordsToRead, pickQuoteWord, pickSpeakWords, planLine, planToday, REVIEW_CAP, reviewIds, stepDelta } from '../../app/lib/journey/today';
 import { currentDay, dueCheckpoint, expectedBy, finalTestWords, finishLine, mostMissed, nextLevel, pathCells, pathDays } from '../../app/lib/journey/path';
 import { knownAlready, meet, sayClearly, understand, type Journeys } from '../../app/lib/journey/steps';
 
@@ -43,12 +43,26 @@ describe('Today plan', () => {
             { id: 'p2', newWords: ['b'], words: ['c'] },
             { id: 'p3', newWords: ['x'], words: [] },
         ];
-        expect(pickPassage(passages, journeys, new Set())?.id).toBe('p2');
-        expect(pickPassage(passages, journeys, new Set(['p2']))?.id).toBe('p1');
+        expect(pickPassage(passages, journeys, new Set())?.passage.id).toBe('p2');
+        expect(pickPassage(passages, journeys, new Set(['p2']))?.passage.id).toBe('p1');
         expect(pickPassage([passages[2]], journeys, new Set())).toBeNull();
         // A preferred kind wins over a slightly better match.
-        expect(pickPassage(passages, journeys, new Set(), (p) => p.id === 'p1')?.id).toBe('p1');
-        expect(pickQuoteWord(journeys, (id) => id === 'a')).toBe('a');
+        expect(pickPassage(passages, journeys, new Set(), { prefer: (p) => p.id === 'p1' })?.passage.id).toBe('p1');
+    });
+
+    it("counts today's words most, and matches two cards of the same word", () => {
+        const journeys: Journeys = { v442: understand(undefined, 1), x: understand(undefined, 1), y: knownAlready(undefined, 1) };
+        const wordOf = (id: string) => ({ v416: 'believe', v442: 'believe', x: 'boring', y: 'quality', z: 'honest' })[id];
+        const passages = [
+            { id: 'rain', newWords: ['v416', 'x'], words: [] },
+            { id: 'market', newWords: ['y'], words: ['z'] },
+        ];
+        const pick = pickPassage(passages, journeys, new Set(), { today: ['v442', 'x'], wordOf })!;
+        expect(pick).toMatchObject({ today: 2, known: 2 });
+        expect(pick.passage.id).toBe('rain');
+        expect(wordsToRead(journeys, ['v442', 'x'], wordOf)).toEqual(['v442', 'x', 'y']);
+        expect(wordsToRead({ ...journeys, x: meet(knownAlready(undefined, 1), 2)! }, ['x'], wordOf)).toEqual(['y']);
+        expect(pickQuoteWord(journeys, (id) => id === 'y')).toBe('y');
     });
 
     it('speaks words met but not said, then words learned today', () => {

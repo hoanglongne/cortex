@@ -7,7 +7,7 @@ import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
 import type { Quality } from '../lib/srs';
 import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentencePrompt } from '../lib/engagement/mySentence';
-import { getCard } from '../lib/content/repository';
+import { getCard, sameWordIds } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import type { SpeakLevel } from '../lib/pronunciation/score';
 import type { LearningPath } from '../lib/journey/path';
@@ -383,7 +383,8 @@ export const useLexicaStore = create<LexicaStore>()(
                 const now = Date.now();
                 const journeys = { ...get().journeys };
                 let changed = false;
-                for (const id of cardIds) {
+                // A word met in English counts for every card of that word.
+                for (const id of new Set(cardIds.flatMap(sameWordIds))) {
                     const next = meet(journeys[id], now);
                     if (next && next !== journeys[id]) {
                         journeys[id] = next;

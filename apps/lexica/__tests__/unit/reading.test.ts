@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { parsePassage, parsePassages, splitByWords, wordCount } from '@/app/lib/content/passages';
 import { finishLine, finishPassage, passageWith, readPassages, recommendPassages, reviewedToday } from '@/app/lib/engagement/reading';
-import { getPassage, getPassages } from '@/app/lib/content/repository';
+import { getCard, getPassage, getPassages } from '@/app/lib/content/repository';
 import { useLexicaStore } from '@/app/store/lexicaStore';
 import type { UserCardProgress } from '@/app/lib/eloAlgorithm';
 
@@ -53,13 +53,18 @@ describe('parse passage', () => {
 });
 
 describe('core passages', () => {
-    it('ship the three old stories as six passages, with their deck words found', () => {
-        const ps = getPassages();
-        expect(ps.length).toBeGreaterThanOrEqual(6);
-        const heist = getPassage('p_heist_2')!;
-        expect(heist.newWords).toEqual(['v006', 'v007', 'v008']);
-        expect(heist.translation.length).toBeGreaterThan(50);
-        for (const p of ps) expect(p.newWords.length).toBeGreaterThanOrEqual(3);
+    it('ship everyday passages for every level, each using its new words', () => {
+        const ps = getPassages().filter((p) => p.kind !== 'dialogue');
+        expect(ps.length).toBeGreaterThanOrEqual(10);
+        for (const level of ['beginner', 'intermediate', 'advanced', 'expert'] as const) expect(ps.some((p) => p.level === level)).toBe(true);
+        const first = getPassage('p_first_day')!;
+        expect(first.translation.length).toBeGreaterThan(50);
+        for (const p of ps) {
+            expect(p.newWords.length).toBeGreaterThanOrEqual(4);
+            const found = new Set(splitByWords(p.text, p.newWords.map((id) => ({ id, word: getCard(id)!.word }))).map((s) => s.cardId));
+            for (const id of p.newWords) expect(found.has(id), `${p.id} ${id}`).toBe(true);
+            expect(wordCount(p.text)).toBeGreaterThanOrEqual(100);
+        }
     });
 });
 

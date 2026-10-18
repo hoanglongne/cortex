@@ -13,6 +13,7 @@ import { HealthModule } from './modules/health/health.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { StudioModule } from './modules/studio/studio.module';
+import { LexicaModule } from './modules/lexica/lexica.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { StudioModule } from './modules/studio/studio.module';
     HealthModule,
     SyncModule,
     StudioModule,
+    LexicaModule,
   ],
   controllers: [AppController],
   providers: [AppService],

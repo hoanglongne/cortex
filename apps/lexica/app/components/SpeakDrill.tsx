@@ -10,7 +10,7 @@ import { hardToSay } from '../lib/pronunciation/drill';
 import { nearSound, pairFor, tipFor } from '../lib/pronunciation/pairs';
 import { diffHeard, LEVEL_LABEL, scoreAttempt, type SpeakLevel } from '../lib/pronunciation/score';
 import { ipaSyllables, spellingSyllables, stressedSyllables } from '../lib/pronunciation/syllables';
-import { listenOnce, speakVaried, speakWith, englishVoices, type Attempt } from '../lib/pronunciation/speech';
+import { listenOnce, sayModel, speakVaried, variedVoiceCount, type Attempt } from '../lib/pronunciation/speech';
 import { contourMatch, modelContour, normalizeTrack } from '../lib/pronunciation/pitch';
 import type { ContentCard } from '../lib/content/pack';
 
@@ -87,7 +87,7 @@ function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void })
     const [picked, setPicked] = useState<string | null>(null);
     const [played, setPlayed] = useState(false);
     const r = rounds[round];
-    const voices = typeof window === 'undefined' ? 0 : englishVoices(3).length;
+    const voices = typeof window === 'undefined' ? 0 : variedVoiceCount();
 
     const play = async () => {
         setPlayed(true);
@@ -150,7 +150,7 @@ function useAttempt(target: string, onScored?: (level: SpeakLevel) => void) {
         window.speechSynthesis?.cancel();
         abort.current = new AbortController();
         setListening(true);
-        const a = await listenOnce({ signal: abort.current.signal });
+        const a = await listenOnce({ target, signal: abort.current.signal });
         setListening(false);
         const scored = scoreAttempt(target, a.alternatives);
         setAttempt({ ...a, ...scored });
@@ -175,10 +175,10 @@ function SayStep({ card, onDone }: { card: ContentCard; onDone: (level: SpeakLev
             {phrase && <p className="text-sm text-muted">{card.translationHint}</p>}
             {!syl.fromIpa && card.ipa && <p className="font-mono text-sm text-muted">/{card.ipa}/</p>}
             <div className="mt-4 flex flex-wrap gap-2">
-                <button onClick={() => void speakWith(word, englishVoices(1)[0] ?? null, 0.55)} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                <button onClick={() => void sayModel(word, 'slow')} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                     <Volume2 className="w-4 h-4" /> Mẫu chậm
                 </button>
-                <button onClick={() => void speakWith(word, englishVoices(1)[0] ?? null, 0.9)} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                <button onClick={() => void sayModel(word)} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                     <Volume2 className="w-4 h-4" /> Mẫu thường
                 </button>
             </div>
@@ -230,7 +230,7 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             <div className="mt-5 rounded-xl bg-surface-2 p-4">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Nói trong cụm</p>
                 <p className="mt-1 text-xl text-ink">{phrase}</p>
-                <button onClick={() => void speakWith(phrase, englishVoices(1)[0] ?? null, 0.8)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                <button onClick={() => void sayModel(phrase)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                     <Play className="w-4 h-4" /> Nghe mẫu
                 </button>
             </div>
@@ -270,7 +270,7 @@ function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void
                     <>
                         <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Câu mẫu</p>
                         <p className="mt-1 text-lg text-ink">{situation.model}</p>
-                        <button onClick={() => void speakWith(situation.model, englishVoices(1)[0] ?? null, 0.85)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                        <button onClick={() => void sayModel(situation.model)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                             <Play className="w-4 h-4" /> Nghe mẫu
                         </button>
                     </>
@@ -347,17 +347,26 @@ function AttemptResult({ attempt, target }: { attempt: Attempt & { level: SpeakL
                             ))}
                         </span>
                     ) : (
-                        <span className="text-muted">không nghe được gì</span>
+                        <span className="text-muted">{attempt.voiced ? 'có giọng bạn nhưng chưa nhận ra từ' : 'không nghe được gì'}</span>
                     )}
                 </p>
             </div>
+            {!attempt.heard && (
+                <p data-testid="attempt-hint" className="mt-2 text-xs text-muted">
+                    {attempt.error === 'network'
+                        ? 'Không gửi được bản ghi để nhận dạng. Kiểm tra mạng rồi nói lại.'
+                        : attempt.voiced
+                          ? 'Nói to, rõ cả từ rồi dừng một chút; nếu vẫn vậy, thử trình duyệt Chrome.'
+                          : 'Micro thu rất nhỏ. Đưa micro lại gần, bấm nút rồi mới nói.'}
+                </p>
+            )}
             {attempt.audioUrl && (
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-muted">Nghe lại:</span>
                     <button onClick={() => void new Audio(attempt.audioUrl!).play()} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
                         <Play className="w-3.5 h-3.5" /> Giọng bạn
                     </button>
-                    <button onClick={() => void speakWith(target, englishVoices(1)[0] ?? null, 0.85)} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
+                    <button onClick={() => void sayModel(target)} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
                         <Volume2 className="w-3.5 h-3.5" /> Giọng mẫu
                     </button>
                 </div>

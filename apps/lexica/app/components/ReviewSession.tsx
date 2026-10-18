@@ -450,14 +450,14 @@ function QuestionCard({
 /** "Nghe → Nghĩa": the phrase is played (again on tap) and only shown once answered. */
 function ListenPrompt({ text, revealed }: { text: string; revealed: boolean }) {
     useEffect(() => {
-        AudioService.playText(text, 'en', 0.85);
+        void AudioService.playText(text, 'en', 0.85);
         return () => AudioService.stop();
     }, [text]);
     return (
         <div className="flex items-center gap-3">
             <button
                 type="button"
-                onClick={() => AudioService.playText(text, 'en', 0.75)}
+                onClick={() => void AudioService.playText(text, 'en', 0.75)}
                 aria-label="Nghe lại"
                 className="w-12 h-12 rounded-xl border border-line-strong bg-surface-2 flex items-center justify-center text-ink hover:border-accent"
             >
