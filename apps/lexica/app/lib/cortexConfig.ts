@@ -20,3 +20,6 @@ export const CORTEX_API_URL: string | null =
 
 export const CORTEX_HUB_URL: string | null =
     normalizeBaseUrl(process.env.NEXT_PUBLIC_CORTEX_HUB_URL) ?? (isDev ? 'http://localhost:3000' : null);
+
+/** The teacher app (apps/lexica-teach), on its own subdomain. */
+export const TEACH_URL: string | null = normalizeBaseUrl(process.env.NEXT_PUBLIC_TEACH_URL) ?? (isDev ? 'http://localhost:3010' : null);

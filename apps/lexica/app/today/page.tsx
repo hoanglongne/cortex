@@ -25,16 +25,17 @@ import SpeakDrill from '../components/SpeakDrill';
 import StepNumbers from '../components/StepNumbers';
 import InstallCard from '../components/InstallCard';
 import PledgeCard from '../components/PledgeCard';
-import { classWordsToQueue } from '../lib/classes';
+import { classWordsToQueue, onlyClassWords } from '../lib/classes';
 
 /**
- * Words a class assigned and not learned yet make the whole Học stage when
- * there are any: fewer than the day's pace means a shorter stage, never
- * other words slipped in among the teacher's.
+ * A lesson assigned in "only" mode and not learned yet makes the whole Học
+ * stage: fewer words than the day's pace means a shorter stage, never other
+ * words slipped in among the teacher's. "Mixed" lessons are dealt first in a
+ * normal stage.
  */
 function learnSize(newLeft: number): number {
     const progress = useLexicaStore.getState().cardProgress;
-    const pending = classWordsToQueue().filter((id) => !progress[id]).length;
+    const pending = onlyClassWords((id) => Boolean(progress[id])).length;
     if (pending === 0) return newLeft;
     return newLeft > 0 ? Math.min(pending, newLeft) : pending;
 }

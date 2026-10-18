@@ -7,7 +7,8 @@ import { Crown, LogOut, School, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthGate from '../components/AuthGate';
 import { useLexicaStore } from '../store/lexicaStore';
-import { assignedCounts, joinClass, leaderboard, leaveClass, type ClassInfo } from '../lib/classes';
+import { assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, type ClassInfo } from '../lib/classes';
+import { TEACH_URL } from '../lib/cortexConfig';
 import { refreshClasses, reportNow } from '../lib/classSync';
 import { BRANCH_LABEL } from '../lib/journey/path';
 import { getCard } from '../lib/content/repository';
@@ -17,6 +18,12 @@ import { getCard } from '../lib/content/repository';
  * class with the teacher's code, see the words assigned by lesson and how far
  * they got, and the class ranked by words they can use (Dùng).
  */
+/** "hạn hôm nay", "còn 3 ngày", "quá hạn". */
+function dueLabel(dueOn: string): string {
+    const d = daysUntil(dueOn);
+    return d < 0 ? 'đã qua hạn' : d === 0 ? 'hạn hôm nay' : d === 1 ? 'hạn ngày mai' : `còn ${d} ngày`;
+}
+
 export default function ClassPage() {
     const { user, loading } = useAuth();
     const [classes, setClasses] = useState<ClassInfo[] | null>(null);
@@ -44,9 +51,13 @@ export default function ClassPage() {
                         ← Học
                     </Link>
                     <p className="text-ink font-bold">Lớp học</p>
-                    <Link href="/teach" className="text-xs text-muted hover:text-ink text-right whitespace-nowrap">
-                        {teaching ? 'Lớp tôi dạy' : 'Giáo viên?'}
-                    </Link>
+                    {teaching && TEACH_URL ? (
+                        <a href={TEACH_URL} className="text-xs text-muted hover:text-ink text-right whitespace-nowrap">
+                            Trang giáo viên
+                        </a>
+                    ) : (
+                        <span className="w-16" />
+                    )}
                 </div>
 
                 {!user ? (
@@ -153,6 +164,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                         {cls.assignments.slice(0, 5).map((a) => (
                             <li key={a.id} className="text-ink-2">
                                 <span className="font-medium text-ink">{a.title}</span>
+                                {a.due_on && <span className={`ml-1.5 font-mono text-[11px] ${daysUntil(a.due_on) <= 1 ? 'text-warning' : 'text-subtle'}`}>{dueLabel(a.due_on)}</span>}
                                 <span className="text-muted"> · {a.card_ids.map((id) => getCard(id)?.word.toLowerCase()).filter(Boolean).slice(0, 6).join(', ')}{a.card_ids.length > 6 ? '…' : ''}</span>
                             </li>
                         ))}
