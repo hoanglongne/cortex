@@ -7,7 +7,8 @@ import { Crown, LogOut, School, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthGate from '../components/AuthGate';
 import { useLexicaStore } from '../store/lexicaStore';
-import { assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, type ClassInfo } from '../lib/classes';
+import { assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, lessonOf, type ClassInfo, type LeaderRow } from '../lib/classes';
+import { dungFromScore, lexicaModule } from '@cortex/classroom-lexica';
 import { TEACH_URL } from '../lib/cortexConfig';
 import { refreshClasses, reportNow } from '../lib/classSync';
 import { BRANCH_LABEL } from '../lib/journey/path';
@@ -121,8 +122,10 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
     const router = useRouter();
     const journeys = useLexicaStore((s) => s.journeys);
     const queueCards = useLexicaStore((s) => s.queueCards);
-    const [board, setBoard] = useState<{ name: string; dung: number; nho: number; me: boolean }[] | null>(null);
-    const mine = assignedCounts(journeys, cls.assignments);
+    const [board, setBoard] = useState<LeaderRow[] | null>(null);
+    const mine = assignedCounts(journeys, cls);
+    const lessons = cls.assignments.filter((a) => a.app === 'lexica').map((a) => ({ a, words: lessonOf(a) }));
+    const branch = lexicaModule.parseSettings(cls.settings.lexica).branch;
 
     useEffect(() => {
         leaderboard(cls.id)
@@ -131,7 +134,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
     }, [cls.id]);
 
     const learnNow = () => {
-        queueCards(cls.assignments.flatMap((a) => a.card_ids));
+        queueCards(lessons.flatMap((l) => l.words.card_ids));
         router.push('/today');
     };
 
@@ -141,7 +144,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                 <div>
                     <p className="text-lg font-semibold text-ink">{cls.name}</p>
                     <p className="font-mono text-[11px] text-muted">
-                        {BRANCH_LABEL[cls.branch]} · {cls.members} học viên
+                        {BRANCH_LABEL[branch]} · {cls.members} học viên
                     </p>
                 </div>
                 <button
@@ -154,18 +157,18 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                 </button>
             </div>
 
-            {cls.assignments.length > 0 && (
+            {lessons.length > 0 && (
                 <div>
                     <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Từ được giao</p>
                     <p className="mt-1 text-sm text-ink">
                         {mine.dung ?? 0}/{mine.total} từ đã Dùng · {mine.nho ?? 0} Nhớ · {mine.hieu ?? 0} Hiểu
                     </p>
                     <ul className="mt-2 space-y-1.5 text-sm">
-                        {cls.assignments.slice(0, 5).map((a) => (
+                        {lessons.slice(0, 5).map(({ a, words }) => (
                             <li key={a.id} className="text-ink-2">
                                 <span className="font-medium text-ink">{a.title}</span>
                                 {a.due_on && <span className={`ml-1.5 font-mono text-[11px] ${daysUntil(a.due_on) <= 1 ? 'text-warning' : 'text-subtle'}`}>{dueLabel(a.due_on)}</span>}
-                                <span className="text-muted"> · {a.card_ids.map((id) => getCard(id)?.word.toLowerCase()).filter(Boolean).slice(0, 6).join(', ')}{a.card_ids.length > 6 ? '…' : ''}</span>
+                                <span className="text-muted"> · {words.card_ids.map((id) => getCard(id)?.word.toLowerCase()).filter(Boolean).slice(0, 6).join(', ')}{words.card_ids.length > 6 ? '…' : ''}</span>
                             </li>
                         ))}
                     </ul>
@@ -190,7 +193,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                                     {r.name}
                                     {r.me ? ' (bạn)' : ''}
                                 </span>
-                                <span className="font-mono text-xs">{r.dung} Dùng</span>
+                                <span className="font-mono text-xs">{dungFromScore(r.score)} Dùng</span>
                             </li>
                         ))}
                     </ol>

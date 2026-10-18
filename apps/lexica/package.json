@@ -16,7 +16,8 @@
     "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
-    "@cortex/lexica-classes": "workspace:*",
+    "@cortex/classroom": "workspace:*",
+    "@cortex/classroom-lexica": "workspace:*",
     "@cortex/types": "workspace:*",
     "@supabase/supabase-js": "^2.90.1",
     "@use-gesture/react": "^10.3.1",

@@ -5,7 +5,7 @@ import { CONTENT_MANIFEST_URL } from '../../lib/content/loader';
 
 /**
  * Every card Lexica deals, as a word list, for the teacher app
- * (apps/lexica-teach) to match a lesson's words: the bundled deck plus the
+ * (apps/teach) to match a lesson's words: the bundled deck plus the
  * packs Studio published (current drop, library, Giao tiếp), minus retired
  * cards. Refreshed hourly; a Studio outage leaves the bundled deck.
  */

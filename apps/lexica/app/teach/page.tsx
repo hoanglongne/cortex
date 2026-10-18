@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { TEACH_URL } from '../lib/cortexConfig';
 
-/** Old links to the teacher pages: they live in the teacher app now (apps/lexica-teach). */
+/** Old links to the teacher pages: they live in the teacher app now (apps/teach). */
 export default function TeachMoved() {
     return (
         <div className="min-h-screen bg-bg px-4 py-16">

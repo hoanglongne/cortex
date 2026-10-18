@@ -5,8 +5,7 @@
  */
 import { useLexicaStore } from '../store/lexicaStore';
 import { getSupabaseClient } from './supabase';
-import { countLived, countSteps } from './journey/steps';
-import { assignedCounts, assignedSteps, cacheClasses, myClasses, readCachedClasses, reportProgress, type ClassInfo, type Counts } from './classes';
+import { cacheClasses, lexicaReport, myClasses, readCachedClasses, reportProgress, type ClassInfo } from './classes';
 
 const FETCH_EVERY_MS = 10 * 60_000;
 const REPORT_DEBOUNCE_MS = 20_000;
@@ -42,14 +41,11 @@ export async function reportNow(): Promise<void> {
     const classes = readCachedClasses().filter((c) => c.role === 'student');
     if (classes.length === 0 || !(await signedIn())) return;
     const { journeys, currentStreak } = useLexicaStore.getState();
-    const counts = { ...countSteps(journeys), doi: countLived(journeys) };
-    const assigned: Record<string, Counts> = Object.fromEntries(classes.map((c) => [c.id, assignedCounts(journeys, c.assignments)]));
-    // Step per assigned word, so the teacher sees which words are stuck; the server keeps each class's own.
-    const words = assignedSteps(journeys, classes.flatMap((c) => c.assignments));
-    const key = JSON.stringify([counts, currentStreak, assigned, words]);
+    const report = lexicaReport(journeys, classes);
+    const key = JSON.stringify([report, currentStreak]);
     if (key === lastReport) return;
     try {
-        await reportProgress(counts, currentStreak, assigned, words);
+        await reportProgress(report, currentStreak);
         lastReport = key;
     } catch {
         // Offline: the next change or visit reports again.
