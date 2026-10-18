@@ -1,7 +1,6 @@
 import { VOCAB_DATABASE } from '../../data/vocabCards';
 import { TALK_CARDS } from '../../data/talkCards';
 import { parseManifest, parsePack, type ContentCard } from '../../lib/content/pack';
-import { CONTENT_MANIFEST_URL } from '../../lib/content/loader';
 
 /**
  * Every card Lexica deals, as a word list, for the teacher app
@@ -22,6 +21,8 @@ const entry = (c: ContentCard, branch?: 'talk'): Entry => ({
 });
 
 async function published(): Promise<Entry[]> {
+    // Read here, not from lib/content/loader: that module pulls client-only React into this server route.
+    const CONTENT_MANIFEST_URL = process.env.NEXT_PUBLIC_CONTENT_MANIFEST_URL;
     if (!CONTENT_MANIFEST_URL) return [];
     try {
         const manifest = parseManifest(await (await fetch(CONTENT_MANIFEST_URL, { next: { revalidate } })).json());
