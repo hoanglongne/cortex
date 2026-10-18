@@ -19,7 +19,7 @@ export default function QuoteMeet({ cardId, onDone }: { cardId: string; onDone: 
     const options = useMemo(() => {
         if (!card) return [];
         const others = getAllCards()
-            .filter((c) => c.id !== cardId && c.translationHint !== card.translationHint)
+            .filter((c) => c.id !== cardId && (c.branch ?? 'cert') === (card.branch ?? 'cert') && c.translationHint !== card.translationHint)
             .map((c) => c.translationHint);
         const seed = cardId.split('').reduce((s, ch) => s + ch.charCodeAt(0), 0);
         const picks = [0, 1].map((i) => others[(seed * (i + 7)) % Math.max(1, others.length)]).filter(Boolean);

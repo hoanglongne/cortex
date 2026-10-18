@@ -54,7 +54,7 @@ export default function SessionRecap({
         <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute w-full top-1/2 -translate-y-1/2 px-2 sm:px-4"
+            className="absolute z-[200] w-full top-1/2 -translate-y-1/2 px-2 sm:px-4"
         >
             <div className="h-[460px] rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Xong phiên</p>

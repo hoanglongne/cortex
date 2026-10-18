@@ -60,3 +60,22 @@ describe('Giao tiếp branch', () => {
         expect(parsePassage({ id: 'd', kind: 'dialogue', level: 'beginner', topic: 't', title: 't', text: 'A: hi', translation: 'A: chào', newWords: ['g001'] })?.kind).toBe('dialogue');
     });
 });
+
+describe('Meaning options give nothing away', () => {
+    it('every meaning starts with a capital letter, packs included', async () => {
+        const { getAllCards } = await import('../../app/lib/content/repository');
+        expect(getAllCards().filter((c) => !/^\P{Ll}/u.test(c.translationHint)).map((c) => c.id)).toEqual([]);
+        const card = parseCard({ id: 's1', word: 'catch up', elo: 900, level: 'beginner', scenario: 'x', translationHint: 'đuổi kịp' });
+        expect(card?.translationHint).toBe('Đuổi kịp');
+    });
+
+    it('a phrase is checked against other phrases', async () => {
+        const { getAllCards } = await import('../../app/lib/content/repository');
+        const { buildCheck } = await import('../../app/lib/engagement/recall');
+        const talkMeanings = new Set(TALK_CARDS.map((c) => c.translationHint));
+        for (let i = 0; i < 20; i++) {
+            const check = buildCheck({ card: TALK_CARDS[i], progress: undefined, pool: getAllCards(), peeked: false });
+            expect(check.options.every((o) => talkMeanings.has(o))).toBe(true);
+        }
+    });
+});

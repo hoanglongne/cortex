@@ -32,3 +32,32 @@ describe('Recording', () => {
         expect((await listenOnce({ target: 'believe' })).error).toBe('unsupported');
     });
 });
+
+describe('Listening to a phrase', () => {
+    it('waits past a pause after the first word', async () => {
+        const { vi } = await import('vitest');
+        vi.useFakeTimers();
+        let rec: { onresult?: (e: unknown) => void; continuous?: boolean } = {};
+        class FakeRecognition {
+            continuous = false;
+            onresult?: (e: unknown) => void;
+            constructor() {
+                rec = this as never;
+            }
+            start() {}
+            stop() {}
+        }
+        Object.assign(window, { webkitSpeechRecognition: FakeRecognition });
+        Object.defineProperty(navigator, 'mediaDevices', { value: { getUserMedia: async () => ({ getTracks: () => [] }) }, configurable: true });
+        const piece = (t: string) => Object.assign([{ transcript: t, confidence: 0.9 }], { isFinal: true });
+        const p = listenOnce({ target: 'keep in mind' });
+        await vi.advanceTimersByTimeAsync(10);
+        expect(rec.continuous).toBe(true);
+        rec.onresult!({ results: [piece('keep')] });
+        await vi.advanceTimersByTimeAsync(1000); // the pause after "keep" does not end it
+        rec.onresult!({ results: [piece('keep'), piece(' in mind')] });
+        const a = await p;
+        expect(a.alternatives[0].transcript).toBe('keep in mind');
+        vi.useRealTimers();
+    });
+});

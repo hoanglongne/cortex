@@ -151,7 +151,7 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
         const max = setTimeout(() => finish({ alternatives: [], error: 'no-speech' }), opts.maxMs ?? 7000);
         // Without the browser's recognition, end on a pause after speech.
         const vad = setInterval(() => {
-            if (!recognition && rec.silentAfterVoice(900)) finish({ alternatives: [], error: 'no-speech' });
+            if (!recognition && rec.silentAfterVoice(words(opts.target ?? '').length > 1 ? 1500 : 900)) finish({ alternatives: [], error: 'no-speech' });
         }, 100);
         opts.signal?.addEventListener('abort', () => {
             if (!recognition) return finish({ alternatives: [], error: 'no-speech' });
@@ -166,7 +166,11 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
         const r = new Ctor!();
         recognition = r;
         r.lang = 'en-US';
-        r.continuous = false;
+        // A phrase ("keep in mind") is often said with a pause inside: keep listening across
+        // pauses until every word is heard, or the learner stays quiet.
+        const targetWords = words(opts.target ?? '');
+        const phrase = targetWords.length > 1;
+        r.continuous = phrase;
         r.interimResults = false;
         r.maxAlternatives = 5;
         // The browser gave up without words: with the API, keep recording until the learner pauses.
@@ -175,18 +179,28 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
             if (server && !opts.signal?.aborted) recognition = null;
             else finish({ alternatives: [], error });
         };
+        let heard: Alternative[] = [];
+        let quiet: ReturnType<typeof setTimeout> | null = null;
         r.onresult = (event: SpeechRecognitionEvent) => {
-            const res = event.results[0];
+            // Earlier pieces in their best reading, then each reading of the latest piece.
+            const before = Array.from({ length: event.results.length - 1 }, (_, i) => event.results[i][0].transcript.trim()).join(' ');
+            const last = event.results[event.results.length - 1];
             const alternatives: Alternative[] = [];
-            for (let i = 0; i < res.length; i++) alternatives.push({ transcript: res[i].transcript, confidence: res[i].confidence ?? 0 });
-            if (alternatives.some((x) => x.transcript.trim())) finish({ alternatives });
+            for (let i = 0; i < last.length; i++) alternatives.push({ transcript: `${before} ${last[i].transcript}`.replace(/\s+/g, ' ').trim(), confidence: last[i].confidence ?? 0 });
+            if (!alternatives.some((x) => x.transcript)) return;
+            heard = alternatives;
+            if (!phrase || alternatives.some((x) => targetWords.every((w) => words(x.transcript).includes(w)))) return finish({ alternatives });
+            if (quiet) clearTimeout(quiet);
+            quiet = setTimeout(() => finish({ alternatives: heard }), 1800);
         };
         r.onerror = (event: SpeechRecognitionErrorEvent) => {
             const e = event.error;
+            if (heard.length > 0) return finish({ alternatives: heard });
             gaveUp(e === 'no-speech' ? 'no-speech' : e === 'not-allowed' ? 'not-allowed' : e === 'network' ? 'network' : 'other');
         };
         r.onend = () => {
-            if (recognition === r) gaveUp('no-speech');
+            if (heard.length > 0) finish({ alternatives: heard });
+            else if (recognition === r) gaveUp('no-speech');
         };
         try {
             r.start();
@@ -212,6 +226,13 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
         return { alternatives: [], error: 'network', ...base };
     }
 }
+
+const words = (s: string) =>
+    s
+        .toLowerCase()
+        .replace(/[^a-z' ]/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean);
 
 async function transcribe(wav: Blob, target: string): Promise<Alternative[]> {
     const audio = await blobToBase64(wav);

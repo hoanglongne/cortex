@@ -57,6 +57,16 @@ export function parseManifest(v: unknown): ContentManifest | null {
 }
 
 /** Validates one card; invalid cards are dropped rather than failing the pack. */
+/**
+ * Meanings start with a capital letter, whatever the source. Options in a
+ * check mix cards from different decks, so a lowercase one would give the
+ * answer away.
+ */
+export function meaningCase(text: string): string {
+    const t = text.trim();
+    return t.charAt(0).toLocaleUpperCase('vi') + t.slice(1);
+}
+
 export function parseCard(v: unknown): ContentCard | null {
     if (!isObj(v)) return null;
     const { id, word, elo, level, scenario, translationHint } = v;
@@ -70,7 +80,7 @@ export function parseCard(v: unknown): ContentCard | null {
         elo,
         level: level as DifficultyLevel,
         scenario,
-        translationHint,
+        translationHint: meaningCase(translationHint),
     };
     if (isStr(v.ipa)) card.ipa = v.ipa;
     if (Array.isArray(v.collocations)) {

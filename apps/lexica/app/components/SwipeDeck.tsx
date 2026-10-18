@@ -419,8 +419,10 @@ export default function SwipeDeck({
                 />
             )}
 
+            {/* Unmounted at once when the session ends: cards still flying out must never cover the recap. */}
+            {!done && (
             <AnimatePresence>
-                {!done && cards.map((card, index) => {
+                {cards.map((card, index) => {
                     if (index > 2) return null; // Only show top 3 cards for performance
 
                     // Get exit direction for this card (left = negative, right = positive)
@@ -456,6 +458,7 @@ export default function SwipeDeck({
                     );
                 })}
             </AnimatePresence>
+            )}
 
             {/* Explicit actions: same as swiping left / right */}
             {topCardId && !done && !activeCheck && (

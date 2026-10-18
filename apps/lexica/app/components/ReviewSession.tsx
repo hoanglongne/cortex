@@ -19,6 +19,7 @@ import { reviewDustLine, type ReviewDust } from '../lib/engagement/reviewDust';
 import { hasShield, useEconomy } from '../lib/engagement/economy';
 import { readShieldsUsed, spendShield } from '../lib/engagement/shields';
 import { isHard, mnemonic } from '../lib/engagement/hard';
+import { answerDiff, matchAnswer } from '../lib/answerMatch';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -220,13 +221,18 @@ function QuestionCard({
     streak: number;
     /** The "Liều hay Dừng" pot, drawn as a column beside the question. */
     rail?: React.ReactNode;
-    onAnswer: (correct: boolean, fast?: boolean) => void;
+    /** `close`: a typed answer with a slip or another form of the word (lib/answerMatch.ts). */
+    onAnswer: (correct: boolean, fast?: boolean, close?: boolean) => void;
 }) {
     const { click } = useSoundEffects();
     const [selected, setSelected] = useState<string | null>(null);
     const [answered, setAnswered] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
     const [typedInput, setTypedInput] = useState('');
+    const typedRef = useRef('');
+    const [close, setClose] = useState<'typo' | 'form' | null>(null);
+    /** First letter shown once half the time passed with nothing typed. */
+    const [hinted, setHinted] = useState(false);
     const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
     const [nextIn, setNextIn] = useState<string | null>(null);
     const [showReveal, setShowReveal] = useState(false);
@@ -243,9 +249,12 @@ function QuestionCard({
             }, 0);
             return () => clearTimeout(t);
         }
-        const t = setTimeout(() => setTimeLeft(s => s - 1), 1000);
+        const t = setTimeout(() => {
+            setTimeLeft(s => s - 1);
+            if (question.type === 'meaning-to-word' && timeLeft - 1 <= TIMER_SECONDS / 2 && !typedRef.current.trim()) setHinted(true);
+        }, 1000);
         return () => clearTimeout(t);
-    }, [timeLeft, answered]);
+    }, [timeLeft, answered, question.type]);
 
     // Auto-focus type-in input
     useEffect(() => {
@@ -271,10 +280,13 @@ function QuestionCard({
     const handleTypeSubmit = () => {
         if (answered || typedInput.trim().length === 0) return;
         click();
-        const correct = typedInput.trim().toUpperCase() === question.answer;
+        const match = matchAnswer(typedInput, question.answer);
+        const correct = match.kind === 'exact';
         setAnswered(true);
         setIsCorrect(correct);
-        if (correct) {
+        // Close: shown as "Gần đúng" with the right spelling; the learner taps on once they've seen it.
+        if (match.kind === 'close') setClose(match.why);
+        else if (correct) {
             const fast = timeLeft >= TIMER_SECONDS - FAST_SECONDS;
             setNextIn(previewNextIn(question.cardId, fast));
             setTimeout(() => onAnswer(true, fast), 900);
@@ -345,10 +357,10 @@ function QuestionCard({
                     <motion.div
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`mt-3 flex items-center gap-1.5 text-sm font-medium ${isCorrect ? 'text-accent' : 'text-muted'}`}
+                        className={`mt-3 flex items-center gap-1.5 text-sm font-medium ${isCorrect ? 'text-accent' : close ? 'text-warning' : 'text-muted'}`}
                     >
-                        {isCorrect ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
-                        {isCorrect ? 'Chính xác!' : timeLeft <= 0 ? 'Hết giờ!' : 'Sai rồi'}
+                        {isCorrect || close ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                        {isCorrect ? 'Chính xác!' : close ? 'Gần đúng!' : timeLeft <= 0 ? 'Hết giờ!' : 'Sai rồi'}
                         {isCorrect && nextIn && (
                             <span className="ml-1 font-mono text-[11px] text-muted">{nextIn === 'mai' ? 'Mai ôn lại' : `Ôn lại sau ${nextIn}`}</span>
                         )}
@@ -396,24 +408,33 @@ function QuestionCard({
             {/* Type-in input (meaning-to-word) */}
             {question.type === 'meaning-to-word' && !showReveal && (
                 <div className="space-y-3">
+                    {hinted && !answered && (
+                        <motion.p data-testid="type-hint" initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-sm text-muted">
+                            Gợi ý: bắt đầu bằng <span className="font-mono font-bold text-ink">{question.answer[0]}</span>
+                        </motion.p>
+                    )}
                     <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 transition-colors ${answered
- ? isCorrect ? 'border-accent/50 bg-accent/5' : 'border-ink/30 bg-ink/[0.03]'
+ ? isCorrect ? 'border-accent/50 bg-accent/5' : close ? 'border-warning/50 bg-warning/5' : 'border-ink/30 bg-ink/[0.03]'
  : 'border-ink/20 bg-ink/[0.02] focus-within:border-accent'
  }`}>
                         <input
                             ref={inputRef}
                             type="text"
                             value={typedInput}
-                            onChange={e => setTypedInput(e.target.value.toUpperCase())}
+                            onChange={e => {
+                                typedRef.current = e.target.value;
+                                setTypedInput(e.target.value.toUpperCase());
+                            }}
                             onKeyDown={e => e.key === 'Enter' && handleTypeSubmit()}
                             disabled={answered}
-                            placeholder="Gõ từ tiếng Anh..."
+                            placeholder={hinted ? `${question.answer[0]}…` : 'Gõ từ tiếng Anh...'}
                             className="flex-1 bg-transparent text-ink text-xl font-bold tracking-widest outline-none placeholder:text-subtle placeholder:font-normal placeholder:text-base placeholder:tracking-normal"
                             autoComplete="off"
                             spellCheck={false}
                         />
                         {answered && isCorrect && <Check className="w-5 h-5 text-accent shrink-0" />}
-                        {answered && !isCorrect && <X className="w-5 h-5 text-muted shrink-0" />}
+                        {answered && close && <Check className="w-5 h-5 text-warning shrink-0" />}
+                        {answered && !isCorrect && !close && <X className="w-5 h-5 text-muted shrink-0" />}
                     </div>
                     {!answered ? (
                         <button
@@ -423,6 +444,8 @@ function QuestionCard({
                         >
                             Kiểm tra →
                         </button>
+                    ) : close ? (
+                        <CloseAnswer why={close} typed={typedInput} answer={question.answer} onContinue={() => onAnswer(true, false, true)} />
                     ) : !isCorrect && (
                         <p className="text-muted text-sm text-center">
                             Đáp án: <span className="text-ink font-bold tracking-wider">{question.answer}</span>
@@ -443,6 +466,26 @@ function QuestionCard({
             {rail}
             </div>
         </motion.div>
+    );
+}
+
+/** "Gần đúng": the right spelling with the part they missed marked, then on. */
+function CloseAnswer({ why, typed, answer, onContinue }: { why: 'typo' | 'form'; typed: string; answer: string; onContinue: () => void }) {
+    const { head, mid, tail } = answerDiff(typed, answer);
+    return (
+        <div data-testid="close-answer" className="space-y-3 text-center">
+            <p className="text-sm text-ink-2">
+                {why === 'form' ? 'Đúng từ rồi, chỉ khác dạng từ. Đáp án là' : 'Bạn nhớ đúng từ rồi, chỉ khác chút ở cách viết:'}{' '}
+                <span className="font-bold tracking-wider text-ink">
+                    {head}
+                    <span className="text-warning underline decoration-warning/60 underline-offset-4">{mid}</span>
+                    {tail}
+                </span>
+            </p>
+            <button onClick={onContinue} className="w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors active:scale-95">
+                Tiếp tục →
+            </button>
+        </div>
     );
 }
 
@@ -878,12 +921,13 @@ export default function ReviewSession({
         setCurrentIndex(next);
     }, [questions, currentIndex]);
 
-    const handleAnswer = useCallback((correct: boolean, fast = false) => {
+    const handleAnswer = useCallback((correct: boolean, fast = false, close = false) => {
         const q = questions[currentIndex];
         const card = getAllCards().find(c => c.id === q.cardId);
 
         // Recalled fast with most of the timer left: the word can wait longer.
-        submitReviewAnswer(q.cardId, correct, fast ? 'easy' : 'good');
+        // Close (a slip or another form): remembered, but it comes back sooner.
+        submitReviewAnswer(q.cardId, correct, close ? 'hard' : fast ? 'easy' : 'good');
         trackCardEvent(q.cardId, correct ? 'review_correct' : 'review_wrong');
         timeline.current.push([Date.now() - startedAt, correct ? 1 : 0]);
 
