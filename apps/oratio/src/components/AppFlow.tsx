@@ -18,11 +18,13 @@ const MeScreen = lazy(() => import("./MeScreen"));
 const PartnersScreen = lazy(() => import("./PartnersScreen"));
 const CallHistoryScreen = lazy(() => import("./CallHistoryScreen"));
 const SoloPracticeScreen = lazy(() => import("./SoloPracticeScreen"));
+const ClassScreen = lazy(() => import("./ClassScreen"));
 import { useSupabaseAuth } from "@/hooks/useSupabase";
 import { useMatchmaking, useLiveKitToken } from "@/hooks/useMatchmaking";
 import { declineMatch, endCall as endCallAction, submitFeedback } from "@/actions/matchmaking";
 import { overallBand } from "@/lib/feedback";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { pendingCode, reportToClasses } from "@/lib/classroom";
 import type { Tab } from "./ui/shell";
 
 type Screen =
@@ -38,7 +40,8 @@ type Screen =
   | "partners"
   | "me"
   | "history"
-  | "solo";
+  | "solo"
+  | "class";
 
 /** Tabs map to screens; "practice" is Home. */
 const TAB_SCREEN: Record<Tab, Screen> = { practice: "home", history: "history", progress: "progress", me: "me" };
@@ -113,9 +116,16 @@ export default function AppFlow() {
 
   const { user, profile, isLoading: authLoading, signIn, signUp, signOut, refreshProfile } = useSupabaseAuth();
 
+  // Keep classes up to date: quietly when the app opens, always after a call
+  const userId = user?.id;
+  useEffect(() => {
+    if (userId && !DEMO_MODE) void reportToClasses();
+  }, [userId]);
+
   // Follow the auth state: signed in → home, signed out → auth (adjusted during render)
   if (!DEMO_MODE && !authLoading) {
-    if (user && currentScreen === "auth") setCurrentScreen("home");
+    // A class link waiting for sign-in opens "Lớp học"
+    if (user && currentScreen === "auth") setCurrentScreen(pendingCode() ? "class" : "home");
     else if (!user && currentScreen !== "auth") setCurrentScreen("auth");
   }
 
@@ -283,6 +293,7 @@ export default function AppFlow() {
       });
       setLiveKitToken(null);
       setCurrentScreen("rating");
+      if (!DEMO_MODE) void reportToClasses(true);
     },
     [partner, matchInfo, backHome]
   );
@@ -449,6 +460,7 @@ export default function AppFlow() {
             onSignOut={signOut}
             onProfileUpdated={refreshProfile}
             onOpenPartners={() => setCurrentScreen("partners")}
+            onOpenClasses={() => setCurrentScreen("class")}
           />
         </Suspense>
       );
@@ -460,6 +472,13 @@ export default function AppFlow() {
         </Suspense>
       );
 
+    case "class":
+      return (
+        <Suspense fallback={fallback("Đang tải lớp học…")}>
+          <ClassScreen defaultName={profile?.username ?? ""} onBack={() => setCurrentScreen("home")} />
+        </Suspense>
+      );
+
     case "home":
     default:
       return (
@@ -467,6 +486,7 @@ export default function AppFlow() {
           profile={profile}
           onStartMatching={handleStartMatching}
           onStartSolo={() => setCurrentScreen("solo")}
+          onOpenClasses={() => setCurrentScreen("class")}
           onTab={handleTab}
           bandRange={bandRange}
           onBandRangeChange={setBandRange}

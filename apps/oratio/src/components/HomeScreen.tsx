@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Mic, Users } from "lucide-react";
+import { ArrowRight, GraduationCap, Mic, Users } from "lucide-react";
 import { useCallHistory } from "@/hooks/useCallHistory";
 import { useOnlineCount } from "@/hooks/useOnlineCount";
 import { examHourStatus } from "@/lib/exam-hours";
@@ -18,6 +18,7 @@ interface HomeScreenProps {
   onTab: (tab: Tab) => void;
   onStartMatching: () => void;
   onStartSolo: () => void;
+  onOpenClasses: () => void;
   bandRange: { min: number; max: number };
   onBandRangeChange: (range: { min: number; max: number }) => void;
   notice?: string | null;
@@ -40,6 +41,7 @@ export default function HomeScreen({
   onTab,
   onStartMatching,
   onStartSolo,
+  onOpenClasses,
   bandRange,
   onBandRangeChange,
   notice,
@@ -136,6 +138,18 @@ export default function HomeScreen({
           <Stat value={profile.current_streak ?? 0} unit="ngày" label="liên tiếp" />
         </div>
       )}
+
+      <button
+        onClick={onOpenClasses}
+        className="mt-6 flex w-full items-center gap-3 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3.5 text-left hover:bg-surface-2"
+      >
+        <GraduationCap className="size-5 text-muted" aria-hidden />
+        <span className="flex-1">
+          <span className="block text-ink">Lớp học</span>
+          <span className="block text-xs text-muted">Bài giáo viên giao, vào lớp bằng mã</span>
+        </span>
+        <ArrowRight className="size-4 text-subtle" aria-hidden />
+      </button>
 
       {/* Recent sessions */}
       <section className="mt-10">

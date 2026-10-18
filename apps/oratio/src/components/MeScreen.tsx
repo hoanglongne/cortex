@@ -16,6 +16,7 @@ interface MeScreenProps {
   onSignOut: () => void;
   onProfileUpdated: () => void;
   onOpenPartners: () => void;
+  onOpenClasses: () => void;
 }
 
 const TARGET_BANDS = Array.from({ length: 11 }, (_, i) => 4 + i * 0.5);
@@ -23,7 +24,7 @@ const TARGET_BANDS = Array.from({ length: 11 }, (_, i) => 4 + i * 0.5);
 const FIELD =
   "h-11 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-ink placeholder:text-subtle";
 
-export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpdated, onOpenPartners }: MeScreenProps) {
+export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpdated, onOpenPartners, onOpenClasses }: MeScreenProps) {
   const [editing, setEditing] = useState(false);
   const [username, setUsername] = useState("");
   const [targetBand, setTargetBand] = useState(7);
@@ -157,6 +158,13 @@ export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpd
           className="mt-3 flex w-full items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3.5 text-left text-ink hover:bg-surface-2"
         >
           Bạn luyện cùng
+          <ChevronRight className="size-4 text-subtle" aria-hidden />
+        </button>
+        <button
+          onClick={onOpenClasses}
+          className="mt-2 flex w-full items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3.5 text-left text-ink hover:bg-surface-2"
+        >
+          Lớp học
           <ChevronRight className="size-4 text-subtle" aria-hidden />
         </button>
       </section>

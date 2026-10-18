@@ -1,9 +1,10 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { IeltsQuestion } from "@/lib/types/database";
 import { TOTAL_QUESTIONS, getPartAndPosition } from "@/lib/question-utils";
 import { isUuid, requireParticipant, type AdminClient } from "@/lib/server/match-access";
+import { assignedWork, preferredPool } from "@/lib/server/classroom";
 
 /**
  * In-call Q&A. Every action checks that the signed-in user is part of the
@@ -99,13 +100,14 @@ export async function assignMatchRoles(matchId: string): Promise<{
   }
 }
 
-/** A random question of one part, not in `exclude`. */
-async function randomQuestion(client: AdminClient, part: number, exclude: string[]): Promise<IeltsQuestion | null> {
-  const { data, error } = await client.from("ielts_questions").select("*").eq("part", part);
+/**
+ * A random question of one part, not in `exclude`. What the candidate's
+ * teacher assigned comes first: their questions, then their topics.
+ */
+async function randomQuestion(client: AdminClient, part: number, exclude: string[], candidateId: string | null): Promise<IeltsQuestion | null> {
+  const [{ data, error }, work] = await Promise.all([client.from("ielts_questions").select("*").eq("part", part), assignedWork(client, candidateId)]);
   if (error || !data) return null;
-  const skip = new Set(exclude);
-  const pool = (data as IeltsQuestion[]).filter((q) => !skip.has(q.id));
-  const from = pool.length > 0 ? pool : (data as IeltsQuestion[]);
+  const from = preferredPool(data as IeltsQuestion[], part, exclude, work);
   return from.length > 0 ? from[Math.floor(Math.random() * from.length)] : null;
 }
 
@@ -140,7 +142,9 @@ export async function getNextQuestion(matchId: string): Promise<{
       !!match.interviewer_id &&
       !!match.candidate_id;
 
-    const question = await randomQuestion(admin, progress.part, asked);
+    // After a swap the interviewer (this user) becomes the one answering.
+    const candidateId = swap ? match.interviewer_id : match.candidate_id;
+    const question = await randomQuestion(admin, progress.part, asked, candidateId);
     if (!question) return fail(`No questions found for part ${progress.part}`);
 
     const update: Record<string, unknown> = {
@@ -278,18 +282,25 @@ export async function getSoloQuestions(): Promise<{ success: boolean; questions?
     if (error || !data) return fail(error?.message ?? "No questions");
 
     const all = data as IeltsQuestion[];
-    const pick = (part: number, n: number) => {
-      const pool = all.filter((q) => q.part === part);
-      for (let i = pool.length - 1; i > 0; i--) {
+    const work = await assignedWork(createAdminClient(), user.id);
+    const shuffle = <T,>(xs: T[]) => {
+      for (let i = xs.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
+        [xs[i], xs[j]] = [xs[j], xs[i]];
       }
-      return pool.slice(0, n);
+      return xs;
     };
-    // Part 1 questions of one category read like a real interview
+    // What a teacher assigned comes first, then any questions of the part
+    const pick = (part: number, n: number, taken: IeltsQuestion[] = []) => {
+      const first = shuffle(preferredPool(all, part, taken.map((q) => q.id), work));
+      const rest = shuffle(all.filter((q) => q.part === part && !first.includes(q) && !taken.includes(q)));
+      return [...first, ...rest].slice(0, n);
+    };
     const part1 = pick(1, 1);
-    const sameTopic = all.filter((q) => q.part === 1 && q.category === part1[0]?.category && q.id !== part1[0]?.id);
-    const questions = [...part1, ...sameTopic.slice(0, 3), ...pick(2, 1), ...pick(3, 3)];
+    // Part 1 questions of one category read like a real interview
+    const sameTopic = shuffle(all.filter((q) => q.part === 1 && q.category === part1[0]?.category && q.id !== part1[0]?.id));
+    const more = [...sameTopic.filter((q) => work.questionIds.has(q.id)), ...sameTopic.filter((q) => !work.questionIds.has(q.id))];
+    const questions = [...part1, ...more.slice(0, 3), ...pick(2, 1), ...pick(3, 3)];
     return { success: true, questions };
   } catch (error) {
     console.error("[getSoloQuestions]", error);
