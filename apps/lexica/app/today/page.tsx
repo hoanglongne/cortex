@@ -27,6 +27,18 @@ import InstallCard from '../components/InstallCard';
 import PledgeCard from '../components/PledgeCard';
 import { classWordsToQueue } from '../lib/classes';
 
+/**
+ * Words a class assigned and not learned yet make the whole Học stage when
+ * there are any: fewer than the day's pace means a shorter stage, never
+ * other words slipped in among the teacher's.
+ */
+function learnSize(newLeft: number): number {
+    const progress = useLexicaStore.getState().cardProgress;
+    const pending = classWordsToQueue().filter((id) => !progress[id]).length;
+    if (pending === 0) return newLeft;
+    return newLeft > 0 ? Math.min(pending, newLeft) : pending;
+}
+
 /** What a stage works on, fixed when the stage starts so answers don't reshuffle it. */
 type Frozen =
     | { stage: 'review'; ids: string[] }
@@ -75,7 +87,7 @@ export default function TodayPage() {
                 stage === 'review'
                     ? { stage, ids: picks.reviewIds }
                     : stage === 'learn'
-                      ? { stage, size: picks.newLeft }
+                      ? { stage, size: learnSize(picks.newLeft) }
                       : stage === 'read'
                         ? { stage, passageId: picks.passage?.id ?? null, generate: picks.generate, fallbackId: picks.fallback?.id ?? null, quoteWord: picks.quoteWord }
                         : { stage, ids: picks.speakIds.length > 0 ? picks.speakIds : picks.learnedToday.slice(0, 3) },

@@ -104,7 +104,7 @@ function BoardTable({ board }: { board: Board }) {
     if (board.students.length === 0) {
         return <p className="text-sm text-muted">Chưa có học viên. Gửi mã {board.class.code} cho lớp, học viên vào &ldquo;Lớp học&rdquo; trong Lexica rồi nhập mã.</p>;
     }
-    const slipping = board.students.filter(isSlipping);
+    const slipping = board.students.filter((s) => isSlipping(s));
     return (
         <div className="space-y-3">
             {slipping.length > 0 && (
@@ -139,7 +139,7 @@ function BoardTable({ board }: { board: Board }) {
                                 ))}
                                 <td className="text-right px-2 font-mono text-ink-2">{s.assigned.total ? `${s.assigned.dung ?? 0}/${s.assigned.total}` : '–'}</td>
                                 <td className="text-right px-2 font-mono text-ink-2">{s.streak}</td>
-                                <td className={`text-right px-3 text-xs ${isSlipping(s) ? 'text-warning' : 'text-muted'}`}>{activeLabel(s.inactive_days)}</td>
+                                <td className={`text-right px-3 text-xs ${isSlipping(s) ? 'text-warning' : 'text-muted'}`}>{activeLabel(s.inactive_days, s.joined_at)}</td>
                             </tr>
                         ))}
                     </tbody>
