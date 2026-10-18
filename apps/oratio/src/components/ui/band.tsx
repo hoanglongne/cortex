@@ -2,18 +2,15 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export const CRITERION_LABELS = {
-  fluency: { name: "Fluency & Coherence", short: "Fluency", hint: "Trôi chảy, mạch lạc" },
-  vocabulary: { name: "Lexical Resource", short: "Vocabulary", hint: "Vốn từ, dùng từ đúng" },
+  fluency: { name: "Fluency & Coherence", short: "Fluency", hint: "Nói trôi, ít ngập ngừng" },
+  vocabulary: { name: "Lexical Resource", short: "Vocabulary", hint: "Dùng từ đa dạng, đúng" },
   grammar: { name: "Grammatical Range & Accuracy", short: "Grammar", hint: "Đa dạng và chính xác" },
   pronunciation: { name: "Pronunciation", short: "Pronunciation", hint: "Dễ nghe, rõ ràng" },
 } as const;
 
 const fmt = (b: number) => b.toFixed(1);
 
-/**
- * A band shown honestly: a single value or a range, with how many people
- * rated it. Example: "6.0–6.5 · 4 người chấm".
- */
+/** A band shown honestly: a value or a range, with how many people rated it. */
 export function BandRange({
   low,
   high,
@@ -27,32 +24,28 @@ export function BandRange({
   size?: "md" | "lg";
   className?: string;
 }) {
-  if (low == null) {
-    return <span className={cn("font-mono text-muted", className)}>–</span>;
-  }
+  if (low == null) return <span className={cn("font-extrabold text-subtle", className)}>–</span>;
   const range = high != null && high !== low ? `${fmt(low)}–${fmt(high)}` : fmt(low);
   return (
-    <span className={cn("inline-flex items-baseline gap-2", className)}>
-      <span className={cn("font-mono tabular text-ink", size === "lg" ? "text-4xl" : "text-xl")}>{range}</span>
-      {raters != null && <span className="text-xs text-muted">{raters} người chấm</span>}
+    <span className={cn("inline-flex flex-col", className)}>
+      <span className={cn("font-extrabold tracking-[-0.03em] text-ink tabular", size === "lg" ? "text-[44px] leading-none md:text-5xl" : "text-xl")}>
+        {range}
+      </span>
+      {raters != null && <span className="mt-1 text-[13px] text-subtle">{raters} lượt chấm</span>}
     </span>
   );
 }
 
-/** One IELTS criterion with its band as a 9-step bar. */
+/** One IELTS criterion as a filled bar out of 9. */
 export function CriterionRow({ criterion, value }: { criterion: keyof typeof CRITERION_LABELS; value: number | null }) {
   const c = CRITERION_LABELS[criterion];
   return (
-    <div className="py-2">
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm text-ink">{c.short}</span>
-        <span className="font-mono text-sm tabular text-ink">{value == null ? "–" : fmt(value)}</span>
+    <div className="flex items-center gap-3">
+      <span className="w-28 shrink-0 text-sm font-bold text-ink">{c.short}</span>
+      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-surface-3">
+        <div className="h-full rounded-full bg-voice" style={{ width: `${value == null ? 0 : (value / 9) * 100}%` }} />
       </div>
-      <div className="mt-1.5 grid grid-cols-9 gap-0.5" aria-hidden>
-        {Array.from({ length: 9 }, (_, i) => (
-          <span key={i} className={cn("h-1 rounded-full", value != null && i < Math.round(value) ? "bg-ink-2" : "bg-surface-3")} />
-        ))}
-      </div>
+      <span className="w-8 text-right text-sm font-extrabold tabular">{value == null ? "–" : fmt(value)}</span>
     </div>
   );
 }

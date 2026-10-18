@@ -326,6 +326,12 @@ importers:
 
   apps/oratio:
     dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../../packages/classroom
+      '@cortex/classroom-oratio':
+        specifier: workspace:*
+        version: link:../../packages/classroom-oratio
       '@cortex/types':
         specifier: workspace:*
         version: link:../../packages/cortex-types
@@ -564,6 +570,9 @@ importers:
       '@cortex/classroom-lexica':
         specifier: workspace:*
         version: link:../../packages/classroom-lexica
+      '@cortex/classroom-oratio':
+        specifier: workspace:*
+        version: link:../../packages/classroom-oratio
       '@supabase/supabase-js':
         specifier: ^2.90.1
         version: 2.90.1
@@ -615,6 +624,12 @@ importers:
         version: 2.90.1
 
   packages/classroom-lexica:
+    dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../classroom
+
+  packages/classroom-oratio:
     dependencies:
       '@cortex/classroom':
         specifier: workspace:*

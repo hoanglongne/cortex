@@ -7,9 +7,11 @@
 import type { AppId, Board } from '@cortex/classroom';
 import type { ModuleUI } from './types';
 import { lexicaUI } from './lexica';
+import { oratioUI } from './oratio';
 
 export const MODULES: Record<AppId, ModuleUI> = {
     lexica: lexicaUI,
+    oratio: oratioUI,
 };
 
 export const moduleFor = (app: AppId): ModuleUI | null => MODULES[app] ?? null;

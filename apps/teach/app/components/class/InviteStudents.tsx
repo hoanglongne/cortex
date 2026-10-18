@@ -15,17 +15,18 @@ export default function InviteStudents({ board, onChanged, highlight }: { board:
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const code = board.class.code;
-    const first = modulesOf(board).find((m) => m.appUrl);
+    const links = modulesOf(board).filter((m) => m.appUrl);
     return (
         <Card tone={highlight ? 'accent' : undefined}>
             <CardTitle>{highlight ? 'Lớp đã sẵn sàng: mời học viên vào' : 'Mời học viên'}</CardTitle>
             <div className="space-y-3">
-                {first && (
-                    <div>
-                        <p className="mb-1 text-sm text-ink-2">Gửi link này vào nhóm lớp (Zalo, Messenger):</p>
-                        <CopyField value={joinLink(first.appUrl, code)} label="Chép link mời" />
+                {links.length > 0 && <p className="text-sm text-ink-2">{links.length > 1 ? 'Gửi một trong các link này vào nhóm lớp (Zalo, Messenger); vào bằng app nào cũng là vào lớp:' : 'Gửi link này vào nhóm lớp (Zalo, Messenger):'}</p>}
+                {links.map((m) => (
+                    <div key={m.core.id}>
+                        {links.length > 1 && <p className="mb-1 text-xs font-medium text-muted">{m.core.name}</p>}
+                        <CopyField value={joinLink(m.appUrl, code)} label="Chép link mời" />
                     </div>
-                )}
+                ))}
                 <div className="flex flex-wrap items-center gap-3">
                     <p className="text-sm text-ink-2">
                         hoặc mã lớp <b className="font-mono text-lg tracking-[0.2em] text-ink">{code}</b> nhập ở mục Lớp học của {modulesOf(board).map((m) => m.core.name).join(' hoặc ')}

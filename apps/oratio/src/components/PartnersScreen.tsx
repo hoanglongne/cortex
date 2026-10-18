@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { EmptyState, Notice } from "@/components/ui/card";
+import { EmptyState, Notice, Pill } from "@/components/ui/card";
 import { FlowShell } from "@/components/ui/shell";
 import { useCallHistory } from "@/hooks/useCallHistory";
 
@@ -59,6 +59,7 @@ export default function PartnersScreen({ onBack }: PartnersScreenProps) {
 
   return (
     <FlowShell title="Bạn luyện cùng" onBack={onBack}>
+      <h1 className="mb-5 text-[28px] font-extrabold tracking-[-0.035em] text-ink">Bạn luyện cùng</h1>
       {isLoading ? (
         <div className="space-y-2" aria-busy>
           {[0, 1, 2].map((i) => (
@@ -79,16 +80,23 @@ export default function PartnersScreen({ onBack }: PartnersScreenProps) {
       ) : (
         <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface">
           {partners.map((p) => (
-            <li key={p.id} className="px-4 py-3.5">
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="min-w-0 truncate text-ink">{p.name}</p>
-                <span className="shrink-0 font-mono text-xs tabular text-muted">Band {p.band}</span>
+            <li key={p.id} className="flex items-center gap-3 px-4 py-3.5">
+              <span
+                aria-hidden
+                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-voice-soft text-sm font-extrabold text-voice"
+              >
+                {p.name.charAt(0).toUpperCase()}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-bold text-ink">{p.name}</p>
+                <p className="mt-0.5 text-[13px] text-subtle">
+                  <span className="tabular">{p.count}</span> buổi · gần nhất {new Date(p.lastDate).toLocaleDateString("vi-VN")}
+                </p>
               </div>
-              <p className="mt-0.5 text-xs text-muted">
-                <span className="font-mono tabular">{p.count}</span> buổi · gần nhất{" "}
-                {new Date(p.lastDate).toLocaleDateString("vi-VN")}
-                {p.wantsAgain && <span className="text-ink-2"> · muốn luyện lại với bạn</span>}
-              </p>
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                <span className="text-xs font-bold tabular text-muted">Band {p.band}</span>
+                {p.wantsAgain && <Pill tone="good">Muốn luyện lại</Pill>}
+              </div>
             </li>
           ))}
         </ul>

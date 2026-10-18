@@ -19,6 +19,7 @@ const MESSAGES: Record<string, string> = {
     'unknown app': 'Ứng dụng này chưa tham gia lớp học.',
     'bad payload': 'Bài giao chưa đúng dạng.',
     'no words': 'Chưa có từ nào để giao.',
+    'no questions': 'Chưa chọn câu hỏi nào.',
 };
 
 export function classMessage(raw: string): string {

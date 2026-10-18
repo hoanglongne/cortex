@@ -130,5 +130,8 @@ Trang chung tự lo phần còn lại: tạo lớp có ô chọn app, lớp nhi�
 | App | Bài giao (`kind`) | Metrics | Xếp hạng |
 |---|---|---|---|
 | `lexica` | `words` {card_ids, missing_words, mode} | counts Hiểu/Nhớ/Gặp/Dùng/Đời, assigned theo lớp, bước của từng từ lớp giao | Dùng, rồi Nhớ |
+| `oratio` | `topic` {category, part, sessions} · `questions` {question_ids} · `goal` {sessions, minutes} | số buổi, số phút, band trung bình bạn luyện chấm (20 lượt gần nhất), band tự đặt, tiến độ từng bài của lớp | Số phút đã nói |
+
+Oratio tính số liệu **trên máy chủ** từ chính bảng của nó (`matches`, `session_feedback`, `profiles`; `apps/oratio/src/lib/server/classroom.ts`) rồi mới gửi, nên học viên không tự sửa được. Câu hỏi và chủ đề được giao được hỏi trước trong Phòng thi và Tập một mình (`preferredPool`). Chưa đổi cách ghép cặp.
 
 Tham khảo khi viết mô-đun mới: `packages/classroom-lexica/` và `apps/teach/app/modules/lexica/`.
