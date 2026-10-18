@@ -6,7 +6,10 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/card";
+import { Card, Label } from "@/components/ui/card";
+import { InstallButton } from "@/components/ui/install";
+import { useCharacterEnabled, useTheme, type ThemeChoice } from "@/lib/client/theme";
+import { cn } from "@/lib/utils";
 import { TabShell, type Tab } from "@/components/ui/shell";
 
 interface MeScreenProps {
@@ -16,15 +19,24 @@ interface MeScreenProps {
   onSignOut: () => void;
   onProfileUpdated: () => void;
   onOpenPartners: () => void;
+  onOpenLeaderboard?: () => void;
   onOpenClasses: () => void;
 }
+
+const THEMES: { id: ThemeChoice; label: string }[] = [
+  { id: "light", label: "Sáng" },
+  { id: "dark", label: "Tối" },
+  { id: "system", label: "Theo máy" },
+];
 
 const TARGET_BANDS = Array.from({ length: 11 }, (_, i) => 4 + i * 0.5);
 
 const FIELD =
   "h-11 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-ink placeholder:text-subtle";
 
-export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpdated, onOpenPartners, onOpenClasses }: MeScreenProps) {
+export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpdated, onOpenPartners, onOpenLeaderboard, onOpenClasses }: MeScreenProps) {
+  const { choice, setTheme } = useTheme();
+  const { enabled: characterOn, setEnabled: setCharacterOn } = useCharacterEnabled();
   const [editing, setEditing] = useState(false);
   const [username, setUsername] = useState("");
   const [targetBand, setTargetBand] = useState(7);
@@ -75,16 +87,16 @@ export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpd
 
   return (
     <TabShell tab="me" onTab={onTab} title="Tôi">
-      <section className="rounded-[var(--radius-card)] border border-line bg-surface p-4 sm:p-5">
+      <Card>
         {!editing ? (
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="truncate text-lg text-ink">{name}</p>
+              <p className="truncate text-lg font-extrabold tracking-[-0.02em] text-ink">{name}</p>
               {email && <p className="mt-0.5 truncate text-sm text-muted">{email}</p>}
               {profile && (
                 <p className="mt-3 text-sm text-muted">
-                  Band hiện tại <span className="font-mono tabular text-ink">{Number(profile.current_band).toFixed(1)}</span>
-                  {" · "}mục tiêu <span className="font-mono tabular text-ink">{Number(profile.target_band).toFixed(1)}</span>
+                  Band hiện tại <span className="font-extrabold tabular text-ink">{Number(profile.current_band).toFixed(1)}</span>
+                  {" · "}mục tiêu <span className="font-extrabold tabular text-ink">{Number(profile.target_band).toFixed(1)}</span>
                 </p>
               )}
             </div>
@@ -97,13 +109,13 @@ export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpd
         ) : (
           <form onSubmit={handleSave} className="space-y-4">
             <div>
-              <label htmlFor="profile-email" className="mb-2 block text-sm text-muted">
+              <label htmlFor="profile-email" className="mb-2 block text-sm font-bold text-muted">
                 Email
               </label>
               <input id="profile-email" type="email" value={email} readOnly aria-readonly className={`${FIELD} text-muted`} />
             </div>
             <div>
-              <label htmlFor="profile-username" className="mb-2 block text-sm text-muted">
+              <label htmlFor="profile-username" className="mb-2 block text-sm font-bold text-muted">
                 Tên hiển thị
               </label>
               <input
@@ -117,14 +129,14 @@ export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpd
               />
             </div>
             <div>
-              <label htmlFor="profile-target" className="mb-2 block text-sm text-muted">
+              <label htmlFor="profile-target" className="mb-2 block text-sm font-bold text-muted">
                 Band mục tiêu
               </label>
               <select
                 id="profile-target"
                 value={targetBand}
                 onChange={(e) => setTargetBand(Number(e.target.value))}
-                className={`${FIELD} font-mono`}
+                className={`${FIELD} `}
               >
                 {TARGET_BANDS.map((b) => (
                   <option key={b} value={b}>
@@ -149,30 +161,84 @@ export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpd
             </div>
           </form>
         )}
-      </section>
+      </Card>
 
       <section className="mt-8">
         <Label>Cộng đồng</Label>
-        <button
-          onClick={onOpenPartners}
-          className="mt-3 flex w-full items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3.5 text-left text-ink hover:bg-surface-2"
-        >
-          Bạn luyện cùng
-          <ChevronRight className="size-4 text-subtle" aria-hidden />
-        </button>
-        <button
-          onClick={onOpenClasses}
-          className="mt-2 flex w-full items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3.5 text-left text-ink hover:bg-surface-2"
-        >
-          Lớp học
-          <ChevronRight className="size-4 text-subtle" aria-hidden />
-        </button>
+        <div className="mt-3 divide-y divide-line overflow-hidden rounded-[var(--radius-card)] border border-line bg-surface">
+          <button onClick={onOpenPartners} className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left font-bold text-ink hover:bg-surface-2">
+            Bạn luyện cùng
+            <ChevronRight className="size-4 text-subtle" aria-hidden />
+          </button>
+          {onOpenLeaderboard && (
+            <button onClick={onOpenLeaderboard} className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left font-bold text-ink hover:bg-surface-2">
+              Bảng giờ nói
+              <ChevronRight className="size-4 text-subtle" aria-hidden />
+            </button>
+          )}
+          <button onClick={onOpenClasses} className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left font-bold text-ink hover:bg-surface-2">
+            Lớp học
+            <ChevronRight className="size-4 text-subtle" aria-hidden />
+          </button>
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <Label>Giao diện</Label>
+        <div className="mt-3 space-y-3">
+          <div
+            role="group"
+            aria-label="Màu giao diện"
+            className="grid grid-cols-3 rounded-[var(--radius-control)] border border-line-strong bg-surface p-0.5"
+          >
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTheme(t.id)}
+                aria-pressed={choice === t.id}
+                className={cn(
+                  "h-10 rounded-[10px] text-sm font-bold transition-colors",
+                  choice === t.id ? "bg-voice-soft text-ink" : "text-muted hover:text-ink"
+                )}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3">
+            <div className="min-w-0">
+              <p id="character-toggle-label" className="font-bold text-ink">
+                Ơ nói chuyện với tôi
+              </p>
+              <p className="text-[13px] text-subtle">Ơ chỉ nói những điều có thật trong dữ liệu của bạn.</p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={characterOn}
+              aria-labelledby="character-toggle-label"
+              onClick={() => setCharacterOn(!characterOn)}
+              className={cn(
+                "relative h-7 w-12 shrink-0 rounded-full transition-colors",
+                characterOn ? "bg-good" : "bg-surface-3"
+              )}
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute left-0.5 top-0.5 size-6 rounded-full bg-surface shadow-sm transition-transform",
+                  characterOn && "translate-x-5"
+                )}
+              />
+            </button>
+          </div>
+          <InstallButton />
+        </div>
       </section>
 
       <div className="mt-12 border-t border-line pt-6">
         <button
           onClick={onSignOut}
-          className="h-11 rounded-[var(--radius-control)] px-3 text-sm text-danger hover:bg-danger-soft"
+          className="h-11 rounded-[var(--radius-control)] px-3 text-sm font-bold text-danger hover:bg-danger-soft"
         >
           Đăng xuất
         </button>

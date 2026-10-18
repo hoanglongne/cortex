@@ -76,3 +76,52 @@ export async function getMyFeedbackSummary(): Promise<{ summary: FeedbackSummary
     return { summary: null, error: "An unexpected error occurred" };
   }
 }
+
+export interface BandPoint {
+  date: string;
+  overall: number | null;
+  fluency: number | null;
+  vocabulary: number | null;
+  grammar: number | null;
+  pronunciation: number | null;
+}
+
+/** Every rating the signed-in user received, oldest first, for the band-over-time chart. */
+export async function getBandHistory(): Promise<BandPoint[]> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    // RLS lets users read feedback they received; the filter keeps it to this user
+    const { data, error } = await supabase
+      .from("session_feedback")
+      .select("scores, overall_rating, created_at")
+      .eq("to_user_id", user.id)
+      .order("created_at", { ascending: true })
+      .limit(200);
+    if (error) {
+      console.error("[getBandHistory]", error);
+      return [];
+    }
+
+    const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
+    const rows = (data ?? []) as { scores: Record<string, unknown> | null; overall_rating: number | null; created_at: string }[];
+    return rows.map((r) => {
+      const s = r.scores ?? {};
+      return {
+        date: r.created_at,
+        overall: num(s.overall) ?? num(r.overall_rating),
+        fluency: num(s.fluency),
+        vocabulary: num(s.vocabulary),
+        grammar: num(s.grammar),
+        pronunciation: num(s.pronunciation),
+      };
+    });
+  } catch (error) {
+    console.error("[getBandHistory]", error);
+    return [];
+  }
+}
