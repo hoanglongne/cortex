@@ -19,7 +19,7 @@ export const config = {
      * - favicon.ico (favicon file)
      * - Public files (images, etc.)
      */
-    "/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|js|webmanifest)$).*)",
   ],
 };
 

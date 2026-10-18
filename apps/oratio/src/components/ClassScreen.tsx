@@ -184,7 +184,7 @@ function ClassCard({ cls, metrics, onLeft }: { cls: ClassInfo; metrics: OratioMe
                           ? `${payload.question_ids.length} câu hỏi được hỏi trước`
                           : "Tính từ ngày giao"}
                       {days !== null && (
-                        <span className={cn("ml-1.5 font-mono", days <= 1 && !st.done ? "text-onair" : "text-subtle")}>· {dueLabel(days)}</span>
+                        <span className={cn("ml-1.5 font-mono", days <= 1 && !st.done ? "text-voice" : "text-subtle")}>· {dueLabel(days)}</span>
                       )}
                     </p>
                   </div>

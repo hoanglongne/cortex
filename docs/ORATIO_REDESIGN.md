@@ -211,3 +211,36 @@ Các con số cần đo từ P1:
   - Chuyển động chỉ để báo trạng thái (`animate-onair`, `animate-enter`).
   - Bố cục mobile trước, chạy được ở 320px; khi màn rộng thì nội dung tối đa `max-w-3xl` (tab) hoặc `max-w-2xl` (flow).
   - Chữ giao diện là tiếng Việt, giữ thuật ngữ IELTS bằng tiếng Anh.
+
+## 10. Hướng D (đã chốt 2026-10-18): thay cho mục 4
+
+Sau 4 vòng mockup, chủ dự án chọn **hướng D: "gọn như Linear, vui như Duolingo" cùng nhân vật Ơ** thay cho "Phòng thi lúc tối". Canvas: https://claude.ai/artifact/AQqgq9CL9RUfthakUB6NEt (hàng D, D2, D3 và Web).
+
+- **Nền tảng**: Oratio là web responsive, cài được thành app qua PWA.
+  - Điện thoại: thanh tab dưới đáy.
+  - Máy tính: thanh bên.
+- **Màu**: sáng là mặc định, có tối và "Theo máy".
+  - Chính: cam "giọng nói" `#FF5A1F`, có gờ đáy `#D9440F`.
+  - Mực: `#121320`.
+  - Phụ: xanh lá `#2BC48A` (đúng, xong), xanh tím `#5B63D3` (nghe, Lexica), vàng `#FFC53D` (chuỗi ngày).
+  - Nền tối: `#0E0F1A`, thẻ `#14162A`.
+- **Chữ**: Be Vietnam Pro (400–800). Không dùng serif.
+- **Hình khối**: bo góc 14–22px, viền 1px `#ECECF1`. Nút chính có gờ đáy kiểu phím bấm.
+- **Ơ**: một cục bông trắng có móc chữ ơ trên đầu, nét vẽ tay. Có 5 trạng thái: `idle`, `talk`, `happy`, `nervous`, `listen`.
+  - Ơ nói những câu lấy từ dữ liệu thật, không bịa.
+  - Tắt được trong mục Tôi.
+- **Chỉ hiện tính năng có thật**: tab Chấm chéo chỉ xuất hiện khi P2 xong. Các số liệu trên mockup chỉ để minh hoạ.
+
+### Kế hoạch code (đợt này)
+
+1. **Nền**: token sáng/tối trong `globals.css` (`data-theme` trên `<html>`, mặc định theo máy), font Be Vietnam Pro, component `Character` (Ơ), cập nhật `Button`/`Card`/shell.
+2. **Shell responsive**: `TabShell` có tab dưới trên điện thoại và thanh bên trên máy tính (Luyện, Lịch sử, Tiến bộ, Tôi), kèm nút cài app.
+3. **PWA**: `manifest.webmanifest`, icon Ơ 192/512, service worker tối thiểu, nút "Cài Oratio lên máy" (`beforeinstallprompt`; trên iOS thì hướng dẫn "Thêm vào màn hình chính").
+4. **Làm quen** (lần đầu): Ơ hỏi mức độ tự tin, rồi chọn band mục tiêu (lưu vào profile) và gợi ý cách bắt đầu.
+5. **Luyện**: Ơ chào bằng câu lấy từ dữ liệu thật, thẻ "Buổi tập hôm nay" Part 1–2–3, thẻ Phòng thi (tối, sáng lên khi đang trong giờ thi), nhận xét gần đây.
+6. **Tập một mình**: thẻ đề có gạch đầu dòng tick được, ghi âm (phím Space), đồng hồ Part 2, Ơ đang nghe.
+   - Màn **Xong câu**: thời gian nói và **số lần ngừng dài** đo trên máy từ bản ghi (Web Audio, không cần API), so sánh lần trước với lần này, nút "Nói lại".
+7. **Phòng thi**: đang tìm (Ơ nghe, người đang chờ), đã ghép, trong phòng (câu hỏi lớn, phím Enter, sóng âm, **ô ghi chú để chấm**), chấm bạn (hàng 1–9 kèm mô tả band, ghi chú được mang sang), xong buổi.
+8. **Tiến bộ**: band và biểu đồ theo thời gian từ điểm được chấm (server action mới), 4 tiêu chí, Ơ gợi ý tiêu chí yếu nhất, số liệu tổng. **Lịch sử**, **Tôi** (giao diện Sáng / Tối / Theo máy, bật tắt Ơ, cài app), **Bảng giờ nói**, **Bạn luyện cùng**, **Đăng nhập**.
+
+Chưa làm trong đợt này: Chấm chéo (P2), transcript/Whisper và từ Lexica trong câu trả lời (P1 phần 2), lọc lịch sử theo tập một mình (chưa lưu buổi tập), tab "Lớp tôi".
