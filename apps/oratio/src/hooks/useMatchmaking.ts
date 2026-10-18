@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useLayoutEffect, useRef } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { findMatch, cancelMatch } from "@/actions/matchmaking";
-import type { FindMatchResult, Match, Profile } from "@/lib/types/database";
+import type { FindMatchResult, Match, PublicProfile } from "@/lib/types/database";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface UseMatchmakingOptions {
@@ -70,7 +70,9 @@ export function useMatchmaking(
 
   // Store callbacks in refs to avoid re-triggering effects when they change
   const onMatchFoundRef = useRef(onMatchFound);
-  onMatchFoundRef.current = onMatchFound;
+  useLayoutEffect(() => {
+    onMatchFoundRef.current = onMatchFound;
+  });
 
   /**
    * Start the search timer
@@ -120,7 +122,6 @@ export function useMatchmaking(
     // Handle match event
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleMatchEvent = async (payload: any) => {
-      console.log("Match found via realtime!", payload);
       const newMatch = payload.new as Match;
 
       // Determine partner ID
@@ -129,13 +130,13 @@ export function useMatchmaking(
 
       // Fetch partner details
       const { data: partnerData } = await supabase
-        .from("profiles")
+        .from("public_profiles")
         .select("id, username, current_band, avatar_url")
         .eq("id", partnerId)
         .single();
 
       const partner = partnerData as Pick<
-        Profile,
+        PublicProfile,
         "id" | "username" | "current_band" | "avatar_url"
       > | null;
 
@@ -281,14 +282,11 @@ export function useMatchmaking(
       if (isCancelled || status !== "searching") return;
 
       try {
-        console.log("Polling: Retrying matchmaking...");
         const result = await findMatch(bandMin, bandMax);
-        console.log("Polling result:", result); // Log full result for debugging
 
         if (isCancelled) return;
 
         if (result.status === "matched" && result.partner) {
-          console.log("Match found via polling!", result);
           setMatchDetails({
             roomId: result.roomId!,
             matchId: result.matchId!,
@@ -369,7 +367,9 @@ export function useMatchmaking(
 
   // Track status in a ref so the cleanup effect doesn't re-run when status changes
   const statusRef = useRef(status);
-  statusRef.current = status;
+  useLayoutEffect(() => {
+    statusRef.current = status;
+  });
 
   // Cleanup on unmount - IMPORTANT: Cancel match to remove from queue
   useEffect(() => {
@@ -405,7 +405,7 @@ export function useLiveKitToken() {
   const [error, setError] = useState<string | null>(null);
 
   const getToken = useCallback(
-    async (roomName: string, participantName: string) => {
+    async (roomName: string) => {
       setIsLoading(true);
       setError(null);
       setToken(null);
@@ -416,7 +416,7 @@ export function useLiveKitToken() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ roomName, participantName }),
+          body: JSON.stringify({ roomName }),
         });
 
         if (!response.ok) {

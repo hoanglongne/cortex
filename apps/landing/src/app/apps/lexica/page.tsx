@@ -277,7 +277,7 @@ export default function LexicaPage() {
                         </h2>
                         <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-ghost-white">
                             Mọi từ bạn quên trong Lexica đều được CORTEX theo dõi. Khi bạn mở
-                            Oratio (Combat), bạn sẽ phải dùng chính những từ đó để tranh luận.
+                            Oratio (Combat), bạn sẽ thử dùng chúng khi thi thử IELTS Speaking với người học thật.
                             Khi bạn mở Dialecta (Cognitive), bạn sẽ nghe chúng trong giọng khác nhau.
                             <span className="mt-4 block font-medium text-white">
                                 Từ vựng không trốn được. Chúng buộc bạn đối mặt ở mọi app.

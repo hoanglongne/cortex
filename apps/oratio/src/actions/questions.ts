@@ -1,485 +1,298 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { IeltsQuestion } from "@/lib/types/database";
-import { QUESTIONS_PER_PART, TOTAL_PARTS, TOTAL_QUESTIONS, getPartAndPosition, totalQuestionsForPart } from "@/lib/question-utils";
+import { TOTAL_QUESTIONS, getPartAndPosition } from "@/lib/question-utils";
+import { isUuid, requireParticipant, type AdminClient } from "@/lib/server/match-access";
 
 /**
- * Get match state including roles, current question, and progress (uses admin client to bypass RLS)
+ * In-call Q&A. Every action checks that the signed-in user is part of the
+ * match; the ones that change it also check the user's role. Writes are
+ * conditional on the state they were based on, so two clicks at the same
+ * moment can't both apply.
  */
-export async function getMatchState(
-    matchId: string
-): Promise<{
-    success: boolean;
-    interviewer_id?: string | null;
-    candidate_id?: string | null;
-    current_question_id?: string | null;
-    questions_asked_count?: number;
-    swap_requested_by?: string | null;
-    error?: string;
+
+/** Activity is written at most this often per match (it drives abandon detection). */
+const ACTIVITY_EVERY_MS = 20_000;
+
+type Fail = { success: false; error: string };
+const fail = (error: string): Fail => ({ success: false, error });
+const errorText = (e: unknown) => (e instanceof Error ? e.message : "Unknown error");
+
+/**
+ * Match state for the in-call screen: roles, current question, progress and
+ * status. Also records that this user is still on the call.
+ */
+export async function getMatchState(matchId: string): Promise<{
+  success: boolean;
+  status?: string;
+  started?: boolean;
+  interviewer_id?: string | null;
+  candidate_id?: string | null;
+  current_question_id?: string | null;
+  questions_asked_count?: number;
+  swap_requested_by?: string | null;
+  error?: string;
 }> {
-    try {
-        const adminClient = createAdminClient();
-        const { data, error } = await adminClient
-            .from("matches")
-            .select("interviewer_id, candidate_id, current_question_id, questions_asked, swap_requested_by")
-            .eq("id", matchId)
-            .single();
+  try {
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return fail(access.error);
+    const { match, admin } = access;
 
-        if (error) {
-            console.error("[getMatchState] Error:", error);
-            return { success: false, error: error.message };
-        }
-
-        return {
-            success: true,
-            interviewer_id: data.interviewer_id,
-            candidate_id: data.candidate_id,
-            current_question_id: data.current_question_id,
-            questions_asked_count: (data.questions_asked as string[] || []).length,
-            swap_requested_by: data.swap_requested_by,
-        };
-    } catch (error) {
-        console.error("[getMatchState] Exception:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
+    if (match.status === "active") {
+      const since = new Date(Date.now() - ACTIVITY_EVERY_MS).toISOString();
+      await admin
+        .from("matches")
+        .update({ last_activity_at: new Date().toISOString() })
+        .eq("id", match.id)
+        .eq("status", "active")
+        .or(`last_activity_at.is.null,last_activity_at.lt."${since}"`);
     }
+
+    return {
+      success: true,
+      status: match.status,
+      started: !!match.started_at,
+      interviewer_id: match.interviewer_id,
+      candidate_id: match.candidate_id,
+      current_question_id: match.current_question_id,
+      questions_asked_count: (match.questions_asked || []).length,
+      swap_requested_by: match.swap_requested_by,
+    };
+  } catch (error) {
+    console.error("[getMatchState]", error);
+    return fail(errorText(error));
+  }
 }
 
-/**
- * Assign roles to a match if not already assigned (uses admin client)
- */
-export async function assignMatchRoles(
-    matchId: string
-): Promise<{
-    success: boolean;
-    interviewer_id?: string;
-    candidate_id?: string;
-    error?: string;
+/** Assigns roles at random if the match has none yet. */
+export async function assignMatchRoles(matchId: string): Promise<{
+  success: boolean;
+  interviewer_id?: string;
+  candidate_id?: string;
+  error?: string;
 }> {
-    try {
-        const adminClient = createAdminClient();
+  try {
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return fail(access.error);
+    const { match, admin } = access;
 
-        // Get match
-        const { data: match, error: fetchError } = await adminClient
-            .from("matches")
-            .select("user1_id, user2_id, interviewer_id, candidate_id")
-            .eq("id", matchId)
-            .single();
-
-        if (fetchError || !match) {
-            return { success: false, error: "Match not found" };
-        }
-
-        // If already assigned, return existing
-        if (match.interviewer_id && match.candidate_id) {
-            return {
-                success: true,
-                interviewer_id: match.interviewer_id,
-                candidate_id: match.candidate_id,
-            };
-        }
-
-        // Randomly assign
-        const isUser1Interviewer = Math.random() > 0.5;
-        const interviewer_id = isUser1Interviewer ? match.user1_id : match.user2_id;
-        const candidate_id = isUser1Interviewer ? match.user2_id : match.user1_id;
-
-        const { error: updateError } = await adminClient
-            .from("matches")
-            .update({ interviewer_id, candidate_id })
-            .eq("id", matchId);
-
-        if (updateError) {
-            console.error("[assignMatchRoles] Update error:", updateError);
-            return { success: false, error: updateError.message };
-        }
-
-        return { success: true, interviewer_id, candidate_id };
-    } catch (error) {
-        console.error("[assignMatchRoles] Exception:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
+    if (!match.interviewer_id || !match.candidate_id) {
+      const user1First = Math.random() > 0.5;
+      await admin
+        .from("matches")
+        .update({
+          interviewer_id: user1First ? match.user1_id : match.user2_id,
+          candidate_id: user1First ? match.user2_id : match.user1_id,
+        })
+        .eq("id", match.id)
+        .is("interviewer_id", null);
     }
+
+    // Read back: the partner may have assigned them a moment earlier
+    const { data } = await admin.from("matches").select("interviewer_id, candidate_id").eq("id", match.id).single();
+    if (!data?.interviewer_id) return fail("Could not assign roles");
+    return { success: true, interviewer_id: data.interviewer_id, candidate_id: data.candidate_id };
+  } catch (error) {
+    console.error("[assignMatchRoles]", error);
+    return fail(errorText(error));
+  }
 }
 
-// Part/turn logic imported from @/lib/question-utils
-
-function getPartForCount(questionCount: number): number {
-    return getPartAndPosition(questionCount).part;
+/** A random question of one part, not in `exclude`. */
+async function randomQuestion(client: AdminClient, part: number, exclude: string[]): Promise<IeltsQuestion | null> {
+  const { data, error } = await client.from("ielts_questions").select("*").eq("part", part);
+  if (error || !data) return null;
+  const skip = new Set(exclude);
+  const pool = (data as IeltsQuestion[]).filter((q) => !skip.has(q.id));
+  const from = pool.length > 0 ? pool : (data as IeltsQuestion[]);
+  return from.length > 0 ? from[Math.floor(Math.random() * from.length)] : null;
 }
 
 /**
- * Get a random IELTS question by part
+ * Moves the match to its next question (interviewer only). When the previous
+ * question ended a turn, roles swap in the same write.
  */
-export async function getRandomQuestion(
-    part: number,
-    difficulty?: "easy" | "medium" | "hard",
-    excludeIds: string[] = []
-): Promise<{ success: boolean; question?: IeltsQuestion; error?: string }> {
-    try {
-        const adminClient = createAdminClient();
-
-        let query = adminClient
-            .from("ielts_questions")
-            .select("*")
-            .eq("part", part);
-
-        if (difficulty) {
-            query = query.eq("difficulty", difficulty);
-        }
-
-        if (excludeIds.length > 0) {
-            query = query.not("id", "in", `(${excludeIds.join(",")})`);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-            console.error("Error fetching question:", error);
-            return { success: false, error: error.message };
-        }
-
-        if (!data || data.length === 0) {
-            return { success: false, error: "No questions found for part " + part };
-        }
-
-        // Pick a random question from results
-        const randomIndex = Math.floor(Math.random() * data.length);
-        const question = data[randomIndex] as IeltsQuestion;
-
-        return { success: true, question };
-    } catch (error) {
-        console.error("Error in getRandomQuestion:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
-    }
-}
-
-/**
- * Get the next question for a match (automatically picks based on progress)
- * Returns question + progress info for UI
- * Also handles auto-swap when a turn ends
- */
-export async function getNextQuestion(
-    matchId: string
-): Promise<{
-    success: boolean;
-    question?: IeltsQuestion;
-    progress?: ReturnType<typeof getPartAndPosition>;
-    autoSwapped?: boolean;
-    completed?: boolean;
-    newInterviewerId?: string | null;
-    error?: string;
+export async function getNextQuestion(matchId: string): Promise<{
+  success: boolean;
+  question?: IeltsQuestion;
+  progress?: ReturnType<typeof getPartAndPosition>;
+  autoSwapped?: boolean;
+  completed?: boolean;
+  newInterviewerId?: string | null;
+  error?: string;
 }> {
-    try {
-        const adminClient = createAdminClient();
+  try {
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return fail(access.error);
+    const { userId, match, admin } = access;
 
-        const { data: match, error: matchError } = await adminClient
-            .from("matches")
-            .select("*")
-            .eq("id", matchId)
-            .single();
+    if (match.status !== "active") return fail("The call is not active");
+    if (match.interviewer_id !== userId) return fail("Only the interviewer can move to the next question");
 
-        if (matchError || !match) {
-            return { success: false, error: "Match not found" };
-        }
+    const asked: string[] = match.questions_asked || [];
+    if (asked.length >= TOTAL_QUESTIONS) return { success: true, completed: true };
 
-        const questionsAsked: string[] = match.questions_asked || [];
-        const questionCount = questionsAsked.length;
+    const progress = getPartAndPosition(asked.length);
+    const swap =
+      asked.length > 0 &&
+      getPartAndPosition(asked.length - 1).isLastQuestionOfTurn &&
+      !!match.interviewer_id &&
+      !!match.candidate_id;
 
-        // Check if session is complete (all questions asked)
-        if (questionCount >= TOTAL_QUESTIONS) {
-            return { success: true, completed: true };
-        }
+    const question = await randomQuestion(admin, progress.part, asked);
+    if (!question) return fail(`No questions found for part ${progress.part}`);
 
-        const progress = getPartAndPosition(questionCount);
-
-        // Determine if auto-swap is needed (previous question was last of a turn)
-        let autoSwapped = false;
-        let newInterviewerId = match.interviewer_id as string | null;
-        if (questionCount > 0) {
-            const prevProgress = getPartAndPosition(questionCount - 1);
-            if (prevProgress.isLastQuestionOfTurn && match.interviewer_id && match.candidate_id) {
-                autoSwapped = true;
-                newInterviewerId = match.candidate_id;
-            }
-        }
-
-        // Fetch the next question
-        const result = await getRandomQuestion(progress.part, undefined, questionsAsked);
-
-        if (!result.success || !result.question) {
-            return result;
-        }
-
-        // Single atomic DB update: swap roles + set question + append to asked list
-        const updateData: Record<string, unknown> = {
-            current_question_id: result.question.id,
-            questions_asked: [...questionsAsked, result.question.id],
-        };
-        if (autoSwapped) {
-            updateData.interviewer_id = match.candidate_id;
-            updateData.candidate_id = match.interviewer_id;
-            updateData.swap_requested_by = null;
-        }
-
-        const { error: updateError } = await adminClient
-            .from("matches")
-            .update(updateData)
-            .eq("id", matchId);
-
-        if (updateError) {
-            console.error("Error updating match:", updateError);
-            return { success: false, error: updateError.message };
-        }
-
-        return {
-            success: true,
-            question: result.question,
-            progress,
-            autoSwapped,
-            newInterviewerId,
-        };
-    } catch (error) {
-        console.error("Error in getNextQuestion:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
+    const update: Record<string, unknown> = {
+      current_question_id: question.id,
+      questions_asked: [...asked, question.id],
+    };
+    if (!match.topic) update.topic = question.category;
+    if (swap) {
+      update.interviewer_id = match.candidate_id;
+      update.candidate_id = match.interviewer_id;
+      update.swap_requested_by = null;
     }
+
+    let write = admin.from("matches").update(update).eq("id", match.id).eq("interviewer_id", userId);
+    write = match.current_question_id
+      ? write.eq("current_question_id", match.current_question_id)
+      : write.is("current_question_id", null);
+    const { data, error } = await write.select("id");
+
+    if (error) return fail(error.message);
+    if (!data || data.length === 0) return fail("The question already changed");
+
+    return {
+      success: true,
+      question,
+      progress,
+      autoSwapped: swap,
+      newInterviewerId: swap ? match.candidate_id : match.interviewer_id,
+    };
+  } catch (error) {
+    console.error("[getNextQuestion]", error);
+    return fail(errorText(error));
+  }
 }
 
-/**
- * Mark a question as the current question and add to asked list
- */
-export async function setCurrentQuestion(
-    matchId: string,
-    questionId: string
-): Promise<{ success: boolean; error?: string }> {
-    try {
-        const adminClient = createAdminClient();
+/** Asks the partner to swap roles. */
+export async function requestSwapRoles(matchId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return fail(access.error);
+    const { userId, match, admin } = access;
+    if (match.status !== "active") return fail("The call is not active");
 
-        // Get current match
-        const { data: match, error: fetchError } = await adminClient
-            .from("matches")
-            .select("questions_asked")
-            .eq("id", matchId)
-            .single();
-
-        if (fetchError || !match) {
-            return { success: false, error: "Match not found" };
-        }
-
-        const questionsAsked = match.questions_asked || [];
-
-        // Update match with new current question and add to asked list
-        const { error: updateError } = await adminClient
-            .from("matches")
-            .update({
-                current_question_id: questionId,
-                questions_asked: [...questionsAsked, questionId],
-            })
-            .eq("id", matchId);
-
-        if (updateError) {
-            console.error("Error updating match:", updateError);
-            return { success: false, error: updateError.message };
-        }
-
-        return { success: true };
-    } catch (error) {
-        console.error("Error in setCurrentQuestion:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
-    }
+    const { error } = await admin
+      .from("matches")
+      .update({ swap_requested_by: userId })
+      .eq("id", match.id)
+      .is("swap_requested_by", null);
+    if (error) return fail(error.message);
+    return { success: true };
+  } catch (error) {
+    console.error("[requestSwapRoles]", error);
+    return fail(errorText(error));
+  }
 }
 
-/**
- * Request a role swap (needs partner's consent)
- */
-export async function requestSwapRoles(
-    matchId: string,
-    requestedBy: string
-): Promise<{ success: boolean; error?: string }> {
-    try {
-        const adminClient = createAdminClient();
-
-        const { error } = await adminClient
-            .from("matches")
-            .update({ swap_requested_by: requestedBy })
-            .eq("id", matchId);
-
-        if (error) {
-            console.error("Error requesting swap:", error);
-            return { success: false, error: error.message };
-        }
-
-        return { success: true };
-    } catch (error) {
-        console.error("Error in requestSwapRoles:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
-    }
-}
-
-/**
- * Respond to a swap request (accept or decline)
- */
+/** The partner of whoever asked accepts or declines the swap. */
 export async function respondToSwapRequest(
-    matchId: string,
-    accept: boolean
+  matchId: string,
+  accept: boolean
 ): Promise<{ success: boolean; error?: string }> {
-    try {
-        const adminClient = createAdminClient();
+  try {
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return fail(access.error);
+    const { userId, match, admin } = access;
 
-        if (!accept) {
-            // Decline: just clear the request
-            const { error } = await adminClient
-                .from("matches")
-                .update({ swap_requested_by: null })
-                .eq("id", matchId);
+    const requester = match.swap_requested_by;
+    if (!requester || requester === userId) return fail("No swap request to answer");
 
-            if (error) return { success: false, error: error.message };
-            return { success: true };
-        }
-
-        // Accept: swap roles + clear request
-        const { data: match, error: fetchError } = await adminClient
-            .from("matches")
-            .select("interviewer_id, candidate_id")
-            .eq("id", matchId)
-            .single();
-
-        if (fetchError || !match) {
-            return { success: false, error: "Match not found" };
-        }
-
-        const { error: updateError } = await adminClient
-            .from("matches")
-            .update({
-                interviewer_id: match.candidate_id,
-                candidate_id: match.interviewer_id,
-                swap_requested_by: null,
-            })
-            .eq("id", matchId);
-
-        if (updateError) {
-            console.error("Error accepting swap:", updateError);
-            return { success: false, error: updateError.message };
-        }
-
-        return { success: true };
-    } catch (error) {
-        console.error("Error in respondToSwapRequest:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
+    const update: Record<string, unknown> = { swap_requested_by: null };
+    if (accept && match.interviewer_id && match.candidate_id) {
+      update.interviewer_id = match.candidate_id;
+      update.candidate_id = match.interviewer_id;
     }
+
+    const { error } = await admin
+      .from("matches")
+      .update(update)
+      .eq("id", match.id)
+      .eq("swap_requested_by", requester);
+    if (error) return fail(error.message);
+    return { success: true };
+  } catch (error) {
+    console.error("[respondToSwapRequest]", error);
+    return fail(errorText(error));
+  }
 }
 
-/**
- * Cancel a pending swap request (by the requester)
- */
-export async function cancelSwapRequest(
-    matchId: string
-): Promise<{ success: boolean; error?: string }> {
-    try {
-        const adminClient = createAdminClient();
-        const { error } = await adminClient
-            .from("matches")
-            .update({ swap_requested_by: null })
-            .eq("id", matchId);
+/** Withdraws your own swap request. */
+export async function cancelSwapRequest(matchId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return fail(access.error);
+    const { userId, match, admin } = access;
 
-        if (error) return { success: false, error: error.message };
-        return { success: true };
-    } catch (error) {
-        console.error("Error in cancelSwapRequest:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
-    }
+    const { error } = await admin
+      .from("matches")
+      .update({ swap_requested_by: null })
+      .eq("id", match.id)
+      .eq("swap_requested_by", userId);
+    if (error) return fail(error.message);
+    return { success: true };
+  } catch (error) {
+    console.error("[cancelSwapRequest]", error);
+    return fail(errorText(error));
+  }
 }
 
-/**
- * Initialize roles when a match starts (randomly assign interviewer/candidate)
- */
-export async function initializeRoles(
-    matchId: string,
-    user1Id: string,
-    user2Id: string
-): Promise<{ success: boolean; error?: string }> {
-    try {
-        console.log("[initializeRoles] Starting with:", { matchId, user1Id, user2Id });
-        const adminClient = createAdminClient();
-
-        // Randomly assign who is interviewer first
-        const isUser1Interviewer = Math.random() > 0.5;
-        console.log(`[initializeRoles] Random assignment: user1 is ${isUser1Interviewer ? "interviewer" : "candidate"}`);
-
-        const { data, error: updateError } = await adminClient
-            .from("matches")
-            .update({
-                interviewer_id: isUser1Interviewer ? user1Id : user2Id,
-                candidate_id: isUser1Interviewer ? user2Id : user1Id,
-            })
-            .eq("id", matchId)
-            .select();
-
-        if (updateError) {
-            console.error("[initializeRoles] Error updating match:", updateError);
-            return { success: false, error: updateError.message };
-        }
-
-        console.log("[initializeRoles] ✅ Roles assigned successfully:", data);
-        return { success: true };
-    } catch (error) {
-        console.error("Error in initializeRoles:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
-    }
-}
-
-/**
- * Get a question by ID
- */
+/** One question by id (signed-in users only; questions are not secret). */
 export async function getQuestionById(
-    questionId: string
+  questionId: string
 ): Promise<{ success: boolean; question?: IeltsQuestion; error?: string }> {
-    try {
-        const adminClient = createAdminClient();
+  try {
+    if (!isUuid(questionId)) return fail("Invalid question");
+    const supabase = await createClient();
+    const { data, error } = await supabase.from("ielts_questions").select("*").eq("id", questionId).single();
+    if (error || !data) return fail(error?.message ?? "Question not found");
+    return { success: true, question: data as IeltsQuestion };
+  } catch (error) {
+    console.error("[getQuestionById]", error);
+    return fail(errorText(error));
+  }
+}
 
-        const { data, error } = await adminClient
-            .from("ielts_questions")
-            .select("*")
-            .eq("id", questionId)
-            .single();
+/** A short mock test to practise alone: 4 Part 1, one Part 2 card, 3 Part 3. */
+export async function getSoloQuestions(): Promise<{ success: boolean; questions?: IeltsQuestion[]; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return fail("Not authenticated");
 
-        if (error) {
-            console.error("Error fetching question:", error);
-            return { success: false, error: error.message };
-        }
+    const { data, error } = await supabase.from("ielts_questions").select("*");
+    if (error || !data) return fail(error?.message ?? "No questions");
 
-        return { success: true, question: data as IeltsQuestion };
-    } catch (error) {
-        console.error("Error in getQuestionById:", error);
-        return {
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
-        };
-    }
+    const all = data as IeltsQuestion[];
+    const pick = (part: number, n: number) => {
+      const pool = all.filter((q) => q.part === part);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool.slice(0, n);
+    };
+    // Part 1 questions of one category read like a real interview
+    const part1 = pick(1, 1);
+    const sameTopic = all.filter((q) => q.part === 1 && q.category === part1[0]?.category && q.id !== part1[0]?.id);
+    const questions = [...part1, ...sameTopic.slice(0, 3), ...pick(2, 1), ...pick(3, 3)];
+    return { success: true, questions };
+  } catch (error) {
+    console.error("[getSoloQuestions]", error);
+    return fail(errorText(error));
+  }
 }

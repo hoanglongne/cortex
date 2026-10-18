@@ -1,30 +1,40 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mic, CheckCircle, User, Star, X } from "lucide-react";
+import { Mic, CheckCircle, User, Star, X, Loader2 } from "lucide-react";
 
 interface PartnerFoundScreenProps {
   partner: { name: string; band: string };
   onStartCall: () => void;
-  onDecline?: () => void;
+  onDecline: () => void;
+  /** Getting the call token; the Ready button waits */
+  isStarting?: boolean;
+  /** Why the last attempt to join failed, if it did */
+  error?: string | null;
 }
 
-// Celebration Particles
+// Celebration Particles (positions picked once, not on every render)
 function CelebrationParticles() {
+  const [particles] = useState(() =>
+    [...Array(30)].map(() => ({
+      left: `${50 + (Math.random() - 0.5) * 60}%`,
+      top: `${50 + (Math.random() - 0.5) * 60}%`,
+      background: ["#80c0f4", "#add5f5", "#10B981", "#F59E0B"][Math.floor(Math.random() * 4)],
+      delay: `${Math.random() * 0.5}s`,
+    }))
+  );
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(30)].map((_, i) => (
+      {particles.map((p, i) => (
         <div
           key={i}
           className="absolute w-2 h-2 rounded-full"
           style={{
-            left: `${50 + (Math.random() - 0.5) * 60}%`,
-            top: `${50 + (Math.random() - 0.5) * 60}%`,
-            background: ["#80c0f4", "#add5f5", "#10B981", "#F59E0B"][
-              Math.floor(Math.random() * 4)
-            ],
+            left: p.left,
+            top: p.top,
+            background: p.background,
             animation: `celebrationBurst 1.5s ease-out forwards`,
-            animationDelay: `${Math.random() * 0.5}s`,
+            animationDelay: p.delay,
           }}
         />
       ))}
@@ -57,6 +67,8 @@ export default function PartnerFoundScreen({
   partner,
   onStartCall,
   onDecline,
+  isStarting = false,
+  error,
 }: PartnerFoundScreenProps) {
   const [showContent, setShowContent] = useState(false);
 
@@ -79,7 +91,7 @@ export default function PartnerFoundScreen({
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-8 animate-bounce-in">
           <CheckCircle className="w-5 h-5 text-emerald-400" />
           <span className="text-sm font-semibold text-emerald-400">
-            Partner Found!
+            Đã tìm được bạn luyện!
           </span>
         </div>
 
@@ -109,43 +121,41 @@ export default function PartnerFoundScreen({
           </span>
         </div>
 
-        {/* Connection Info */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="text-sm text-zinc-400">Excellent connection</span>
-          </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900/60 border border-white/5">
-            <Mic className="w-4 h-4 text-zinc-500" />
-            <span className="text-sm text-zinc-400">Audio ready</span>
-          </div>
-        </div>
+        <p className="text-sm text-zinc-400 max-w-sm mx-auto mb-8">
+          Buổi luyện chỉ dùng âm thanh. Trình duyệt sẽ xin quyền dùng micro khi vào phòng.
+        </p>
+
+        {error && (
+          <p role="alert" className="max-w-sm mx-auto mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-300">
+            {error}
+          </p>
+        )}
 
         {/* Ready Button */}
         <button
           onClick={onStartCall}
-          className="group relative mt-8"
+          disabled={isStarting}
+          className="group relative mt-2 disabled:opacity-70"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full blur-xl opacity-50 group-hover:opacity-70 transition-opacity" />
-          <div className="relative bg-gradient-to-r from-blue-500 to-violet-500 rounded-full px-12 py-6 hover:scale-105 transition-transform">
+          <div className="absolute inset-0 bg-gradient-to-r from-oratio-primary to-oratio-secondary rounded-full blur-xl opacity-50 group-hover:opacity-70 transition-opacity" />
+          <div className="relative bg-gradient-to-r from-oratio-primary to-oratio-secondary rounded-full px-12 py-6 hover:scale-105 transition-transform">
             <div className="flex items-center gap-3">
-              <Mic className="w-6 h-6 text-white" />
-              <span className="text-xl font-semibold text-white">I&apos;m Ready!</span>
+              {isStarting ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : <Mic className="w-6 h-6 text-white" />}
+              <span className="text-xl font-semibold text-white">{isStarting ? "Đang vào phòng…" : "Sẵn sàng"}</span>
             </div>
           </div>
         </button>
 
-        <p className="text-zinc-400 mt-6 text-sm">Click when you&apos;re ready to start the call</p>
-        {/* Decline Button (optional) */}
-        {onDecline && (
-          <button
-            onClick={onDecline}
-            className="mt-4 px-6 py-3 rounded-full bg-zinc-800/50 border border-white/10 text-zinc-400 hover:text-white hover:bg-zinc-700/50 transition-all text-sm font-medium flex items-center gap-2 mx-auto"
-          >
-            <X className="w-4 h-4" />
-            Find another partner
-          </button>
-        )}      </div>
+        <p className="text-zinc-400 mt-6 text-sm">Bấm khi bạn đã sẵn sàng nói.</p>
+        <button
+          onClick={onDecline}
+          disabled={isStarting}
+          className="mt-4 px-6 py-3 rounded-full bg-zinc-800/50 border border-white/10 text-zinc-400 hover:text-white hover:bg-zinc-700/50 transition-all text-sm font-medium flex items-center gap-2 mx-auto disabled:opacity-50"
+        >
+          <X className="w-4 h-4" />
+          Tìm bạn khác
+        </button>
+      </div>
 
       {/* Bottom Decoration */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-oratio-primary/5 to-transparent pointer-events-none" />

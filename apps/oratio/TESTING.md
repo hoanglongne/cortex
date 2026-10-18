@@ -1,3 +1,5 @@
+> **Lỗi thời (2026-10-18):** tài liệu này viết cho bản cũ. Xem `README.md` và `PROJECT_STATUS.md`.
+
 # Testing Guide for SpeakMate
 
 This guide explains how to properly test the matchmaking functionality in the SpeakMate application.

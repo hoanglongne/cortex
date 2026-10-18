@@ -1,7 +1,6 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import type { Profile } from "@/lib/types/database";
 
 export interface LeaderboardEntry {
   id: string;
@@ -9,133 +8,73 @@ export interface LeaderboardEntry {
   username: string;
   avatar_url: string | null;
   current_band: number;
-  total_sessions: number;
   current_streak: number;
-  score: number; // Composite score for ranking
-  isCurrentUser?: boolean;
+  /** Calls of at least a minute in the timeframe */
+  sessions: number;
+  /** Minutes spoken in the timeframe; this is what ranks people */
+  minutes: number;
+  isCurrentUser: boolean;
 }
 
-type TimeFrame = "weekly" | "monthly" | "allTime";
+export type TimeFrame = "weekly" | "monthly" | "allTime";
 
-/**
- * Calculate a composite score for ranking users
- * Formula: (total_sessions * 10) + (current_band * 100) + (current_streak * 5)
- */
-function calculateScore(profile: Profile): number {
-  return (
-    profile.total_sessions * 10 +
-    profile.current_band * 100 +
-    profile.current_streak * 5
-  );
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function since(timeframe: TimeFrame): string {
+  if (timeframe === "weekly") return new Date(Date.now() - 7 * DAY_MS).toISOString();
+  if (timeframe === "monthly") return new Date(Date.now() - 30 * DAY_MS).toISOString();
+  return "1970-01-01T00:00:00Z";
 }
 
 /**
- * Get leaderboard data for a specific timeframe
- * For MVP, we'll use all-time data for all timeframes
- * In future, can filter by created_at/last_practice_date
+ * Ranks people by minutes practised in the timeframe (the peer-given band
+ * is shown but doesn't rank: it is noisy and easy to argue about).
  */
 export async function getLeaderboard(
   timeframe: TimeFrame = "weekly",
-  limit: number = 50,
-  currentUserId?: string
+  limit: number = 50
 ): Promise<{ data: LeaderboardEntry[]; error: string | null }> {
   try {
     const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { data: [], error: "Not authenticated" };
 
-    // Fetch top users by total sessions and band score
-    const { data: profiles, error } = await supabase
-      .from("profiles")
-      .select("id, username, avatar_url, current_band, total_sessions, current_streak")
-      .order("total_sessions", { ascending: false })
-      .order("current_band", { ascending: false })
-      .limit(limit);
-
+    const tf: TimeFrame = timeframe === "monthly" || timeframe === "allTime" ? timeframe : "weekly";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any).rpc("leaderboard", {
+      since: since(tf),
+      lim: Math.min(Math.max(1, limit), 200),
+    });
     if (error) {
-      console.error("Leaderboard fetch error:", error);
-      return { data: [], error: error.message };
+      console.error("[getLeaderboard]", error);
+      return { data: [], error: "Không tải được bảng xếp hạng." };
     }
 
-    if (!profiles || profiles.length === 0) {
-      return { data: [], error: null };
-    }
-
-    // Calculate scores and sort
-    type ProfileRow = {
+    type Row = {
       id: string;
       username: string;
       avatar_url: string | null;
-      current_band: number;
-      total_sessions: number;
-      current_streak: number;
+      current_band: number | string;
+      current_streak: number | null;
+      sessions: number | string;
+      minutes: number | string;
     };
-
-    const scoredProfiles = (profiles as ProfileRow[]).map((profile) => {
-      // Calculate score using only the fields we have
-      const score = (
-        profile.total_sessions * 10 +
-        profile.current_band * 100 +
-        profile.current_streak * 5
-      );
-
-      return {
-        ...profile,
-        score,
-      };
-    });
-
-    // Sort by composite score
-    scoredProfiles.sort((a, b) => b.score - a.score);
-
-    // Convert to leaderboard entries with ranks
-    const leaderboardData: LeaderboardEntry[] = scoredProfiles.map((profile, index) => ({
-      id: profile.id,
-      rank: index + 1,
-      username: profile.username,
-      avatar_url: profile.avatar_url,
-      current_band: profile.current_band,
-      total_sessions: profile.total_sessions,
-      current_streak: profile.current_streak,
-      score: profile.score,
-      isCurrentUser: currentUserId ? profile.id === currentUserId : false,
+    const entries = ((data ?? []) as Row[]).map((r, i) => ({
+      id: r.id,
+      rank: i + 1,
+      username: r.username,
+      avatar_url: r.avatar_url,
+      current_band: Number(r.current_band),
+      current_streak: r.current_streak ?? 0,
+      sessions: Number(r.sessions),
+      minutes: Number(r.minutes),
+      isCurrentUser: r.id === user.id,
     }));
-
-    return { data: leaderboardData, error: null };
+    return { data: entries, error: null };
   } catch (err) {
-    console.error("Leaderboard error:", err);
-    return {
-      data: [],
-      error: err instanceof Error ? err.message : "Failed to fetch leaderboard"
-    };
-  }
-}
-
-/**
- * Get a specific user's rank and position in the leaderboard
- */
-export async function getUserRank(
-  userId: string,
-  timeframe: TimeFrame = "weekly"
-): Promise<{ rank: number | null; total: number; error: string | null }> {
-  try {
-    const { data: leaderboard, error } = await getLeaderboard(timeframe, 1000, userId);
-
-    if (error) {
-      return { rank: null, total: 0, error };
-    }
-
-    const userEntry = leaderboard.find((entry) => entry.id === userId);
-
-    return {
-      rank: userEntry?.rank || null,
-      total: leaderboard.length,
-      error: null,
-    };
-  } catch (err) {
-    console.error("Get user rank error:", err);
-    return {
-      rank: null,
-      total: 0,
-      error: err instanceof Error ? err.message : "Failed to get user rank",
-    };
+    console.error("[getLeaderboard]", err);
+    return { data: [], error: "Không tải được bảng xếp hạng." };
   }
 }

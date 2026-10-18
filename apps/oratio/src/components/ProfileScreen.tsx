@@ -1,555 +1,369 @@
 "use client";
 
-import { useState } from "react";
-import { prefetchCallHistory } from "@/hooks/useCallHistory";
+import { useEffect, useState } from "react";
+import { getMyFeedbackSummary } from "@/actions/stats";
+import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types/database";
 import type { User } from "@supabase/supabase-js";
 import {
   ArrowLeft,
-  User as UserIcon,
-  Settings,
-  Bell,
-  Shield,
-  HelpCircle,
   LogOut,
-  ChevronRight,
-  Camera,
-  Edit3,
-  Globe,
-  Volume2,
-  Moon,
-  Smartphone,
-  Mail,
-  Calendar,
+  Pencil,
   Target,
-  TrendingUp,
   Clock,
   Mic,
-  Award,
   Flame,
-  Star,
-  BookOpen,
+  Award,
+  Loader2,
 } from "lucide-react";
 
 interface ProfileScreenProps {
   profile: Profile | null;
   user: User | null;
   onBack: () => void;
-  onNavigate?: (screen: "history" | "settings") => void;
-  onSignOut?: () => void;
+  onNavigate: (screen: "history" | "achievements") => void;
+  onSignOut: () => void;
+  onProfileUpdated: () => void;
 }
 
-interface UserProfile {
-  name: string;
-  email: string;
-  avatar?: string;
-  currentBand: number;
-  targetBand: number;
-  joinedDate: string;
-  country: string;
-  nativeLanguage: string;
-  totalSessions: number;
-  totalHours: number;
-  currentStreak: number;
-  longestStreak: number;
-  averageScore: number;
-}
+type FeedbackSummary = NonNullable<Awaited<ReturnType<typeof getMyFeedbackSummary>>["summary"]>;
 
-// Band Score Display Component
-function BandScoreDisplay({
-  currentBand,
-  targetBand,
-}: {
-  currentBand: number;
-  targetBand: number;
-}) {
-  const progress = (currentBand / targetBand) * 100;
+const TARGET_BANDS = Array.from({ length: 11 }, (_, i) => 4 + i * 0.5);
 
-  return (
-    <div className="p-6 rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 border border-white/10">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <p className="text-sm text-zinc-500 mb-1">Current Band Score</p>
-          <div className="flex items-baseline gap-2">
-            <span className="text-5xl font-bold text-white">{currentBand}</span>
-            <span className="text-lg text-zinc-500">/ 9</span>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="text-sm text-zinc-500 mb-1">Target</p>
-          <div className="flex items-center gap-2">
-            <Target className="w-5 h-5 text-[#80c0f4]" />
-            <span className="text-2xl font-bold text-[#80c0f4]">{targetBand}</span>
-          </div>
-        </div>
-      </div>
+const CRITERIA: { key: "fluency" | "vocabulary" | "grammar" | "pronunciation"; label: string }[] = [
+  { key: "fluency", label: "Fluency" },
+  { key: "vocabulary", label: "Vocabulary" },
+  { key: "grammar", label: "Grammar" },
+  { key: "pronunciation", label: "Pronunciation" },
+];
 
-      {/* Progress Bar */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-xs text-zinc-500">
-          <span>Progress to target</span>
-          <span>{Math.round(progress)}%</span>
-        </div>
-        <div className="h-3 rounded-full bg-zinc-800 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-[#80c0f4] to-[#add5f5] transition-all duration-1000"
-            style={{ width: `${Math.min(100, progress)}%` }}
-          />
-        </div>
-        <p className="text-xs text-zinc-600 mt-2">
-          {targetBand - currentBand > 0
-            ? `${(targetBand - currentBand).toFixed(1)} bands to go!`
-            : "You've reached your target! 🎉"}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-// Stats Card Component
-function ProfileStatCard({
+function StatCard({
   icon: Icon,
   label,
   value,
-  subtext,
-  color = "blue",
 }: {
   icon: React.ElementType;
   label: string;
   value: string;
-  subtext?: string;
-  color?: "blue" | "purple" | "amber" | "emerald";
 }) {
-  const colorClasses = {
-    blue: "from-[#80c0f4]/20 to-[#80c0f4]/5 text-[#80c0f4]",
-    purple: "from-[#add5f5]/20 to-[#add5f5]/5 text-[#add5f5]",
-    amber: "from-amber-500/20 to-amber-500/5 text-amber-400",
-    emerald: "from-emerald-500/20 to-emerald-500/5 text-emerald-400",
-  };
-
   return (
-    <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/5">
-      <div
-        className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center mb-3`}
-      >
-        <Icon className="w-5 h-5" />
+    <div className="p-4 rounded-2xl bg-zinc-900/60 border border-white/10 min-w-0">
+      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#80c0f4]/20 to-[#80c0f4]/5 flex items-center justify-center mb-3">
+        <Icon className="w-4 h-4 text-[#80c0f4]" aria-hidden="true" />
       </div>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      <p className="text-sm text-zinc-500">{label}</p>
-      {subtext && <p className="text-xs text-zinc-600 mt-1">{subtext}</p>}
+      <p className="text-2xl font-bold text-white tabular-nums">{value}</p>
+      <p className="text-sm text-zinc-400">{label}</p>
     </div>
   );
 }
 
-// Menu Item Component
-function MenuItem({
-  icon: Icon,
-  label,
-  description,
-  onClick,
-  onMouseEnter,
-  badge,
-  danger = false,
-}: {
-  icon: React.ElementType;
-  label: string;
-  description?: string;
-  onClick?: () => void;
-  onMouseEnter?: () => void;
-  badge?: string;
-  danger?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${danger
-          ? "hover:bg-red-500/10 text-red-400"
-          : "hover:bg-zinc-800/50 text-zinc-300"
-        }`}
-    >
-      <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center ${danger ? "bg-red-500/10" : "bg-zinc-800"
-          }`}
-      >
-        <Icon className={`w-5 h-5 ${danger ? "text-red-400" : "text-zinc-400"}`} />
-      </div>
-      <div className="flex-1 text-left">
-        <p className={`font-medium ${danger ? "text-red-400" : "text-white"}`}>
-          {label}
-        </p>
-        {description && (
-          <p className="text-sm text-zinc-500">{description}</p>
-        )}
-      </div>
-      {badge && (
-        <span className="px-2 py-1 rounded-full bg-[#80c0f4]/20 text-[#80c0f4] text-xs font-medium">
-          {badge}
-        </span>
-      )}
-      <ChevronRight className="w-5 h-5 text-zinc-600" />
-    </button>
-  );
-}
+export default function ProfileScreen({
+  profile,
+  user,
+  onBack,
+  onNavigate,
+  onSignOut,
+  onProfileUpdated,
+}: ProfileScreenProps) {
+  const [summary, setSummary] = useState<FeedbackSummary | null>(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState(false);
 
-// Score Breakdown Mini Component
-function ScoreBreakdownMini({
-  scores,
-}: {
-  scores: { label: string; score: number }[];
-}) {
-  return (
-    <div className="grid grid-cols-2 gap-3">
-      {scores.map((item) => (
-        <div
-          key={item.label}
-          className="p-3 rounded-xl bg-zinc-800/50 border border-white/5"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs text-zinc-500">{item.label}</span>
-            <span className="text-sm font-semibold text-white">
-              {item.score.toFixed(1)}
-            </span>
-          </div>
-          <div className="h-1.5 rounded-full bg-zinc-700 overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-[#80c0f4] to-[#add5f5]"
-              style={{ width: `${(item.score / 9) * 100}%` }}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
+  const [editing, setEditing] = useState(false);
+  const [username, setUsername] = useState("");
+  const [targetBand, setTargetBand] = useState(7);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-// Main Profile Screen Component
-export default function ProfileScreen({ profile, user, onBack, onNavigate, onSignOut }: ProfileScreenProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "settings">("overview");
+  useEffect(() => {
+    let cancelled = false;
+    getMyFeedbackSummary()
+      .then((res) => {
+        if (cancelled) return;
+        if (res.error) setSummaryError(true);
+        setSummary(res.summary);
+      })
+      .catch(() => {
+        if (!cancelled) setSummaryError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setSummaryLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  // Use real profile data with fallbacks
-  const userData: UserProfile = {
-    name: profile?.username || "User",
-    email: user?.email || "No email",
-    avatar: profile?.avatar_url || undefined,
-    currentBand: profile?.current_band || 5.0,
-    targetBand: profile?.target_band || 7.0,
-    joinedDate: profile?.created_at
-      ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-      : "Recently",
-    country: profile?.country || "Unknown",
-    nativeLanguage: profile?.native_language || "Unknown",
-    totalSessions: profile?.total_sessions || 0,
-    totalHours: profile?.total_minutes ? Math.round((profile.total_minutes / 60) * 10) / 10 : 0,
-    currentStreak: profile?.current_streak || 0,
-    longestStreak: profile?.longest_streak || 0,
-    averageScore: profile?.current_band || 5.0,
+  const startEditing = () => {
+    if (!profile) return;
+    setUsername(profile.username);
+    setTargetBand(profile.target_band);
+    setSaveError(null);
+    setEditing(true);
   };
 
-  // Calculate score breakdown based on current band with some variation
-  const baseScore = userData.currentBand;
-  const scoreBreakdown = [
-    { label: "Fluency", score: Math.min(9, baseScore + 0.3) },
-    { label: "Vocabulary", score: Math.max(4, baseScore - 0.2) },
-    { label: "Grammar", score: Math.max(4, baseScore - 0.5) },
-    { label: "Pronunciation", score: Math.min(9, baseScore + 0.2) },
-  ];
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) return;
+    const trimmed = username.trim();
+    if (trimmed.length < 1 || trimmed.length > 40) {
+      setSaveError("Tên hiển thị cần từ 1 đến 40 ký tự.");
+      return;
+    }
+    setSaving(true);
+    setSaveError(null);
+    try {
+      // The hand-written Database type lacks Relationships, so update() infers `never`.
+      const profiles = getSupabaseClient().from("profiles") as unknown as {
+        update: (values: { username: string; target_band: number }) => {
+          eq: (column: string, value: string) => PromiseLike<{ error: unknown }>;
+        };
+      };
+      const { error } = await profiles
+        .update({ username: trimmed, target_band: targetBand })
+        .eq("id", profile.id);
+      if (error) {
+        setSaveError("Không lưu được. Vui lòng thử lại.");
+        return;
+      }
+      setEditing(false);
+      onProfileUpdated();
+    } catch {
+      setSaveError("Không lưu được. Vui lòng thử lại.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const name = profile?.username || "Người học";
+  const email = user?.email || profile?.email || "";
+  const currentBand = profile?.current_band || 0;
+  const target = profile?.target_band || 0;
+  const progress = target > 0 ? Math.min(100, (currentBand / target) * 100) : 0;
+  const minutes = profile?.total_minutes || 0;
+  const timeValue =
+    minutes >= 60 ? `${Math.round((minutes / 60) * 10) / 10} giờ` : `${minutes} phút`;
 
   return (
     <div className="min-h-screen bg-[#050505]">
-      <div className="max-w-4xl mx-auto px-4 lg:px-8 py-6 lg:py-10">
-        {/* Header */}
-        <header className="flex items-center justify-between mb-8">
+      <div className="max-w-3xl mx-auto px-4 py-6 pb-12">
+        <header className="flex items-center gap-3 mb-6">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-all text-zinc-400 hover:text-white"
+            aria-label="Quay lại"
+            className="p-2 -ml-2 rounded-lg hover:bg-white/5 transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium hidden sm:inline">Back</span>
+            <ArrowLeft className="w-5 h-5 text-zinc-400" aria-hidden="true" />
           </button>
-          <h1 className="text-xl lg:text-2xl font-bold text-white">Profile</h1>
-          <div className="w-20" /> {/* Spacer */}
+          <h1 className="text-xl font-semibold text-[#fffcff]">Hồ sơ</h1>
         </header>
 
-        {/* Profile Header Card */}
-        <div className="relative p-6 lg:p-8 rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 border border-white/10 mb-6">
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#80c0f4]/10 to-[#add5f5]/10 rounded-full blur-3xl" />
-
-          <div className="relative flex flex-col sm:flex-row sm:items-center gap-6">
-            {/* Avatar */}
-            <div className="relative">
-              {userData.avatar ? (
-                <img
-                  src={userData.avatar}
-                  alt={userData.name}
-                  className="w-24 h-24 lg:w-28 lg:h-28 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full bg-gradient-to-br from-[#80c0f4] to-[#add5f5] flex items-center justify-center text-white text-3xl lg:text-4xl font-bold">
-                  {userData.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-zinc-800 border border-white/20 flex items-center justify-center hover:bg-zinc-700 transition-colors">
-                <Camera className="w-4 h-4 text-zinc-300" />
-              </button>
-            </div>
-
-            {/* User Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold text-white">{userData.name}</h2>
-                <button className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
-                  <Edit3 className="w-4 h-4 text-zinc-500" />
+        <div className="space-y-6">
+          {/* Identity */}
+          <section className="p-5 rounded-3xl bg-zinc-900/70 border border-white/10">
+            <div className="flex items-center gap-4">
+              <div
+                className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#80c0f4] to-[#add5f5] flex items-center justify-center text-2xl font-bold text-[#050505] shrink-0"
+                aria-hidden="true"
+              >
+                {name.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg font-semibold text-white truncate">{name}</h2>
+                {email && <p className="text-sm text-zinc-400 truncate">{email}</p>}
+              </div>
+              {!editing && profile && (
+                <button
+                  onClick={startEditing}
+                  aria-label="Sửa hồ sơ"
+                  className="p-2 rounded-lg hover:bg-white/5 transition-colors shrink-0"
+                >
+                  <Pencil className="w-4 h-4 text-zinc-400" aria-hidden="true" />
                 </button>
-              </div>
-              <p className="text-zinc-500 mb-3">{userData.email}</p>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800">
-                  <Globe className="w-4 h-4 text-zinc-500" />
-                  <span className="text-sm text-zinc-300">{userData.country}</span>
-                </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800">
-                  <Calendar className="w-4 h-4 text-zinc-500" />
-                  <span className="text-sm text-zinc-300">Joined {userData.joinedDate}</span>
-                </div>
-                {userData.currentStreak > 0 && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
-                    <Flame className="w-4 h-4 text-amber-400" />
-                    <span className="text-sm font-medium text-amber-400">
-                      {userData.currentStreak} day streak
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab("overview")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === "overview"
-                ? "bg-[#80c0f4] text-white"
-                : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300"
-              }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab("settings")}
-            className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${activeTab === "settings"
-                ? "bg-[#80c0f4] text-white"
-                : "bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300"
-              }`}
-          >
-            Settings
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        {activeTab === "overview" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Column */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Band Score */}
-              <BandScoreDisplay
-                currentBand={userData.currentBand}
-                targetBand={userData.targetBand}
-              />
-
-              {/* Score Breakdown */}
-              <div className="p-6 rounded-3xl bg-zinc-900/60 border border-white/5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">
-                    Average Scores
-                  </h3>
-                  <button className="text-sm text-[#80c0f4] hover:text-[#9dcce4] transition-colors">
-                    View details
+            {editing && (
+              <form onSubmit={handleSave} className="mt-5 space-y-4">
+                <div>
+                  <label htmlFor="profile-username" className="block text-sm font-medium text-zinc-400 mb-2">
+                    Tên hiển thị
+                  </label>
+                  <input
+                    id="profile-username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    maxLength={40}
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-[#80c0f4]/50 focus:ring-2 focus:ring-[#80c0f4]/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="profile-target" className="block text-sm font-medium text-zinc-400 mb-2">
+                    Band mục tiêu
+                  </label>
+                  <select
+                    id="profile-target"
+                    value={targetBand}
+                    onChange={(e) => setTargetBand(Number(e.target.value))}
+                    className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-white/10 text-white focus:outline-none focus:border-[#80c0f4]/50 focus:ring-2 focus:ring-[#80c0f4]/20 transition-all"
+                  >
+                    {TARGET_BANDS.map((b) => (
+                      <option key={b} value={b}>
+                        {b.toFixed(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {saveError && (
+                  <p role="alert" className="text-sm text-red-400">
+                    {saveError}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#80c0f4] to-[#add5f5] text-[#050505] text-sm font-semibold disabled:opacity-50"
+                  >
+                    {saving && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
+                    {saving ? "Đang lưu..." : "Lưu"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditing(false)}
+                    disabled={saving}
+                    className="px-4 py-2.5 rounded-xl bg-zinc-800 text-sm font-medium text-zinc-300 hover:bg-zinc-700 transition-colors disabled:opacity-50"
+                  >
+                    Hủy
                   </button>
                 </div>
-                <ScoreBreakdownMini scores={scoreBreakdown} />
-              </div>
+              </form>
+            )}
+          </section>
 
-              {/* Quick Actions */}
-              <div className="p-6 rounded-3xl bg-zinc-900/60 border border-white/5">
-                <h3 className="text-lg font-semibold text-white mb-4">
-                  Quick Actions
-                </h3>
-                <div className="space-y-2">
-                  <MenuItem
-                    icon={Clock}
-                    label="Call History"
-                    description="View all your practice sessions"
-                    onClick={() => onNavigate?.("history")}
-                    onMouseEnter={() => prefetchCallHistory()}
-                  />
-                  <MenuItem
-                    icon={BookOpen}
-                    label="Saved Topics"
-                    description="Topics you've bookmarked"
-                  />
-                  <MenuItem
-                    icon={Star}
-                    label="Favorite Partners"
-                    description="Partners you'd like to practice with again"
-                  />
+          {/* Band */}
+          <section className="p-5 rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 border border-white/10">
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
+              <div>
+                <p className="text-sm text-zinc-400 mb-1">Band hiện tại</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-5xl font-bold text-white tabular-nums">{currentBand.toFixed(1)}</span>
+                  <span className="text-lg text-zinc-500">/ 9</span>
+                </div>
+              </div>
+              <div className="sm:text-right">
+                <p className="text-sm text-zinc-400 mb-1">Mục tiêu</p>
+                <div className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-[#80c0f4]" aria-hidden="true" />
+                  <span className="text-2xl font-bold text-[#80c0f4] tabular-nums">{target.toFixed(1)}</span>
                 </div>
               </div>
             </div>
+            <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#80c0f4] to-[#add5f5] transition-all duration-1000"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-xs text-zinc-500 mt-3">
+              Trung bình điểm bạn luyện cùng chấm (cần 3 người chấm)
+            </p>
+          </section>
 
-            {/* Right Column */}
-            <div className="lg:col-span-5 space-y-6">
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <ProfileStatCard
-                  icon={Mic}
-                  label="Sessions"
-                  value={userData.totalSessions.toString()}
-                  color="blue"
-                />
-                <ProfileStatCard
-                  icon={Clock}
-                  label="Hours"
-                  value={userData.totalHours.toString()}
-                  color="purple"
-                />
-                <ProfileStatCard
-                  icon={Flame}
-                  label="Streak"
-                  value={`${userData.currentStreak} days`}
-                  subtext={userData.longestStreak > 0 ? `Best: ${userData.longestStreak}` : undefined}
-                  color="amber"
-                />
-                <ProfileStatCard
-                  icon={TrendingUp}
-                  label="Avg Score"
-                  value={userData.averageScore.toFixed(1)}
-                  color="emerald"
-                />
-              </div>
+          {/* Stats */}
+          <section aria-label="Thống kê" className="grid grid-cols-2 gap-3">
+            <StatCard icon={Mic} label="Buổi luyện" value={String(profile?.total_sessions || 0)} />
+            <StatCard icon={Clock} label="Thời gian luyện" value={timeValue} />
+            <StatCard icon={Flame} label="Chuỗi hiện tại" value={`${profile?.current_streak || 0} ngày`} />
+            <StatCard icon={Award} label="Chuỗi dài nhất" value={`${profile?.longest_streak || 0} ngày`} />
+          </section>
 
-              {/* Achievements Preview */}
-              <div className="p-6 rounded-3xl bg-gradient-to-br from-[#add5f5]/10 to-purple-500/5 border border-[#add5f5]/20">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <Award className="w-6 h-6 text-[#add5f5]" />
-                    <h3 className="text-lg font-semibold text-white">
-                      Achievements
-                    </h3>
+          {/* Feedback summary */}
+          <section className="p-5 rounded-3xl bg-zinc-900/70 border border-white/10">
+            <h2 className="text-base font-semibold text-white mb-4">Điểm bạn luyện cùng chấm</h2>
+            {summaryLoading ? (
+              <p className="text-sm text-zinc-400">Đang tải...</p>
+            ) : summaryError && !summary ? (
+              <p className="text-sm text-red-400">Không tải được điểm đánh giá.</p>
+            ) : !summary || summary.count === 0 || !summary.averages ? (
+              <p className="text-sm text-zinc-400">
+                Chưa có ai chấm bạn. Sau buổi luyện đầu tiên, điểm bạn luyện cùng chấm sẽ hiện ở đây.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {summary.overall !== null && (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-white tabular-nums">{summary.overall.toFixed(1)}</span>
+                    <span className="text-sm text-zinc-400">Band tổng</span>
                   </div>
-                  <span className="text-sm text-zinc-400">6/14</span>
-                </div>
-                <div className="flex gap-2 mb-3">
-                  {["🔥", "⭐", "🎯", "🏆", "📚", "💬"].map((emoji, i) => (
-                    <div
-                      key={i}
-                      className="w-10 h-10 rounded-xl bg-zinc-800/50 flex items-center justify-center text-lg"
-                    >
-                      {emoji}
+                )}
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3">
+                  {CRITERIA.map(({ key, label }) => (
+                    <div key={key} className="p-3 rounded-xl bg-zinc-800/60">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-zinc-400">{label}</span>
+                        <span className="font-semibold text-white tabular-nums">
+                          {summary.averages![key].toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[#80c0f4]"
+                          style={{ width: `${(summary.averages![key] / 9) * 100}%` }}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
-                <button className="w-full py-2.5 rounded-xl bg-[#add5f5]/20 text-[#add5f5] text-sm font-medium hover:bg-[#add5f5]/30 transition-colors">
-                  View All Achievements
-                </button>
+                <p className="text-xs text-zinc-500">
+                  Dựa trên {summary.count} lượt đánh giá gần nhất
+                </p>
+                {summary.topTags.length > 0 && (
+                  <div>
+                    <p className="text-sm text-zinc-400 mb-2">Bạn luyện cùng hay nhận xét</p>
+                    <div className="flex flex-wrap gap-2">
+                      {summary.topTags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1 rounded-full bg-[#80c0f4]/10 border border-[#80c0f4]/20 text-xs text-[#add5f5]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
+          </section>
+
+          {/* Links */}
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => onNavigate("achievements")}
+              className="flex-1 min-w-[10rem] px-4 py-3 rounded-xl bg-zinc-900/70 border border-white/10 text-sm font-medium text-zinc-200 hover:bg-zinc-800 transition-colors"
+            >
+              Xem thành tích
+            </button>
+            <button
+              onClick={() => onNavigate("history")}
+              className="flex-1 min-w-[10rem] px-4 py-3 rounded-xl bg-zinc-900/70 border border-white/10 text-sm font-medium text-zinc-200 hover:bg-zinc-800 transition-colors"
+            >
+              Lịch sử luyện tập
+            </button>
           </div>
-        )}
 
-        {activeTab === "settings" && (
-          <div className="space-y-6">
-            {/* Account Settings */}
-            <div className="p-6 rounded-3xl bg-zinc-900/60 border border-white/5">
-              <h3 className="text-lg font-semibold text-white mb-4">Account</h3>
-              <div className="space-y-2">
-                <MenuItem
-                  icon={UserIcon}
-                  label="Edit Profile"
-                  description="Update your name, photo, and bio"
-                />
-                <MenuItem
-                  icon={Mail}
-                  label="Email & Password"
-                  description="Manage your login credentials"
-                />
-                <MenuItem
-                  icon={Target}
-                  label="Learning Goals"
-                  description="Set your target band score"
-                  badge={`Band ${userData.targetBand.toFixed(1)}`}
-                />
-              </div>
-            </div>
-
-            {/* Preferences */}
-            <div className="p-6 rounded-3xl bg-zinc-900/60 border border-white/5">
-              <h3 className="text-lg font-semibold text-white mb-4">Preferences</h3>
-              <div className="space-y-2">
-                <MenuItem
-                  icon={Bell}
-                  label="Notifications"
-                  description="Push, email, and reminder settings"
-                />
-                <MenuItem
-                  icon={Volume2}
-                  label="Audio Settings"
-                  description="Microphone and speaker preferences"
-                />
-                <MenuItem
-                  icon={Globe}
-                  label="Language & Region"
-                  description="English (US)"
-                />
-                <MenuItem
-                  icon={Moon}
-                  label="Appearance"
-                  description="Dark mode is enabled"
-                />
-              </div>
-            </div>
-
-            {/* Privacy & Support */}
-            <div className="p-6 rounded-3xl bg-zinc-900/60 border border-white/5">
-              <h3 className="text-lg font-semibold text-white mb-4">
-                Privacy & Support
-              </h3>
-              <div className="space-y-2">
-                <MenuItem
-                  icon={Shield}
-                  label="Privacy Settings"
-                  description="Control who can see your profile"
-                />
-                <MenuItem
-                  icon={Smartphone}
-                  label="Connected Devices"
-                  description="Manage logged-in devices"
-                />
-                <MenuItem
-                  icon={HelpCircle}
-                  label="Help & Support"
-                  description="FAQs and contact support"
-                />
-              </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="p-6 rounded-3xl bg-zinc-900/60 border border-red-500/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Account</h3>
-              <MenuItem
-                icon={LogOut}
-                label="Log Out"
-                description="Sign out of your account"
-                onClick={onSignOut}
-                danger
-              />
-            </div>
-          </div>
-        )}
+          <button
+            onClick={onSignOut}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm font-medium text-red-400 hover:bg-red-500/20 transition-colors"
+          >
+            <LogOut className="w-4 h-4" aria-hidden="true" />
+            Đăng xuất
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-

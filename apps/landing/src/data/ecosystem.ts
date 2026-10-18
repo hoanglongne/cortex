@@ -72,10 +72,10 @@ export const ecosystemApps: EcosystemApp[] = [
     {
         id: 'oratio',
         name: 'Oratio',
-        status: 'Live',
+        status: 'Development',
         pillar: 'Combat',
         pureFunctionDesc:
-            'Giải quyết CHÍNH XÁC một vấn đề: Xây dựng sự trôi chảy trong tranh luận dưới áp lực thời gian.',
+            'Giải quyết CHÍNH XÁC một vấn đề: Thi thử IELTS Speaking với người học thật và chấm điểm nhau theo 4 tiêu chí.',
         colorAccent: '#0007cd',
         language: 'English',
         href: '/apps/oratio',

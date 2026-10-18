@@ -1,6 +1,9 @@
 -- ============================================
--- SpeakMate Database Schema
--- Run this in Supabase SQL Editor
+-- Oratio Database Schema
+-- Run this in Supabase SQL Editor, then seed_questions_v2.sql (fresh database
+-- only), then migration_2026_10_security.sql, which holds the current
+-- triggers, grants and functions. Running this file again is safe as long as
+-- the migration is run after it.
 -- ============================================
 
 -- Enable UUID extension
@@ -78,6 +81,10 @@ CREATE TABLE IF NOT EXISTS public.matches (
     status match_status DEFAULT 'pending',
     topic TEXT,
     current_question_id UUID REFERENCES public.ielts_questions(id),
+    swap_requested_by UUID REFERENCES auth.users(id),
+    user1_joined_at TIMESTAMPTZ,
+    user2_joined_at TIMESTAMPTZ,
+    last_activity_at TIMESTAMPTZ,
     questions_asked UUID[] DEFAULT '{}',
     started_at TIMESTAMPTZ,
     ended_at TIMESTAMPTZ,
@@ -148,16 +155,14 @@ CREATE POLICY "IELTS questions are viewable by authenticated users"
     ON public.ielts_questions FOR SELECT
     USING (auth.role() = 'authenticated');
 
--- Profiles policies
+-- Profiles policies: a user reads and edits only their own row. Other users'
+-- public fields come from the public_profiles view, and which columns can be
+-- edited is set by column grants (both in migration_2026_10_security.sql).
 DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
-CREATE POLICY "Profiles are viewable by everyone"
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
+CREATE POLICY "Users can view their own profile"
     ON public.profiles FOR SELECT
-    USING (true);
-
-DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
-CREATE POLICY "Users can insert their own profile"
-    ON public.profiles FOR INSERT
-    WITH CHECK (auth.uid() = id);
+    USING (auth.uid() = id);
 
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile"
@@ -165,63 +170,23 @@ CREATE POLICY "Users can update their own profile"
     USING (auth.uid() = id)
     WITH CHECK (auth.uid() = id);
 
--- Match queue policies
+-- Match queue, matches and feedback: users read their own rows. All writes
+-- go through the app's server actions (service role), which check who may
+-- do what.
 DROP POLICY IF EXISTS "Users can view their own queue entry" ON public.match_queue;
 CREATE POLICY "Users can view their own queue entry"
     ON public.match_queue FOR SELECT
     USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Users can insert themselves into queue" ON public.match_queue;
-CREATE POLICY "Users can insert themselves into queue"
-    ON public.match_queue FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can update their own queue entry" ON public.match_queue;
-CREATE POLICY "Users can update their own queue entry"
-    ON public.match_queue FOR UPDATE
-    USING (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can delete their own queue entry" ON public.match_queue;
-CREATE POLICY "Users can delete their own queue entry"
-    ON public.match_queue FOR DELETE
-    USING (auth.uid() = user_id);
-
--- Matches policies
 DROP POLICY IF EXISTS "Users can view matches they are part of" ON public.matches;
 CREATE POLICY "Users can view matches they are part of"
     ON public.matches FOR SELECT
     USING (auth.uid() = user1_id OR auth.uid() = user2_id);
 
-DROP POLICY IF EXISTS "Users can update matches they are part of" ON public.matches;
-CREATE POLICY "Users can update matches they are part of"
-    ON public.matches FOR UPDATE
-    USING (auth.uid() = user1_id OR auth.uid() = user2_id);
-
--- Note: INSERT for matches should be done via service role (server-side)
--- This prevents race conditions in matchmaking
-
--- Session feedback policies
 DROP POLICY IF EXISTS "Users can view feedback they gave or received" ON public.session_feedback;
 CREATE POLICY "Users can view feedback they gave or received"
     ON public.session_feedback FOR SELECT
     USING (auth.uid() = from_user_id OR auth.uid() = to_user_id);
-
-DROP POLICY IF EXISTS "Users can insert feedback for matches they participated in" ON public.session_feedback;
-CREATE POLICY "Users can insert feedback for matches they participated in"
-    ON public.session_feedback FOR INSERT
-    WITH CHECK (
-        auth.uid() = from_user_id 
-        AND EXISTS (
-            SELECT 1 FROM public.matches 
-            WHERE id = match_id 
-            AND (user1_id = auth.uid() OR user2_id = auth.uid())
-        )
-    );
-
-DROP POLICY IF EXISTS "Users can update their own feedback" ON public.session_feedback;
-CREATE POLICY "Users can update their own feedback"
-    ON public.session_feedback FOR UPDATE
-    USING (auth.uid() = from_user_id);
 
 -- ============================================
 -- FUNCTIONS & TRIGGERS
@@ -280,102 +245,9 @@ BEGIN
 END $$;
 
 
--- Function to update user stats after a match ends
-CREATE OR REPLACE FUNCTION public.update_user_stats_after_match()
-RETURNS TRIGGER AS $$
-DECLARE
-    match_duration INTEGER;
-BEGIN
-    -- Only run when match status changes to 'finished'
-    IF NEW.status = 'finished' AND OLD.status != 'finished' THEN
-        -- Calculate duration in minutes
-        match_duration := EXTRACT(EPOCH FROM (NEW.ended_at - NEW.started_at)) / 60;
-        
-        -- Update user1 stats
-        UPDATE public.profiles
-        SET 
-            total_sessions = total_sessions + 1,
-            total_minutes = total_minutes + match_duration,
-            last_practice_date = CURRENT_DATE,
-            current_streak = CASE 
-                WHEN last_practice_date = CURRENT_DATE - INTERVAL '1 day' THEN current_streak + 1
-                WHEN last_practice_date = CURRENT_DATE THEN current_streak
-                ELSE 1
-            END,
-            longest_streak = GREATEST(longest_streak, 
-                CASE 
-                    WHEN last_practice_date = CURRENT_DATE - INTERVAL '1 day' THEN current_streak + 1
-                    WHEN last_practice_date = CURRENT_DATE THEN current_streak
-                    ELSE 1
-                END
-            )
-        WHERE id = NEW.user1_id;
-        
-        -- Update user2 stats
-        UPDATE public.profiles
-        SET 
-            total_sessions = total_sessions + 1,
-            total_minutes = total_minutes + match_duration,
-            last_practice_date = CURRENT_DATE,
-            current_streak = CASE 
-                WHEN last_practice_date = CURRENT_DATE - INTERVAL '1 day' THEN current_streak + 1
-                WHEN last_practice_date = CURRENT_DATE THEN current_streak
-                ELSE 1
-            END,
-            longest_streak = GREATEST(longest_streak, 
-                CASE 
-                    WHEN last_practice_date = CURRENT_DATE - INTERVAL '1 day' THEN current_streak + 1
-                    WHEN last_practice_date = CURRENT_DATE THEN current_streak
-                    ELSE 1
-                END
-            )
-        WHERE id = NEW.user2_id;
-    END IF;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger to update stats when match ends
-DROP TRIGGER IF EXISTS on_match_finished ON public.matches;
-CREATE TRIGGER on_match_finished
-    AFTER UPDATE ON public.matches
-    FOR EACH ROW EXECUTE FUNCTION public.update_user_stats_after_match();
-
--- Function to update current_band from peer feedback
-CREATE OR REPLACE FUNCTION public.update_current_band_from_feedback()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Only update if feedback has scores
-    IF NEW.scores IS NOT NULL AND (NEW.scores->>'overall') IS NOT NULL THEN
-        -- Update the recipient's current_band with weighted average of recent feedback
-        -- Prioritize recent 30 days, with minimum 3 feedback sessions for stability
-        UPDATE public.profiles
-        SET current_band = (
-            SELECT CASE 
-                WHEN COUNT(*) >= 3 THEN 
-                    ROUND(AVG((scores->>'overall')::decimal), 1)
-                ELSE 
-                    current_band  -- Keep current if not enough data
-            END
-            FROM session_feedback
-            WHERE to_user_id = NEW.to_user_id
-                AND scores IS NOT NULL
-                AND (scores->>'overall') IS NOT NULL
-                AND created_at >= NOW() - INTERVAL '30 days'
-        )
-        WHERE id = NEW.to_user_id;
-    END IF;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger to update band after receiving feedback
-DROP TRIGGER IF EXISTS on_feedback_received ON public.session_feedback;
-CREATE TRIGGER on_feedback_received
-    AFTER INSERT ON public.session_feedback
-    FOR EACH ROW EXECUTE FUNCTION public.update_current_band_from_feedback();
+-- The stats trigger (on_match_finished), the band-from-feedback trigger
+-- (on_feedback_received), the one-open-match guard, leaderboard() and
+-- expire_stale_matches() live in migration_2026_10_security.sql.
 
 -- ============================================
 -- SAMPLE DATA (Optional - for testing)
