@@ -4373,3 +4373,6 @@ begin
   revoke all on function public.lexica_class_code() from public, anon, authenticated;
 end $$;
 
+-- The API sees the new functions without waiting for its schema cache.
+notify pgrst, 'reload schema';
+
