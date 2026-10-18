@@ -6,6 +6,7 @@ import { useLexicaStore } from '../store/lexicaStore';
 import { getCard, useContentVersion } from '../lib/content/repository';
 import { hardToSay, pickDrillWords } from '../lib/pronunciation/drill';
 import { recognitionCtor } from '../lib/pronunciation/speech';
+import { CORTEX_API_URL } from '../lib/cortexConfig';
 import SpeakDrill from '../components/SpeakDrill';
 
 /**
@@ -48,7 +49,7 @@ export default function SpeakPage() {
 }
 
 function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { cardId: string; misses: number }[]; onStart: (ids: string[]) => void }) {
-    const supported = typeof window !== 'undefined' && !!recognitionCtor();
+    const supported = typeof window !== 'undefined' && (!!recognitionCtor() || Boolean(CORTEX_API_URL));
     return (
         <div className="space-y-4">
             <div className="rounded-2xl border border-line bg-surface p-5">
@@ -73,8 +74,8 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
                         </Link>
                     </p>
                 )}
-                {!supported && <p className="mt-3 text-xs text-warning">Trình duyệt này không nhận giọng nói. Bạn vẫn luyện nghe và nghe mẫu được; phần chấm cần Chrome hoặc Edge.</p>}
-                <p className="mt-3 text-xs text-subtle">Trên Chrome, giọng nói được gửi tới máy chủ của Google để nhận dạng.</p>
+                {!supported && <p className="mt-3 text-xs text-warning">Trình duyệt này không nhận giọng nói. Bạn vẫn luyện nghe và nghe mẫu được; phần chấm cần Chrome hoặc Edge, hoặc kết nối mạng.</p>}
+                <p className="mt-3 text-xs text-subtle">Giọng nói được gửi đi để nhận dạng (máy chủ Google trên Chrome, hoặc máy chủ Lexica); Lexica không lưu bản ghi.</p>
             </div>
             {hard.length > 0 && (
                 <div data-testid="hard-to-say" className="rounded-2xl border border-line bg-surface p-5">

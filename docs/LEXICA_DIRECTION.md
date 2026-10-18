@@ -57,4 +57,11 @@ Lexica nhận phần "giữa hai buổi học". Giáo viên tạo lớp, phát m
 
 Chạy lại `supabase/restore_all.sql` (hoặc 3 file mới: `migration_studio_talk.sql`, `seed_studio_talk_cards.sql`, `migration_classes.sql`) trên Supabase để bật nhánh Giao tiếp ở Studio và lớp học. Bản chạy thử trung tâm: tạo trung tâm ở `/teach` (30 chỗ mặc định; đổi `lexica_orgs.seats` trong SQL khi bán).
 
+## Đọc, nói, giọng đọc (2026-10-18)
+
+- Đọc luôn về chính từ của người học: đoạn có sẵn có ≥ 2 từ học hôm nay (khớp theo chữ, không theo id thẻ); nếu không có, API viết một đoạn đời thường quanh đúng các từ đó (`POST /v1/lexica/reading`, cache theo bộ từ); mất mạng thì đoạn có từ đã Nhớ hoặc trích dẫn, không bao giờ đoạn không liên quan. `app/hooks/useTodayPlan.ts`, `app/lib/content/generated.ts`, API `src/modules/lexica`.
+- Luyện nói: ghi âm trực tiếp (WAV 16 kHz) và đo có giọng hay không; nhận dạng của trình duyệt bỏ sót mà bản ghi có giọng thì gửi bản ghi lên `POST /v1/lexica/transcribe`, rồi các lần sau gửi thẳng. `app/lib/pronunciation/speech.ts`.
+- Giọng đọc: giọng tự nhiên từ `GET /v1/lexica/tts` (Gemini TTS, cache vĩnh viễn), dự phòng là giọng tốt nhất trên máy (xếp theo tên: Natural/Neural/Google…, bỏ giọng robot). `app/lib/audio/AudioService.ts`.
+- Env API: `GEMINI_API_KEY` (bắt buộc), `SUPABASE_SERVICE_ROLE_KEY` (cache vào bucket `lexica-content/cache/`), tuỳ chọn `LEXICA_TTS_MODEL`, `LEXICA_SPEECH_MODEL`. Giới hạn mỗi IP/ngày: 20 bài đọc mới, 150 lần nhận dạng, 300 câu đọc mới (lấy từ cache không tính).
+
 Chưa làm: nhắc giờ học (push chưa có service worker), mức giá B2B, nội dung đủ ~30 đoạn văn/hội thoại mỗi level (việc của Studio).

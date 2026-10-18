@@ -90,7 +90,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
             setSpeaking(false);
             return;
         }
-        AudioService.playText(paragraphs.join(' '), 'en', RATES[rate]);
+        void AudioService.playText(paragraphs.join(' '), 'en', RATES[rate]);
         setSpeaking(true);
     };
 

@@ -246,7 +246,7 @@ export default function LearnedWordsList() {
         e.stopPropagation();
         const card = getCardByWord(word);
         if (card) void AudioService.play(card.id, 'word');
-        else AudioService.playText(word, 'en');
+        else void AudioService.playText(word, 'en');
     }, []);
 
     if (learnedCards.length === 0) {

@@ -1,27 +1,35 @@
 /**
- * Browser speech for the drill: several English system voices (for
- * listening practice), one recognition attempt with alternatives, a
- * recording of the learner's voice and a pitch track, all at once. No paid
- * API; on Chrome the recognition itself runs on Google's servers.
+ * Browser speech for the drill: model voices (natural voices from the Cortex
+ * API, else the best system voices), and one listening attempt: the learner's
+ * own recording, a pitch track and what was said. The browser's recognition
+ * is tried first; when it hears nothing although the recording has a voice
+ * (common on phones, where it competes for the microphone), the recording is
+ * sent to the API to be transcribed, and later attempts go there directly.
  */
+import { CORTEX_API_URL } from '../cortexConfig';
+import { NATURAL_VOICES, speakNatural, voiceQuality } from '../audio/AudioService';
 import { detectPitch } from './pitch';
 import type { Alternative } from './score';
 
-/** Up to `n` distinct English voices, different accents first. */
+/** Up to `n` distinct English system voices, the most natural first, different accents first. */
 export function englishVoices(n = 3): SpeechSynthesisVoice[] {
     if (typeof window === 'undefined' || !window.speechSynthesis) return [];
-    const all = window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith('en'));
+    const all = window.speechSynthesis
+        .getVoices()
+        .filter((v) => v.lang.toLowerCase().startsWith('en') && voiceQuality(v) > -10)
+        .sort((a, b) => voiceQuality(b) - voiceQuality(a));
     const byLang = new Map<string, SpeechSynthesisVoice>();
     for (const v of all) if (!byLang.has(v.lang)) byLang.set(v.lang, v);
-    const picked = [...byLang.values()];
+    const picked = [...byLang.values()].sort((a, b) => voiceQuality(b) - voiceQuality(a));
     for (const v of all) if (picked.length < n && !picked.includes(v)) picked.push(v);
     return picked.slice(0, n);
 }
 
-/** Speaks `text` with a given voice; resolves when done (or after a timeout). */
-export function speakWith(text: string, voice: SpeechSynthesisVoice | null, rate = 0.85, pitch = 1): Promise<void> {
+/** Speaks `text` with a given system voice; resolves when done (or after a timeout). */
+export function speakWith(text: string, voice: SpeechSynthesisVoice | null, rate = 0.9, pitch = 1): Promise<void> {
     return new Promise((resolve) => {
         if (typeof window === 'undefined' || !window.speechSynthesis) return resolve();
+        window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
         u.lang = voice?.lang ?? 'en-US';
         if (voice) u.voice = voice;
@@ -40,19 +48,31 @@ export function speakWith(text: string, voice: SpeechSynthesisVoice | null, rate
     });
 }
 
+/** The model: a natural voice, slow or normal, else the best system voice. Resolves when done. */
+export async function sayModel(text: string, speed: 'slow' | 'normal' = 'normal', voice?: string): Promise<void> {
+    if (await speakNatural(text, { slow: speed === 'slow', voice, wait: true })) return;
+    await speakWith(text, englishVoices(1)[0] ?? null, speed === 'slow' ? 0.7 : 0.9);
+}
+
 /**
- * The same word in 2–3 voices. With fewer system voices, the same voice at a
- * different pitch and speed stands in, so the learner still hears variety.
+ * The same word in 2–3 voices. Natural voices when the API is there; else
+ * system voices, and with fewer of them the same voice at a different pitch
+ * stands in, so the learner still hears variety.
  */
 export async function speakVaried(text: string, times = 3): Promise<void> {
     const voices = englishVoices(times);
     for (let i = 0; i < times; i++) {
-        const voice = voices[i % Math.max(1, voices.length)] ?? null;
-        const shift = voices.length > i ? 1 : [0.8, 1.2, 1][i % 3];
-        await speakWith(text, voice, 0.85, shift);
-        await new Promise((r) => setTimeout(r, 250));
+        if (!(await speakNatural(text, { voice: NATURAL_VOICES[i % NATURAL_VOICES.length], wait: true }))) {
+            const voice = voices[i % Math.max(1, voices.length)] ?? null;
+            const shift = voices.length > i ? 1 : [0.85, 1.15, 1][i % 3];
+            await speakWith(text, voice, 0.9, shift);
+        }
+        await new Promise((r) => setTimeout(r, 300));
     }
 }
+
+/** How many distinct voices `speakVaried` will use. */
+export const variedVoiceCount = () => (CORTEX_API_URL ? 3 : englishVoices(3).length);
 
 type RecognitionCtor = new () => SpeechRecognition;
 
@@ -66,106 +86,251 @@ export interface Attempt {
     alternatives: Alternative[];
     /** Object URL of the learner's recording, when recording worked. */
     audioUrl: string | null;
-    /** Pitch per ~30 ms frame (null = unvoiced). */
+    /** Pitch per ~40 ms frame (null = unvoiced). */
     pitch: (number | null)[];
+    /** The recording had a voice in it (louder than the room). */
+    voiced?: boolean;
     error?: 'no-speech' | 'not-allowed' | 'unsupported' | 'network' | 'other';
 }
 
-/**
- * Listens once: speech recognition (5 alternatives), plus a recording and a
- * pitch track from the same microphone. Stops on the first result, after
- * `maxMs`, or when `signal` aborts (the learner tapped stop).
- */
-export async function listenOnce(opts: { maxMs?: number; signal?: AbortSignal } = {}): Promise<Attempt> {
-    const Ctor = recognitionCtor();
-    if (!Ctor) return { alternatives: [], audioUrl: null, pitch: [], error: 'unsupported' };
-    let stream: MediaStream | null = null;
+const MODE_KEY = 'lexica-speech-mode';
+const canTranscribe = () => Boolean(CORTEX_API_URL);
+
+/** "server" once the browser's recognition missed a voice the recording had: then skip it. */
+function speechMode(): 'browser' | 'server' {
     try {
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        return localStorage.getItem(MODE_KEY) === 'server' ? 'server' : 'browser';
+    } catch {
+        return 'browser';
+    }
+}
+
+function setSpeechMode(mode: 'browser' | 'server') {
+    try {
+        localStorage.setItem(MODE_KEY, mode);
+    } catch {
+        // Private mode: decided again next time.
+    }
+}
+
+/**
+ * Listens once and returns what was said (up to 5 alternatives), the
+ * recording and a pitch track. Stops when the browser recognises something,
+ * after a pause following speech, after `maxMs`, or when `signal` aborts
+ * (the learner tapped stop).
+ */
+export async function listenOnce(opts: { target?: string; maxMs?: number; signal?: AbortSignal } = {}): Promise<Attempt> {
+    const Ctor = recognitionCtor();
+    const server = canTranscribe() && Boolean(opts.target);
+    if (!Ctor && !server) return { alternatives: [], audioUrl: null, pitch: [], error: 'unsupported' };
+    let stream: MediaStream;
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
     } catch {
         return { alternatives: [], audioUrl: null, pitch: [], error: 'not-allowed' };
     }
 
-    // Recording
-    const chunks: Blob[] = [];
-    let recorder: MediaRecorder | null = null;
-    try {
-        recorder = new MediaRecorder(stream);
-        recorder.ondataavailable = (e) => e.data.size > 0 && chunks.push(e.data);
-        recorder.start();
-    } catch {
-        recorder = null;
-    }
+    const rec = startRecording(stream);
+    const useBrowser = Boolean(Ctor) && !(server && speechMode() === 'server');
 
-    // Pitch
-    const pitch: (number | null)[] = [];
-    let ctx: AudioContext | null = null;
-    let timer: ReturnType<typeof setInterval> | null = null;
-    try {
-        ctx = new AudioContext();
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 2048;
-        ctx.createMediaStreamSource(stream).connect(analyser);
-        const buf = new Float32Array(analyser.fftSize);
-        timer = setInterval(() => {
-            analyser.getFloatTimeDomainData(buf);
-            pitch.push(detectPitch(buf, ctx!.sampleRate));
-        }, 30);
-    } catch {
-        ctx = null;
-    }
-
-    const recognition = new Ctor();
-    recognition.lang = 'en-US';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 5;
-
-    const result = await new Promise<Pick<Attempt, 'alternatives' | 'error'>>((resolve) => {
+    const browser = await new Promise<Pick<Attempt, 'alternatives' | 'error'>>((resolve) => {
         let done = false;
+        let recognition: SpeechRecognition | null = null;
         const finish = (r: Pick<Attempt, 'alternatives' | 'error'>) => {
             if (done) return;
             done = true;
+            clearInterval(vad);
+            clearTimeout(max);
             try {
-                recognition.stop();
+                recognition?.stop();
             } catch {
                 // already stopped
             }
             resolve(r);
         };
-        recognition.onresult = (event: SpeechRecognitionEvent) => {
-            const res = event.results[0];
-            const alternatives: Alternative[] = [];
-            for (let i = 0; i < res.length; i++) alternatives.push({ transcript: res[i].transcript, confidence: res[i].confidence ?? 0 });
-            finish({ alternatives });
-        };
-        recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-            const e = event.error;
-            finish({ alternatives: [], error: e === 'no-speech' ? 'no-speech' : e === 'not-allowed' ? 'not-allowed' : e === 'network' ? 'network' : 'other' });
-        };
-        recognition.onend = () => finish({ alternatives: [], error: 'no-speech' });
-        setTimeout(() => finish({ alternatives: [], error: 'no-speech' }), opts.maxMs ?? 6000);
+        const max = setTimeout(() => finish({ alternatives: [], error: 'no-speech' }), opts.maxMs ?? 7000);
+        // Without the browser's recognition, end on a pause after speech.
+        const vad = setInterval(() => {
+            if (!recognition && rec.silentAfterVoice(900)) finish({ alternatives: [], error: 'no-speech' });
+        }, 100);
         opts.signal?.addEventListener('abort', () => {
+            if (!recognition) return finish({ alternatives: [], error: 'no-speech' });
             try {
                 recognition.stop(); // delivers a final result if there is one
             } catch {
                 finish({ alternatives: [], error: 'no-speech' });
             }
+            setTimeout(() => finish({ alternatives: [], error: 'no-speech' }), 1500);
         });
+        if (!useBrowser) return;
+        const r = new Ctor!();
+        recognition = r;
+        r.lang = 'en-US';
+        r.continuous = false;
+        r.interimResults = false;
+        r.maxAlternatives = 5;
+        // The browser gave up without words: with the API, keep recording until the learner pauses.
+        const gaveUp = (error: Attempt['error']) => {
+            // The microphone is ours already, so even "not-allowed" here means the speech service is off.
+            if (server && !opts.signal?.aborted) recognition = null;
+            else finish({ alternatives: [], error });
+        };
+        r.onresult = (event: SpeechRecognitionEvent) => {
+            const res = event.results[0];
+            const alternatives: Alternative[] = [];
+            for (let i = 0; i < res.length; i++) alternatives.push({ transcript: res[i].transcript, confidence: res[i].confidence ?? 0 });
+            if (alternatives.some((x) => x.transcript.trim())) finish({ alternatives });
+        };
+        r.onerror = (event: SpeechRecognitionErrorEvent) => {
+            const e = event.error;
+            gaveUp(e === 'no-speech' ? 'no-speech' : e === 'not-allowed' ? 'not-allowed' : e === 'network' ? 'network' : 'other');
+        };
+        r.onend = () => {
+            if (recognition === r) gaveUp('no-speech');
+        };
         try {
-            recognition.start();
+            r.start();
         } catch {
-            finish({ alternatives: [], error: 'other' });
+            gaveUp('other');
         }
     });
 
-    if (timer) clearInterval(timer);
-    void ctx?.close();
-    const audioUrl = await new Promise<string | null>((resolve) => {
-        if (!recorder || recorder.state === 'inactive') return resolve(null);
-        recorder.onstop = () => resolve(chunks.length ? URL.createObjectURL(new Blob(chunks, { type: recorder!.mimeType })) : null);
-        recorder.stop();
-    });
+    const take = rec.stop();
     stream.getTracks().forEach((t) => t.stop());
-    return { ...result, audioUrl, pitch };
+    const audioUrl = take.wav ? URL.createObjectURL(take.wav) : null;
+    const base = { audioUrl, pitch: take.pitch, voiced: take.voiced };
+    if (browser.alternatives.length > 0) return { ...browser, ...base };
+    if (!take.voiced || !take.wav) return { alternatives: [], error: browser.error ?? 'no-speech', ...base };
+    if (!server) return { ...browser, ...base };
+
+    // The recording has a voice the browser did not catch: ask the API.
+    try {
+        const alternatives = await transcribe(take.wav, opts.target!);
+        if (useBrowser && alternatives.length > 0) setSpeechMode('server');
+        return { alternatives, error: alternatives.length ? undefined : 'no-speech', ...base };
+    } catch {
+        return { alternatives: [], error: 'network', ...base };
+    }
+}
+
+async function transcribe(wav: Blob, target: string): Promise<Alternative[]> {
+    const audio = await blobToBase64(wav);
+    const res = await fetch(`${CORTEX_API_URL}/v1/lexica/transcribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio, target }),
+    });
+    if (!res.ok) throw new Error(`transcribe ${res.status}`);
+    const body = (await res.json()) as { transcripts?: string[]; confidence?: number };
+    return (body.transcripts ?? []).map((transcript) => ({ transcript, confidence: body.confidence ?? 0.8 }));
+}
+
+async function blobToBase64(blob: Blob): Promise<string> {
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+}
+
+// ─── Recording ───────────────────────────────────────────────────────────
+
+const RATE = 16000;
+/** RMS above the room's noise floor that counts as a voice. */
+const VOICE_RMS = 0.015;
+
+/**
+ * Raw microphone samples through Web Audio (works on every browser that has
+ * a microphone, unlike MediaRecorder's formats): a 16 kHz WAV for playback
+ * and transcription, a pitch track, and whether a voice was heard.
+ */
+function startRecording(stream: MediaStream) {
+    const chunks: Float32Array[] = [];
+    const pitch: (number | null)[] = [];
+    let voicedFrames = 0;
+    let lastVoice = 0;
+    let ctx: AudioContext | null = null;
+    let sampleRate = 48000;
+    try {
+        ctx = new AudioContext();
+        sampleRate = ctx.sampleRate;
+        void ctx.resume();
+        const source = ctx.createMediaStreamSource(stream);
+        const node = ctx.createScriptProcessor(2048, 1, 1);
+        const mute = ctx.createGain();
+        mute.gain.value = 0;
+        node.onaudioprocess = (e) => {
+            const input = e.inputBuffer.getChannelData(0);
+            chunks.push(new Float32Array(input));
+            let sum = 0;
+            for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
+            const loud = Math.sqrt(sum / input.length) > VOICE_RMS;
+            if (loud) {
+                voicedFrames++;
+                lastVoice = performance.now();
+            }
+            pitch.push(loud ? detectPitch(input, sampleRate) : null);
+        };
+        source.connect(node);
+        node.connect(mute);
+        mute.connect(ctx.destination);
+    } catch {
+        ctx = null;
+    }
+    return {
+        /** A voice was heard, then `ms` of quiet. */
+        silentAfterVoice: (ms: number) => voicedFrames >= 3 && performance.now() - lastVoice > ms,
+        stop(): { wav: Blob | null; pitch: (number | null)[]; voiced: boolean } {
+            void ctx?.close();
+            if (!ctx || chunks.length === 0) return { wav: null, pitch, voiced: false };
+            const samples = downsample(chunks, sampleRate, RATE);
+            return { wav: encodeWav(samples, RATE), pitch, voiced: voicedFrames >= 3 };
+        },
+    };
+}
+
+/** Averages each window of input samples into one output sample. */
+export function downsample(chunks: Float32Array[], from: number, to: number): Float32Array {
+    const total = chunks.reduce((n, c) => n + c.length, 0);
+    const input = new Float32Array(total);
+    let at = 0;
+    for (const c of chunks) {
+        input.set(c, at);
+        at += c.length;
+    }
+    if (from <= to) return input;
+    const ratio = from / to;
+    const out = new Float32Array(Math.floor(total / ratio));
+    for (let i = 0; i < out.length; i++) {
+        const start = Math.floor(i * ratio);
+        const end = Math.min(total, Math.floor((i + 1) * ratio));
+        let sum = 0;
+        for (let j = start; j < end; j++) sum += input[j];
+        out[i] = sum / Math.max(1, end - start);
+    }
+    return out;
+}
+
+/** 16-bit mono PCM WAV. */
+export function encodeWav(samples: Float32Array, rate: number): Blob {
+    const buf = new ArrayBuffer(44 + samples.length * 2);
+    const v = new DataView(buf);
+    const str = (o: number, s: string) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    str(0, 'RIFF');
+    v.setUint32(4, 36 + samples.length * 2, true);
+    str(8, 'WAVE');
+    str(12, 'fmt ');
+    v.setUint32(16, 16, true);
+    v.setUint16(20, 1, true);
+    v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true);
+    v.setUint32(28, rate * 2, true);
+    v.setUint16(32, 2, true);
+    v.setUint16(34, 16, true);
+    str(36, 'data');
+    v.setUint32(40, samples.length * 2, true);
+    for (let i = 0; i < samples.length; i++) {
+        const x = Math.max(-1, Math.min(1, samples[i]));
+        v.setInt16(44 + i * 2, x < 0 ? x * 0x8000 : x * 0x7fff, true);
+    }
+    return new Blob([buf], { type: 'audio/wav' });
 }

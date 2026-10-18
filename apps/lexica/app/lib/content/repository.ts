@@ -58,6 +58,13 @@ export function getCard(id: string): ContentCard | undefined {
     return byId.get(id);
 }
 
+/** Every card id with the same word as this one (the deck has a few duplicates). */
+export function sameWordIds(id: string): string[] {
+    const word = byId.get(id)?.word.trim().toLowerCase();
+    if (!word) return [id];
+    return all.filter(c => c.word.trim().toLowerCase() === word).map(c => c.id);
+}
+
 export function getCardByWord(word: string): ContentCard | undefined {
     return byWord.get(word.trim().toLowerCase());
 }

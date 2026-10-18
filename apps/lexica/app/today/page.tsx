@@ -10,7 +10,9 @@ import { STAGE_LABEL, STAGES, stepDelta, type Stage } from '../lib/journey/today
 import { countSteps } from '../lib/journey/steps';
 import { BRANCH_LABEL, currentDay, dueCheckpoint, PATH_DAYS } from '../lib/journey/path';
 import { localDate } from '../lib/engagement/ghost';
-import { getAllCards, getCurrentDrop, getPassage, useContentVersion } from '../lib/content/repository';
+import { getAllCards, getCard, getCurrentDrop, getPassage, useContentVersion } from '../lib/content/repository';
+import { generatedReading } from '../lib/content/generated';
+import type { Passage } from '../lib/content/passages';
 import { buildSets } from '../lib/engagement/collection';
 import { nearestSet, type LuckyReward } from '../lib/engagement/session';
 import { useEconomy } from '../lib/engagement/economy';
@@ -28,7 +30,7 @@ import { classWordsToQueue } from '../lib/classes';
 type Frozen =
     | { stage: 'review'; ids: string[] }
     | { stage: 'learn'; size: number }
-    | { stage: 'read'; passageId: string | null; quoteWord: string | null }
+    | { stage: 'read'; passageId: string | null; generate: string[] | null; fallbackId: string | null; quoteWord: string | null }
     | { stage: 'speak'; ids: string[] };
 
 /**
@@ -74,7 +76,7 @@ export default function TodayPage() {
                     : stage === 'learn'
                       ? { stage, size: picks.newLeft }
                       : stage === 'read'
-                        ? { stage, passageId: picks.passage?.id ?? null, quoteWord: picks.quoteWord }
+                        ? { stage, passageId: picks.passage?.id ?? null, generate: picks.generate, fallbackId: picks.fallback?.id ?? null, quoteWord: picks.quoteWord }
                         : { stage, ids: picks.speakIds.length > 0 ? picks.speakIds : picks.learnedToday.slice(0, 3) },
             );
         }, 0);
@@ -160,8 +162,39 @@ function StageBar({ plan, active }: { plan: ReturnType<typeof useTodayPlan>['pla
 function ReadStage({ frozen, onDone }: { frozen: Extract<Frozen, { stage: 'read' }>; onDone: () => void }) {
     const passage = frozen.passageId ? (getPassage(frozen.passageId) ?? null) : null;
     if (passage) return <PassageReader passage={passage} onDone={onDone} />;
+    if (frozen.generate) return <WrittenForYou ids={frozen.generate} fallbackId={frozen.fallbackId} quoteWord={frozen.quoteWord} onDone={onDone} />;
     if (frozen.quoteWord) return <QuoteMeet cardId={frozen.quoteWord} onDone={onDone} />;
-    return <Skip text="Hôm nay chưa có đoạn văn hợp với từ của bạn." onDone={onDone} />;
+    return <Skip text="Chưa có đoạn văn nào có từ bạn vừa học. Bài đọc riêng cho bạn cần kết nối mạng." onDone={onDone} />;
+}
+
+/** A passage written for the words learned today (lib/content/generated.ts). */
+function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; fallbackId: string | null; quoteWord: string | null; onDone: () => void }) {
+    const level = useLexicaStore((s) => (s.selectedLevel && s.selectedLevel !== 'all' ? s.selectedLevel : 'beginner'));
+    const branch = useLexicaStore((s) => s.path?.branch ?? 'cert');
+    const [state, setState] = useState<{ passage: Passage } | { failed: true } | null>(null);
+    useEffect(() => {
+        let live = true;
+        generatedReading(ids, level, branch === 'talk' ? 'dialogue' : 'text')
+            .then((passage) => live && setState({ passage }))
+            .catch(() => live && setState({ failed: true }));
+        return () => {
+            live = false;
+        };
+    }, [ids, level, branch]);
+    if (!state) {
+        return (
+            <div data-testid="reading-writing" className="rounded-2xl border border-line bg-surface p-6 text-center">
+                <div className="mx-auto w-7 h-7 rounded-full border-2 border-line border-t-accent animate-spin" />
+                <p className="mt-3 text-ink">Đang viết một đoạn đọc với các từ bạn vừa học…</p>
+                <p className="mt-1 text-sm text-muted lowercase">{ids.map((id) => getCard(id)?.word).filter(Boolean).join(' · ')}</p>
+            </div>
+        );
+    }
+    if ('passage' in state) return <PassageReader passage={state.passage} onDone={onDone} />;
+    const fallback = fallbackId ? getPassage(fallbackId) : undefined;
+    if (fallback) return <PassageReader passage={fallback} onDone={onDone} />;
+    if (quoteWord) return <QuoteMeet cardId={quoteWord} onDone={onDone} />;
+    return <Skip text="Chưa viết được đoạn đọc cho từ của bạn (mất kết nối). Mai thử lại nhé." onDone={onDone} />;
 }
 
 function Skip({ text, onDone }: { text: string; onDone: () => void }) {

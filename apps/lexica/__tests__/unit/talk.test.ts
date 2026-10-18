@@ -42,7 +42,7 @@ describe('Giao tiếp branch', () => {
 
     it('keeps phrases out of IELTS passages, marks them in dialogues', () => {
         const passages = getPassages();
-        const heist = passages.find((p) => p.id === 'p_heist_1')!;
+        const heist = passages.find((p) => p.id === 'p_first_day')!;
         expect(heist.words.some((id) => id.startsWith('g'))).toBe(false);
         const cafe = passages.find((p) => p.id === 'd_cafe_1')!;
         expect(cafe.kind).toBe('dialogue');

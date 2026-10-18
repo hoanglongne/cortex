@@ -29,6 +29,17 @@ test.describe('Core Learning Flow — Hôm nay', () => {
 
   test('phiên Hôm nay: Học → Đọc → Nói → kết phiên', async ({ page }) => {
     await injectLexicaState(page, makeBypassState({ dailyGoal: 10 }));
+    // The API writes the reading around the words just learned.
+    const asked: string[] = [];
+    await page.route('**/v1/lexica/reading', async (route) => {
+      const body = route.request().postDataJSON() as { words: { word: string }[] };
+      const words = body.words.map((w) => w.word);
+      asked.push(...words);
+      const text = `Today I learned some new words: ${words.join(', ')}. ` + 'I used each of them in a sentence at work and it felt good. '.repeat(10);
+      await route.fulfill({
+        json: { id: 'r_test', title: 'Bài đọc của bạn', text, translation: 'Hôm nay tôi học vài từ mới. '.repeat(12), questions: [] },
+      });
+    });
     await page.goto('/');
     await page.getByTestId('today-start').click();
     await page.waitForURL('**/today', { timeout: 10_000 });
@@ -43,8 +54,10 @@ test.describe('Core Learning Flow — Hôm nay', () => {
     await expect(page.getByTestId('learn-recap')).toBeVisible({ timeout: 8_000 });
     await page.getByRole('button', { name: /Tiếp tục/ }).first().click();
 
-    // Đọc: một đoạn văn ở level của người học.
+    // Đọc: không đoạn có sẵn nào có các từ vừa học, nên API viết một đoạn với đúng các từ đó.
     await expect(page.getByTestId('passage-text')).toBeVisible({ timeout: 8_000 });
+    expect(asked.length).toBeGreaterThanOrEqual(2);
+    await expect(page.getByTestId('passage-text')).toContainText(asked[0], { ignoreCase: true });
     await page.getByRole('button', { name: /Đọc xong/ }).click();
     await page.getByTestId('stage-next').click();
 

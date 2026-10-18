@@ -133,7 +133,7 @@ ${list}
 Reply with JSON only:
 {"title": "...", "text": "Name: ...\nName: ...", "translation": "Name: ...\nName: ...", "questions": [{"question": "...", "options": ["...", "..."], "answer": 0}]}`;
   }
-  return `You write short reading passages for Vietnamese learners of English (IELTS).
+  return `You write short reading passages for Vietnamese learners of English.
 
 Write ONE passage:
 - Level: ${LEVEL_TEXT[input.level]}.
@@ -142,6 +142,7 @@ Write ONE passage:
 - It must use EACH of these words at least once, in a way that makes the meaning clear from context:
 ${list}
 - You may also use some of these words the learner already knows: ${input.knownWords.slice(0, 20).join(', ') || '(none)'}.
+- A realistic, meaningful moment of ordinary life (work, study, family, friends, a city, health, money, a small decision) that an adult would find worth reading. No fantasy, no crime, no silly plot twists.
 - Neutral, clear, friendly tone. No slang, no jokes that depend on wordplay, no politics, religion, violence or brand names.
 - Also give a natural Vietnamese translation with the same paragraphs, a short Vietnamese title (max 8 words), and 2 simple comprehension questions in English with 3–4 options each (index of the right option in "answer").
 

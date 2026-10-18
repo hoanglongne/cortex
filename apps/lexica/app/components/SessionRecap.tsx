@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, Flame, Hammer, LayoutGrid, Mic, PenLine, Sparkles, Swords } from 'lucide-react';
-import { getCard, getPassages } from '../lib/content/repository';
+import { getCard, getPassages, sameWordIds } from '../lib/content/repository';
 import { passageWith, readPassages } from '../lib/engagement/reading';
 import { canOffer, pickCandidate } from '../lib/engagement/mySentence';
 import { STATE_LABEL, type SessionState } from '../lib/engagement/session';
@@ -41,7 +41,7 @@ export default function SessionRecap({
     const [offer, setOffer] = useState<'idle' | 'open' | 'saved' | 'hidden'>('idle');
     const candidate = candidateId ? getCard(candidateId) : undefined;
     // "Đọc": a passage with one of the words remembered just now.
-    const [passage] = useState(() => passageWith(getPassages(), [...(session.remembered ?? []), ...session.newCards], typeof window === 'undefined' ? new Set() : readPassages()));
+    const [passage] = useState(() => passageWith(getPassages(), [...(session.remembered ?? []), ...session.newCards].flatMap(sameWordIds), typeof window === 'undefined' ? new Set() : readPassages()));
     const later = () => {
         skipMySentence();
         setOffer('hidden');
