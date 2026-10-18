@@ -19,6 +19,7 @@ const PartnersScreen = lazy(() => import("./PartnersScreen"));
 const CallHistoryScreen = lazy(() => import("./CallHistoryScreen"));
 const SoloPracticeScreen = lazy(() => import("./SoloPracticeScreen"));
 const ClassScreen = lazy(() => import("./ClassScreen"));
+const OnboardingScreen = lazy(() => import("./OnboardingScreen"));
 import { useSupabaseAuth } from "@/hooks/useSupabase";
 import { useMatchmaking, useLiveKitToken } from "@/hooks/useMatchmaking";
 import { declineMatch, endCall as endCallAction, submitFeedback } from "@/actions/matchmaking";
@@ -41,7 +42,8 @@ type Screen =
   | "me"
   | "history"
   | "solo"
-  | "class";
+  | "class"
+  | "onboarding";
 
 /** Tabs map to screens; "practice" is Home. */
 const TAB_SCREEN: Record<Tab, Screen> = { practice: "home", history: "history", progress: "progress", me: "me" };
@@ -95,6 +97,17 @@ function bandLabel(range: { min: number; max: number }) {
   return `${range.min.toFixed(1)}–${range.max.toFixed(1)}`;
 }
 
+const ONBOARDED_KEY = "oratio-onboarded";
+
+/** First sign-in on this device goes through Ơ's short onboarding. */
+function isOnboarded() {
+  try {
+    return localStorage.getItem(ONBOARDED_KEY) === "1";
+  } catch {
+    return true;
+  }
+}
+
 const fallback = (message: string) => (
   <div className="min-h-dvh bg-bg flex items-center justify-center">
     <LoadingSpinner size="md" message={message} />
@@ -113,6 +126,8 @@ export default function AppFlow() {
   const [joinError, setJoinError] = useState<string | null>(null);
   /** One-line message shown on Home (why we came back there) */
   const [notice, setNotice] = useState<string | null>(null);
+  /** Where "Bảng giờ nói" was opened from, to go back there */
+  const [leaderboardFrom, setLeaderboardFrom] = useState<Screen>("progress");
 
   const { user, profile, isLoading: authLoading, signIn, signUp, signOut, refreshProfile } = useSupabaseAuth();
 
@@ -124,8 +139,8 @@ export default function AppFlow() {
 
   // Follow the auth state: signed in → home, signed out → auth (adjusted during render)
   if (!DEMO_MODE && !authLoading) {
-    // A class link waiting for sign-in opens "Lớp học"
-    if (user && currentScreen === "auth") setCurrentScreen(pendingCode() ? "class" : "home");
+    // A class link waiting for sign-in opens "Lớp học"; first sign-in here meets Ơ
+    if (user && currentScreen === "auth") setCurrentScreen(pendingCode() ? "class" : isOnboarded() ? "home" : "onboarding");
     else if (!user && currentScreen !== "auth") setCurrentScreen("auth");
   }
 
@@ -409,6 +424,7 @@ export default function AppFlow() {
           <RatingScreen
             partner={{ name: partner.name, band: partner.band }}
             callDuration={callData.duration}
+            notes={callData.notes}
             onSubmit={handleRatingSubmit}
             onSkip={handleRatingSkip}
           />
@@ -432,14 +448,18 @@ export default function AppFlow() {
     case "leaderboard":
       return (
         <Suspense fallback={fallback("Đang tải bảng xếp hạng…")}>
-          <LeaderboardScreen onBack={() => setCurrentScreen("progress")} />
+          <LeaderboardScreen onBack={() => setCurrentScreen(leaderboardFrom)} />
         </Suspense>
       );
 
     case "progress":
       return (
         <Suspense fallback={fallback("Đang tải…")}>
-          <ProgressScreen profile={profile} onTab={handleTab} onOpenLeaderboard={() => setCurrentScreen("leaderboard")} />
+          <ProgressScreen profile={profile} onTab={handleTab} onOpenLeaderboard={() => {
+              setLeaderboardFrom("progress");
+              setCurrentScreen("leaderboard");
+            }}
+          />
         </Suspense>
       );
 
@@ -461,6 +481,27 @@ export default function AppFlow() {
             onProfileUpdated={refreshProfile}
             onOpenPartners={() => setCurrentScreen("partners")}
             onOpenClasses={() => setCurrentScreen("class")}
+            onOpenLeaderboard={() => {
+              setLeaderboardFrom("me");
+              setCurrentScreen("leaderboard");
+            }}
+          />
+        </Suspense>
+      );
+
+    case "onboarding":
+      return (
+        <Suspense fallback={fallback("Đang tải…")}>
+          <OnboardingScreen
+            profile={profile}
+            onProfileUpdated={refreshProfile}
+            onDone={(start) => {
+              try {
+                localStorage.setItem(ONBOARDED_KEY, "1");
+              } catch {}
+              if (start === "exam") handleStartMatching();
+              else setCurrentScreen("solo");
+            }}
           />
         </Suspense>
       );

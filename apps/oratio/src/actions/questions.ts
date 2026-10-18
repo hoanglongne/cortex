@@ -270,8 +270,28 @@ export async function getQuestionById(
 }
 
 /** A short mock test to practise alone: 4 Part 1, one Part 2 card, 3 Part 3. */
+const DEMO_QUESTIONS: IeltsQuestion[] = [
+  [1, "Do you work or are you a student?"],
+  [1, "What do you like most about your studies?"],
+  [1, "Do you prefer studying in the morning or at night?"],
+  [1, "Is there anything you would like to change about your studies?"],
+  [2, "Describe a place you visited that you would like to go back to.\nYou should say:\nwhere it is\nwhen you went there\nwhat you did there\nand explain why you would like to go back."],
+  [3, "Why do people like to travel to new places?"],
+  [3, "How has tourism changed in your country?"],
+  [3, "Should governments limit the number of tourists?"],
+].map(([part, text], i) => ({
+  id: `demo-${i}`,
+  part: part as number,
+  category: "demo",
+  question_text: text as string,
+  difficulty: "medium",
+  created_at: "",
+}));
+
 export async function getSoloQuestions(): Promise<{ success: boolean; questions?: IeltsQuestion[]; error?: string }> {
   try {
+    // Local preview without a database (NEXT_PUBLIC_DEMO_MODE)
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") return { success: true, questions: DEMO_QUESTIONS };
     const supabase = await createClient();
     const {
       data: { user },

@@ -86,8 +86,3 @@ export function LiveWaveform({
 
   return <canvas ref={canvasRef} width={bars * 10} height={height} className={cn("w-full max-w-xs", className)} style={{ height }} aria-hidden />;
 }
-
-/** @deprecated use SpeakingPill (kept while screens move over) */
-export function OnAirLamp({ on, label, className }: { on: boolean; label?: string; className?: string }) {
-  return <SpeakingPill on={on} label={label ?? "Đang nói"} className={className} />;
-}
