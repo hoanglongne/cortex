@@ -26,9 +26,10 @@ import { getPartAndPosition, QUESTIONS_PER_PART, TOTAL_QUESTIONS } from "@/lib/q
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { IeltsQuestion, Match } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
-import { Label, Notice } from "@/components/ui/card";
+import { Card, Label, Notice } from "@/components/ui/card";
 import { CueCard } from "@/components/ui/cue-card";
-import { LiveWaveform, OnAirLamp } from "@/components/ui/on-air";
+import { LiveWaveform, SpeakingPill } from "@/components/ui/on-air";
+import { FlowShell } from "@/components/ui/shell";
 import { Part2Timer, formatClock } from "@/components/ui/timer";
 import { cn } from "@/lib/utils";
 
@@ -52,22 +53,15 @@ export interface CallData {
   duration: number;
   /** Questions asked in the call, in order */
   questions: { part: number; text: string }[];
+  /** The examiner's private notes; never sent to the partner */
+  notes?: string;
 }
 
 /** Without a partner in the room after this long, offer to leave. */
 const PARTNER_JOIN_TIMEOUT_S = 60;
 
-/** P1 / P2 / P3 as three thin segments; the current one says where we are. */
-function PartProgress({
-  currentPart,
-  questionInTurn,
-  turnInPart,
-}: {
-  currentPart: number;
-  questionInTurn: number;
-  questionsPerTurn: number;
-  turnInPart: 1 | 2;
-}) {
+/** P1 / P2 / P3 as three segments; the current one says where we are. */
+function PartProgress({ currentPart, questionInTurn, turnInPart }: { currentPart: number; questionInTurn: number; turnInPart: 1 | 2 }) {
   return (
     <div className="grid grid-cols-3 gap-2" role="group" aria-label="Tiến độ buổi thi">
       {[1, 2, 3].map((part) => {
@@ -76,10 +70,10 @@ function PartProgress({
         const isDone = part < currentPart;
         return (
           <div key={part} aria-current={isCurrent ? "step" : undefined}>
-            <span className={cn("block h-0.5 rounded-full", isCurrent ? "bg-ink-2" : isDone ? "bg-subtle" : "bg-surface-3")} />
-            <p className={cn("mt-1.5 truncate font-mono text-[11px] tabular", isCurrent ? "text-ink-2" : "text-subtle")}>
-              P{part}
-              {isCurrent && ` · ${questionInTurn}/${perTurn} · T${turnInPart}`}
+            <span className={cn("block h-1.5 rounded-full", isCurrent ? "bg-voice" : isDone ? "bg-good" : "bg-surface-3")} />
+            <p className={cn("mt-1 truncate text-[11px] font-bold tabular", isCurrent ? "text-ink" : "text-subtle")}>
+              Part {part}
+              {isCurrent && ` · ${questionInTurn}/${perTurn} · lượt ${turnInPart}`}
             </p>
           </div>
         );
@@ -166,10 +160,6 @@ function InterviewerControls({
   onCancelSwap,
   isLoading,
   error,
-  currentPart,
-  questionInTurn,
-  questionsPerTurn,
-  turnInPart,
   swapPending,
 }: {
   currentQuestion: IeltsQuestion | null;
@@ -178,20 +168,15 @@ function InterviewerControls({
   onCancelSwap: () => void;
   isLoading: boolean;
   error: string | null;
-  currentPart: number;
-  questionInTurn: number;
-  questionsPerTurn: number;
-  turnInPart: 1 | 2;
   swapPending: boolean;
 }) {
   return (
     <div className="space-y-5">
       <RoleLine
-        role="Giám khảo"
+        role="Bạn là giám khảo"
         hint="Đọc to câu hỏi cho bạn kia, rồi bấm “Câu tiếp theo”."
         swap={<SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />}
       />
-      <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
 
       {currentQuestion ? (
         <>
@@ -200,17 +185,20 @@ function InterviewerControls({
           </CueCard>
           <Button variant="primary" size="lg" block onClick={onNextQuestion} disabled={isLoading}>
             {isLoading ? <Loader2 className="animate-spin" /> : "Câu tiếp theo"}
+            {!isLoading && <kbd className="hidden rounded-[6px] border border-on-voice/40 px-1.5 text-xs md:inline">Enter</kbd>}
           </Button>
         </>
       ) : (
-        <div className="rounded-[var(--radius-card)] border border-line bg-surface p-5">
+        <Card>
           <p className="text-muted">Bấm để lấy câu hỏi đầu tiên khi cả hai đã nghe được nhau.</p>
           <Button className="mt-4" variant="primary" size="lg" block onClick={onNextQuestion} disabled={isLoading}>
             {isLoading ? <Loader2 className="animate-spin" /> : "Bắt đầu câu đầu tiên"}
           </Button>
-        </div>
+        </Card>
       )}
-      {error && <Notice tone="error">{error}</Notice>}
+      {error && (
+        <Notice tone="error">{error}</Notice>
+      )}
     </div>
   );
 }
@@ -220,19 +208,11 @@ function CandidateView({
   currentQuestion,
   onRequestSwap,
   onCancelSwap,
-  currentPart,
-  questionInTurn,
-  questionsPerTurn,
-  turnInPart,
   swapPending,
 }: {
   currentQuestion: IeltsQuestion | null;
   onRequestSwap: () => void;
   onCancelSwap: () => void;
-  currentPart: number;
-  questionInTurn: number;
-  questionsPerTurn: number;
-  turnInPart: 1 | 2;
   swapPending: boolean;
 }) {
   const hint =
@@ -242,23 +222,81 @@ function CandidateView({
   return (
     <div className="space-y-5">
       <RoleLine
-        role="Thí sinh"
+        role="Bạn là thí sinh"
         hint={currentQuestion ? hint : "Chờ giám khảo bắt đầu câu đầu tiên."}
         swap={<SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />}
       />
-      <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
 
       {currentQuestion ? (
         <CueCard key={currentQuestion.id} question={currentQuestion} hidden>
           {currentQuestion.part === 2 && <Part2Timer key={currentQuestion.id} />}
         </CueCard>
       ) : (
-        <div className="flex items-center gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-5 text-muted" aria-live="polite">
+        <Card className="flex items-center gap-3 text-muted" aria-live="polite">
           <Loader2 className="size-4 animate-spin" />
           <p>Chờ giám khảo bắt đầu câu đầu tiên…</p>
-        </div>
+        </Card>
       )}
     </div>
+  );
+}
+
+/** Private notes for rating later. They live in this screen's state and travel only to our own rating step. */
+function NotesCard({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <Card>
+      <label htmlFor="call-notes" className="block text-xs font-extrabold uppercase tracking-[0.06em] text-subtle">
+        Ghi chú cho lúc chấm
+      </label>
+      <p className="mt-1 text-[13px] text-subtle">Chỉ bạn thấy, bạn kia không nhận được. Sẽ hiện lại khi bạn chấm điểm.</p>
+      <textarea
+        id="call-notes"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={2000}
+        placeholder="Ghi nhanh điều bạn nghe được…"
+        className="mt-3 h-36 w-full resize-none rounded-[var(--radius-control)] border border-line-strong bg-surface-2 p-3 text-[15px] text-ink placeholder:text-subtle focus-visible:border-voice"
+      />
+    </Card>
+  );
+}
+
+/** The partner (and you) with who-is-speaking pills and real waveforms. */
+function PartnerCard({
+  partner,
+  status,
+  remoteSpeaking,
+  localSpeaking,
+  remoteStream,
+  localStream,
+  showWaves,
+}: {
+  partner: { name: string; band: string };
+  status: string;
+  remoteSpeaking: boolean;
+  localSpeaking: boolean;
+  remoteStream: MediaStream | null;
+  localStream: MediaStream | null;
+  showWaves: boolean;
+}) {
+  return (
+    <Card className="space-y-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="truncate text-xl font-extrabold tracking-[-0.03em] text-ink">{partner.name}</h2>
+          <p className="mt-0.5 text-sm text-muted">
+            Band <span className="font-bold text-ink-2 tabular">{partner.band}</span> · <span aria-live="polite">{status}</span>
+          </p>
+        </div>
+        <SpeakingPill on={remoteSpeaking} label={remoteSpeaking ? "Đang nói" : "Im lặng"} />
+      </div>
+      {showWaves && (remoteStream ? <LiveWaveform stream={remoteStream} className="h-10" /> : <div className="h-px w-full bg-line" aria-hidden />)}
+      <div className="flex items-center justify-between gap-3 border-t border-line pt-4">
+        <span className="text-sm font-bold text-ink">Bạn</span>
+        <SpeakingPill on={localSpeaking} label={localSpeaking ? "Đang nói" : "Im lặng"} />
+      </div>
+      {showWaves && localStream && <LiveWaveform stream={localStream} className="h-10" />}
+    </Card>
   );
 }
 
@@ -273,21 +311,13 @@ function ControlBar({
   onEndCall: () => void;
 }) {
   return (
-    <div className="sticky bottom-0 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-2xl items-center justify-center gap-3 px-4 py-3">
-        <Button
-          variant="secondary"
-          size="icon"
-          onClick={onMuteToggle}
-          aria-label={isMuted ? "Bật micro" : "Tắt micro"}
-          aria-pressed={isMuted}
-        >
-          {isMuted ? <MicOff /> : <Mic />}
-        </Button>
-        <Button variant="danger" onClick={onEndCall}>
-          <Phone className="rotate-135" /> Kết thúc
-        </Button>
-      </div>
+    <div className="flex items-center justify-center gap-3">
+      <Button variant="secondary" size="icon" onClick={onMuteToggle} aria-label={isMuted ? "Bật micro" : "Tắt micro"} aria-pressed={isMuted}>
+        {isMuted ? <MicOff /> : <Mic />}
+      </Button>
+      <Button variant="danger" size="lg" onClick={onEndCall}>
+        <Phone className="rotate-135" /> Kết thúc
+      </Button>
     </div>
   );
 }
@@ -322,6 +352,9 @@ function InCallContent({
 }) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isMutedLocal, setIsMutedLocal] = useState(false);
+  // Private examiner notes, never sent anywhere until the rating step
+  const [notes, setNotes] = useState("");
+  const notesRef = useRef("");
 
   // Q&A states
   const [isInterviewer, setIsInterviewer] = useState<boolean | null>(null);
@@ -365,6 +398,7 @@ function InCallContent({
   let localSpeaking = false;
   let remoteSpeaking = false;
   let remoteTrack: MediaStreamTrack | undefined;
+  let localTrack: MediaStreamTrack | undefined;
 
   if (isLiveKit) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -383,6 +417,7 @@ function InCallContent({
     // eslint-disable-next-line react-hooks/rules-of-hooks
     remoteSpeaking = useIsSpeaking(remoteParticipants[0]);
     remoteTrack = remoteParticipants[0]?.getTrackPublication(Track.Source.Microphone)?.track?.mediaStreamTrack;
+    localTrack = localParticipant?.getTrackPublication(Track.Source.Microphone)?.track?.mediaStreamTrack;
   }
   // The partner's real voice for the waveform; one stream per track
   const remoteTrackId = remoteTrack?.id;
@@ -390,6 +425,12 @@ function InCallContent({
     () => (remoteTrack ? new MediaStream([remoteTrack]) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [remoteTrackId]
+  );
+  const localTrackId = localTrack?.id;
+  const localStream = useMemo(
+    () => (localTrack ? new MediaStream([localTrack]) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [localTrackId]
   );
   // Remember that the partner was here (state adjusted during render, not in an effect)
   if (isLiveKit && isPartnerConnected && !partnerEverJoined) setPartnerEverJoined(true);
@@ -407,6 +448,7 @@ function InCallContent({
     (): CallData => ({
       duration: Math.floor((Date.now() - startTimeRef.current) / 1000),
       questions: questionsSeenRef.current.map((q) => ({ part: q.part, text: q.question_text })),
+      notes: notesRef.current.trim() || undefined,
     }),
     []
   );
@@ -419,6 +461,7 @@ function InCallContent({
     roomRef.current = room;
     onEndCallRef.current = onEndCall;
     onMatchCancelledRef.current = onMatchCancelled;
+    notesRef.current = notes;
   });
 
   const finish = useCallback(async () => {
@@ -617,112 +660,119 @@ function InCallContent({
     return () => clearTimeout(timer);
   }, [sessionCompleted, countdown, finish]);
 
+  // Enter = next question for the examiner, unless typing or on a focused control
+  const nextRef = useRef(handleNextQuestion);
+  useLayoutEffect(() => {
+    nextRef.current = handleNextQuestion;
+  });
+  useEffect(() => {
+    if (!isInterviewer) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || e.repeat || e.isComposing) return;
+      const t = e.target as HTMLElement | null;
+      if (t?.closest("textarea, input, select, button, a, [contenteditable]")) return;
+      e.preventDefault();
+      void nextRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isInterviewer]);
+
   const partnerMissing =
     isLiveKit && !isPartnerConnected && !partnerEverJoined && elapsedTime >= PARTNER_JOIN_TIMEOUT_S;
 
-  const partnerName = partner.name;
-  const speakingLabel = localSpeaking ? "Bạn đang nói" : remoteSpeaking ? `${partnerName} đang nói` : "On air";
+  const statusText = isLiveKit ? (isPartnerConnected ? "Đã kết nối" : "Đang chờ bạn kia vào phòng…") : "Chế độ demo (không có âm thanh)";
+  const swapProps = {
+    onRequestSwap: handleRequestSwap,
+    onCancelSwap: handleCancelSwap,
+    swapPending: mySwapPending,
+  };
 
   return (
     <>
       {isLiveKit && <RoomAudioRenderer />}
 
-      <div className="flex min-h-dvh flex-col bg-bg">
-        <header className="mx-auto flex h-14 w-full max-w-2xl items-center justify-between gap-3 px-4">
-          <p className="font-mono text-sm tabular text-ink-2" aria-label={`Đã gọi ${formatClock(elapsedTime)}`}>
+      <FlowShell
+        tone="dark"
+        wide
+        progress={<PartProgress currentPart={progress.part} questionInTurn={progress.questionInTurn} turnInPart={progress.turnInPart} />}
+        right={
+          <span className="text-sm font-extrabold text-ink-2 tabular" aria-label={`Đã gọi ${formatClock(elapsedTime)}`}>
             {formatClock(elapsedTime)}
-          </p>
-          <OnAirLamp on={localSpeaking || remoteSpeaking} label={speakingLabel} />
-        </header>
+          </span>
+        }
+        footer={<ControlBar isMuted={isMuted} onMuteToggle={handleMuteToggle} onEndCall={finish} />}
+      >
+        {mediaError && (
+          <Notice tone="error" className="mb-4">
+            {mediaError}
+          </Notice>
+        )}
 
-        <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-8 pt-2">
-          <div className="mb-6">
-            <h1 className="truncate text-2xl font-semibold tracking-tight text-ink">{partnerName}</h1>
-            <p className="mt-1 text-sm text-muted">
-              Band <span className="font-mono tabular text-ink-2">{partner.band}</span>
-              <span className="mx-2 text-subtle" aria-hidden>
-                ·
-              </span>
-              <span aria-live="polite">
-                {isLiveKit ? (isPartnerConnected ? "Đã kết nối" : "Đang chờ bạn kia vào phòng…") : "Chế độ demo (không có âm thanh)"}
-              </span>
+        {partnerMissing && (
+          <Notice tone="error" className="mb-4">
+            <p>Bạn kia vẫn chưa vào phòng. Có thể họ gặp sự cố kết nối.</p>
+            <Button className="mt-3" variant="secondary" size="sm" onClick={finish}>
+              Rời phòng
+            </Button>
+          </Notice>
+        )}
+
+        {matchId && userId && isInterviewer === null && (
+          <Notice className="mb-4">
+            <span className="flex items-center gap-3">
+              <Loader2 className="size-4 animate-spin" /> Đang chia vai…
+            </span>
+          </Notice>
+        )}
+
+        {sessionCompleted && (
+          <Notice className="mb-4">
+            <p className="font-bold">Xong cả 18 câu.</p>
+            <p className="mt-0.5">
+              Cuộc gọi kết thúc sau <span className="font-bold tabular">{countdown}s</span>
             </p>
-            <div className="mt-4">
-              {remoteStream ? <LiveWaveform stream={remoteStream} className="h-10" /> : <div className="h-px w-full bg-line" aria-hidden />}
-            </div>
+          </Notice>
+        )}
+
+        {matchId && userId && partnerRequestedSwap && (
+          <SwapRequestBanner
+            onAccept={() => handleRespondToSwap(true)}
+            onDecline={() => handleRespondToSwap(false)}
+            isLoading={isSwapLoading}
+          />
+        )}
+
+        <div className="grid gap-5 md:grid-cols-[1.4fr_1fr] md:items-start">
+          <div>
+            {isInterviewer !== null &&
+              (isInterviewer ? (
+                <InterviewerControls
+                  currentQuestion={currentQuestion}
+                  onNextQuestion={handleNextQuestion}
+                  isLoading={isLoadingQuestion}
+                  error={questionError}
+                  {...swapProps}
+                />
+              ) : (
+                <CandidateView currentQuestion={currentQuestion} {...swapProps} />
+              ))}
           </div>
 
-          {mediaError && (
-            <Notice tone="error" className="mb-4">
-              {mediaError}
-            </Notice>
-          )}
-
-          {partnerMissing && (
-            <Notice tone="error" className="mb-4">
-              <p>Bạn kia vẫn chưa vào phòng. Có thể họ gặp sự cố kết nối.</p>
-              <Button className="mt-3" variant="secondary" size="sm" onClick={finish}>
-                Rời phòng
-              </Button>
-            </Notice>
-          )}
-
-          {matchId && userId && isInterviewer === null && (
-            <Notice className="mb-4">
-              <span className="flex items-center gap-3">
-                <Loader2 className="size-4 animate-spin" /> Đang chia vai…
-              </span>
-            </Notice>
-          )}
-
-          {sessionCompleted && (
-            <Notice className="mb-4">
-              <p className="text-ink">Xong cả 18 câu.</p>
-              <p className="mt-0.5 text-muted">
-                Cuộc gọi kết thúc sau <span className="font-mono tabular text-ink">{countdown}s</span>
-              </p>
-            </Notice>
-          )}
-
-          {matchId && userId && partnerRequestedSwap && (
-            <SwapRequestBanner
-              onAccept={() => handleRespondToSwap(true)}
-              onDecline={() => handleRespondToSwap(false)}
-              isLoading={isSwapLoading}
+          <div className="space-y-5">
+            <PartnerCard
+              partner={partner}
+              status={statusText}
+              remoteSpeaking={remoteSpeaking}
+              localSpeaking={localSpeaking}
+              remoteStream={remoteStream}
+              localStream={localStream}
+              showWaves={isLiveKit}
             />
-          )}
-
-          {isInterviewer !== null &&
-            (isInterviewer ? (
-              <InterviewerControls
-                currentQuestion={currentQuestion}
-                onNextQuestion={handleNextQuestion}
-                onRequestSwap={handleRequestSwap}
-                onCancelSwap={handleCancelSwap}
-                isLoading={isLoadingQuestion}
-                error={questionError}
-                currentPart={progress.part}
-                questionInTurn={progress.questionInTurn}
-                questionsPerTurn={progress.questionsPerTurn}
-                turnInPart={progress.turnInPart}
-                swapPending={mySwapPending}
-              />
-            ) : (
-              <CandidateView
-                currentQuestion={currentQuestion}
-                onRequestSwap={handleRequestSwap}
-                onCancelSwap={handleCancelSwap}
-                currentPart={progress.part}
-                questionInTurn={progress.questionInTurn}
-                questionsPerTurn={progress.questionsPerTurn}
-                turnInPart={progress.turnInPart}
-                swapPending={mySwapPending}
-              />
-            ))}
-        </main>
-
-        <ControlBar isMuted={isMuted} onMuteToggle={handleMuteToggle} onEndCall={finish} />
-      </div>
+            {isInterviewer && <NotesCard value={notes} onChange={setNotes} />}
+          </div>
+        </div>
+      </FlowShell>
     </>
   );
 }
@@ -762,7 +812,7 @@ export default function InCallScreen({
         }
       >
         {isConnecting ? (
-          <div className="flex min-h-dvh items-center justify-center bg-bg">
+          <div data-theme="dark" className="flex min-h-dvh items-center justify-center bg-bg text-ink">
             <ConnectingState />
           </div>
         ) : (
@@ -796,9 +846,9 @@ export default function InCallScreen({
 
   // No token (it failed) or the room refused us: say so instead of a silent fake call
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-bg px-4">
+    <div data-theme="dark" className="flex min-h-dvh items-center justify-center bg-bg px-4 text-ink">
       <div role="alert" className="w-full max-w-sm rounded-[var(--radius-card)] border border-line bg-surface p-6">
-        <h1 className="text-lg font-semibold text-ink">Không vào được phòng gọi</h1>
+        <h1 className="text-lg font-extrabold tracking-[-0.02em] text-ink">Không vào được phòng gọi</h1>
         <p className="mt-2 text-sm text-muted">
           {connectError ?? "Có lỗi khi lấy quyền vào phòng."} Kiểm tra mạng rồi thử lại.
         </p>
