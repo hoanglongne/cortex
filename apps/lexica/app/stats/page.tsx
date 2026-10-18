@@ -482,7 +482,7 @@ function BackupStatus() {
     return (
         <div className="mb-6 rounded-2xl border border-line bg-surface/60 p-4">
             <AuthGate
-                reason="Đăng nhập để sao lưu tiến trình học và tiếp tục trên máy khác. Không cần mật khẩu."
+                reason="Đăng nhập để sao lưu tiến trình học và tiếp tục trên máy khác."
                 redirectPath="/stats"
             />
         </div>

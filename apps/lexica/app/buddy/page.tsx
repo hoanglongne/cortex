@@ -8,6 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { useActivitySync } from '../hooks/useActivitySync';
 import { useLexicaStore } from '../store/lexicaStore';
 import AuthGate from '../components/AuthGate';
+import SetPassword from '../components/SetPassword';
 import { getMyBuddies, createInviteCode, acceptInvite, removeBuddy, checkAndUpdateDuoStreak, type BuddyInfo } from '../lib/buddy';
 import { upsertProfile } from '../lib/auth';
 
@@ -124,7 +125,7 @@ export default function BuddyPage() {
                         <h1 className="text-xl font-bold text-ink">Study Buddy</h1>
                         <p className="text-muted text-sm">Học cùng bạn bè, duy trì chuỗi đôi, tạo động lực mỗi ngày.</p>
                     </div>
-                    <AuthGate reason="Cần lưu tài khoản để kết nối với bạn bè. Không cần mật khẩu." />
+                    <AuthGate reason="Cần lưu tài khoản để kết nối với bạn bè." />
                     <Link href="/" className="flex items-center justify-center gap-2 text-muted hover:text-ink text-sm transition-colors">
                         <ArrowLeft className="w-4 h-4" /> Về trang chủ
                     </Link>
@@ -184,6 +185,7 @@ export default function BuddyPage() {
             </div>
 
             <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
+                <SetPassword />
                 {/* My stats today */}
                 <div className="bg-surface rounded-2xl p-4 border border-line">
                     <p className="text-muted text-xs mb-3 uppercase font-mono">Hôm nay của bạn</p>

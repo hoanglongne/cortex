@@ -69,7 +69,7 @@ export default function InvitePage({ params }: { params: Promise<{ token: string
                                 </div>
                             ) : (
                                 <>
-                                    <p className="mb-3 text-sm text-muted">Đăng nhập bằng email (cùng tài khoản Lexica nếu bạn đã có), rồi quay lại trang này để nhận.</p>
+                                    <p className="mb-3 text-sm text-muted">Đăng nhập (cùng tài khoản Lexica nếu bạn đã có, hoặc tạo mới ngay đây), rồi nhận lời mời.</p>
                                     <EmailSignIn back={`/invite/${token}`} />
                                 </>
                             )}

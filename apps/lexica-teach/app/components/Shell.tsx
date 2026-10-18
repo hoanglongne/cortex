@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import { BarChart3, Building2, CalendarCheck, GraduationCap, LogOut, ShieldCheck, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { BarChart3, Building2, CalendarCheck, GraduationCap, KeyRound, LogOut, ShieldCheck, Users } from 'lucide-react';
 import { hasAccess, useSession } from '../lib/session';
+import { setPassword } from '../lib/auth';
 
 /**
  * Every signed-in page: a fixed sidebar of five places (Hôm nay first), a top
@@ -58,6 +59,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     <button onClick={() => void signOut()} className="mt-1 flex items-center gap-1.5 text-sm text-muted hover:text-ink">
                         <LogOut className="h-4 w-4" /> Đăng xuất
                     </button>
+                    <SetPassword />
                 </div>
             </aside>
             <div className="sticky top-0 z-30 flex gap-1 overflow-x-auto border-b border-line bg-bg/95 px-3 py-2 backdrop-blur lg:hidden">
@@ -87,5 +89,36 @@ function NoAccess({ email, onSignOut }: { email: string; onSignOut: () => void }
                 </button>
             </div>
         </div>
+    );
+}
+
+/** For accounts made with an email link: set a password once. */
+function SetPassword() {
+    const [open, setOpen] = useState(false);
+    const [pw, setPw] = useState('');
+    const [msg, setMsg] = useState('');
+    if (!open) {
+        return (
+            <button onClick={() => setOpen(true)} className="mt-1 flex items-center gap-1.5 text-sm text-muted hover:text-ink">
+                <KeyRound className="h-4 w-4" /> Đặt mật khẩu
+            </button>
+        );
+    }
+    return (
+        <form
+            className="mt-2 space-y-1.5"
+            onSubmit={async (e) => {
+                e.preventDefault();
+                const error = await setPassword(pw);
+                setMsg(error ?? 'Đã lưu mật khẩu.');
+                if (!error) setPw('');
+            }}
+        >
+            <input type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Mật khẩu mới" aria-label="Mật khẩu mới" className="w-full rounded-lg border border-line-strong bg-surface px-2 py-1.5 text-sm" />
+            <button type="submit" disabled={pw.length < 6} className="text-sm font-medium text-accent disabled:opacity-40">
+                Lưu mật khẩu
+            </button>
+            {msg && <p className="text-xs text-muted">{msg}</p>}
+        </form>
     );
 }
