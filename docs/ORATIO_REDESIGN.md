@@ -1,6 +1,6 @@
-# Oratio: đại cải tổ (đề xuất, chờ duyệt)
+# Oratio: đại cải tổ
 
-Bản đề xuất ngày 2026-10-18. Chưa có gì trong file này được code. Khi được duyệt, file này là nguồn gốc cho mọi quyết định về Oratio, giống `LEXICA_DIRECTION.md` cho Lexica. Các mục "Cần chủ dự án quyết" nằm ở cuối.
+Chủ dự án đã duyệt ngày 2026-10-18, kèm 4 quyết định ở mục 8. File này là nguồn gốc cho mọi quyết định về Oratio, giống `LEXICA_DIRECTION.md` cho Lexica. Đang làm P0.
 
 ## 1. Chẩn đoán: vì sao Oratio hiện tại yếu
 
@@ -182,9 +182,32 @@ Các con số cần đo từ P1:
 | Format IELTS và bản quyền | Không dùng logo, không chép nguyên văn band descriptors hay đề thật đã công bố; câu hỏi tự soạn theo dạng phổ biến (bộ hiện có khoảng 300 câu) |
 | Làm quá nhiều cùng lúc | Mỗi pha phát hành riêng. P0 và P1 đã đủ khác biệt để ra mắt lại |
 
-## 8. Cần chủ dự án quyết
+## 8. Quyết định (đã chốt 2026-10-18)
 
-1. **Màu ON AIR hổ phách và dùng chung nền, bộ chữ với Lexica?** Đề xuất: có. Cả hệ Cortex thành một gia đình, và Oratio vẫn có màu riêng.
-2. **Lưu ghi âm trên Supabase cho Chấm chéo** (đồng ý từng câu, xoá sau 30 ngày)? Đề xuất: có. Không có bước này thì không có Chấm chéo, mà Chấm chéo là thứ giải bài toán thanh khoản.
-3. **Câu neo**: bạn có quen 1–2 giáo viên IELTS chấm giúp khoảng 60 câu không? Nếu chưa, ra P2 với đồng thuận số đông trước, rồi thêm câu neo sau.
-4. **Giờ thi chung**: đề xuất 20:30–22:00 mỗi tối, và thêm 12:00–13:00 cuối tuần.
+1. Màu ON AIR hổ phách, dùng chung nền và bộ chữ với Lexica: **có**.
+2. Lưu ghi âm trên Supabase cho Chấm chéo (đồng ý từng câu, xoá sau 30 ngày): **có**.
+3. Câu neo: chủ dự án có giáo viên IELTS quen, nhờ chấm khoảng 60 câu (20 câu cho mỗi Part, band 4–8) khi bắt đầu P2.
+4. Giờ thi chung: 20:30–22:00 mỗi tối, thêm 12:00–13:00 thứ Bảy và Chủ nhật (`src/lib/exam-hours.ts`).
+
+## 9. Áp dụng hệ thiết kế (cho người code)
+
+- **Token và font**:
+  - Token nằm ở `src/app/globals.css`, gồm các lớp: `bg`, `surface`, `surface-2`, `surface-3`, `paper`, `line`, `line-strong`, `ink`, `ink-2`, `muted`, `subtle`, `onair`, `onair-soft`, `on-onair`, `good`, `danger`, `danger-soft`.
+  - Font: `font-sans` (Space Grotesk), `font-mono` (JetBrains Mono), `font-serif` (Literata).
+  - Không dùng màu Tailwind có sẵn như `zinc-*`, `blue-*`, `emerald-*`, `amber-*`, cũng không dùng mã hex trong component.
+- **Component** (`src/components/ui/`):
+  - `button.tsx`: variant primary, secondary, ghost, danger, link.
+  - `card.tsx`: `Card`, `Label`, `Stat`, `Notice`, `EmptyState`.
+  - `cue-card.tsx`: `CueCard`, dùng cho mọi câu hỏi.
+  - `on-air.tsx`: `OnAirLamp` và `LiveWaveform` (vẽ từ `MediaStream` thật).
+  - `timer.tsx`: `Part2Timer`, `useElapsed`, `formatClock`.
+  - `band.tsx`: `BandRange`, `CriterionRow`, `CRITERION_LABELS`.
+  - `shell.tsx`: `TabShell` cho 4 tab, `FlowShell` cho màn toàn màn hình, `Wordmark`.
+- **Màn mẫu**: `src/components/HomeScreen.tsx`.
+- **Quy tắc**:
+  - Mỗi màn có tối đa một nút `primary`.
+  - Câu hỏi, transcript và nhận xét viết bằng `font-serif`; con số dùng `font-mono` kèm class `tabular`.
+  - Không gradient, không glow, không blur trang trí, không hạt bay, không emoji, không icon trang trí lớn.
+  - Chuyển động chỉ để báo trạng thái (`animate-onair`, `animate-enter`).
+  - Bố cục mobile trước, chạy được ở 320px; khi màn rộng thì nội dung tối đa `max-w-3xl` (tab) hoặc `max-w-2xl` (flow).
+  - Chữ giao diện là tiếng Việt, giữ thuật ngữ IELTS bằng tiếng Anh.
