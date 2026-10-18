@@ -1,27 +1,17 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
-import {
-  Mic,
-  MicOff,
-  Phone,
-  Volume2,
-  Loader2,
-  ArrowRight,
-  User,
-  Repeat,
-  Check,
-  X,
-  AlertCircle,
-} from "lucide-react";
+import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } from "react";
+import { Mic, MicOff, Phone, Loader2, Repeat, X } from "lucide-react";
 import {
   LiveKitRoom,
   RoomAudioRenderer,
+  useIsSpeaking,
   useLocalParticipant,
   useRemoteParticipants,
   useRoomContext,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
+import { Track } from "livekit-client";
 import type { RemoteParticipant, Room } from "livekit-client";
 import {
   getNextQuestion,
@@ -32,10 +22,15 @@ import {
   cancelSwapRequest,
   assignMatchRoles,
 } from "@/actions/questions";
-import { Part2Timer, QuestionText } from "./QuestionParts";
 import { getPartAndPosition, QUESTIONS_PER_PART, TOTAL_QUESTIONS } from "@/lib/question-utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { IeltsQuestion, Match } from "@/lib/types/database";
+import { Button } from "@/components/ui/button";
+import { Label, Notice } from "@/components/ui/card";
+import { CueCard } from "@/components/ui/cue-card";
+import { LiveWaveform, OnAirLamp } from "@/components/ui/on-air";
+import { Part2Timer, formatClock } from "@/components/ui/timer";
+import { cn } from "@/lib/utils";
 
 interface InCallScreenProps {
   partner?: { name: string; band: string };
@@ -62,37 +57,7 @@ export interface CallData {
 /** Without a partner in the room after this long, offer to leave. */
 const PARTNER_JOIN_TIMEOUT_S = 60;
 
-// Audio Visualizer Component
-function AudioVisualizer({ isActive = true }: { isActive?: boolean }) {
-  return (
-    <div className="flex items-center justify-center gap-1.5 h-32 w-64 mx-auto">
-      {[1, 2, 3, 4, 5, 6, 7].map((bar) => (
-        <div
-          key={bar}
-          className={`audio-bar-${bar} w-3 rounded-full bg-gradient-to-t from-oratio-primary via-oratio-secondary to-oratio-primary transition-opacity ${isActive ? "opacity-100" : "opacity-30"
-            }`}
-          style={{
-            minHeight: "16px",
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// Timer Pill Component
-function TimerPill({ time }: { time: string }) {
-  return (
-    <div className="timer-pulse inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm">
-      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-      <span className="text-sm font-semibold tracking-wide text-white/90 tabular-nums">
-        {time}
-      </span>
-    </div>
-  );
-}
-
-// Part progress indicator with question counts
+/** P1 / P2 / P3 as three thin segments; the current one says where we are. */
 function PartProgress({
   currentPart,
   questionInTurn,
@@ -104,28 +69,18 @@ function PartProgress({
   turnInPart: 1 | 2;
 }) {
   return (
-    <div className="flex items-center gap-1.5 flex-wrap">
+    <div className="grid grid-cols-3 gap-2" role="group" aria-label="Tiến độ buổi thi">
       {[1, 2, 3].map((part) => {
         const perTurn = QUESTIONS_PER_PART[part as keyof typeof QUESTIONS_PER_PART];
         const isCurrent = part === currentPart;
         const isDone = part < currentPart;
         return (
-          <div
-            key={part}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${isCurrent
-              ? "bg-white/10 border border-white/20 text-white"
-              : isDone
-                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                : "bg-white/5 border border-white/5 text-zinc-600"
-              }`}
-          >
-            {isDone && <Check className="w-3 h-3" />}
-            P{part}
-            {isCurrent && (
-              <span className="text-[10px] opacity-70">
-                {questionInTurn}/{perTurn} · T{turnInPart}
-              </span>
-            )}
+          <div key={part} aria-current={isCurrent ? "step" : undefined}>
+            <span className={cn("block h-0.5 rounded-full", isCurrent ? "bg-ink-2" : isDone ? "bg-subtle" : "bg-surface-3")} />
+            <p className={cn("mt-1.5 truncate font-mono text-[11px] tabular", isCurrent ? "text-ink-2" : "text-subtle")}>
+              P{part}
+              {isCurrent && ` · ${questionInTurn}/${perTurn} · T${turnInPart}`}
+            </p>
           </div>
         );
       })}
@@ -133,7 +88,7 @@ function PartProgress({
   );
 }
 
-// Swap request banner — compact inline (shown to the OTHER user)
+// Swap request banner (shown to the OTHER user)
 function SwapRequestBanner({
   onAccept,
   onDecline,
@@ -144,27 +99,21 @@ function SwapRequestBanner({
   isLoading: boolean;
 }) {
   return (
-    <div className="w-full max-w-2xl mx-auto mb-3 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-sm flex items-center justify-between gap-2">
-      <span className="text-xs text-amber-300 flex items-center gap-1.5">
-        <Repeat className="w-3 h-3" /> Bạn kia muốn đổi vai
-      </span>
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={onAccept}
-          disabled={isLoading}
-          className="px-2.5 py-1 rounded-md bg-emerald-500/80 hover:bg-emerald-500 text-white text-xs font-medium transition-all disabled:opacity-50"
-        >
-          Đồng ý
-        </button>
-        <button
-          onClick={onDecline}
-          disabled={isLoading}
-          className="px-2.5 py-1 rounded-md bg-zinc-700/80 hover:bg-zinc-600 text-white text-xs font-medium transition-all disabled:opacity-50"
-        >
-          Không
-        </button>
+    <Notice className="mb-4 items-center">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="flex items-center gap-2">
+          <Repeat className="size-3.5" /> Bạn kia muốn đổi vai
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Button size="sm" variant="secondary" onClick={onAccept} disabled={isLoading}>
+            Đồng ý
+          </Button>
+          <Button size="sm" variant="ghost" onClick={onDecline} disabled={isLoading}>
+            Không
+          </Button>
+        </span>
       </div>
-    </div>
+    </Notice>
   );
 }
 
@@ -178,21 +127,34 @@ function SwapButton({
   onCancelSwap: () => void;
 }) {
   return swapPending ? (
-    <button
-      onClick={onCancelSwap}
-      aria-label="Huỷ yêu cầu đổi vai"
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 transition-all hover:bg-amber-500/20 text-xs text-amber-400"
-    >
-      <Loader2 className="w-3 h-3 animate-spin" /> Đang chờ đổi vai
-      <X className="w-3 h-3" />
-    </button>
+    <Button variant="ghost" size="sm" onClick={onCancelSwap} aria-label="Huỷ yêu cầu đổi vai">
+      <Loader2 className="animate-spin" /> Đang chờ đổi vai <X />
+    </Button>
   ) : (
-    <button
-      onClick={onRequestSwap}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-xs text-zinc-400"
-    >
-      <Repeat className="w-3 h-3" /> Đổi vai
-    </button>
+    <Button variant="ghost" size="sm" onClick={onRequestSwap}>
+      <Repeat /> Đổi vai
+    </Button>
+  );
+}
+
+/** Role as a quiet mono label, one sentence of what to do, and the swap button. */
+function RoleLine({
+  role,
+  hint,
+  swap,
+}: {
+  role: string;
+  hint: string;
+  swap: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <Label>{role}</Label>
+        <p className="mt-1 text-sm text-muted">{hint}</p>
+      </div>
+      <div className="shrink-0">{swap}</div>
+    </div>
   );
 }
 
@@ -223,63 +185,32 @@ function InterviewerControls({
   swapPending: boolean;
 }) {
   return (
-    <div className="relative w-full max-w-2xl mx-auto space-y-3">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-oratio-primary/10 border border-oratio-primary/30">
-          <User className="w-3.5 h-3.5 text-oratio-primary" />
-          <span className="text-xs font-medium text-oratio-primary">Bạn là giám khảo</span>
-        </div>
-        <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
-        <SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />
-      </div>
+    <div className="space-y-5">
+      <RoleLine
+        role="Giám khảo"
+        hint="Đọc to câu hỏi cho bạn kia, rồi bấm “Câu tiếp theo”."
+        swap={<SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />}
+      />
+      <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
 
-      <div className="relative p-6 rounded-3xl bg-zinc-900/80 border border-white/10 backdrop-blur-sm">
-        {currentQuestion ? (
-          <>
-            <div className="flex items-start justify-between gap-3 mb-4">
-              <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                Part {currentQuestion.part} • {currentQuestion.category}
-              </p>
-            </div>
-            <p className="text-sm text-zinc-400 mb-2">Đọc to câu này cho bạn kia:</p>
-            <div className="mb-5">
-              <QuestionText question={currentQuestion} revealable={false} />
-            </div>
-            {currentQuestion.part === 2 && (
-              <div className="mb-5">
-                <Part2Timer key={currentQuestion.id} />
-              </div>
-            )}
-            <button
-              onClick={onNextQuestion}
-              disabled={isLoading}
-              className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-oratio-primary to-oratio-secondary hover:from-[#6db0e4] hover:to-[#9dc5e5] text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-            >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <span>Câu tiếp theo</span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
-          </>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-zinc-400 mb-4">Bấm để lấy câu hỏi đầu tiên khi cả hai đã nghe được nhau.</p>
-            <button
-              onClick={onNextQuestion}
-              disabled={isLoading}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-oratio-primary to-oratio-secondary hover:from-[#6db0e4] hover:to-[#9dc5e5] text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-            >
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Bắt đầu câu đầu tiên"}
-            </button>
-          </div>
-        )}
-        {error && <p role="alert" className="mt-3 text-sm text-red-300">{error}</p>}
-        <div className="absolute -inset-px rounded-3xl bg-gradient-to-r from-oratio-primary/20 via-transparent to-oratio-secondary/20 -z-10 blur-sm" />
-      </div>
+      {currentQuestion ? (
+        <>
+          <CueCard key={currentQuestion.id} question={currentQuestion}>
+            {currentQuestion.part === 2 && <Part2Timer key={currentQuestion.id} />}
+          </CueCard>
+          <Button variant="primary" size="lg" block onClick={onNextQuestion} disabled={isLoading}>
+            {isLoading ? <Loader2 className="animate-spin" /> : "Câu tiếp theo"}
+          </Button>
+        </>
+      ) : (
+        <div className="rounded-[var(--radius-card)] border border-line bg-surface p-5">
+          <p className="text-muted">Bấm để lấy câu hỏi đầu tiên khi cả hai đã nghe được nhau.</p>
+          <Button className="mt-4" variant="primary" size="lg" block onClick={onNextQuestion} disabled={isLoading}>
+            {isLoading ? <Loader2 className="animate-spin" /> : "Bắt đầu câu đầu tiên"}
+          </Button>
+        </div>
+      )}
+      {error && <Notice tone="error">{error}</Notice>}
     </div>
   );
 }
@@ -304,50 +235,29 @@ function CandidateView({
   turnInPart: 1 | 2;
   swapPending: boolean;
 }) {
+  const hint =
+    currentQuestion?.part === 2
+      ? "Đây là thẻ đề của bạn. Chuẩn bị 1 phút rồi nói khoảng 2 phút."
+      : "Nghe giám khảo đọc câu hỏi rồi trả lời. Nghe chưa rõ thì mở câu hỏi ra xem.";
   return (
-    <div className="relative w-full max-w-2xl mx-auto space-y-3">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-oratio-secondary/10 border border-oratio-secondary/30">
-          <User className="w-3.5 h-3.5 text-oratio-secondary" />
-          <span className="text-xs font-medium text-oratio-secondary">Bạn là thí sinh</span>
-        </div>
-        <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
-        <SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />
-      </div>
+    <div className="space-y-5">
+      <RoleLine
+        role="Thí sinh"
+        hint={currentQuestion ? hint : "Chờ giám khảo bắt đầu câu đầu tiên."}
+        swap={<SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />}
+      />
+      <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
 
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-zinc-900/80 border border-white/10 backdrop-blur-sm text-center">
-        {currentQuestion ? (
-          <>
-            <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-4">
-              Part {currentQuestion.part} • {currentQuestion.category}
-            </p>
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-oratio-secondary/10 border border-oratio-secondary/30 mb-4">
-              <Mic className="w-7 h-7 text-oratio-secondary" />
-            </div>
-            <p className="text-sm text-zinc-400 mb-4">
-              {currentQuestion.part === 2
-                ? "Đây là thẻ đề của bạn. Chuẩn bị 1 phút rồi nói khoảng 2 phút."
-                : "Nghe giám khảo đọc câu hỏi rồi trả lời. Nghe chưa rõ thì mở câu hỏi ra xem."}
-            </p>
-            <div className="mb-1">
-              <QuestionText key={currentQuestion.id} question={currentQuestion} revealable />
-            </div>
-            {currentQuestion.part === 2 && (
-              <div className="mt-5">
-                <Part2Timer key={currentQuestion.id} />
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 border border-white/10 mb-4">
-              <Loader2 className="w-8 h-8 text-zinc-500 animate-spin" />
-            </div>
-            <p className="text-zinc-400">Chờ giám khảo bắt đầu câu đầu tiên…</p>
-          </>
-        )}
-        <div className="absolute -inset-px rounded-3xl bg-gradient-to-r from-oratio-secondary/20 via-transparent to-oratio-primary/20 -z-10 blur-sm" />
-      </div>
+      {currentQuestion ? (
+        <CueCard key={currentQuestion.id} question={currentQuestion} hidden>
+          {currentQuestion.part === 2 && <Part2Timer key={currentQuestion.id} />}
+        </CueCard>
+      ) : (
+        <div className="flex items-center gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-5 text-muted" aria-live="polite">
+          <Loader2 className="size-4 animate-spin" />
+          <p>Chờ giám khảo bắt đầu câu đầu tiên…</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -363,29 +273,20 @@ function ControlBar({
   onEndCall: () => void;
 }) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 pb-8">
-      <div className="max-w-xs mx-auto">
-        <div className="flex items-center justify-center gap-6 p-4 rounded-[2rem] bg-white/10 backdrop-blur-xl border border-white/10">
-          <button
-            onClick={onMuteToggle}
-            className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${isMuted
-              ? "bg-zinc-700 text-white"
-              : "bg-zinc-800 text-white hover:bg-zinc-700"
-              }`}
-            aria-label={isMuted ? "Bật micro" : "Tắt micro"}
-            aria-pressed={isMuted}
-          >
-            {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
-          </button>
-
-          <button
-            onClick={onEndCall}
-            className="flex items-center gap-2 px-5 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30"
-          >
-            <Phone className="w-6 h-6 rotate-135" />
-            <span className="text-sm font-medium">Kết thúc</span>
-          </button>
-        </div>
+    <div className="sticky bottom-0 border-t border-line bg-bg pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto flex max-w-2xl items-center justify-center gap-3 px-4 py-3">
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={onMuteToggle}
+          aria-label={isMuted ? "Bật micro" : "Tắt micro"}
+          aria-pressed={isMuted}
+        >
+          {isMuted ? <MicOff /> : <Mic />}
+        </Button>
+        <Button variant="danger" onClick={onEndCall}>
+          <Phone className="rotate-135" /> Kết thúc
+        </Button>
       </div>
     </div>
   );
@@ -394,9 +295,9 @@ function ControlBar({
 // Connecting State Component
 function ConnectingState() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <Loader2 className="w-12 h-12 text-oratio-primary animate-spin" />
-      <p className="text-zinc-400">Đang vào phòng…</p>
+    <div className="flex flex-col items-center justify-center gap-3" aria-live="polite">
+      <Loader2 className="size-6 animate-spin text-muted" />
+      <p className="text-muted">Đang vào phòng…</p>
     </div>
   );
 }
@@ -461,6 +362,9 @@ function InCallContent({
   let isMuted = isMutedLocal;
   let isPartnerConnected = true;
   let room: Room | null = null;
+  let localSpeaking = false;
+  let remoteSpeaking = false;
+  let remoteTrack: MediaStreamTrack | undefined;
 
   if (isLiveKit) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -474,7 +378,19 @@ function InCallContent({
     remoteParticipants = lkRemote;
     isMuted = !localParticipant?.isMicrophoneEnabled;
     isPartnerConnected = remoteParticipants.length > 0;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    localSpeaking = useIsSpeaking(localParticipant);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    remoteSpeaking = useIsSpeaking(remoteParticipants[0]);
+    remoteTrack = remoteParticipants[0]?.getTrackPublication(Track.Source.Microphone)?.track?.mediaStreamTrack;
   }
+  // The partner's real voice for the waveform; one stream per track
+  const remoteTrackId = remoteTrack?.id;
+  const remoteStream = useMemo(
+    () => (remoteTrack ? new MediaStream([remoteTrack]) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [remoteTrackId]
+  );
   // Remember that the partner was here (state adjusted during render, not in an effect)
   if (isLiveKit && isPartnerConnected && !partnerEverJoined) setPartnerEverJoined(true);
 
@@ -638,12 +554,6 @@ function InCallContent({
     };
   }, [matchId, applyState]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
   // Next question (interviewer only)
   const handleNextQuestion = async () => {
     if (!matchId || !isInterviewer || sessionCompleted) return;
@@ -710,72 +620,68 @@ function InCallContent({
   const partnerMissing =
     isLiveKit && !isPartnerConnected && !partnerEverJoined && elapsedTime >= PARTNER_JOIN_TIMEOUT_S;
 
+  const partnerName = partner.name;
+  const speakingLabel = localSpeaking ? "Bạn đang nói" : remoteSpeaking ? `${partnerName} đang nói` : "On air";
+
   return (
     <>
       {isLiveKit && <RoomAudioRenderer />}
 
-      <div className="min-h-screen bg-[#050505] flex flex-col">
-        <header className="flex items-center justify-center p-4 pt-6">
-          <TimerPill time={formatTime(elapsedTime)} />
+      <div className="flex min-h-dvh flex-col bg-bg">
+        <header className="mx-auto flex h-14 w-full max-w-2xl items-center justify-between gap-3 px-4">
+          <p className="font-mono text-sm tabular text-ink-2" aria-label={`Đã gọi ${formatClock(elapsedTime)}`}>
+            {formatClock(elapsedTime)}
+          </p>
+          <OnAirLamp on={localSpeaking || remoteSpeaking} label={speakingLabel} />
         </header>
 
-        <main className="flex-1 flex flex-col items-center justify-start px-4 pt-2 pb-40">
-          {/* Connection status */}
-          <div className="flex items-center gap-2 mb-8" aria-live="polite">
-            <div className={`w-2 h-2 rounded-full ${isPartnerConnected ? "bg-emerald-500" : "bg-amber-500"}`} />
-            <Volume2 className={`w-4 h-4 ${isPartnerConnected ? "text-emerald-500" : "text-amber-500"}`} />
-            <span className="text-sm text-zinc-400">
-              {isLiveKit ? (isPartnerConnected ? "Đã kết nối" : "Đang chờ bạn kia vào phòng…") : "Chế độ demo (không có âm thanh)"}
-            </span>
+        <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-8 pt-2">
+          <div className="mb-6">
+            <h1 className="truncate text-2xl font-semibold tracking-tight text-ink">{partnerName}</h1>
+            <p className="mt-1 text-sm text-muted">
+              Band <span className="font-mono tabular text-ink-2">{partner.band}</span>
+              <span className="mx-2 text-subtle" aria-hidden>
+                ·
+              </span>
+              <span aria-live="polite">
+                {isLiveKit ? (isPartnerConnected ? "Đã kết nối" : "Đang chờ bạn kia vào phòng…") : "Chế độ demo (không có âm thanh)"}
+              </span>
+            </p>
+            <div className="mt-4">
+              {remoteStream ? <LiveWaveform stream={remoteStream} className="h-10" /> : <div className="h-px w-full bg-line" aria-hidden />}
+            </div>
           </div>
 
           {mediaError && (
-            <div role="alert" className="w-full max-w-2xl mx-auto mb-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-300">{mediaError}</p>
-            </div>
+            <Notice tone="error" className="mb-4">
+              {mediaError}
+            </Notice>
           )}
 
           {partnerMissing && (
-            <div role="alert" className="w-full max-w-2xl mx-auto mb-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-sm text-amber-200 mb-3">Bạn kia vẫn chưa vào phòng. Có thể họ gặp sự cố kết nối.</p>
-              <button
-                onClick={finish}
-                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-sm text-white transition-colors"
-              >
+            <Notice tone="error" className="mb-4">
+              <p>Bạn kia vẫn chưa vào phòng. Có thể họ gặp sự cố kết nối.</p>
+              <Button className="mt-3" variant="secondary" size="sm" onClick={finish}>
                 Rời phòng
-              </button>
-            </div>
+              </Button>
+            </Notice>
           )}
 
-          <div className="mb-8">
-            <AudioVisualizer isActive={!isMuted && isPartnerConnected} />
-          </div>
-
-          <div className="text-center mb-10">
-            <h1 className="text-2xl font-semibold text-white mb-1">{partner.name}</h1>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-oratio-primary/10 to-oratio-secondary/10 border border-white/10">
-              <span className="text-sm font-medium text-zinc-300">Band {partner.band}</span>
-            </div>
-          </div>
-
           {matchId && userId && isInterviewer === null && (
-            <div className="w-full max-w-2xl mx-auto mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-              <div className="flex items-center justify-center gap-3">
-                <Loader2 className="w-5 h-5 text-zinc-400 animate-spin" />
-                <p className="text-sm text-zinc-400">Đang chia vai…</p>
-              </div>
-            </div>
+            <Notice className="mb-4">
+              <span className="flex items-center gap-3">
+                <Loader2 className="size-4 animate-spin" /> Đang chia vai…
+              </span>
+            </Notice>
           )}
 
           {sessionCompleted && (
-            <div className="w-full max-w-2xl mx-auto mb-4 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-sm text-center" aria-live="polite">
-              <Check className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-              <p className="text-base font-semibold text-emerald-300 mb-1">Xong cả 18 câu!</p>
-              <p className="text-sm text-zinc-400">
-                Cuộc gọi kết thúc sau <span className="text-white font-mono">{countdown}s</span>
+            <Notice className="mb-4">
+              <p className="text-ink">Xong cả 18 câu.</p>
+              <p className="mt-0.5 text-muted">
+                Cuộc gọi kết thúc sau <span className="font-mono tabular text-ink">{countdown}s</span>
               </p>
-            </div>
+            </Notice>
           )}
 
           {matchId && userId && partnerRequestedSwap && (
@@ -856,7 +762,7 @@ export default function InCallScreen({
         }
       >
         {isConnecting ? (
-          <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+          <div className="flex min-h-dvh items-center justify-center bg-bg">
             <ConnectingState />
           </div>
         ) : (
@@ -890,30 +796,26 @@ export default function InCallScreen({
 
   // No token (it failed) or the room refused us: say so instead of a silent fake call
   return (
-    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-4">
-      <div role="alert" className="max-w-sm w-full p-6 rounded-2xl bg-zinc-900/80 border border-white/10 text-center">
-        <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-        <h1 className="text-lg font-semibold text-white mb-2">Không vào được phòng gọi</h1>
-        <p className="text-sm text-zinc-400 mb-5">
+    <div className="flex min-h-dvh items-center justify-center bg-bg px-4">
+      <div role="alert" className="w-full max-w-sm rounded-[var(--radius-card)] border border-line bg-surface p-6">
+        <h1 className="text-lg font-semibold text-ink">Không vào được phòng gọi</h1>
+        <p className="mt-2 text-sm text-muted">
           {connectError ?? "Có lỗi khi lấy quyền vào phòng."} Kiểm tra mạng rồi thử lại.
         </p>
-        <div className="flex flex-wrap justify-center gap-3">
-          <button
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Button
+            variant="primary"
             onClick={() => {
               setConnectError(null);
               setIsConnecting(true);
               onRetryJoin();
             }}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-oratio-primary to-oratio-secondary text-white text-sm font-medium"
           >
             Thử lại
-          </button>
-          <button
-            onClick={onMatchCancelled}
-            className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 text-sm"
-          >
+          </Button>
+          <Button variant="ghost" onClick={onMatchCancelled}>
             Rời
-          </button>
+          </Button>
         </div>
       </div>
     </div>

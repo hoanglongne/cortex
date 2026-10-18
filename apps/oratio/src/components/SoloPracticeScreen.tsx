@@ -1,10 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Loader2, Mic, Square, RotateCcw, Users, AlertCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Mic, Square } from "lucide-react";
 import { getSoloQuestions } from "@/actions/questions";
 import type { IeltsQuestion } from "@/lib/types/database";
-import { Part2Timer, QuestionText } from "./QuestionParts";
+import LoadingSpinner from "./LoadingSpinner";
+import { Button } from "@/components/ui/button";
+import { Label, Notice } from "@/components/ui/card";
+import { CueCard } from "@/components/ui/cue-card";
+import { LiveWaveform, OnAirLamp } from "@/components/ui/on-air";
+import { FlowShell } from "@/components/ui/shell";
+import { Part2Timer } from "@/components/ui/timer";
+import { cn } from "@/lib/utils";
 
 interface SoloPracticeScreenProps {
   onBack: () => void;
@@ -41,6 +48,8 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  // Mirror of streamRef so the waveform re-renders once the mic stream exists
+  const [stream, setStream] = useState<MediaStream | null>(null);
   const urlsRef = useRef<string[]>([]);
 
   const load = useCallback(async () => {
@@ -89,6 +98,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     try {
       if (!streamRef.current) {
         streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setStream(streamRef.current);
       }
       const recorder = new MediaRecorder(streamRef.current);
       const chunks: Blob[] = [];
@@ -123,169 +133,149 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     else setIndex(Math.max(0, next));
   };
 
-  const header = (
-    <header className="flex items-center justify-between mb-6">
-      <button
-        onClick={onBack}
-        aria-label="Về trang chủ"
-        className="flex items-center justify-center w-10 h-10 rounded-xl bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-colors"
-      >
-        <ArrowLeft className="w-5 h-5 text-zinc-300" />
-      </button>
-      <h1 className="text-base font-semibold text-white">Luyện một mình</h1>
-      <div className="w-10" />
-    </header>
-  );
-
   if (loadError) {
     return (
-      <div className="min-h-screen bg-[#050505] px-4 py-6 max-w-2xl mx-auto">
-        {header}
-        <div role="alert" className="p-6 rounded-2xl bg-zinc-900/80 border border-white/10 text-center">
-          <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
-          <p className="text-sm text-zinc-300 mb-4">{loadError}</p>
-          <button onClick={load} className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-sm text-white">
+      <FlowShell title="Tập một mình" onBack={onBack} backLabel="Về trang chủ">
+        <div className="mt-6 space-y-4">
+          <Notice tone="error">{loadError}</Notice>
+          <Button variant="secondary" onClick={load}>
             Thử lại
-          </button>
+          </Button>
         </div>
-      </div>
+      </FlowShell>
     );
   }
 
   if (!questions) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-oratio-primary animate-spin" aria-label="Đang tải" />
+      <div className="flex min-h-dvh items-center justify-center bg-bg">
+        <LoadingSpinner message="Đang tải câu hỏi..." />
       </div>
     );
   }
 
   if (finished) {
     return (
-      <div className="min-h-screen bg-[#050505] px-4 py-6 max-w-2xl mx-auto pb-16">
-        {header}
-        <h2 className="text-xl font-semibold text-white mb-1">Xong buổi tự luyện</h2>
-        <p className="text-sm text-zinc-400 mb-6">
-          Nghe lại câu trả lời: bạn có trả lời đúng câu hỏi không, có ví dụ không, chỗ nào ngập ngừng? Bản ghi chỉ nằm trong tab này, không được tải lên.
+      <FlowShell
+        title="Tập một mình · Xong"
+        onBack={onBack}
+        backLabel="Về trang chủ"
+        footer={
+          <div className="space-y-2">
+            <Button variant="primary" size="lg" block onClick={onFindPartner}>
+              Vào phòng thi
+            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="secondary" block onClick={load}>
+                Tập bộ câu khác
+              </Button>
+              <Button variant="ghost" block onClick={onBack}>
+                Về trang chủ
+              </Button>
+            </div>
+          </div>
+        }
+      >
+        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Xong buổi tập</h1>
+        <p className="mt-2 text-sm text-muted">
+          Nghe lại: bạn có trả lời đúng câu hỏi không, có ví dụ không, chỗ nào ngập ngừng? Bản ghi chỉ nằm trong tab này, không được tải lên.
         </p>
-        <ol className="space-y-3 mb-8">
+        <ol className="mt-6 space-y-3">
           {questions.map((q, i) => {
             const rec = recordings[q.id];
             return (
-              <li key={q.id} className="p-4 rounded-2xl bg-zinc-900/80 border border-white/10">
-                <p className="text-xs text-zinc-400 mb-1">Part {q.part} • Câu {i + 1}</p>
-                <p className="text-sm text-white/90 mb-3">{q.question_text}</p>
+              <li key={q.id} className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+                <Label>
+                  Câu {i + 1} · Part {q.part}
+                </Label>
+                <p className="mt-2 font-serif text-base leading-snug text-ink">{q.question_text}</p>
                 {rec ? (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <audio controls src={rec.url} className="w-full sm:w-auto max-w-full h-9" />
-                    <span className="text-xs text-zinc-400">{fmt(rec.seconds)}</span>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <audio controls src={rec.url} className="h-9 w-full max-w-full sm:w-auto" />
+                    <span className="font-mono text-xs tabular text-muted">{fmt(rec.seconds)}</span>
                   </div>
                 ) : (
-                  <p className="text-xs text-zinc-500">Không ghi âm câu này.</p>
+                  <p className="mt-3 text-sm text-subtle">Không ghi âm câu này.</p>
                 )}
               </li>
             );
           })}
         </ol>
-        <div className="flex flex-wrap gap-3">
-          <button
-            onClick={onFindPartner}
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-oratio-primary to-oratio-secondary text-white text-sm font-medium"
-          >
-            <Users className="w-4 h-4" /> Ghép cặp với người thật
-          </button>
-          <button onClick={load} className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-200 text-sm">
-            <RotateCcw className="w-4 h-4" /> Luyện bộ câu khác
-          </button>
-          <button onClick={onBack} className="px-5 py-3 rounded-xl text-zinc-400 hover:text-white text-sm">
-            Về trang chủ
-          </button>
-        </div>
-      </div>
+      </FlowShell>
     );
   }
 
   const rec = question ? recordings[question.id] : undefined;
   const [lo, hi] = TARGET_S[question?.part ?? 1] ?? [20, 60];
+  const isLast = index + 1 >= questions.length;
 
   return (
-    <div className="min-h-screen bg-[#050505] px-4 py-6 max-w-2xl mx-auto pb-16">
-      {header}
-
-      <div className="flex items-center gap-1.5 mb-4" aria-label={`Câu ${index + 1} trên ${questions.length}`}>
+    <FlowShell
+      title={`Tập một mình · Câu ${index + 1}/${questions.length}`}
+      onBack={onBack}
+      backLabel="Về trang chủ"
+      footer={
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => go(index - 1)} disabled={index === 0} aria-label="Câu trước">
+            <ArrowLeft />
+          </Button>
+          {recording ? (
+            <Button variant="danger" className="flex-1" onClick={stopRecording}>
+              <Square /> Dừng (<span className="tabular">{fmt(recordSeconds)}</span>)
+            </Button>
+          ) : (
+            <Button variant={rec ? "secondary" : "primary"} className="flex-1" onClick={startRecording}>
+              <Mic /> {rec ? "Ghi lại" : "Ghi âm"}
+            </Button>
+          )}
+          <Button variant={rec && !recording ? "primary" : "secondary"} onClick={() => go(index + 1)}>
+            {isLast ? "Xem lại" : "Câu tiếp"} <ArrowRight />
+          </Button>
+        </div>
+      }
+    >
+      <div className="mt-2 grid grid-cols-8 gap-1" role="img" aria-label={`Câu ${index + 1} trên ${questions.length}`}>
         {questions.map((q, i) => (
-          <div key={q.id} className={`h-1.5 flex-1 rounded-full ${i < index ? "bg-oratio-primary" : i === index ? "bg-white/60" : "bg-white/10"}`} />
+          <span key={q.id} className={cn("h-1 rounded-full", i < index ? "bg-ink-2" : i === index ? "bg-onair" : "bg-surface-3")} />
         ))}
       </div>
 
       {question && (
-        <div className="p-6 rounded-3xl bg-zinc-900/80 border border-white/10 mb-4">
-          <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-4">
-            Part {question.part} • {question.category} • Câu {index + 1}/{questions.length}
-          </p>
-          <QuestionText key={question.id} question={question} revealable={false} />
-          {question.part === 2 && (
-            <div className="mt-5">
-              <Part2Timer key={question.id} />
-            </div>
-          )}
-          <p className="text-sm text-zinc-400 mt-5">{TIPS[question.part]}</p>
-        </div>
+        <CueCard key={question.id} question={question} className="mt-5">
+          {question.part === 2 && <Part2Timer key={question.id} />}
+        </CueCard>
       )}
+
+      {question && <p className="mt-4 text-sm text-muted">{TIPS[question.part]}</p>}
 
       {micError && (
-        <p role="alert" className="mb-4 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-300">
+        <Notice tone="error" className="mt-4">
           {micError}
-        </p>
+        </Notice>
       )}
 
-      <div className="p-5 rounded-2xl bg-zinc-900/60 border border-white/5 mb-6">
-        <div className="flex flex-wrap items-center gap-4">
-          {recording ? (
-            <button
-              onClick={stopRecording}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium"
-            >
-              <Square className="w-4 h-4" /> Dừng ({fmt(recordSeconds)})
-            </button>
-          ) : (
-            <button
-              onClick={startRecording}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white text-sm font-medium"
-            >
-              <Mic className="w-4 h-4" /> {rec ? "Ghi lại" : "Ghi âm câu trả lời"}
-            </button>
-          )}
-          <span className="text-xs text-zinc-400">
-            Nên nói khoảng {fmt(lo)}–{fmt(hi)}
-          </span>
-        </div>
+      <div className="mt-6 space-y-3">
+        {recording && (
+          <div className="flex flex-col items-start gap-3">
+            <OnAirLamp on label="Đang ghi" />
+            <LiveWaveform stream={stream} />
+          </div>
+        )}
+        {!recording && !rec && (
+          <p className="text-sm text-muted">
+            Nên nói khoảng <span className="font-mono tabular">{fmt(lo)}–{fmt(hi)}</span>.
+          </p>
+        )}
         {rec && !recording && (
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <audio controls src={rec.url} className="w-full sm:w-auto max-w-full h-9" />
-            <span className={`text-xs ${rec.seconds < lo ? "text-amber-300" : "text-zinc-400"}`}>
-              {fmt(rec.seconds)}
-              {rec.seconds < lo ? " – hơi ngắn, thử thêm lý do hoặc ví dụ" : ""}
-            </span>
+          <div className="rounded-[var(--radius-card)] border border-line bg-surface p-3">
+            <audio controls src={rec.url} className="h-9 w-full" />
+            <p className="mt-2 text-xs text-muted">
+              <span className="font-mono tabular text-ink-2">{fmt(rec.seconds)}</span>
+              {rec.seconds < lo ? " · hơi ngắn, thử thêm lý do hoặc ví dụ" : ""}
+            </p>
           </div>
         )}
       </div>
-
-      <div className="flex items-center justify-between gap-3">
-        <button
-          onClick={() => go(index - 1)}
-          disabled={index === 0}
-          className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-300 text-sm disabled:opacity-40"
-        >
-          <ArrowLeft className="w-4 h-4" /> Câu trước
-        </button>
-        <button
-          onClick={() => go(index + 1)}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-oratio-primary to-oratio-secondary text-white text-sm font-medium"
-        >
-          {index + 1 >= questions.length ? "Xem lại cả buổi" : "Câu tiếp theo"} <ArrowRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
+    </FlowShell>
   );
 }

@@ -13,9 +13,9 @@ const InCallScreen = lazy(() => import("./InCallScreen"));
 const RatingScreen = lazy(() => import("./RatingScreen"));
 const CallSummaryScreen = lazy(() => import("./CallSummaryScreen"));
 const LeaderboardScreen = lazy(() => import("./LeaderboardScreen"));
-const AchievementsScreen = lazy(() => import("./AchievementsScreen"));
+const ProgressScreen = lazy(() => import("./ProgressScreen"));
+const MeScreen = lazy(() => import("./MeScreen"));
 const PartnersScreen = lazy(() => import("./PartnersScreen"));
-const ProfileScreen = lazy(() => import("./ProfileScreen"));
 const CallHistoryScreen = lazy(() => import("./CallHistoryScreen"));
 const SoloPracticeScreen = lazy(() => import("./SoloPracticeScreen"));
 import { useSupabaseAuth } from "@/hooks/useSupabase";
@@ -23,6 +23,7 @@ import { useMatchmaking, useLiveKitToken } from "@/hooks/useMatchmaking";
 import { declineMatch, endCall as endCallAction, submitFeedback } from "@/actions/matchmaking";
 import { overallBand } from "@/lib/feedback";
 import { getSupabaseClient } from "@/lib/supabase/client";
+import type { Tab } from "./ui/shell";
 
 type Screen =
   | "auth"
@@ -33,11 +34,14 @@ type Screen =
   | "rating"
   | "summary"
   | "leaderboard"
-  | "achievements"
+  | "progress"
   | "partners"
-  | "profile"
+  | "me"
   | "history"
   | "solo";
+
+/** Tabs map to screens; "practice" is Home. */
+const TAB_SCREEN: Record<Tab, Screen> = { practice: "home", history: "history", progress: "progress", me: "me" };
 
 interface Partner {
   id: string;
@@ -89,7 +93,7 @@ function bandLabel(range: { min: number; max: number }) {
 }
 
 const fallback = (message: string) => (
-  <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+  <div className="min-h-dvh bg-bg flex items-center justify-center">
     <LoadingSpinner size="md" message={message} />
   </div>
 );
@@ -330,13 +334,10 @@ export default function AppFlow() {
     handleStartMatching();
   }, [backHome, handleStartMatching]);
 
-  const handleNavigate = useCallback(
-    (screen: "leaderboard" | "achievements" | "partners" | "profile" | "history") => {
-      setNotice(null);
-      setCurrentScreen(screen);
-    },
-    []
-  );
+  const handleTab = useCallback((tab: Tab) => {
+    setNotice(null);
+    setCurrentScreen(TAB_SCREEN[tab]);
+  }, []);
 
   const handleBackToHome = useCallback(() => {
     setCurrentScreen("home");
@@ -420,34 +421,34 @@ export default function AppFlow() {
     case "leaderboard":
       return (
         <Suspense fallback={fallback("Đang tải bảng xếp hạng…")}>
-          <LeaderboardScreen onBack={handleBackToHome} />
+          <LeaderboardScreen onBack={() => setCurrentScreen("progress")} />
         </Suspense>
       );
 
-    case "achievements":
+    case "progress":
       return (
-        <Suspense fallback={fallback("Đang tải thành tích…")}>
-          <AchievementsScreen profile={profile} onBack={handleBackToHome} />
+        <Suspense fallback={fallback("Đang tải…")}>
+          <ProgressScreen profile={profile} onTab={handleTab} onOpenLeaderboard={() => setCurrentScreen("leaderboard")} />
         </Suspense>
       );
 
     case "partners":
       return (
         <Suspense fallback={fallback("Đang tải…")}>
-          <PartnersScreen onBack={handleBackToHome} />
+          <PartnersScreen onBack={() => setCurrentScreen("me")} />
         </Suspense>
       );
 
-    case "profile":
+    case "me":
       return (
-        <Suspense fallback={fallback("Đang tải hồ sơ…")}>
-          <ProfileScreen
+        <Suspense fallback={fallback("Đang tải…")}>
+          <MeScreen
             profile={profile}
             user={user}
-            onBack={handleBackToHome}
-            onNavigate={(screen) => setCurrentScreen(screen)}
+            onTab={handleTab}
             onSignOut={signOut}
             onProfileUpdated={refreshProfile}
+            onOpenPartners={() => setCurrentScreen("partners")}
           />
         </Suspense>
       );
@@ -455,7 +456,7 @@ export default function AppFlow() {
     case "history":
       return (
         <Suspense fallback={fallback("Đang tải lịch sử…")}>
-          <CallHistoryScreen onBack={handleBackToHome} />
+          <CallHistoryScreen onTab={handleTab} />
         </Suspense>
       );
 
@@ -466,7 +467,7 @@ export default function AppFlow() {
           profile={profile}
           onStartMatching={handleStartMatching}
           onStartSolo={() => setCurrentScreen("solo")}
-          onNavigate={handleNavigate}
+          onTab={handleTab}
           bandRange={bandRange}
           onBandRangeChange={setBandRange}
           notice={notice}

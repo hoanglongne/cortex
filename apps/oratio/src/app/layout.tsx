@@ -39,11 +39,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning>
-      <body
-        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${literata.variable} min-h-screen`}
-        suppressHydrationWarning
-      >
+    // Font variables live on <html> so the theme's --font-* (defined on :root) can resolve them
+    <html lang="vi" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${literata.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen" suppressHydrationWarning>
         {children}
       </body>
     </html>

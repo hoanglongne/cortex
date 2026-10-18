@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { ArrowLeft, Loader2, Repeat } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { EmptyState, Notice } from "@/components/ui/card";
+import { FlowShell } from "@/components/ui/shell";
 import { useCallHistory } from "@/hooks/useCallHistory";
 
 interface PartnersScreenProps {
@@ -56,84 +58,41 @@ export default function PartnersScreen({ onBack }: PartnersScreenProps) {
   const partners = useMemo(() => groupByPartner(sessions), [sessions]);
 
   return (
-    <div className="min-h-screen bg-[#050505]">
-      <div className="max-w-3xl mx-auto px-4 py-6 pb-12">
-        <header className="flex items-center gap-3 mb-6">
-          <button
-            onClick={onBack}
-            aria-label="Quay lại"
-            className="p-2 -ml-2 rounded-lg hover:bg-white/5 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-zinc-400" aria-hidden="true" />
-          </button>
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold text-[#fffcff]">Bạn luyện cùng</h1>
-            <p className="text-sm text-zinc-400">Những người bạn đã luyện với</p>
-          </div>
-        </header>
-
-        {isLoading ? (
-          <div className="py-16 flex items-center justify-center gap-2 text-sm text-zinc-400">
-            <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
-            <span>Đang tải...</span>
-          </div>
-        ) : error ? (
-          <div className="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-center">
-            <p className="text-sm text-red-400 mb-4">Không tải được danh sách. Vui lòng thử lại.</p>
-            <button
-              onClick={() => refresh()}
-              className="px-4 py-2 rounded-lg bg-zinc-800 text-sm font-medium text-white hover:bg-zinc-700 transition-colors"
-            >
+    <FlowShell title="Bạn luyện cùng" onBack={onBack}>
+      {isLoading ? (
+        <div className="space-y-2" aria-busy>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-16 animate-pulse rounded-[var(--radius-card)] bg-surface" />
+          ))}
+        </div>
+      ) : error ? (
+        <Notice tone="error">
+          <div className="flex items-center justify-between gap-3">
+            <span>Không tải được danh sách.</span>
+            <Button variant="secondary" size="sm" onClick={() => refresh()}>
               Thử lại
-            </button>
+            </Button>
           </div>
-        ) : partners.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-sm text-zinc-400">Chưa luyện với ai. Ghép cặp để bắt đầu.</p>
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {partners.map((p) => (
-              <li
-                key={p.id}
-                className="flex items-center gap-3 p-4 rounded-2xl bg-zinc-900/60 border border-white/10"
-              >
-                {p.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={p.avatarUrl}
-                    alt=""
-                    className="w-11 h-11 rounded-full object-cover shrink-0"
-                  />
-                ) : (
-                  <div
-                    className="w-11 h-11 rounded-full bg-gradient-to-br from-[#80c0f4] to-[#add5f5] flex items-center justify-center text-[#050505] font-semibold shrink-0"
-                    aria-hidden="true"
-                  >
-                    {p.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <p className="text-sm font-semibold text-[#fffcff] truncate">{p.name}</p>
-                    <span className="text-xs text-[#80c0f4]">Band {p.band}</span>
-                  </div>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    {p.count} buổi cùng nhau · gần nhất{" "}
-                    {new Date(p.lastDate).toLocaleDateString("vi-VN")}
-                  </p>
-                  {p.wantsAgain && (
-                    <span className="inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400">
-                      <Repeat className="w-3 h-3" aria-hidden="true" />
-                      Muốn luyện lại với bạn
-                    </span>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+        </Notice>
+      ) : partners.length === 0 ? (
+        <EmptyState title="Chưa luyện với ai">Vào phòng thi để được ghép với một người thật.</EmptyState>
+      ) : (
+        <ul className="divide-y divide-line rounded-[var(--radius-card)] border border-line bg-surface">
+          {partners.map((p) => (
+            <li key={p.id} className="px-4 py-3.5">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="min-w-0 truncate text-ink">{p.name}</p>
+                <span className="shrink-0 font-mono text-xs tabular text-muted">Band {p.band}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-muted">
+                <span className="font-mono tabular">{p.count}</span> buổi · gần nhất{" "}
+                {new Date(p.lastDate).toLocaleDateString("vi-VN")}
+                {p.wantsAgain && <span className="text-ink-2"> · muốn luyện lại với bạn</span>}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </FlowShell>
   );
 }
