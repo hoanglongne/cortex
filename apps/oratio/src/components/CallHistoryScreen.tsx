@@ -4,7 +4,7 @@ import { useState, memo } from "react";
 import { ChevronDown, RefreshCw } from "lucide-react";
 import { useCallHistory } from "@/hooks/useCallHistory";
 import { Button } from "@/components/ui/button";
-import { EmptyState, Label, Notice } from "@/components/ui/card";
+import { EmptyState, Label, Notice, Pill } from "@/components/ui/card";
 import { BandRange, CriterionRow } from "@/components/ui/band";
 import { TabShell, type Tab } from "@/components/ui/shell";
 import { cn } from "@/lib/utils";
@@ -64,7 +64,7 @@ function formatDate(dateStr: string) {
 }
 
 function TagChip({ children }: { children: React.ReactNode }) {
-  return <span className="rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-ink-2">{children}</span>;
+  return <Pill>{children}</Pill>;
 }
 
 function FeedbackBlock({ title, subtitle, feedback }: { title: string; subtitle: string; feedback: FeedbackData }) {
@@ -94,7 +94,7 @@ function FeedbackBlock({ title, subtitle, feedback }: { title: string; subtitle:
         <div className="mt-3 space-y-2">
           {strengths.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="mr-1 text-xs text-subtle">Tốt</span>
+              <span className="mr-1 text-xs font-bold text-subtle">Tốt</span>
               {strengths.map((tag) => (
                 <TagChip key={tag}>{tag}</TagChip>
               ))}
@@ -102,7 +102,7 @@ function FeedbackBlock({ title, subtitle, feedback }: { title: string; subtitle:
           )}
           {improvements.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="mr-1 text-xs text-subtle">Cần luyện</span>
+              <span className="mr-1 text-xs font-bold text-subtle">Cần luyện</span>
               {improvements.map((tag) => (
                 <TagChip key={tag}>{tag}</TagChip>
               ))}
@@ -112,8 +112,8 @@ function FeedbackBlock({ title, subtitle, feedback }: { title: string; subtitle:
       )}
 
       {feedback.comments && (
-        <p className="mt-3 border-l-2 border-line-strong pl-3 font-serif text-sm leading-relaxed text-ink-2">
-          {feedback.comments}
+        <p className="mt-3 rounded-[var(--radius-control)] bg-surface-2 px-3.5 py-3 text-sm leading-relaxed text-ink-2">
+          “{feedback.comments}”
         </p>
       )}
     </section>
@@ -139,16 +139,26 @@ function SessionCard({ session, isExpanded, onToggle }: { session: CallSession; 
         aria-controls={panelId}
         className="flex w-full items-center gap-3 rounded-[var(--radius-card)] px-4 py-3.5 text-left hover:bg-surface-2"
       >
+        <span
+          aria-hidden
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-voice-soft text-sm font-extrabold text-voice"
+        >
+          {session.partner.name.charAt(0).toUpperCase()}
+        </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-ink">
-            {session.partner.name} <span className="ml-1 font-mono text-xs text-subtle">Band {session.partner.band}</span>
+          <p className="truncate font-bold text-ink">
+            {session.partner.name} <span className="ml-1 text-xs font-semibold tabular text-subtle">Band {session.partner.band}</span>
           </p>
-          <p className="mt-0.5 truncate text-xs text-muted">
-            {formatDate(session.date)} · <span className="font-mono tabular">{formatDuration(session.duration)}</span>
+          <p className="mt-0.5 truncate text-[13px] text-subtle">
+            {formatDate(session.date)} · <span className="tabular">{formatDuration(session.duration)}</span>
+            {session.questionsCount > 0 && ` · ${session.questionsCount} câu`}
           </p>
+          {session.peerFeedback?.comments && !isExpanded && (
+            <p className="mt-1 truncate text-sm text-ink-2">“{session.peerFeedback.comments}”</p>
+          )}
         </div>
         <div className="shrink-0 text-right">
-          {peerBand !== null ? <BandRange low={peerBand} /> : <span className="text-xs text-subtle">Chờ chấm</span>}
+          {peerBand !== null ? <BandRange low={peerBand} /> : <Pill tone="pending">Chờ chấm</Pill>}
         </div>
         <ChevronDown className={cn("size-4 shrink-0 text-subtle transition-transform", isExpanded && "rotate-180")} aria-hidden />
       </button>
@@ -183,10 +193,10 @@ function SessionCard({ session, isExpanded, onToggle }: { session: CallSession; 
               <div className="mt-3 space-y-4">
                 {questionsByPart.map((group) => (
                   <div key={group.part}>
-                    <p className="mb-1.5 font-mono text-xs text-subtle">PART {group.part}</p>
+                    <Label className="mb-1.5">Part {group.part}</Label>
                     <ul className="space-y-2">
                       {group.items.map((q, i) => (
-                        <li key={i} className="break-words font-serif text-[15px] leading-snug text-ink">
+                        <li key={i} className="break-words text-[15px] leading-snug text-ink">
                           {q.text}
                         </li>
                       ))}
@@ -248,7 +258,7 @@ function CallHistoryScreenComponent({ onTab }: CallHistoryScreenProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm theo tên"
-            className="mb-4 h-11 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-ink placeholder:text-subtle"
+            className="mb-4 h-11 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-ink placeholder:text-subtle focus:border-voice focus:outline-none"
           />
           {filteredSessions.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted">Không tìm thấy buổi nào.</p>

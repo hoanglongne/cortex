@@ -28,22 +28,22 @@ function UserRow({ user }: { user: LeaderboardEntry }) {
     <li
       className={cn(
         "flex items-center gap-3 rounded-[var(--radius-control)] border px-3 py-3",
-        user.isCurrentUser ? "border-onair bg-surface" : "border-transparent"
+        user.isCurrentUser ? "border-voice bg-voice-soft" : "border-transparent"
       )}
     >
-      <span className="w-7 shrink-0 text-right font-mono text-sm tabular text-muted">{user.rank}</span>
+      <span className="w-7 shrink-0 text-right text-sm font-extrabold tabular text-muted">{user.rank}</span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-ink">
+        <p className="truncate font-bold text-ink">
           {user.username}
-          {user.isCurrentUser && <span className="ml-2 text-xs text-onair">Bạn</span>}
+          {user.isCurrentUser && <span className="ml-2 text-xs font-extrabold text-voice">Bạn</span>}
         </p>
-        <p className="mt-0.5 truncate font-mono text-xs tabular text-subtle">
+        <p className="mt-0.5 truncate text-xs tabular text-subtle">
           Band {user.current_band.toFixed(1)} · {user.sessions} buổi
         </p>
       </div>
-      <p className="shrink-0 text-right font-mono text-lg tabular text-ink">
+      <p className="shrink-0 text-right text-lg font-extrabold tabular text-ink">
         {formatMinutes(user.minutes)}
-        <span className="ml-1 text-xs text-muted">phút</span>
+        <span className="ml-1 text-xs font-semibold text-subtle">phút</span>
       </p>
     </li>
   );
@@ -100,6 +100,8 @@ export default function LeaderboardScreen({ onBack }: LeaderboardScreenProps) {
 
   return (
     <FlowShell title="Bảng giờ nói" onBack={onBack}>
+      <h1 className="text-[28px] font-extrabold tracking-[-0.035em] text-ink">Bảng giờ nói</h1>
+      <p className="mb-5 mt-1 text-sm text-muted">Xếp theo số phút đã nói, không theo band. Ai chăm thì lên.</p>
       <div role="group" aria-label="Khoảng thời gian" className="grid grid-cols-3 rounded-[var(--radius-control)] border border-line-strong bg-surface p-0.5">
         {TIMEFRAMES.map((t) => (
           <button
@@ -107,8 +109,8 @@ export default function LeaderboardScreen({ onBack }: LeaderboardScreenProps) {
             onClick={() => changeTab(t.id)}
             aria-pressed={activeTab === t.id}
             className={cn(
-              "h-9 rounded-[8px] text-sm transition-colors",
-              activeTab === t.id ? "bg-surface-3 text-ink" : "text-muted hover:text-ink"
+              "h-9 rounded-[10px] text-sm font-bold transition-colors",
+              activeTab === t.id ? "bg-voice-soft text-ink" : "text-muted hover:text-ink"
             )}
           >
             {t.label}
@@ -146,8 +148,8 @@ export default function LeaderboardScreen({ onBack }: LeaderboardScreenProps) {
           <div className="sticky top-0 z-10 mt-4 border-b border-line bg-bg py-3 text-sm">
             {currentUserData ? (
               <p className="text-muted">
-                Hạng của bạn <span className="ml-1 font-mono tabular text-onair">#{currentUserData.rank}</span>
-                <span className="font-mono tabular">
+                Hạng của bạn <span className="ml-1 font-extrabold tabular text-voice">#{currentUserData.rank}</span>
+                <span className="tabular">
                   {" "}
                   · {formatMinutes(currentUserData.minutes)} phút · {currentUserData.sessions} buổi
                 </span>
