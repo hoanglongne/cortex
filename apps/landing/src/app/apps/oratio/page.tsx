@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowLeft, Crosshair, Swords, Timer, Trophy } from "lucide-react";
+import { ArrowLeft, Headphones, History, Star, Users } from "lucide-react";
 
 const container = {
     hidden: {},
@@ -24,28 +24,28 @@ const item = {
 
 const features = [
     {
-        icon: Timer,
-        title: "90 Giây Hoặc Im Lặng",
+        icon: Users,
+        title: "Ghép Cặp Theo Band",
         description:
-            "Chủ đề xuất hiện. Đồng hồ chạy. 90 giây để tranh luận. Không chuẩn bị. Não bộ buộc phải phản xạ.",
+            "Oratio ghép bạn với một người học thật có band gần bạn. Cả hai cùng vào một cuộc gọi chỉ có âm thanh, không cần bật camera.",
     },
     {
-        icon: Swords,
-        title: "AI Phản Bác Thời Gian Thực",
+        icon: Headphones,
+        title: "Thi Thử Part 1–2–3",
         description:
-            "Bạn nói, AI nghe và phản bác ngay lập tức. Điểm yếu lộ ra. Bạn buộc phải bảo vệ luận điểm.",
+            "Khoảng 300 câu hỏi IELTS Speaking thật. Hai người đổi vai giám khảo và thí sinh, nên ai cũng được hỏi và được trả lời ở cả ba Part.",
     },
     {
-        icon: Crosshair,
-        title: "Chủ Đề Bạn Sợ",
+        icon: Star,
+        title: "Chấm Nhau Theo 4 Tiêu Chí",
         description:
-            "Không random. CORTEX biết bạn yếu về gì. Chính trị? Khoa học? Triết học? Nó buộc bạn đối mặt.",
+            "Sau buổi luyện, mỗi người chấm đối phương theo Fluency, Vocabulary, Grammar và Pronunciation, kèm nhận xét cụ thể để biết cần sửa gì.",
     },
     {
-        icon: Trophy,
-        title: "Điểm Theo Logic",
+        icon: History,
+        title: "Lịch Sử Và Luyện Một Mình",
         description:
-            "Không phải ai nói hay hơn. Ai có cấu trúc rõ, bằng chứng mạnh, và phản bác chặt. Logic thắng.",
+            "Xem lại điểm theo từng tiêu chí qua từng buổi. Khi chưa có ai online, bạn có thể luyện một mình: tự ghi âm và nghe lại câu trả lời.",
     },
 ];
 
@@ -87,11 +87,11 @@ export default function OratioPage() {
                     <motion.div variants={item} className="mb-6 flex items-center justify-center gap-3">
                         <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-signal-blue">
                             <span className="h-1.5 w-1.5 rounded-full bg-signal-blue" />
-                            Live
+                            Beta
                         </span>
                         <span className="text-whisper-white">•</span>
                         <span className="font-mono text-xs uppercase tracking-wider text-whisper-white">
-                            Combat
+                            IELTS Speaking
                         </span>
                     </motion.div>
 
@@ -108,7 +108,7 @@ export default function OratioPage() {
                         variants={item}
                         className="mx-auto mt-8 max-w-3xl text-2xl leading-tight text-ghost-white md:text-3xl"
                     >
-                        Tranh Luận Không Để Thắng. Để Trôi Chảy Dưới Áp Lực.
+                        Luyện IELTS Speaking Với Người Học Thật.
                     </motion.p>
 
                     {/* Pure Function */}
@@ -120,8 +120,8 @@ export default function OratioPage() {
                             Pure Function
                         </span>
                         <p className="mt-3 text-sm leading-relaxed text-ghost-white">
-                            Giải quyết CHÍNH XÁC một vấn đề: Xây dựng lưu loát tranh luận
-                            dưới áp lực thời gian bó buộc.
+                            Giải quyết CHÍNH XÁC một vấn đề: Cho bạn một người thật để
+                            thi thử IELTS Speaking và nhận điểm theo từng tiêu chí.
                         </p>
                     </motion.div>
 
@@ -156,11 +156,11 @@ export default function OratioPage() {
                             Cơ Chế
                         </span>
                         <h2 className="mt-4 max-w-4xl font-sans text-5xl font-normal leading-none tracking-tight text-white md:text-6xl">
-                            Tư Duy Dưới Thời Gian Bó Buộc
+                            Thi Thử Cùng Một Người Thật
                         </h2>
                         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ghost-white">
-                            Tranh luận thật không cho bạn thời gian suy nghĩ. Câu hỏi đến, bạn phải trả lời.
-                            Oratio buộc não bộ tư duy và nói cùng lúc. 90 giây. Hoặc im lặng.
+                            Phòng thi thật có một giám khảo là người. Oratio cho bạn điều tương tự: một bạn học
+                            đóng vai giám khảo, rồi đổi vai. Không có AI chấm điểm, chỉ có hai người luyện cho nhau.
                         </p>
                     </motion.div>
 
@@ -169,21 +169,21 @@ export default function OratioPage() {
                         {[
                             {
                                 step: "01",
-                                title: "Nhận Chủ Đề",
+                                title: "Ghép Cặp",
                                 description:
-                                    "Một chủ đề gây tranh cãi xuất hiện. 10 giây để đọc. Không google. Không ghi chú. Chỉ có não bộ.",
+                                    "Vào hàng chờ, Oratio ghép bạn với người có band gần bạn (chờ lâu thì mở rộng). Khi ghép được, hai bạn vào cuộc gọi thoại. Chưa có ai online thì luyện một mình.",
                             },
                             {
                                 step: "02",
-                                title: "Tranh Luận 90 Giây",
+                                title: "Thi Part 1, 2, 3",
                                 description:
-                                    "Đồng hồ chạy. Nói luận điểm, bằng chứng, phản bác. AI nghe và phản bác thời gian thực. Não bộ buộc phải bảo vệ.",
+                                    "Một người hỏi, một người trả lời, rồi đổi vai. Mỗi Part có hai lượt để cả hai cùng được trả lời.",
                             },
                             {
                                 step: "03",
-                                title: "Phân Tích Logic",
+                                title: "Chấm Điểm Cho Nhau",
                                 description:
-                                    "AI chấm điểm cấu trúc, bằng chứng, phản bác. Bạn thấy điểm yếu. Chủ đề đó quay lại cho đến khi bạn thành thạo.",
+                                    "Mỗi người chấm đối phương theo 4 tiêu chí IELTS. Điểm và nhận xét được lưu trong lịch sử để bạn theo dõi tiến bộ.",
                             },
                         ].map((step, index) => (
                             <motion.div
@@ -227,7 +227,7 @@ export default function OratioPage() {
                             Tại Sao Oratio?
                         </span>
                         <h2 className="mt-4 max-w-4xl font-sans text-5xl font-normal leading-none tracking-tight text-white md:text-6xl">
-                            Bốn Trụ Cột Xây Dựng Phản Xạ Tranh Luận
+                            Bốn Điều Oratio Làm Được
                         </h2>
                     </motion.div>
 
@@ -270,17 +270,16 @@ export default function OratioPage() {
                         className="rounded-sm border border-phantom-white bg-gradient-to-br from-[rgba(0,7,205,0.05)] to-transparent p-12 text-center md:p-16"
                     >
                         <span className="inline-block font-mono text-xs uppercase tracking-[0.3em] text-whisper-white">
-                            Tích Hợp CORTEX
+                            Trong CORTEX
                         </span>
                         <h2 className="mt-6 font-sans text-4xl font-normal leading-tight tracking-tight text-white md:text-5xl">
-                            Điểm Yếu Của Bạn Trở Thành Chủ Đề
+                            Một Mảnh Ghép Cho Kỹ Năng Nói
                         </h2>
                         <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-ghost-white">
-                            Mọi từ bạn vấp trong Solilo đều xuất hiện trong tranh luận Oratio.
-                            Mọi từ bạn quên trong Lexica buộc bạn phải dùng để lập luận.
-                            Mọi giọng bạn yếu trong Dialecta xuất hiện trong đối thủ AI.
+                            Oratio tập trung vào một việc: luyện nói IELTS với người thật.
+                            Các ứng dụng khác trong CORTEX lo phần từ vựng và nghe.
                             <span className="mt-4 block font-medium text-white">
-                                CORTEX không để bạn trốn. Nó buộc mọi điểm yếu đối mặt với nhau.
+                                Không có AI, không đồng bộ từ vựng: chỉ có bạn và một người học thật.
                             </span>
                         </p>
 
@@ -298,10 +297,10 @@ export default function OratioPage() {
             <section className="border-t border-border-06 py-24">
                 <div className="mx-auto max-w-4xl px-6 text-center">
                     <h2 className="font-sans text-4xl font-normal leading-tight text-white md:text-5xl">
-                        Sẵn Sàng Tranh Luận Dưới Áp Lực?
+                        Sẵn Sàng Thi Thử Speaking?
                     </h2>
                     <p className="mt-4 text-lg text-ghost-white">
-                        Bắt đầu với 30 giây. Xây dựng lên 5 phút. Miễn phí mãi mãi.
+                        Oratio đang ở giai đoạn Beta.
                     </p>
                     <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                         <a

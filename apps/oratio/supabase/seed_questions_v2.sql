@@ -5,9 +5,11 @@
 -- Total: ~300 questions across Part 1, Part 2, Part 3
 -- ============================================
 
--- Clear foreign key references before deleting questions
-UPDATE public.matches SET current_question_id = NULL, questions_asked = '{}';
-DELETE FROM public.ielts_questions;
+-- Non-destructive: questions are loaded into a temp table and only the ones
+-- not in ielts_questions yet (same part and text) are added. Matches and
+-- their question history are left alone, so running this again is safe.
+DROP TABLE IF EXISTS seed_q;
+CREATE TEMP TABLE seed_q (part INTEGER, category TEXT, question_text TEXT, difficulty TEXT);
 
 -- ============================================
 -- PART 1: Introduction and Interview (4-5 minutes)
@@ -15,7 +17,7 @@ DELETE FROM public.ielts_questions;
 -- ~120 questions across 20 categories
 -- ============================================
 
-INSERT INTO public.ielts_questions (part, category, question_text, difficulty) VALUES
+INSERT INTO seed_q (part, category, question_text, difficulty) VALUES
 
 -- Home & Accommodation (6)
 (1, 'Home & Accommodation', 'Do you live in a house or an apartment?', 'easy'),
@@ -186,7 +188,7 @@ INSERT INTO public.ielts_questions (part, category, question_text, difficulty) V
 -- ~60 questions across 10 categories
 -- ============================================
 
-INSERT INTO public.ielts_questions (part, category, question_text, difficulty) VALUES
+INSERT INTO seed_q (part, category, question_text, difficulty) VALUES
 
 -- Person (8)
 (2, 'Person', 'Describe a person you admire. You should say: who this person is, how you know them, what qualities they have, and explain why you admire them.', 'medium'),
@@ -273,7 +275,7 @@ INSERT INTO public.ielts_questions (part, category, question_text, difficulty) V
 -- ~120 questions across 15 categories
 -- ============================================
 
-INSERT INTO public.ielts_questions (part, category, question_text, difficulty) VALUES
+INSERT INTO seed_q (part, category, question_text, difficulty) VALUES
 
 -- Education (8)
 (3, 'Education', 'How has education changed in your country over the last few decades?', 'hard'),
@@ -424,3 +426,13 @@ INSERT INTO public.ielts_questions (part, category, question_text, difficulty) V
 (3, 'Law & Justice', 'Do you think surveillance cameras help reduce crime?', 'medium'),
 (3, 'Law & Justice', 'How important is it in a democracy for people to know their rights?', 'hard'),
 (3, 'Law & Justice', 'Should people who commit minor offences be sent to prison?', 'hard');
+
+INSERT INTO public.ielts_questions (part, category, question_text, difficulty)
+SELECT s.part, s.category, s.question_text, s.difficulty
+FROM seed_q s
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.ielts_questions q
+    WHERE q.part = s.part AND q.question_text = s.question_text
+);
+
+DROP TABLE IF EXISTS seed_q;

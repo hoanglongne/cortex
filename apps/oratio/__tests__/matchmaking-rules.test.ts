@@ -11,7 +11,8 @@ describe("looseBandThreshold", () => {
     expect(looseBandThreshold(0)).toBe(0.5);
     expect(looseBandThreshold(20_000)).toBe(1.0);
     expect(looseBandThreshold(45_000)).toBe(1.5);
-    expect(looseBandThreshold(5 * 60_000)).toBe(2.0);
+    expect(looseBandThreshold(75_000)).toBe(2.0);
+    expect(looseBandThreshold(5 * 60_000)).toBe(Number.POSITIVE_INFINITY);
   });
 });
 
@@ -42,6 +43,13 @@ describe("isBandCompatible", () => {
       compatible: true,
       perfect: false,
     });
+  });
+});
+
+describe("isBandCompatible after a long wait", () => {
+  it("matches any band once the user waited 90s", () => {
+    const me = { band: 4.5, wantMin: 4.0, wantMax: 5.0, waitedMs: 95_000 };
+    expect(isBandCompatible(me, { band: 8.0, targetMin: 7.5, targetMax: 9 }).compatible).toBe(true);
   });
 });
 

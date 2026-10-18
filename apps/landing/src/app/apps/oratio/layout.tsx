@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-    title: "Oratio — Xây Dựng Lưu Loát Tranh Luận | CORTEX HUB",
+    title: "Oratio — Luyện IELTS Speaking Với Người Học Thật | CORTEX HUB",
     description:
-        "Tranh luận không phải để thắng. Để trôi chảy dưới áp lực. Oratio rèn luyện tư duy qua thời gian bó buộc.",
+        "Ghép cặp với người học thật, thi thử IELTS Speaking Part 1–2–3 qua cuộc gọi thoại, đổi vai giám khảo và thí sinh, chấm nhau theo 4 tiêu chí IELTS.",
 };
 
 export default function OratioLayout({ children }: { children: React.ReactNode }) {

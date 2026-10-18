@@ -23,8 +23,8 @@ const gugi = Gugi({
 });
 
 export const metadata: Metadata = {
-  title: "ORATIO - IELTS Speaking Practice",
-  description: "Practice IELTS speaking with real partners through random audio calls",
+  title: "ORATIO – Luyện IELTS Speaking với bạn thật",
+  description: "Ghép cặp với người học khác, gọi thoại và luyện IELTS Speaking theo đề thật, rồi nhận đánh giá từ bạn luyện cùng.",
   icons: {
     icon: "/favicon.ico",
   },
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${gugi.variable} antialiased bg-[#050505] text-white min-h-screen`}
         suppressHydrationWarning

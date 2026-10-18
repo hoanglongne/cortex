@@ -17,13 +17,15 @@ export const CLAIM_IN_PROGRESS_MS = 10_000;
 
 /**
  * Allowed band gap when the two users' preferred ranges don't overlap.
- * Starts strict and widens the longer the user has been waiting.
+ * Starts strict and widens the longer the user has been waiting; after 90s
+ * any partner is better than none (two people online should always meet).
  */
 export function looseBandThreshold(waitedMs: number): number {
   if (waitedMs < 15_000) return 0.5;
   if (waitedMs < 30_000) return 1.0;
   if (waitedMs < 60_000) return 1.5;
-  return 2.0;
+  if (waitedMs < 90_000) return 2.0;
+  return Number.POSITIVE_INFINITY;
 }
 
 export type BandCandidate = {

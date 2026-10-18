@@ -277,7 +277,7 @@ export default function SoliloPage() {
                         </h2>
                         <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-ghost-white">
                             Mọi mẫu do dự trong Solilo đều được CORTEX theo dõi. Khi bạn mở
-                            Oratio (Combat), bạn sẽ đối mặt với chính xác những cụm từ khiến bạn vấp.
+                            Oratio (Combat), bạn sẽ luyện nói trước một người học thật, đúng lúc dễ vấp nhất.
                             Khi bạn mở Lexica (Biological), bạn sẽ luyện tập những từ bạn tránh né.
                             <span className="mt-4 block font-medium text-white">
                                 Các app không để bạn trốn. Chúng bắt bạn phải đối mặt.
