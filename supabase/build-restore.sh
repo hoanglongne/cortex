@@ -39,6 +39,8 @@ FILES=(
   apps/lexica/supabase/migration_engagement_review_dust.sql
   apps/lexica/supabase/migration_classes.sql
   apps/lexica/supabase/migration_classes_v2.sql
+  # Last: tightens public.profiles for every app (drops Lexica's read-all policy)
+  apps/oratio/supabase/migration_2026_10_security.sql
 )
 
 OUT=supabase/restore_all.sql

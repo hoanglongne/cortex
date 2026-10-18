@@ -141,7 +141,8 @@ export async function getMyBuddies(userId: string): Promise<BuddyInfo[]> {
     // Get profiles and activities in parallel
     console.log('Fetching profiles for buddy IDs:', buddyIds);
     const [profilesRes, activityRes] = await Promise.all([
-        supabase.from('profiles')
+        // Other people's profiles are readable only through this view (no email)
+        supabase.from('public_profiles')
             .select('id, nickname')
             .or(buddyIds.map(id => `id.eq.${id}`).join(','))
             .then(res => {
