@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Mic, Mail, Lock, User, Loader2, ArrowRight } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import { Button } from "@/components/ui/button";
+import { Notice } from "@/components/ui/card";
+import { Wordmark } from "@/components/ui/shell";
+import { cn } from "@/lib/utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 interface AuthScreenProps {
@@ -13,7 +15,9 @@ interface AuthScreenProps {
 }
 
 const inputClass =
-  "w-full pl-12 pr-4 py-3.5 rounded-xl bg-zinc-800 border border-white/10 text-white placeholder-zinc-500 focus:outline-none focus:border-[#80c0f4]/50 focus:ring-2 focus:ring-[#80c0f4]/20 transition-all";
+  "h-12 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-base text-ink placeholder:text-subtle focus-visible:border-onair focus-visible:outline-2 focus-visible:outline-onair";
+
+const labelClass = "mb-2 block text-sm text-muted";
 
 function translateError(message: string | null | undefined): string {
   const m = (message || "").toLowerCase();
@@ -26,11 +30,10 @@ function translateError(message: string | null | undefined): string {
   return message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
 }
 
-const FEATURES = [
-  { label: "Ghép cặp", sublabel: "theo band" },
-  { label: "Part 1–3", sublabel: "câu hỏi IELTS thật" },
-  { label: "4 tiêu chí", sublabel: "bạn luyện cùng chấm" },
-  { label: "Luyện một mình", sublabel: "có ghi âm" },
+const POINTS = [
+  "Tập một mình với câu hỏi Part 1–2–3, ghi âm và nghe lại.",
+  "Thi thử với người thật trong Giờ thi, đổi vai giám khảo.",
+  "Điểm do người luyện cùng chấm, không phải máy.",
 ];
 
 export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: AuthScreenProps) {
@@ -92,198 +95,132 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#80c0f4]/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#add5f5]/5 rounded-full blur-3xl" />
-        </div>
-
-        {/* Loading content */}
-        <div className="relative z-10">
-          <LoadingSpinner size="md" message="Đang kiểm tra đăng nhập..." />
-        </div>
+      <div className="flex min-h-dvh items-center justify-center bg-bg">
+        <LoadingSpinner size="md" message="Đang kiểm tra đăng nhập..." />
       </div>
     );
   }
 
+  const tabClass = (active: boolean) =>
+    cn(
+      "h-10 flex-1 rounded-[calc(var(--radius-control)-2px)] text-sm transition-colors",
+      active ? "bg-surface-3 text-ink" : "text-muted hover:text-ink"
+    );
+
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col relative overflow-x-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#80c0f4]/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#add5f5]/10 rounded-full blur-3xl" />
-      </div>
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-bg px-4 py-12">
+      <div className="w-full max-w-sm">
+        <Wordmark className="text-2xl" />
+        <p className="mt-4 font-serif text-lg leading-snug text-ink-2">
+          Phòng tập IELTS Speaking. Tự nói, nghe lại, thi thử với người thật.
+        </p>
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-12">
-        {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#80c0f4] to-[#add5f5] flex items-center justify-center shadow-lg shadow-[#80c0f4]/30">
-            <Mic className="w-7 h-7 text-[#050505]" aria-hidden="true" />
-          </div>
-          <div>
-            <h1 className="text-4xl font-[family-name:var(--font-gugi)] text-[#fffcff] tracking-wide">ORATIO</h1>
-            <p className="text-sm text-zinc-400">Luyện IELTS Speaking</p>
-          </div>
-        </div>
+        <div className="mt-8">
+          {mode !== "reset" ? (
+            <div className="mb-6 flex gap-1 rounded-[var(--radius-control)] border border-line bg-surface p-1">
+              <button type="button" onClick={() => switchMode("signin")} aria-pressed={mode === "signin"} className={tabClass(mode === "signin")}>
+                Đăng nhập
+              </button>
+              <button type="button" onClick={() => switchMode("signup")} aria-pressed={mode === "signup"} className={tabClass(mode === "signup")}>
+                Đăng ký
+              </button>
+            </div>
+          ) : (
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-ink">Quên mật khẩu</h2>
+              <p className="mt-1 text-sm text-muted">Nhập email để nhận link đặt lại mật khẩu.</p>
+            </div>
+          )}
 
-        {/* Auth Card */}
-        <div className="w-full max-w-md">
-          <div className="p-5 sm:p-8 rounded-3xl bg-zinc-900/80 border border-white/10 backdrop-blur-sm">
-            {mode !== "reset" ? (
-              <div className="flex rounded-xl bg-zinc-800/50 p-1 mb-8">
-                <button
-                  type="button"
-                  onClick={() => switchMode("signin")}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${mode === "signin"
-                    ? "bg-[#80c0f4] text-[#050505]"
-                    : "text-zinc-400 hover:text-white"
-                    }`}
-                >
-                  Đăng nhập
-                </button>
-                <button
-                  type="button"
-                  onClick={() => switchMode("signup")}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${mode === "signup"
-                    ? "bg-[#80c0f4] text-[#050505]"
-                    : "text-zinc-400 hover:text-white"
-                    }`}
-                >
-                  Đăng ký
-                </button>
-              </div>
-            ) : (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-white">Quên mật khẩu</h2>
-                <p className="text-sm text-zinc-400 mt-1">Nhập email để nhận link đặt lại mật khẩu.</p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {mode === "signup" && (
-                <div>
-                  <label htmlFor="auth-username" className="block text-sm font-medium text-zinc-400 mb-2">
-                    Tên hiển thị
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" aria-hidden="true" />
-                    <input
-                      id="auth-username"
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Nhập tên hiển thị"
-                      maxLength={40}
-                      autoComplete="nickname"
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              )}
-
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === "signup" && (
               <div>
-                <label htmlFor="auth-email" className="block text-sm font-medium text-zinc-400 mb-2">
-                  Email
+                <label htmlFor="auth-username" className={labelClass}>
+                  Tên hiển thị
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" aria-hidden="true" />
-                  <input
-                    id="auth-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Nhập email"
-                    autoComplete="email"
-                    required
-                    className={inputClass}
-                  />
-                </div>
+                <input
+                  id="auth-username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Nhập tên hiển thị"
+                  maxLength={40}
+                  autoComplete="nickname"
+                  className={inputClass}
+                />
               </div>
+            )}
 
-              {mode !== "reset" && (
-                <div>
-                  <label htmlFor="auth-password" className="block text-sm font-medium text-zinc-400 mb-2">
-                    Mật khẩu
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-500" aria-hidden="true" />
-                    <input
-                      id="auth-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Nhập mật khẩu"
-                      autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                      required
-                      minLength={6}
-                      className={inputClass}
-                    />
-                  </div>
-                </div>
-              )}
+            <div>
+              <label htmlFor="auth-email" className={labelClass}>
+                Email
+              </label>
+              <input
+                id="auth-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Nhập email"
+                autoComplete="email"
+                required
+                className={inputClass}
+              />
+            </div>
 
-              {error && (
-                <div role="alert" className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                  <p className="text-sm text-red-400">{error}</p>
-                </div>
-              )}
+            {mode !== "reset" && (
+              <div>
+                <label htmlFor="auth-password" className={labelClass}>
+                  Mật khẩu
+                </label>
+                <input
+                  id="auth-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Nhập mật khẩu"
+                  autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                  required
+                  minLength={6}
+                  className={inputClass}
+                />
+              </div>
+            )}
 
-              {info && (
-                <div role="status" className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                  <p className="text-sm text-emerald-400">{info}</p>
-                </div>
-              )}
+            {error && <Notice tone="error">{error}</Notice>}
+            {info && <Notice>{info}</Notice>}
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-4 h-auto rounded-xl bg-gradient-to-r from-[#80c0f4] to-[#add5f5] hover:from-[#6db0e4] hover:to-[#9dc5e5] text-[#050505] font-semibold text-base transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#80c0f4]/25 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="w-5 h-5 animate-spin" aria-label="Đang xử lý" />
-                ) : (
-                  <>
-                    {mode === "signin" ? "Đăng nhập" : mode === "signup" ? "Tạo tài khoản" : "Gửi link đặt lại"}
-                    <ArrowRight className="w-5 h-5 ml-2" aria-hidden="true" />
-                  </>
-                )}
-              </Button>
-            </form>
+            <Button type="submit" variant="primary" size="lg" block disabled={isSubmitting}>
+              {isSubmitting
+                ? "Đang xử lý…"
+                : mode === "signin"
+                  ? "Đăng nhập"
+                  : mode === "signup"
+                    ? "Tạo tài khoản"
+                    : "Gửi link đặt lại"}
+            </Button>
+          </form>
 
-            {mode === "signin" && (
-              <button
-                type="button"
-                onClick={() => switchMode("reset")}
-                className="w-full mt-4 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
-              >
+          {mode === "signin" && (
+            <div className="mt-3 text-center">
+              <Button type="button" variant="ghost" size="sm" onClick={() => switchMode("reset")}>
                 Quên mật khẩu?
-              </button>
-            )}
-            {mode === "reset" && (
-              <button
-                type="button"
-                onClick={() => switchMode("signin")}
-                className="w-full mt-4 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
-              >
+              </Button>
+            </div>
+          )}
+          {mode === "reset" && (
+            <div className="mt-3 text-center">
+              <Button type="button" variant="ghost" size="sm" onClick={() => switchMode("signin")}>
                 Quay lại đăng nhập
-              </button>
-            )}
-          </div>
-
-          {/* Features List */}
-          <div className="mt-8 grid grid-cols-2 gap-3">
-            {FEATURES.map((feature) => (
-              <div
-                key={feature.label}
-                className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5 text-center"
-              >
-                <p className="text-base font-bold text-white">{feature.label}</p>
-                <p className="text-xs text-zinc-400">{feature.sublabel}</p>
-              </div>
-            ))}
-          </div>
+              </Button>
+            </div>
+          )}
         </div>
+
+        <ul className="mt-10 space-y-2 border-t border-line pt-6 text-sm text-muted">
+          {POINTS.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
       </div>
     </div>
   );

@@ -1,33 +1,36 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono, Gugi } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { JetBrains_Mono, Literata, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Same UI fonts as Lexica (Cortex family); Literata sets spoken content
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin", "vietnamese"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin", "vietnamese"],
   display: "swap",
 });
 
-const gugi = Gugi({
-  variable: "--font-gugi",
-  subsets: ["latin"],
-  weight: "400",
+const literata = Literata({
+  variable: "--font-literata",
+  subsets: ["latin", "vietnamese"],
   display: "swap",
-  preload: true,
 });
 
 export const metadata: Metadata = {
-  title: "ORATIO – Luyện IELTS Speaking với bạn thật",
-  description: "Ghép cặp với người học khác, gọi thoại và luyện IELTS Speaking theo đề thật, rồi nhận đánh giá từ bạn luyện cùng.",
+  title: "Oratio – Phòng tập IELTS Speaking",
+  description: "Luyện IELTS Speaking mỗi ngày: tự nói và nghe lại, thi thử với người học thật, được người thật chấm theo 4 tiêu chí.",
   icons: {
     icon: "/favicon.ico",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0E0F11",
 };
 
 export default function RootLayout({
@@ -36,11 +39,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${gugi.variable} antialiased bg-[#050505] text-white min-h-screen`}
-        suppressHydrationWarning
-      >
+    // Font variables live on <html> so the theme's --font-* (defined on :root) can resolve them
+    <html lang="vi" className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${literata.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen" suppressHydrationWarning>
         {children}
       </body>
     </html>

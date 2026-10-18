@@ -235,9 +235,12 @@ importers:
 
   apps/lexica:
     dependencies:
-      '@cortex/lexica-classes':
+      '@cortex/classroom':
         specifier: workspace:*
-        version: link:../../packages/lexica-classes
+        version: link:../../packages/classroom
+      '@cortex/classroom-lexica':
+        specifier: workspace:*
+        version: link:../../packages/classroom-lexica
       '@cortex/types':
         specifier: workspace:*
         version: link:../../packages/cortex-types
@@ -311,55 +314,6 @@ importers:
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1(@noble/hashes@1.8.0)
-      tailwindcss:
-        specifier: 4.0.7
-        version: 4.0.7
-      typescript:
-        specifier: ^5
-        version: 5.9.2
-      vitest:
-        specifier: ^4.1.7
-        version: 4.1.7(@types/node@20.0.0)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@8.0.14(@types/node@20.0.0)(jiti@2.6.1)(terser@5.46.2))
-
-  apps/lexica-teach:
-    dependencies:
-      '@cortex/lexica-classes':
-        specifier: workspace:*
-        version: link:../../packages/lexica-classes
-      '@supabase/supabase-js':
-        specifier: ^2.90.1
-        version: 2.90.1
-      lucide-react:
-        specifier: ^1.7.0
-        version: 1.8.0(react@19.2.4)
-      next:
-        specifier: 16.2.2
-        version: 16.2.2(@babel/core@7.29.0)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      react:
-        specifier: 19.2.4
-        version: 19.2.4
-      react-dom:
-        specifier: 19.2.4
-        version: 19.2.4(react@19.2.4)
-    devDependencies:
-      '@tailwindcss/postcss':
-        specifier: 4.0.7
-        version: 4.0.7
-      '@types/node':
-        specifier: ^20
-        version: 20.0.0
-      '@types/react':
-        specifier: ^19
-        version: 19.2.2
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.2.2(@types/react@19.2.2)
-      eslint:
-        specifier: ^9
-        version: 9.39.1(jiti@2.6.1)
-      eslint-config-next:
-        specifier: 16.2.2
-        version: 16.2.2(@typescript-eslint/parser@8.50.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.2))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.2)
       tailwindcss:
         specifier: 4.0.7
         version: 4.0.7
@@ -602,6 +556,70 @@ importers:
         specifier: ^5
         version: 5.9.2
 
+  apps/teach:
+    dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../../packages/classroom
+      '@cortex/classroom-lexica':
+        specifier: workspace:*
+        version: link:../../packages/classroom-lexica
+      '@supabase/supabase-js':
+        specifier: ^2.90.1
+        version: 2.90.1
+      lucide-react:
+        specifier: ^1.7.0
+        version: 1.8.0(react@19.2.4)
+      next:
+        specifier: 16.2.2
+        version: 16.2.2(@babel/core@7.29.0)(@playwright/test@1.60.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@tailwindcss/postcss':
+        specifier: 4.0.7
+        version: 4.0.7
+      '@types/node':
+        specifier: ^20
+        version: 20.0.0
+      '@types/react':
+        specifier: ^19
+        version: 19.2.2
+      '@types/react-dom':
+        specifier: ^19
+        version: 19.2.2(@types/react@19.2.2)
+      eslint:
+        specifier: ^9
+        version: 9.39.1(jiti@2.6.1)
+      eslint-config-next:
+        specifier: 16.2.2
+        version: 16.2.2(@typescript-eslint/parser@8.50.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.2))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.2)
+      tailwindcss:
+        specifier: 4.0.7
+        version: 4.0.7
+      typescript:
+        specifier: ^5
+        version: 5.9.2
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@types/node@20.0.0)(jsdom@29.1.1(@noble/hashes@1.8.0))(vite@8.0.14(@types/node@20.0.0)(jiti@2.6.1)(terser@5.46.2))
+
+  packages/classroom:
+    dependencies:
+      '@supabase/supabase-js':
+        specifier: ^2.90.1
+        version: 2.90.1
+
+  packages/classroom-lexica:
+    dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../classroom
+
   packages/cortex-types: {}
 
   packages/eslint-config:
@@ -639,12 +657,6 @@ importers:
       typescript-eslint:
         specifier: ^8.50.0
         version: 8.50.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.2)
-
-  packages/lexica-classes:
-    dependencies:
-      '@supabase/supabase-js':
-        specifier: ^2.90.1
-        version: 2.90.1
 
   packages/typescript-config: {}
 

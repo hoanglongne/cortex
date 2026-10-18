@@ -37,8 +37,8 @@ FILES=(
   apps/lexica/supabase/migration_engagement_lucky.sql
   apps/lexica/supabase/migration_engagement_lucky_status.sql
   apps/lexica/supabase/migration_engagement_review_dust.sql
-  apps/lexica/supabase/migration_classes.sql
-  apps/lexica/supabase/migration_classes_v2.sql
+  packages/classroom/sql/classroom_core.sql
+  packages/classroom-lexica/sql/classroom_lexica.sql
   # Last: tightens public.profiles for every app (drops Lexica's read-all policy)
   apps/oratio/supabase/migration_2026_10_security.sql
 )

@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+/*
+ * Lexica cho lớp: soft and warm (Claude Doc "Lexica Lớp học — thiết kế",
+ * Nhận diện). The learning app is dark and sharp for focus; this is where a
+ * teacher works all day on a laptop: light, calm, friendly. Use the tokens.
+ */
+@theme {
+  --color-bg: #FBF8F3;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F5F0E8;
+  --color-line: #ECE5DA;
+  --color-line-strong: #DDD3C5;
+
+  --color-ink: #2B2A28;
+  --color-ink-2: #4A4743;
+  --color-muted: #7A756D;
+  --color-subtle: #A39D93;
+
+  /* Work to do, primary buttons */
+  --color-accent: #3F8F6B;
+  --color-accent-strong: #33785A;
+  --color-accent-soft: #E6F2EC;
+  --color-on-accent: #FFFFFF;
+  /* "Needs you" */
+  --color-warm: #D9733F;
+  --color-warm-soft: #FCEDE3;
+  /* Achievements */
+  --color-lilac: #7B6FC9;
+  --color-lilac-soft: #EEEBFA;
+  /* Real errors only */
+  --color-danger: #C2453A;
+
+  /* The four steps, light to deep */
+  --color-step-hieu: #BFE0CF;
+  --color-step-nho: #8CC7A8;
+  --color-step-gap: #5AAA82;
+  --color-step-dung: #3F8F6B;
+
+  --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --radius-card: 16px;
+  --shadow-card: 0 1px 2px rgba(43, 42, 40, 0.04), 0 4px 16px rgba(43, 42, 40, 0.04);
+}
+
+/* Dark: the same calm palette at night. Follows the system unless the
+   teacher picks one in the sidebar (data-theme on <html>). */
+:root[data-theme="dark"] {
+  --color-bg: #1B1A18;
+  --color-surface: #24221F;
+  --color-surface-2: #2D2A26;
+  --color-line: #38342E;
+  --color-line-strong: #48433B;
+  --color-ink: #F1EDE6;
+  --color-ink-2: #D5CFC5;
+  --color-muted: #A39C90;
+  --color-subtle: #7D766B;
+  --color-accent: #5DB58C;
+  --color-accent-strong: #86CEA9;
+  --color-accent-soft: #233A2F;
+  --color-on-accent: #10160F;
+  --color-warm: #F0935E;
+  --color-warm-soft: #3A2A20;
+  --color-lilac: #A498E8;
+  --color-lilac-soft: #2C2843;
+  --color-danger: #E8786C;
+  --color-step-hieu: #2F4A3D;
+  --color-step-nho: #3E6B54;
+  --color-step-gap: #4F9070;
+  --color-step-dung: #6FBF97;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+  --color-bg: #1B1A18;
+  --color-surface: #24221F;
+  --color-surface-2: #2D2A26;
+  --color-line: #38342E;
+  --color-line-strong: #48433B;
+  --color-ink: #F1EDE6;
+  --color-ink-2: #D5CFC5;
+  --color-muted: #A39C90;
+  --color-subtle: #7D766B;
+  --color-accent: #5DB58C;
+  --color-accent-strong: #86CEA9;
+  --color-accent-soft: #233A2F;
+  --color-on-accent: #10160F;
+  --color-warm: #F0935E;
+  --color-warm-soft: #3A2A20;
+  --color-lilac: #A498E8;
+  --color-lilac-soft: #2C2843;
+  --color-danger: #E8786C;
+  --color-step-hieu: #2F4A3D;
+  --color-step-nho: #3E6B54;
+  --color-step-gap: #4F9070;
+  --color-step-dung: #6FBF97;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+  }
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

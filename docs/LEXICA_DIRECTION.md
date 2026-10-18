@@ -53,11 +53,11 @@ Trên cùng là việc học hôm nay (thẻ Hôm nay, 4 con số, Luyện thêm
 
 Lexica nhận phần "giữa hai buổi học". Thiết kế: Claude Doc "Lexica Lớp học — thiết kế".
 
-- **App giáo viên riêng** `apps/lexica-teach` (subdomain, giao diện sáng và mềm), chỉ vào bằng link mời. Năm chỗ: Hôm nay (việc cần giáo viên trước, lời khen, lớp), Lớp của tôi (mỗi lớp 5 tab: Tổng quan, Học viên, Bài giao, Báo cáo, Cài đặt), Học viên, Báo cáo, Trung tâm (quản lý) và Quản trị (quản trị hệ thống).
+- **App giáo viên riêng** `apps/teach` (subdomain, giao diện sáng và mềm), chỉ vào bằng link mời. Năm chỗ: Hôm nay (việc cần giáo viên trước, lời khen, lớp), Lớp của tôi (mỗi lớp 5 tab: Tổng quan, Học viên, Bài giao, Báo cáo, Cài đặt), Học viên, Báo cáo, Trung tâm (quản lý) và Quản trị (quản trị hệ thống).
 - **Vai trò**: quản trị hệ thống (tạo trung tâm, đặt số chỗ, mời quản lý, cấp quyền giáo viên độc lập) → quản lý trung tâm (mời và gỡ giáo viên) → giáo viên → lớp → học viên. Giáo viên độc lập tạo được lớp riêng, tối đa 60 em mỗi lớp.
 - **Học viên** (app học): vào lớp bằng link `/join/MÃ` hoặc nhập mã; phiên Hôm nay học bài "chỉ từ của bài" trước tiên và chỉ những từ đó; bài "xen kẽ" được học trước trong phiên thường. Gửi về lớp 4 con số, số từ Đời và bước của từng từ được giao.
 - **Bảng xếp hạng**: giáo viên bật hoặc tắt, mặc định tắt.
-- Dữ liệu: `apps/lexica/supabase/migration_classes.sql` rồi `migration_classes_v2.sql`; logic chung ở `packages/lexica-classes`.
+- Dữ liệu và chuẩn mô-đun: xem `docs/CLASSROOM.md` (lõi `packages/classroom`, mô-đun Lexica `packages/classroom-lexica`).
 
 ## Trạng thái triển khai (2026-10-17)
 

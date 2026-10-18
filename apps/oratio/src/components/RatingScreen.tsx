@@ -1,17 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ThumbsUp,
-  ThumbsDown,
-  MessageSquare,
-  ChevronRight,
-  Sparkles,
-  Mic,
-  BookOpen,
-  Brain,
-  Volume2,
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Label, Notice } from "@/components/ui/card";
+import { BandRange, CRITERION_LABELS } from "@/components/ui/band";
+import { FlowShell } from "@/components/ui/shell";
+import { formatClock } from "@/components/ui/timer";
+import { cn } from "@/lib/utils";
 
 // IELTS Speaking Band Descriptors (simplified for peer assessment)
 const BAND_LABELS: Record<number, string> = {
@@ -27,38 +22,10 @@ const BAND_LABELS: Record<number, string> = {
 };
 
 const CRITERIA = [
-  {
-    key: "fluency" as const,
-    label: "Fluency & Coherence",
-    icon: Mic,
-    description: "Nói trôi chảy, ít ngập ngừng",
-    lowHint: "Ngắt quãng nhiều, khó theo dõi",
-    highHint: "Trôi chảy, ý tưởng mạch lạc",
-  },
-  {
-    key: "vocabulary" as const,
-    label: "Lexical Resource (Vocabulary)",
-    icon: BookOpen,
-    description: "Dùng từ đa dạng, đúng ngữ cảnh",
-    lowHint: "Từ vựng đơn giản, hay sai",
-    highHint: "Từ vựng phong phú, chính xác",
-  },
-  {
-    key: "grammar" as const,
-    label: "Grammatical Range & Accuracy",
-    icon: Brain,
-    description: "Câu đúng ngữ pháp, có câu phức",
-    lowHint: "Chỉ câu đơn, nhiều lỗi",
-    highHint: "Cấu trúc đa dạng, ít lỗi",
-  },
-  {
-    key: "pronunciation" as const,
-    label: "Pronunciation",
-    icon: Volume2,
-    description: "Phát âm rõ, dễ nghe",
-    lowHint: "Khó hiểu",
-    highHint: "Rõ ràng, tự nhiên",
-  },
+  { key: "fluency" as const },
+  { key: "vocabulary" as const },
+  { key: "grammar" as const },
+  { key: "pronunciation" as const },
 ];
 
 // Specific feedback tags per criterion (first 3 positive, last 3 to improve)
@@ -142,72 +109,45 @@ function BandSelector({
 }) {
   return (
     <div className="space-y-2">
-      <div
-        role="group"
-        aria-label={`Band ${label}`}
-        className="grid grid-cols-5 min-[400px]:grid-cols-9 gap-1.5"
-      >
+      <div role="group" aria-label={`Band ${label}`} className="grid grid-cols-9 gap-1">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((band) => (
           <button
             key={band}
             type="button"
             onClick={() => onChange(band)}
             aria-pressed={band === value}
-            className={`py-2.5 rounded-lg text-sm font-bold transition-all ${band === value
-                ? band >= 7
-                  ? "bg-emerald-500 text-white ring-2 ring-emerald-400/50"
-                  : band >= 5
-                    ? "bg-blue-500 text-white ring-2 ring-blue-400/50"
-                    : "bg-amber-500 text-white ring-2 ring-amber-400/50"
-                : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-300"
-              }`}
+            className={cn(
+              "aspect-square w-full min-w-0 rounded-[var(--radius-control)] border font-mono text-sm tabular transition-colors",
+              band === value ? "border-ink bg-ink text-bg" : "border-line-strong text-ink-2 hover:border-muted"
+            )}
           >
             {band}
           </button>
         ))}
       </div>
-      {value > 0 && (
-        <p className="text-xs text-center text-zinc-400">{BAND_LABELS[value]}</p>
-      )}
+      {value > 0 && <p className="text-xs text-muted">{BAND_LABELS[value]}</p>}
     </div>
   );
 }
 
 // Tag Toggle
-function TagButton({
-  label,
-  selected,
-  positive,
-  onClick,
-}: {
-  label: string;
-  selected: boolean;
-  positive: boolean;
-  onClick: () => void;
-}) {
+function TagButton({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${selected
-          ? positive
-            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-            : "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-          : "bg-zinc-800/60 text-zinc-400 border border-transparent hover:bg-zinc-700 hover:text-zinc-300"
-        }`}
+      className={cn(
+        "rounded-full border px-3 py-1.5 text-xs transition-colors",
+        selected ? "border-onair text-onair" : "border-line-strong text-muted hover:text-ink"
+      )}
     >
       {label}
     </button>
   );
 }
 
-export default function RatingScreen({
-  partner,
-  callDuration,
-  onSubmit,
-  onSkip,
-}: RatingScreenProps) {
+export default function RatingScreen({ partner, callDuration, onSubmit, onSkip }: RatingScreenProps) {
   const [scores, setScores] = useState<IELTSScores>({
     fluency: 0,
     vocabulary: 0,
@@ -221,15 +161,7 @@ export default function RatingScreen({
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  };
-
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
+    setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   };
 
   const allScored = scores.fluency > 0 && scores.vocabulary > 0 && scores.grammar > 0 && scores.pronunciation > 0;
@@ -257,204 +189,119 @@ export default function RatingScreen({
     setIsSubmitting(false);
   };
 
-  const getOverallColor = (band: number) => {
-    if (band >= 7) return "text-emerald-400";
-    if (band >= 5) return "text-blue-400";
-    return "text-amber-400";
-  };
-
   return (
-    <div className="min-h-screen bg-[#050505]">
-      <div className="max-w-2xl mx-auto px-4 lg:px-8 py-6 lg:py-10">
-        {/* Header */}
-        <header className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-4">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm font-medium text-emerald-400">
-              Buổi luyện đã kết thúc
-            </span>
+    <FlowShell
+      title={`Chấm điểm cho ${partner.name}`}
+      footer={
+        <div className="space-y-2">
+          {!allScored && <p className="text-center text-xs text-muted">Chấm đủ 4 tiêu chí để gửi đánh giá.</p>}
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={onSkip} disabled={isSubmitting}>
+              Bỏ qua
+            </Button>
+            <Button variant="primary" className="flex-1" onClick={handleSubmit} disabled={!allScored || isSubmitting}>
+              {isSubmitting ? "Đang gửi…" : "Gửi đánh giá"}
+            </Button>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2 break-words">
-            Chấm điểm cho {partner.name}
-          </h1>
-          <p className="text-zinc-400">
-            Band {partner.band} &bull; {formatDuration(callDuration)}
-          </p>
-          <p className="text-zinc-500 text-sm mt-2">
-            Điểm của bạn giúp {partner.name} biết cần cải thiện gì. Hãy chấm công bằng.
-          </p>
-        </header>
+        </div>
+      }
+    >
+      <header className="mt-2">
+        <h1 className="break-words text-2xl font-semibold tracking-tight text-ink">Chấm điểm cho {partner.name}</h1>
+        <p className="mt-2 text-sm text-muted">
+          Band <span className="font-mono tabular text-ink-2">{partner.band}</span> ·{" "}
+          <span className="font-mono tabular text-ink-2">{formatClock(callDuration)}</span>
+        </p>
+        <p className="mt-1 text-sm text-muted">
+          Điểm của bạn giúp {partner.name} biết cần cải thiện gì. Hãy chấm công bằng.
+        </p>
+      </header>
 
-        {/* IELTS Criteria Cards */}
-        <div className="space-y-4">
-          {CRITERIA.map((criterion) => {
-            const Icon = criterion.icon;
-            const score = scores[criterion.key];
-            const tags = CRITERION_TAGS[criterion.key] || [];
+      <div className="mt-6 space-y-3">
+        {CRITERIA.map((criterion) => {
+          const c = CRITERION_LABELS[criterion.key];
+          const score = scores[criterion.key];
+          const tags = CRITERION_TAGS[criterion.key] || [];
 
-            return (
-              <div
-                key={criterion.key}
-                className="p-5 rounded-2xl bg-zinc-900/60 border border-white/5"
-              >
-                {/* Criterion Header */}
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="p-2 rounded-lg bg-zinc-800 shrink-0">
-                    <Icon className="w-4 h-4 text-blue-400" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-semibold text-white">
-                      {criterion.label}
-                    </h3>
-                    <p className="text-xs text-zinc-400 mt-0.5">
-                      {criterion.description}
-                    </p>
+          return (
+            <section key={criterion.key} className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+              <h2 className="text-base font-medium text-ink">{c.name}</h2>
+              <p className="mb-3 mt-0.5 text-xs text-muted">{c.hint}</p>
+
+              <BandSelector
+                value={score}
+                label={c.name}
+                onChange={(band) => setScores((prev) => ({ ...prev, [criterion.key]: band }))}
+              />
+
+              {score > 0 && (
+                <div className="mt-4 border-t border-line pt-3">
+                  <Label className="mb-2">Nhận xét cụ thể (không bắt buộc)</Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {tags.map((tag) => (
+                      <TagButton key={tag} label={tag} selected={selectedTags.includes(tag)} onClick={() => toggleTag(tag)} />
+                    ))}
                   </div>
                 </div>
-
-                {/* Band Selector */}
-                <BandSelector
-                  value={score}
-                  label={criterion.label}
-                  onChange={(band) =>
-                    setScores((prev) => ({ ...prev, [criterion.key]: band }))
-                  }
-                />
-
-                {/* Band hints */}
-                <div className="flex justify-between gap-3 text-[11px] text-zinc-500 mt-2">
-                  <span>1: {criterion.lowHint}</span>
-                  <span className="text-right">9: {criterion.highHint}</span>
-                </div>
-
-                {/* Feedback Tags */}
-                {score > 0 && (
-                  <div className="mt-3 pt-3 border-t border-white/5">
-                    <p className="text-xs text-zinc-500 mb-2">
-                      Nhận xét cụ thể (không bắt buộc):
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {tags.map((tag, i) => (
-                        <TagButton
-                          key={tag}
-                          label={tag}
-                          selected={selectedTags.includes(tag)}
-                          positive={i < 3}
-                          onClick={() => toggleTag(tag)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Overall Band Preview */}
-        {allScored && (
-          <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 border border-white/10 text-center">
-            <p className="text-sm text-zinc-400 mb-1">Band tổng (ước tính)</p>
-            <p className={`text-4xl font-bold ${getOverallColor(overallBand)}`}>
-              {overallBand.toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
-            </p>
-            <p className="text-xs text-zinc-500 mt-1">
-              Trung bình 4 tiêu chí, làm tròn 0,5
-            </p>
-          </div>
-        )}
-
-        {/* Would Match Again */}
-        <div className="mt-6 p-5 rounded-2xl bg-zinc-900/60 border border-white/5">
-          <p className="text-sm text-zinc-300 mb-3 text-center">
-            Bạn có muốn luyện tập với {partner.name} lần nữa không?
-          </p>
-          <div className="flex justify-center gap-3 sm:gap-4">
-            <button
-              type="button"
-              onClick={() => setWouldMatchAgain(true)}
-              aria-pressed={wouldMatchAgain === true}
-              className={`flex items-center gap-2 px-5 sm:px-6 py-3 rounded-xl transition-all ${wouldMatchAgain === true
-                  ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                  : "bg-zinc-800 border-transparent text-zinc-400 hover:bg-zinc-700"
-                } border`}
-            >
-              <ThumbsUp className="w-5 h-5" />
-              <span className="font-medium">Có</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setWouldMatchAgain(false)}
-              aria-pressed={wouldMatchAgain === false}
-              className={`flex items-center gap-2 px-5 sm:px-6 py-3 rounded-xl transition-all ${wouldMatchAgain === false
-                  ? "bg-red-500/20 border-red-500/50 text-red-400"
-                  : "bg-zinc-800 border-transparent text-zinc-400 hover:bg-zinc-700"
-                } border`}
-            >
-              <ThumbsDown className="w-5 h-5" />
-              <span className="font-medium">Không</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Additional Comments */}
-        <div className="mt-4 p-5 rounded-2xl bg-zinc-900/60 border border-white/5">
-          <div className="flex items-center gap-2 mb-3">
-            <MessageSquare className="w-4 h-4 text-zinc-500" />
-            <label htmlFor="rating-comments" className="text-sm font-semibold text-white">
-              Nhận xét thêm
-            </label>
-          </div>
-          <textarea
-            id="rating-comments"
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-            maxLength={1000}
-            placeholder="Lời khuyên cụ thể cho bạn học..."
-            className="w-full h-24 p-3 rounded-xl bg-zinc-800/50 border border-white/10 text-white text-sm placeholder-zinc-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
-          />
-          <p className="mt-1 text-right text-xs text-zinc-500">{feedback.length}/1000</p>
-        </div>
-
-        {/* Submit error */}
-        {submitError && (
-          <p
-            role="alert"
-            className="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-400"
-          >
-            {submitError}
-          </p>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 mt-6">
-          <button
-            type="button"
-            onClick={onSkip}
-            disabled={isSubmitting}
-            className="flex-1 px-6 py-4 rounded-2xl bg-zinc-800 border border-white/10 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-all font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Bỏ qua
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!allScored || isSubmitting}
-            className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-semibold transition-all text-sm ${allScored && !isSubmitting
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/25"
-                : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
-              }`}
-          >
-            <span>{isSubmitting ? "Đang gửi…" : "Gửi đánh giá"}</span>
-            {!isSubmitting && <ChevronRight className="w-5 h-5" />}
-          </button>
-        </div>
-        {!allScored && (
-          <p className="mt-3 text-center text-xs text-zinc-500">
-            Chấm đủ 4 tiêu chí để gửi đánh giá.
-          </p>
-        )}
+              )}
+            </section>
+          );
+        })}
       </div>
-    </div>
+
+      {allScored && (
+        <div className="mt-6 flex items-baseline justify-between gap-3 border-y border-line py-4">
+          <div>
+            <p className="text-sm text-ink">Band tổng (ước tính)</p>
+            <p className="mt-0.5 text-xs text-muted">Trung bình 4 tiêu chí, làm tròn 0,5</p>
+          </div>
+          <BandRange low={overallBand} size="lg" />
+        </div>
+      )}
+
+      <fieldset className="mt-6">
+        <legend className="mb-2 text-sm text-ink">Muốn luyện lại với bạn này?</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { value: true, label: "Có" },
+            { value: false, label: "Không" },
+          ].map((opt) => (
+            <button
+              key={opt.label}
+              type="button"
+              onClick={() => setWouldMatchAgain(opt.value)}
+              aria-pressed={wouldMatchAgain === opt.value}
+              className={cn(
+                "h-11 rounded-[var(--radius-control)] border text-sm transition-colors",
+                wouldMatchAgain === opt.value ? "border-ink bg-ink text-bg" : "border-line-strong text-ink-2 hover:border-muted"
+              )}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <div className="mt-6">
+        <label htmlFor="rating-comments" className="text-sm text-ink">
+          Nhận xét thêm
+        </label>
+        <textarea
+          id="rating-comments"
+          value={feedback}
+          onChange={(e) => setFeedback(e.target.value)}
+          maxLength={1000}
+          placeholder="Lời khuyên cụ thể cho bạn học..."
+          className="mt-2 h-28 w-full resize-none rounded-[var(--radius-control)] border border-line-strong bg-surface-2 p-3 font-serif text-base text-ink placeholder:text-subtle focus-visible:border-onair"
+        />
+        <p className="mt-1 text-right font-mono text-xs tabular text-subtle">{feedback.length}/1000</p>
+      </div>
+
+      {submitError && (
+        <Notice tone="error" className="mt-4">
+          {submitError}
+        </Notice>
+      )}
+    </FlowShell>
   );
 }
