@@ -13,7 +13,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="vi">
+        <html lang="vi" suppressHydrationWarning>
+            <head>
+                {/* The chosen theme before first paint, so a dark page never flashes light. */}
+                <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('teach-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}" }} />
+            </head>
             <body className={`${sans.variable} ${mono.variable} antialiased`}>
                 <SessionProvider>{children}</SessionProvider>
             </body>

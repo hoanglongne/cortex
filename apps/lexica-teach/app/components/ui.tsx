@@ -140,7 +140,7 @@ export function CopyField({ value, label }: { value: string; label?: string }) {
 export function Drawer({ open, title, onClose, children }: { open: boolean; title: string; onClose: () => void; children: React.ReactNode }) {
     if (!open) return null;
     return (
-        <div className="fixed inset-0 z-50 flex justify-end bg-ink/20" onClick={onClose} role="presentation">
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/40" onClick={onClose} role="presentation">
             <div role="dialog" aria-label={title} className="h-full w-full max-w-lg overflow-y-auto bg-bg p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
                 <div className="mb-5 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-ink">{title}</h2>

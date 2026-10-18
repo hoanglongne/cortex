@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { BarChart3, Building2, CalendarCheck, GraduationCap, KeyRound, LogOut, ShieldCheck, Users } from 'lucide-react';
 import { hasAccess, useSession } from '../lib/session';
 import { setPassword } from '../lib/auth';
+import ThemeToggle from './ThemeToggle';
 
 /**
  * Every signed-in page: a fixed sidebar of five places (Hôm nay first), a top
@@ -60,6 +61,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         <LogOut className="h-4 w-4" /> Đăng xuất
                     </button>
                     <SetPassword />
+                    <ThemeToggle />
                 </div>
             </aside>
             <div className="sticky top-0 z-30 flex gap-1 overflow-x-auto border-b border-line bg-bg/95 px-3 py-2 backdrop-blur lg:hidden">
