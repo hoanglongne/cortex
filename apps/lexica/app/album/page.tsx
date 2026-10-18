@@ -179,7 +179,7 @@ export default function AlbumPage() {
                         </p>
                         {showSignIn && (
                             <div className="mt-3">
-                                <AuthGate reason="Không cần mật khẩu: nhận mã qua email." redirectPath="/album" />
+                                <AuthGate reason="Đăng nhập để sưu tầm thẻ trên mọi máy." redirectPath="/album" />
                             </div>
                         )}
                     </div>

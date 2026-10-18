@@ -22,6 +22,37 @@ export async function signInWithEmail(email: string, redirectTo: string): Promis
     return { error: error?.message ?? null };
 }
 
+export type PasswordResult = { ok: true } | { ok: false; error: string } | { ok: false; confirm: true };
+
+/**
+ * Email + password: signs in, or creates the account when the email is new.
+ * No email is sent (with "Confirm email" off in Supabase Auth); with it on,
+ * a new account gets one confirmation email.
+ */
+export async function signInWithPassword(email: string, password: string): Promise<PasswordResult> {
+    const supabase = getSupabaseClient();
+    if (!supabase) return { ok: false, error: 'Supabase chưa được cấu hình' };
+    const clean = email.trim().toLowerCase();
+    const signIn = await supabase.auth.signInWithPassword({ email: clean, password });
+    if (!signIn.error) return { ok: true };
+    if (!/invalid login credentials/i.test(signIn.error.message)) return { ok: false, error: signIn.error.message };
+    const signUp = await supabase.auth.signUp({ email: clean, password });
+    if (signUp.error) return { ok: false, error: signUp.error.message.includes('Password') ? 'Mật khẩu cần ít nhất 6 ký tự.' : signUp.error.message };
+    // An existing email comes back with no identities: the password was wrong (or never set).
+    if (signUp.data.user && signUp.data.user.identities?.length === 0) {
+        return { ok: false, error: 'Sai mật khẩu. Tài khoản cũ chưa có mật khẩu thì dùng "Nhận link đăng nhập" một lần, rồi đặt mật khẩu.' };
+    }
+    return signUp.data.session ? { ok: true } : { ok: false, confirm: true };
+}
+
+/** Sets or changes the password of the signed-in account. */
+export async function setPassword(password: string): Promise<{ error: string | null }> {
+    const supabase = getSupabaseClient();
+    if (!supabase) return { error: 'Supabase chưa được cấu hình' };
+    const { error } = await supabase.auth.updateUser({ password });
+    return { error: error ? (error.message.includes('Password') ? 'Mật khẩu cần ít nhất 6 ký tự.' : error.message) : null };
+}
+
 /** Đăng xuất */
 export async function signOut(): Promise<void> {
     const supabase = getSupabaseClient();

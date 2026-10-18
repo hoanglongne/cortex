@@ -64,7 +64,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
                         </div>
                     )}
                 </section>
-                {!user && <AuthGate reason="Đăng nhập bằng email để vào lớp. Không cần mật khẩu." redirectPath={`/join/${clean}`} />}
+                {!user && <AuthGate reason="Đăng nhập bằng email để vào lớp." redirectPath={`/join/${clean}`} />}
                 <p className="text-center">
                     <Link href="/" className="text-sm text-muted hover:text-accent">
                         ← Về Lexica

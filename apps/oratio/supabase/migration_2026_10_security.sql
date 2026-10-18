@@ -1,6 +1,8 @@
 -- ============================================
 -- Oratio: security and data fixes (2026-10-18)
--- Run once in the Supabase SQL Editor, after schema.sql. Safe to run again.
+-- Run in the Supabase SQL Editor after every other app's SQL (Lexica and
+-- Cortex share this project and public.profiles). Safe to run again; run it
+-- again after any Lexica migration that touches profiles policies.
 --
 -- What it does:
 --   1. Profiles: a user reads only their own row (email included). Other
@@ -33,17 +35,23 @@ ALTER TABLE public.matches REPLICA IDENTITY FULL;
 -- --------------------------------------------
 -- 1. Profiles: own row only, public fields through a view
 -- --------------------------------------------
+-- Every policy that let any signed-in user read every row (Oratio's old one
+-- and Lexica's study-buddy ones) goes; buddies read nicknames from the view.
 DROP POLICY IF EXISTS "Profiles are viewable by everyone" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can read profiles" ON public.profiles;
+DROP POLICY IF EXISTS "profiles_select" ON public.profiles;
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile"
     ON public.profiles FOR SELECT
     USING (auth.uid() = id);
 
 -- The view runs with its owner's rights, so it shows every profile but only
--- these columns (no email).
+-- these columns (no email). New columns go at the end (CREATE OR REPLACE
+-- VIEW can only append).
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS nickname TEXT NOT NULL DEFAULT 'Anonymous';
 CREATE OR REPLACE VIEW public.public_profiles AS
     SELECT id, username, avatar_url, current_band, total_sessions, total_minutes,
-           current_streak, longest_streak
+           current_streak, longest_streak, nickname
     FROM public.profiles;
 REVOKE ALL ON public.public_profiles FROM PUBLIC, anon;
 GRANT SELECT ON public.public_profiles TO authenticated;
@@ -51,10 +59,13 @@ GRANT SELECT ON public.public_profiles TO authenticated;
 -- --------------------------------------------
 -- 2. Profiles: users edit only descriptive fields
 -- --------------------------------------------
--- Profiles are created by the on_auth_user_created trigger, not by clients
+-- Profiles are created by the on_auth_user_created trigger. Lexica may still
+-- insert its own row with a nickname (profiles_insert policy: id = auth.uid()),
+-- so only those columns can be inserted; stats keep their defaults.
 DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 REVOKE INSERT, UPDATE, DELETE ON public.profiles FROM anon, authenticated;
-GRANT UPDATE (username, avatar_url, native_language, country, target_band) ON public.profiles TO authenticated;
+GRANT INSERT (id, username, nickname) ON public.profiles TO authenticated;
+GRANT UPDATE (username, nickname, avatar_url, native_language, country, target_band) ON public.profiles TO authenticated;
 
 DO $$
 BEGIN

@@ -1,89 +1,76 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Loader2, CheckCircle, LogIn } from 'lucide-react';
-import { signInWithEmail } from '../lib/auth';
+import { Loader2, LogIn, Mail } from 'lucide-react';
+import { signInWithEmail, signInWithPassword } from '../lib/auth';
 
 interface AuthGateProps {
     /** Text mô tả tại sao cần đăng nhập */
     reason?: string;
-    /** Callback khi user đã đăng nhập (auth state change xử lý tự động qua AuthProvider) */
+    /** Callback khi đã gửi link (cách cũ) */
     onSent?: () => void;
     /** Trang quay lại sau khi bấm link trong email */
     redirectPath?: string;
 }
 
+/**
+ * Email + password: one form signs in or creates the account. The email link
+ * stays as a fallback for accounts made before passwords existed.
+ */
 export default function AuthGate({ reason, onSent, redirectPath = '/buddy' }: AuthGateProps) {
     const [email, setEmail] = useState('');
-    const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-    const [errorMsg, setErrorMsg] = useState('');
+    const [password, setPassword] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState('');
+    const [notice, setNotice] = useState('');
 
-    const handleSubmit = async () => {
-        if (!email.trim() || status === 'sending') return;
-        setStatus('sending');
-        const redirectTo = typeof window !== 'undefined' ? `${window.location.origin}${redirectPath}` : '';
-        const { error } = await signInWithEmail(email, redirectTo);
-        if (error) {
-            setErrorMsg(error);
-            setStatus('error');
-        } else {
-            setStatus('sent');
+    const submit = async () => {
+        if (!email.includes('@') || password.length < 6 || busy) return;
+        setBusy(true);
+        setError('');
+        const r = await signInWithPassword(email, password);
+        setBusy(false);
+        if (r.ok) return; // AuthProvider picks up the session
+        if ('confirm' in r) setNotice(`Đã tạo tài khoản. Mở email ${email} để xác nhận một lần, rồi đăng nhập lại ở đây.`);
+        else setError(r.error);
+    };
+
+    const sendLink = async () => {
+        if (!email.includes('@')) return setError('Nhập email trước đã.');
+        setBusy(true);
+        const { error: e } = await signInWithEmail(email, `${window.location.origin}${redirectPath}`);
+        setBusy(false);
+        if (e) setError(e);
+        else {
+            setNotice(`Đã gửi link đăng nhập tới ${email}.`);
             onSent?.();
         }
     };
 
-    if (status === 'sent') {
-        return (
-            <div className="flex flex-col items-center gap-4 py-8 text-center">
-                <CheckCircle className="w-12 h-12 text-accent" />
-                <h3 className="text-lg font-bold text-ink">Kiểm tra email của bạn!</h3>
-                <p className="text-muted text-sm max-w-xs">
-                    Chúng tôi đã gửi link đăng nhập tới <span className="text-accent">{email}</span>.
-                    Click vào link để tiếp tục.
-                </p>
-                <p className="text-muted text-xs">Không tìm thấy? Kiểm tra thư mục spam.</p>
-            </div>
-        );
-    }
-
+    const input = 'w-full px-4 py-3 bg-surface-2 border border-line-strong rounded-xl text-ink placeholder-muted text-sm focus:outline-none focus:border-accent transition-colors';
     return (
-        <div className="flex flex-col gap-4">
+        <form
+            className="flex flex-col gap-3"
+            onSubmit={(e) => {
+                e.preventDefault();
+                void submit();
+            }}
+        >
             <div className="flex flex-col items-center gap-2 text-center">
                 <LogIn className="w-8 h-8 text-accent" />
-                <h3 className="text-base font-bold text-ink">Lưu tài khoản</h3>
-                <p className="text-muted text-sm">
-                    {reason ?? 'Nhập email để lưu tiến độ và kết nối với bạn bè. Không cần mật khẩu.'}
-                </p>
+                <h3 className="text-base font-bold text-ink">Đăng nhập</h3>
+                <p className="text-muted text-sm">{reason ?? 'Lưu tiến độ và kết nối với bạn bè.'} Chưa có tài khoản thì nhập email và mật khẩu mới, app tạo luôn.</p>
             </div>
-
-            <div className="flex gap-2">
-                <input
-                    type="email"
-                    autoFocus
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-                    placeholder="email@example.com"
-                    className="flex-1 px-4 py-3 bg-surface-2 border border-line-strong rounded-xl text-ink placeholder-muted text-sm focus:outline-none focus:border-accent transition-colors"
-                />
-                <button
-                    onClick={handleSubmit}
-                    disabled={!email.trim() || status === 'sending'}
-                    className="px-4 py-3 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent rounded-xl transition-all flex items-center gap-2"
-                >
-                    {status === 'sending'
-                        ? <Loader2 className="w-4 h-4 animate-spin" />
-                        : <Mail className="w-4 h-4" />}
-                </button>
-            </div>
-
-            {status === 'error' && (
-                <p className="text-danger text-xs text-center">{errorMsg}</p>
-            )}
-
-            <p className="text-muted text-xs text-center">
-                Chỉ dùng để xác thực. Không spam, không mật khẩu.
-            </p>
-        </div>
+            <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" aria-label="Email" className={input} />
+            <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu (ít nhất 6 ký tự)" aria-label="Mật khẩu" className={input} />
+            <button type="submit" disabled={busy || !email.includes('@') || password.length < 6} className="py-3 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-bold rounded-xl flex items-center justify-center gap-2">
+                {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Tiếp tục
+            </button>
+            {error && <p className="text-danger text-xs text-center">{error}</p>}
+            {notice && <p className="text-accent text-xs text-center">{notice}</p>}
+            <button type="button" onClick={() => void sendLink()} className="text-muted text-xs hover:text-ink flex items-center justify-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" /> Tài khoản cũ chưa có mật khẩu? Nhận link đăng nhập
+            </button>
+        </form>
     );
 }
