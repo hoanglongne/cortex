@@ -87,3 +87,35 @@ describe('classes', () => {
         expect(classMessage('Failed to fetch')).toContain('mạng');
     });
 });
+
+describe('Classes v2: modes, steps per word, states', async () => {
+    const lib = await import('../../app/lib/classes');
+    const { live } = await import('../../app/lib/journey/steps');
+
+    it('learns only the "only" lessons first, mixed ones are just dealt first', () => {
+        const only = { ...cls('student', ['v010', 'v011']), id: 'a' };
+        only.assignments = [{ ...only.assignments[0], mode: 'only' }];
+        const mixed = { ...cls('student', ['v020']), id: 'b' };
+        mixed.assignments = [{ ...mixed.assignments[0], mode: 'mixed' }];
+        cacheClasses([only, mixed]);
+        expect(lib.onlyClassWords((id) => id === 'v011')).toEqual(['v010']);
+        expect(classWordsToQueue()).toEqual(['v010', 'v011', 'v020']);
+    });
+
+    it('reports the step of each assigned word, 5 when used in real life', () => {
+        const journeys = { v010: understand(undefined, 1), v011: live(sayClearly(meet(knownAlready(undefined, 1), 2)!, 3)!, 4)! };
+        expect(lib.assignedSteps(journeys, [{ card_ids: ['v010', 'v011', 'v012'] }])).toEqual({ v010: 1, v011: 5 });
+    });
+
+    it('a class sees how far each lesson got, and who is new', () => {
+        const students: { words: Record<string, number> }[] = [{ words: { a: 4, b: 4 } }, { words: { a: 1 } }, { words: {} }];
+        expect(lib.assignmentProgress({ card_ids: ['a', 'b'] }, students)).toEqual({ started: 2, learned: 1, used: 1, total: 3 });
+        const now = Date.parse('2026-10-18T12:00:00Z');
+        expect(lib.studentState({ inactive_days: null, joined_at: '2026-10-18T10:00:00Z' }, now)).toBe('new');
+        expect(lib.studentState({ inactive_days: 1, joined_at: '2026-10-01T10:00:00Z' }, now)).toBe('active');
+        expect(lib.studentState({ inactive_days: 5, joined_at: '2026-10-01T10:00:00Z' }, now)).toBe('nudge');
+        expect(lib.daysUntil('2026-10-20', Date.parse('2026-10-18T09:00:00'))).toBe(2);
+        expect(lib.daysUntil('2026-10-18', Date.parse('2026-10-18T09:00:00'))).toBe(0);
+        expect(lib.joinLink('https://lexica.app/', 'ABC234')).toBe('https://lexica.app/join/ABC234');
+    });
+});

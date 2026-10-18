@@ -5,6 +5,7 @@ import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   turbopack: {}, // Allow webpack config from next-pwa
+  transpilePackages: ['@cortex/lexica-classes'],
 };
 
 const withPWAConfig = withPWA({

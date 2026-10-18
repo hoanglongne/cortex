@@ -38,6 +38,7 @@ FILES=(
   apps/lexica/supabase/migration_engagement_lucky_status.sql
   apps/lexica/supabase/migration_engagement_review_dust.sql
   apps/lexica/supabase/migration_classes.sql
+  apps/lexica/supabase/migration_classes_v2.sql
 )
 
 OUT=supabase/restore_all.sql
