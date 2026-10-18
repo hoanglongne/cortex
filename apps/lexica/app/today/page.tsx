@@ -24,6 +24,7 @@ import QuoteMeet from '../components/QuoteMeet';
 import SpeakDrill from '../components/SpeakDrill';
 import StepNumbers from '../components/StepNumbers';
 import InstallCard from '../components/InstallCard';
+import PledgeCard from '../components/PledgeCard';
 import { classWordsToQueue } from '../lib/classes';
 
 /** What a stage works on, fixed when the stage starts so answers don't reshuffle it. */
@@ -235,6 +236,8 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
                 </div>
                 {path && <p className="mt-3 text-xs text-muted">Nhánh {BRANCH_LABEL[path.branch]} · số trên là từ đã tới mỗi bước, từ đầu tới giờ.</p>}
             </div>
+
+            <PledgeCard offer />
 
             {checkpoint && (
                 <Link href={`/path/checkpoint?day=${checkpoint}`} className="block rounded-2xl border border-accent/40 bg-accent/5 p-4 text-ink hover:border-accent">

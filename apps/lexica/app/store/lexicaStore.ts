@@ -12,7 +12,8 @@ import { applySpeakResult } from '../lib/pronunciation/drill';
 import type { SpeakLevel } from '../lib/pronunciation/score';
 import type { LearningPath } from '../lib/journey/path';
 import type { Stage, TodayLog } from '../lib/journey/today';
-import { countSteps, journeysFromProgress, knownAlready, meet, recall, sayClearly, understand, type Journeys, type StepCounts } from '../lib/journey/steps';
+import { countSteps, journeysFromProgress, knownAlready, live, meet, recall, sayClearly, understand, type Journeys, type StepCounts } from '../lib/journey/steps';
+import type { Pledge } from '../lib/journey/outside';
 
 /**
  * LEXICA Global State Store (Zustand + localStorage persistence)
@@ -73,6 +74,12 @@ interface LexicaStore {
     stepHistory: Record<string, StepCounts>;
     /** Gặp: words met in English text (a passage, a quote). */
     markMet: (cardIds: string[]) => void;
+    /** Used in real life (the fifth step); a sentence, when given, becomes "Câu của bạn". */
+    markLived: (cardId: string, sentence?: string) => void;
+    /** One word the learner will try in real life (lib/journey/outside.ts). */
+    pledge: Pledge | null;
+    makePledge: (cardId: string) => void;
+    clearPledge: () => void;
 
     // The 30-day path and the Today session (lib/journey/path.ts, today.ts)
     path: LearningPath | null;
@@ -379,6 +386,21 @@ export const useLexicaStore = create<LexicaStore>()(
                 })();
                 set({ daysDone: [...daysDone, today].slice(-400), ...streak });
             },
+            markLived: (cardId, sentence) => {
+                const now = Date.now();
+                const journeys = { ...get().journeys };
+                for (const id of sameWordIds(cardId)) {
+                    const next = live(journeys[id], now);
+                    if (next) journeys[id] = next;
+                }
+                set({ journeys, pledge: get().pledge?.cardId === cardId ? null : get().pledge });
+                if (sentence?.trim()) get().setMySentence(cardId, sentence.trim(), 'written');
+            },
+
+            pledge: null,
+            makePledge: (cardId) => set({ pledge: { cardId, date: getTodayDateString() } }),
+            clearPledge: () => set({ pledge: null }),
+
             markMet: (cardIds) => {
                 const now = Date.now();
                 const journeys = { ...get().journeys };
@@ -563,6 +585,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     queuedCardIds: [],
                     speakMisses: {},
                     journeys: {},
+                    pledge: null,
                     stepHistory: {},
                     path: null,
                     daysDone: [],
@@ -865,6 +888,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 queuedCardIds: state.queuedCardIds,
                 speakMisses: state.speakMisses,
                 journeys: state.journeys,
+                pledge: state.pledge,
                 stepHistory: state.stepHistory,
                 path: state.path,
                 daysDone: state.daysDone,

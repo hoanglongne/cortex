@@ -12,6 +12,11 @@
  *
  * Gặp and Dùng are kept when Nhớ is lost: once the word is recalled again it
  * goes straight back to the furthest step it had reached.
+ *
+ * Beyond the four, a word can be lived: the learner used it in their own life
+ * (a message, an email, a meeting) and said so (lib/journey/outside.ts). It
+ * takes days, so it is not a step of the daily session and not in the count
+ * of four; it is shown on its own.
  */
 import type { UserCardProgress } from '../eloAlgorithm';
 
@@ -44,6 +49,8 @@ export interface WordJourney {
     metAt?: number;
     /** When the word was first said clearly. */
     usedAt?: number;
+    /** When the learner said they used it in their own life (the fifth step, "Đời"). */
+    livedAt?: number;
 }
 
 export type Journeys = Record<string, WordJourney>;
@@ -112,6 +119,20 @@ export function meet(j: WordJourney | undefined, now: number): WordJourney | und
 export function sayClearly(j: WordJourney | undefined, now: number): WordJourney | undefined {
     if (!j) return undefined;
     return j.usedAt ? j : { ...j, usedAt: now };
+}
+
+/** Used in real life. Only for words already understood. */
+export function live(j: WordJourney | undefined, now: number): WordJourney | undefined {
+    if (!j) return undefined;
+    return j.livedAt ? j : { ...j, livedAt: now };
+}
+
+export const LIVED_LABEL = 'Đời';
+export const LIVED_HINT = 'Đã dùng thật ngoài đời: tin nhắn, email, câu nói';
+
+/** Words used in real life. */
+export function countLived(journeys: Journeys): number {
+    return Object.values(journeys).filter((j) => j.livedAt).length;
 }
 
 export type StepCounts = Record<WordStep, number>;

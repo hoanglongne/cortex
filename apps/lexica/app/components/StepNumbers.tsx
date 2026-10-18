@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useLexicaStore } from '../store/lexicaStore';
-import { countSteps, STEP_HINT, STEP_LABEL, STEPS, stepIndex, stepOf, type StepCounts, type WordJourney } from '../lib/journey/steps';
+import { countLived, countSteps, LIVED_HINT, STEP_HINT, STEP_LABEL, STEPS, stepIndex, stepOf, type StepCounts, type WordJourney } from '../lib/journey/steps';
 
 /**
  * The four numbers (docs/LEXICA_DIRECTION.md): how many words reached Hiểu,
@@ -11,7 +11,9 @@ import { countSteps, STEP_HINT, STEP_LABEL, STEPS, stepIndex, stepOf, type StepC
 export default function StepNumbers({ counts, delta, href = '/path', compact = false }: { counts?: StepCounts; delta?: StepCounts; href?: string | null; compact?: boolean }) {
     const journeys = useLexicaStore((s) => s.journeys);
     const c = counts ?? countSteps(journeys);
+    const lived = countLived(journeys);
     const body = (
+        <div>
         <div data-testid="step-numbers" className="grid grid-cols-4 gap-2">
             {STEPS.map((step, i) => (
                 <div key={step} className={`rounded-xl border px-2 ${compact ? 'py-2' : 'py-3'} text-center ${i === 3 ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`} title={STEP_HINT[step]}>
@@ -20,6 +22,13 @@ export default function StepNumbers({ counts, delta, href = '/path', compact = f
                     {delta && delta[step] > 0 && <p className="font-mono text-[11px] text-accent">+{delta[step]}</p>}
                 </div>
             ))}
+        </div>
+        {/* The fifth step takes days and lives outside the session: a line of its own once it starts. */}
+        {lived > 0 && (
+            <p data-testid="lived-count" className="mt-2 text-xs text-muted" title={LIVED_HINT}>
+                <span className="font-mono font-bold text-accent">{lived}</span> từ đã dùng thật ngoài đời
+            </p>
+        )}
         </div>
     );
     if (!href) return body;

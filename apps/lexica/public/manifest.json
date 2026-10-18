@@ -42,5 +42,14 @@
             "url": "/stats",
             "description": "View your learning progress"
         }
-    ]
+    ],
+    "share_target": {
+        "action": "/spot",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    }
 }

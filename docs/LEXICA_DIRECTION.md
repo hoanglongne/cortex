@@ -25,7 +25,15 @@ Người Việt không thiếu từ tiếng Anh; họ thiếu con đường đ�
 | Gặp | Đọc, Ngoài đời | Đọc xong đoạn có từ, hoặc đúng nghĩa trong trích dẫn |
 | Dùng | Luyện nói | Máy nghe rõ từ (hoặc cụm) ít nhất 1 lần |
 
+Bước thứ 5, **Đời**: đã dùng thật ngoài đời (tin nhắn, email, câu nói). Không nằm trong phiên Hôm nay vì không đạt được ngay; hiện riêng thành một dòng dưới 4 con số khi đã có từ.
+
 Sai khi ôn: mất Nhớ, giữ Gặp/Dùng. Con số hiển thị là số từ đã tới mỗi bước (từ ở Dùng được đếm cả 4).
+
+## Ra ngoài đời (`app/lib/journey/outside.ts`)
+
+- **Hẹn dùng**: cuối phiên Hôm nay gợi ý 1 từ đã Nhớ (ưu tiên từ đã Gặp/Dùng) và chỗ dùng hợp với người học (theo nghề đã chọn, hoặc tình huống của thẻ Giao tiếp). Hôm sau Home hỏi "Dùng được chưa?": tự xác nhận được, có lời nhắc thành thật; dán câu đã dùng thì máy xem giúp và giữ làm "Câu của bạn". Chưa dùng thì giữ hẹn thêm một ngày hoặc bỏ.
+- **Bắt gặp** (`/spot`): dán đoạn đọc được ngoài app, app tô từ đã học (mọi dạng từ, cả cụm), ghi nhận là Gặp. PWA trên Android nhận văn bản chia sẻ thẳng vào đây.
+- **Một câu hôm nay** (`/journal`): viết 1 câu về ngày của mình với từ đang học, máy nhận xét nhẹ nhàng (`POST /v1/lexica/sentence`), lưu làm "Câu của bạn" để thẻ hiện câu đó khi ôn.
 
 ## Hai nhánh
 
