@@ -6,8 +6,7 @@ import {
 } from '@cortex/types';
 import { 
   Profile, 
-  SessionScores, 
-  IeltsQuestion 
+  SessionScores
 } from '../types/database';
 
 /**

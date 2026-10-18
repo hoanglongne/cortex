@@ -1,13 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import {
   Mic,
   MicOff,
   Phone,
-  RefreshCw,
-  MoreVertical,
-  Star,
   Volume2,
   Loader2,
   ArrowRight,
@@ -15,6 +12,7 @@ import {
   Repeat,
   Check,
   X,
+  AlertCircle,
 } from "lucide-react";
 import {
   LiveKitRoom,
@@ -34,24 +32,35 @@ import {
   cancelSwapRequest,
   assignMatchRoles,
 } from "@/actions/questions";
+import { Part2Timer, QuestionText } from "./QuestionParts";
 import { getPartAndPosition, QUESTIONS_PER_PART, TOTAL_QUESTIONS } from "@/lib/question-utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { IeltsQuestion, Match } from "@/lib/types/database";
 
 interface InCallScreenProps {
   partner?: { name: string; band: string };
+  /** The call ended (by this user, the partner, or the 18th question) */
   onEndCall: (callData: CallData) => void;
-  onEvaluate: (callData: CallData) => void;
+  /** The partner left before the call started */
+  onMatchCancelled: () => void;
+  /** Ask for a new call token after a failed join */
+  onRetryJoin: () => void;
   roomId?: string;
   token?: string | null;
   matchId?: string;
   userId?: string;
+  /** NEXT_PUBLIC_DEMO_MODE: no LiveKit, no server */
+  demo?: boolean;
 }
 
 export interface CallData {
   duration: number;
-  topicsDiscussed: string[];
+  /** Questions asked in the call, in order */
+  questions: { part: number; text: string }[];
 }
+
+/** Without a partner in the room after this long, offer to leave. */
+const PARTNER_JOIN_TIMEOUT_S = 60;
 
 // Audio Visualizer Component
 function AudioVisualizer({ isActive = true }: { isActive?: boolean }) {
@@ -137,7 +146,7 @@ function SwapRequestBanner({
   return (
     <div className="w-full max-w-2xl mx-auto mb-3 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-sm flex items-center justify-between gap-2">
       <span className="text-xs text-amber-300 flex items-center gap-1.5">
-        <Repeat className="w-3 h-3" /> Partner requests swap
+        <Repeat className="w-3 h-3" /> Bạn kia muốn đổi vai
       </span>
       <div className="flex items-center gap-1.5">
         <button
@@ -145,17 +154,45 @@ function SwapRequestBanner({
           disabled={isLoading}
           className="px-2.5 py-1 rounded-md bg-emerald-500/80 hover:bg-emerald-500 text-white text-xs font-medium transition-all disabled:opacity-50"
         >
-          OK
+          Đồng ý
         </button>
         <button
           onClick={onDecline}
           disabled={isLoading}
           className="px-2.5 py-1 rounded-md bg-zinc-700/80 hover:bg-zinc-600 text-white text-xs font-medium transition-all disabled:opacity-50"
         >
-          No
+          Không
         </button>
       </div>
     </div>
+  );
+}
+
+function SwapButton({
+  swapPending,
+  onRequestSwap,
+  onCancelSwap,
+}: {
+  swapPending: boolean;
+  onRequestSwap: () => void;
+  onCancelSwap: () => void;
+}) {
+  return swapPending ? (
+    <button
+      onClick={onCancelSwap}
+      aria-label="Huỷ yêu cầu đổi vai"
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 transition-all hover:bg-amber-500/20 text-xs text-amber-400"
+    >
+      <Loader2 className="w-3 h-3 animate-spin" /> Đang chờ đổi vai
+      <X className="w-3 h-3" />
+    </button>
+  ) : (
+    <button
+      onClick={onRequestSwap}
+      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-xs text-zinc-400"
+    >
+      <Repeat className="w-3 h-3" /> Đổi vai
+    </button>
   );
 }
 
@@ -166,6 +203,7 @@ function InterviewerControls({
   onRequestSwap,
   onCancelSwap,
   isLoading,
+  error,
   currentPart,
   questionInTurn,
   questionsPerTurn,
@@ -177,6 +215,7 @@ function InterviewerControls({
   onRequestSwap: () => void;
   onCancelSwap: () => void;
   isLoading: boolean;
+  error: string | null;
   currentPart: number;
   questionInTurn: number;
   questionsPerTurn: number;
@@ -185,50 +224,32 @@ function InterviewerControls({
 }) {
   return (
     <div className="relative w-full max-w-2xl mx-auto space-y-3">
-      {/* Role Badge + Swap */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-oratio-primary/10 border border-oratio-primary/30">
           <User className="w-3.5 h-3.5 text-oratio-primary" />
-          <span className="text-xs font-medium text-oratio-primary">Interviewer</span>
+          <span className="text-xs font-medium text-oratio-primary">Bạn là giám khảo</span>
         </div>
         <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
-        {swapPending ? (
-          <button
-            onClick={onCancelSwap}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 transition-all hover:bg-amber-500/20 text-xs text-amber-400"
-          >
-            <Loader2 className="w-3 h-3 animate-spin" /> Pending
-            <X className="w-3 h-3" />
-          </button>
-        ) : (
-          <button
-            onClick={onRequestSwap}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-xs text-zinc-400"
-          >
-            <Repeat className="w-3 h-3" /> Swap
-          </button>
-        )}
+        <SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />
       </div>
 
-      {/* Current Question Card */}
       <div className="relative p-6 rounded-3xl bg-zinc-900/80 border border-white/10 backdrop-blur-sm">
         {currentQuestion ? (
           <>
             <div className="flex items-start justify-between gap-3 mb-4">
-              <div>
-                <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Part {currentQuestion.part} • {currentQuestion.category}
-                </p>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-                <span className="text-xs font-medium text-zinc-400 capitalize">
-                  {currentQuestion.difficulty}
-                </span>
-              </div>
+              <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                Part {currentQuestion.part} • {currentQuestion.category}
+              </p>
             </div>
-            <p className="text-lg font-medium text-white/90 leading-relaxed mb-6">
-              {currentQuestion.question_text}
-            </p>
+            <p className="text-sm text-zinc-400 mb-2">Đọc to câu này cho bạn kia:</p>
+            <div className="mb-5">
+              <QuestionText question={currentQuestion} revealable={false} />
+            </div>
+            {currentQuestion.part === 2 && (
+              <div className="mb-5">
+                <Part2Timer key={currentQuestion.id} />
+              </div>
+            )}
             <button
               onClick={onNextQuestion}
               disabled={isLoading}
@@ -238,7 +259,7 @@ function InterviewerControls({
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  <span>Next Question</span>
+                  <span>Câu tiếp theo</span>
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
@@ -246,21 +267,17 @@ function InterviewerControls({
           </>
         ) : (
           <div className="text-center py-8">
-            <p className="text-zinc-400 mb-4">No question loaded yet</p>
+            <p className="text-zinc-400 mb-4">Bấm để lấy câu hỏi đầu tiên khi cả hai đã nghe được nhau.</p>
             <button
               onClick={onNextQuestion}
               disabled={isLoading}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-oratio-primary to-oratio-secondary hover:from-[#6db0e4] hover:to-[#9dc5e5] text-white font-medium transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
             >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                "Load First Question"
-              )}
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Bắt đầu câu đầu tiên"}
             </button>
           </div>
         )}
-        {/* Subtle gradient border effect */}
+        {error && <p role="alert" className="mt-3 text-sm text-red-300">{error}</p>}
         <div className="absolute -inset-px rounded-3xl bg-gradient-to-r from-oratio-primary/20 via-transparent to-oratio-secondary/20 -z-10 blur-sm" />
       </div>
     </div>
@@ -289,94 +306,48 @@ function CandidateView({
 }) {
   return (
     <div className="relative w-full max-w-2xl mx-auto space-y-3">
-      {/* Role Badge */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-oratio-secondary/10 border border-oratio-secondary/30">
           <User className="w-3.5 h-3.5 text-oratio-secondary" />
-          <span className="text-xs font-medium text-oratio-secondary">Candidate</span>
+          <span className="text-xs font-medium text-oratio-secondary">Bạn là thí sinh</span>
         </div>
         <PartProgress currentPart={currentPart} questionInTurn={questionInTurn} questionsPerTurn={questionsPerTurn} turnInPart={turnInPart} />
-        {swapPending ? (
-          <button
-            onClick={onCancelSwap}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 transition-all hover:bg-amber-500/20 text-xs text-amber-400"
-          >
-            <Loader2 className="w-3 h-3 animate-spin" /> Pending
-            <X className="w-3 h-3" />
-          </button>
-        ) : (
-          <button
-            onClick={onRequestSwap}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-xs text-zinc-400"
-          >
-            <Repeat className="w-3 h-3" /> Swap
-          </button>
-        )}
+        <SwapButton swapPending={swapPending} onRequestSwap={onRequestSwap} onCancelSwap={onCancelSwap} />
       </div>
 
-      {/* Topic Display */}
-      <div className="relative p-8 rounded-3xl bg-zinc-900/80 border border-white/10 backdrop-blur-sm text-center">
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-zinc-900/80 border border-white/10 backdrop-blur-sm text-center">
         {currentQuestion ? (
           <>
-            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-4">
-              Part {currentQuestion.part} • Listen and Respond
+            <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-4">
+              Part {currentQuestion.part} • {currentQuestion.category}
             </p>
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-oratio-secondary/10 border border-oratio-secondary/30 mb-4">
-              <Mic className="w-8 h-8 text-oratio-secondary" />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-oratio-secondary/10 border border-oratio-secondary/30 mb-4">
+              <Mic className="w-7 h-7 text-oratio-secondary" />
             </div>
-            <p className="text-lg font-medium text-white/70 leading-relaxed">
-              {currentQuestion.category}
+            <p className="text-sm text-zinc-400 mb-4">
+              {currentQuestion.part === 2
+                ? "Đây là thẻ đề của bạn. Chuẩn bị 1 phút rồi nói khoảng 2 phút."
+                : "Nghe giám khảo đọc câu hỏi rồi trả lời. Nghe chưa rõ thì mở câu hỏi ra xem."}
             </p>
-            <p className="text-sm text-zinc-500 mt-4">
-              Your turn to speak - answer the interviewer&apos;s question
-            </p>
+            <div className="mb-1">
+              <QuestionText key={currentQuestion.id} question={currentQuestion} revealable />
+            </div>
+            {currentQuestion.part === 2 && (
+              <div className="mt-5">
+                <Part2Timer key={currentQuestion.id} />
+              </div>
+            )}
           </>
         ) : (
           <>
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 border border-white/10 mb-4">
-              <Loader2 className="w-8 h-8 text-zinc-600 animate-spin" />
+              <Loader2 className="w-8 h-8 text-zinc-500 animate-spin" />
             </div>
-            <p className="text-zinc-400">Waiting for interviewer...</p>
+            <p className="text-zinc-400">Chờ giám khảo bắt đầu câu đầu tiên…</p>
           </>
         )}
-        {/* Subtle gradient border effect */}
         <div className="absolute -inset-px rounded-3xl bg-gradient-to-r from-oratio-secondary/20 via-transparent to-oratio-primary/20 -z-10 blur-sm" />
       </div>
-    </div>
-  );
-}
-
-// Topic Card Component (deprecated - keeping for backward compatibility)
-function TopicCard({
-  topic,
-  onRefresh,
-}: {
-  topic: string;
-  onRefresh: () => void;
-}) {
-  return (
-    <div className="relative w-full max-w-sm mx-auto">
-      <div className="relative p-5 rounded-3xl bg-zinc-900/80 border border-white/10 backdrop-blur-sm">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">
-              Speaking Topic
-            </p>
-            <p className="text-base font-medium text-white/90 leading-relaxed">
-              {topic}
-            </p>
-          </div>
-          <button
-            onClick={onRefresh}
-            className="shrink-0 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all duration-200 hover:scale-105 active:scale-95 group"
-            aria-label="Refresh topic"
-          >
-            <RefreshCw className="w-4 h-4 text-zinc-400 group-hover:text-white transition-colors group-hover:rotate-180 duration-300" />
-          </button>
-        </div>
-      </div>
-      {/* Subtle gradient border effect */}
-      <div className="absolute -inset-px rounded-3xl bg-gradient-to-r from-oratio-primary/20 via-transparent to-oratio-secondary/20 -z-10 blur-sm" />
     </div>
   );
 }
@@ -386,52 +357,33 @@ function ControlBar({
   isMuted,
   onMuteToggle,
   onEndCall,
-  onEvaluate,
-  isConnecting = false,
 }: {
   isMuted: boolean;
   onMuteToggle: () => void;
   onEndCall: () => void;
-  onEvaluate: () => void;
-  isConnecting?: boolean;
 }) {
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 pb-8">
-      <div className="max-w-md mx-auto">
-        <div className="flex items-center justify-between gap-4 p-4 rounded-[2rem] bg-white/10 backdrop-blur-xl border border-white/10">
-          {/* Mute Button */}
+      <div className="max-w-xs mx-auto">
+        <div className="flex items-center justify-center gap-6 p-4 rounded-[2rem] bg-white/10 backdrop-blur-xl border border-white/10">
           <button
             onClick={onMuteToggle}
-            disabled={isConnecting}
-            className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50 ${isMuted
+            className={`flex items-center justify-center w-14 h-14 rounded-full transition-all duration-200 hover:scale-105 active:scale-95 ${isMuted
               ? "bg-zinc-700 text-white"
               : "bg-zinc-800 text-white hover:bg-zinc-700"
               }`}
-            aria-label={isMuted ? "Unmute" : "Mute"}
+            aria-label={isMuted ? "Bật micro" : "Tắt micro"}
+            aria-pressed={isMuted}
           >
-            {isMuted ? (
-              <MicOff className="w-6 h-6" />
-            ) : (
-              <Mic className="w-6 h-6" />
-            )}
+            {isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
           </button>
 
-          {/* End Call Button */}
           <button
             onClick={onEndCall}
-            className="flex items-center justify-center w-16 h-16 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30"
-            aria-label="End call"
+            className="flex items-center gap-2 px-5 h-14 rounded-full bg-red-500 hover:bg-red-600 text-white transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-red-500/30"
           >
-            <Phone className="w-7 h-7 rotate-135" />
-          </button>
-
-          {/* Evaluate Button */}
-          <button
-            onClick={onEvaluate}
-            className="flex items-center gap-2 px-5 h-12 rounded-full bg-gradient-to-r from-oratio-primary to-oratio-secondary hover:from-[#6db0e4] hover:to-[#9dc5e5] text-white font-medium transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/25"
-          >
-            <Star className="w-4 h-4" />
-            <span className="text-sm whitespace-nowrap">Finish & Rate</span>
+            <Phone className="w-6 h-6 rotate-135" />
+            <span className="text-sm font-medium">Kết thúc</span>
           </button>
         </div>
       </div>
@@ -444,41 +396,37 @@ function ConnectingState() {
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <Loader2 className="w-12 h-12 text-oratio-primary animate-spin" />
-      <p className="text-zinc-400">Connecting to room...</p>
+      <p className="text-zinc-400">Đang vào phòng…</p>
     </div>
   );
 }
 
-// Inner content component that uses LiveKit hooks or mock mode
+// Inner content component that uses LiveKit hooks or demo mode
 function InCallContent({
   partner,
   onEndCall,
-  onEvaluate,
+  onMatchCancelled,
   isLiveKit,
   matchId,
   userId,
+  mediaError,
 }: {
   partner: { name: string; band: string };
   onEndCall: (callData: CallData) => void;
-  onEvaluate: (callData: CallData) => void;
+  onMatchCancelled: () => void;
   isLiveKit: boolean;
   matchId?: string;
   userId?: string;
+  mediaError: string | null;
 }) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [isMutedLocal, setIsMutedLocal] = useState(false);
-  const [currentTopic, setCurrentTopic] = useState(
-    "Describe a book you recently read."
-  );
-  const [discussedTopics, setDiscussedTopics] = useState<string[]>([
-    "Describe a book you recently read.",
-  ]);
 
   // Q&A states
   const [isInterviewer, setIsInterviewer] = useState<boolean | null>(null);
-  const [currentQuestion, setCurrentQuestionState] =
-    useState<IeltsQuestion | null>(null);
+  const [currentQuestion, setCurrentQuestionState] = useState<IeltsQuestion | null>(null);
   const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
+  const [questionError, setQuestionError] = useState<string | null>(null);
   const [progress, setProgress] = useState<ReturnType<typeof getPartAndPosition>>(getPartAndPosition(0));
 
   // Session completion states
@@ -489,40 +437,30 @@ function InCallContent({
   const [swapRequestedBy, setSwapRequestedBy] = useState<string | null>(null);
   const [isSwapLoading, setIsSwapLoading] = useState(false);
 
-  // Derived: did *I* request the swap?
-  const iMySwapPending = swapRequestedBy === userId;
-  // Derived: did the *other* user request a swap?
+  const mySwapPending = swapRequestedBy === userId;
   const partnerRequestedSwap = !!swapRequestedBy && swapRequestedBy !== userId;
 
-  // Ref for current question to avoid stale closure in realtime handler
+  // Questions seen in this call, in order (for the summary)
+  const questionsSeenRef = useRef<IeltsQuestion[]>([]);
   const currentQuestionRef = useRef<IeltsQuestion | null>(null);
-  currentQuestionRef.current = currentQuestion;
+  const showQuestion = useCallback((q: IeltsQuestion) => {
+    currentQuestionRef.current = q;
+    if (!questionsSeenRef.current.some((seen) => seen.id === q.id)) questionsSeenRef.current.push(q);
+    setCurrentQuestionState(q);
+  }, []);
 
-  const startTimeRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
   const hasPartnerEverConnected = useRef(false);
+  const [partnerEverJoined, setPartnerEverJoined] = useState(false);
   const partnerDisconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const endedRef = useRef(false);
 
-  // Debug logging
-  console.log("[InCallScreen] Props:", { matchId, userId, isInterviewer });
-
-  // Conditionally use LiveKit hooks - only call when inside LiveKitRoom context
-  // This is safe because isLiveKit is a stable prop that doesn't change
+  // LiveKit hooks only exist inside LiveKitRoom; isLiveKit never changes for a mounted component
   let localParticipant = null;
   let remoteParticipants: RemoteParticipant[] = [];
   let isMuted = isMutedLocal;
   let isPartnerConnected = true;
   let room: Room | null = null;
-
-  const topics = [
-    "Describe a book you recently read.",
-    "Talk about a memorable trip you took.",
-    "Describe your favorite place to relax.",
-    "Talk about a skill you would like to learn.",
-    "Describe a person who inspires you.",
-    "Talk about an important decision you made.",
-    "Describe a festival or celebration in your country.",
-    "Talk about your daily routine.",
-  ];
 
   if (isLiveKit) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -536,210 +474,143 @@ function InCallContent({
     remoteParticipants = lkRemote;
     isMuted = !localParticipant?.isMicrophoneEnabled;
     isPartnerConnected = remoteParticipants.length > 0;
-
-    // Listen for participant disconnected events
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useEffect(() => {
-      if (!room) return;
-
-      const handleParticipantDisconnected = () => {
-        console.log("[LiveKit Event] Participant disconnected event fired");
-      };
-
-      room.on('participantDisconnected', handleParticipantDisconnected);
-
-      return () => {
-        if (room) {
-          room.off('participantDisconnected', handleParticipantDisconnected);
-        }
-      };
-    }, [room]);
   }
+  // Remember that the partner was here (state adjusted during render, not in an effect)
+  if (isLiveKit && isPartnerConnected && !partnerEverJoined) setPartnerEverJoined(true);
 
-  // Timer effect - count up
+  // Timer: count up from mount
   useEffect(() => {
-    if (startTimeRef.current === null) {
-      startTimeRef.current = Date.now();
-    }
+    startTimeRef.current = Date.now();
     const timer = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - startTimeRef.current!) / 1000));
+      setElapsedTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
 
-  // Store onEndCall in ref to avoid useEffect re-triggering
+  const callData = useCallback(
+    (): CallData => ({
+      duration: Math.floor((Date.now() - startTimeRef.current) / 1000),
+      questions: questionsSeenRef.current.map((q) => ({ part: q.part, text: q.question_text })),
+    }),
+    []
+  );
+
+  // End once, whoever triggers it (button, partner leaving, last question)
+  const roomRef = useRef<Room | null>(null);
   const onEndCallRef = useRef(onEndCall);
-  onEndCallRef.current = onEndCall;
+  const onMatchCancelledRef = useRef(onMatchCancelled);
+  useLayoutEffect(() => {
+    roomRef.current = room;
+    onEndCallRef.current = onEndCall;
+    onMatchCancelledRef.current = onMatchCancelled;
+  });
 
-  // Store current values in refs to avoid useEffect re-trigger
-  const elapsedTimeRef = useRef(elapsedTime);
-  elapsedTimeRef.current = elapsedTime;
-  const discussedTopicsRef = useRef(discussedTopics);
-  discussedTopicsRef.current = discussedTopics;
-
-  // Detect partner disconnect (LiveKit mode only)
-  useEffect(() => {
-    if (!isLiveKit) return;
-
-    const currentPartnerCount = remoteParticipants.length;
-
-    console.log("[Partner Detect] remoteParticipants count:", currentPartnerCount);
-
-    // Track if partner has ever connected
-    if (currentPartnerCount > 0) {
-      hasPartnerEverConnected.current = true;
-      console.log("[Partner Detect] Partner is connected");
-      // Clear any pending disconnect timeout
-      if (partnerDisconnectTimeoutRef.current) {
-        console.log("[Partner Detect] Clearing disconnect timeout");
-        clearTimeout(partnerDisconnectTimeoutRef.current);
-        partnerDisconnectTimeoutRef.current = null;
+  const finish = useCallback(async () => {
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (roomRef.current) {
+      try {
+        await roomRef.current.disconnect();
+      } catch (error) {
+        console.error("[End Call] Error disconnecting:", error);
       }
     }
+    onEndCallRef.current(callData());
+  }, [callData]);
 
-    // If partner disconnects after having been connected, auto-end call
-    if (
-      currentPartnerCount === 0 &&
-      hasPartnerEverConnected.current &&
-      !partnerDisconnectTimeoutRef.current
-    ) {
-      console.log("[Partner Detect] Partner disconnected! Setting timeout...");
-      partnerDisconnectTimeoutRef.current = setTimeout(() => {
-        console.log("[Partner Detect] Auto-ending call due to partner disconnect");
-        // Use refs to get latest values without re-triggering effect
-        onEndCallRef.current({
-          duration: elapsedTimeRef.current,
-          topicsDiscussed: discussedTopicsRef.current,
-        });
-      }, 3000); // 3 second grace period for network issues
+  const cancelled = useCallback(async () => {
+    if (endedRef.current) return;
+    endedRef.current = true;
+    if (roomRef.current) {
+      try {
+        await roomRef.current.disconnect();
+      } catch {
+        // already gone
+      }
     }
-
-    return () => {
-      // Clear timeout when component unmounts completely
-      if (partnerDisconnectTimeoutRef.current) {
-        console.log("[Partner Detect] Clearing timeout on unmount");
-        clearTimeout(partnerDisconnectTimeoutRef.current);
-        partnerDisconnectTimeoutRef.current = null;
-      }
-    };
-  }, [isLiveKit, remoteParticipants.length]);
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (partnerDisconnectTimeoutRef.current) {
-        clearTimeout(partnerDisconnectTimeoutRef.current);
-      }
-    };
+    onMatchCancelledRef.current();
   }, []);
 
-  // Fetch match data and determine role
+  // Partner left the room after having joined: end after a short grace period
   useEffect(() => {
-    async function fetchMatchData() {
-      if (!matchId || !userId) {
-        console.log("[Q&A] No matchId or userId, skipping role fetch");
-        return;
-      }
+    if (!isLiveKit) return;
+    const count = remoteParticipants.length;
 
-      try {
-        console.log("[Q&A] Fetching match state for:", matchId);
-
-        const state = await getMatchState(matchId);
-
-        if (!state.success) {
-          console.error("[Q&A] Failed to get match state:", state.error);
-          return;
-        }
-
-        console.log("[Q&A] Match state:", state);
-
-        // If roles not assigned, auto-assign via server action
-        if (!state.interviewer_id || !state.candidate_id) {
-          console.warn("[Q&A] Roles not assigned, auto-assigning...");
-          const assignResult = await assignMatchRoles(matchId);
-          console.log("[Q&A] Auto-assign result:", assignResult);
-
-          if (assignResult.success && assignResult.interviewer_id) {
-            const isUserInterviewer = assignResult.interviewer_id === userId;
-            setIsInterviewer(isUserInterviewer);
-            console.log(`[Q&A] Auto-assigned role: ${isUserInterviewer ? "Interviewer" : "Candidate"}`);
-          } else {
-            console.error("[Q&A] Auto-assign failed:", assignResult.error);
-          }
-          return;
-        }
-
-        // Roles are assigned - determine user's role
-        const isUserInterviewer = state.interviewer_id === userId;
-        setIsInterviewer(isUserInterviewer);
-        console.log(`[Q&A] Role: ${isUserInterviewer ? "Interviewer" : "Candidate"}`);
-
-        // Sync progress
-        const count = state.questions_asked_count ?? 0;
-        if (count > 0) {
-          setProgress(getPartAndPosition(count - 1));
-        }
-
-        // Load current question if exists
-        if (state.current_question_id) {
-          const result = await getQuestionById(state.current_question_id);
-          if (result.success && result.question) {
-            setCurrentQuestionState(result.question);
-          }
-        }
-      } catch (error) {
-        console.error("[Q&A] Error in fetchMatchData:", error);
+    if (count > 0) {
+      hasPartnerEverConnected.current = true;
+      if (partnerDisconnectTimeoutRef.current) {
+        clearTimeout(partnerDisconnectTimeoutRef.current);
+        partnerDisconnectTimeoutRef.current = null;
       }
     }
-
-    fetchMatchData();
-  }, [matchId, userId]);
-
-  // Poll match state every 3s to supplement realtime (handles realtime failures)
-  useEffect(() => {
-    if (!matchId || !userId) return;
-
-    const poll = async () => {
-      try {
-        const state = await getMatchState(matchId);
-        if (!state.success || !state.interviewer_id) return;
-
-        // Sync role
-        setIsInterviewer(state.interviewer_id === userId);
-
-        // Sync swap request
-        setSwapRequestedBy(state.swap_requested_by ?? null);
-
-        // Sync progress
-        const count = state.questions_asked_count ?? 0;
-        if (count > 0) {
-          setProgress(getPartAndPosition(count - 1));
-        }
-        if (count >= TOTAL_QUESTIONS) {
-          setSessionCompleted(true);
-        }
-
-        // Sync current question (only fetch if ID changed)
-        if (
-          state.current_question_id &&
-          state.current_question_id !== currentQuestionRef.current?.id
-        ) {
-          const result = await getQuestionById(state.current_question_id);
-          if (result.success && result.question) {
-            setCurrentQuestionState(result.question);
-          }
-        }
-      } catch (error) {
-        console.error("[Poll] Error:", error);
+    if (count === 0 && hasPartnerEverConnected.current && !partnerDisconnectTimeoutRef.current) {
+      partnerDisconnectTimeoutRef.current = setTimeout(finish, 3000);
+    }
+    return () => {
+      if (partnerDisconnectTimeoutRef.current) {
+        clearTimeout(partnerDisconnectTimeoutRef.current);
+        partnerDisconnectTimeoutRef.current = null;
       }
     };
+  }, [isLiveKit, remoteParticipants.length, finish]);
 
-    const interval = setInterval(poll, 3000);
-    return () => clearInterval(interval);
-  }, [matchId, userId]);
+  /** Applies the server's view of the match to this screen. */
+  const applyState = useCallback(
+    async (state: {
+      status?: string;
+      interviewer_id?: string | null;
+      swap_requested_by?: string | null;
+      questions_asked_count?: number;
+      current_question_id?: string | null;
+    }) => {
+      if (state.status === "cancelled") return cancelled();
+      if (state.status === "finished") return finish();
 
-  // Subscribe to match updates for role swaps and question changes
+      if (userId && state.interviewer_id) setIsInterviewer(state.interviewer_id === userId);
+      setSwapRequestedBy(state.swap_requested_by ?? null);
+
+      const count = state.questions_asked_count ?? 0;
+      if (count > 0) setProgress(getPartAndPosition(count - 1));
+      if (count >= TOTAL_QUESTIONS) setSessionCompleted(true);
+
+      if (state.current_question_id && state.current_question_id !== currentQuestionRef.current?.id) {
+        const result = await getQuestionById(state.current_question_id);
+        if (result.success && result.question) showQuestion(result.question);
+      }
+    },
+    [userId, cancelled, finish, showQuestion]
+  );
+
+  // Initial state, roles (assigned if missing), then a 3s poll that also tells the server we're here
+  useEffect(() => {
+    if (!matchId || !userId) return;
+    let stop = false;
+
+    const load = async () => {
+      const state = await getMatchState(matchId);
+      if (stop || !state.success) return;
+      if (!state.interviewer_id) {
+        const assigned = await assignMatchRoles(matchId);
+        if (!stop && assigned.success && assigned.interviewer_id) setIsInterviewer(assigned.interviewer_id === userId);
+      }
+      if (!stop) await applyState(state);
+    };
+
+    load().catch((error) => console.error("[InCall] load failed:", error));
+    const interval = setInterval(() => {
+      getMatchState(matchId)
+        .then((state) => {
+          if (!stop && state.success) return applyState(state);
+        })
+        .catch((error) => console.error("[InCall] poll failed:", error));
+    }, 3000);
+    return () => {
+      stop = true;
+      clearInterval(interval);
+    };
+  }, [matchId, userId, applyState]);
+
+  // Realtime updates for role swaps and question changes (the poll covers missed events)
   useEffect(() => {
     if (!matchId) return;
 
@@ -748,46 +619,16 @@ function InCallContent({
       .channel(`match-${matchId}`)
       .on(
         "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "matches",
-          filter: `id=eq.${matchId}`,
-        },
-        async (payload) => {
-          const newMatch = payload.new as Match;
-
-          // Update role if changed
-          if (userId && newMatch.interviewer_id !== undefined) {
-            const isUserInterviewer = newMatch.interviewer_id === userId;
-            setIsInterviewer(isUserInterviewer);
-          }
-
-          // Update swap request state
-          setSwapRequestedBy(newMatch.swap_requested_by ?? null);
-
-          // Sync progress from questions_asked
-          if (newMatch.questions_asked) {
-            const count = (newMatch.questions_asked as string[]).length;
-            if (count > 0) {
-              setProgress(getPartAndPosition(count - 1));
-            }
-            // Detect session completion
-            if (count >= TOTAL_QUESTIONS) {
-              setSessionCompleted(true);
-            }
-          }
-
-          // Update current question if changed (use ref to avoid stale closure)
-          if (
-            newMatch.current_question_id &&
-            newMatch.current_question_id !== currentQuestionRef.current?.id
-          ) {
-            const result = await getQuestionById(newMatch.current_question_id);
-            if (result.success && result.question) {
-              setCurrentQuestionState(result.question);
-            }
-          }
+        { event: "UPDATE", schema: "public", table: "matches", filter: `id=eq.${matchId}` },
+        (payload) => {
+          const m = payload.new as Match;
+          applyState({
+            status: m.status,
+            interviewer_id: m.interviewer_id,
+            swap_requested_by: m.swap_requested_by,
+            questions_asked_count: (m.questions_asked || []).length,
+            current_question_id: m.current_question_id,
+          });
         }
       )
       .subscribe();
@@ -795,235 +636,148 @@ function InCallContent({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [matchId, userId]);
+  }, [matchId, applyState]);
 
-  // Format time as MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Get call data
-  const getCallData = useCallback(
-    (): CallData => ({
-      duration: elapsedTime,
-      topicsDiscussed: discussedTopics,
-    }),
-    [elapsedTime, discussedTopics]
-  );
-
-  // Handle topic refresh
-  const handleRefreshTopic = () => {
-    const otherTopics = topics.filter((t: string) => t !== currentTopic);
-    const randomTopic =
-      otherTopics[Math.floor(Math.random() * otherTopics.length)];
-    setCurrentTopic(randomTopic);
-    if (!discussedTopics.includes(randomTopic)) {
-      setDiscussedTopics((prev) => [...prev, randomTopic]);
-    }
-  };
-
-  // Handle next question (interviewer only)
+  // Next question (interviewer only)
   const handleNextQuestion = async () => {
     if (!matchId || !isInterviewer || sessionCompleted) return;
 
     setIsLoadingQuestion(true);
+    setQuestionError(null);
     try {
       const result = await getNextQuestion(matchId);
-
-      // Session completed — no more questions
       if (result.completed) {
         setSessionCompleted(true);
         return;
       }
-
       if (result.success && result.question) {
-        // Set question + progress locally (single atomic update already persisted to DB)
-        setCurrentQuestionState(result.question);
+        showQuestion(result.question);
         if (result.progress) setProgress(result.progress);
-        // Update role based on actual DB state returned by server
         if (userId && result.newInterviewerId !== undefined) {
           setIsInterviewer(result.newInterviewerId === userId);
         }
-        if (result.autoSwapped) {
-          console.log("[Q&A] Roles auto-swapped for next turn");
-        }
-        console.log("[Q&A] Next question:", result.progress);
-      } else {
-        console.error("[Q&A] Failed to get next question:", result.error);
+      } else if (result.error && result.error !== "The question already changed") {
+        setQuestionError("Không lấy được câu hỏi, thử lại nhé.");
       }
     } catch (error) {
       console.error("[Q&A] Error loading next question:", error);
+      setQuestionError("Không lấy được câu hỏi, thử lại nhé.");
     } finally {
       setIsLoadingQuestion(false);
     }
   };
 
-  // Handle swap request
-  const handleRequestSwap = async () => {
-    if (!matchId || !userId) return;
-    setIsSwapLoading(true);
-    try {
-      await requestSwapRoles(matchId, userId);
-    } catch (error) {
-      console.error("[Q&A] Error requesting swap:", error);
-    } finally {
-      setIsSwapLoading(false);
-    }
-  };
-
-  // Handle cancel swap request
-  const handleCancelSwap = async () => {
+  const runSwap = async (action: () => Promise<unknown>) => {
     if (!matchId) return;
     setIsSwapLoading(true);
     try {
-      await cancelSwapRequest(matchId);
+      await action();
     } catch (error) {
-      console.error("[Q&A] Error cancelling swap:", error);
+      console.error("[Q&A] Swap action failed:", error);
     } finally {
       setIsSwapLoading(false);
     }
   };
+  const handleRequestSwap = () => runSwap(() => requestSwapRoles(matchId!));
+  const handleCancelSwap = () => runSwap(() => cancelSwapRequest(matchId!));
+  const handleRespondToSwap = (accept: boolean) => runSwap(() => respondToSwapRequest(matchId!, accept));
 
-  // Handle respond to swap request (accept/decline)
-  const handleRespondToSwap = async (accept: boolean) => {
-    if (!matchId) return;
-    setIsSwapLoading(true);
-    try {
-      await respondToSwapRequest(matchId, accept);
-    } catch (error) {
-      console.error("[Q&A] Error responding to swap:", error);
-    } finally {
-      setIsSwapLoading(false);
-    }
-  };
-
-  // Handle mute toggle (real LiveKit or mock)
   const handleMuteToggle = async () => {
     if (isLiveKit && localParticipant) {
-      const currentlyEnabled = localParticipant.isMicrophoneEnabled;
-      await localParticipant.setMicrophoneEnabled(!currentlyEnabled);
+      await localParticipant.setMicrophoneEnabled(!localParticipant.isMicrophoneEnabled);
     } else {
-      // Mock mode
       setIsMutedLocal(!isMutedLocal);
     }
   };
 
-  // Handle end call
-  const handleEndCall = async () => {
-    // Disconnect from LiveKit room before ending call
-    if (isLiveKit && room) {
-      console.log("[End Call] Disconnecting from LiveKit room...");
-      try {
-        await room.disconnect();
-        console.log("[End Call] Disconnected successfully");
-      } catch (error) {
-        console.error("[End Call] Error disconnecting:", error);
-      }
-    }
-    onEndCall(getCallData());
-  };
-
-  // Handle evaluate
-  const handleEvaluate = () => {
-    onEvaluate(getCallData());
-  };
-
-  // Countdown + auto-end when session is completed
+  // Countdown + auto-end when all questions are done
   useEffect(() => {
     if (!sessionCompleted) return;
     if (countdown <= 0) {
-      handleEndCall();
+      finish();
       return;
     }
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionCompleted, countdown]);
+  }, [sessionCompleted, countdown, finish]);
+
+  const partnerMissing =
+    isLiveKit && !isPartnerConnected && !partnerEverJoined && elapsedTime >= PARTNER_JOIN_TIMEOUT_S;
 
   return (
     <>
-      {/* Invisible audio renderer for LiveKit */}
       {isLiveKit && <RoomAudioRenderer />}
 
       <div className="min-h-screen bg-[#050505] flex flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between p-4 pt-6">
-          <div className="w-10" /> {/* Spacer for centering */}
+        <header className="flex items-center justify-center p-4 pt-6">
           <TimerPill time={formatTime(elapsedTime)} />
-          <button
-            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-white/5 transition-colors"
-            aria-label="More options"
-          >
-            <MoreVertical className="w-5 h-5 text-zinc-400" />
-          </button>
         </header>
 
-        {/* Main Content */}
         <main className="flex-1 flex flex-col items-center justify-start px-4 pt-2 pb-40">
-          {/* Connection Status Badge */}
-          <div className="flex items-center gap-2 mb-8">
-            <div
-              className={`w-2 h-2 rounded-full ${isPartnerConnected ? "bg-emerald-500" : "bg-amber-500"
-                }`}
-            />
-            <Volume2 className="w-4 h-4 text-emerald-500" />
+          {/* Connection status */}
+          <div className="flex items-center gap-2 mb-8" aria-live="polite">
+            <div className={`w-2 h-2 rounded-full ${isPartnerConnected ? "bg-emerald-500" : "bg-amber-500"}`} />
+            <Volume2 className={`w-4 h-4 ${isPartnerConnected ? "text-emerald-500" : "text-amber-500"}`} />
             <span className="text-sm text-zinc-400">
-              {isLiveKit
-                ? isPartnerConnected
-                  ? "Connected via LiveKit"
-                  : "Waiting for partner..."
-                : "Connected (Demo)"}
+              {isLiveKit ? (isPartnerConnected ? "Đã kết nối" : "Đang chờ bạn kia vào phòng…") : "Chế độ demo (không có âm thanh)"}
             </span>
           </div>
 
-          {/* Audio Visualizer */}
+          {mediaError && (
+            <div role="alert" className="w-full max-w-2xl mx-auto mb-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-red-300">{mediaError}</p>
+            </div>
+          )}
+
+          {partnerMissing && (
+            <div role="alert" className="w-full max-w-2xl mx-auto mb-4 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-center">
+              <p className="text-sm text-amber-200 mb-3">Bạn kia vẫn chưa vào phòng. Có thể họ gặp sự cố kết nối.</p>
+              <button
+                onClick={finish}
+                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-sm text-white transition-colors"
+              >
+                Rời phòng
+              </button>
+            </div>
+          )}
+
           <div className="mb-8">
             <AudioVisualizer isActive={!isMuted && isPartnerConnected} />
           </div>
 
-          {/* Partner Info */}
           <div className="text-center mb-10">
-            <h1 className="text-2xl font-semibold text-white mb-1">
-              {partner.name}
-            </h1>
+            <h1 className="text-2xl font-semibold text-white mb-1">{partner.name}</h1>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-oratio-primary/10 to-oratio-secondary/10 border border-white/10">
-              <span className="text-sm font-medium text-zinc-300">
-                Band {partner.band}
-              </span>
+              <span className="text-sm font-medium text-zinc-300">Band {partner.band}</span>
             </div>
           </div>
 
-          {/* Loading Q&A mode indicator */}
           {matchId && userId && isInterviewer === null && (
             <div className="w-full max-w-2xl mx-auto mb-6 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
               <div className="flex items-center justify-center gap-3">
                 <Loader2 className="w-5 h-5 text-zinc-400 animate-spin" />
-                <p className="text-sm text-zinc-400">
-                  Loading Q&A mode...
-                </p>
+                <p className="text-sm text-zinc-400">Đang chia vai…</p>
               </div>
             </div>
           )}
 
-          {/* Session completed overlay */}
           {sessionCompleted && (
-            <div className="w-full max-w-2xl mx-auto mb-4 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-sm text-center">
+            <div className="w-full max-w-2xl mx-auto mb-4 p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 backdrop-blur-sm text-center" aria-live="polite">
               <Check className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-              <p className="text-base font-semibold text-emerald-300 mb-1">
-                Session completed!
-              </p>
+              <p className="text-base font-semibold text-emerald-300 mb-1">Xong cả 18 câu!</p>
               <p className="text-sm text-zinc-400">
-                All questions finished. Ending call in{" "}
-                <span className="text-white font-mono">{countdown}s</span>
+                Cuộc gọi kết thúc sau <span className="text-white font-mono">{countdown}s</span>
               </p>
             </div>
           )}
 
-          {/* Swap request notification */}
           {matchId && userId && partnerRequestedSwap && (
             <SwapRequestBanner
               onAccept={() => handleRespondToSwap(true)}
@@ -1032,20 +786,20 @@ function InCallContent({
             />
           )}
 
-          {/* Q&A Mode or Topic Card */}
-          {matchId && userId && isInterviewer !== null ? (
-            isInterviewer ? (
+          {isInterviewer !== null &&
+            (isInterviewer ? (
               <InterviewerControls
                 currentQuestion={currentQuestion}
                 onNextQuestion={handleNextQuestion}
                 onRequestSwap={handleRequestSwap}
                 onCancelSwap={handleCancelSwap}
                 isLoading={isLoadingQuestion}
+                error={questionError}
                 currentPart={progress.part}
                 questionInTurn={progress.questionInTurn}
                 questionsPerTurn={progress.questionsPerTurn}
                 turnInPart={progress.turnInPart}
-                swapPending={iMySwapPending}
+                swapPending={mySwapPending}
               />
             ) : (
               <CandidateView
@@ -1056,22 +810,12 @@ function InCallContent({
                 questionInTurn={progress.questionInTurn}
                 questionsPerTurn={progress.questionsPerTurn}
                 turnInPart={progress.turnInPart}
-                swapPending={iMySwapPending}
+                swapPending={mySwapPending}
               />
-            )
-          ) : (
-            <TopicCard topic={currentTopic} onRefresh={handleRefreshTopic} />
-          )}
+            ))}
         </main>
 
-        {/* Control Bar */}
-        <ControlBar
-          isMuted={isMuted}
-          onMuteToggle={handleMuteToggle}
-          onEndCall={handleEndCall}
-          onEvaluate={handleEvaluate}
-          isConnecting={false}
-        />
+        <ControlBar isMuted={isMuted} onMuteToggle={handleMuteToggle} onEndCall={finish} />
       </div>
     </>
   );
@@ -1079,31 +823,22 @@ function InCallContent({
 
 // Main In-Call Screen Component (Wrapper)
 export default function InCallScreen({
-  partner = { name: "Partner", band: "6.5" },
+  partner = { name: "Partner", band: "–" },
   onEndCall,
-  onEvaluate,
+  onMatchCancelled,
+  onRetryJoin,
   roomId,
   token,
   matchId,
   userId,
+  demo = false,
 }: InCallScreenProps) {
   const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
-  const [isConnecting, setIsConnecting] = useState(!!token);
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [connectError, setConnectError] = useState<string | null>(null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
 
-  // Handle LiveKit connection errors
-  const handleError = (error: Error) => {
-    console.error("LiveKit error:", error);
-    setIsConnecting(false);
-  };
-
-  // Handle successful connection
-  const handleConnected = () => {
-    console.log("Successfully connected to LiveKit room");
-    setIsConnecting(false);
-  };
-
-  // If we have token and roomId, use real LiveKit
-  if (token && roomId && livekitUrl) {
+  if (token && roomId && livekitUrl && !connectError) {
     return (
       <LiveKitRoom
         serverUrl={livekitUrl}
@@ -1111,11 +846,14 @@ export default function InCallScreen({
         connect={true}
         audio={true}
         video={false}
-        onConnected={handleConnected}
-        onError={handleError}
-        onDisconnected={() => {
-          console.log("Disconnected from LiveKit");
+        onConnected={() => setIsConnecting(false)}
+        onError={(error) => {
+          console.error("LiveKit error:", error);
+          if (isConnecting) setConnectError("Không kết nối được phòng gọi.");
         }}
+        onMediaDeviceFailure={() =>
+          setMediaError("Không dùng được micro. Hãy cho phép trình duyệt dùng micro rồi tải lại trang.")
+        }
       >
         {isConnecting ? (
           <div className="min-h-screen bg-[#050505] flex items-center justify-center">
@@ -1125,25 +863,59 @@ export default function InCallScreen({
           <InCallContent
             partner={partner}
             onEndCall={onEndCall}
-            onEvaluate={onEvaluate}
+            onMatchCancelled={onMatchCancelled}
             isLiveKit={true}
             matchId={matchId}
             userId={userId}
+            mediaError={mediaError}
           />
         )}
       </LiveKitRoom>
     );
   }
 
-  // Fallback to demo mode (no LiveKit)
+  if (demo) {
+    return (
+      <InCallContent
+        partner={partner}
+        onEndCall={onEndCall}
+        onMatchCancelled={onMatchCancelled}
+        isLiveKit={false}
+        matchId={undefined}
+        userId={undefined}
+        mediaError={null}
+      />
+    );
+  }
+
+  // No token (it failed) or the room refused us: say so instead of a silent fake call
   return (
-    <InCallContent
-      partner={partner}
-      onEndCall={onEndCall}
-      onEvaluate={onEvaluate}
-      isLiveKit={false}
-      matchId={matchId}
-      userId={userId}
-    />
+    <div className="min-h-screen bg-[#050505] flex items-center justify-center px-4">
+      <div role="alert" className="max-w-sm w-full p-6 rounded-2xl bg-zinc-900/80 border border-white/10 text-center">
+        <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+        <h1 className="text-lg font-semibold text-white mb-2">Không vào được phòng gọi</h1>
+        <p className="text-sm text-zinc-400 mb-5">
+          {connectError ?? "Có lỗi khi lấy quyền vào phòng."} Kiểm tra mạng rồi thử lại.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <button
+            onClick={() => {
+              setConnectError(null);
+              setIsConnecting(true);
+              onRetryJoin();
+            }}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-oratio-primary to-oratio-secondary text-white text-sm font-medium"
+          >
+            Thử lại
+          </button>
+          <button
+            onClick={onMatchCancelled}
+            className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 text-sm"
+          >
+            Rời
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -106,3 +106,29 @@ describe('Lexica speech and voices', () => {
     expect(limit.take('ip', new Date('2026-10-19T00:00:01Z'))).toBe(true);
   });
 });
+
+describe('Lexica sentence check', () => {
+  it('checks the input and the reply', () => {
+    const { sentenceInput, sentencePrompt, parseSentenceReply } =
+      jest.requireActual<typeof import('./lexica-ai')>('./lexica-ai');
+    const i = sentenceInput({
+      word: 'Postpone',
+      meaning: 'hoãn',
+      sentence: ' We  postponed the meeting. ',
+    })!;
+    expect(i).toEqual({
+      word: 'postpone',
+      meaning: 'hoãn',
+      sentence: 'We postponed the meeting.',
+    });
+    expect(sentencePrompt(i)).toContain('"postpone"');
+    expect(sentenceInput({ word: 'x', sentence: 'hi there' })).toBeNull();
+    expect(
+      sentenceInput({ word: 'postpone', sentence: 'a'.repeat(500) }),
+    ).toBeNull();
+    expect(
+      parseSentenceReply({ uses: true, ok: false, note: 'Tốt', better: '' }),
+    ).toEqual({ uses: true, ok: false, note: 'Tốt' });
+    expect(parseSentenceReply({ uses: 'yes', ok: true, note: 'x' })).toBeNull();
+  });
+});

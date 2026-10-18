@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import type { User, Session, AuthError } from "@supabase/supabase-js";
+import type { User, Session } from "@supabase/supabase-js";
 import type { Profile } from "@/lib/types/database";
 
 interface UseSupabaseAuthReturn {
@@ -11,7 +11,7 @@ interface UseSupabaseAuthReturn {
   profile: Profile | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, username: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, username: string) => Promise<{ error: string | null; needsConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -111,7 +111,7 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
    * Sign up with email, password, and username
    */
   const signUp = useCallback(async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -125,7 +125,8 @@ export function useSupabaseAuth(): UseSupabaseAuthReturn {
       return { error: error.message };
     }
 
-    return { error: null };
+    // With email confirmation on, there is no session until the link is opened
+    return { error: null, needsConfirmation: !data.session };
   }, [supabase]);
 
   /**

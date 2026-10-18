@@ -24,7 +24,20 @@ import QuoteMeet from '../components/QuoteMeet';
 import SpeakDrill from '../components/SpeakDrill';
 import StepNumbers from '../components/StepNumbers';
 import InstallCard from '../components/InstallCard';
+import PledgeCard from '../components/PledgeCard';
 import { classWordsToQueue } from '../lib/classes';
+
+/**
+ * Words a class assigned and not learned yet make the whole Học stage when
+ * there are any: fewer than the day's pace means a shorter stage, never
+ * other words slipped in among the teacher's.
+ */
+function learnSize(newLeft: number): number {
+    const progress = useLexicaStore.getState().cardProgress;
+    const pending = classWordsToQueue().filter((id) => !progress[id]).length;
+    if (pending === 0) return newLeft;
+    return newLeft > 0 ? Math.min(pending, newLeft) : pending;
+}
 
 /** What a stage works on, fixed when the stage starts so answers don't reshuffle it. */
 type Frozen =
@@ -74,7 +87,7 @@ export default function TodayPage() {
                 stage === 'review'
                     ? { stage, ids: picks.reviewIds }
                     : stage === 'learn'
-                      ? { stage, size: picks.newLeft }
+                      ? { stage, size: learnSize(picks.newLeft) }
                       : stage === 'read'
                         ? { stage, passageId: picks.passage?.id ?? null, generate: picks.generate, fallbackId: picks.fallback?.id ?? null, quoteWord: picks.quoteWord }
                         : { stage, ids: picks.speakIds.length > 0 ? picks.speakIds : picks.learnedToday.slice(0, 3) },
@@ -235,6 +248,8 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
                 </div>
                 {path && <p className="mt-3 text-xs text-muted">Nhánh {BRANCH_LABEL[path.branch]} · số trên là từ đã tới mỗi bước, từ đầu tới giờ.</p>}
             </div>
+
+            <PledgeCard offer />
 
             {checkpoint && (
                 <Link href={`/path/checkpoint?day=${checkpoint}`} className="block rounded-2xl border border-accent/40 bg-accent/5 p-4 text-ink hover:border-accent">

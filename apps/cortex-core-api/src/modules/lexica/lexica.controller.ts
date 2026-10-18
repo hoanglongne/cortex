@@ -15,6 +15,11 @@ export class LexicaController {
     return this.lexica.reading(body, who(req));
   }
 
+  @Post('sentence')
+  sentence(@Body() body: unknown, @Req() req: Request) {
+    return this.lexica.sentence(body, who(req));
+  }
+
   @Post('transcribe')
   transcribe(@Body() body: unknown, @Req() req: Request) {
     return this.lexica.transcribe(body, who(req));

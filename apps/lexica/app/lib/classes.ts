@@ -74,6 +74,7 @@ export interface OrgOverview {
 // ─── Server calls ───────────────────────────────────────────────────────
 
 const MESSAGES: Record<string, string> = {
+    'own class': 'Đây là lớp bạn dạy, không cần vào bằng mã.',
     'not signed in': 'Bạn cần đăng nhập trước.',
     'no such class': 'Không tìm thấy lớp với mã này.',
     'no seats': 'Lớp hoặc trung tâm đã hết chỗ. Báo giáo viên của bạn nhé.',
@@ -153,16 +154,20 @@ export function weekDelta(s: Pick<BoardStudent, 'counts' | 'week_ago' | 'week_fi
     return out;
 }
 
-/** "3 ngày chưa học" or "Hôm nay" for the board. */
-export function activeLabel(inactiveDays: number | null): string {
-    if (inactiveDays === null) return 'Chưa học';
+const DAY_MS = 86_400_000;
+const daysSince = (iso: string, now: number) => Math.floor((now - Date.parse(iso)) / DAY_MS);
+
+/** "3 ngày chưa học" or "Hôm nay" for the board; someone who just joined is new, not idle. */
+export function activeLabel(inactiveDays: number | null, joinedAt?: string, now = Date.now()): string {
+    if (inactiveDays === null) return joinedAt && daysSince(joinedAt, now) <= 3 ? 'Mới vào lớp' : 'Chưa học';
     if (inactiveDays <= 0) return 'Hôm nay';
     if (inactiveDays === 1) return 'Hôm qua';
     return `${inactiveDays} ngày chưa học`;
 }
 
-/** Students to nudge: no report yet, or more than 3 days since the last. */
-export const isSlipping = (s: Pick<BoardStudent, 'inactive_days'>) => s.inactive_days === null || s.inactive_days > 3;
+/** Students to nudge: more than 3 days since they last learned, or since they joined without learning. */
+export const isSlipping = (s: Pick<BoardStudent, 'inactive_days' | 'joined_at'>, now = Date.now()) =>
+    s.inactive_days === null ? daysSince(s.joined_at, now) > 3 : s.inactive_days > 3;
 
 /** One student's week, as a message a teacher can send to a parent. */
 export function parentNote(s: Pick<BoardStudent, 'name' | 'counts' | 'week_ago' | 'week_first' | 'streak' | 'assigned'>, className: string): string {

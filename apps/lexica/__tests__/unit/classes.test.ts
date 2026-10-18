@@ -65,9 +65,14 @@ describe('classes', () => {
         expect(activeLabel(0)).toBe('Hôm nay');
         expect(activeLabel(1)).toBe('Hôm qua');
         expect(activeLabel(5)).toBe('5 ngày chưa học');
-        expect(isSlipping({ inactive_days: 3 })).toBe(false);
-        expect(isSlipping({ inactive_days: 4 })).toBe(true);
-        expect(isSlipping({ inactive_days: null })).toBe(true);
+        const now = Date.parse('2026-10-18T12:00:00Z');
+        const joined = (days: number) => new Date(now - days * 86_400_000).toISOString();
+        expect(isSlipping({ inactive_days: 3, joined_at: joined(10) }, now)).toBe(false);
+        expect(isSlipping({ inactive_days: 4, joined_at: joined(10) }, now)).toBe(true);
+        // Just joined, nothing learned yet: new, not idle.
+        expect(isSlipping({ inactive_days: null, joined_at: joined(0.02) }, now)).toBe(false);
+        expect(activeLabel(null, joined(0.02), now)).toBe('Mới vào lớp');
+        expect(isSlipping({ inactive_days: null, joined_at: joined(5) }, now)).toBe(true);
     });
 
     it("keeps a student's assigned words on the device, not a teacher's", () => {

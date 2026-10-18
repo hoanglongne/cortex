@@ -4,115 +4,62 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { Match } from "@/lib/types/database";
 
 /**
- * POST /api/livekit/get-token
+ * POST /api/livekit/get-token  { roomName: string }
  *
- * Generates a LiveKit access token for a participant to join a room.
- * Requires authentication.
- *
- * Request body:
- * {
- *   roomName: string;      // The room to join
- *   participantName: string; // Display name in the room
- * }
- *
- * Response:
- * {
- *   token: string;         // JWT token for LiveKit
- *   roomName: string;      // Confirmed room name
- * }
+ * A LiveKit token for the signed-in user to join their match's room. The
+ * display name is the user's profile name (not taken from the client). The
+ * first request marks the match active; started_at is set once both people
+ * have asked to join, so a call only counts when both were there.
  */
 export async function POST(request: NextRequest) {
   try {
-    // 1. Validate environment variables
     const apiKey = process.env.LIVEKIT_API_KEY;
     const apiSecret = process.env.LIVEKIT_API_SECRET;
     const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
-
     if (!apiKey || !apiSecret || !livekitUrl) {
       console.error("Missing LiveKit environment variables");
-      return NextResponse.json(
-        { error: "Server configuration error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
-    // 2. Authenticate user
     const supabase = await createClient();
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized. Please log in." },
-        { status: 401 }
-      );
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized. Please log in." }, { status: 401 });
     }
 
-    // 3. Parse request body
-    let body: { roomName?: unknown; participantName?: unknown };
+    let body: { roomName?: unknown };
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json(
-        { error: "Request body must be valid JSON" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });
     }
-    const { roomName, participantName } = body ?? {};
-
-    if (!roomName || typeof roomName !== "string") {
-      return NextResponse.json(
-        { error: "roomName is required and must be a string" },
-        { status: 400 }
-      );
+    const roomName = body?.roomName;
+    if (typeof roomName !== "string" || !/^room_[0-9a-f-]{36}$/i.test(roomName)) {
+      return NextResponse.json({ error: "roomName is required" }, { status: 400 });
     }
 
-    if (!participantName || typeof participantName !== "string") {
-      return NextResponse.json(
-        { error: "participantName is required and must be a string" },
-        { status: 400 }
-      );
-    }
-
-    // 4. Verify user is part of this room's match using admin client
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
-
-    const { data: matchData, error: matchError } = await adminClient
-      .from("matches")
-      .select("*")
-      .eq("room_id", roomName)
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-      .single();
-
+    const admin = createAdminClient() as any;
+    const { data: matchData } = await admin.from("matches").select("*").eq("room_id", roomName).maybeSingle();
     const match = matchData as Match | null;
 
-    if (matchError || !match) {
-      return NextResponse.json(
-        { error: "You are not authorized to join this room" },
-        { status: 403 }
-      );
+    if (!match || (match.user1_id !== user.id && match.user2_id !== user.id)) {
+      return NextResponse.json({ error: "You are not authorized to join this room" }, { status: 403 });
     }
-
-    // Check if match is still valid (not cancelled/finished)
     if (match.status === "cancelled" || match.status === "finished") {
-      return NextResponse.json(
-        { error: "This match has been cancelled or already finished" },
-        { status: 410 } // 410 Gone
-      );
+      return NextResponse.json({ error: "This match has been cancelled or already finished" }, { status: 410 });
     }
 
-    // 5. Generate LiveKit token
+    const { data: profile } = await admin.from("profiles").select("username").eq("id", user.id).maybeSingle();
+
     const token = new AccessToken(apiKey, apiSecret, {
       identity: user.id,
-      name: participantName,
-      // Token expires in 2 hours
-      ttl: 60 * 60 * 2,
+      name: (profile?.username as string | undefined) ?? "Oratio user",
+      // Only needed to join; LiveKit keeps a connected session alive
+      ttl: 15 * 60,
     });
-
-    // Add room-specific grants
     token.addGrant({
       room: roomName,
       roomJoin: true,
@@ -120,31 +67,28 @@ export async function POST(request: NextRequest) {
       canSubscribe: true,
       canPublishData: true,
     });
-
     const jwt = await token.toJwt();
 
-    // 6. Update match status to active if pending
-    if (match.status === "pending") {
-      await adminClient
-        .from("matches")
-        .update({
-          status: "active",
-          started_at: new Date().toISOString(),
-        })
-        .eq("id", match.id);
-    }
+    // Record this person's join, then start the clock if both have joined
+    const now = new Date().toISOString();
+    const joinedColumn = match.user1_id === user.id ? "user1_joined_at" : "user2_joined_at";
+    await admin
+      .from("matches")
+      .update({ status: "active", [joinedColumn]: now, last_activity_at: now })
+      .eq("id", match.id)
+      .in("status", ["pending", "active"]);
+    await admin
+      .from("matches")
+      .update({ started_at: now })
+      .eq("id", match.id)
+      .is("started_at", null)
+      .not("user1_joined_at", "is", null)
+      .not("user2_joined_at", "is", null);
 
-    return NextResponse.json({
-      token: jwt,
-      roomName,
-      livekitUrl,
-    });
+    return NextResponse.json({ token: jwt, roomName, livekitUrl });
   } catch (error) {
     console.error("Error generating LiveKit token:", error);
-    return NextResponse.json(
-      { error: "Failed to generate token" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to generate token" }, { status: 500 });
   }
 }
 

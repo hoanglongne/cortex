@@ -3,7 +3,6 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
-import { initializeRoles } from "@/actions/questions";
 import { claimAll, releaseQueueEntries } from "@/lib/matchmaking/claim";
 import {
   CLAIM_IN_PROGRESS_MS,
@@ -12,633 +11,162 @@ import {
   isBandCompatible,
   msSince,
 } from "@/lib/matchmaking/rules";
-import type {
-  FindMatchResult,
-  Profile,
-  Match,
-  MatchQueueEntry,
-  SessionScores,
-} from "@/lib/types/database";
+import { clampBandRange, overallBand, validateFeedback, type FeedbackInput } from "@/lib/feedback";
+import { lastActivity, requireParticipant, type AdminClient } from "@/lib/server/match-access";
+import type { FindMatchResult, Match, MatchQueueEntry, PublicProfile } from "@/lib/types/database";
 
-interface MatchQueueWithProfile extends MatchQueueEntry {
-  profile: Profile;
+/** Server logs for matchmaking, only when ORATIO_DEBUG=true. Never sent to the client. */
+const debug = (msg: string) => {
+  if (process.env.ORATIO_DEBUG === "true") console.log(`[matchmaking] ${msg}`);
+};
+
+/** A pending match nobody confirmed in this long is dropped. */
+const PENDING_TIMEOUT_MS = 60_000;
+/** An active match where one person never joined the call is dropped. */
+const NEVER_STARTED_TIMEOUT_MS = 3 * 60_000;
+/** An active call with no sign of life from either screen for this long is over. */
+const ABANDONED_AFTER_MS = 60_000;
+
+type PartnerFields = Pick<PublicProfile, "id" | "username" | "current_band" | "avatar_url">;
+
+const toPartner = (p: PartnerFields) => ({
+  id: p.id,
+  username: p.username,
+  band: Number(p.current_band),
+  avatarUrl: p.avatar_url,
+});
+
+async function partnerOf(admin: AdminClient, partnerId: string) {
+  const { data } = await admin
+    .from("profiles")
+    .select("id, username, current_band, avatar_url")
+    .eq("id", partnerId)
+    .maybeSingle();
+  return data ? toPartner(data as PartnerFields) : undefined;
 }
 
 /**
- * Get current queue status (for debugging)
+ * Closes the user's open matches that are no longer real (nobody pressed
+ * Ready, one person never joined, or both screens went quiet) and returns
+ * the one still in progress, if any.
  */
-export async function getQueueStatus(): Promise<{
-  waitingCount: number;
-  totalCount: number;
-  recentEntries: { userId: string; status: string; bandMin: number; bandMax: number; createdAt: string; profileName: string; profileBand: number }[];
-  error?: string;
-}> {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
+async function liveOpenMatch(admin: AdminClient, userId: string): Promise<Match | null> {
+  const { data } = await admin
+    .from("matches")
+    .select("*")
+    .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
+    .in("status", ["pending", "active"])
+    .order("created_at", { ascending: false })
+    .limit(5);
 
-    // Get exact count of waiting
-    const { count: waitingCount, error: countError } = await adminClient
-      .from("match_queue")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "waiting");
-
-    if (countError) {
-      console.error("Queue count error:", countError);
-      // Don't throw, just return 0
+  let live: Match | null = null;
+  for (const m of (data ?? []) as Match[]) {
+    const now = new Date().toISOString();
+    if (m.status === "pending" && msSince(m.created_at) > PENDING_TIMEOUT_MS) {
+      debug(`cancel stale pending match ${m.id}`);
+      await admin.from("matches").update({ status: "cancelled", ended_at: now }).eq("id", m.id).eq("status", "pending");
+    } else if (m.status === "active" && !m.started_at && msSince(m.created_at) > NEVER_STARTED_TIMEOUT_MS) {
+      debug(`cancel match ${m.id}: the call never started`);
+      await admin.from("matches").update({ status: "cancelled", ended_at: now }).eq("id", m.id).eq("status", "active");
+    } else if (m.status === "active" && m.started_at && msSince(lastActivity(m)) > ABANDONED_AFTER_MS) {
+      debug(`finish abandoned match ${m.id}`);
+      await admin
+        .from("matches")
+        .update({ status: "finished", ended_at: lastActivity(m) })
+        .eq("id", m.id)
+        .eq("status", "active");
+    } else if (!live) {
+      live = m;
     }
-
-    // Get total count (all statuses)
-    const { count: totalCount, error: totalCountError } = await adminClient
-      .from("match_queue")
-      .select("*", { count: "exact", head: true });
-
-    if (totalCountError) {
-      console.error("Total count error:", totalCountError);
-    }
-
-    // Get recent entries regardless of status
-    const { data: recentEntries, error: listError } = await adminClient
-      .from("match_queue")
-      .select(`
-          user_id, 
-          status, 
-          target_band_min, 
-          target_band_max, 
-          created_at,
-          profile:profiles(username, current_band)
-        `)
-      .order("created_at", { ascending: false })
-      .limit(10); // Limit to 10 for better visibility
-
-    if (listError) throw listError;
-
-    return {
-      waitingCount: waitingCount || 0,
-      totalCount: totalCount || 0,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      recentEntries: (recentEntries || []).map((e: any) => ({
-        userId: e.user_id,
-        status: e.status,
-        bandMin: e.target_band_min,
-        bandMax: e.target_band_max,
-        createdAt: e.created_at,
-        profileName: e.profile?.username || "Unknown",
-        profileBand: e.profile?.current_band
-      }))
-    };
-  } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    console.error("getQueueStatus error:", err);
-    return { waitingCount: 0, totalCount: 0, recentEntries: [], error: err.message };
   }
+  return live;
 }
 
 /**
- * DEBUG: Reset queue and force insert for testing
+ * One matchmaking poll for the signed-in user (the client calls it every 2s).
+ *
+ * 1. An open match in progress is returned, so a reload rejoins it.
+ * 2. The user's queue entry is created or refreshed (heartbeat).
+ * 3. A band-compatible online partner is claimed together with the user's
+ *    own entry, so two people can't both be matched to the same person.
+ * 4. The match is created; the database refuses a second open match per user.
  */
-export async function debugResetAndJoin(): Promise<{ success: boolean; message: string }> {
+export async function findMatch(bandMin: number = 1, bandMax: number = 9): Promise<FindMatchResult> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
     const supabase = await createClient();
+    const admin = createAdminClient() as AdminClient;
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { success: false, message: "No user found" };
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return { status: "error", error: "Please log in to find a match" };
 
-    // 1. Ensure profile exists
-    const { data: profile } = await adminClient.from("profiles").select("id").eq("id", user.id).single();
-    if (!profile) {
-      await adminClient.from("profiles").insert({
+    const range = clampBandRange(bandMin, bandMax);
+
+    // 1. Already in a match
+    const open = await liveOpenMatch(admin, user.id);
+    if (open) {
+      const partnerId = open.user1_id === user.id ? open.user2_id : open.user1_id;
+      return { status: "matched", roomId: open.room_id, matchId: open.id, partner: await partnerOf(admin, partnerId) };
+    }
+
+    // 2. Own queue entry
+    const { data: entryData } = await admin.from("match_queue").select("*").eq("user_id", user.id).maybeSingle();
+    let entry = entryData as MatchQueueEntry | null;
+
+    if (entry?.status === "waiting") {
+      if (msSince(entry.last_seen_at) < MIN_POLL_INTERVAL_MS) return { status: "waiting" };
+      await admin.from("match_queue").update({ last_seen_at: new Date().toISOString() }).eq("id", entry.id);
+    } else if (entry?.status === "matched" && msSince(entry.last_seen_at) < CLAIM_IN_PROGRESS_MS) {
+      // A partner just claimed us and is creating the match
+      return { status: "waiting" };
+    } else if (entry) {
+      await admin.from("match_queue").delete().eq("id", entry.id);
+      entry = null;
+    }
+
+    if (!entry) {
+      const now = new Date().toISOString();
+      const { data: inserted, error: insertError } = await admin
+        .from("match_queue")
+        .upsert(
+          {
+            user_id: user.id,
+            target_band_min: range.min,
+            target_band_max: range.max,
+            status: "waiting",
+            created_at: now,
+            last_seen_at: now,
+          },
+          { onConflict: "user_id" }
+        )
+        .select()
+        .single();
+      if (insertError || !inserted) {
+        console.error("[findMatch] queue insert failed:", insertError);
+        return { status: "error", error: "Failed to join queue" };
+      }
+      entry = inserted as MatchQueueEntry;
+    }
+
+    // The user's band (the profile normally comes from the signup trigger)
+    const { data: me } = await admin.from("profiles").select("current_band").eq("id", user.id).maybeSingle();
+    if (!me) {
+      const { error: createError } = await admin.from("profiles").insert({
         id: user.id,
         email: user.email,
-        username: user.email?.split("@")[0] || "DebugUser"
+        username: String(user.user_metadata?.username || user.email?.split("@")[0] || "User").slice(0, 40),
       });
-    }
-
-    // 2. Clear existing
-    await adminClient.from("match_queue").delete().eq("user_id", user.id);
-
-    // 3. Force Insert
-    const { error: insertError } = await adminClient.from("match_queue").insert({
-      user_id: user.id,
-      target_band_min: 5.0,
-      target_band_max: 7.5,
-      status: "waiting"
-    });
-
-    if (insertError) return { success: false, message: `Insert failed: ${insertError.message}` };
-
-    return { success: true, message: "Force join successful" };
-  } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    return { success: false, message: `Exception: ${e.message}` };
-  }
-}
-
-/**
- * DEBUG: Force a match with the first available user
- */
-export async function debugForceMatch(): Promise<{ success: boolean; message: string; logs: string[]; matchId?: string; roomId?: string }> {
-  const logs: string[] = [];
-  const log = (msg: string) => logs.push(`${new Date().toISOString().split('T')[1]} - ${msg}`);
-
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
-    const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return { success: false, message: "No user found", logs };
-
-    log(`Starting force match for ${user.id}`);
-
-    // 1. Get anyone else in queue (without join)
-    const { data: others, error: queueError } = await adminClient
-      .from("match_queue")
-      .select("*")
-      .neq("user_id", user.id)
-      .eq("status", "waiting")
-      .limit(1);
-
-    if (queueError) {
-      log(`Queue error: ${queueError.message}`);
-      return { success: false, message: "Queue error", logs };
-    }
-
-    if (!others || others.length === 0) {
-      log("No other users found in queue");
-      return { success: false, message: "No candidates", logs };
-    }
-
-    const partnerEntry = others[0];
-
-    // Get partner profile separately
-    const { data: partnerProfile } = await adminClient
-      .from("profiles")
-      .select("*")
-      .eq("id", partnerEntry.user_id)
-      .single();
-
-    const partner = { ...partnerEntry, profile: partnerProfile };
-
-    log(`Found candidate: ${partner.user_id} (Profile: ${partner.profile?.username || 'Unknown'})`);
-
-    // 2. Force Create Match (with roles assigned directly)
-    const roomId = `room_${uuidv4()}`;
-    log(`Creating match room: ${roomId}`);
-
-    // Randomly assign roles at creation time
-    const isUser1Interviewer = Math.random() > 0.5;
-    log(`Role assignment: user1 is ${isUser1Interviewer ? 'interviewer' : 'candidate'}`);
-
-    const { data: newMatch, error: matchError } = await adminClient
-      .from("matches")
-      .insert({
-        user1_id: user.id,
-        user2_id: partner.user_id,
-        room_id: roomId,
-        status: "pending",
-        interviewer_id: isUser1Interviewer ? user.id : partner.user_id,
-        candidate_id: isUser1Interviewer ? partner.user_id : user.id,
-      })
-      .select()
-      .single();
-
-    if (matchError) {
-      log(`Match insert error: ${matchError.message} (Code: ${matchError.code})`);
-      return { success: false, message: `Insert failed: ${matchError.message}`, logs };
-    }
-
-    log(`Match created: ${newMatch.id} with roles: interviewer=${newMatch.interviewer_id}, candidate=${newMatch.candidate_id}`);
-
-    // 3. Cleanup Queue
-    await adminClient
-      .from("match_queue")
-      .delete()
-      .in("user_id", [user.id, partner.user_id]);
-
-    log("Queue entries deleted");
-
-    revalidatePath("/");
-    return {
-      success: true,
-      message: "Match forced successfully!",
-      logs,
-      matchId: newMatch.id,
-      roomId: newMatch.room_id
-    };
-
-  } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    log(`Exception: ${e.message}`);
-    return { success: false, message: `Exception: ${e.message}`, logs };
-  }
-}
-
-/**
- * DEBUG: Analyze why matching isn't happening
- */
-export async function debugAnalyzeMatchmaking(): Promise<{
-  logs: string[];
-  candidates: {
-    userId: string;
-    hasProfile: boolean;
-    theirBand: number | null;
-    theyWant: [number, number];
-    weWant: [number, number];
-    compatible: boolean;
-    reason: string;
-  }[];
-}> {
-  const logs: string[] = [];
-  const candidates: {
-    userId: string;
-    hasProfile: boolean;
-    theirBand: number | null;
-    theyWant: [number, number];
-    weWant: [number, number];
-    compatible: boolean;
-    reason: string;
-  }[] = [];
-
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
-    const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      logs.push("No authenticated user found");
-      return { logs, candidates };
-    }
-
-    logs.push(`Analyzing for User: ${user.id}`);
-
-    // 1. Get current user's profile and queue entry
-    const { data: myProfile } = await adminClient
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
-
-    const { data: myEntry } = await adminClient
-      .from("match_queue")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-
-    if (!myProfile) logs.push("❌ CRITICAL: Current user has NO PROFILE");
-    else logs.push(`✅ My Band: ${myProfile.current_band}`);
-
-    if (!myEntry) logs.push("❌ CRITICAL: Current user NOT IN QUEUE");
-    else logs.push(`✅ My Requirements: ${myEntry.target_band_min}-${myEntry.target_band_max}`);
-
-    if (!myProfile || !myEntry) return { logs, candidates };
-
-    const myBand = myProfile.current_band;
-    const myMin = myEntry.target_band_min;
-    const myMax = myEntry.target_band_max;
-
-    // 2. Get all other waiting users
-    const { data: others } = await adminClient
-      .from("match_queue")
-      .select("*, profile:profiles(*)")
-      .neq("user_id", user.id)
-      .eq("status", "waiting");
-
-    logs.push(`Found ${others?.length || 0} other waiting users`);
-
-    if (others) {
-      for (const other of others) {
-        const entry = {
-          userId: other.user_id,
-          hasProfile: !!other.profile,
-          theirBand: other.profile?.current_band ?? null,
-          theyWant: [other.target_band_min, other.target_band_max] as [number, number],
-          weWant: [myMin, myMax] as [number, number],
-          compatible: false,
-          reason: ""
-        };
-
-        if (!other.profile) {
-          entry.reason = "Missing Profile";
-          candidates.push(entry);
-          continue;
-        }
-
-        const theirBand = other.profile.current_band;
-        const theirMin = other.target_band_min;
-        const theirMax = other.target_band_max;
-
-        const weWantThem = theirBand >= myMin && theirBand <= myMax;
-        const theyWantUs = myBand >= theirMin && myBand <= theirMax;
-        const looseMatch = Math.abs(theirBand - myBand) <= 2.0;
-
-        if (weWantThem && theyWantUs) {
-          entry.compatible = true;
-          entry.reason = "Perfect Match";
-        } else if (looseMatch) {
-          entry.compatible = true;
-          entry.reason = "Loose Match (within 2.0 band)";
-        } else {
-          entry.reason = `Band Mismatch. Me(${myBand}) vs Them(${theirBand})`;
-        }
-
-        candidates.push(entry);
-      }
-    }
-
-    return { logs, candidates };
-  } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    logs.push(`Exception: ${e.message}`);
-    return { logs, candidates };
-  }
-}
-
-/**
- * Check if the user has a match without joining the queue
- */
-export async function checkMatchStatus(): Promise<FindMatchResult> {
-  try {
-    const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
-
-    // 1. Get current user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return {
-        status: "error",
-        error: "Not authenticated",
-      };
-    }
-
-    // 2. Check if user already has an active match
-    const { data: activeMatchList, error: activeMatchError } = await adminClient
-      .from("matches")
-      .select("*")
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-      .in("status", ["pending", "active"])
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (activeMatchError) {
-      console.error("checkMatchStatus: Error checking active matches", activeMatchError);
-    }
-
-    const activeMatch = ((activeMatchList ?? []) as Match[])[0] ?? null;
-
-    if (activeMatch) {
-      console.log("checkMatchStatus: User has active match", activeMatch.id);
-      // Get partner info
-      const partnerId =
-        activeMatch.user1_id === user.id
-          ? activeMatch.user2_id
-          : activeMatch.user1_id;
-
-      const { data: partnerData } = await adminClient
-        .from("profiles")
-        .select("id, username, current_band, avatar_url")
-        .eq("id", partnerId)
-        .single();
-
-      const partner = partnerData as Pick<
-        Profile,
-        "id" | "username" | "current_band" | "avatar_url"
-      > | null;
-
-      return {
-        status: "matched",
-        roomId: activeMatch.room_id,
-        matchId: activeMatch.id,
-        partner: partner
-          ? {
-            id: partner.id,
-            username: partner.username,
-            band: partner.current_band,
-            avatarUrl: partner.avatar_url,
-          }
-          : undefined,
-      };
-    }
-
-    return { status: "waiting" };
-  } catch (e: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    return { status: "error", error: e.message };
-  }
-}
-
-/**
- * Find a match for the current user
-
-*
-* Logic:
-* 1. Check if user is authenticated
-* 2. Check if user is already in queue or has an active match
-* 3. Look for a compatible waiting user in the queue
-* 4. If found: create match, remove both from queue, return match details
-* 5. If not found: add user to queue, return waiting status
-*/
-export async function findMatch(
-  bandMin: number = 5.0,
-  bandMax: number = 7.5
-): Promise<FindMatchResult> {
-  const logs: string[] = [];
-  const log = (msg: string) => {
-    console.log(msg);
-    logs.push(msg);
-  };
-
-  try {
-    const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
-
-    // 1. Get current user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      log(`findMatch: Not authenticated: ${authError?.message}`);
-      return {
-        status: "error",
-        error: "Please log in to find a match",
-        logs
-      };
-    }
-
-    log(`findMatch: Starting for user ${user.id} (Band ${bandMin}-${bandMax})`);
-
-    // 2. Check if user already has an active match
-    // Use .limit(1) instead of .single() — .single() throws PGRST116 for
-    // BOTH zero rows AND multiple rows, and the old code silently ignored
-    // that error. If stale matches accumulated from previous sessions,
-    // the query would always fail and the user could never be matched.
-    const { data: activeMatchList, error: activeMatchError } = await adminClient
-      .from("matches")
-      .select("*")
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
-      .in("status", ["pending", "active"])
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (activeMatchError) {
-      log(`findMatch: Error checking active matches: ${activeMatchError.message}`);
-    }
-
-    const activeMatch = ((activeMatchList ?? []) as Match[])[0] ?? null;
-    log(`findMatch: Active match check → ${activeMatch ? activeMatch.id : 'none found'}`);
-
-    if (activeMatch) {
-      // Check if match is stale (pending for > 1 minute)
-      const matchCreatedAt = new Date(activeMatch.created_at);
-      const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
-
-      if (activeMatch.status === "pending" && matchCreatedAt < oneMinuteAgo) {
-        log(`findMatch: Found stale pending match (created ${matchCreatedAt.toISOString()}). Cancelling it...`);
-        await adminClient
-          .from("matches")
-          .update({ status: "cancelled" })
-          .eq("id", activeMatch.id);
-
-        // Continue to search for a new match below
-        log(`findMatch: Stale match cancelled, continuing search...`);
-      } else {
-        log(`findMatch: User already has active match ${activeMatch.id}`);
-        // Get partner info
-        const partnerId =
-          activeMatch.user1_id === user.id
-            ? activeMatch.user2_id
-            : activeMatch.user1_id;
-
-        const { data: partnerData } = await adminClient
-          .from("profiles")
-          .select("id, username, current_band, avatar_url")
-          .eq("id", partnerId)
-          .single();
-
-        const partner = partnerData as Pick<
-          Profile,
-          "id" | "username" | "current_band" | "avatar_url"
-        > | null;
-
-        return {
-          status: "matched",
-          roomId: activeMatch.room_id,
-          matchId: activeMatch.id,
-          partner: partner
-            ? {
-              id: partner.id,
-              username: partner.username,
-              band: partner.current_band,
-              avatarUrl: partner.avatar_url,
-            }
-            : undefined,
-          logs
-        };
-      }
-    }
-
-    // 3. Check if user is already in queue (any status)
-    let existingEntryData: MatchQueueEntry | null = null;
-    const { data: queryData, error: existingEntryError } = await adminClient
-      .from("match_queue")
-      .select("*")
-      .eq("user_id", user.id)
-      .single();
-
-    existingEntryData = queryData;
-
-    if (existingEntryError && existingEntryError.code !== 'PGRST116') {
-      log(`findMatch: Error checking existing queue entry: ${existingEntryError.message}`);
-    }
-
-    const existingEntry = existingEntryData as MatchQueueEntry | null;
-
-    if (existingEntry) {
-      if (existingEntry.status === 'waiting') {
-        // Server-side rate limit: the client polls every 2s, anything much
-        // faster is a duplicate or spam and gets no extra work.
-        if (msSince(existingEntry.last_seen_at) < MIN_POLL_INTERVAL_MS) {
-          log("findMatch: Polled too soon, skipping this cycle");
-          return { status: "waiting", logs };
-        }
-        log(`findMatch: User already in queue (waiting), continuing to search for match... ${existingEntry.id}`);
-        // Heartbeat: others only see queue entries that polled recently.
-        await adminClient
-          .from("match_queue")
-          .update({ last_seen_at: new Date().toISOString() })
-          .eq("id", existingEntry.id);
-        // Do NOT return here. We must continue to search for a partner!
-      } else if (
-        existingEntry.status === 'matched' &&
-        msSince(existingEntry.last_seen_at) < CLAIM_IN_PROGRESS_MS
-      ) {
-        // Another request just claimed us and is creating the match; the
-        // next poll will pick it up in step 2.
-        log("findMatch: Queue entry claimed by a partner, waiting for match");
-        return { status: "waiting", logs };
-      } else {
-        // User has a stale entry (e.g. 'matched' or 'cancelled' but trying to search again)
-        log(`findMatch: Found stale queue entry with status ${existingEntry.status}. Deleting...`);
-        await adminClient
-          .from("match_queue")
-          .delete()
-          .eq("id", existingEntry.id);
-
-        // Reset existingEntry to null so we know to insert later if needed
-        existingEntryData = null;
-      }
-    }
-
-    // Get current user's profile for band matching
-    const { data: currentUserProfileData, error: profileError } = await adminClient
-      .from("profiles")
-      .select("current_band")
-      .eq("id", user.id)
-      .single();
-
-    if (profileError || !currentUserProfileData) {
-      log("findMatch: Profile missing for user, creating one now...");
-      // Auto-create profile if missing
-      const { error: createError } = await adminClient
-        .from("profiles")
-        .insert({
-          id: user.id,
-          email: user.email,
-          username: user.user_metadata?.username || user.email?.split("@")[0] || "User",
-        });
-
       if (createError) {
-        log(`findMatch: Failed to create missing profile: ${createError.message}`);
-        return {
-          status: "error",
-          error: "Failed to create user profile. Please contact support.",
-          logs
-        };
+        console.error("[findMatch] profile create failed:", createError);
+        return { status: "error", error: "Failed to create user profile" };
       }
-      log("findMatch: Profile created successfully.");
     }
+    const myBand = Number(me?.current_band ?? 5.5);
 
-    const currentUserProfile = currentUserProfileData as Pick<
-      Profile,
-      "current_band"
-    > | null;
-    const currentUserBand = currentUserProfile?.current_band || 6.0;
-
-    // 4. Look for a compatible waiting user
-    // Using admin client to bypass RLS for the matching query
-    log(`findMatch: Searching for match for user ${user.id} with band ${currentUserBand}`);
-
-    // Step 4a: Get queue entries first (without join to be safe).
-    // Only users who polled recently (heartbeat in last_seen_at) are online;
-    // created_at stays fixed so FIFO order is preserved.
+    // 3. Online, band-compatible partners, oldest first
     const onlineSince = new Date(Date.now() - QUEUE_STALE_AFTER_MS).toISOString();
-    const { data: queueData, error: queueError } = await adminClient
+    const { data: queueData, error: queueError } = await admin
       .from("match_queue")
       .select("*")
       .eq("status", "waiting")
@@ -646,506 +174,354 @@ export async function findMatch(
       .gte("last_seen_at", onlineSince)
       .order("created_at", { ascending: true })
       .limit(50);
-
-    log(`findMatch: Filtering queue entries seen after ${onlineSince}`);
-
     if (queueError) {
-      log(`findMatch: Error querying match queue: ${queueError.message}`);
-      return {
-        status: "error",
-        error: "Failed to search for matches",
-        logs
-      };
+      console.error("[findMatch] queue query failed:", queueError);
+      return { status: "error", error: "Failed to search for matches" };
     }
 
-    const queueEntries = (queueData || []) as MatchQueueEntry[];
-    log(`findMatch: Found ${queueEntries.length} waiting users in queue (raw)`);
-
-    // Step 4b: Get profiles for these users
-    const userIds = queueEntries.map(e => e.user_id);
-    const profilesMap: Record<string, Profile> = {};
-
-    if (userIds.length > 0) {
-      const { data: profilesData, error: profilesError } = await adminClient
+    const others = (queueData ?? []) as MatchQueueEntry[];
+    const profiles = new Map<string, PartnerFields>();
+    if (others.length > 0) {
+      const { data: rows } = await admin
         .from("profiles")
-        .select("*")
-        .in("id", userIds);
-
-      if (!profilesError && profilesData) {
-        profilesData.forEach((p: Profile) => {
-          profilesMap[p.id] = p;
-        });
-      } else {
-        log(`findMatch: Error fetching profiles: ${profilesError?.message}`);
-      }
+        .select("id, username, current_band, avatar_url")
+        .in("id", others.map((e) => e.user_id));
+      for (const p of (rows ?? []) as PartnerFields[]) profiles.set(p.id, p);
     }
 
-    // 5. Collect band-compatible candidates in FIFO order
-    const waitedMs = existingEntry?.status === "waiting" ? msSince(existingEntry.created_at) : 0;
-    const candidates: MatchQueueWithProfile[] = [];
+    const waitedMs = msSince(entry.created_at);
+    const candidates = others.filter((e) => {
+      const p = profiles.get(e.user_id);
+      if (!p) return false;
+      return isBandCompatible(
+        { band: myBand, wantMin: range.min, wantMax: range.max, waitedMs },
+        { band: Number(p.current_band), targetMin: e.target_band_min, targetMax: e.target_band_max }
+      ).compatible;
+    });
+    debug(`${user.id}: ${others.length} online, ${candidates.length} compatible, waited ${Math.round(waitedMs / 1000)}s`);
 
-    for (const entry of queueEntries) {
-      const profile = profilesMap[entry.user_id];
-
-      if (!profile) {
-        log(`findMatch: Skipping waiting user ${entry.user_id}: No profile found`);
-        continue;
-      }
-
-      // Construct the object expected by logic
-      const entryWithProfile: MatchQueueWithProfile = { ...entry, profile };
-
-      log(`findMatch: Checking compatibility with ${entry.user_id}: TheirBand=${profile.current_band}, TheyWant=[${entry.target_band_min},${entry.target_band_max}], WeBand=${currentUserBand}, WeWant=[${bandMin},${bandMax}], Waited=${Math.round(waitedMs / 1000)}s`);
-
-      // Exact mutual range match, or a band gap that widens with wait time
-      const { compatible, perfect } = isBandCompatible(
-        { band: currentUserBand, wantMin: bandMin, wantMax: bandMax, waitedMs },
-        { band: profile.current_band, targetMin: entry.target_band_min, targetMax: entry.target_band_max }
-      );
-
-      if (compatible) {
-        log(`findMatch: Compatible candidate (Perfect: ${perfect})`);
-        candidates.push(entryWithProfile);
-      } else {
-        log(`findMatch: Not compatible. Reason: Band mismatch`);
-      }
-    }
-
-    // 6. Claim our own entry (if queued) and the partner's atomically, so
-    // two users polling at the same moment can't create two matches.
-    let bestMatch: MatchQueueWithProfile | null = null;
-    let claimedIds: string[] = [];
-    const ownEntryId = existingEntry?.status === "waiting" ? existingEntry.id : null;
-
+    // Claim our own entry and the partner's together
+    let partnerEntry: MatchQueueEntry | null = null;
+    let claimed: string[] = [];
     for (const candidate of candidates) {
-      const ids = ownEntryId ? [ownEntryId, candidate.id] : [candidate.id];
-      const result = await claimAll(adminClient, ids);
+      const ids = [entry.id, candidate.id];
+      const result = await claimAll(admin, ids);
       if (result.ok) {
-        bestMatch = candidate;
-        claimedIds = ids;
+        partnerEntry = candidate;
+        claimed = ids;
         break;
       }
-      if (result.failedId === ownEntryId) {
-        log("findMatch: Another user claimed us first, waiting for their match");
-        return { status: "waiting", logs };
-      }
-      log(`findMatch: Candidate ${candidate.user_id} was taken, trying next`);
+      if (result.failedId === entry.id) return { status: "waiting" }; // someone claimed us
+    }
+    if (!partnerEntry) return { status: "waiting" };
+
+    // 4. Create the match with roles
+    const user1First = Math.random() > 0.5;
+    const { data: created, error: matchError } = await admin
+      .from("matches")
+      .insert({
+        user1_id: user.id,
+        user2_id: partnerEntry.user_id,
+        room_id: `room_${uuidv4()}`,
+        status: "pending",
+        interviewer_id: user1First ? user.id : partnerEntry.user_id,
+        candidate_id: user1First ? partnerEntry.user_id : user.id,
+      })
+      .select()
+      .single();
+
+    if (matchError || !created) {
+      // Usually the database refusing a second open match for one of us
+      debug(`match insert refused: ${matchError?.message}`);
+      await releaseQueueEntries(admin, claimed);
+      return { status: "waiting" };
     }
 
-    if (bestMatch) {
-      log(`findMatch: Match found! Creating match with ${bestMatch.user_id}`);
-      const roomId = `room_${uuidv4()}`;
+    await admin.from("match_queue").delete().in("id", claimed);
+    revalidatePath("/");
 
-      // Randomly assign roles at creation time
-      const isUser1Interviewer = Math.random() > 0.5;
-      log(`findMatch: Role assignment: current user is ${isUser1Interviewer ? 'interviewer' : 'candidate'}`);
-
-      // Use a transaction-like approach with admin client
-      // Create match WITH roles in a single insert
-      const { data: newMatchData, error: matchError } = await adminClient
-        .from("matches")
-        .insert({
-          user1_id: user.id,
-          user2_id: bestMatch.user_id,
-          room_id: roomId,
-          status: "pending",
-          interviewer_id: isUser1Interviewer ? user.id : bestMatch.user_id,
-          candidate_id: isUser1Interviewer ? bestMatch.user_id : user.id,
-        })
-        .select()
-        .single();
-
-      if (matchError) {
-        log(`findMatch: Error creating match: ${matchError.message}`);
-        await releaseQueueEntries(adminClient, claimedIds);
-        return {
-          status: "error",
-          error: "Failed to create match",
-          logs
-        };
-      }
-
-      const newMatch = newMatchData as Match;
-      log(`findMatch: Match created with roles: interviewer=${newMatch.interviewer_id}, candidate=${newMatch.candidate_id}`);
-
-      // Both entries are claimed; remove them from the queue
-      await adminClient
-        .from("match_queue")
-        .delete()
-        .in("user_id", [user.id, bestMatch.user_id]);
-
-      revalidatePath("/");
-
-      return {
-        status: "matched",
-        roomId: newMatch.room_id,
-        matchId: newMatch.id,
-        partner: {
-          id: bestMatch.profile.id,
-          username: bestMatch.profile.username,
-          band: bestMatch.profile.current_band,
-          avatarUrl: bestMatch.profile.avatar_url,
-        },
-        logs
-      };
-    }
-
-    // 7. No match found, add user to queue if not already there
-    if (!existingEntryData) {
-      log("findMatch: No match found, adding to queue");
-      const { error: insertError } = await adminClient
-        .from("match_queue")
-        .upsert({
-          user_id: user.id,
-          target_band_min: bandMin,
-          target_band_max: bandMax,
-          status: "waiting",
-          created_at: new Date().toISOString(),
-          last_seen_at: new Date().toISOString(),
-        });
-
-      if (insertError) {
-        log(`findMatch: Error inserting into queue: ${insertError.message}`);
-        return {
-          status: "error",
-          error: "Failed to join queue",
-          logs
-        };
-      }
-      log("findMatch: Successfully added to queue");
-    } else {
-      log("findMatch: User already in queue, keeping original position");
-      // Don't update created_at — it determines queue position (FIFO order).
-      // Updating it every poll cycle would constantly push the user to
-      // the back of the queue, making stable matching harder.
-    }
-
+    const match = created as Match;
     return {
-      status: "waiting",
-      logs
+      status: "matched",
+      roomId: match.room_id,
+      matchId: match.id,
+      partner: toPartner(profiles.get(partnerEntry.user_id)!),
     };
   } catch (error) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    log(`Matchmaking error: ${msg}`);
-    return {
-      status: "error",
-      error: "An unexpected error occurred",
-      logs
-    };
+    console.error("[findMatch]", error);
+    return { status: "error", error: "An unexpected error occurred" };
   }
 }
 
-/**
- * Cancel matchmaking and remove user from queue
- */
-export async function cancelMatch(): Promise<{
-  success: boolean;
-  error?: string;
-}> {
+/** Leaves the queue. */
+export async function cancelMatch(): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
-
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
+    if (!user) return { success: false, error: "Not authenticated" };
 
-    if (authError || !user) {
-      return { success: false, error: "Not authenticated" };
-    }
-
-    // Remove from queue
-    const { error: deleteError } = await adminClient
-      .from("match_queue")
-      .delete()
-      .eq("user_id", user.id)
-      .eq("status", "waiting");
-
-    if (deleteError) {
-      console.error("Error cancelling match:", deleteError);
+    const admin = createAdminClient() as AdminClient;
+    const { error } = await admin.from("match_queue").delete().eq("user_id", user.id).eq("status", "waiting");
+    if (error) {
+      console.error("[cancelMatch]", error);
       return { success: false, error: "Failed to cancel" };
     }
-
-    revalidatePath("/");
     return { success: true };
   } catch (error) {
-    console.error("Cancel match error:", error);
+    console.error("[cancelMatch]", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
 
 /**
- * End an active call/match
+ * "Find another partner" on the partner-found screen, or leaving a call the
+ * partner never joined. The match is cancelled; nothing counts.
+ */
+export async function declineMatch(matchId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return { success: false, error: access.error };
+    const { match, admin } = access;
+
+    if (match.status === "pending" || (match.status === "active" && !match.started_at)) {
+      await admin
+        .from("matches")
+        .update({ status: "cancelled", ended_at: new Date().toISOString() })
+        .eq("id", match.id)
+        .eq("status", match.status);
+    }
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("[declineMatch]", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+/**
+ * Ends the call. A call both people joined is finished (and counts); one
+ * that never started is cancelled. Returns what the match became.
  */
 export async function endCall(
   matchId: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; status?: "finished" | "cancelled"; error?: string }> {
   try {
-    const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return { success: false, error: access.error };
+    const { match, admin } = access;
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, error: "Not authenticated" };
+    if (match.status === "pending" || match.status === "active") {
+      const next = match.status === "active" && match.started_at ? "finished" : "cancelled";
+      await admin
+        .from("matches")
+        .update({ status: next, ended_at: new Date().toISOString() })
+        .eq("id", match.id)
+        .eq("status", match.status);
     }
 
-    // Update match status using admin client to bypass RLS for update
-    const { error: updateError } = await adminClient
-      .from("matches")
-      .update({
-        status: "finished",
-        ended_at: new Date().toISOString(),
-      })
-      .eq("id", matchId)
-      .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`);
+    const { data } = await admin.from("matches").select("*").eq("id", match.id).single();
+    const final = data as Match;
+    const status = final.status === "finished" && final.started_at ? "finished" : "cancelled";
 
-    if (updateError) {
-      console.error("Error ending call:", updateError);
-      return { success: false, error: "Failed to end call" };
-    }
-
+    if (status === "finished") await logToCortex(final);
     revalidatePath("/");
-    return { success: true };
+    return { success: true, status };
   } catch (error) {
-    console.error("End call error:", error);
+    console.error("[endCall]", error);
     return { success: false, error: "An unexpected error occurred" };
   }
 }
 
 /**
- * Get user's call history with feedback
+ * Tells the Cortex hub the signed-in user finished a speaking session (for
+ * XP and the cross-app activity log). Optional: only when CORTEX_API_URL is
+ * set and Oratio shares the hub's Supabase project, since the hub checks the
+ * user's own access token. No transcript is sent, so the hub's vocabulary
+ * and fluency profile is not touched.
  */
+async function logToCortex(match: Match) {
+  const base = process.env.CORTEX_API_URL;
+  if (!base || !match.started_at || !match.ended_at) return;
+  try {
+    const supabase = await createClient();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const minutes = Math.round((new Date(match.ended_at).getTime() - new Date(match.started_at).getTime()) / 60_000);
+    await fetch(`${base.replace(/\/$/, "")}/actions/log`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({
+        appSource: "oratio",
+        actionType: "COMPLETE_ORATIO_SESSION",
+        metadata: {
+          matchId: match.id,
+          minutes,
+          questionsCount: (match.questions_asked || []).length,
+          topic: match.topic,
+        },
+      }),
+      signal: AbortSignal.timeout(3000),
+    });
+  } catch (error) {
+    console.error("[Cortex] session log failed:", error);
+  }
+}
+
+type HistoryFeedback = {
+  match_id: string;
+  from_user_id: string;
+  to_user_id: string;
+  scores: Record<string, number> | null;
+  feedback_tags: string[] | null;
+  comments: string | null;
+  would_match_again: boolean | null;
+};
+
+/** The signed-in user's finished calls with the feedback both ways. */
 export async function getCallHistory(limit: number = 20) {
   try {
     const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
-
     const {
       data: { user },
-      error: authError,
     } = await supabase.auth.getUser();
+    if (!user) return { sessions: [], error: "Not authenticated" };
 
-    if (authError || !user) {
-      return { sessions: [], error: "Not authenticated" };
-    }
-
-    // Fetch finished matches with profiles
-    const { data: matches, error } = await adminClient
+    const admin = createAdminClient() as AdminClient;
+    const { data: matches, error } = await admin
       .from("matches")
-      .select(
-        `
-        *,
-        user1:profiles!matches_user1_id_fkey(id, username, current_band, avatar_url),
-        user2:profiles!matches_user2_id_fkey(id, username, current_band, avatar_url)
-      `
-      )
+      .select("*")
       .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
       .eq("status", "finished")
+      .not("started_at", "is", null)
       .order("ended_at", { ascending: false, nullsFirst: false })
-      .limit(limit);
+      .limit(Math.min(Math.max(1, limit), 50));
 
     if (error) {
-      console.error("Error fetching call history:", error);
+      console.error("[getCallHistory]", error);
       return { sessions: [], error: "Failed to fetch history" };
     }
+    const rows = (matches ?? []) as Match[];
+    if (rows.length === 0) return { sessions: [], error: null };
 
-    if (!matches || matches.length === 0) {
-      return { sessions: [], error: null };
-    }
+    const partnerIds = [...new Set(rows.map((m) => (m.user1_id === user.id ? m.user2_id : m.user1_id)))];
+    const questionIds = [...new Set(rows.flatMap((m) => m.questions_asked || []))];
 
-    const matchIds = matches.map((m: { id: string }) => m.id);
+    const [{ data: partners }, { data: feedbacks }, { data: questions }] = await Promise.all([
+      admin.from("profiles").select("id, username, current_band, avatar_url").in("id", partnerIds),
+      admin.from("session_feedback").select("*").in("match_id", rows.map((m) => m.id)),
+      questionIds.length > 0
+        ? admin.from("ielts_questions").select("id, part, question_text").in("id", questionIds)
+        : Promise.resolve({ data: [] }),
+    ]);
 
-    // Fetch all feedback for these matches
-    const { data: feedbacks } = await adminClient
-      .from("session_feedback")
-      .select("*")
-      .in("match_id", matchIds);
+    const partnerById = new Map(((partners ?? []) as PartnerFields[]).map((p) => [p.id, p]));
+    const questionById = new Map(
+      ((questions ?? []) as { id: string; part: number; question_text: string }[]).map((q) => [q.id, q])
+    );
+    const fb = (feedbacks ?? []) as HistoryFeedback[];
 
-    // Build session list
-    const sessions = matches.map((match: {
-      id: string;
-      user1_id: string;
-      user2_id: string;
-      user1: { id: string; username: string; current_band: number; avatar_url: string | null };
-      user2: { id: string; username: string; current_band: number; avatar_url: string | null };
-      started_at: string | null;
-      ended_at: string | null;
-      created_at: string;
-      questions_asked: string[];
-      topic: string | null;
-    }) => {
-      const isUser1 = match.user1_id === user.id;
-      const partner = isUser1 ? match.user2 : match.user1;
+    const shape = (f: HistoryFeedback | undefined) =>
+      f
+        ? {
+            overallBand: f.scores?.overall ?? null,
+            scores: f.scores
+              ? {
+                  fluency: f.scores.fluency,
+                  vocabulary: f.scores.vocabulary,
+                  grammar: f.scores.grammar,
+                  pronunciation: f.scores.pronunciation,
+                }
+              : null,
+            tags: f.feedback_tags || [],
+            comments: f.comments || "",
+            wouldMatchAgain: f.would_match_again,
+          }
+        : null;
 
-      // Feedback I gave to partner
-      const myFeedback = (feedbacks || []).find(
-        (f: { match_id: string; from_user_id: string }) =>
-          f.match_id === match.id && f.from_user_id === user.id
-      );
-      // Feedback partner gave to me
-      const peerFeedback = (feedbacks || []).find(
-        (f: { match_id: string; to_user_id: string }) =>
-          f.match_id === match.id && f.to_user_id === user.id
-      );
-
-      // Calculate duration
-      let duration = 0;
-      if (match.started_at && match.ended_at) {
-        duration = Math.floor(
-          (new Date(match.ended_at).getTime() - new Date(match.started_at).getTime()) / 1000
-        );
-      }
-
+    const sessions = rows.map((m) => {
+      const partnerId = m.user1_id === user.id ? m.user2_id : m.user1_id;
+      const partner = partnerById.get(partnerId);
+      const duration =
+        m.started_at && m.ended_at
+          ? Math.max(0, Math.floor((new Date(m.ended_at).getTime() - new Date(m.started_at).getTime()) / 1000))
+          : 0;
       return {
-        id: match.id,
-        date: match.ended_at || match.created_at,
+        id: m.id,
+        date: m.ended_at || m.created_at,
         duration,
-        questionsCount: match.questions_asked?.length || 0,
-        topic: match.topic,
+        questionsCount: (m.questions_asked || []).length,
+        questions: (m.questions_asked || [])
+          .map((id) => questionById.get(id))
+          .filter((q): q is { id: string; part: number; question_text: string } => !!q)
+          .map((q) => ({ part: q.part, text: q.question_text })),
+        topic: m.topic,
         partner: {
-          id: partner.id,
-          name: partner.username,
-          band: partner.current_band?.toFixed(1) || "5.5",
-          avatarUrl: partner.avatar_url,
+          id: partnerId,
+          name: partner?.username ?? "Partner",
+          band: partner ? Number(partner.current_band).toFixed(1) : "–",
+          avatarUrl: partner?.avatar_url ?? null,
         },
-        // What I gave to partner
-        myFeedback: myFeedback
-          ? {
-            overallBand: myFeedback.scores?.overall ?? null,
-            scores: myFeedback.scores
-              ? {
-                fluency: myFeedback.scores.fluency,
-                vocabulary: myFeedback.scores.vocabulary,
-                grammar: myFeedback.scores.grammar,
-                pronunciation: myFeedback.scores.pronunciation,
-              }
-              : null,
-            tags: myFeedback.feedback_tags || [],
-            comments: myFeedback.comments || "",
-          }
-          : null,
-        // What partner gave to me
-        peerFeedback: peerFeedback
-          ? {
-            overallBand: peerFeedback.scores?.overall ?? null,
-            scores: peerFeedback.scores
-              ? {
-                fluency: peerFeedback.scores.fluency,
-                vocabulary: peerFeedback.scores.vocabulary,
-                grammar: peerFeedback.scores.grammar,
-                pronunciation: peerFeedback.scores.pronunciation,
-              }
-              : null,
-            tags: peerFeedback.feedback_tags || [],
-            comments: peerFeedback.comments || "",
-            wouldMatchAgain: peerFeedback.would_match_again,
-          }
-          : null,
+        myFeedback: shape(fb.find((f) => f.match_id === m.id && f.from_user_id === user.id)),
+        peerFeedback: shape(fb.find((f) => f.match_id === m.id && f.to_user_id === user.id)),
       };
     });
 
     return { sessions, error: null };
   } catch (error) {
-    console.error("Call history error:", error);
+    console.error("[getCallHistory]", error);
     return { sessions: [], error: "An unexpected error occurred" };
   }
 }
 
 /**
- * Submit feedback for a match
+ * Rates the partner after a call. The partner, the overall band and the
+ * rounding are decided here, not by the client, and only a call both people
+ * joined can be rated, once.
  */
 export async function submitFeedback(
   matchId: string,
-  toUserId: string,
-  rating: number,
-  wouldMatchAgain: boolean | null,
-  tags: string[],
-  comments: string | null,
-  scores: SessionScores | null
+  input: FeedbackInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const adminClient = createAdminClient() as any;
+    const access = await requireParticipant(matchId);
+    if (!access.ok) return { success: false, error: access.error };
+    const { userId, partnerId, match, admin } = access;
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return { success: false, error: "Not authenticated" };
+    if (match.status !== "finished" || !match.started_at) {
+      return { success: false, error: "Only a finished call can be rated" };
     }
 
-    const { error: insertError } = await adminClient
-      .from("session_feedback")
-      .insert({
-        match_id: matchId,
-        from_user_id: user.id,
-        to_user_id: toUserId,
-        overall_rating: rating,
-        would_match_again: wouldMatchAgain,
-        feedback_tags: tags,
-        comments,
-        scores,
-      });
+    const checked = validateFeedback(input);
+    if (!checked.ok) return { success: false, error: checked.error };
+    const { scores, tags, comments, wouldMatchAgain } = checked.value;
+    const overall = overallBand(scores);
 
-    if (insertError) {
-      console.error("Error submitting feedback:", insertError);
-      return { 
-        success: false, 
-        error: `Failed to submit feedback: ${insertError.message || insertError.code || JSON.stringify(insertError)}` 
-      };
+    const { error } = await admin.from("session_feedback").insert({
+      match_id: match.id,
+      from_user_id: userId,
+      to_user_id: partnerId,
+      overall_rating: Math.min(9, Math.max(1, Math.round(overall))),
+      would_match_again: wouldMatchAgain,
+      feedback_tags: tags,
+      comments,
+      scores: { ...scores, overall },
+    });
+
+    if (error) {
+      if (error.code === "23505") return { success: false, error: "Bạn đã đánh giá buổi này rồi." };
+      console.error("[submitFeedback]", error);
+      return { success: false, error: "Không gửi được đánh giá, thử lại nhé." };
     }
-
-    // --- CORTEX HUB INTEGRATION ---
-    try {
-      // Fetch match topic to enrich the log
-      const { data: matchData } = await adminClient
-        .from("matches")
-        .select("topic")
-        .eq("id", matchId)
-        .single();
-
-      const cortexPayload = {
-        userId: user.id,
-        appSource: 'oratio',
-        actionType: 'COMPLETE_ORATIO_SESSION',
-        metadata: {
-          matchId,
-          topic: matchData?.topic || 'IELTS Speaking Session',
-          tags: tags || [],
-          comments: comments || '',
-          scores: scores || {},
-          // We use topic + tags + comments as a proxy for the transcript 
-          // to trigger vocabulary activation in the bridge
-          transcript: `${matchData?.topic || ''}. ${tags.join(', ')}. ${comments || ''}`
-        }
-      };
-
-      console.log("[Cortex] Sending Oratio session log for activation...");
-      await fetch('http://localhost:3001/actions/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cortexPayload)
-      });
-    } catch (cortexError) {
-      console.error("[Cortex] Failed to sync session with Hub:", cortexError);
-    }
-    // -------------------------------
 
     revalidatePath("/");
     return { success: true };
   } catch (error) {
-    console.error("Submit feedback error:", error);
-    return { success: false, error: "An unexpected error occurred" };
+    console.error("[submitFeedback]", error);
+    return { success: false, error: "Không gửi được đánh giá, thử lại nhé." };
   }
 }

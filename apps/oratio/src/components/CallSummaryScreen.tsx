@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { isPositiveTag } from "./RatingScreen";
 import {
   Clock,
   MessageCircle,
@@ -8,13 +9,11 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
-  Target,
   BookOpen,
   Volume2,
   Brain,
   Home,
   RotateCcw,
-  Tag,
   CheckCircle2,
   Inbox,
 } from "lucide-react";
@@ -27,7 +26,7 @@ interface CallSummaryScreenProps {
 
 interface SessionData {
   duration: number;
-  topicsDiscussed: string[];
+  questions: { part: number; text: string }[];
   partnerName: string;
   partnerBand: string;
   myScores: {
@@ -102,10 +101,10 @@ function StatCard({
         <div className="p-2 rounded-lg bg-zinc-800">
           <Icon className="w-4 h-4 text-[#80c0f4]" />
         </div>
-        <span className="text-sm text-zinc-500">{label}</span>
+        <span className="text-sm text-zinc-400">{label}</span>
       </div>
-      <p className="text-xl font-bold text-white">{value}</p>
-      {subtext && <p className="text-xs text-zinc-600 mt-1">{subtext}</p>}
+      <p className="text-xl font-bold text-white break-words">{value}</p>
+      {subtext && <p className="text-xs text-zinc-500 mt-1">{subtext}</p>}
     </div>
   );
 }
@@ -128,11 +127,12 @@ function ExpandableSection({
     <div className="rounded-2xl bg-zinc-900/60 border border-white/5 overflow-hidden">
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
         className="w-full flex items-center justify-between p-5 hover:bg-white/5 transition-colors"
       >
-        <div className="flex items-center gap-3">
-          <Icon className="w-5 h-5 text-[#80c0f4]" />
-          <span className="font-semibold text-white">{title}</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <Icon className="w-5 h-5 shrink-0 text-[#80c0f4]" />
+          <span className="font-semibold text-white text-left">{title}</span>
         </div>
         {isOpen ? (
           <ChevronUp className="w-5 h-5 text-zinc-500" />
@@ -159,20 +159,22 @@ export default function CallSummaryScreen({
     if (mins >= 60) {
       const hours = Math.floor(mins / 60);
       const remainingMins = mins % 60;
-      return `${hours}h ${remainingMins}m`;
+      return `${hours} giờ ${remainingMins} phút`;
     }
-    return `${mins}m ${secs}s`;
+    return `${mins} phút ${secs} giây`;
   };
 
   // Separate tags into strengths (positive) and improvements (negative)
-  const positiveTags = [
-    "Speaks naturally", "Good use of fillers", "Well-organized ideas",
-    "Rich vocabulary", "Good collocations", "Uses idioms well",
-    "Varied structures", "Good complex sentences", "Accurate tenses",
-    "Clear speech", "Good intonation", "Natural stress patterns",
-  ];
-  const strengths = sessionData.myTags.filter((t) => positiveTags.includes(t));
-  const improvements = sessionData.myTags.filter((t) => !positiveTags.includes(t));
+  const strengths = sessionData.myTags.filter((t) => isPositiveTag(t));
+  const improvements = sessionData.myTags.filter((t) => !isPositiveTag(t));
+
+  // Group questions by Part, keeping the order they were asked
+  const questionsByPart = [1, 2, 3]
+    .map((part) => ({
+      part,
+      items: sessionData.questions.filter((q) => q.part === part),
+    }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <div className="min-h-screen bg-[#050505]">
@@ -182,14 +184,14 @@ export default function CallSummaryScreen({
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 mb-4">
             <Award className="w-4 h-4 text-blue-400" />
             <span className="text-sm font-medium text-blue-400">
-              Session Summary
+              Tổng kết buổi luyện
             </span>
           </div>
           <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">
-            Practice Session Complete
+            Buổi luyện đã hoàn thành
           </h1>
           <p className="text-zinc-400">
-            You practiced with {sessionData.partnerName} for{" "}
+            Bạn đã luyện với {sessionData.partnerName} trong{" "}
             {formatDuration(sessionData.duration)}
           </p>
         </header>
@@ -198,24 +200,24 @@ export default function CallSummaryScreen({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           <StatCard
             icon={Clock}
-            label="Duration"
+            label="Thời lượng"
             value={formatDuration(sessionData.duration)}
           />
           <StatCard
             icon={MessageCircle}
-            label="Topics"
-            value={sessionData.topicsDiscussed.length.toString()}
+            label="Câu hỏi"
+            value={sessionData.questions.length.toString()}
           />
           <StatCard
             icon={Mic}
-            label="Partner"
+            label="Bạn luyện cùng"
             value={sessionData.partnerName}
             subtext={`Band ${sessionData.partnerBand}`}
           />
           <StatCard
             icon={Award}
-            label="You Gave"
-            value={didEvaluate ? `Band ${sessionData.myOverallBand!.toFixed(1)}` : "Skipped"}
+            label="Bạn chấm"
+            value={didEvaluate ? `Band ${sessionData.myOverallBand!.toFixed(1)}` : "Bỏ qua"}
           />
         </div>
 
@@ -227,12 +229,11 @@ export default function CallSummaryScreen({
             </div>
             <div>
               <h2 className="text-lg font-semibold text-white mb-1">
-                Your Partner&apos;s Feedback
+                Đánh giá từ {sessionData.partnerName}
               </h2>
               <p className="text-sm text-zinc-400 leading-relaxed">
-                {sessionData.partnerName}&apos;s evaluation of your speaking will appear in your{" "}
-                <span className="text-blue-400 font-medium">Call History</span> once
-                they submit it. Check back later!
+                Điểm {sessionData.partnerName} chấm bạn sẽ hiện trong{" "}
+                <span className="text-blue-400 font-medium">Lịch sử</span> khi họ gửi.
               </p>
             </div>
           </div>
@@ -241,17 +242,17 @@ export default function CallSummaryScreen({
         {/* Your evaluation of partner */}
         {didEvaluate ? (
           <ExpandableSection
-            title={`Your Evaluation of ${sessionData.partnerName}`}
+            title={`Bạn đã chấm ${sessionData.partnerName}`}
             icon={CheckCircle2}
             defaultOpen={false}
           >
             <div className="space-y-5">
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-sm text-zinc-500">
-                  You rated {sessionData.partnerName}:
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <span className="text-sm text-zinc-400">
+                  Điểm bạn dành cho {sessionData.partnerName}:
                 </span>
                 <span className="px-3 py-1 rounded-full bg-blue-500/10 text-sm font-semibold text-blue-400 border border-blue-500/20">
-                  Overall Band {sessionData.myOverallBand!.toFixed(1)}
+                  Band tổng {sessionData.myOverallBand!.toFixed(1)}
                 </span>
               </div>
 
@@ -263,7 +264,7 @@ export default function CallSummaryScreen({
               />
               <ScoreBar
                 icon={BookOpen}
-                label="Lexical Resource"
+                label="Lexical Resource (Vocabulary)"
                 score={sessionData.myScores!.vocabulary}
                 delay={100}
               />
@@ -285,7 +286,7 @@ export default function CallSummaryScreen({
                 <div className="pt-4 border-t border-white/5 space-y-3">
                   {strengths.length > 0 && (
                     <div>
-                      <p className="text-xs text-zinc-500 mb-2 uppercase tracking-wider">Strengths you noted</p>
+                      <p className="text-xs text-zinc-400 mb-2 uppercase tracking-wider">Điểm mạnh bạn ghi nhận</p>
                       <div className="flex flex-wrap gap-2">
                         {strengths.map((tag) => (
                           <span
@@ -300,7 +301,7 @@ export default function CallSummaryScreen({
                   )}
                   {improvements.length > 0 && (
                     <div>
-                      <p className="text-xs text-zinc-500 mb-2 uppercase tracking-wider">Areas you flagged</p>
+                      <p className="text-xs text-zinc-400 mb-2 uppercase tracking-wider">Điểm cần cải thiện bạn ghi nhận</p>
                       <div className="flex flex-wrap gap-2">
                         {improvements.map((tag) => (
                           <span
@@ -316,10 +317,10 @@ export default function CallSummaryScreen({
                 </div>
               )}
 
-              {/* Your comments */}
+              {/* Nhận xét của bạns */}
               {sessionData.myComments && (
                 <div className="pt-4 border-t border-white/5">
-                  <p className="text-xs text-zinc-500 mb-2 uppercase tracking-wider">Your comment</p>
+                  <p className="text-xs text-zinc-400 mb-2 uppercase tracking-wider">Nhận xét của bạn</p>
                   <p className="text-sm text-zinc-300 italic">
                     &ldquo;{sessionData.myComments}&rdquo;
                   </p>
@@ -329,29 +330,40 @@ export default function CallSummaryScreen({
           </ExpandableSection>
         ) : (
           <div className="p-5 rounded-2xl bg-zinc-900/60 border border-white/5 mb-6">
-            <p className="text-sm text-zinc-500 text-center">
-              You skipped the evaluation for this session.
+            <p className="text-sm text-zinc-400 text-center">
+              Bạn đã bỏ qua phần chấm điểm cho buổi này.
             </p>
           </div>
         )}
 
-        {/* Topics Discussed */}
-        {sessionData.topicsDiscussed.length > 0 && (
-          <div className="mt-6">
-            <ExpandableSection title="Topics Discussed" icon={MessageCircle}>
-              <div className="flex flex-wrap gap-2">
-                {sessionData.topicsDiscussed.map((topic, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1.5 rounded-full bg-zinc-800 text-sm text-zinc-300"
-                  >
-                    {topic}
-                  </span>
+        {/* Questions practised */}
+        <div className="mt-6">
+          <ExpandableSection title="Câu hỏi đã luyện" icon={MessageCircle}>
+            {questionsByPart.length === 0 ? (
+              <p className="text-sm text-zinc-400">Không có câu hỏi nào được hỏi.</p>
+            ) : (
+              <div className="space-y-5">
+                {questionsByPart.map((group) => (
+                  <div key={group.part}>
+                    <p className="text-xs text-zinc-400 mb-2 uppercase tracking-wider">
+                      Part {group.part}
+                    </p>
+                    <ol className="space-y-2">
+                      {group.items.map((q, index) => (
+                        <li
+                          key={index}
+                          className="px-3 py-2 rounded-xl bg-zinc-800 text-sm text-zinc-300 break-words"
+                        >
+                          {q.text}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
                 ))}
               </div>
-            </ExpandableSection>
-          </div>
-        )}
+            )}
+          </ExpandableSection>
+        </div>
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mt-10">
@@ -360,14 +372,14 @@ export default function CallSummaryScreen({
             className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-zinc-800 border border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all font-medium"
           >
             <Home className="w-5 h-5" />
-            <span>Go Home</span>
+            <span>Về trang chủ</span>
           </button>
           <button
             onClick={onPracticeAgain}
             className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold transition-all shadow-lg shadow-blue-500/25"
           >
             <RotateCcw className="w-5 h-5" />
-            <span>Practice Again</span>
+            <span>Luyện tiếp</span>
           </button>
         </div>
       </div>

@@ -234,6 +234,8 @@ begin
   if uid is null then raise exception 'not signed in'; end if;
   select * into cls from lexica_classes where code = upper(trim(p_code)) and not archived;
   if cls.id is null then raise exception 'no such class'; end if;
+  -- The class's teacher (or the center's admin) teaches it; they do not join it as a student.
+  if lexica_can_teach(cls.id) then raise exception 'own class'; end if;
   if exists (select 1 from lexica_class_members where class_id = cls.id and user_id = uid) then
     update lexica_class_members set display_name = trim(p_display_name) where class_id = cls.id and user_id = uid;
     return jsonb_build_object('class_id', cls.id, 'name', cls.name, 'branch', cls.branch, 'level', cls.level);
@@ -419,3 +421,6 @@ begin
   revoke all on function public.lexica_can_teach(uuid) from public, anon;
   revoke all on function public.lexica_class_code() from public, anon, authenticated;
 end $$;
+
+-- The API sees the new functions without waiting for its schema cache.
+notify pgrst, 'reload schema';

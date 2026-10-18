@@ -277,7 +277,7 @@ export default function DialectaPage() {
                         </h2>
                         <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-ghost-white">
                             Mọi giọng bạn nhầm trong Dialecta đều được CORTEX theo dõi. Khi bạn mở
-                            Oratio (Combat), bạn sẽ tranh luận với người có giọng đó.
+                            Oratio (Combat), bạn sẽ luyện IELTS Speaking với người học thật, mỗi người một giọng.
                             Khi bạn mở Lexica (Biological), bạn sẽ nghe từ vựng qua giọng bạn yếu.
                             <span className="mt-4 block font-medium text-white">
                                 Giọng không để trốn. Chúng buộc bạn đối mặt ở mọi app.

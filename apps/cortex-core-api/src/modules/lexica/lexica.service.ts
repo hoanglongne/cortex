@@ -13,6 +13,7 @@ import { DEFAULT_GEMINI_MODEL } from '../synapse/llm.provider';
 import {
   DailyLimit,
   MAX_AUDIO_BASE64,
+  parseSentenceReply,
   parseTranscript,
   pcmRate,
   pcmToWav,
@@ -20,6 +21,8 @@ import {
   readingInput,
   readingKey,
   readingPrompt,
+  sentenceInput,
+  sentencePrompt,
   str,
   transcribePrompt,
   ttsInput,
@@ -59,6 +62,7 @@ export class LexicaService {
     reading: new DailyLimit(20),
     transcribe: new DailyLimit(150),
     tts: new DailyLimit(300),
+    sentence: new DailyLimit(60),
   };
 
   constructor(
@@ -88,6 +92,17 @@ export class LexicaService {
       return out;
     }
     throw new ServiceUnavailableException('Could not write a reading');
+  }
+
+  /** Kind feedback on a sentence the learner wrote with a word. Not cached: every sentence differs. */
+  async sentence(body: unknown, who: string) {
+    const input = sentenceInput(body);
+    if (!input) throw new BadRequestException('Need a word and a sentence');
+    this.take('sentence', who);
+    const { json } = await this.llm.generateJson(sentencePrompt(input));
+    const reply = parseSentenceReply(json);
+    if (!reply) throw new ServiceUnavailableException('Could not check it');
+    return reply;
   }
 
   /** What the learner said, when the browser could not recognise it. Not cached: every attempt differs. */

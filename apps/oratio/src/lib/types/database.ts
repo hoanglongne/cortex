@@ -65,6 +65,23 @@ export interface Match {
   started_at: string | null;
   ended_at: string | null;
   created_at: string;
+  /** When each person asked to join the call; started_at is set once both did */
+  user1_joined_at?: string | null;
+  user2_joined_at?: string | null;
+  /** Bumped while someone is on the in-call screen */
+  last_activity_at?: string | null;
+}
+
+/** Fields of another user anyone signed in may see (public_profiles view). */
+export interface PublicProfile {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  current_band: number;
+  total_sessions: number;
+  total_minutes: number;
+  current_streak: number;
+  longest_streak: number;
 }
 
 export interface IeltsQuestion {
@@ -142,19 +159,13 @@ export interface SessionFeedbackInsert {
 // Update Types
 // ============================================
 
+/** The only profile columns users may write (the rest is server-side). */
 export interface ProfileUpdate {
   username?: string;
   target_band?: number;
-  current_band?: number;
   avatar_url?: string | null;
   native_language?: string | null;
   country?: string | null;
-  total_sessions?: number;
-  total_minutes?: number;
-  current_streak?: number;
-  longest_streak?: number;
-  last_practice_date?: string | null;
-  updated_at?: string;
 }
 
 export interface MatchQueueUpdate {
@@ -197,7 +208,6 @@ export interface FindMatchResult {
     avatarUrl: string | null;
   };
   error?: string;
-  logs?: string[]; // Added for debugging
 }
 
 export interface LiveKitTokenResult {
@@ -216,24 +226,33 @@ export interface Database {
         Row: Profile;
         Insert: ProfileInsert;
         Update: ProfileUpdate;
+        Relationships: [];
       };
       match_queue: {
         Row: MatchQueueEntry;
         Insert: MatchQueueInsert;
         Update: MatchQueueUpdate;
+        Relationships: [];
       };
       matches: {
         Row: Match;
         Insert: MatchInsert;
         Update: MatchUpdate;
+        Relationships: [];
       };
       session_feedback: {
         Row: SessionFeedback;
         Insert: SessionFeedbackInsert;
         Update: Partial<SessionFeedbackInsert>;
+        Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      public_profiles: {
+        Row: PublicProfile;
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
     Enums: {
       match_queue_status: MatchQueueStatus;
