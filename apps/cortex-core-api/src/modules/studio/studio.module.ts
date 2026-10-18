@@ -11,6 +11,8 @@ import { StudioService } from './studio.service';
 import { VariantsService } from './variants.service';
 import { QuotesService } from './quotes.service';
 import { PassagesService } from './passages.service';
+import { TalkService } from './talk.service';
+import { WordRequestsService } from './word-requests.service';
 
 @Module({
   controllers: [StudioController, ContentController, CaptureController],
@@ -24,6 +26,8 @@ import { PassagesService } from './passages.service';
     VariantsService,
     QuotesService,
     PassagesService,
+    TalkService,
+    WordRequestsService,
   ],
 })
 export class StudioModule {}

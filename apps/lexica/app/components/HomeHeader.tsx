@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Flame, LayoutGrid, RotateCcw, UserRound, Users } from 'lucide-react';
+import { Flame, LayoutGrid, RotateCcw, Route, UserRound, Users } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { levelDef } from '../lib/levels';
+import { BRANCH_LABEL, currentDay, PATH_DAYS } from '../lib/journey/path';
+import { localDate } from '../lib/engagement/ghost';
 
 /**
  * Desktop header of the home screen: logo, level chip, streak, then the
@@ -12,6 +14,8 @@ import { levelDef } from '../lib/levels';
 export default function HomeHeader({ due, onChangeLevel, onOpenMe }: { due: number; onChangeLevel: () => void; onOpenMe: () => void }) {
     const level = useLexicaStore((s) => s.selectedLevel);
     const streak = useLexicaStore((s) => s.currentStreak);
+    const path = useLexicaStore((s) => s.path);
+    const daysDone = useLexicaStore((s) => s.daysDone);
     return (
         <header className="hidden lg:block shrink-0 border-b border-line">
             <div className="max-w-6xl xl:max-w-7xl mx-auto px-8 h-16 flex items-center gap-3">
@@ -23,11 +27,17 @@ export default function HomeHeader({ due, onChangeLevel, onOpenMe }: { due: numb
                 >
                     {level && level !== 'all' ? `${levelDef(level).label} · ${levelDef(level).cefr}` : 'Tất cả level'}
                 </button>
+                {path && (
+                    <Link href="/path" className="h-8 px-3 rounded-lg border border-accent/40 bg-accent/5 text-xs font-mono text-ink flex items-center gap-1.5 hover:border-accent">
+                        Ngày {currentDay(path, daysDone, localDate())}/{PATH_DAYS} · {BRANCH_LABEL[path.branch]}
+                    </Link>
+                )}
                 <span className="h-8 px-3 rounded-lg border border-line bg-surface text-xs font-mono text-ink-2 flex items-center gap-1.5" title="Chuỗi ngày học">
                     <Flame className={`w-3.5 h-3.5 ${streak > 0 ? 'text-warning' : 'text-subtle'}`} />
                     {streak} ngày
                 </span>
                 <nav className="ml-auto flex items-center gap-1" aria-label="Điều hướng">
+                    <NavLink href="/path" icon={<Route className="w-4 h-4" />} label="Lộ trình" />
                     <NavLink href="/review" icon={<RotateCcw className="w-4 h-4" />} label="Ôn tập" badge={due > 0 ? due : undefined} />
                     <NavLink href="/album" icon={<LayoutGrid className="w-4 h-4" />} label="Album" />
                     <NavLink href="/buddy" icon={<Users className="w-4 h-4" />} label="Buddy" />

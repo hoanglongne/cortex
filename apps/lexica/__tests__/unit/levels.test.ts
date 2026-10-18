@@ -6,7 +6,8 @@ import { deckSize, eloRangeText, LEVELS, levelForElo, levelStats, scalePosition,
 describe('levels', () => {
     it('counts words per level from the deck, each card once', () => {
         const unique = new Map(VOCAB_DATABASE.map((c) => [c.id, c]));
-        const stats = levelStats(getDeckCards(), {});
+        const cert = getDeckCards().filter((c) => (c.branch ?? 'cert') === 'cert');
+        const stats = levelStats(cert, {});
         for (const l of LEVELS) {
             const expected = [...unique.values()].filter((c) => c.level === l.id).length;
             expect(stats[l.id].total).toBe(expected);
@@ -14,7 +15,7 @@ describe('levels', () => {
             expect(stats[l.id].samples).toHaveLength(3);
         }
         const sum = LEVELS.reduce((n, l) => n + stats[l.id].total, 0);
-        expect(sum).toBe(deckSize(getDeckCards()));
+        expect(sum).toBe(deckSize(cert));
     });
 
     it('counts a card as remembered once it was reviewed', () => {

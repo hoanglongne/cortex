@@ -28,6 +28,8 @@ const TABS: { id: Status; label: string }[] = [
 interface Passage {
     id: string;
     level: string;
+    /** 'dialogue' for the Giao tiếp branch. */
+    kind?: 'text' | 'dialogue';
     topic: string;
     title: string;
     text: string;
@@ -56,6 +58,7 @@ export default function PassagesPage() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [level, setLevel] = useState<string>('beginner');
     const [topic, setTopic] = useState(TOPICS[0]);
+    const [kind, setKind] = useState<'text' | 'dialogue'>('text');
     const [busy, setBusy] = useState('');
     const [error, setError] = useState('');
     const [note, setNote] = useState('');
@@ -92,9 +95,10 @@ export default function PassagesPage() {
 
     const generate = () =>
         run('generate', async () => {
-            const r = await api<{ saved: number; failed?: string; note?: string }>('/passages/generate', { method: 'POST', body: { level, topic } });
-            if (r.saved === 0) return `Đoạn vừa viết chưa đạt (${r.failed}). Bấm viết lại.`;
-            return r.note ? `Đã viết 1 đoạn, chờ duyệt. Lưu ý: ${r.note}.` : 'Đã viết 1 đoạn, chờ duyệt.';
+            const r = await api<{ saved: number; failed?: string; note?: string }>('/passages/generate', { method: 'POST', body: { level, topic, kind } });
+            const what = kind === 'dialogue' ? 'hội thoại' : 'đoạn';
+            if (r.saved === 0) return `${what === 'đoạn' ? 'Đoạn' : 'Hội thoại'} vừa viết chưa đạt (${r.failed}). Bấm viết lại.`;
+            return r.note ? `Đã viết 1 ${what}, chờ duyệt. Lưu ý: ${r.note}.` : `Đã viết 1 ${what}, chờ duyệt.`;
         });
     const publish = () =>
         run('publish', async () => {
@@ -110,10 +114,14 @@ export default function PassagesPage() {
         <div className="flex flex-col gap-4">
             <Card>
                 <p className="text-sm text-ink-2">
-                    Đoạn văn ngắn (120–200 từ) cho trang &ldquo;Đọc&rdquo; của Lexica. Máy chọn 3–5 từ của level ít được dùng nhất và viết một đoạn quanh chúng; bạn đọc, sửa nếu
-                    cần, rồi duyệt.
+                    Đoạn văn ngắn (120–200 từ) cho trang &ldquo;Đọc&rdquo; của Lexica, hoặc hội thoại 6–10 lượt (60–170 từ) cho nhánh Giao tiếp. Máy chọn 3–5 từ (hoặc cụm
+                    giao tiếp) của level ít được dùng nhất và viết quanh chúng; bạn đọc, sửa nếu cần, rồi duyệt.
                 </p>
                 <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <select className={INPUT} value={kind} onChange={(e) => setKind(e.target.value as 'text' | 'dialogue')} aria-label="Loại">
+                        <option value="text">Đoạn văn (Chứng chỉ)</option>
+                        <option value="dialogue">Hội thoại (Giao tiếp)</option>
+                    </select>
                     <select className={INPUT} value={level} onChange={(e) => setLevel(e.target.value)} aria-label="Level">
                         {LEVELS.map((l) => (
                             <option key={l.id} value={l.id}>
@@ -128,7 +136,7 @@ export default function PassagesPage() {
                         ))}
                     </select>
                     <Button variant="primary" onClick={generate} disabled={!!busy}>
-                        {busy === 'generate' ? 'Đang viết…' : 'Viết 1 đoạn'}
+                        {busy === 'generate' ? 'Đang viết…' : kind === 'dialogue' ? 'Viết 1 hội thoại' : 'Viết 1 đoạn'}
                     </Button>
                     <Button onClick={publish} disabled={!!busy || !stats || stats.approved === 0}>
                         {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản${stats?.unpublished ? ` (${stats.unpublished} mới)` : ''}`}
@@ -179,13 +187,16 @@ function PassageCard({
     const [text, setText] = useState(passage.text);
     const [translation, setTranslation] = useState(passage.translation);
     const n = words(editing ? text : passage.text);
+    const dialogue = passage.kind === 'dialogue';
+    const [min, max] = dialogue ? [60, 170] : [120, 200];
     return (
         <Card>
             <div className="flex flex-wrap items-center gap-2">
                 <span className="font-bold text-ink">{passage.title}</span>
                 <Badge>{LEVELS.find((l) => l.id === passage.level)?.label ?? passage.level}</Badge>
                 <Badge>{passage.topic}</Badge>
-                <Badge tone={n >= 120 && n <= 200 ? 'muted' : 'warning'}>{n} từ</Badge>
+                {dialogue && <Badge>Hội thoại</Badge>}
+                <Badge tone={n >= min && n <= max ? 'muted' : 'warning'}>{n} từ</Badge>
                 {passage.status === 'approved' && !passage.published_at && <Badge tone="warning">Chưa xuất bản</Badge>}
             </div>
             <p className="mt-2 text-xs text-muted">

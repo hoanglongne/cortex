@@ -2,13 +2,17 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, X, Zap, Mic, BookOpen, Trophy, Sprout, Leaf, Sparkles, Flame, User, Briefcase, Laptop, GraduationCap } from 'lucide-react';
+import { ChevronRight, ChevronLeft, X, Zap, BookOpen, Trophy, Sprout, Sparkles, User, Briefcase, Laptop, GraduationCap } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { useLexicaStore } from '../store/lexicaStore';
 import type { UserArchetype } from '../types/vocab';
+import { BRANCH_HINT, BRANCH_LABEL, type Branch } from '../lib/journey/path';
+import { readBranchPick, writeBranchPick } from '../lib/journey/branchPick';
 
 interface OnboardingModalProps {
     onComplete: () => void;
+    /** The first run: ask for the branch too. As help ("?"), the branch step is left out. */
+    firstTime?: boolean;
 }
 
 const STEPS = [
@@ -16,69 +20,57 @@ const STEPS = [
         icon: Zap,
         iconColor: 'text-accent',
         iconBg: 'bg-accent/15 border-accent/30',
-        title: 'Chào mừng đến LEXICA',
-        body: 'LEXICA giúp bạn học từ vựng tiếng Anh theo cách tốt nhất: học bằng ngữ cảnh thực tế, ôn tập đúng lúc trước khi quên.',
-        detail: 'Mỗi ngày bạn có 30 năng lượng. Hết năng lượng → nghỉ ngơi → hôm sau học tiếp.',
+        title: 'Từ câu chêm đến câu của mình',
+        body: 'Người Việt vẫn chêm tiếng Anh khi nói. Lexica bắt đầu từ đúng đó: mỗi từ mới đến trong một câu tiếng Việt quen thuộc, rồi được đẩy dần sang đọc và nói tiếng Anh, cho tới khi nó thành từ của bạn.',
+        detail: '10 phút mỗi ngày. Sau 30 ngày bạn thấy rõ mình đã dùng được bao nhiêu từ.',
+    },
+    {
+        icon: Sparkles,
+        iconColor: 'text-accent',
+        iconBg: 'bg-accent/15 border-accent/30',
+        title: 'Bạn học tiếng Anh để làm gì?',
+        body: 'Hai nhánh dùng cùng một cách học, chỉ khác nội dung. Đổi được bất cứ lúc nào.',
+        detail: null,
+        isBranchSelection: true,
     },
     {
         icon: User,
         iconColor: 'text-accent',
         iconBg: 'bg-accent/15 border-accent/30',
-        title: 'Chọn ngữ cảnh học phù hợp',
-        body: 'Bạn muốn học từ vựng trong ngữ cảnh nào? Điều này giúp LEXICA cá nhân hóa các tình huống thực tế phù hợp với cuộc sống của bạn.',
+        title: 'Câu ví dụ theo đời bạn',
+        body: 'Từ mới luôn đến trong một tình huống quen. Chọn kiểu đời sống gần bạn nhất để câu ví dụ giống chuyện của bạn.',
         detail: null,
         isPersonaSelection: true,
-    },
-    {
-        icon: BookOpen,
-        iconColor: 'text-accent',
-        iconBg: 'bg-accent/15 border-accent/30',
-        title: 'Quẹt để học',
-        body: 'Mỗi card có một tình huống thực tế. Đọc tình huống, đoán từ và đưa ra quyết định:',
-        detail: 'Nếu là từ đang ôn tập, bạn phải trả lời đúng Quiz trên thẻ mới được tính là "Chính xác".',
-        cards: [
-            { icon: '←', label: 'Bỏ qua / Quên', desc: 'Từ mới (không tốn năng lượng) hoặc Chưa thuộc (ôn lại)', color: 'border-line bg-surface/50 text-muted' },
-            { icon: '→', label: 'Ghi nhớ', desc: 'Học từ mới (tốn 1 năng lượng) và bắt đầu hành trình SRS', color: 'border-accent/40 bg-accent/10 text-accent' },
-            { icon: '✓', label: 'Đã biết', desc: 'Bỏ qua học, đánh dấu "Thành thạo" ngay lập tức', color: 'border-warning/40 bg-warning/10 text-warning' },
-        ],
-    },
-    {
-        icon: Mic,
-        iconColor: 'text-accent',
-        iconBg: 'bg-accent/15 border-accent/30',
-        title: 'Voice Mode',
-        body: 'Bật Voice Mode để luyện phát âm. Thay vì quẹt tay, bạn phải nói đúng từ 3 lần liên tiếp mới được "nhớ".',
-        detail: 'Boss Card luôn yêu cầu Voice Mode, kể cả khi bạn đang ở Touch Mode.',
-    },
-    {
-        icon: Trophy,
-        iconColor: 'text-warning',
-        iconBg: 'bg-warning/15 border-warning/30',
-        title: 'Hệ thống ôn tập thông minh',
-        body: 'Mỗi từ bạn học sẽ được lên lịch ôn tập tự động: 1 ngày → 3 ngày → 7 ngày → 14 ngày.',
-        detail: 'Swipe Deck chỉ chứa tối đa 3 từ ôn tập để ưu tiên từ mới. Hãy vào trang "Ôn tập" để giải quyết hết các từ đến hạn.',
     },
     {
         icon: Sprout,
         iconColor: 'text-accent',
         iconBg: 'bg-accent/15 border-accent/30',
-        title: 'Trạng thái từ vựng',
-        body: 'Tiến độ "Thành thạo" phản ánh số lượng từ thực sự nằm trong trí nhớ dài hạn của bạn:',
-        detail: null,
+        title: '4 bước của một từ',
+        body: 'Lexica chỉ đếm từ bạn dùng được. Mỗi từ đi qua 4 bước, theo thứ tự:',
+        detail: 'Trả lời sai khi ôn thì từ lùi về Nhớ, nhưng giữ những lần Gặp và Dùng đã có.',
         cards: [
-            { icon: <Sprout className="w-4 h-4" />, label: 'Seed — Mầm non', desc: 'Mới gặp, chưa vào bộ nhớ dài hạn', color: 'border-line bg-surface/50 text-muted' },
-            { icon: <Leaf className="w-4 h-4" />, label: 'Sprout — Đang nhớ', desc: 'Đã ôn 1–2 lần, đang củng cố', color: 'border-accent/40 bg-accent/10 text-accent' },
-            { icon: <Sparkles className="w-4 h-4" />, label: 'Gold — Thuộc tốt', desc: 'Nhớ vững, ôn thưa dần', color: 'border-accent/40 bg-accent/20 text-accent' },
-            { icon: <Trophy className="w-4 h-4" />, label: 'Mastered — Thành thạo', desc: 'Nhớ lâu dài, hoàn thành mục tiêu', color: 'border-warning/40 bg-warning/10 text-warning' },
+            { icon: '1', label: 'Hiểu', desc: 'Hiểu nghĩa trong câu tiếng Việt, trả lời đúng câu hỏi nhanh', color: 'border-line bg-surface/50 text-ink' },
+            { icon: '2', label: 'Nhớ', desc: 'Nhớ lại đúng ở hai ngày khác nhau, cách nhau vài ngày', color: 'border-line bg-surface/50 text-ink' },
+            { icon: '3', label: 'Gặp', desc: 'Nhận ra từ trong đoạn văn tiếng Anh', color: 'border-line bg-surface/50 text-ink' },
+            { icon: '4', label: 'Dùng', desc: 'Nói ra thành tiếng, máy nghe rõ', color: 'border-accent/40 bg-accent/10 text-accent' },
         ],
     },
     {
-        icon: Flame,
+        icon: BookOpen,
+        iconColor: 'text-accent',
+        iconBg: 'bg-accent/15 border-accent/30',
+        title: 'Mỗi ngày một nút',
+        body: 'Bấm "Bắt đầu hôm nay": Ôn → Học → Đọc → Nói, khoảng 10 phút. Không cần chọn làm gì.',
+        detail: 'Học thẻ: đọc câu, đoán nghĩa. Bấm "Đã nhớ" thì trả lời đúng một câu hỏi nhanh mới được tính.',
+    },
+    {
+        icon: Trophy,
         iconColor: 'text-warning',
         iconBg: 'bg-warning/15 border-warning/30',
-        title: 'Streak & Trang "Đã học"',
-        body: 'Mỗi ngày bạn swipe ít nhất 1 từ = +1 streak. Bỏ 1 ngày là streak về 0. Đạt các mốc 7, 14, 30, 60, 100 ngày để tự hào.',
-        detail: 'Vào trang "Đã học" để xem toàn bộ từ vựng đã học, lịch ôn tập SRS theo ngày, tiến trình Story Pack — và nhấn vào từng từ để xem chi tiết.',
+        title: 'Lộ trình 30 ngày',
+        body: 'Mốc ngày 7, 14, 21 cho bạn thấy mình đi được bao xa. Ngày 30 có bài kiểm tra 30 từ và thẻ kết quả để chia sẻ.',
+        detail: 'Bỏ một ngày thì lộ trình dời theo, không mất gì. Album, hũ điểm và Buddy là phần thưởng sau khi học.',
     },
 ];
 
@@ -124,23 +116,27 @@ const PERSONA_OPTIONS: Array<{
         },
     ];
 
-export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
+export default function OnboardingModal({ onComplete, firstTime = false }: OnboardingModalProps) {
+    const steps = STEPS.filter(st => firstTime || !('isBranchSelection' in st));
     const [step, setStep] = useState(0);
+    const [branch, setBranch] = useState<Branch | null>(() => readBranchPick());
     const [direction, setDirection] = useState(1);
     const [selectedPersona, setSelectedPersona] = useState<UserArchetype | null>(null);
     const { click } = useSoundEffects();
     const setUserArchetype = useLexicaStore(state => state.setUserArchetype);
 
-    const currentStep = STEPS[step];
+    const currentStep = steps[step];
     const Icon = currentStep.icon;
-    const isLast = step === STEPS.length - 1;
+    const isLast = step === steps.length - 1;
     const isPersonaStep = 'isPersonaSelection' in currentStep && currentStep.isPersonaSelection;
+    const isBranchStep = 'isBranchSelection' in currentStep && currentStep.isBranchSelection;
 
     const goNext = () => {
         // If on persona selection step, save the selection before proceeding
         if (isPersonaStep && selectedPersona) {
             setUserArchetype(selectedPersona);
         }
+        if (isBranchStep && branch) writeBranchPick(branch);
 
         if (isLast) { onComplete(); return; }
         setDirection(1);
@@ -175,13 +171,14 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                         onComplete();
                     }}
                     className="absolute top-4 right-4 p-2 rounded-lg hover:bg-surface-2 transition-colors text-muted hover:text-ink"
+                    aria-label="Bỏ qua"
                 >
                     <X className="w-4 h-4" />
                 </button>
 
                 {/* Step indicator */}
                 <div className="flex items-center gap-1.5 mb-6">
-                    {STEPS.map((_, i) => (
+                    {steps.map((_, i) => (
                         <div
                             key={i}
                             className={`h-1 rounded-full transition-all duration-300 ${i === step ? 'bg-accent w-6' : i < step ? 'bg-accent w-3' : 'bg-surface-3 w-3'}`}
@@ -210,6 +207,30 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
 
                         {/* Body */}
                         <p className="text-ink-2 text-sm leading-relaxed">{currentStep.body}</p>
+
+                        {/* Branch: Chứng chỉ or Giao tiếp (docs/LEXICA_DIRECTION.md) */}
+                        {isBranchStep && (
+                            <div className="space-y-2.5 mt-4">
+                                {(['cert', 'talk'] as const).map(b => (
+                                    <button
+                                        key={b}
+                                        data-testid={`branch-${b}`}
+                                        onClick={() => {
+                                            click();
+                                            setBranch(b);
+                                        }}
+                                        aria-pressed={branch === b}
+                                        className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all ${branch === b ? 'border-accent bg-accent/10' : 'border-line-strong bg-surface-2/30 hover:bg-surface-2/50'}`}
+                                    >
+                                        <p className="font-semibold text-sm text-ink flex items-center gap-2">
+                                            {b === 'cert' ? <GraduationCap className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
+                                            {BRANCH_LABEL[b]}
+                                        </p>
+                                        <p className="text-xs mt-0.5 text-muted">{BRANCH_HINT[b]}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
                         {/* Persona Selection (step 2) */}
                         {isPersonaStep && (
@@ -286,10 +307,10 @@ export default function OnboardingModal({ onComplete }: OnboardingModalProps) {
                             click();
                             goNext();
                         }}
-                        disabled={isPersonaStep && !selectedPersona}
+                        disabled={(isPersonaStep && !selectedPersona) || (isBranchStep && !branch)}
                         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent-strong"
                     >
-                        {isLast ? 'Bắt đầu học!' : 'Tiếp theo'}
+                        {isLast ? (firstTime ? 'Làm bài test level' : 'Đã hiểu') : 'Tiếp theo'}
                         {!isLast && <ChevronRight className="w-4 h-4" />}
                     </button>
                 </div>

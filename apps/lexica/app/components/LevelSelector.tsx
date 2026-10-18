@@ -33,12 +33,14 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
     const swipes = useLexicaStore((s) => s.userStats.totalSwipes);
     const tested = useLexicaStore((s) => s.recommendedLevel);
     const version = useContentVersion();
+    const branch = useLexicaStore((s) => s.path?.branch ?? 'cert');
 
     const { stats, total } = useMemo(() => {
         void version; // recount when remote packs load
-        const cards = getDeckCards();
+        // Counts for the learner's branch (docs/LEXICA_DIRECTION.md).
+        const cards = getDeckCards().filter((c) => (c.branch ?? 'cert') === branch);
         return { stats: levelStats(cards, cardProgress), total: deckSize(cards) };
-    }, [cardProgress, version]);
+    }, [cardProgress, version, branch]);
     const suggested = suggestedLevel({ elo, swipes, tested });
 
     const pick = (level: DifficultyLevel | 'all') => {

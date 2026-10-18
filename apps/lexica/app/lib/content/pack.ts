@@ -27,6 +27,8 @@ export interface ContentManifest {
     variants: PackRef | null;
     /** "Đọc" passages (lib/content/passages.ts). */
     passages: PackRef | null;
+    /** Giao tiếp phrase cards: an ordinary card pack whose cards have branch 'talk'. */
+    talk: PackRef | null;
 }
 
 const LEVELS: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced', 'expert'];
@@ -50,6 +52,7 @@ export function parseManifest(v: unknown): ContentManifest | null {
         retired: Array.isArray(v.retired) ? v.retired.filter(isStr) : [],
         variants: parsePackRef(v.variants),
         passages: parsePackRef(v.passages),
+        talk: parsePackRef(v.talk),
     };
 }
 
@@ -75,6 +78,10 @@ export function parseCard(v: unknown): ContentCard | null {
         if (cols.length > 0) card.collocations = cols;
     }
     if (typeof v.revision === 'number') card.revision = v.revision;
+    if (v.branch === 'talk') card.branch = 'talk';
+    if (isObj(v.situation) && isStr(v.situation.prompt) && isStr(v.situation.model)) {
+        card.situation = { prompt: v.situation.prompt.slice(0, 200), model: v.situation.model.slice(0, 200) };
+    }
     if (isObj(v.trend) && isStr(v.trend.label)) {
         card.trend = {
             label: v.trend.label,

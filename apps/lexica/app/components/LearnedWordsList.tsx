@@ -10,6 +10,7 @@ import { type UserCardProgress } from '../lib/eloAlgorithm';
 import SurgeryLab from './SurgeryLab';
 import UpgradeLab from './UpgradeLab';
 import { AnimatePresence } from 'framer-motion';
+import { StepDots } from './StepNumbers';
 
 type CardWithProgress = Omit<BaseCardData, 'state'> & { progress?: UserCardProgress };
 
@@ -98,6 +99,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                 <div className="mb-5">
                     <div className="flex items-center gap-3 mb-1">
                         <span className="text-3xl font-bold text-ink tracking-wide">{card.word}</span>
+                        <StepDots journey={useLexicaStore.getState().journeys[card.id]} />
                         <button onClick={speakWord} className="text-muted hover:text-accent transition-colors">
                             <Volume2 className="w-5 h-5" />
                         </button>
@@ -217,6 +219,7 @@ export default function LearnedWordsList() {
         return () => clearInterval(interval);
     }, []);
 
+    const journeys = useLexicaStore(state => state.journeys);
     const learnedWords = useMemo(() => {
         return useLexicaStore.getState().getLearnedWordsList();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -279,6 +282,7 @@ export default function LearnedWordsList() {
                             <div className="flex flex-col min-w-0 flex-1">
                                 <div className="flex items-center gap-2">
                                     <span className="font-bold text-ink text-sm group-hover:text-ink transition-colors">{card.word}</span>
+                                    <StepDots journey={journeys[card.id]} />
                                     <span
                                         onClick={(e) => speakWord(e, card.word)}
                                         className="text-subtle hover:text-accent transition-colors shrink-0 cursor-pointer"

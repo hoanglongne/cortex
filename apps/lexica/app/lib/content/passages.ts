@@ -29,6 +29,8 @@ export interface Passage {
     words: string[];
     /** Up to two optional comprehension questions. */
     questions?: PassageQuestion[];
+    /** 'dialogue' for the Giao tiếp branch: lines "A: ..." / "B: ..."; plain text otherwise. */
+    kind?: 'text' | 'dialogue';
 }
 
 export const PASSAGE_TOPICS = ['Đời sống', 'Công việc', 'Tiền bạc', 'Công nghệ', 'Giáo dục', 'Sức khoẻ', 'Du lịch', 'Môi trường', 'Xã hội'] as const;
@@ -74,6 +76,7 @@ export function parsePassage(v: unknown): Passage | null {
         newWords,
         words: words.filter((w) => !newWords.includes(w)),
         ...(questions.length > 0 ? { questions } : {}),
+        ...(v.kind === 'dialogue' ? { kind: 'dialogue' as const } : {}),
     };
 }
 
@@ -105,13 +108,18 @@ export interface Segment {
 export function splitByWords(text: string, targets: readonly { id: string; word: string }[]): Segment[] {
     const list = [...targets].filter((t) => t.word.trim()).sort((a, b) => b.word.length - a.word.length);
     if (list.length === 0) return [{ text }];
-    const esc = (w: string) => w.trim().toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(`\\b(${list.map((t) => `${esc(t.word)}(?:s|es|d|ed|ing|ly)?`).join('|')})\\b`, 'gi');
+    const esc = (w: string) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // A phrase ("follow up on") takes its ending on the first word: "followed up on", "makes sense".
+    const pattern = (word: string) => {
+        const [head, ...rest] = word.trim().toLowerCase().split(/\s+/);
+        return [`${esc(head)}(?:s|es|d|ed|ing|ly)?`, ...rest.map(esc)].join('\\s+');
+    };
+    const re = new RegExp(`\\b(${list.map((t) => pattern(t.word)).join('|')})\\b`, 'gi');
+    const own = list.map((t) => ({ t, re: new RegExp(`^${pattern(t.word)}$`, 'i') }));
     const out: Segment[] = [];
     let last = 0;
     for (const m of text.matchAll(re)) {
-        const hit = m[0].toLowerCase();
-        const target = list.find((t) => hit.startsWith(t.word.trim().toLowerCase()));
+        const target = own.find((o) => o.re.test(m[0]))?.t;
         if (!target || m.index === undefined) continue;
         if (m.index > last) out.push({ text: text.slice(last, m.index) });
         out.push({ text: m[0], cardId: target.id });

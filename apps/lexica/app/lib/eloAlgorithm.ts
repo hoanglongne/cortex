@@ -186,15 +186,18 @@ export function generateInitialDeck(
     cardProgress: Record<string, UserCardProgress>,
     selectedLevel?: DifficultyLevel | 'all' | null,
     forcedCardIds: string[] = [],
-    shouldInjectReview: boolean = true
+    shouldInjectReview: boolean = true,
+    /** The learner's branch (docs/LEXICA_DIRECTION.md): only its cards are dealt as new. */
+    branch: 'cert' | 'talk' = 'cert'
 ): VocabCardData[] {
     const deck: VocabCardData[] = [];
     const DECK_SIZE = 10;
 
-    // Filter database by level if specified
+    // Filter database by branch, and by level if specified
+    const ofBranch = getDeckCards().filter(card => (card.branch ?? 'cert') === branch);
     const filteredDatabase = (selectedLevel && selectedLevel !== 'all')
-        ? getDeckCards().filter(card => card.level === selectedLevel)
-        : getDeckCards();
+        ? ofBranch.filter(card => card.level === selectedLevel)
+        : ofBranch;
 
     // Local copy of seenCardIds to avoid mutating the Zustand store directly
     const seenCardIds = [...userStats.seenCardIds];

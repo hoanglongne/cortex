@@ -27,12 +27,23 @@ import {
     setHint,
     SESSION_SIZE,
     type LuckyReward,
+    type SessionState,
 } from '../lib/engagement/session';
 import SessionRecap from './SessionRecap';
 import { buildCheck, RETEST_AFTER, type RecallCheck } from '../lib/engagement/recall';
 import type { Quality } from '../lib/srs';
 
-export default function SwipeDeck() {
+export default function SwipeDeck({
+    sessionSize,
+    onFinish,
+    finishLabel = 'Tiếp tục',
+}: {
+    /** Cards in a session (default 10). */
+    sessionSize?: number;
+    /** Inside the Today session: the recap's button moves on instead of dealing 10 more. */
+    onFinish?: (session: SessionState) => void;
+    finishLabel?: string;
+} = {}) {
     const cards = useLexicaStore(state => state.currentDeck);
     const swipeCard = useLexicaStore(state => state.swipeCard);
     const deferCard = useLexicaStore(state => state.deferCard);
@@ -47,7 +58,7 @@ export default function SwipeDeck() {
     const claimLucky = useLucky(state => state.claim);
 
     // 10-card sessions with a combo and a recap (lib/engagement/session.ts)
-    const [session, setSession] = useState(newSession);
+    const [session, setSession] = useState(() => newSession(Date.now(), sessionSize));
     const [lastCombo, setLastCombo] = useState(0);
     const [luckyToast, setLuckyToast] = useState<(LuckyReward & { explain: boolean }) | null>(null);
     const done = sessionDone(session);
@@ -238,7 +249,8 @@ export default function SwipeDeck() {
             if (done) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    continueSession();
+                    if (onFinish) onFinish(session);
+                    else continueSession();
                 }
                 return;
             }
@@ -267,7 +279,18 @@ export default function SwipeDeck() {
 
         document.addEventListener('keydown', handleKeyDown, true);
         return () => document.removeEventListener('keydown', handleKeyDown, true);
-    }, [topCardId, handleSwipe, setTopCardRevealed, done, continueSession, activeCheck]);
+    }, [topCardId, handleSwipe, setTopCardRevealed, done, continueSession, activeCheck, onFinish, session]);
+
+    if (cards.length === 0 && onFinish) {
+        return (
+            <div className="flex flex-col items-center justify-center h-[460px] px-8 text-center gap-4">
+                <p className="text-ink font-semibold">Hết từ mới ở level này.</p>
+                <button onClick={() => onFinish(session)} className="h-12 px-6 rounded-xl bg-accent text-on-accent font-bold">
+                    {finishLabel}
+                </button>
+            </div>
+        );
+    }
 
     if (cards.length === 0) {
         return (
@@ -390,8 +413,9 @@ export default function SwipeDeck() {
                     session={session}
                     readyToMint={readyToMint}
                     nearest={nearestSet(sets, cardProgress)}
-                    teasers={nextSessionTeasers({ upcoming: cards, luckyIds })}
-                    onContinue={continueSession}
+                    teasers={onFinish ? [] : nextSessionTeasers({ upcoming: cards, luckyIds })}
+                    onContinue={onFinish ? () => onFinish(session) : continueSession}
+                    continueLabel={onFinish ? finishLabel : undefined}
                 />
             )}
 

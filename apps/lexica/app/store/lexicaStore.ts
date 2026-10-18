@@ -10,6 +10,9 @@ import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentenceP
 import { getCard } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import type { SpeakLevel } from '../lib/pronunciation/score';
+import type { LearningPath } from '../lib/journey/path';
+import type { Stage, TodayLog } from '../lib/journey/today';
+import { countSteps, journeysFromProgress, knownAlready, meet, recall, sayClearly, understand, type Journeys, type StepCounts } from '../lib/journey/steps';
 
 /**
  * LEXICA Global State Store (Zustand + localStorage persistence)
@@ -63,6 +66,27 @@ interface LexicaStore {
     // Speaking ("Luyện nói", lib/pronunciation/drill.ts)
     /** "Chưa rõ" count per card; the words hard to say. */
     speakMisses: Record<string, number>;
+
+    // The four steps of each word (lib/journey/steps.ts)
+    journeys: Journeys;
+    /** Step counts at the end of each local day, for the path chart. */
+    stepHistory: Record<string, StepCounts>;
+    /** Gặp: words met in English text (a passage, a quote). */
+    markMet: (cardIds: string[]) => void;
+
+    // The 30-day path and the Today session (lib/journey/path.ts, today.ts)
+    path: LearningPath | null;
+    setPath: (path: LearningPath | null) => void;
+    seeCheckpoint: (day: number) => void;
+    finishPath: (finished: NonNullable<LearningPath['finished']>) => void;
+    /** Local dates on which the whole Today session was finished. */
+    daysDone: string[];
+    todayLog: TodayLog | null;
+    /** Opens today's log (keeps it if it is already today's). */
+    startToday: () => void;
+    finishStage: (stage: Stage) => void;
+    /** The last stage is done: today counts as a day of the path. */
+    completeToday: () => void;
 
     // Reading ("Đọc", lib/engagement/reading.ts)
     /** Cards added from a passage with "Thêm vào phiên học"; dealt first in the next deck. */
@@ -201,6 +225,14 @@ function shouldResetEnergy(lastResetTimestamp: number): boolean {
     return lastResetTimestamp < currentMidnight;
 }
 
+/** New journeys plus today's step counts, for the path chart. */
+function withJourneys(journeys: Journeys, history: Record<string, StepCounts>): Pick<LexicaStore, 'journeys' | 'stepHistory'> {
+    const today = getTodayDateString();
+    const recent = Object.keys(history).sort().slice(-120);
+    const kept = Object.fromEntries(recent.filter(d => d !== today).map(d => [d, history[d]]));
+    return { journeys, stepHistory: { ...kept, [today]: countSteps(journeys) } };
+}
+
 export const useLexicaStore = create<LexicaStore>()(
     persist(
         (set, get) => ({
@@ -304,6 +336,62 @@ export const useLexicaStore = create<LexicaStore>()(
 
             queuedCardIds: [],
             speakMisses: {},
+            journeys: {},
+            stepHistory: {},
+            path: null,
+            daysDone: [],
+            todayLog: null,
+            setPath: (path) => {
+                const branchChanged = path?.branch !== get().path?.branch;
+                set({ path });
+                if (path && branchChanged) get().loadNewDeck();
+                if (path) {
+                    set({ dailyGoal: path.pace || get().dailyGoal });
+                    if (get().selectedLevel !== path.level) get().setSelectedLevel(path.level);
+                }
+            },
+            seeCheckpoint: (day) => {
+                const { path } = get();
+                if (path && !path.seen.includes(day)) set({ path: { ...path, seen: [...path.seen, day] } });
+            },
+            finishPath: (finished) => {
+                const { path } = get();
+                if (path) set({ path: { ...path, finished, seen: [...new Set([...path.seen, 30])] } });
+            },
+            startToday: () => {
+                const today = getTodayDateString();
+                if (get().todayLog?.date === today) return;
+                set({ todayLog: { date: today, done: [], start: countSteps(get().journeys) } });
+            },
+            finishStage: (stage) => {
+                get().startToday();
+                const log = get().todayLog!;
+                if (!log.done.includes(stage)) set({ todayLog: { ...log, done: [...log.done, stage] } });
+            },
+            completeToday: () => {
+                const today = getTodayDateString();
+                const { daysDone, lastActivityDate, currentStreak, longestStreak } = get();
+                if (daysDone.includes(today)) return;
+                // A finished day counts for the streak even with no new word swiped (review only).
+                const streak = lastActivityDate === today ? {} : (() => {
+                    const next = lastActivityDate === getYesterdayDateString() ? currentStreak + 1 : 1;
+                    return { currentStreak: next, longestStreak: Math.max(longestStreak, next), lastActivityDate: today };
+                })();
+                set({ daysDone: [...daysDone, today].slice(-400), ...streak });
+            },
+            markMet: (cardIds) => {
+                const now = Date.now();
+                const journeys = { ...get().journeys };
+                let changed = false;
+                for (const id of cardIds) {
+                    const next = meet(journeys[id], now);
+                    if (next && next !== journeys[id]) {
+                        journeys[id] = next;
+                        changed = true;
+                    }
+                }
+                if (changed) set(withJourneys(journeys, get().stepHistory));
+            },
 
 
             // Swipe card action
@@ -376,6 +464,15 @@ export const useLexicaStore = create<LexicaStore>()(
                 const { highestElo } = get();
                 const newHighestElo = Math.max(highestElo, updatedStats.currentElo);
 
+                // Four steps: a new card remembered is Hiểu; a card seen before is a recall.
+                const now = Date.now();
+                const journeys = { ...get().journeys };
+                if (existingProgress) {
+                    if (journeys[cardId] || direction === 'right') journeys[cardId] = recall(journeys[cardId], direction === 'right', today, now);
+                } else if (direction === 'right') {
+                    journeys[cardId] = understand(journeys[cardId], now);
+                }
+
                 set({
                     userStats: updatedStats,
                     cardProgress: updatedCardProgress,
@@ -387,6 +484,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     studyHistory: updatedStudyHistory,
                     highestElo: newHighestElo,
                     ...streakUpdate,
+                    ...withJourneys(journeys, get().stepHistory),
                 });
 
                 // analytics.swipe is already called in SwipeDeck.tsx, so we don't need it here
@@ -434,7 +532,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 // 2. Haven't injected review cards yet this session
                 // DISABLED: We don't inject review cards into main deck anymore
                 const shouldInjectReview = false;
-                const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview);
+                const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview, get().path?.branch ?? 'cert');
 
                 // Mark that we've injected review cards (so it won't happen again on next loadNewDeck)
                 const dealt = new Set(newDeck.map(c => c.id));
@@ -463,6 +561,11 @@ export const useLexicaStore = create<LexicaStore>()(
                     recommendedLevel: null,
                     queuedCardIds: [],
                     speakMisses: {},
+                    journeys: {},
+                    stepHistory: {},
+                    path: null,
+                    daysDone: [],
+                    todayLog: null,
                     // Reset streak
                     currentStreak: 0,
                     longestStreak: 0,
@@ -589,9 +692,11 @@ export const useLexicaStore = create<LexicaStore>()(
                     },
                 };
 
+                const journeys = { ...get().journeys, [cardId]: recall(get().journeys[cardId], correct, today, Date.now()) };
                 set({
                     cardProgress: { ...cardProgress, [cardId]: updated },
                     studyHistory: updatedStudyHistory,
+                    ...withJourneys(journeys, get().stepHistory),
                 });
 
                 // CORTEX Integration: Send to Hub automatically
@@ -636,10 +741,12 @@ export const useLexicaStore = create<LexicaStore>()(
                 // Remove from deck
                 const updatedDeck = currentDeck.filter(card => card.id !== cardId);
 
+                const journeys = { ...get().journeys, [cardId]: knownAlready(get().journeys[cardId], now) };
                 set({
                     cardProgress: updatedCardProgress,
                     learnedWords: updatedLearnedWords,
                     currentDeck: updatedDeck,
+                    ...withJourneys(journeys, get().stepHistory),
                 });
 
                 // CORTEX Integration: Send to Hub automatically
@@ -652,7 +759,11 @@ export const useLexicaStore = create<LexicaStore>()(
             },
 
             recordSpeak: (cardId, level) => {
-                set({ speakMisses: applySpeakResult(get().speakMisses, cardId, level) });
+                const used = level === 'clear' ? sayClearly(get().journeys[cardId], Date.now()) : undefined;
+                set({
+                    speakMisses: applySpeakResult(get().speakMisses, cardId, level),
+                    ...(used && used !== get().journeys[cardId] ? withJourneys({ ...get().journeys, [cardId]: used }, get().stepHistory) : {}),
+                });
             },
 
             queueCards: (cardIds) => {
@@ -752,6 +863,11 @@ export const useLexicaStore = create<LexicaStore>()(
                 highestElo: state.highestElo,
                 queuedCardIds: state.queuedCardIds,
                 speakMisses: state.speakMisses,
+                journeys: state.journeys,
+                stepHistory: state.stepHistory,
+                path: state.path,
+                daysDone: state.daysDone,
+                todayLog: state.todayLog,
                 studyHistory: state.studyHistory,
                 // Daily Goals - persist daily progress tracking
                 dailyGoal: state.dailyGoal,
@@ -775,16 +891,19 @@ export const useLexicaStore = create<LexicaStore>()(
                     learnedWords?: string[] | Set<string>;
                     todayLearnedWords?: string[] | Set<string>;
                 };
+                const learnedWords = new Set(
+                    Array.isArray(persisted?.learnedWords)
+                        ? persisted.learnedWords
+                        : persisted?.learnedWords instanceof Set
+                            ? Array.from(persisted.learnedWords)
+                            : []
+                );
                 return {
                     ...currentState,
                     ...persisted,
-                    learnedWords: new Set(
-                        Array.isArray(persisted?.learnedWords)
-                            ? persisted.learnedWords
-                            : persisted?.learnedWords instanceof Set
-                                ? Array.from(persisted.learnedWords)
-                                : []
-                    ),
+                    learnedWords,
+                    // Progress saved before the four steps: start them from the SRS history.
+                    journeys: persisted?.journeys ?? journeysFromProgress(persisted?.cardProgress ?? {}, learnedWords),
                     todayLearnedWords: new Set(
                         Array.isArray(persisted?.todayLearnedWords)
                             ? persisted.todayLearnedWords

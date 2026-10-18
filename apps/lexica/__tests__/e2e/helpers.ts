@@ -48,6 +48,10 @@ interface LexicaPersistedState {
   testScore: number | null;
   recommendedLevel: string | null;
   isInTest: boolean;
+  /** The 30-day path (lib/journey/path.ts); without one Home sends the learner to /path/setup. */
+  path: Record<string, unknown> | null;
+  daysDone: string[];
+  journeys: Record<string, unknown>;
 }
 
 // ---------------------------------------------------------------------------
@@ -105,6 +109,9 @@ export function makeBypassState(
     testScore: null,
     recommendedLevel: null,
     isInTest: false,
+    path: { branch: 'cert', pace: 10, level: 'intermediate', startDate: todayString(), seen: [] },
+    daysDone: [],
+    journeys: {},
     ...overrides,
   };
 }

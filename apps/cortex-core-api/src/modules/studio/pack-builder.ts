@@ -39,6 +39,8 @@ export interface Manifest {
   variants?: PackRef | null;
   /** "Đọc" passages (passages.ts); absent before the first publish. */
   passages?: PackRef | null;
+  /** Giao tiếp phrase cards (talk.ts); absent before the first publish. */
+  talk?: PackRef | null;
 }
 
 /** New Studio card id: 't' + 7 base36 chars. Core cards use 'v###'. */

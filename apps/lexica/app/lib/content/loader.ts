@@ -72,6 +72,11 @@ async function apply(manifest: ContentManifest, allowNetwork: boolean) {
         .filter((p): p is ContentPack => p !== null);
     // Never replace good content with nothing because of a network blip.
     if (refs.length > 0 && packs.length === 0) return false;
+    // Giao tiếp phrase cards come as their own pack; a missing one never blocks the rest.
+    if (manifest.talk) {
+        const talk = await loadPack(manifest.talk, allowNetwork).catch(() => null);
+        if (talk) packs.push({ ...talk, cards: talk.cards.map(c => ({ ...c, branch: 'talk' as const })) });
+    }
     const overlay = await loadOverlay(manifest.variants, allowNetwork).catch(() => undefined);
     const passages = await loadPassages(manifest.passages, allowNetwork).catch(() => undefined);
     applyRemoteContent({

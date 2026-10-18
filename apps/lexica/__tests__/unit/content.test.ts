@@ -11,6 +11,7 @@ import {
     resetContent,
 } from '../../app/lib/content/repository';
 import { VOCAB_DATABASE } from '../../app/data/vocabCards';
+import { TALK_CARDS } from '../../app/data/talkCards';
 import { generateInitialDeck } from '../../app/lib/eloAlgorithm';
 
 const trendCard = (id: string, extra: Record<string, unknown> = {}) => ({
@@ -52,13 +53,13 @@ describe('pack parsing', () => {
 
     it('parses a manifest with null refs', () => {
         const m = parseManifest({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9', 3] });
-        expect(m).toEqual({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9'], variants: null, passages: null });
+        expect(m).toEqual({ schema: 1, updatedAt: 'now', current: null, library: null, retired: ['t9'], variants: null, passages: null, talk: null });
     });
 });
 
 describe('content repository', () => {
     it('serves core cards by default', () => {
-        expect(getAllCards()).toHaveLength(VOCAB_DATABASE.length);
+        expect(getAllCards()).toHaveLength(VOCAB_DATABASE.length + TALK_CARDS.length);
         expect(getCard('v001')?.word).toBe('ABUNDANT');
         expect(getCardByWord('abundant')?.id).toBe('v001');
     });
@@ -69,7 +70,7 @@ describe('content repository', () => {
             retired: [],
             currentDropId: 'drop-1',
         });
-        expect(getAllCards()).toHaveLength(VOCAB_DATABASE.length + 1);
+        expect(getAllCards()).toHaveLength(VOCAB_DATABASE.length + TALK_CARDS.length + 1);
         expect(getCard('v001')?.word).toBe('ABUNDANT');
         expect(getCurrentDropCards().map(c => c.id)).toEqual(['t1']);
     });
