@@ -4,7 +4,9 @@ import { useState } from "react";
 import LoadingSpinner from "./LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/card";
+import { Character } from "@/components/ui/character";
 import { Wordmark } from "@/components/ui/shell";
+import { useCharacterEnabled } from "@/lib/client/theme";
 import { cn } from "@/lib/utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
@@ -15,9 +17,9 @@ interface AuthScreenProps {
 }
 
 const inputClass =
-  "h-12 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-base text-ink placeholder:text-subtle focus-visible:border-onair focus-visible:outline-2 focus-visible:outline-onair";
+  "h-12 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface-2 px-4 text-base text-ink placeholder:text-subtle focus-visible:border-voice focus-visible:outline-2 focus-visible:outline-voice";
 
-const labelClass = "mb-2 block text-sm text-muted";
+const labelClass = "mb-2 block text-[13px] font-bold text-muted";
 
 function translateError(message: string | null | undefined): string {
   const m = (message || "").toLowerCase();
@@ -44,6 +46,7 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { enabled: characterOn } = useCharacterEnabled();
 
   const switchMode = (next: "signin" | "signup" | "reset") => {
     setMode(next);
@@ -103,19 +106,27 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
 
   const tabClass = (active: boolean) =>
     cn(
-      "h-10 flex-1 rounded-[calc(var(--radius-control)-2px)] text-sm transition-colors",
-      active ? "bg-surface-3 text-ink" : "text-muted hover:text-ink"
+      "h-10 flex-1 rounded-[calc(var(--radius-control)-2px)] text-sm font-bold transition-colors",
+      active ? "bg-voice-soft font-extrabold text-ink" : "text-muted hover:text-ink"
     );
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-bg px-4 py-12">
-      <div className="w-full max-w-sm">
-        <Wordmark className="text-2xl" />
-        <p className="mt-4 font-serif text-lg leading-snug text-ink-2">
-          Phòng tập IELTS Speaking. Tự nói, nghe lại, thi thử với người thật.
-        </p>
+    <div className="flex min-h-dvh items-center justify-center bg-bg px-4 py-10">
+      <div className="grid w-full max-w-5xl items-center gap-8 md:grid-cols-2 md:gap-16">
+        <div className="flex flex-col items-center text-center md:items-start md:text-left">
+          {characterOn && <Character mood="idle" size={140} className="animate-bob" decorative />}
+          <Wordmark className="mt-3 text-[26px]" />
+          <p className="mt-3 max-w-sm text-[17px] leading-snug text-muted">
+            Luyện IELTS Speaking mỗi ngày. Nói thành tiếng, nghe lại, thi thử với người thật.
+          </p>
+          <ul className="mt-8 hidden max-w-sm space-y-2 text-sm text-muted md:block">
+            {POINTS.map((point) => (
+              <li key={point}>{point}</li>
+            ))}
+          </ul>
+        </div>
 
-        <div className="mt-8">
+        <div className="mx-auto w-full max-w-sm rounded-[var(--radius-card)] md:border md:border-line md:bg-surface md:p-7">
           {mode !== "reset" ? (
             <div className="mb-6 flex gap-1 rounded-[var(--radius-control)] border border-line bg-surface p-1">
               <button type="button" onClick={() => switchMode("signin")} aria-pressed={mode === "signin"} className={tabClass(mode === "signin")}>
@@ -127,7 +138,7 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
             </div>
           ) : (
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-ink">Quên mật khẩu</h2>
+              <h2 className="text-xl font-extrabold tracking-[-0.03em] text-ink">Quên mật khẩu</h2>
               <p className="mt-1 text-sm text-muted">Nhập email để nhận link đặt lại mật khẩu.</p>
             </div>
           )}
@@ -215,12 +226,6 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
             </div>
           )}
         </div>
-
-        <ul className="mt-10 space-y-2 border-t border-line pt-6 text-sm text-muted">
-          {POINTS.map((point) => (
-            <li key={point}>{point}</li>
-          ))}
-        </ul>
       </div>
     </div>
   );

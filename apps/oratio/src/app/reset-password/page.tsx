@@ -4,13 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/card";
+import { Character } from "@/components/ui/character";
 import { Wordmark } from "@/components/ui/shell";
+import { useCharacterEnabled } from "@/lib/client/theme";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 const inputClass =
-  "h-12 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-base text-ink placeholder:text-subtle focus-visible:border-onair focus-visible:outline-2 focus-visible:outline-onair";
+  "h-12 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface-2 px-4 text-base text-ink placeholder:text-subtle focus-visible:border-voice focus-visible:outline-2 focus-visible:outline-voice";
 
-const labelClass = "mb-2 block text-sm text-muted";
+const labelClass = "mb-2 block text-[13px] font-bold text-muted";
 
 export default function ResetPasswordPage() {
   const [hasSession, setHasSession] = useState<boolean | null>(null);
@@ -19,6 +21,7 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { enabled: characterOn } = useCharacterEnabled();
 
   useEffect(() => {
     let cancelled = false;
@@ -65,14 +68,17 @@ export default function ResetPasswordPage() {
     }
   };
 
-  const linkClass = "mt-4 inline-block text-sm text-onair underline-offset-4 hover:underline";
+  const linkClass = "mt-4 inline-block text-sm font-bold text-voice underline-offset-4 hover:underline";
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-bg px-4 py-12">
       <div className="w-full max-w-sm">
-        <Wordmark className="text-2xl" />
+        <div className="flex flex-col items-center">
+          {characterOn && <Character mood="idle" size={110} className="animate-bob" decorative />}
+          <Wordmark className="mt-2 text-2xl" />
+        </div>
 
-        <div className="mt-8">
+        <div className="mt-8 rounded-[var(--radius-card)] border border-line bg-surface p-5 sm:p-7">
           {hasSession === null ? (
             <p className="text-sm text-muted">Đang kiểm tra...</p>
           ) : done ? (
@@ -91,7 +97,7 @@ export default function ResetPasswordPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <h1 className="text-lg font-semibold text-ink">Đặt lại mật khẩu</h1>
+              <h1 className="text-xl font-extrabold tracking-[-0.03em] text-ink">Đặt lại mật khẩu</h1>
               <div>
                 <label htmlFor="new-password" className={labelClass}>
                   Mật khẩu mới

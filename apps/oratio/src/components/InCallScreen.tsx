@@ -26,7 +26,7 @@ import { getPartAndPosition, QUESTIONS_PER_PART, TOTAL_QUESTIONS } from "@/lib/q
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { IeltsQuestion, Match } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
-import { Card, Label, Notice } from "@/components/ui/card";
+import { Card, EmptyState, Label, Notice } from "@/components/ui/card";
 import { CueCard } from "@/components/ui/cue-card";
 import { LiveWaveform, SpeakingPill } from "@/components/ui/on-air";
 import { FlowShell } from "@/components/ui/shell";
@@ -745,6 +745,9 @@ function InCallContent({
 
         <div className="grid gap-5 md:grid-cols-[1.4fr_1fr] md:items-start">
           <div>
+            {!matchId && (
+              <EmptyState title="Chế độ demo">Không có máy chủ nên không chia vai giám khảo và không có câu hỏi.</EmptyState>
+            )}
             {isInterviewer !== null &&
               (isInterviewer ? (
                 <InterviewerControls
