@@ -45,12 +45,12 @@
   - chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`;
   - kiểm tra project teach trên Vercel có `NEXT_PUBLIC_LEXICA_URL` (và `NEXT_PUBLIC_ORATIO_URL`).
 
+- PR #42 đã merge. **PR #43** (Đợt 3, hiệu năng teach và studio) đang mở.
+  - Teach: dữ liệu lớp nằm trong một cache dùng chung (`apps/teach/app/lib/teaching.ts`, dùng được 30 giây). Sửa gì thì gọi `reload` của `useBoard`/`useTeaching`. Tab trong lớp đổi URL bằng `history.replaceState`, đừng đổi lại thành `router.replace`.
+  - Studio: `api()` giữ kết quả GET gần nhất (`cached(path)`), mọi thao tác ghi xoá cache.
+
 ## Việc tiếp theo
-Theo `docs/FEEDBACK_PLAN.md`, từ **Đợt 3** (teach và studio lag khi chuyển tab).
-- **Đo trước rồi mới sửa.** Gợi ý chỗ xem trước:
-  - `apps/teach/app/lib/teaching.ts`: tải board của mọi lớp;
-  - `useBoard`: mỗi trang lớp tải lại board;
-  - Shell và layout của studio.
+Theo `docs/FEEDBACK_PLAN.md`, từ **Đợt 4** (chọn từ Lexica trong form giao bài).
 - Đợt 5 và 6 cần người dùng duyệt hướng hoặc thiết kế trước khi code.
 - Thêm app vào lớp học: làm theo quy trình trong `docs/CLASSROOM.md`, bước 1 là hỏi người dùng giáo viên giao gì, xem gì, xếp hạng theo gì.
 

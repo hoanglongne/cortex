@@ -14,9 +14,9 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Đăng ký lần đầu: ô nhập lại mật khẩu (mọi app).
 - [x] Album: nói rõ còn bao nhiêu lần ôn đúng để đúc ấn bản.
 
-## Đợt 3: hiệu năng teach và studio
-- [ ] Đo (React Profiler, trace) xem lag ở đâu khi chuyển tab.
-- [ ] Sửa theo số đo: cache dữ liệu dùng chung, tránh tải lại, chia nhỏ component, danh sách dài thì ảo hoá.
+## Đợt 3: hiệu năng teach và studio (PR #43)
+- [x] Đo (Playwright, long task, đếm request) xem lag ở đâu khi chuyển tab. (PR #43)
+- [x] Sửa theo số đo: cache dữ liệu dùng chung, tránh tải lại, chia nhỏ component, danh sách dài thì ảo hoá. (PR #43)
 
 ## Đợt 4: giao bài bằng nội dung có sẵn của Lexica
 - [ ] Tab "Chọn từ Lexica" trong form giao bài: duyệt theo nhánh, level, pack Studio; tìm từ; chọn cả pack hoặc từng từ; xem trước.
