@@ -1,21 +1,29 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { X } from 'lucide-react';
 import { matchWords, type WordsMode, type WordsPayload } from '@cortex/classroom-lexica';
 import { Badge, Button, ErrorNote, errorText, Field, inputClass } from '../../components/ui';
 import type { ModuleUI } from '../types';
+import LexicaPicker from './LexicaPicker';
 import { wordIndex, type WordIndex } from './words';
 
+/** Words per lesson, as classroom_lexica_clean_payload keeps them. */
+const MAX_WORDS = 200;
+
 /**
- * Giving a Lexica lesson, three steps: paste the words (split at once into
- * "có sẵn" and "Studio sẽ viết"), name it with a due date and a mode, check
- * what students will see, give it.
+ * Giving a Lexica lesson, three steps: choose the words (pick from the cards
+ * Lexica has, or paste a list split at once into "có sẵn" and "Studio sẽ
+ * viết"), name it with a due date and a mode, check what students will see,
+ * give it.
  */
-const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
+const AssignForm: ModuleUI['AssignForm'] = ({ board, onSubmit, onCancel }) => {
     const [words, setWords] = useState<WordIndex | null>(null);
     useEffect(() => {
         void wordIndex().then(setWords);
     }, []);
+    const [source, setSource] = useState<'pick' | 'paste'>('pick');
+    const [picked, setPicked] = useState<string[]>([]);
     const [text, setText] = useState('');
     const [title, setTitle] = useState('');
     const [due, setDue] = useState('');
@@ -24,13 +32,17 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const match = useMemo(() => matchWords(text, (w) => words?.byWord.get(w)), [text, words]);
-    const found = match.cardIds.map((id) => words?.byId.get(id)).filter((c): c is NonNullable<typeof c> => Boolean(c));
+    const pasted = match.cardIds.filter((id) => !picked.includes(id));
+    const cardIds = [...picked, ...pasted].slice(0, MAX_WORDS);
+    const missing = match.missing.slice(0, MAX_WORDS);
+    const found = cardIds.map((id) => words?.byId.get(id)).filter((c): c is NonNullable<typeof c> => Boolean(c));
+    const assigned = useMemo(() => new Set(board.assignments.filter((a) => a.app === 'lexica').flatMap((a) => (a.payload as Partial<WordsPayload>)?.card_ids ?? [])), [board.assignments]);
 
     const give = async () => {
         setBusy(true);
         setError('');
         try {
-            const payload: WordsPayload = { card_ids: match.cardIds, missing_words: match.missing, mode };
+            const payload: WordsPayload = { card_ids: cardIds, missing_words: missing, mode };
             await onSubmit({ kind: 'words', title: title.trim(), payload, due: due || null });
         } catch (e) {
             setError(errorText(e));
@@ -50,9 +62,25 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
 
             {step === 1 && (
                 <div className="space-y-4">
-                    <Field label="Dán danh sách từ" hint="Mỗi dòng một từ, hoặc cách nhau bằng dấu phẩy. Cụm từ như “keep in mind” cũng được.">
-                        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={7} className={`${inputClass} h-auto py-2`} autoFocus placeholder={'commute\ndeadline\nkeep in mind'} />
-                    </Field>
+                    <div className="flex gap-1 rounded-xl bg-surface-2 p-1" role="tablist" aria-label="Cách chọn từ">
+                        {(
+                            [
+                                ['pick', 'Chọn từ Lexica'],
+                                ['paste', 'Dán danh sách'],
+                            ] as const
+                        ).map(([id, label]) => (
+                            <button key={id} role="tab" aria-selected={source === id} onClick={() => setSource(id)} className={`flex-1 rounded-lg px-3 py-1.5 text-sm ${source === id ? 'bg-surface font-semibold text-ink shadow-sm' : 'text-muted hover:text-ink'}`}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                    {source === 'pick' && words && !words.error && <LexicaPicker words={words} picked={picked} onChange={setPicked} max={MAX_WORDS - pasted.length} assigned={assigned} />}
+                    {source === 'pick' && !words && <div className="h-64 animate-pulse rounded-xl bg-surface-2" />}
+                    {source === 'paste' && (
+                        <Field label="Dán danh sách từ" hint="Mỗi dòng một từ, hoặc cách nhau bằng dấu phẩy. Cụm từ như “keep in mind” cũng được.">
+                            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={7} className={`${inputClass} h-auto py-2`} autoFocus placeholder={'commute\ndeadline\nkeep in mind'} />
+                        </Field>
+                    )}
                     {words?.error && (
                         <div className="space-y-2">
                             <ErrorNote error={words.error} />
@@ -61,15 +89,28 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
                             </Button>
                         </div>
                     )}
-                    {text.trim() && !words?.error && (
-                        <div className="space-y-2 text-sm">
-                            <p>
-                                <Badge tone="accent">{found.length} có sẵn</Badge>{' '}
-                                {match.missing.length > 0 && <Badge tone="warm">{match.missing.length} Studio sẽ viết</Badge>}
+                    {(picked.length > 0 || text.trim()) && !words?.error && (
+                        <div className="space-y-2 rounded-xl border border-line bg-surface p-3 text-sm">
+                            <p className="font-medium text-ink">
+                                Bài này: {found.length + missing.length} từ <Badge tone="accent">{found.length} có sẵn</Badge> {missing.length > 0 && <Badge tone="warm">{missing.length} Studio sẽ viết</Badge>}
                             </p>
-                            {match.missing.length > 0 && (
+                            {found.length > 0 && (
+                                <ul className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
+                                    {found.map((c) => (
+                                        <li key={c.id} className="inline-flex items-center gap-1 rounded-full bg-surface-2 py-0.5 pl-2.5 pr-1 text-ink-2" title={c.meaning}>
+                                            {c.word.toLowerCase()}
+                                            {picked.includes(c.id) && (
+                                                <button onClick={() => setPicked(picked.filter((x) => x !== c.id))} aria-label={`Bỏ ${c.word.toLowerCase()}`} className="rounded-full p-0.5 text-muted hover:bg-surface hover:text-ink">
+                                                    <X className="h-3.5 w-3.5" />
+                                                </button>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {missing.length > 0 && (
                                 <p className="text-muted">
-                                    Chưa có thẻ: <span className="text-ink-2">{match.missing.join(', ')}</span>. Đội nội dung sẽ viết thẻ; học viên nhận được khi thẻ xong.
+                                    Chưa có thẻ: <span className="text-ink-2">{missing.join(', ')}</span>. Đội nội dung sẽ viết thẻ; học viên nhận được khi thẻ xong.
                                 </p>
                             )}
                         </div>
@@ -78,7 +119,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
                         <Button kind="secondary" onClick={onCancel}>
                             Huỷ
                         </Button>
-                        <Button onClick={() => setStep(2)} disabled={!words || Boolean(words.error) || match.cardIds.length + match.missing.length === 0} className="flex-1">
+                        <Button onClick={() => setStep(2)} disabled={!words || Boolean(words.error) || cardIds.length + missing.length === 0} className="flex-1">
                             {words ? 'Tiếp' : 'Đang tải danh sách từ…'}
                         </Button>
                     </div>
@@ -125,7 +166,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
                         <p className="text-sm text-muted">Học viên sẽ thấy trong Lexica → Lớp học:</p>
                         <p className="mt-2 font-semibold text-ink">{title}</p>
                         <p className="text-sm text-muted">
-                            {found.length + match.missing.length} từ{due ? ` · hạn ${due.slice(8)}/${due.slice(5, 7)}` : ''} · {mode === 'only' ? 'phiên Học chỉ có từ của bài' : 'học trước trong phiên thường'}
+                            {found.length + missing.length} từ{due ? ` · hạn ${due.slice(8)}/${due.slice(5, 7)}` : ''} · {mode === 'only' ? 'phiên Học chỉ có từ của bài' : 'học trước trong phiên thường'}
                         </p>
                         <ul className="mt-3 flex flex-wrap gap-1.5">
                             {found.map((c) => (
@@ -133,7 +174,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
                                     {c.word.toLowerCase()}
                                 </li>
                             ))}
-                            {match.missing.map((w) => (
+                            {missing.map((w) => (
                                 <li key={w} className="rounded-full border border-dashed border-warm/50 px-2.5 py-1 text-sm text-warm" title="Studio đang viết thẻ">
                                     {w}
                                 </li>

@@ -6,9 +6,15 @@ export interface IndexCard {
     meaning: string;
     level: string;
     branch: 'cert' | 'talk';
+    ipa?: string;
+    /** The card's sentence, for a preview (older Lexica builds don't send it). */
+    scenario?: string;
+    /** The Studio drop or trend it came from; none for Lexica's own deck. */
+    pack?: string;
 }
 
 export interface WordIndex {
+    cards: IndexCard[];
     byWord: Map<string, IndexCard>;
     byId: Map<string, IndexCard>;
     /** Why the list is empty, in Vietnamese; then no lesson can be matched and none should be given. */
@@ -17,7 +23,7 @@ export interface WordIndex {
 
 let cache: Promise<WordIndex> | null = null;
 
-const empty = (error: string): WordIndex => ({ byWord: new Map(), byId: new Map(), error });
+const empty = (error: string): WordIndex => ({ cards: [], byWord: new Map(), byId: new Map(), error });
 
 /**
  * Lexica's word list (lexica /api/word-index), loaded once per visit. A
@@ -39,7 +45,7 @@ export function wordIndex(): Promise<WordIndex> {
                 const k = c.word.trim().toLowerCase();
                 if (!byWord.has(k)) byWord.set(k, c);
             }
-            return { byWord, byId: new Map(cards.map((c) => [c.id, c])), error: null };
+            return { cards, byWord, byId: new Map(cards.map((c) => [c.id, c])), error: null };
         })
         .catch(() => {
             cache = null;
