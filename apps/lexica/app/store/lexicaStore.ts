@@ -14,6 +14,7 @@ import type { LearningPath } from '../lib/journey/path';
 import type { Stage, TodayLog } from '../lib/journey/today';
 import { countSteps, journeysFromProgress, knownAlready, live, meet, recall, sayClearly, understand, type Journeys, type StepCounts } from '../lib/journey/steps';
 import type { Pledge } from '../lib/journey/outside';
+import { addSightings, type Hunt, type Sighting } from '../lib/journey/sightings';
 
 /**
  * LEXICA Global State Store (Zustand + localStorage persistence)
@@ -82,6 +83,22 @@ interface LexicaStore {
     pledge: Pledge | null;
     makePledge: (cardId: string) => void;
     clearPledge: () => void;
+
+    // "Bắt gặp" (lib/journey/sightings.ts)
+    /** Words caught outside the app, newest first. */
+    sightings: Sighting[];
+    /** Records sightings; the words count as Gặp. */
+    recordSightings: (list: Sighting[]) => void;
+    /** This week's five words to catch. */
+    hunt: Hunt | null;
+    setHunt: (hunt: Hunt) => void;
+
+    // Help (lib/guide.ts)
+    /** Tip id → local date it was put away. */
+    tipsDismissed: Record<string, string>;
+    dismissTip: (id: string) => void;
+    checklistHidden: boolean;
+    hideChecklist: () => void;
 
     // The 30-day path and the Today session (lib/journey/path.ts, today.ts)
     path: LearningPath | null;
@@ -403,6 +420,20 @@ export const useLexicaStore = create<LexicaStore>()(
             makePledge: (cardId) => set({ pledge: { cardId, date: getTodayDateString() } }),
             clearPledge: () => set({ pledge: null }),
 
+            sightings: [],
+            recordSightings: (list) => {
+                if (list.length === 0) return;
+                set({ sightings: addSightings(get().sightings, list) });
+                get().markMet(list.map((x) => x.cardId));
+            },
+            hunt: null,
+            setHunt: (hunt) => set({ hunt }),
+
+            tipsDismissed: {},
+            dismissTip: (id) => set({ tipsDismissed: { ...get().tipsDismissed, [id]: getTodayDateString() } }),
+            checklistHidden: false,
+            hideChecklist: () => set({ checklistHidden: true }),
+
             markSaidInOratio: (words) => {
                 const now = Date.now();
                 const journeys = { ...get().journeys };
@@ -607,6 +638,10 @@ export const useLexicaStore = create<LexicaStore>()(
                     speakMisses: {},
                     journeys: {},
                     pledge: null,
+                    sightings: [],
+                    hunt: null,
+                    tipsDismissed: {},
+                    checklistHidden: false,
                     stepHistory: {},
                     path: null,
                     daysDone: [],
@@ -910,6 +945,10 @@ export const useLexicaStore = create<LexicaStore>()(
                 speakMisses: state.speakMisses,
                 journeys: state.journeys,
                 pledge: state.pledge,
+                sightings: state.sightings,
+                hunt: state.hunt,
+                tipsDismissed: state.tipsDismissed,
+                checklistHidden: state.checklistHidden,
                 stepHistory: state.stepHistory,
                 path: state.path,
                 daysDone: state.daysDone,
