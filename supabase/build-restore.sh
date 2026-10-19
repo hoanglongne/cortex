@@ -40,6 +40,7 @@ FILES=(
   packages/classroom/sql/classroom_core.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
+  apps/oratio/supabase/migration_2026_10_answers.sql
   # Last: tightens public.profiles for every app (drops Lexica's read-all policy)
   apps/oratio/supabase/migration_2026_10_security.sql
 )
