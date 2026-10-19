@@ -1,4 +1,19 @@
 {
-    "git": { "deploymentEnabled": { "main": true, "*": false } },
-    "ignoreCommand": "node ../../scripts/vercel-ignore.mjs"
+    "git": {
+        "deploymentEnabled": {
+            "main": true,
+            "*": false
+        }
+    },
+    "ignoreCommand": "node ../../scripts/vercel-ignore.mjs",
+    "crons": [
+        {
+            "path": "/api/cron/expire-audio",
+            "schedule": "17 3 * * *"
+        },
+        {
+            "path": "/api/cron/exam-reminder",
+            "schedule": "10 13 * * *"
+        }
+    ]
 }

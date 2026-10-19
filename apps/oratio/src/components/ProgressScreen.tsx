@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check } from "lucide-react";
+import { listMyAnswers, type MyAnswer } from "@/actions/answers";
+import { getReviewStatus, type ReviewStatus } from "@/actions/reviews";
+import { lexicaUsed, milestones, weeklyPoints, type WeekPoint } from "@/lib/answer-trends";
 import { getBandHistory, getMyFeedbackSummary, type BandPoint } from "@/actions/stats";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
-import { Card, EmptyState, Label, Notice, Stat } from "@/components/ui/card";
+import { Card, EmptyState, Label, Notice, Pill, Stat } from "@/components/ui/card";
 import { BandRange, CRITERION_LABELS, CriterionRow } from "@/components/ui/band";
 import { CharacterSays } from "@/components/ui/character";
 import { useCharacterEnabled } from "@/lib/client/theme";
@@ -20,28 +23,6 @@ interface ProgressScreenProps {
 }
 
 type FeedbackSummary = NonNullable<Awaited<ReturnType<typeof getMyFeedbackSummary>>["summary"]>;
-
-interface Milestone {
-  id: string;
-  title: string;
-  target: number;
-  unit: string;
-  value: (p: Profile) => number;
-}
-
-const MILESTONES: Milestone[] = [
-  { id: "first-session", title: "Buổi thi đầu tiên", target: 1, unit: "buổi", value: (p) => p.total_sessions },
-  { id: "sessions-5", title: "5 buổi thi", target: 5, unit: "buổi", value: (p) => p.total_sessions },
-  { id: "sessions-20", title: "20 buổi thi", target: 20, unit: "buổi", value: (p) => p.total_sessions },
-  { id: "sessions-50", title: "50 buổi thi", target: 50, unit: "buổi", value: (p) => p.total_sessions },
-  { id: "minutes-60", title: "Một giờ nói", target: 60, unit: "phút", value: (p) => p.total_minutes },
-  { id: "minutes-300", title: "Năm giờ nói", target: 300, unit: "phút", value: (p) => p.total_minutes },
-  { id: "minutes-1000", title: "1000 phút nói", target: 1000, unit: "phút", value: (p) => p.total_minutes },
-  { id: "streak-3", title: "Chuỗi 3 ngày", target: 3, unit: "ngày", value: (p) => p.longest_streak },
-  { id: "streak-7", title: "Chuỗi 7 ngày", target: 7, unit: "ngày", value: (p) => p.longest_streak },
-  { id: "band-6", title: "Band 6.0", target: 6, unit: "band", value: (p) => p.current_band },
-  { id: "band-7", title: "Band 7.0", target: 7, unit: "band", value: (p) => p.current_band },
-];
 
 type Series = "overall" | Criterion;
 
@@ -103,9 +84,88 @@ function BandChart({ points, series }: { points: BandPoint[]; series: Series }) 
   );
 }
 
-function formatValue(n: number, unit: string) {
-  return unit === "band" ? n.toFixed(1) : String(Math.round(n));
+/** Weekly machine metric as a hand-drawn line. Never a band. */
+function TrendChart({
+  points,
+  pick,
+  unit,
+  digits = 0,
+}: {
+  points: WeekPoint[];
+  pick: (p: WeekPoint) => number | null;
+  unit: string;
+  digits?: number;
+}) {
+  const data = points.map((p) => ({ start: p.start, v: pick(p) })).filter((d): d is { start: string; v: number } => d.v !== null);
+  if (data.length === 0) return <p className="py-6 text-sm text-muted">Chưa có số liệu.</p>;
+
+  const W = 300;
+  const H = 110;
+  const pad = { l: 8, r: 8, t: 10, b: 22 };
+  const lo = Math.min(...data.map((d) => d.v));
+  const hi = Math.max(...data.map((d) => d.v));
+  const range = hi - lo || 1;
+  const x = (i: number) => (data.length === 1 ? W / 2 : pad.l + (i / (data.length - 1)) * (W - pad.l - pad.r));
+  const y = (v: number) => (hi === lo ? (H - pad.b + pad.t) / 2 : pad.t + (1 - (v - lo) / range) * (H - pad.t - pad.b));
+  const path = data.map((d, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)} ${y(d.v).toFixed(1)}`).join(" ");
+  const fmtDay = (iso: string) => {
+    const [, m, d] = iso.split("-");
+    return `${Number(d)}/${Number(m)}`;
+  };
+  const last = data[data.length - 1];
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className="h-auto w-full"
+      role="img"
+      aria-label={`${unit} theo tuần, ${data.length} tuần, mới nhất ${last.v.toFixed(digits)}`}
+    >
+      <line x1={pad.l} x2={W - pad.r} y1={H - pad.b} y2={H - pad.b} className="stroke-line" strokeWidth={1} />
+      {data.length > 1 && (
+        <path d={path} fill="none" className="stroke-listen" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+      )}
+      {data.map((d, i) => (
+        <circle key={d.start} cx={x(i)} cy={y(d.v)} r={i === data.length - 1 ? 4.5 : 3} className="fill-listen stroke-surface" strokeWidth={2}>
+          <title>{`Tuần ${fmtDay(d.start)}: ${d.v.toFixed(digits)} ${unit}`}</title>
+        </circle>
+      ))}
+      <text x={pad.l} y={H - 6} className="fill-subtle text-[10px] font-bold">
+        {fmtDay(data[0].start)}
+      </text>
+      {data.length > 1 && (
+        <text x={W - pad.r} y={H - 6} textAnchor="end" className="fill-subtle text-[10px] font-bold">
+          {fmtDay(last.start)}
+        </text>
+      )}
+    </svg>
+  );
 }
+
+function MetricCard({
+  title,
+  explain,
+  latest,
+  children,
+}: {
+  title: string;
+  explain: string;
+  latest: string | null;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card>
+      <div className="flex items-baseline justify-between gap-3">
+        <Label>{title}</Label>
+        {latest && <span className="text-lg font-extrabold tabular text-ink">{latest}</span>}
+      </div>
+      <p className="mt-1 text-[13px] leading-snug text-muted">{explain}</p>
+      <div className="mt-2">{children}</div>
+    </Card>
+  );
+}
+
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("vi-VN", { day: "numeric", month: "numeric", year: "numeric" });
 
 /** Ơ names the lowest criterion, from the real averages only. */
 function WeakestTip({ averages, enabled }: { averages: Record<Criterion, number>; enabled: boolean }) {
@@ -124,7 +184,27 @@ export default function ProgressScreen({ profile, onTab, onOpenLeaderboard }: Pr
   const [failed, setFailed] = useState(false);
   const [history, setHistory] = useState<BandPoint[]>([]);
   const [series, setSeries] = useState<Series>("overall");
+  const [answers, setAnswers] = useState<MyAnswer[]>([]);
+  const [reviewer, setReviewer] = useState<ReviewStatus | null>(null);
   const { enabled: characterOn } = useCharacterEnabled();
+
+  useEffect(() => {
+    let cancelled = false;
+    // Demo mode and signed-out users get empty results, never a throw
+    listMyAnswers({ limit: 200 })
+      .then((res) => {
+        if (!cancelled) setAnswers(res.answers);
+      })
+      .catch(() => {});
+    getReviewStatus()
+      .then((res) => {
+        if (!cancelled) setReviewer(res.status);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -157,10 +237,16 @@ export default function ProgressScreen({ profile, onTab, onOpenLeaderboard }: Pr
     };
   }, []);
 
-  const items = MILESTONES.map((m) => {
-    const current = profile ? m.value(profile) || 0 : 0;
-    return { ...m, current, done: current >= m.target };
-  });
+  const weeks = useMemo(() => weeklyPoints(answers), [answers]);
+  const lexica = useMemo(() => lexicaUsed(answers), [answers]);
+  const timeline = useMemo(() => {
+    const all = milestones(answers, { reliable: reviewer?.trusted });
+    const done = all.filter((m) => m.date !== null);
+    const next = all.find((m) => m.date === null);
+    return { done, next };
+  }, [answers, reviewer]);
+  const totalMinutes = weeks.reduce((sum, w) => sum + w.minutesSpoken, 0);
+  const lastWeek = weeks[weeks.length - 1];
 
   return (
     <TabShell tab="progress" onTab={onTab} title="Tiến bộ" wide>
@@ -226,27 +312,98 @@ export default function ProgressScreen({ profile, onTab, onOpenLeaderboard }: Pr
         </Card>
       )}
 
+      {/* Machine metrics */}
+      <section className="mt-8">
+        <Label>Máy đo</Label>
+        <p className="mt-1 text-sm text-muted">Đo trên máy từ các câu tập của bạn. Máy chỉ đếm, không chấm band.</p>
+        {weeks.length === 0 ? (
+          <Card className="mt-3 text-sm text-muted">Tập một câu ở tab Luyện, các số đo theo tuần sẽ hiện ở đây.</Card>
+        ) : (
+          <>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <MetricCard
+                title="Từ mỗi phút"
+                explain="Tốc độ nói, tính trên các câu đã chép lời. Nói tự nhiên thường quanh 100–150."
+                latest={lastWeek?.wpm != null ? `${Math.round(lastWeek.wpm)}` : null}
+              >
+                <TrendChart points={weeks} pick={(p) => p.wpm} unit="từ/phút" />
+              </MetricCard>
+              <MetricCard
+                title="Ngừng dài mỗi phút"
+                explain="Số lần im hơn 1 giây trong mỗi phút ghi âm. Càng ít thì càng liền mạch."
+                latest={lastWeek?.pausesPerMin != null ? lastWeek.pausesPerMin.toFixed(1) : null}
+              >
+                <TrendChart points={weeks} pick={(p) => p.pausesPerMin} unit="lần/phút" digits={1} />
+              </MetricCard>
+            </div>
+            <Card className="mt-3 grid grid-cols-2 gap-4">
+              <Stat value={Math.round(totalMinutes * 10) / 10} unit="phút" label="đã nói ở tab Luyện" />
+              <Stat value={answers.length} unit="câu" label="đã ghi lại" />
+            </Card>
+          </>
+        )}
+        <div className="mt-3">
+          <Card>
+            <Label>Từ Lexica bạn đã nói</Label>
+            {lexica.length === 0 ? (
+              <p className="mt-2 text-sm text-muted">Khi bạn nói một từ trong Lexica lúc trả lời, từ đó hiện ở đây.</p>
+            ) : (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {lexica.slice(0, 60).map((w) => (
+                  <Pill key={w.word} tone="listen">
+                    {w.word}
+                    {w.count > 1 && <span className="ml-1 tabular opacity-70">×{w.count}</span>}
+                  </Pill>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+      </section>
+
+      {/* Reviewer profile */}
+      {reviewer && (
+        <section className="mt-8">
+          <Label>Hồ sơ người chấm</Label>
+          <Card className="mt-3 grid grid-cols-2 items-start gap-4 sm:grid-cols-3">
+            <Stat value={reviewer.reviewsGiven} unit="lượt" label="bạn đã chấm" />
+            <Stat
+              value={reviewer.reliability !== null ? `${Math.round(reviewer.reliability * 100)}%` : "–"}
+              label={reviewer.reliability !== null ? "độ chuẩn" : "độ chuẩn: chưa đủ dữ liệu"}
+            />
+            <div className="col-span-2 sm:col-span-1">
+              {reviewer.trusted ? <Pill tone="good">Tin cậy</Pill> : <Pill>Chưa đủ để gắn nhãn Tin cậy</Pill>}
+            </div>
+          </Card>
+        </section>
+      )}
+
       {/* Milestones */}
       <section className="mt-8">
         <Label>Cột mốc</Label>
-        <ul className="mt-3 divide-y divide-line border-y border-line">
-          {items.map((m) => (
-            <li key={m.id} className="flex items-center gap-3 py-3">
-              <span className="flex size-5 shrink-0 items-center justify-center" aria-hidden>
-                {m.done && <Check className="size-4 text-ink" />}
+        <ol className="mt-3 divide-y divide-line border-y border-line">
+          {timeline.done.map((m) => (
+            <li key={m.key} className="flex items-center gap-3 py-3">
+              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-good-soft" aria-hidden>
+                <Check className="size-3.5 text-good-edge dark:text-good" />
               </span>
-              <span className={cn("min-w-0 flex-1 text-sm", m.done ? "text-ink" : "text-muted")}>
-                {m.title}
-                <span className="sr-only">{m.done ? " (đã đạt)" : " (chưa đạt)"}</span>
+              <span className="min-w-0 flex-1 text-sm font-bold text-ink">
+                {m.label}
+                <span className="sr-only"> (đã đạt)</span>
               </span>
-              {!m.done && (
-                <span className="text-xs font-bold tabular text-subtle">
-                  {formatValue(m.current, m.unit)}/{m.target}
-                </span>
-              )}
+              {m.date && <span className="text-xs font-bold tabular text-subtle">{fmtDate(m.date)}</span>}
             </li>
           ))}
-        </ul>
+          {timeline.next && (
+            <li className="flex items-center gap-3 py-3">
+              <span className="size-5 shrink-0 rounded-full border-2 border-dashed border-line-strong" aria-hidden />
+              <span className="min-w-0 flex-1 text-sm text-subtle">
+                {timeline.next.label}
+                <span className="sr-only"> (cột mốc tiếp theo)</span>
+              </span>
+            </li>
+          )}
+        </ol>
       </section>
 
       {/* Common tags */}

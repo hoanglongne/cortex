@@ -8,6 +8,8 @@ import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, Label } from "@/components/ui/card";
 import { InstallButton } from "@/components/ui/install";
+import { ExamReminder } from "@/components/ui/reminder";
+import { useTranscribeChoice } from "@/lib/client/whisper";
 import { useCharacterEnabled, useTheme, type ThemeChoice } from "@/lib/client/theme";
 import { cn } from "@/lib/utils";
 import { TabShell, type Tab } from "@/components/ui/shell";
@@ -37,6 +39,7 @@ const FIELD =
 export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpdated, onOpenPartners, onOpenLeaderboard, onOpenClasses }: MeScreenProps) {
   const { choice, setTheme } = useTheme();
   const { enabled: characterOn, setEnabled: setCharacterOn } = useCharacterEnabled();
+  const { choice: transcribeChoice, setChoice: setTranscribeChoice } = useTranscribeChoice();
   const [editing, setEditing] = useState(false);
   const [username, setUsername] = useState("");
   const [targetBand, setTargetBand] = useState(7);
@@ -231,6 +234,32 @@ export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpd
               />
             </button>
           </div>
+          <div className="flex items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-surface px-4 py-3">
+            <div className="min-w-0">
+              <p id="transcribe-toggle-label" className="font-bold text-ink">
+                Chép lời trên máy
+              </p>
+              <p className="text-[13px] text-subtle">
+                Tải khoảng 40 MB một lần, chạy ngay trên máy bạn, âm thanh không bị tải lên. Cho ra thêm từ/phút, từ đệm và từ Lexica đã dùng.
+              </p>
+            </div>
+            <button
+              role="switch"
+              aria-checked={transcribeChoice === "on"}
+              aria-labelledby="transcribe-toggle-label"
+              onClick={() => setTranscribeChoice(transcribeChoice === "on" ? "off" : "on")}
+              className={cn("relative h-7 w-12 shrink-0 rounded-full transition-colors", transcribeChoice === "on" ? "bg-good" : "bg-surface-3")}
+            >
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute left-0.5 top-0.5 size-6 rounded-full bg-surface shadow-sm transition-transform",
+                  transcribeChoice === "on" && "translate-x-5"
+                )}
+              />
+            </button>
+          </div>
+          <ExamReminder />
           <InstallButton />
         </div>
       </section>

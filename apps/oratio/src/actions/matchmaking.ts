@@ -13,6 +13,7 @@ import {
 } from "@/lib/matchmaking/rules";
 import { clampBandRange, overallBand, validateFeedback, type FeedbackInput } from "@/lib/feedback";
 import { lastActivity, requireParticipant, type AdminClient } from "@/lib/server/match-access";
+import { reliabilities } from "@/lib/server/answers";
 import type { FindMatchResult, Match, MatchQueueEntry, PublicProfile } from "@/lib/types/database";
 
 /** Server logs for matchmaking, only when ORATIO_DEBUG=true. Never sent to the client. */
@@ -27,19 +28,21 @@ const NEVER_STARTED_TIMEOUT_MS = 3 * 60_000;
 /** An active call with no sign of life from either screen for this long is over. */
 const ABANDONED_AFTER_MS = 60_000;
 
-type PartnerFields = Pick<PublicProfile, "id" | "username" | "current_band" | "avatar_url">;
+// Country is shared with the matched partner only (it is not in public_profiles)
+type PartnerFields = Pick<PublicProfile, "id" | "username" | "current_band" | "avatar_url"> & { country: string | null };
 
 const toPartner = (p: PartnerFields) => ({
   id: p.id,
   username: p.username,
   band: Number(p.current_band),
   avatarUrl: p.avatar_url,
+  country: p.country ?? null,
 });
 
 async function partnerOf(admin: AdminClient, partnerId: string) {
   const { data } = await admin
     .from("profiles")
-    .select("id, username, current_band, avatar_url")
+    .select("id, username, current_band, avatar_url, country")
     .eq("id", partnerId)
     .maybeSingle();
   return data ? toPartner(data as PartnerFields) : undefined;
@@ -184,7 +187,7 @@ export async function findMatch(bandMin: number = 1, bandMax: number = 9): Promi
     if (others.length > 0) {
       const { data: rows } = await admin
         .from("profiles")
-        .select("id, username, current_band, avatar_url")
+        .select("id, username, current_band, avatar_url, country")
         .in("id", others.map((e) => e.user_id));
       for (const p of (rows ?? []) as PartnerFields[]) profiles.set(p.id, p);
     }
@@ -500,8 +503,11 @@ export async function submitFeedback(
     if (!checked.ok) return { success: false, error: checked.error };
     const { scores, tags, comments, wouldMatchAgain } = checked.value;
     const overall = overallBand(scores);
+    // Raters who score Chấm chéo answers close to the teacher count more (§5.3)
+    const raterWeight = (await reliabilities(admin, [userId]).catch(() => null))?.get(userId)?.weight ?? 0.6;
 
     const { error } = await admin.from("session_feedback").insert({
+      rater_weight: Math.round(raterWeight * 100) / 100,
       match_id: match.id,
       from_user_id: userId,
       to_user_id: partnerId,

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useEffect, useMemo, useState, memo } from "react";
 import { ChevronDown, RefreshCw } from "lucide-react";
+import { listMyAnswers, type MyAnswer } from "@/actions/answers";
 import { useCallHistory } from "@/hooks/useCallHistory";
 import { Button } from "@/components/ui/button";
 import { EmptyState, Label, Notice, Pill } from "@/components/ui/card";
@@ -212,15 +213,183 @@ function SessionCard({ session, isExpanded, onToggle }: { session: CallSession; 
   );
 }
 
+type Filter = "all" | "room" | "solo";
+
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: "all", label: "Tất cả" },
+  { id: "room", label: "Phòng thi" },
+  { id: "solo", label: "Tập một mình" },
+];
+
+const dayKey = (iso: string) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "" : `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+};
+
+const secs = (ms: number) => formatDuration(Math.round(ms / 1000));
+
+function Metric({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="rounded-[12px] bg-surface-2 px-3 py-2">
+      <p className="text-[11px] font-extrabold uppercase tracking-[0.06em] text-subtle">{label}</p>
+      <p className="mt-0.5 text-sm font-extrabold tabular text-ink">{value}</p>
+    </div>
+  );
+}
+
+function AnswerCard({ answer, isExpanded, onToggle }: { answer: MyAnswer; isExpanded: boolean; onToggle: () => void }) {
+  const panelId = `answer-${answer.id}`;
+  return (
+    <li className={cn("rounded-[var(--radius-card)] border bg-surface", isExpanded ? "border-line-strong" : "border-line")}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isExpanded}
+        aria-controls={panelId}
+        className="flex w-full items-center gap-3 rounded-[var(--radius-card)] px-4 py-3.5 text-left hover:bg-surface-2"
+      >
+        <span
+          aria-hidden
+          className="flex size-10 shrink-0 items-center justify-center rounded-full bg-listen-soft text-xs font-extrabold text-listen-ink"
+        >
+          P{answer.part}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-2 break-words font-bold leading-snug text-ink">{answer.questionText}</p>
+          <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[13px] text-subtle">
+            <span>Part {answer.part}</span>
+            <span aria-hidden>·</span>
+            <span className="tabular">{secs(answer.durationMs)}</span>
+            {answer.retakeOf && <Pill tone="voice">Nói lại</Pill>}
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          {answer.band ? (
+            <BandRange low={answer.band.low} high={answer.band.high} />
+          ) : answer.submittedAt ? (
+            <Pill tone="pending">Đang chờ chấm</Pill>
+          ) : null}
+        </div>
+        <ChevronDown className={cn("size-4 shrink-0 text-subtle transition-transform", isExpanded && "rotate-180")} aria-hidden />
+      </button>
+
+      {isExpanded && (
+        <div id={panelId} className="animate-enter space-y-4 border-t border-line px-4 pb-5 pt-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <Metric label="Thời gian nói" value={secs(answer.speakingMs)} />
+            <Metric label="Ngừng dài" value={answer.longPauses} />
+            {answer.wpm !== null && <Metric label="Từ/phút" value={Math.round(answer.wpm)} />}
+            {answer.meanRunWords !== null && <Metric label="Từ mỗi mạch" value={answer.meanRunWords.toFixed(1)} />}
+          </div>
+
+          {answer.lexicaWords.length > 0 && (
+            <section>
+              <Label className="mb-1.5">Từ Lexica bạn đã nói</Label>
+              <div className="flex flex-wrap gap-1.5">
+                {answer.lexicaWords.map((w) => (
+                  <Pill key={w} tone="listen">
+                    {w}
+                  </Pill>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {answer.band && (
+            <section>
+              <Label>Người chấm cho bạn</Label>
+              <p className="mt-1 text-sm text-muted">
+                <span className="tabular">{answer.band.raters}</span> lượt chấm, ẩn danh.
+              </p>
+              <div className="mt-2 divide-y divide-line">
+                <CriterionRow criterion="fluency" value={answer.band.criteria.fluency} />
+                <CriterionRow criterion="vocabulary" value={answer.band.criteria.vocabulary} />
+                <CriterionRow criterion="grammar" value={answer.band.criteria.grammar} />
+                <CriterionRow criterion="pronunciation" value={answer.band.criteria.pronunciation} />
+              </div>
+            </section>
+          )}
+
+          <section>
+            <Label className="mb-1.5">Lời bạn nói</Label>
+            {answer.transcript ? (
+              <p className="break-words rounded-[var(--radius-control)] bg-surface-2 px-3.5 py-3 text-sm leading-relaxed text-ink-2">
+                {answer.transcript}
+              </p>
+            ) : (
+              <p className="text-sm text-muted">Câu này chưa có bản chép lời.</p>
+            )}
+          </section>
+        </div>
+      )}
+    </li>
+  );
+}
+
+type Entry = { kind: "room"; date: string; session: CallSession } | { kind: "solo"; date: string; answer: MyAnswer };
+
 function CallHistoryScreenComponent({ onTab }: CallHistoryScreenProps) {
   const { sessions, error, isLoading, refresh } = useCallHistory();
+  const [filter, setFilter] = useState<Filter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<MyAnswer[]>([]);
+  const [answersLoading, setAnswersLoading] = useState(true);
+  const [answersFailed, setAnswersFailed] = useState(false);
 
-  const filteredSessions = sessions.filter((session: CallSession) => {
-    if (!searchQuery) return true;
-    return session.partner.name.toLowerCase().includes(searchQuery.toLowerCase());
-  });
+  const fetchAnswers = () =>
+    listMyAnswers({ limit: 100 })
+      .then((res) => {
+        // "Not authenticated" in demo/signed-out just means nothing to show
+        setAnswers(res.answers.filter((a) => a.mode === "solo"));
+        setAnswersFailed(Boolean(res.error) && res.error !== "Not authenticated");
+      })
+      .catch(() => setAnswersFailed(true))
+      .finally(() => setAnswersLoading(false));
+
+  const loadAnswers = () => {
+    setAnswersLoading(true);
+    setAnswersFailed(false);
+    void fetchAnswers();
+  };
+
+  useEffect(() => {
+    void fetchAnswers();
+  }, []);
+
+  const showRoom = filter !== "solo";
+  const showSolo = filter !== "room";
+
+  const roomSessions = useMemo(
+    () =>
+      sessions.filter((session: CallSession) => {
+        if (!searchQuery) return true;
+        return session.partner.name.toLowerCase().includes(searchQuery.toLowerCase());
+      }),
+    [sessions, searchQuery]
+  );
+
+  // One timeline: newest first, grouped by day
+  const days = useMemo(() => {
+    const entries: Entry[] = [
+      ...(showRoom ? roomSessions.map((session: CallSession): Entry => ({ kind: "room", date: session.date, session })) : []),
+      ...(showSolo ? answers.map((answer): Entry => ({ kind: "solo", date: answer.createdAt, answer })) : []),
+    ].sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+    const groups: { key: string; date: string; items: Entry[] }[] = [];
+    for (const e of entries) {
+      const key = dayKey(e.date);
+      const last = groups[groups.length - 1];
+      if (last && last.key === key) last.items.push(e);
+      else groups.push({ key, date: e.date, items: [e] });
+    }
+    return groups;
+  }, [roomSessions, answers, showRoom, showSolo]);
+
+  const loading = (showRoom && isLoading) || (showSolo && answersLoading);
+  // Signed out (demo) is an empty history, not an error; server messages are English
+  const roomError = showRoom && error && error !== "Not authenticated" ? "Không tải được lịch sử phòng thi." : null;
+  const soloError = showSolo && answersFailed ? "Không tải được các câu tập một mình." : null;
+  const hasAnything = (showRoom && sessions.length > 0) || (showSolo && answers.length > 0);
 
   return (
     <TabShell
@@ -228,51 +397,107 @@ function CallHistoryScreenComponent({ onTab }: CallHistoryScreenProps) {
       onTab={onTab}
       title="Lịch sử"
       action={
-        <Button variant="ghost" size="icon" onClick={() => refresh()} disabled={isLoading} aria-label="Tải lại lịch sử">
-          <RefreshCw className={cn(isLoading && "animate-spin")} />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            refresh();
+            loadAnswers();
+          }}
+          disabled={isLoading || answersLoading}
+          aria-label="Tải lại lịch sử"
+        >
+          <RefreshCw className={cn((isLoading || answersLoading) && "animate-spin")} />
         </Button>
       }
     >
-      {isLoading ? (
+      <div role="group" aria-label="Lọc lịch sử" className="mb-4 flex gap-1 rounded-full bg-surface-2 p-1 md:max-w-md">
+        {FILTERS.map((f) => (
+          <button
+            key={f.id}
+            type="button"
+            aria-pressed={filter === f.id}
+            onClick={() => {
+              setFilter(f.id);
+              setExpandedId(null);
+            }}
+            className={cn(
+              "h-9 flex-1 rounded-full border border-transparent px-3 text-[13px] font-extrabold transition-colors",
+              filter === f.id ? "border border-line-strong bg-surface text-ink" : "text-muted hover:text-ink"
+            )}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {(roomError || soloError) && (
+        <Notice tone="error">
+          <div className="flex items-center justify-between gap-3">
+            <span>{roomError ?? soloError}</span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                refresh();
+                loadAnswers();
+              }}
+            >
+              Thử lại
+            </Button>
+          </div>
+        </Notice>
+      )}
+
+      {loading ? (
         <div className="space-y-2" aria-busy>
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-16 animate-pulse rounded-[var(--radius-card)] bg-surface" />
           ))}
         </div>
-      ) : error ? (
-        <Notice tone="error">
-          <div className="flex items-center justify-between gap-3">
-            <span>{typeof error === "string" ? error : "Không tải được lịch sử."}</span>
-            <Button variant="secondary" size="sm" onClick={() => refresh()}>
-              Thử lại
-            </Button>
-          </div>
-        </Notice>
-      ) : sessions.length === 0 ? (
-        <EmptyState title="Chưa có buổi thi nào">Hoàn thành một buổi thi với người thật để xem lịch sử ở đây.</EmptyState>
+      ) : !hasAnything ? (
+        !roomError && !soloError && (
+          <EmptyState title={filter === "solo" ? "Chưa có câu tập nào" : filter === "room" ? "Chưa có buổi thi nào" : "Chưa có gì ở đây"}>
+            {filter === "solo"
+              ? "Tập một câu ở tab Luyện, câu trả lời của bạn sẽ được lưu ở đây."
+              : filter === "room"
+                ? "Hoàn thành một buổi thi với người thật để xem lịch sử ở đây."
+                : "Tập một câu hoặc thi với người thật, lịch sử sẽ hiện ở đây."}
+          </EmptyState>
+        )
       ) : (
         <>
-          <input
-            type="text"
-            aria-label="Tìm theo tên đối tác"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên"
-            className="mb-4 h-11 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-ink placeholder:text-subtle focus:border-voice focus:outline-none"
-          />
-          {filteredSessions.length === 0 ? (
+          {filter === "room" && (
+            <input
+              type="text"
+              aria-label="Tìm theo tên đối tác"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm theo tên"
+              className="mb-4 h-11 w-full rounded-[var(--radius-control)] border border-line-strong bg-surface px-4 text-ink placeholder:text-subtle focus:border-voice focus:outline-none"
+            />
+          )}
+          {days.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted">Không tìm thấy buổi nào.</p>
           ) : (
-            <ul className="space-y-2">
-              {filteredSessions.map((session: CallSession) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  isExpanded={expandedId === session.id}
-                  onToggle={() => setExpandedId(expandedId === session.id ? null : session.id)}
-                />
+            <div className="space-y-5">
+              {days.map((day) => (
+                <section key={day.key + day.date}>
+                  <Label className="mb-2">{formatDate(day.date)}</Label>
+                  <ul className="space-y-2">
+                    {day.items.map((e) => {
+                      const id = e.kind === "room" ? `room-${e.session.id}` : `solo-${e.answer.id}`;
+                      const toggle = () => setExpandedId(expandedId === id ? null : id);
+                      return e.kind === "room" ? (
+                        <SessionCard key={id} session={e.session} isExpanded={expandedId === id} onToggle={toggle} />
+                      ) : (
+                        <AnswerCard key={id} answer={e.answer} isExpanded={expandedId === id} onToggle={toggle} />
+                      );
+                    })}
+                  </ul>
+                </section>
               ))}
-            </ul>
+            </div>
           )}
         </>
       )}

@@ -244,3 +244,20 @@ Sau 4 vòng mockup, chủ dự án chọn **hướng D: "gọn như Linear, vui 
 8. **Tiến bộ**: band và biểu đồ theo thời gian từ điểm được chấm (server action mới), 4 tiêu chí, Ơ gợi ý tiêu chí yếu nhất, số liệu tổng. **Lịch sử**, **Tôi** (giao diện Sáng / Tối / Theo máy, bật tắt Ơ, cài app), **Bảng giờ nói**, **Bạn luyện cùng**, **Đăng nhập**.
 
 Chưa làm trong đợt này: Chấm chéo (P2), transcript/Whisper và từ Lexica trong câu trả lời (P1 phần 2), lọc lịch sử theo tập một mình (chưa lưu buổi tập), tab "Lớp tôi".
+
+### Đợt 2 (2026-10-19): P1 phần 2 và P2
+
+- Bảng `answers`, `answer_reviews`, `review_claims` (`apps/oratio/supabase/migration_2026_10_answers.sql`), bucket riêng tư `oratio-answers`. Người dùng chỉ đọc dòng của mình; server ghi sau khi kiểm tra.
+- Tập một mình: lưu mỗi lần nói, chép lời bằng Whisper tiny trên máy (`public/whisper-worker.js`, tải model khi người dùng bật), chỉ số từ transcript, gợi ý và nhận diện từ Lexica, mục tiêu khi nói lại, 4/3/2 cho Part 2, gửi nhờ chấm.
+- Chấm chéo: tab Chấm, hàng chờ công bằng có câu neo ẩn, `RubricSheet` band 1–9, độ chuẩn người chấm (câu neo + đồng thuận), điểm có trọng số hiện bằng `BandRange`, chấm 2 được gửi 1 (câu đầu miễn phí).
+- Câu neo: `node scripts/import-anchors.mjs <thư mục>` (xem đầu file). Bản ghi gửi đi tự xoá sau 30 ngày (`/api/cron/expire-audio`, cần `CRON_SECRET` trên Vercel).
+- Lexica: từ nói trong Oratio lên bước Dùng (`apps/lexica/app/lib/oratioSync.ts`).
+- Lịch sử lọc Phòng thi / Tập một mình; Tiến bộ có Máy đo theo tuần, từ Lexica đã nói, hồ sơ người chấm, cột mốc §5.4.
+
+### Đợt 3 (2026-10-19): P3 Phòng thi mới
+
+- Thí sinh tự ghi âm phần nói của mình trên máy (mỗi câu một bản, tắt được, không ghi người kia). Sau buổi: chỉ số, chép lời, lưu câu trả lời (`mode = live`) và gửi nhờ chấm như ở Tập.
+- Giám khảo có lời dẫn theo từng phần (`lib/examiner-script.ts`) và đồng hồ theo thời lượng thật của từng Part.
+- Điểm chấm sau buổi tính trọng số theo độ chuẩn của người chấm (`session_feedback.rater_weight`, `migration_2026_10_live.sql`).
+- Nhắc giờ thi: web push lúc 20:10 mỗi tối (`/api/cron/exam-reminder`, cần khoá VAPID), hoặc thêm giờ thi vào lịch (.ics) trên máy không nhận được push.
+- Bảng giờ nói vẫn giữ: nó xếp theo số phút nói chứ không theo band, nên không khuyến khích chấm gian như lo ngại ở §5.4.

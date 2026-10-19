@@ -7,7 +7,7 @@ import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
 import type { Quality } from '../lib/srs';
 import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentencePrompt } from '../lib/engagement/mySentence';
-import { getCard, sameWordIds } from '../lib/content/repository';
+import { getCard, getCardByWord, sameWordIds } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import type { SpeakLevel } from '../lib/pronunciation/score';
 import type { LearningPath } from '../lib/journey/path';
@@ -74,6 +74,8 @@ interface LexicaStore {
     stepHistory: Record<string, StepCounts>;
     /** Gặp: words met in English text (a passage, a quote). */
     markMet: (cardIds: string[]) => void;
+    /** Dùng: words the learner said in an Oratio answer (matched by word, not card id). */
+    markSaidInOratio: (words: string[]) => void;
     /** Used in real life (the fifth step); a sentence, when given, becomes "Câu của bạn". */
     markLived: (cardId: string, sentence?: string) => void;
     /** One word the learner will try in real life (lib/journey/outside.ts). */
@@ -400,6 +402,25 @@ export const useLexicaStore = create<LexicaStore>()(
             pledge: null,
             makePledge: (cardId) => set({ pledge: { cardId, date: getTodayDateString() } }),
             clearPledge: () => set({ pledge: null }),
+
+            markSaidInOratio: (words) => {
+                const now = Date.now();
+                const journeys = { ...get().journeys };
+                let changed = false;
+                for (const word of words) {
+                    const card = getCardByWord(word);
+                    if (!card) continue;
+                    // Same as speaking it in Lexica: every card of that word, and only if already understood
+                    for (const id of sameWordIds(card.id)) {
+                        const next = sayClearly(journeys[id], now);
+                        if (next && next !== journeys[id]) {
+                            journeys[id] = next;
+                            changed = true;
+                        }
+                    }
+                }
+                if (changed) set(withJourneys(journeys, get().stepHistory));
+            },
 
             markMet: (cardIds) => {
                 const now = Date.now();

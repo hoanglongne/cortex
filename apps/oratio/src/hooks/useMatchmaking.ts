@@ -21,6 +21,7 @@ interface MatchDetails {
     username: string;
     band: number;
     avatarUrl: string | null;
+    country?: string | null;
   };
 }
 

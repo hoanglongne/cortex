@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Flame, GraduationCap, Mic, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, Flame, GraduationCap, Headphones, Mic, Users } from "lucide-react";
 import { useCallHistory } from "@/hooks/useCallHistory";
 import { useOnlineCount } from "@/hooks/useOnlineCount";
 import { examHourStatus } from "@/lib/exam-hours";
 import { practiceLine } from "@/lib/character-lines";
 import { useCharacterEnabled } from "@/lib/client/theme";
+import { getReviewStatus, type ReviewStatus } from "@/actions/reviews";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
 import { Card, EmptyState, Label, Notice, Stat } from "@/components/ui/card";
@@ -70,6 +71,18 @@ export default function HomeScreen({
     lastComment,
     hour: now.getHours(),
   });
+  const [reviewStatus, setReviewStatus] = useState<ReviewStatus | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getReviewStatus()
+      .then((r) => {
+        if (!cancelled && r.status) setReviewStatus(r.status);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const recent = sessions.filter((s) => s.peerFeedback).slice(0, 3);
 
   const streak = (
@@ -168,6 +181,22 @@ export default function HomeScreen({
             <Users /> Vào phòng thi
           </Button>
         </div>
+      </div>
+
+      {/* Chấm chéo: the third way to practise */}
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[var(--radius-card)] border border-line bg-surface p-4 md:p-5">
+        <div className="min-w-0 flex-1 basis-60">
+          <h2 className="text-lg font-extrabold tracking-[-0.03em]">Chấm chéo</h2>
+          <p className="mt-0.5 text-sm text-muted">Gửi câu trả lời cho người khác chấm, chấm người khác để được chấm.</p>
+          {reviewStatus && (
+            <p className="mt-1.5 text-[13px] font-bold text-ink-2 tabular">
+              Còn {reviewStatus.submissionsLeft} lượt gửi · {reviewStatus.waiting} câu đang chờ chấm
+            </p>
+          )}
+        </div>
+        <Button variant="secondary" onClick={() => onTab("review")}>
+          <Headphones /> Vào Chấm chéo
+        </Button>
       </div>
 
       {/* Stats */}
