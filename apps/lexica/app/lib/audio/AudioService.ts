@@ -76,6 +76,7 @@ export function stop() {
 export const NATURAL_VOICES = ['Kore', 'Puck', 'Aoede'] as const;
 /** Off for the session after the API fails once, so every tap does not wait for it again. */
 let cloudOff = false;
+let slowCalls = 0;
 
 export function naturalVoiceUrl(text: string, opts: { slow?: boolean; voice?: string } = {}): string | null {
     const t = text.trim();
@@ -100,12 +101,18 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
     el.src = url;
     el.playbackRate = opts.rate ? Math.min(1.3, Math.max(0.6, opts.rate / 0.9)) : 1;
     // A long text is generated on first request; do not keep the learner waiting forever.
-    const timeout = new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), 6000 + text.length * 20));
+    // A word should sound at once: if the natural voice is not ready quickly, the system voice speaks
+    // (and the natural one is fetched in the background for next time).
+    const waitMs = text.length <= 40 && !preloaded.has(url) ? 2000 : 6000 + text.length * 20;
+    const timeout = new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), waitMs));
     try {
         const started = await Promise.race([el.play().then(() => 'ok' as const), timeout]);
         if (mine !== seq) return true; // stopped meanwhile: nothing else should play
         if (started === 'timeout') {
             el.pause();
+            warm(url);
+            // Twice too slow: the system voice for the rest of the visit.
+            if (++slowCalls >= 2) cloudOff = true;
             return false;
         }
     } catch (e) {
@@ -161,20 +168,29 @@ export async function playText(text: string, lang: 'en' | 'vi' = 'en', rate?: nu
     return speakWithSystem(text, lang, rate) ? 'system' : 'none';
 }
 
-/** Warms the cache for the next cards' word clips. */
+/** Starts loading an audio URL so playing it later is instant (the browser keeps it cached). */
+function warm(url: string) {
+    if (typeof Audio === 'undefined' || preloaded.has(url)) return;
+    const a = new Audio();
+    a.preload = 'auto';
+    a.src = url;
+    preloaded.set(url, a);
+    if (preloaded.size > 30) {
+        const [oldest] = preloaded.keys();
+        preloaded.delete(oldest);
+    }
+}
+
+/**
+ * Warms the cache for the next cards' word clips: the card's own file, or
+ * else the natural voice the API makes (generated on first request, which
+ * was the slow part when a learner tapped to listen).
+ */
 export function preload(cardIds: string[], clip: Clip = 'word') {
-    if (typeof Audio === 'undefined') return;
     for (const id of cardIds) {
-        const url = getCard(id)?.audio?.[clip];
-        if (!url || preloaded.has(url)) continue;
-        const a = new Audio();
-        a.preload = 'auto';
-        a.src = url;
-        preloaded.set(url, a);
-        if (preloaded.size > 20) {
-            const [oldest] = preloaded.keys();
-            preloaded.delete(oldest);
-        }
+        const card = getCard(id);
+        const url = card?.audio?.[clip] ?? (card && clip === 'word' ? naturalVoiceUrl(card.word) : null);
+        if (url) warm(url);
     }
 }
 

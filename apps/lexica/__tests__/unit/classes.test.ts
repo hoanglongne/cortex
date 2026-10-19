@@ -68,7 +68,8 @@ describe('Lexica in classes', () => {
         expect(assignedCounts(journeys, other)).toEqual({ hieu: 0, nho: 0, gap: 0, dung: 0, total: 0 });
         expect(assignedSteps(journeys, [a])).toEqual({ v001: 4, v002: 5 });
         const r = lexicaReport(journeys, [a, other]);
-        expect(r.counts).toMatchObject({ hieu: 3, doi: 1 });
+        // v999 was only marked "biết rồi": counted apart, not as learned
+        expect(r.counts).toMatchObject({ hieu: 2, doi: 1, known: 1 });
         expect(Object.keys(r.assigned)).toEqual(['c1', 'c2']);
     });
 

@@ -109,6 +109,13 @@ export function knownAlready(j: WordJourney | undefined, now: number): WordJourn
     return { ...base, rememberedAt: base.rememberedAt ?? now };
 }
 
+/**
+ * A word marked "biết rồi" (placement, swiping) and not learned in Lexica
+ * since: Nhớ from the start, no recall. Teachers count these apart, so a
+ * student who knew six words is not shown as having learned six.
+ */
+export const isKnownAlready = (j: WordJourney) => j.rememberedAt !== undefined && j.rememberedAt === j.understoodAt && j.recalls.length === 0 && !j.metAt && !j.usedAt;
+
 /** Met in English text (a passage, a quote). Only for words already understood. */
 export function meet(j: WordJourney | undefined, now: number): WordJourney | undefined {
     if (!j) return undefined;

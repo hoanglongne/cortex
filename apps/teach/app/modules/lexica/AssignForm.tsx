@@ -53,7 +53,15 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
                     <Field label="Dán danh sách từ" hint="Mỗi dòng một từ, hoặc cách nhau bằng dấu phẩy. Cụm từ như “keep in mind” cũng được.">
                         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={7} className={`${inputClass} h-auto py-2`} autoFocus placeholder={'commute\ndeadline\nkeep in mind'} />
                     </Field>
-                    {text.trim() && (
+                    {words?.error && (
+                        <div className="space-y-2">
+                            <ErrorNote error={words.error} />
+                            <Button kind="secondary" size="sm" onClick={() => void wordIndex().then(setWords)}>
+                                Thử tải lại
+                            </Button>
+                        </div>
+                    )}
+                    {text.trim() && !words?.error && (
                         <div className="space-y-2 text-sm">
                             <p>
                                 <Badge tone="accent">{found.length} có sẵn</Badge>{' '}
@@ -70,7 +78,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
                         <Button kind="secondary" onClick={onCancel}>
                             Huỷ
                         </Button>
-                        <Button onClick={() => setStep(2)} disabled={!words || match.cardIds.length + match.missing.length === 0} className="flex-1">
+                        <Button onClick={() => setStep(2)} disabled={!words || Boolean(words.error) || match.cardIds.length + match.missing.length === 0} className="flex-1">
                             {words ? 'Tiếp' : 'Đang tải danh sách từ…'}
                         </Button>
                     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { flushSync } from 'react-dom';
 import { trackCardEvent } from '../lib/content/events';
+import { AudioService } from '../lib/audio/AudioService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PartyPopper, Check, X, Flame, Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -92,6 +93,12 @@ export default function SwipeDeck({
         setRevealedForCardId(val ? topCardId ?? null : null);
         if (val && topCardId) trackCardEvent(topCardId, 'reveal');
     }, [topCardId]);
+
+    // The top card and the next two sound at once when tapped
+    const nextIds = cards.slice(0, 3).map((c) => c.id).join(',');
+    useEffect(() => {
+        if (nextIds) AudioService.preload(nextIds.split(','));
+    }, [nextIds]);
 
     // Studio feedback: one impression per card shown on top, dwell measured to the swipe
     const shownAtRef = useRef<{ id: string; at: number } | null>(null);

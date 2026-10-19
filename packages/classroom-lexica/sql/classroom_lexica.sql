@@ -5,7 +5,7 @@
 -- Assignment kinds:
 --   words  {card_ids: text[], missing_words: text[], mode: 'only'|'mixed'}
 -- Metrics (per class):
---   {counts: {hieu,nho,gap,dung,doi}, assigned: {hieu,nho,gap,dung,total}, words: {cardId: 1..5}}
+--   {counts: {hieu,nho,gap,dung,doi,known}, assigned: {hieu,nho,gap,dung,total}, words: {cardId: 1..5}}
 -- Settings: {branch: 'cert'|'talk', level: 'beginner'|'intermediate'|'advanced'|'expert'|null}
 
 insert into cortex_apps (id, name) values ('lexica', 'Lexica') on conflict (id) do update set name = excluded.name;
@@ -29,7 +29,7 @@ do $$ begin
   end if;
 end $$;
 
--- Step counts: four non-negative ints, plus "Đời" and a total when given.
+-- Step counts: four non-negative ints, plus "Đời", a total and words known beforehand ("known") when given.
 create or replace function public.lexica_counts(p jsonb)
 returns jsonb language sql immutable as $$
   select jsonb_strip_nulls(jsonb_build_object(
@@ -38,7 +38,8 @@ returns jsonb language sql immutable as $$
     'gap', least(greatest(coalesce((p->>'gap')::int, 0), 0), 100000),
     'dung', least(greatest(coalesce((p->>'dung')::int, 0), 0), 100000),
     'doi', case when p ? 'doi' then least(greatest((p->>'doi')::int, 0), 100000) end,
-    'total', case when p ? 'total' then least(greatest((p->>'total')::int, 0), 100000) end
+    'total', case when p ? 'total' then least(greatest((p->>'total')::int, 0), 100000) end,
+    'known', case when p ? 'known' then least(greatest((p->>'known')::int, 0), 100000) end
   ));
 $$;
 

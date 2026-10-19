@@ -13,8 +13,8 @@ export type Step = 'hieu' | 'nho' | 'gap' | 'dung';
 export const STEPS: readonly Step[] = ['hieu', 'nho', 'gap', 'dung'];
 export const STEP_LABEL: Record<Step | 'doi', string> = { hieu: 'Hiểu', nho: 'Nhớ', gap: 'Gặp', dung: 'Dùng', doi: 'Đời' };
 
-/** Words that reached each step; `doi` = used in real life; `total` = words counted (assigned ones). */
-export type Counts = Partial<Record<Step | 'doi' | 'total', number>>;
+/** Words that reached each step; `doi` = used in real life; `total` = words counted (assigned ones); `known` = marked "biết rồi" without learning, not in the steps. */
+export type Counts = Partial<Record<Step | 'doi' | 'total' | 'known', number>>;
 
 export interface LexicaSettings {
     branch: 'cert' | 'talk';
@@ -51,7 +51,7 @@ const strings = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string =>
 const counts = (v: unknown): Counts => {
     const o = obj(v);
     const out: Counts = {};
-    for (const k of ['hieu', 'nho', 'gap', 'dung', 'doi', 'total'] as const) if (k in o) out[k] = num(o[k]);
+    for (const k of ['hieu', 'nho', 'gap', 'dung', 'doi', 'total', 'known'] as const) if (k in o) out[k] = num(o[k]);
     return out;
 };
 

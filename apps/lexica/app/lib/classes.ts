@@ -10,7 +10,7 @@ import { classroomApi, type Assignment, type ClassInfo } from '@cortex/classroom
 import { LEXICA, lexicaModule, type Counts, type LexicaReport, type WordsPayload } from '@cortex/classroom-lexica';
 import { getSupabaseClient } from './supabase';
 import { getCard } from './content/repository';
-import { countLived, countSteps, stepIndex, stepOf, type Journeys } from './journey/steps';
+import { countLived, countSteps, isKnownAlready, stepIndex, stepOf, type Journeys } from './journey/steps';
 
 export * from '@cortex/classroom';
 export { matchWords, weekDelta, type Counts } from '@cortex/classroom-lexica';
@@ -43,8 +43,10 @@ export function assignedSteps(journeys: Journeys, classes: readonly Pick<ClassIn
 
 /** What Lexica reports to every class it is in; the server keeps each class's part. */
 export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[]): LexicaReport {
+    const learned = Object.fromEntries(Object.entries(journeys).filter(([, j]) => !isKnownAlready(j)));
     return {
-        counts: { ...countSteps(journeys), doi: countLived(journeys) },
+        // Steps reached by learning; words known beforehand are counted apart
+        counts: { ...countSteps(learned), doi: countLived(journeys), known: Object.keys(journeys).length - Object.keys(learned).length },
         assigned: Object.fromEntries(classes.map((c) => [c.id, assignedCounts(journeys, c)])),
         words: assignedSteps(journeys, classes),
     };
