@@ -27,19 +27,21 @@ const NEVER_STARTED_TIMEOUT_MS = 3 * 60_000;
 /** An active call with no sign of life from either screen for this long is over. */
 const ABANDONED_AFTER_MS = 60_000;
 
-type PartnerFields = Pick<PublicProfile, "id" | "username" | "current_band" | "avatar_url">;
+// Country is shared with the matched partner only (it is not in public_profiles)
+type PartnerFields = Pick<PublicProfile, "id" | "username" | "current_band" | "avatar_url"> & { country: string | null };
 
 const toPartner = (p: PartnerFields) => ({
   id: p.id,
   username: p.username,
   band: Number(p.current_band),
   avatarUrl: p.avatar_url,
+  country: p.country ?? null,
 });
 
 async function partnerOf(admin: AdminClient, partnerId: string) {
   const { data } = await admin
     .from("profiles")
-    .select("id, username, current_band, avatar_url")
+    .select("id, username, current_band, avatar_url, country")
     .eq("id", partnerId)
     .maybeSingle();
   return data ? toPartner(data as PartnerFields) : undefined;
@@ -184,7 +186,7 @@ export async function findMatch(bandMin: number = 1, bandMax: number = 9): Promi
     if (others.length > 0) {
       const { data: rows } = await admin
         .from("profiles")
-        .select("id, username, current_band, avatar_url")
+        .select("id, username, current_band, avatar_url, country")
         .in("id", others.map((e) => e.user_id));
       for (const p of (rows ?? []) as PartnerFields[]) profiles.set(p.id, p);
     }
