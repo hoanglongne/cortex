@@ -13,6 +13,7 @@ interface CallSummaryScreenProps {
   sessionData: SessionData;
   onGoHome: () => void;
   onPracticeAgain: () => void;
+  onOpenHistory?: () => void;
 }
 
 interface SessionData {
@@ -47,7 +48,7 @@ function TagList({ title, tags }: { title: string; tags: string[] }) {
   );
 }
 
-export default function CallSummaryScreen({ sessionData, onGoHome, onPracticeAgain }: CallSummaryScreenProps) {
+export default function CallSummaryScreen({ sessionData, onGoHome, onPracticeAgain, onOpenHistory }: CallSummaryScreenProps) {
   const { enabled: characterOn } = useCharacterEnabled();
   const didEvaluate = sessionData.myScores !== null && sessionData.myOverallBand !== null;
 
@@ -68,13 +69,18 @@ export default function CallSummaryScreen({ sessionData, onGoHome, onPracticeAga
       title="Xong buổi thi"
       wide
       footer={
-        <div className="mx-auto flex max-w-md flex-col gap-2 md:flex-row-reverse">
+        <div className="mx-auto flex max-w-md flex-col gap-2 md:max-w-2xl md:flex-row-reverse">
           <Button variant="primary" size="lg" block onClick={onGoHome}>
             Về trang chủ
           </Button>
           <Button variant="secondary" size="lg" block onClick={onPracticeAgain}>
             Thi tiếp với bạn khác
           </Button>
+          {onOpenHistory && (
+            <Button variant="secondary" size="lg" block onClick={onOpenHistory}>
+              Xem lịch sử
+            </Button>
+          )}
         </div>
       }
     >

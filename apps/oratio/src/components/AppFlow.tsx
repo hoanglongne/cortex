@@ -442,6 +442,7 @@ export default function AppFlow() {
             sessionData={sessionData}
             onGoHome={handleGoHome}
             onPracticeAgain={handlePracticeAgain}
+            onOpenHistory={() => handleTab("history")}
           />
         </Suspense>
       ) : null;
