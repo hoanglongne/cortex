@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { activeLabel, studentState } from '@cortex/classroom';
 import { Badge, Button, Card, CardTitle, CopyChip, ErrorNote, errorText, inputClass, PageHeader } from '../../../../../components/ui';
 import AppDot from '../../../../../components/class/AppDot';
-import { useBoard } from '../../../../../lib/board';
+import { useBoard } from '../../../../../lib/teaching';
 import { api } from '../../../../../lib/supabase';
 import { parentMessage } from '../../../../../lib/today';
 import { moduleFor, modulesOf } from '../../../../../modules';
@@ -97,6 +97,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                             if (!window.confirm(`Mời ${s.name} ra khỏi lớp? Em ấy vẫn giữ tiến độ học trong ứng dụng.`)) return;
                             try {
                                 await api.removeStudent(id, userId);
+                                await reload();
                                 router.push(`/classes/${id}?tab=students`);
                             } catch (e) {
                                 setError(errorText(e));

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ExternalLink, Plus, Sparkles } from 'lucide-react';
-import { api, errorText } from '../lib/api';
+import { api, cached, errorText } from '../lib/api';
 import { metricsText, PLACEHOLDER, prefillTrend, SOURCE_LABEL, timeAgo } from '../lib/capture';
 import type { Capture, CaptureSource, Trend } from '../lib/types';
 import { Badge, Button, Card, ErrorNote, Input, Label, Select, Textarea } from '../components/ui';
@@ -15,11 +15,11 @@ const splitList = (s: string) =>
         .filter(Boolean);
 
 export default function RadarPage() {
-    const [captures, setCaptures] = useState<Capture[]>([]);
+    const [captures, setCaptures] = useState<Capture[]>(() => cached<Capture[]>('/captures?dismissed=false') ?? []);
     const [dismissed, setDismissed] = useState(false);
     const [source, setSource] = useState<CaptureSource | ''>('');
     const [error, setError] = useState('');
-    const [loaded, setLoaded] = useState(false);
+    const [loaded, setLoaded] = useState(() => cached('/captures?dismissed=false') !== undefined);
 
     const load = useCallback(async () => {
         try {

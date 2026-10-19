@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '../lib/api';
+import { api, cached } from '../lib/api';
 import { quoteError } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
 
@@ -54,8 +54,8 @@ const words = (t: string) => t.split(/\s+/).filter((w) => /[a-z]/i.test(w)).leng
 
 export default function PassagesPage() {
     const [tab, setTab] = useState<Status>('pending');
-    const [list, setList] = useState<Passage[]>([]);
-    const [stats, setStats] = useState<Stats | null>(null);
+    const [list, setList] = useState<Passage[]>(() => cached<Passage[]>('/passages?status=pending') ?? []);
+    const [stats, setStats] = useState<Stats | null>(() => cached<Stats>('/passages/stats') ?? null);
     const [level, setLevel] = useState<string>('beginner');
     const [topic, setTopic] = useState(TOPICS[0]);
     const [kind, setKind] = useState<'text' | 'dialogue'>('text');

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '../lib/api';
+import { api, cached } from '../lib/api';
 import { quoteError } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote } from '../components/ui';
 
@@ -56,8 +56,8 @@ const INPUT = 'rounded-lg border border-line bg-surface px-3 py-2 text-sm';
 
 export default function TalkPage() {
     const [tab, setTab] = useState<Status>('pending');
-    const [list, setList] = useState<TalkCard[]>([]);
-    const [stats, setStats] = useState<Stats | null>(null);
+    const [list, setList] = useState<TalkCard[]>(() => cached<TalkCard[]>('/talk?status=pending') ?? []);
+    const [stats, setStats] = useState<Stats | null>(() => cached<Stats>('/talk/stats') ?? null);
     const [level, setLevel] = useState<string>('beginner');
     const [topic, setTopic] = useState(TOPICS[0]);
     const [busy, setBusy] = useState('');

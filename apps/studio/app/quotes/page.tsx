@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { api } from '../lib/api';
+import { api, cached } from '../lib/api';
 import { buildSummary, coverageText, findSummary, quoteError, type BuildResult, type FindResult } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
 
@@ -66,9 +66,9 @@ const INPUT = 'rounded-lg border border-line bg-surface px-3 py-2';
 
 export default function QuotesPage() {
     const [tab, setTab] = useState<Status>('pending');
-    const [list, setList] = useState<Quote[]>([]);
-    const [more, setMore] = useState(false);
-    const [stats, setStats] = useState<Stats | null>(null);
+    const [list, setList] = useState<Quote[]>(() => cached<Quote[]>(`/quotes?status=pending&limit=${PAGE}`) ?? []);
+    const [more, setMore] = useState(() => list.length === PAGE);
+    const [stats, setStats] = useState<Stats | null>(() => cached<Stats>('/quotes/stats') ?? null);
     const [busy, setBusy] = useState('');
     const [error, setError] = useState('');
     const [note, setNote] = useState('');

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { ExternalLink, Flame, Sparkles } from 'lucide-react';
-import { api, errorText } from '../lib/api';
+import { api, cached, errorText } from '../lib/api';
 import type { Trend, TrendStatus } from '../lib/types';
 import { Badge, Button, Card, ErrorNote, Input, Label, Select, Textarea } from '../components/ui';
 
@@ -21,7 +21,7 @@ const splitList = (s: string) =>
         .filter(Boolean);
 
 export default function TrendsPage() {
-    const [trends, setTrends] = useState<Trend[]>([]);
+    const [trends, setTrends] = useState<Trend[]>(() => cached<Trend[]>('/trends?sort=hot') ?? []);
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');
     const [busyId, setBusyId] = useState<string | null>(null);
@@ -209,7 +209,7 @@ export default function TrendsPage() {
  * Pick one into "Từ muốn dạy" to write its cards through a trend, then mark it done.
  */
 function WordRequests({ onPick }: { onPick: (word: string) => void }) {
-    const [list, setList] = useState<{ word: string; count: number }[] | null>(null);
+    const [list, setList] = useState<{ word: string; count: number }[] | null>(() => cached<{ word: string; count: number }[]>('/word-requests') ?? null);
     const [error, setError] = useState('');
     const load = useCallback(async () => {
         try {

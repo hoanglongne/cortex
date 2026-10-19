@@ -21,8 +21,26 @@ export class ApiError extends Error {
     }
 }
 
+/**
+ * The last answer to each GET, so a page opened again shows what it showed
+ * before at once while it asks the API again. Any write empties it: after a
+ * change nothing stale is shown.
+ */
+const lastGet = new Map<string, unknown>();
+
+/** What `api(path)` last returned, if nothing has been written since. */
+export function cached<T>(path: string): T | undefined {
+    return lastGet.get(path) as T | undefined;
+}
+
+export function clearCache() {
+    lastGet.clear();
+}
+
 /** Calls the Cortex API /studio endpoints as the signed-in editor. */
 export async function api<T>(path: string, init: { method?: string; body?: unknown } = {}): Promise<T> {
+    const get = (init.method ?? 'GET') === 'GET';
+    if (!get) lastGet.clear();
     if (!API_URL) throw new ApiError('NEXT_PUBLIC_CORTEX_API_URL chưa được cấu hình', 0, null);
     const session = (await getSupabase()?.auth.getSession())?.data.session;
     if (!session) throw new ApiError('Chưa đăng nhập', 401, null);
@@ -62,6 +80,7 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
             body,
         );
     }
+    if (get) lastGet.set(path, body);
     return body as T;
 }
 

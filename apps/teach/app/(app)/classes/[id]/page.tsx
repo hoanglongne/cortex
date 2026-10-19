@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { Suspense, use } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { PageHeader } from '../../../components/ui';
-import { useBoard } from '../../../lib/board';
+import { useBoard } from '../../../lib/teaching';
 import { modulesOf } from '../../../modules';
 import Overview from '../../../components/class/Overview';
 import Students from '../../../components/class/Students';
@@ -33,11 +33,13 @@ export default function ClassPage({ params }: { params: Promise<{ id: string }> 
 
 function ClassView({ id }: { id: string }) {
     const params = useSearchParams();
-    const router = useRouter();
     const path = usePathname();
     const tab = (TABS.find((t) => t.id === params.get('tab'))?.id ?? 'overview') as Tab;
     const { board, error, reload } = useBoard(id);
-    const go = (t: Tab) => router.replace(`${path}?tab=${t}`, { scroll: false });
+    // Only the URL changes: the board is already here, so switching tabs needs
+    // no round trip to the server (router.replace would re-render this dynamic
+    // route on the server first). useSearchParams follows history.replaceState.
+    const go = (t: Tab) => window.history.replaceState(null, '', `${path}?tab=${t}`);
 
     if (error) {
         return (

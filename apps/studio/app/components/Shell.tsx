@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
 import { Inbox, LogOut, Flame, Layers, Package, Activity, Radar, Users, BookOpen, FileText, MessagesSquare } from 'lucide-react';
 import { getSupabase } from '../lib/supabase';
-import { api, ApiError, errorText } from '../lib/api';
+import { api, ApiError, clearCache, errorText } from '../lib/api';
 
 const NAV = [
     { href: '/', label: 'Duyệt', icon: Inbox },
@@ -33,7 +33,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (!supabase) return;
         supabase.auth.getSession().then(({ data }) => setSession(data.session));
-        const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+        const { data } = supabase.auth.onAuthStateChange((_e, s) => {
+            if (!s) clearCache();
+            setSession(s);
+        });
         return () => data.subscription.unsubscribe();
     }, [supabase]);
 

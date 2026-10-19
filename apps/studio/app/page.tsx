@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, type PanInfo } from 'framer-motion';
 import { Check, X, Pencil, SkipForward, Undo2, AlertTriangle } from 'lucide-react';
-import { api, ApiError, errorText } from './lib/api';
+import { api, cached, ApiError, errorText } from './lib/api';
 import { decide, initQueue, skip, undo, type QueueState } from './lib/queue';
 import { LEVELS, RULE_LABELS, type Draft, type Level, type RuleResult } from './lib/types';
 import Scenario from './components/Scenario';
@@ -13,10 +13,12 @@ const REASONS = ['cringe', 'sai nghĩa', 'nhạy cảm', 'trend cũ', 'khác'];
 type Tab = 'pending' | 'rejected_auto';
 type Mode = 'view' | 'reject' | 'edit';
 
+const PENDING = '/drafts?status=pending&limit=100';
+
 export default function InboxPage() {
     const [tab, setTab] = useState<Tab>('pending');
-    const [queue, setQueue] = useState<QueueState<Draft>>(initQueue([]));
-    const [loading, setLoading] = useState(true);
+    const [queue, setQueue] = useState<QueueState<Draft>>(() => initQueue(cached<Draft[]>(PENDING) ?? []));
+    const [loading, setLoading] = useState(() => !cached(PENDING));
     const [error, setError] = useState('');
     const [failed, setFailed] = useState<Record<string, RuleResult> | null>(null);
     const [mode, setMode] = useState<Mode>('view');
@@ -27,10 +29,13 @@ export default function InboxPage() {
     const current = queue.items[0];
 
     const load = useCallback(async (t: Tab) => {
-        setLoading(true);
+        const path = `/drafts?status=${t}&limit=100`;
+        const hit = cached<Draft[]>(path);
+        if (hit) setQueue(initQueue(hit));
+        setLoading(!hit);
         setError('');
         try {
-            setQueue(initQueue(await api<Draft[]>(`/drafts?status=${t}&limit=100`)));
+            setQueue(initQueue(await api<Draft[]>(path)));
         } catch (err) {
             setError(errorText(err));
         } finally {

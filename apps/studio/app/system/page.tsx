@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { api, errorText } from '../lib/api';
+import { api, cached, errorText } from '../lib/api';
 import { LEVELS, type Lexeme, type Level } from '../lib/types';
 import { Badge, Button, Card, ErrorNote, Input, Label, Select } from '../components/ui';
 import { CaptureTokens } from './CaptureTokens';
@@ -15,7 +15,7 @@ interface Health {
 }
 
 export default function SystemPage() {
-    const [health, setHealth] = useState<Health | null>(null);
+    const [health, setHealth] = useState<Health | null>(() => cached<Health>('/health') ?? null);
     const [error, setError] = useState('');
 
     const loadHealth = useCallback(() => {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { api, errorText } from '../lib/api';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { api, cached, errorText } from '../lib/api';
 import type { Card as CardT, Lifecycle } from '../lib/types';
 import Scenario from '../components/Scenario';
 import { Badge, Button, Card, ErrorNote, Input, Select, Textarea } from '../components/ui';
@@ -12,8 +12,13 @@ const LIFECYCLE_TONE: Record<Lifecycle, 'accent' | 'warning' | 'muted'> = {
     retired: 'muted',
 };
 
+/** Cards drawn per step: the API sends up to 300, and drawing them all at once froze the tab. */
+const STEP = 40;
+
 export default function CardsPage() {
-    const [cards, setCards] = useState<CardT[]>([]);
+    const [cards, setCards] = useState<CardT[]>(() => cached<CardT[]>('/cards?') ?? []);
+    const [shown, setShown] = useState(STEP);
+    const more = useRef<HTMLDivElement>(null);
     const [q, setQ] = useState('');
     const [lifecycle, setLifecycle] = useState<Lifecycle | ''>('');
     const [error, setError] = useState('');
@@ -24,15 +29,26 @@ export default function CardsPage() {
             if (q) params.set('q', q);
             if (lifecycle) params.set('lifecycle', lifecycle);
             setCards(await api<CardT[]>(`/cards?${params}`));
+            setShown(STEP);
         } catch (err) {
             setError(errorText(err));
         }
     }, [q, lifecycle]);
 
     useEffect(() => {
-        const t = setTimeout(() => void load(), 250);
+        // Wait for typing to pause; the first load goes at once.
+        const t = setTimeout(() => void load(), q ? 250 : 0);
         return () => clearTimeout(t);
-    }, [load]);
+    }, [load, q]);
+
+    // Draw the next cards as the end of the list comes near.
+    useEffect(() => {
+        const el = more.current;
+        if (!el) return;
+        const io = new IntersectionObserver(entries => entries[0].isIntersecting && setShown(n => n + STEP), { rootMargin: '800px' });
+        io.observe(el);
+        return () => io.disconnect();
+    }, [shown, cards.length]);
 
     return (
         <div className="flex flex-col gap-4">
@@ -47,9 +63,10 @@ export default function CardsPage() {
                 <span className="self-center font-mono text-xs text-muted">{cards.length} thẻ</span>
             </div>
             <ErrorNote error={error} />
-            {cards.map(c => (
+            {cards.slice(0, shown).map(c => (
                 <CardRow key={c.id} card={c} onChange={updated => setCards(list => list.map(x => (x.id === updated.id ? { ...x, ...updated } : x)))} />
             ))}
+            {shown < cards.length && <div ref={more} className="h-px" />}
         </div>
     );
 }

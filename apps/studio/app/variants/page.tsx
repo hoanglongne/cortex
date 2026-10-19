@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { api, errorText } from '../lib/api';
+import { api, cached, errorText } from '../lib/api';
 import Scenario from '../components/Scenario';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
 
@@ -38,8 +38,8 @@ interface Coverage {
 }
 
 export default function VariantsPage() {
-    const [coverage, setCoverage] = useState<Coverage | null>(null);
-    const [groups, setGroups] = useState<Group[]>([]);
+    const [coverage, setCoverage] = useState<Coverage | null>(() => cached<Coverage>('/variants/coverage') ?? null);
+    const [groups, setGroups] = useState<Group[]>(() => cached<Group[]>('/variants?status=pending&limit=20') ?? []);
     const [busy, setBusy] = useState('');
     const [error, setError] = useState('');
     const [note, setNote] = useState('');
