@@ -42,6 +42,7 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -78,6 +79,10 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
       } else {
         if (!username.trim()) {
           setError("Vui lòng nhập tên hiển thị.");
+          return;
+        }
+        if (confirm !== password) {
+          setError("Hai mật khẩu chưa khớp.");
           return;
         }
         const result = await onSignUp(email, password, username.trim());
@@ -190,6 +195,25 @@ export default function AuthScreen({ onSignIn, onSignUp, isLoading = false }: Au
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Nhập mật khẩu"
                   autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                  required
+                  minLength={6}
+                  className={inputClass}
+                />
+              </div>
+            )}
+
+            {mode === "signup" && (
+              <div>
+                <label htmlFor="auth-password-confirm" className={labelClass}>
+                  Nhập lại mật khẩu
+                </label>
+                <input
+                  id="auth-password-confirm"
+                  type="password"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  placeholder="Nhập lại mật khẩu"
+                  autoComplete="new-password"
                   required
                   minLength={6}
                   className={inputClass}

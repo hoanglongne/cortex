@@ -117,9 +117,13 @@ function setSpeechMode(mode: 'browser' | 'server') {
  * Listens once and returns what was said (up to 5 alternatives), the
  * recording and a pitch track. Stops when the browser recognises something,
  * after a pause following speech, after `maxMs`, or when `signal` aborts
- * (the learner tapped stop).
+ * (the learner tapped stop or let go of the button).
+ *
+ * `sentence`: the learner says a sentence of their own around `target`
+ * ("Please keep in mind that…"). Then hearing the target is no reason to
+ * stop: only a pause of `SENTENCE_PAUSE_MS` after speech, or the learner, ends it.
  */
-export async function listenOnce(opts: { target?: string; maxMs?: number; signal?: AbortSignal } = {}): Promise<Attempt> {
+export async function listenOnce(opts: { target?: string; maxMs?: number; signal?: AbortSignal; sentence?: boolean } = {}): Promise<Attempt> {
     const Ctor = recognitionCtor();
     const server = canTranscribe() && Boolean(opts.target);
     if (!Ctor && !server) return { alternatives: [], audioUrl: null, pitch: [], error: 'unsupported' };
@@ -148,10 +152,13 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
             }
             resolve(r);
         };
-        const max = setTimeout(() => finish({ alternatives: [], error: 'no-speech' }), opts.maxMs ?? 7000);
+        let heard: Alternative[] = [];
+        const max = setTimeout(() => finish({ alternatives: heard, error: heard.length ? undefined : 'no-speech' }), opts.maxMs ?? (opts.sentence ? 20000 : 7000));
         // Without the browser's recognition, end on a pause after speech.
         const vad = setInterval(() => {
-            if (!recognition && rec.silentAfterVoice(words(opts.target ?? '').length > 1 ? 1500 : 900)) finish({ alternatives: [], error: 'no-speech' });
+            if (!recognition && rec.silentAfterVoice(opts.sentence ? SENTENCE_PAUSE_MS : words(opts.target ?? '').length > 1 ? 1500 : 900)) finish({ alternatives: [], error: 'no-speech' });
+            // A sentence ends when the learner stops talking, whatever the browser heard so far.
+            if (recognition && opts.sentence && heard.length > 0 && rec.silentAfterVoice(SENTENCE_PAUSE_MS)) finish({ alternatives: heard });
         }, 100);
         opts.signal?.addEventListener('abort', () => {
             if (!recognition) return finish({ alternatives: [], error: 'no-speech' });
@@ -170,7 +177,7 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
         // pauses until every word is heard, or the learner stays quiet.
         const targetWords = words(opts.target ?? '');
         const phrase = targetWords.length > 1;
-        r.continuous = phrase;
+        r.continuous = phrase || Boolean(opts.sentence);
         r.interimResults = false;
         r.maxAlternatives = 5;
         // The browser gave up without words: with the API, keep recording until the learner pauses.
@@ -179,7 +186,6 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
             if (server && !opts.signal?.aborted) recognition = null;
             else finish({ alternatives: [], error });
         };
-        let heard: Alternative[] = [];
         let quiet: ReturnType<typeof setTimeout> | null = null;
         r.onresult = (event: SpeechRecognitionEvent) => {
             // Earlier pieces in their best reading, then each reading of the latest piece.
@@ -189,6 +195,8 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
             for (let i = 0; i < last.length; i++) alternatives.push({ transcript: `${before} ${last[i].transcript}`.replace(/\s+/g, ' ').trim(), confidence: last[i].confidence ?? 0 });
             if (!alternatives.some((x) => x.transcript)) return;
             heard = alternatives;
+            // A sentence: keep listening; the pause check above ends it.
+            if (opts.sentence) return;
             if (!phrase || alternatives.some((x) => targetWords.every((w) => words(x.transcript).includes(w)))) return finish({ alternatives });
             if (quiet) clearTimeout(quiet);
             quiet = setTimeout(() => finish({ alternatives: heard }), 1800);
@@ -256,6 +264,8 @@ async function blobToBase64(blob: Blob): Promise<string> {
 // ─── Recording ───────────────────────────────────────────────────────────
 
 const RATE = 16000;
+/** Quiet after speech that ends a sentence: long enough to think mid-sentence. */
+const SENTENCE_PAUSE_MS = 1800;
 /** RMS above the room's noise floor that counts as a voice. */
 const VOICE_RMS = 0.015;
 

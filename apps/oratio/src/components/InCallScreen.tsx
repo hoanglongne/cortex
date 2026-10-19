@@ -1,18 +1,17 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } from "react";
+import { Component, useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback, type ReactNode } from "react";
 import { Mic, MicOff, Phone, Loader2, Repeat, X } from "lucide-react";
 import {
   LiveKitRoom,
   RoomAudioRenderer,
-  useIsSpeaking,
   useLocalParticipant,
   useRemoteParticipants,
   useRoomContext,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { Track } from "livekit-client";
-import type { RemoteParticipant, Room } from "livekit-client";
+import { ParticipantEvent, Track } from "livekit-client";
+import type { Participant, RemoteParticipant, Room } from "livekit-client";
 import {
   getNextQuestion,
   getQuestionById,
@@ -69,6 +68,49 @@ export interface CallData {
 const PARTNER_JOIN_TIMEOUT_S = 60;
 
 /** P1 / P2 / P3 as three segments; the current one says where we are. */
+/**
+ * Whether someone is speaking. LiveKit's useIsSpeaking throws when the
+ * participant is missing (the partner has not joined yet), which took the
+ * whole page down; this one reads false until they are there.
+ */
+function useSpeaking(participant: Participant | undefined | null): boolean {
+  const [speaking, setSpeaking] = useState(false);
+  useEffect(() => {
+    if (!participant) return;
+    const update = (v: boolean) => setSpeaking(v);
+    update(participant.isSpeaking);
+    participant.on(ParticipantEvent.IsSpeakingChanged, update);
+    return () => {
+      participant.off(ParticipantEvent.IsSpeakingChanged, update);
+      setSpeaking(false);
+    };
+  }, [participant]);
+  return participant ? speaking : false;
+}
+
+/** A failure inside the call shows a way out instead of a blank "This page couldn't load". */
+class CallErrorBoundary extends Component<{ children: ReactNode; onLeave: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error: unknown) {
+    console.error("[InCall]", error);
+  }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-bg px-6 text-center text-ink">
+        <p className="text-lg font-semibold">Cuộc gọi gặp lỗi</p>
+        <p className="max-w-sm text-sm text-muted">Phòng gọi không hiển thị được. Bạn có thể rời phòng và ghép lại.</p>
+        <Button variant="primary" onClick={this.props.onLeave}>
+          Rời phòng
+        </Button>
+      </div>
+    );
+  }
+}
+
 function PartProgress({ currentPart, questionInTurn, turnInPart }: { currentPart: number; questionInTurn: number; turnInPart: 1 | 2 }) {
   return (
     <div className="grid grid-cols-3 gap-2" role="group" aria-label="Tiến độ buổi thi">
@@ -421,9 +463,9 @@ function InCallContent({
     isMuted = !localParticipant?.isMicrophoneEnabled;
     isPartnerConnected = remoteParticipants.length > 0;
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    localSpeaking = useIsSpeaking(localParticipant);
+    localSpeaking = useSpeaking(localParticipant);
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    remoteSpeaking = useIsSpeaking(remoteParticipants[0]);
+    remoteSpeaking = useSpeaking(remoteParticipants[0]);
     remoteTrack = remoteParticipants[0]?.getTrackPublication(Track.Source.Microphone)?.track?.mediaStreamTrack;
     localTrack = localParticipant?.getTrackPublication(Track.Source.Microphone)?.track?.mediaStreamTrack;
   }
@@ -853,15 +895,17 @@ export default function InCallScreen({
             <ConnectingState />
           </div>
         ) : (
-          <InCallContent
-            partner={partner}
-            onEndCall={onEndCall}
-            onMatchCancelled={onMatchCancelled}
-            isLiveKit={true}
-            matchId={matchId}
-            userId={userId}
-            mediaError={mediaError}
-          />
+          <CallErrorBoundary onLeave={onMatchCancelled}>
+            <InCallContent
+              partner={partner}
+              onEndCall={onEndCall}
+              onMatchCancelled={onMatchCancelled}
+              isLiveKit={true}
+              matchId={matchId}
+              userId={userId}
+              mediaError={mediaError}
+            />
+          </CallErrorBoundary>
         )}
       </LiveKitRoom>
     );

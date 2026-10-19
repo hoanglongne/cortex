@@ -842,6 +842,12 @@ export default function ReviewSession({
     const embedded = Boolean(onDone);
     const submitReviewAnswer = useLexicaStore(state => state.submitReviewAnswer);
 
+    // The first words of the run sound at once when tapped
+    const firstIds = dueCardIds.slice(0, 5).join(',');
+    useEffect(() => {
+        if (firstIds) AudioService.preload(firstIds.split(','));
+    }, [firstIds]);
+
     // Which words were hard when the run started (kept fixed while answers change progress)
     const hardIdsRef = useRef<Set<string> | null>(null);
     const hardIdsNow = () => {

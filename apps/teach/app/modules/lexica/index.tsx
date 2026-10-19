@@ -120,7 +120,10 @@ export const lexicaUI: ModuleUI = {
         const groups = STEP_NAMES.map((label, n) => ({ label, n, ids: assigned.filter((id) => (m.words[id] ?? 0) === n) })).filter((g) => g.ids.length > 0);
         return (
             <div className="space-y-5">
-                <StepBar counts={m.counts} />
+                <div>
+                    <StepBar counts={m.counts} />
+                    {(m.counts.known ?? 0) > 0 && <p className="mt-1 text-xs text-subtle">Không tính {m.counts.known} từ em đánh dấu “biết rồi” mà chưa học trong Lexica.</p>}
+                </div>
                 <div>
                     <p className="mb-2 text-sm font-medium text-ink">Từ của lớp: em đang ở bước nào</p>
                     {assigned.length === 0 ? (

@@ -482,9 +482,7 @@ function CardSheet({
                         {!owned && !ready && waitingUntil && (
                             <p className="col-span-2 text-xs text-muted">Đúc được sau {daysLeft(waitingUntil)} ngày nữa (cần học từ ít nhất 7 ngày).</p>
                         )}
-                        {!owned && !ready && !waitingUntil && economy && (
-                            <p className="col-span-2 text-xs text-muted">Thành thạo từ này và ôn đúng vài lần để đúc ấn bản.</p>
-                        )}
+                        {!owned && !ready && !waitingUntil && economy && <MintNeeds state={progress.state} reviews={progress.reviewCount} rules={economy.config.mint_rules} />}
                         {owned && owned.edition !== 'legendary' && economy && economy.wallet.reroll_tickets > 0 && (
                             <button disabled={busy} onClick={() => actions.reroll(cardId)} className="py-2.5 rounded-xl border border-accent/50 text-accent text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                                 <Wand2 className="w-4 h-4" /> Quay lại
@@ -614,6 +612,28 @@ function AlbumDictionary({ onClose }: { onClose: () => void }) {
                     ))}
                 </dl>
             </motion.div>
+        </div>
+    );
+}
+
+/**
+ * What is left before a card can be minted, in numbers: the server mints a
+ * card at Thành thạo, with `min_reviews` right reviews, `min_days` after it
+ * was first seen (lexica_mint).
+ */
+function MintNeeds({ state, reviews, rules }: { state: keyof typeof STATE_LABEL; reviews: number; rules: { min_days: number; min_reviews: number } }) {
+    const left = Math.max(0, rules.min_reviews - reviews);
+    const steps = [
+        state !== 'mastered' ? `lên ${STATE_LABEL.mastered} (đang ${STATE_LABEL[state]})` : null,
+        left > 0 ? `ôn đúng thêm ${left} lần (đã ${reviews}/${rules.min_reviews})` : null,
+    ].filter(Boolean);
+    return (
+        <div className="col-span-2 text-xs text-muted">
+            <p>Để đúc ấn bản, từ này cần {steps.length ? steps.join(' và ') : 'thêm vài ngày'}.</p>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuenow={Math.min(reviews, rules.min_reviews)} aria-valuemax={rules.min_reviews} aria-label="Lần ôn đúng">
+                <div className="h-full rounded-full bg-accent" style={{ width: `${(Math.min(reviews, rules.min_reviews) / Math.max(1, rules.min_reviews)) * 100}%` }} />
+            </div>
+            <p className="mt-1">Từ cũng cần học ít nhất {rules.min_days} ngày.</p>
         </div>
     );
 }

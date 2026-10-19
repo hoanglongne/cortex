@@ -98,6 +98,7 @@ function NoAccess({ email, onSignOut }: { email: string; onSignOut: () => void }
 function SetPassword() {
     const [open, setOpen] = useState(false);
     const [pw, setPw] = useState('');
+    const [again, setAgain] = useState('');
     const [msg, setMsg] = useState('');
     if (!open) {
         return (
@@ -111,13 +112,18 @@ function SetPassword() {
             className="mt-2 space-y-1.5"
             onSubmit={async (e) => {
                 e.preventDefault();
+                if (again !== pw) return setMsg('Hai mật khẩu chưa khớp.');
                 const error = await setPassword(pw);
                 setMsg(error ?? 'Đã lưu mật khẩu.');
-                if (!error) setPw('');
+                if (!error) {
+                    setPw('');
+                    setAgain('');
+                }
             }}
         >
             <input type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Mật khẩu mới" aria-label="Mật khẩu mới" className="w-full rounded-lg border border-line-strong bg-surface px-2 py-1.5 text-sm" />
-            <button type="submit" disabled={pw.length < 6} className="text-sm font-medium text-accent disabled:opacity-40">
+            <input type="password" autoComplete="new-password" value={again} onChange={(e) => setAgain(e.target.value)} placeholder="Nhập lại mật khẩu" aria-label="Nhập lại mật khẩu mới" className="w-full rounded-lg border border-line-strong bg-surface px-2 py-1.5 text-sm" />
+            <button type="submit" disabled={pw.length < 6 || again.length < 6} className="text-sm font-medium text-accent disabled:opacity-40">
                 Lưu mật khẩu
             </button>
             {msg && <p className="text-xs text-muted">{msg}</p>}

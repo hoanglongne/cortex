@@ -20,6 +20,8 @@ interface AuthGateProps {
 export default function AuthGate({ reason, onSent, redirectPath = '/buddy' }: AuthGateProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    /** Set once sign-in failed: making a new account, the password is typed again. */
+    const [repeat, setRepeat] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');
@@ -28,10 +30,11 @@ export default function AuthGate({ reason, onSent, redirectPath = '/buddy' }: Au
         if (!email.includes('@') || password.length < 6 || busy) return;
         setBusy(true);
         setError('');
-        const r = await signInWithPassword(email, password);
+        const r = await signInWithPassword(email, password, repeat ?? undefined);
         setBusy(false);
         if (r.ok) return; // AuthProvider picks up the session
-        if ('confirm' in r) setNotice(`Đã tạo tài khoản. Mở email ${email} để xác nhận một lần, rồi đăng nhập lại ở đây.`);
+        if ('isNew' in r) setRepeat('');
+        else if ('confirm' in r) setNotice(`Đã tạo tài khoản. Mở email ${email} để xác nhận một lần, rồi đăng nhập lại ở đây.`);
         else setError(r.error);
     };
 
@@ -62,9 +65,15 @@ export default function AuthGate({ reason, onSent, redirectPath = '/buddy' }: Au
                 <p className="text-muted text-sm">{reason ?? 'Lưu tiến độ và kết nối với bạn bè.'} Chưa có tài khoản thì nhập email và mật khẩu mới, app tạo luôn.</p>
             </div>
             <input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" aria-label="Email" className={input} />
-            <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu (ít nhất 6 ký tự)" aria-label="Mật khẩu" className={input} />
-            <button type="submit" disabled={busy || !email.includes('@') || password.length < 6} className="py-3 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-bold rounded-xl flex items-center justify-center gap-2">
-                {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Tiếp tục
+            <input type="password" autoComplete={repeat === null ? 'current-password' : 'new-password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu (ít nhất 6 ký tự)" aria-label="Mật khẩu" className={input} />
+            {repeat !== null && (
+                <>
+                    <p className="text-sm text-ink-2">Chưa có tài khoản với email và mật khẩu này. Tạo tài khoản mới thì nhập lại mật khẩu. Đã có tài khoản thì kiểm tra lại mật khẩu.</p>
+                    <input type="password" autoComplete="new-password" autoFocus value={repeat} onChange={(e) => setRepeat(e.target.value)} placeholder="Nhập lại mật khẩu" aria-label="Nhập lại mật khẩu" className={input} />
+                </>
+            )}
+            <button type="submit" disabled={busy || !email.includes('@') || password.length < 6 || (repeat !== null && repeat.length < 6)} className="py-3 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-bold rounded-xl flex items-center justify-center gap-2">
+                {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {repeat === null ? 'Tiếp tục' : 'Tạo tài khoản'}
             </button>
             {error && <p className="text-danger text-xs text-center">{error}</p>}
             {notice && <p className="text-accent text-xs text-center">{notice}</p>}
