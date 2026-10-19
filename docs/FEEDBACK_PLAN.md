@@ -27,7 +27,7 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Hướng dẫn: gợi ý đúng lúc, trang "Lexica có gì", checklist tuần đầu. (PR #43)
 
 ## Đợt 6: chấm phát âm không dùng AI (viết thiết kế trước)
-Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md` (PR #43), **chờ duyệt**: 5 câu hỏi ở mục 9.
+Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md` (PR #44), **chờ duyệt**: 5 câu hỏi ở mục 9.
 - [ ] Mức 1: so khớp từ với câu mẫu (từ thiếu, đổi, nhận sai; độ tin cậy, phương án nhận dạng khác).
 - [ ] Mức 2: âm vị qua CMU Pronouncing Dictionary; đoán âm sai; thư viện lỗi hay gặp của người Việt kèm cặp từ dễ nhầm.
 - [ ] Mức 3: Web Audio: năng lượng cuối từ (mất âm cuối), cao độ và độ dài (trọng âm, ngữ điệu), tốc độ, ngắt nghỉ; vẽ ngữ điệu so với giọng mẫu.

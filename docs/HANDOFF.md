@@ -45,7 +45,7 @@
   - chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`;
   - kiểm tra project teach trên Vercel có `NEXT_PUBLIC_LEXICA_URL` (và `NEXT_PUBLIC_ORATIO_URL`).
 
-- PR #42 đã merge. **PR #43** (Đợt 3 hiệu năng teach và studio, Đợt 4 chọn từ Lexica khi giao bài, Đợt 5 trải nghiệm Lexica) đang mở.
+- PR #42 và PR #43 (Đợt 3–5) đã merge. **PR #44** (thiết kế Đợt 6) đang mở.
   - Đợt 4: `/api/word-index` của Lexica gửi thêm `pack` (tên drop hiện tại, hoặc trend của thẻ thư viện), `scenario`, `ipa`. Teach lọc bằng `apps/teach/app/modules/lexica/browse.ts`. Bản Lexica cũ không gửi các trường này thì teach vẫn chạy, chỉ thiếu bộ thẻ và câu mẫu.
   - Teach: dữ liệu lớp nằm trong một cache dùng chung (`apps/teach/app/lib/teaching.ts`, dùng được 30 giây). Sửa gì thì gọi `reload` của `useBoard`/`useTeaching`. Tab trong lớp đổi URL bằng `history.replaceState`, đừng đổi lại thành `router.replace`.
   - Studio: `api()` giữ kết quả GET gần nhất (`cached(path)`), mọi thao tác ghi xoá cache.
