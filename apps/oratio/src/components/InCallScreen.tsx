@@ -32,6 +32,12 @@ import { LiveWaveform, SpeakingPill } from "@/components/ui/on-air";
 import { FlowShell } from "@/components/ui/shell";
 import { Part2Timer, formatClock } from "@/components/ui/timer";
 import { cn } from "@/lib/utils";
+import { ExaminerPanel } from "@/components/live/ExaminerPanel";
+import { SelfRecordNote } from "@/components/live/SelfRecordNote";
+import type { LiveAnswer } from "@/components/live/types";
+import { useSelfRecording } from "@/components/live/useSelfRecording";
+
+export type { LiveAnswer };
 
 interface InCallScreenProps {
   partner?: { name: string; band: string };
@@ -55,6 +61,8 @@ export interface CallData {
   questions: { part: number; text: string }[];
   /** The examiner's private notes; never sent to the partner */
   notes?: string;
+  /** This user's own recorded answers (device only), when they were the candidate */
+  myAnswers?: LiveAnswer[];
 }
 
 /** Without a partner in the room after this long, offer to leave. */
@@ -444,11 +452,22 @@ function InCallContent({
     return () => clearInterval(timer);
   }, []);
 
+  // Own-mic recording while this user is the candidate (never in demo, never the partner)
+  const [recordingOn, setRecordingOn] = useState(true);
+  const isCandidate = isLiveKit && isInterviewer === false;
+  const selfRec = useSelfRecording({
+    active: isCandidate && recordingOn,
+    muted: isMuted,
+    question: currentQuestion ? { id: currentQuestion.id, part: currentQuestion.part, text: currentQuestion.question_text } : null,
+  });
+  const selfFinishRef = useRef(selfRec.finish);
+
   const callData = useCallback(
-    (): CallData => ({
+    (myAnswers: LiveAnswer[]): CallData => ({
       duration: Math.floor((Date.now() - startTimeRef.current) / 1000),
       questions: questionsSeenRef.current.map((q) => ({ part: q.part, text: q.question_text })),
       notes: notesRef.current.trim() || undefined,
+      myAnswers: myAnswers.length > 0 ? myAnswers : undefined,
     }),
     []
   );
@@ -462,6 +481,7 @@ function InCallContent({
     onEndCallRef.current = onEndCall;
     onMatchCancelledRef.current = onMatchCancelled;
     notesRef.current = notes;
+    selfFinishRef.current = selfRec.finish;
   });
 
   const finish = useCallback(async () => {
@@ -474,7 +494,9 @@ function InCallContent({
         console.error("[End Call] Error disconnecting:", error);
       }
     }
-    onEndCallRef.current(callData());
+    // Close the clip in progress so the last answer is included
+    const mine = await selfFinishRef.current().catch(() => []);
+    onEndCallRef.current(callData(mine));
   }, [callData]);
 
   const cancelled = useCallback(async () => {
@@ -772,7 +794,19 @@ function InCallContent({
               localStream={localStream}
               showWaves={isLiveKit}
             />
+            {isInterviewer && (
+              <ExaminerPanel
+                position={{
+                  part: progress.part,
+                  questionInTurn: progress.questionInTurn,
+                  turnInPart: progress.turnInPart,
+                  hasQuestion: !!currentQuestion,
+                  completed: sessionCompleted,
+                }}
+              />
+            )}
             {isInterviewer && <NotesCard value={notes} onChange={setNotes} />}
+            {isCandidate && <SelfRecordNote on={recordingOn} onToggle={() => setRecordingOn((v) => !v)} error={selfRec.error} />}
           </div>
         </div>
       </FlowShell>

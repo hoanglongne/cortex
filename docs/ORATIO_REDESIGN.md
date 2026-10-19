@@ -254,4 +254,10 @@ Chưa làm trong đợt này: Chấm chéo (P2), transcript/Whisper và từ Lex
 - Lexica: từ nói trong Oratio lên bước Dùng (`apps/lexica/app/lib/oratioSync.ts`).
 - Lịch sử lọc Phòng thi / Tập một mình; Tiến bộ có Máy đo theo tuần, từ Lexica đã nói, hồ sơ người chấm, cột mốc §5.4.
 
-Còn lại: P3 (Phòng thi tự ghi âm phần mình để có transcript, nhắc giờ thi), bảng xếp hạng toàn cục vẫn giữ.
+### Đợt 3 (2026-10-19): P3 Phòng thi mới
+
+- Thí sinh tự ghi âm phần nói của mình trên máy (mỗi câu một bản, tắt được, không ghi người kia). Sau buổi: chỉ số, chép lời, lưu câu trả lời (`mode = live`) và gửi nhờ chấm như ở Tập.
+- Giám khảo có lời dẫn theo từng phần (`lib/examiner-script.ts`) và đồng hồ theo thời lượng thật của từng Part.
+- Điểm chấm sau buổi tính trọng số theo độ chuẩn của người chấm (`session_feedback.rater_weight`, `migration_2026_10_live.sql`).
+- Nhắc giờ thi: web push lúc 20:10 mỗi tối (`/api/cron/exam-reminder`, cần khoá VAPID), hoặc thêm giờ thi vào lịch (.ics) trên máy không nhận được push.
+- Bảng giờ nói vẫn giữ: nó xếp theo số phút nói chứ không theo band, nên không khuyến khích chấm gian như lo ngại ở §5.4.

@@ -13,6 +13,7 @@ import {
 } from "@/lib/matchmaking/rules";
 import { clampBandRange, overallBand, validateFeedback, type FeedbackInput } from "@/lib/feedback";
 import { lastActivity, requireParticipant, type AdminClient } from "@/lib/server/match-access";
+import { reliabilities } from "@/lib/server/answers";
 import type { FindMatchResult, Match, MatchQueueEntry, PublicProfile } from "@/lib/types/database";
 
 /** Server logs for matchmaking, only when ORATIO_DEBUG=true. Never sent to the client. */
@@ -502,8 +503,11 @@ export async function submitFeedback(
     if (!checked.ok) return { success: false, error: checked.error };
     const { scores, tags, comments, wouldMatchAgain } = checked.value;
     const overall = overallBand(scores);
+    // Raters who score Chấm chéo answers close to the teacher count more (§5.3)
+    const raterWeight = (await reliabilities(admin, [userId]).catch(() => null))?.get(userId)?.weight ?? 0.6;
 
     const { error } = await admin.from("session_feedback").insert({
+      rater_weight: Math.round(raterWeight * 100) / 100,
       match_id: match.id,
       from_user_id: userId,
       to_user_id: partnerId,

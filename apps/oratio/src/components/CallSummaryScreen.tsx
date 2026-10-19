@@ -8,12 +8,16 @@ import { useCharacterEnabled } from "@/lib/client/theme";
 import { BandRange, CriterionRow } from "@/components/ui/band";
 import { FlowShell } from "@/components/ui/shell";
 import { formatClock } from "@/components/ui/timer";
+import { MyAnswers } from "@/components/live/MyAnswers";
+import type { LiveAnswer } from "@/components/live/types";
 
 interface CallSummaryScreenProps {
   sessionData: SessionData;
   onGoHome: () => void;
   onPracticeAgain: () => void;
   onOpenHistory?: () => void;
+  /** Your own recorded answers from the call (device only) */
+  myAnswers?: LiveAnswer[];
 }
 
 interface SessionData {
@@ -48,7 +52,7 @@ function TagList({ title, tags }: { title: string; tags: string[] }) {
   );
 }
 
-export default function CallSummaryScreen({ sessionData, onGoHome, onPracticeAgain, onOpenHistory }: CallSummaryScreenProps) {
+export default function CallSummaryScreen({ sessionData, onGoHome, onPracticeAgain, onOpenHistory, myAnswers }: CallSummaryScreenProps) {
   const { enabled: characterOn } = useCharacterEnabled();
   const didEvaluate = sessionData.myScores !== null && sessionData.myOverallBand !== null;
 
@@ -164,6 +168,8 @@ export default function CallSummaryScreen({ sessionData, onGoHome, onPracticeAga
           </Card>
         </section>
       </div>
+
+      {myAnswers && myAnswers.length > 0 && <MyAnswers answers={myAnswers} />}
     </FlowShell>
   );
 }

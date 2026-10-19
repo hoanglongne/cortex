@@ -43,6 +43,8 @@ FILES=(
   apps/oratio/supabase/migration_2026_10_answers.sql
   # Last: tightens public.profiles for every app (drops Lexica's read-all policy)
   apps/oratio/supabase/migration_2026_10_security.sql
+  # After security: replaces its band trigger
+  apps/oratio/supabase/migration_2026_10_live.sql
 )
 
 OUT=supabase/restore_all.sql

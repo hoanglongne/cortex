@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/server";
 import { AUDIO_BUCKET } from "@/lib/server/answers";
+import { isCronRequest } from "@/lib/server/cron-auth";
 
 /**
  * Daily (vercel.json crons): deletes Chấm chéo audio older than 30 days.
@@ -9,10 +9,7 @@ import { AUDIO_BUCKET } from "@/lib/server/answers";
  * "Authorization: Bearer $CRON_SECRET".
  */
 export async function GET(request: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  const given = new TextEncoder().encode(request.headers.get("authorization") ?? "");
-  const expected = new TextEncoder().encode(`Bearer ${secret}`);
-  if (!secret || given.length !== expected.length || !timingSafeEqual(given, expected)) {
+  if (!isCronRequest(request.headers.get("authorization"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -443,6 +443,7 @@ export default function AppFlow() {
             onGoHome={handleGoHome}
             onPracticeAgain={handlePracticeAgain}
             onOpenHistory={() => handleTab("history")}
+            myAnswers={callData?.myAnswers}
           />
         </Suspense>
       ) : null;

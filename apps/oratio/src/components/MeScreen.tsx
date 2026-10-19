@@ -8,6 +8,7 @@ import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card, Label } from "@/components/ui/card";
 import { InstallButton } from "@/components/ui/install";
+import { ExamReminder } from "@/components/ui/reminder";
 import { useTranscribeChoice } from "@/lib/client/whisper";
 import { useCharacterEnabled, useTheme, type ThemeChoice } from "@/lib/client/theme";
 import { cn } from "@/lib/utils";
@@ -258,6 +259,7 @@ export default function MeScreen({ profile, user, onTab, onSignOut, onProfileUpd
               />
             </button>
           </div>
+          <ExamReminder />
           <InstallButton />
         </div>
       </section>
