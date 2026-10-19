@@ -1,15 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, BarChart3, History, Mic, User, X } from "lucide-react";
+import { ArrowLeft, BarChart3, Headphones, History, Mic, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Character } from "./character";
 import { InstallButton } from "./install";
 
-export type Tab = "practice" | "history" | "progress" | "me";
+export type Tab = "practice" | "review" | "history" | "progress" | "me";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "practice", label: "Luyện", icon: Mic },
+  { id: "review", label: "Chấm", icon: Headphones },
   { id: "history", label: "Lịch sử", icon: History },
   { id: "progress", label: "Tiến bộ", icon: BarChart3 },
   { id: "me", label: "Tôi", icon: User },
@@ -105,7 +106,7 @@ export function TabShell({
         className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         aria-label="Điều hướng chính"
       >
-        <div className="mx-auto grid max-w-md grid-cols-4">
+        <div className="mx-auto grid max-w-md grid-cols-5">
           {TABS.map((t) => {
             const active = tab === t.id;
             return (

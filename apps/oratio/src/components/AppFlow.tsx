@@ -18,6 +18,7 @@ const MeScreen = lazy(() => import("./MeScreen"));
 const PartnersScreen = lazy(() => import("./PartnersScreen"));
 const CallHistoryScreen = lazy(() => import("./CallHistoryScreen"));
 const SoloPracticeScreen = lazy(() => import("./SoloPracticeScreen"));
+const ReviewScreen = lazy(() => import("./ReviewScreen"));
 const ClassScreen = lazy(() => import("./ClassScreen"));
 const OnboardingScreen = lazy(() => import("./OnboardingScreen"));
 import { useSupabaseAuth } from "@/hooks/useSupabase";
@@ -42,17 +43,19 @@ type Screen =
   | "me"
   | "history"
   | "solo"
+  | "review"
   | "class"
   | "onboarding";
 
 /** Tabs map to screens; "practice" is Home. */
-const TAB_SCREEN: Record<Tab, Screen> = { practice: "home", history: "history", progress: "progress", me: "me" };
+const TAB_SCREEN: Record<Tab, Screen> = { practice: "home", review: "review", history: "history", progress: "progress", me: "me" };
 
 interface Partner {
   id: string;
   name: string;
   band: string;
   avatarUrl?: string | null;
+  country?: string | null;
 }
 
 interface MatchInfo {
@@ -167,6 +170,7 @@ export default function AppFlow() {
         name: match.partner.username,
         band: match.partner.band.toFixed(1),
         avatarUrl: match.partner.avatarUrl,
+        country: match.partner.country ?? null,
       });
       setMatchInfo({ matchId: match.matchId, roomId: match.roomId });
       setJoinError(null);
@@ -392,7 +396,7 @@ export default function AppFlow() {
       return partner ? (
         <Suspense fallback={fallback("Đang tải…")}>
           <PartnerFoundScreen
-            partner={{ name: partner.name, band: partner.band }}
+            partner={{ name: partner.name, band: partner.band, country: partner.country }}
             onStartCall={handleStartCall}
             onDecline={handleDeclineMatch}
             isStarting={isStarting}
@@ -434,7 +438,11 @@ export default function AppFlow() {
     case "summary":
       return sessionData ? (
         <Suspense fallback={fallback("Đang tải…")}>
-          <CallSummaryScreen sessionData={sessionData} onGoHome={handleGoHome} onPracticeAgain={handlePracticeAgain} />
+          <CallSummaryScreen
+            sessionData={sessionData}
+            onGoHome={handleGoHome}
+            onPracticeAgain={handlePracticeAgain}
+          />
         </Suspense>
       ) : null;
 
@@ -503,6 +511,13 @@ export default function AppFlow() {
               else setCurrentScreen("solo");
             }}
           />
+        </Suspense>
+      );
+
+    case "review":
+      return (
+        <Suspense fallback={fallback("Đang tải…")}>
+          <ReviewScreen profile={profile} onTab={handleTab} />
         </Suspense>
       );
 
