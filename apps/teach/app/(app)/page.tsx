@@ -74,7 +74,7 @@ export default function TodayPage() {
                                 <ul className="space-y-2.5">
                                     {good.map((p) => (
                                         <li key={`${p.classId}-${p.userId}`} className="flex items-center justify-between gap-3">
-                                            <Link href={`/classes/${p.classId}/students/${p.userId}`} className="min-w-0 text-ink hover:underline">
+                                            <Link prefetch={false} href={`/classes/${p.classId}/students/${p.userId}`} className="min-w-0 text-ink hover:underline">
                                                 <b className="font-semibold">{p.name}</b> <span className="text-ink-2">{p.why}</span>
                                             </Link>
                                             <CopyChip text={praiseMessage(p.name, p.why)} label="Chép lời khen" />
@@ -103,13 +103,14 @@ export default function TodayPage() {
     );
 }
 
+/** Links here don't prefetch: one server request each, for pages the teacher may not open. */
 function NeedRow({ need }: { need: Need }) {
     const href = `/classes/${need.classId}`;
     if (need.kind === 'due') {
         const when = need.days <= 0 ? 'hết hạn hôm nay' : need.days === 1 ? 'hết hạn mai' : `còn ${need.days} ngày`;
         return (
             <li className="flex flex-wrap items-center justify-between gap-2 py-3">
-                <Link href={`${href}?tab=assignments`} className="text-ink hover:underline">
+                <Link prefetch={false} href={`${href}?tab=assignments`} className="text-ink hover:underline">
                     Bài “{need.title}” {when}: <b>{need.notDone}/{need.total}</b> em chưa làm xong · <span className="text-muted">{need.className}</span>
                 </Link>
                 <CopyChip text={dueMessage(need.title, need.className, need.days)} label="Chép lời nhắc lớp" />
@@ -120,7 +121,7 @@ function NeedRow({ need }: { need: Need }) {
         const names = need.names.length > 3 ? `${need.names.slice(0, 3).join(', ')} và ${need.names.length - 3} em khác` : need.names.join(', ');
         return (
             <li className="flex flex-wrap items-center justify-between gap-2 py-3">
-                <Link href={`${href}?tab=students&filter=nudge`} className="text-ink hover:underline">
+                <Link prefetch={false} href={`${href}?tab=students&filter=nudge`} className="text-ink hover:underline">
                     {need.names.length} em chưa học hơn 3 ngày: <b>{names}</b> · <span className="text-muted">{need.className}</span>
                 </Link>
                 <CopyChip text={nudgeMessage(need.names, need.className)} label="Chép lời nhắc" />
@@ -129,7 +130,7 @@ function NeedRow({ need }: { need: Need }) {
     }
     return (
         <li className="py-3">
-            <Link href={`${href}${need.tab ? `?tab=${need.tab}` : ''}`} className="text-ink-2 hover:underline">
+            <Link prefetch={false} href={`${href}${need.tab ? `?tab=${need.tab}` : ''}`} className="text-ink-2 hover:underline">
                 {need.text} · <span className="text-muted">{need.className}</span>
             </Link>
         </li>

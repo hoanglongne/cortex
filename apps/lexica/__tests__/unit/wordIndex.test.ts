@@ -12,16 +12,19 @@ describe('word index for the teacher app', () => {
         const card = (id: string, word: string) => ({ id, word, elo: 900, level: 'beginner', scenario: 'x', translationHint: 'nghĩa' });
         const files: Record<string, unknown> = {
             'https://cdn.example/manifest.json': { schema: 1, updatedAt: 'x', current: { id: 'd1', url: 'https://cdn.example/d1.json', sha256: 'a' }, library: null, retired: ['t2'], variants: null, passages: null, talk: { id: 'tk', url: 'https://cdn.example/tk.json', sha256: 'b' } },
-            'https://cdn.example/d1.json': { schema: 1, id: 'd1', cards: [card('t1', 'serendipity'), card('t2', 'gone')] },
+            'https://cdn.example/d1.json': { schema: 1, id: 'd1', title: 'Tuần lương chưa về', cards: [card('t1', 'serendipity'), card('t2', 'gone')] },
             'https://cdn.example/tk.json': { schema: 1, id: 'tk', cards: [card('t3', 'catch up')] },
         };
         vi.stubGlobal('fetch', async (url: string) => ({ json: async () => files[url] }));
         const { GET } = await import('../../app/api/word-index/route');
-        const { cards } = (await (await GET()).json()) as { cards: { id: string; word: string; branch: string }[] };
+        const { cards } = (await (await GET()).json()) as { cards: { id: string; word: string; branch: string; pack?: string; scenario: string }[] };
         const byId = new Map(cards.map((c) => [c.id, c]));
         expect(byId.get('t1')?.word).toBe('serendipity');
         expect(byId.has('t2')).toBe(false);
+        expect(byId.get('t1')?.pack).toBe('Tuần lương chưa về');
+        expect(byId.get('t1')?.scenario).toBe('x');
         expect(byId.get('t3')?.branch).toBe('talk');
+        expect(byId.get('t3')?.pack).toBeUndefined();
         expect(byId.get('v001')).toBeTruthy();
     });
 

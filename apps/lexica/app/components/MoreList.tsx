@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { BookOpen, ChevronRight, Mic, PenLine, Plus, RotateCcw, ScanSearch, Swords, TrendingUp } from 'lucide-react';
+import { BookOpen, ChevronRight, Compass, Mic, PenLine, Plus, RotateCcw, ScanSearch, Swords, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import { hardWords } from '../lib/engagement/hard';
@@ -32,8 +32,8 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
                 <Row onClick={onLearnMore} icon={<Plus className="w-4 h-4" />} title="Học thêm từ mới" hint="10 thẻ, ngoài mục tiêu hôm nay" />
                 <Row href="/read" icon={<BookOpen className="w-4 h-4" />} title="Đọc" hint="Đoạn văn ngắn có từ của bạn" />
                 <Row href="/speak" icon={<Mic className="w-4 h-4" />} title="Luyện nói" hint="Nghe, nói, xem máy nghe được gì" />
-                <Row href="/journal" icon={<PenLine className="w-4 h-4" />} title="Một câu hôm nay" hint="Viết về ngày của bạn bằng từ vừa học" />
-                <Row href="/spot" icon={<ScanSearch className="w-4 h-4" />} title="Bắt gặp" hint="Dán đoạn bạn đọc được ngoài đời, tìm từ đã học" />
+                <Row href="/journal" icon={<PenLine className="w-4 h-4" />} title="Một câu hôm nay" hint="Trả lời một câu hỏi về ngày của bạn bằng từ vừa học" />
+                <Row href="/spot" icon={<ScanSearch className="w-4 h-4" />} title="Bắt gặp" hint="Săn từ của tuần, dán đoạn đọc được, xem bộ sưu tập" />
                 {hard > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó" hint={`${hard} từ hay quên`} />}
                 {drop && dropFresh > 0 && (
                     <Row
@@ -46,6 +46,7 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
                         hint={`${dropFresh} thẻ mới${drop.expiresAt ? ` · còn ${Math.max(0, Math.ceil((Date.parse(drop.expiresAt) - now) / DAY_MS))} ngày` : ''}`}
                     />
                 )}
+                <Row href="/guide" icon={<Compass className="w-4 h-4" />} title="Lexica có gì" hint="Mọi phần của app, dùng gì khi nào" />
             </div>
         </section>
     );

@@ -12,6 +12,7 @@ import HomeHeader from './components/HomeHeader';
 import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
 import MoreList from './components/MoreList';
+import GuideCard from './components/GuideCard';
 import PledgeCard from './components/PledgeCard';
 import Motivation from './components/Motivation';
 import DailyProgress from './components/DailyProgress';
@@ -575,6 +576,7 @@ function HomeContent() {
             <ErrorBoundary>
               <TodayCard onLearnMore={() => setSessionStarted(true)} />
             </ErrorBoundary>
+            <GuideCard />
             <PledgeCard />
             <StepNumbers />
             <MoreList onLearnMore={() => setSessionStarted(true)} />

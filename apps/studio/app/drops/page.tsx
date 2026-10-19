@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, Rocket, RotateCcw, X } from 'lucide-react';
-import { api, errorText } from '../lib/api';
+import { api, cached, errorText } from '../lib/api';
 import type { Card as CardT, Drop } from '../lib/types';
 import Scenario from '../components/Scenario';
 import { Badge, Button, Card, ErrorNote, Input, Label } from '../components/ui';
@@ -12,8 +12,8 @@ const STATUS_TONE = { draft: 'muted', published: 'accent', archived: 'muted' } a
 const inTwoWeeks = () => new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
 
 export default function DropsPage() {
-    const [drops, setDrops] = useState<Drop[]>([]);
-    const [selected, setSelected] = useState<string | null>(null);
+    const [drops, setDrops] = useState<Drop[]>(() => cached<Drop[]>('/drops') ?? []);
+    const [selected, setSelected] = useState<string | null>(() => drops[0]?.id ?? null);
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');
     const [form, setForm] = useState({ title: '', id: '', expires: inTwoWeeks() });

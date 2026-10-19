@@ -31,7 +31,8 @@ export default function StudentsPage() {
                     <ul className="divide-y divide-line">
                         {rows.map(({ c, s, state }) => (
                             <li key={`${c.id}-${s.user_id}`}>
-                                <Link href={`/classes/${c.id}/students/${s.user_id}`} className="grid items-center gap-3 px-5 py-3.5 hover:bg-surface-2/60 sm:grid-cols-[1.2fr_2fr_auto]">
+                                {/* No prefetch: each student page is a server request, one per row. */}
+                                <Link href={`/classes/${c.id}/students/${s.user_id}`} prefetch={false} className="grid items-center gap-3 px-5 py-3.5 hover:bg-surface-2/60 sm:grid-cols-[1.2fr_2fr_auto]">
                                     <div className="min-w-0">
                                         <p className="truncate font-medium text-ink">{s.name}</p>
                                         <p className="truncate text-xs text-muted">

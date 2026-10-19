@@ -14,17 +14,17 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Đăng ký lần đầu: ô nhập lại mật khẩu (mọi app).
 - [x] Album: nói rõ còn bao nhiêu lần ôn đúng để đúc ấn bản.
 
-## Đợt 3: hiệu năng teach và studio
-- [ ] Đo (React Profiler, trace) xem lag ở đâu khi chuyển tab.
-- [ ] Sửa theo số đo: cache dữ liệu dùng chung, tránh tải lại, chia nhỏ component, danh sách dài thì ảo hoá.
+## Đợt 3: hiệu năng teach và studio (PR #43)
+- [x] Đo (Playwright, long task, đếm request) xem lag ở đâu khi chuyển tab. (PR #43)
+- [x] Sửa theo số đo: cache dữ liệu dùng chung, tránh tải lại, chia nhỏ component, danh sách dài thì ảo hoá. (PR #43)
 
-## Đợt 4: giao bài bằng nội dung có sẵn của Lexica
-- [ ] Tab "Chọn từ Lexica" trong form giao bài: duyệt theo nhánh, level, pack Studio; tìm từ; chọn cả pack hoặc từng từ; xem trước.
+## Đợt 4: giao bài bằng nội dung có sẵn của Lexica (PR #43)
+- [x] Tab "Chọn từ Lexica" trong form giao bài: duyệt theo nhánh, level, pack Studio; tìm từ; chọn cả pack hoặc từng từ; xem trước. (PR #43)
 
-## Đợt 5: trải nghiệm Lexica (duyệt hướng trước khi làm)
-- [ ] Viết về hôm nay: kho câu hỏi sâu theo chủ đề và độ sâu, bốc ngẫu nhiên, ưu tiên câu dùng được từ vừa học, nút đổi câu.
-- [ ] Bắt gặp: đưa 2–3 hướng làm lại để chọn (săn từ theo tuần, sưu tầm, bản đồ nơi gặp…).
-- [ ] Hướng dẫn: gợi ý đúng lúc, trang "Lexica có gì", checklist tuần đầu.
+## Đợt 5: trải nghiệm Lexica (PR #43)
+- [x] Viết về hôm nay: kho câu hỏi sâu theo chủ đề và độ sâu, bốc ngẫu nhiên, ưu tiên câu dùng được từ vừa học, nút đổi câu. (PR #43)
+- [x] Bắt gặp: làm cả các hướng (người dùng chọn): dán đoạn kèm nơi gặp, săn 5 từ mỗi tuần, bộ sưu tập câu đã gặp, bản đồ nơi gặp. (PR #43)
+- [x] Hướng dẫn: gợi ý đúng lúc, trang "Lexica có gì", checklist tuần đầu. (PR #43)
 
 ## Đợt 6: chấm phát âm không dùng AI (viết thiết kế trước)
 - [ ] Mức 1: so khớp từ với câu mẫu (từ thiếu, đổi, nhận sai; độ tin cậy, phương án nhận dạng khác).

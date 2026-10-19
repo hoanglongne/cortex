@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import type { Whoami } from '@cortex/classroom';
 import { api, getSupabase } from './supabase';
+import { clearTeaching } from './teaching';
 
 interface SessionState {
     loading: boolean;
@@ -22,8 +23,16 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [me, setMe] = useState<Whoami | null>(null);
 
+    const userId = useRef<string | null | undefined>(undefined);
     const load = useCallback(async (s: Session | null) => {
         setSession(s);
+        // Supabase reports the same person again on start, on token refresh
+        // and when the browser tab regains focus: ask for roles only when the
+        // person changes.
+        const id = s?.user.id ?? null;
+        if (id === userId.current) return;
+        userId.current = id;
+        clearTeaching();
         setMe(s ? await api.whoami().catch(() => null) : null);
         setLoading(false);
     }, []);
