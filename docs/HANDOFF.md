@@ -57,7 +57,7 @@
     - store thêm `sightings`, `hunt`, `tipsDismissed`, `checklistHidden`, nằm trong blob `lexica-storage` nên cũng được sao lưu qua cloudSync. Không gửi gì cho lớp học.
 
 ## Việc tiếp theo
-Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm không dùng AI). Thiết kế đã viết ở `docs/LEXICA_PRONUNCIATION_DESIGN.md`; chờ người dùng trả lời các câu hỏi ở mục 9 rồi mới code, theo 3 PR đề xuất ở đó.
+Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm không dùng AI). Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md`. Thử nghiệm mô hình chạy trên máy: `docs/LEXICA_PRONUNCIATION_SPIKE.md`, script ở `apps/lexica/scripts/pronunciation-spike/`. Chờ người dùng trả lời các câu hỏi ở mục 9 rồi mới code, theo 3 PR đề xuất ở đó.
 - Đợt 5 và 6 cần người dùng duyệt hướng hoặc thiết kế trước khi code.
 - Thêm app vào lớp học: làm theo quy trình trong `docs/CLASSROOM.md`, bước 1 là hỏi người dùng giáo viên giao gì, xem gì, xếp hạng theo gì.
 
