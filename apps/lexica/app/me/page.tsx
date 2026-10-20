@@ -104,7 +104,7 @@ export default function MePage() {
                     <button onClick={changeLevel} className="w-full h-11 rounded-xl border border-line-strong/50 bg-surface-2/50 text-ink text-sm font-medium flex items-center justify-center gap-2 hover:border-line-strong">
                         <Settings className="w-4 h-4" /> Đổi level
                     </button>
-                    <Link href="/stats#settings" className="block text-center text-sm text-muted hover:text-ink">
+                    <Link href="/settings" className="block text-center text-sm text-muted hover:text-ink">
                         Âm thanh, sao lưu và các cài đặt khác
                     </Link>
                 </section>

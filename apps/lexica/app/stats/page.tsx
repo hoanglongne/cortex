@@ -1,490 +1,246 @@
 'use client';
 
-import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Target, Flame, Trophy, TrendingUp, Calendar, PieChart as PieChartIcon, MousePointerClick, Volume2, VolumeX, Mic, RotateCcw, Trash2 } from 'lucide-react';
-import CortexSection from '../components/CortexSection';
-import AuthGate from '../components/AuthGate';
-import { useAuth } from '../context/AuthContext';
-import { getSupabaseClient } from '../lib/supabase';
+import { useMemo, useState } from 'react';
+import { ArrowDown, ArrowUp, ChevronRight, Flame, Mic, Swords } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { getProgressStats } from '../lib/eloAlgorithm';
-import ActivityHeatmap from '../components/ActivityHeatmap';
-import ELOChart from '../components/ELOChart';
-import AccuracyChart from '../components/AccuracyChart';
-import CardStatesPieChart from '../components/CardStatesPieChart';
-import CountUp from '../components/CountUp';
-import { useSoundEffects } from '../hooks/useSoundEffects';
+import { getCard, useContentVersion } from '../lib/content/repository';
+import { countSteps, STEP_HINT, STEP_LABEL, STEPS, type StepCounts } from '../lib/journey/steps';
+import { localDate } from '../lib/engagement/ghost';
+import { hardWords } from '../lib/engagement/hard';
+import { hardToSay } from '../lib/pronunciation/drill';
+import { actionsByDay, calendar, DAY_LABELS, dueForecast, intensity, stepSeries, weeks } from '../lib/stats';
 
-function StatsPageContent() {
-    const learnedCount = useLexicaStore(state => state.learnedWords.size);
-    const learnedWords = useLexicaStore(state => state.learnedWords);
-    const currentStreak = useLexicaStore(state => state.currentStreak);
-    const longestStreak = useLexicaStore(state => state.longestStreak);
-    const userStats = useLexicaStore(state => state.userStats);
-    const highestElo = useLexicaStore(state => state.highestElo);
-    const cardProgress = useLexicaStore(state => state.cardProgress);
-    const studyHistory = useLexicaStore(state => state.studyHistory);
-    const soundEnabled = useLexicaStore(state => state.soundEnabled);
-    const toggleSound = useLexicaStore(state => state.toggleSound);
-    const autoReviewInDeck = useLexicaStore(state => state.autoReviewInDeck);
-    const toggleAutoReview = useLexicaStore(state => state.toggleAutoReview);
-    const resetProgress = useLexicaStore(state => state.resetProgress);
-    const { click } = useSoundEffects();
+const CELL = ['bg-surface-2', 'bg-accent/25', 'bg-accent/50', 'bg-accent/75', 'bg-accent'] as const;
+const dm = (date: string) => `${Number(date.slice(8))}/${Number(date.slice(5, 7))}`;
 
-    const [showResetDialog, setShowResetDialog] = useState(false);
+/**
+ * "Thống kê" from what the learner really did (lib/stats.ts): this week
+ * against the last, the four steps over 30 days, the days they studied,
+ * the reviews coming up and the words that need attention. Settings live
+ * at /settings.
+ */
+export default function StatsPage() {
+    useContentVersion();
+    const journeys = useLexicaStore((s) => s.journeys);
+    const stepHistory = useLexicaStore((s) => s.stepHistory);
+    const studyHistory = useLexicaStore((s) => s.studyHistory);
+    const daysDone = useLexicaStore((s) => s.daysDone);
+    const sightings = useLexicaStore((s) => s.sightings);
+    const spokenAt = useLexicaStore((s) => s.spokenAt);
+    const mySentences = useLexicaStore((s) => s.mySentences);
+    const cardProgress = useLexicaStore((s) => s.cardProgress);
+    const speakMisses = useLexicaStore((s) => s.speakMisses);
+    const currentStreak = useLexicaStore((s) => s.currentStreak);
+    const longestStreak = useLexicaStore((s) => s.longestStreak);
+    const [now] = useState(() => Date.now());
+    const today = localDate(now);
 
-    const progressStats = getProgressStats(cardProgress);
-    const accuracy = userStats.totalSwipes > 0
-        ? Math.round((userStats.correctSwipes / userStats.totalSwipes) * 100)
-        : 0;
+    const actions = useMemo(
+        () => actionsByDay({ journeys, studyHistory, daysDone, sightings, spokenAt, mySentences }),
+        [journeys, studyHistory, daysDone, sightings, spokenAt, mySentences],
+    );
+    const week = weeks(journeys, actions, today);
+    const counts = countSteps(journeys);
+    const series = stepSeries(stepHistory, counts, today);
+    const cols = calendar(actions, today);
+    const all = [...actions.values()];
+    const due = dueForecast(cardProgress, now);
+    const hard = hardWords(cardProgress).slice(0, 6);
+    const hardSay = hardToSay(speakMisses).filter((h) => getCard(h.cardId)).slice(0, 6);
+    const empty = Object.keys(journeys).length === 0;
 
     return (
-        <div className="min-h-screen bg-bg px-4 py-8">
-            <div className="max-w-6xl mx-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 text-muted hover:text-accent transition-colors group text-sm"
-                    >
-                        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                        Trang chủ
+        <div className="min-h-screen bg-bg px-4 py-6">
+            <div className="max-w-2xl mx-auto space-y-4">
+                <div className="flex items-center justify-between">
+                    <Link href="/me" className="text-muted hover:text-accent text-sm">
+                        ← Tôi
                     </Link>
-                    <h1 className="text-md md:text-2xl font-bold text-ink ">Cài đặt & Thống kê</h1>
-                    <div className="w-10 md:w-20" /> {/* spacer */}
+                    <h1 className="text-ink font-bold">Thống kê</h1>
+                    <span className="w-10" />
                 </div>
 
-                {/* Settings Section */}
-                <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
-                    <h2 className="text-lg font-bold text-ink mb-4 flex items-center gap-2">
-                        <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Cài đặt
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Sound Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line">
-                            <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${soundEnabled ? 'bg-accent/15' : 'bg-surface-2/60'
- }`}>
-                                    {soundEnabled ? (
-                                        <Volume2 className="w-5 h-5 text-accent" />
-                                    ) : (
-                                        <VolumeX className="w-5 h-5 text-muted" />
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="text-ink font-medium text-sm">Âm thanh</p>
-                                    <p className="text-muted text-xs">Hiệu ứng âm thanh khi học</p>
-                                </div>
+                {empty ? (
+                    <p className="rounded-2xl border border-dashed border-line-strong p-6 text-center text-sm text-muted">Học vài từ đầu tiên, số liệu của bạn sẽ hiện ở đây.</p>
+                ) : (
+                    <>
+                        <Week now={week.now} before={week.before} />
+                        <Steps counts={counts} series={series} />
+                        <section className="rounded-2xl border border-line bg-surface p-4">
+                            <div className="flex items-baseline justify-between gap-2">
+                                <h2 className="font-semibold text-ink">Ngày học</h2>
+                                <p className="flex items-center gap-1.5 text-sm text-ink-2">
+                                    <Flame className={`w-4 h-4 ${currentStreak > 0 ? 'text-warning' : 'text-subtle'}`} />
+                                    Chuỗi {currentStreak} ngày · dài nhất {longestStreak}
+                                </p>
                             </div>
-                            <button
-                                onClick={() => {
-                                    click();
-                                    toggleSound();
-                                }}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${soundEnabled ? 'bg-accent' : 'bg-surface-3'
- }`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-ink transition-transform ${soundEnabled ? 'translate-x-6' : 'translate-x-1'
- }`}
-                                />
-                            </button>
-                        </div>
-
-                        {/* Speaking practice (it no longer blocks swiping) */}
-                        <Link href="/speak" className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line hover:border-line-strong">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-accent/15">
-                                    <Mic className="w-5 h-5 text-accent" />
-                                </div>
-                                <div>
-                                    <p className="text-ink font-medium text-sm">Luyện nói 2 phút</p>
-                                    <p className="text-muted text-xs">Nghe phân biệt, nói và xem máy nghe được gì</p>
-                                </div>
-                            </div>
-                            <span className="text-muted">→</span>
-                        </Link>
-
-                        {/* Auto-Review Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line md:col-span-2">
-                            <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${autoReviewInDeck ? 'bg-warning/15' : 'bg-surface-2/60'
- }`}>
-                                    <RotateCcw className={`w-5 h-5 ${autoReviewInDeck ? 'text-warning' : 'text-muted'}`} />
-                                </div>
-                                <div>
-                                    <p className="text-ink font-medium text-sm">Tự động ôn tập trong deck</p>
-                                    <p className="text-muted text-xs">
-                                        {autoReviewInDeck
-                                            ? 'Tự động thêm từ cần ôn vào deck học (1 lần/phiên)'
-                                            : 'Tắt - chỉ ôn tập qua trang /review riêng'}
-                                    </p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => {
-                                    click();
-                                    toggleAutoReview();
-                                }}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${autoReviewInDeck ? 'bg-warning' : 'bg-surface-3'
- }`}
-                            >
-                                <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-ink transition-transform ${autoReviewInDeck ? 'translate-x-6' : 'translate-x-1'
- }`}
-                                />
-                            </button>
-                        </div>
-
-                        {/* Hidden Reset Button */}
-                        <div className="md:col-span-2 mt-4 pt-4 border-t border-line/50">
-                            <button
-                                onClick={() => {
-                                    click();
-                                    setShowResetDialog(true);
-                                }}
-                                className="w-full p-3 bg-danger/5 hover:bg-danger/10 rounded-lg border border-danger/20 hover:border-danger/40 transition-all group"
-                            >
-                                <div className="flex items-center justify-center gap-2 text-danger/60 group-hover:text-danger transition-colors">
-                                    <Trash2 className="w-4 h-4" />
-                                    <span className="text-xs font-medium">Reset toàn bộ tiến trình</span>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Cloud backup sign-in */}
-                <BackupStatus />
-
-                {/* Cortex Hub Section */}
-                <CortexSection />
-
-                {/* Featured Streak Card */}
-                {(() => {
-                    const MILESTONES = [3, 7, 14, 30, 60, 100];
-                    const MAX_TRACK = 100;
-                    const fillPct = Math.min((currentStreak / MAX_TRACK) * 100, 100);
-                    const nextMilestone = MILESTONES.find(m => m > currentStreak) ?? null;
-                    const MILESTONE_LABELS: Record<number, string> = {
-                        3: '3 ngày',
-                        7: '1 tuần',
-                        14: '2 tuần',
-                        30: '1 tháng',
-                        60: '2 tháng',
-                        100: '100 ngày'
-                    };
-
-                    return (
-                        <div className={`rounded-xl border p-6 mb-8 ${currentStreak >= 7
- ? 'bg-warning/8 border-warning/30'
- : currentStreak >= 3
- ? 'bg-warning/8 border-warning/20'
- : 'bg-surface/40 border-line'
- }`}>
-                            <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center gap-4">
-                                    <div className={`p-3 rounded-xl ${currentStreak >= 7 ? 'bg-warning/20' : 'bg-surface-2/60'
- }`}>
-                                        <Flame className={`w-7 h-7 ${currentStreak >= 7
- ? 'text-warning'
- : currentStreak >= 3
- ? 'text-warning'
- : 'text-muted'
- }`} />
-                                    </div>
-                                    <div>
-                                        <div className="text-xs text-muted uppercase font-mono font-medium mb-1">
-                                            Streak
-                                        </div>
-                                        <div className={`text-3xl font-bold ${currentStreak >= 7
- ? 'text-warning'
- : currentStreak >= 3
- ? 'text-warning'
- : 'text-ink-2'
- }`}>
-                                            {currentStreak} <span className="text-lg font-normal text-muted">
-                                                ngày liên tiếp
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                {longestStreak > 0 && (
-                                    <div className="text-right">
-                                        <div className="text-xs text-subtle">Kỷ lục</div>
-                                        <div className="text-lg font-bold text-muted">{longestStreak} ngày</div>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Milestone track */}
-                            <div className="space-y-2">
-                                <div className="relative h-2.5 bg-surface rounded-full">
-                                    {/* Fill bar */}
-                                    <div
-                                        className={`absolute left-0 top-0 h-full rounded-full transition-all duration-700 ${currentStreak >= 30
- ? ' bg-warning '
- : currentStreak >= 7
- ? ' bg-warning '
- : 'bg-warning'
- }`}
-                                        style={{ width: `${fillPct}%` }}
-                                    />
-                                    {/* Milestone markers */}
-                                    {MILESTONES.map(m => (
-                                        <div
-                                            key={m}
-                                            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
-                                            style={{ left: `${(m / MAX_TRACK) * 100}%` }}
-                                        >
-                                            <div className={`w-3 h-3 rounded-full border-2 transition-colors duration-500 ${currentStreak >= m
- ? 'bg-warning border-warning'
- : 'bg-surface-2 border-line-strong'
- }`} />
-                                        </div>
-                                    ))}
-                                </div>
-                                {/* Labels */}
-                                <div className="relative h-4">
-                                    {MILESTONES.map(m => (
-                                        <span
-                                            key={m}
-                                            className={`absolute text-[9px] -translate-x-1/2 transition-colors font-mono ${currentStreak >= m ? 'text-warning/80' : 'text-subtle'
- }`}
-                                            style={{ left: `${(m / MAX_TRACK) * 100}%` }}
-                                        >
-                                            {MILESTONE_LABELS[m]}
+                            <p className="mt-1 text-xs text-muted">12 tuần qua. Ô càng đậm là ngày bạn làm càng nhiều (học, ôn, đọc, nói, bắt gặp từ).</p>
+                            <div className="mt-3 flex gap-1.5">
+                                <div className="grid grid-rows-7 gap-1 text-[10px] text-subtle pr-1">
+                                    {DAY_LABELS.map((d, i) => (
+                                        <span key={d} className="h-4 leading-4">
+                                            {i % 2 === 0 ? d : ''}
                                         </span>
                                     ))}
                                 </div>
-                                <div className="text-right mt-2">
-                                    <span className="text-xs text-muted">
-                                        {nextMilestone
-                                            ? `${nextMilestone - currentStreak} ngày nữa đến mốc ${MILESTONE_LABELS[nextMilestone]}`
-                                            : 'Đã đạt tất cả mốc!'
-                                        }
-                                    </span>
+                                <div className="grid grid-flow-col grid-rows-7 gap-1 flex-1" role="img" aria-label="Lịch ngày học 12 tuần qua">
+                                    {cols.flat().map((c, i) =>
+                                        c ? (
+                                            <span key={c.date} title={`${dm(c.date)}: ${c.n > 0 ? `${c.n} hoạt động` : 'không học'}`} className={`h-4 rounded-[3px] ${CELL[intensity(c.n, all)]} ${c.date === today ? 'ring-1 ring-ink-2' : ''}`} />
+                                        ) : (
+                                            <span key={`x${i}`} className="h-4" />
+                                        ),
+                                    )}
                                 </div>
                             </div>
+                            <p className="mt-2 flex items-center justify-end gap-1 text-[10px] text-subtle">
+                                Ít {CELL.map((c) => <span key={c} className={`w-3 h-3 rounded-[3px] ${c}`} />)} Nhiều
+                            </p>
+                        </section>
+                        <Due due={due} />
+                        {(hard.length > 0 || hardSay.length > 0) && (
+                            <section className="rounded-2xl border border-line bg-surface p-4 space-y-4">
+                                <h2 className="font-semibold text-ink">Từ cần chú ý</h2>
+                                {hard.length > 0 && (
+                                    <WordList title="Hay quên" href="/review?hard=1" action="Luyện riêng" icon={<Swords className="w-4 h-4" />} items={hard.map((p) => ({ id: p.cardId, note: `sai ${p.wrongCount ?? 0} lần` }))} />
+                                )}
+                                {hardSay.length > 0 && (
+                                    <WordList title="Khó nói" href="/speak" action="Luyện nói" icon={<Mic className="w-4 h-4" />} items={hardSay.map((h) => ({ id: h.cardId, note: `chưa rõ ${h.misses} lần` }))} />
+                                )}
+                            </section>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function Week({ now, before }: { now: ReturnType<typeof weeks>['now']; before: ReturnType<typeof weeks>['before'] }) {
+    return (
+        <section className="rounded-2xl border border-accent/40 bg-accent/5 p-4">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-accent">7 ngày qua</p>
+            <p className="mt-1 text-2xl font-semibold text-ink">
+                Học {now.activeDays}/7 ngày
+                <Change now={now.activeDays} before={before.activeDays} unit="ngày" />
+            </p>
+            <div className="mt-3 grid grid-cols-4 gap-2">
+                {STEPS.map((s) => (
+                    <div key={s} className="rounded-xl border border-line bg-surface px-2 py-2 text-center" title={STEP_HINT[s]}>
+                        <p className="font-mono text-lg font-bold text-ink">+{now.reached[s]}</p>
+                        <p className="text-[11px] text-muted">{STEP_LABEL[s]}</p>
+                        <p className="text-[10px] text-subtle">tuần trước +{before.reached[s]}</p>
+                    </div>
+                ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">Số từ mới tới mỗi bước trong 7 ngày.</p>
+        </section>
+    );
+}
+
+function Change({ now, before, unit }: { now: number; before: number; unit: string }) {
+    if (now === before) return null;
+    const up = now > before;
+    return (
+        <span className={`ml-2 inline-flex items-center gap-0.5 align-middle text-sm font-medium ${up ? 'text-accent' : 'text-muted'}`}>
+            {up ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />}
+            {Math.abs(now - before)} {unit} so với tuần trước
+        </span>
+    );
+}
+
+/** Each step: the count now and a 30-day line, one small chart per step so each reads on its own scale. */
+function Steps({ counts, series }: { counts: StepCounts; series: { date: string; counts: StepCounts }[] }) {
+    const [hover, setHover] = useState<number | null>(null);
+    return (
+        <section className="rounded-2xl border border-line bg-surface p-4">
+            <h2 className="font-semibold text-ink">Bốn bước, 30 ngày qua</h2>
+            <p className="mt-1 text-xs text-muted">Số từ đã tới mỗi bước. Rê hoặc chạm vào đường để xem từng ngày.</p>
+            <div className="mt-3 space-y-3">
+                {STEPS.map((s) => {
+                    const ys = series.map((x) => x.counts[s]);
+                    const max = Math.max(1, ...ys);
+                    const pts = ys.map((y, i) => `${(i / (ys.length - 1)) * 100},${28 - (y / max) * 26}`).join(' ');
+                    const gain = ys[ys.length - 1] - ys[0];
+                    const at = hover ?? ys.length - 1;
+                    return (
+                        <div key={s} className="grid grid-cols-[4.5rem_1fr_4.5rem] items-center gap-3">
+                            <div>
+                                <p className="text-sm text-ink">{STEP_LABEL[s]}</p>
+                                <p className="font-mono text-lg font-bold text-ink leading-tight">{hover === null ? counts[s] : ys[at]}</p>
+                            </div>
+                            <svg
+                                viewBox="0 0 100 30"
+                                preserveAspectRatio="none"
+                                className="h-10 w-full overflow-visible"
+                                onMouseLeave={() => setHover(null)}
+                                onPointerMove={(e) => {
+                                    const r = e.currentTarget.getBoundingClientRect();
+                                    setHover(Math.max(0, Math.min(ys.length - 1, Math.round(((e.clientX - r.left) / r.width) * (ys.length - 1)))));
+                                }}
+                                role="img"
+                                aria-label={`${STEP_LABEL[s]}: từ ${ys[0]} lên ${ys[ys.length - 1]} trong 30 ngày`}
+                            >
+                                <line x1="0" y1="28" x2="100" y2="28" className="stroke-line" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+                                <polyline points={pts} fill="none" className="stroke-accent" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+                                {hover !== null && <line x1={(at / (ys.length - 1)) * 100} y1="0" x2={(at / (ys.length - 1)) * 100} y2="28" className="stroke-ink-2" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
+                            </svg>
+                            <p className="text-right text-xs text-muted">{hover === null ? (gain > 0 ? `+${gain} trong 30 ngày` : 'chưa đổi') : dm(series[at].date)}</p>
                         </div>
                     );
-                })()}
-
-                {/* Key Metrics Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                    {/* Total Words Learned */}
-                    <div className="bg-surface/50 border border-line rounded-xl p-5">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 rounded-lg bg-accent/15">
-                                <BookOpen className="w-5 h-5 text-accent" />
-                            </div>
-                            <span className="text-muted text-sm">Từ đã học</span>
-                        </div>
-                        <p className="text-3xl font-bold text-ink">
-                            <CountUp end={learnedCount} />
-                        </p>
-                        <p className="text-xs text-muted mt-1">
-                            <CountUp end={progressStats.mastered} /> thành thạo
-                        </p>
-                    </div>
-
-                    {/* Total Swipes */}
-                    <div className="bg-surface/50 border border-line rounded-xl p-5">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 rounded-lg bg-accent/15">
-                                <MousePointerClick className="w-5 h-5 text-accent" />
-                            </div>
-                            <span className="text-muted text-sm">Tổng swipes</span>
-                        </div>
-                        <p className="text-3xl font-bold text-ink">
-                            <CountUp end={userStats.totalSwipes} />
-                        </p>
-                        <p className="text-xs text-muted mt-1">
-                            <CountUp end={userStats.correctSwipes} /> đúng
-                        </p>
-                    </div>
-
-                    {/* Accuracy Rate */}
-                    <div className="bg-surface/50 border border-line rounded-xl p-5">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 rounded-lg bg-accent/15">
-                                <Target className="w-5 h-5 text-accent" />
-                            </div>
-                            <span className="text-muted text-sm whitespace-nowrap">Độ chính xác</span>
-                        </div>
-                        <p className="text-3xl font-bold text-accent">
-                            <CountUp end={accuracy} suffix="%" />
-                        </p>
-                        <p className="text-xs text-muted mt-1">
-                            trung bình
-                        </p>
-                    </div>
-
-                    {/* ELO Rating (Combined) */}
-                    <div className="bg-surface/50 border border-line rounded-xl p-5">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 rounded-lg bg-warning/15">
-                                <Trophy className="w-5 h-5 text-warning" />
-                            </div>
-                            <span className="text-muted text-sm">ELO Rating</span>
-                        </div>
-                        <p className="text-3xl font-bold text-warning">
-                            <CountUp end={userStats.currentElo} />
-                        </p>
-                        <p className="text-xs text-muted mt-1">
-                            cao nhất: <span className="text-warning font-semibold"><CountUp end={highestElo} /></span>
-                        </p>
-                    </div>
-                </div>
-
-                {/* Activity Heatmap */}
-                <div className="bg-surface/50 border border-line rounded-xl p-6 mb-8 focus:outline-none">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Calendar className="w-5 h-5 text-accent" />
-                        <h2 className="text-lg font-bold text-ink">Lịch hoạt động</h2>
-                        <span className="text-xs text-muted">(365 ngày qua)</span>
-                    </div>
-                    <ActivityHeatmap studyHistory={studyHistory} />
-                </div>
-
-                {/* Charts Grid */}
-                <div className="grid lg:grid-cols-2 gap-8 mb-8">
-                    {/* ELO Progress Chart */}
-                    <div className="bg-surface/50 border border-line rounded-xl p-6 focus:outline-none">
-                        <div className="flex items-center gap-3 mb-4">
-                            <TrendingUp className="w-5 h-5 text-accent" />
-                            <h2 className="text-lg font-bold text-ink">Tiến độ ELO</h2>
-                            <span className="text-xs text-muted">(30 ngày)</span>
-                        </div>
-                        <ELOChart studyHistory={studyHistory} currentElo={userStats.currentElo} />
-                    </div>
-
-                    {/* Card States Chart */}
-                    <div className="bg-surface/50 border border-line rounded-xl p-6 focus:outline-none">
-                        <div className="flex items-center gap-3 mb-4">
-                            <PieChartIcon className="w-5 h-5 text-accent" />
-                            <h2 className="text-lg font-bold text-ink">Phân bổ từ vựng</h2>
-                        </div>
-                        <CardStatesPieChart cardProgress={cardProgress} learnedWords={learnedWords} />
-                    </div>
-                </div>
-
-                {/* Accuracy Trend Chart - Full width */}
-                <div className="bg-surface/50 border border-line rounded-xl p-6 focus:outline-none">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Target className="w-5 h-5 text-accent" />
-                        <h2 className="text-lg font-bold text-ink">Xu hướng Accuracy</h2>
-                        <span className="text-xs text-muted">(30 ngày)</span>
-                    </div>
-                    <AccuracyChart studyHistory={studyHistory} />
-                </div>
+                })}
             </div>
+        </section>
+    );
+}
 
-            {/* Reset Confirmation Dialog */}
-            {showResetDialog && (
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowResetDialog(false)}>
-                    <div className="bg-surface border-2 border-danger/30 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-start gap-4 mb-6">
-                            <div className="p-3 rounded-xl bg-danger/20 border border-danger/30">
-                                <Trash2 className="w-6 h-6 text-danger" />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-lg font-bold text-ink mb-2">Xác nhận Reset</h3>
-                                <p className="text-sm text-ink-2 leading-relaxed">
-                                    Bạn có chắc chắn muốn reset toàn bộ tiến trình? Hành động này sẽ xóa:
-                                </p>
-                                <ul className="mt-3 space-y-1.5 text-xs text-muted">
-                                    <li className="flex items-center gap-2">
-                                        <div className="w-1 h-1 rounded-full bg-danger" />
-                                        Tất cả từ vựng đã học ({learnedCount} từ)
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <div className="w-1 h-1 rounded-full bg-danger" />
-                                        Streak hiện tại ({currentStreak} ngày)
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <div className="w-1 h-1 rounded-full bg-danger" />
-                                        Thống kê và lịch sử học tập
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <div className="w-1 h-1 rounded-full bg-danger" />
-                                        Level đã chọn và Story Mode progress
-                                    </li>
-                                </ul>
-                                <p className="mt-4 text-xs text-danger font-medium">
-                                    Không thể hoàn tác!
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setShowResetDialog(false)}
-                                className="flex-1 py-3 px-4 bg-surface-2 hover:bg-surface-3 text-ink rounded-xl font-medium text-sm transition-colors"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                onClick={() => {
-                                    click();
-                                    resetProgress();
-                                    setShowResetDialog(false);
-                                    // Optionally redirect to home
-                                    window.location.href = '/';
-                                }}
-                                className="flex-1 py-3 px-4 bg-danger hover:bg-danger text-on-status rounded-xl font-bold text-sm transition-colors shadow-lg "
-                            >
-                                Xác nhận Reset
-                            </button>
-                        </div>
+function Due({ due }: { due: { date: string; n: number }[] }) {
+    const max = Math.max(1, ...due.map((d) => d.n));
+    const total = due.reduce((n, d) => n + d.n, 0);
+    return (
+        <section className="rounded-2xl border border-line bg-surface p-4">
+            <div className="flex items-baseline justify-between gap-2">
+                <h2 className="font-semibold text-ink">Cần ôn 7 ngày tới</h2>
+                <span className="text-sm text-muted">{total} lượt</span>
+            </div>
+            <p className="mt-1 text-xs text-muted">Hôm nay gồm cả từ đã quá hạn. Ôn đúng hẹn là cách nhanh nhất để từ lên Nhớ.</p>
+            <div className="mt-3 grid grid-cols-7 gap-2 items-end h-28" role="img" aria-label={due.map((d) => `${dm(d.date)}: ${d.n}`).join(', ')}>
+                {due.map((d, i) => (
+                    <div key={d.date} className="flex flex-col items-center justify-end h-full gap-1" title={`${dm(d.date)}: ${d.n} từ`}>
+                        <span className="text-[11px] text-ink-2 font-mono">{d.n > 0 ? d.n : ''}</span>
+                        <div className={`w-full max-w-8 rounded-t ${i === 0 ? 'bg-accent' : 'bg-accent/50'}`} style={{ height: `${d.n > 0 ? Math.max(6, (d.n / max) * 72) : 2}px` }} />
+                        <span className="text-[10px] text-subtle">{i === 0 ? 'Nay' : dm(d.date)}</span>
                     </div>
-                </div>
+                ))}
+            </div>
+            {due[0].n > 0 && (
+                <Link href="/review" className="mt-3 inline-flex items-center gap-1 text-sm text-accent">
+                    Ôn {due[0].n} từ hôm nay <ChevronRight className="w-4 h-4" />
+                </Link>
             )}
-        </div>
+        </section>
     );
 }
 
-// Wrapper with Suspense boundary
-function StatsPageFallback() {
+function WordList({ title, href, action, icon, items }: { title: string; href: string; action: string; icon: React.ReactNode; items: { id: string; note: string }[] }) {
     return (
-        <div className="min-h-screen bg-bg flex items-center justify-center">
-            <div className="w-8 h-8 rounded-full border-2 border-line border-t-accent animate-spin" />
-        </div>
-    );
-}
-
-export default function StatsPage() {
-    return (
-        <Suspense fallback={<StatsPageFallback />}>
-            <StatsPageContent />
-        </Suspense>
-    );
-}
-
-/** Sign-in prompt that turns on cloud backup (lib/cloudSync.ts). */
-function BackupStatus() {
-    const { user, loading } = useAuth();
-    if (loading || !getSupabaseClient()) return null;
-
-    if (user) {
-        return (
-            <p className="mb-6 text-center text-xs text-muted">
-                Đã đăng nhập <span className="text-accent">{user.email}</span> · tiến trình được tự động sao lưu
-            </p>
-        );
-    }
-
-    return (
-        <div className="mb-6 rounded-2xl border border-line bg-surface/60 p-4">
-            <AuthGate
-                reason="Đăng nhập để sao lưu tiến trình học và tiếp tục trên máy khác."
-                redirectPath="/stats"
-            />
+        <div>
+            <div className="flex items-center justify-between">
+                <p className="flex items-center gap-1.5 text-sm text-ink-2">
+                    {icon} {title}
+                </p>
+                <Link href={href} className="text-sm text-accent">
+                    {action} →
+                </Link>
+            </div>
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+                {items.map((w) => (
+                    <li key={w.id} className="rounded-lg bg-surface-2 px-2.5 py-1 text-sm text-ink" title={getCard(w.id)?.translationHint}>
+                        {getCard(w.id)?.word.toLowerCase()} <span className="text-[11px] text-muted">{w.note}</span>
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 }
