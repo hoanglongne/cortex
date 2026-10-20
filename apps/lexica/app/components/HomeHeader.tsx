@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Flame, LayoutGrid, RotateCcw, Route, UserRound, Users } from 'lucide-react';
+import { BookOpen, Dumbbell, Flame, LayoutGrid, RotateCcw, UserRound } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { levelDef } from '../lib/levels';
 import { BRANCH_LABEL, currentDay, PATH_DAYS } from '../lib/journey/path';
@@ -9,9 +9,9 @@ import { localDate } from '../lib/engagement/ghost';
 
 /**
  * Desktop header of the home screen: logo, level chip, streak, then the
- * places to go. Mobile keeps its bottom bar.
+ * places to go (the same as the phone's bottom bar, components/AppNav).
  */
-export default function HomeHeader({ due, onChangeLevel, onOpenMe }: { due: number; onChangeLevel: () => void; onOpenMe: () => void }) {
+export default function HomeHeader({ due, onChangeLevel }: { due: number; onChangeLevel: () => void }) {
     const level = useLexicaStore((s) => s.selectedLevel);
     const streak = useLexicaStore((s) => s.currentStreak);
     const path = useLexicaStore((s) => s.path);
@@ -37,13 +37,11 @@ export default function HomeHeader({ due, onChangeLevel, onOpenMe }: { due: numb
                     {streak} ngày
                 </span>
                 <nav className="ml-auto flex items-center gap-1" aria-label="Điều hướng">
-                    <NavLink href="/path" icon={<Route className="w-4 h-4" />} label="Lộ trình" />
                     <NavLink href="/review" icon={<RotateCcw className="w-4 h-4" />} label="Ôn tập" badge={due > 0 ? due : undefined} />
+                    <NavLink href="/practice" icon={<Dumbbell className="w-4 h-4" />} label="Luyện" />
+                    <NavLink href="/learned" icon={<BookOpen className="w-4 h-4" />} label="Từ của tôi" />
                     <NavLink href="/album" icon={<LayoutGrid className="w-4 h-4" />} label="Album" />
-                    <NavLink href="/buddy" icon={<Users className="w-4 h-4" />} label="Buddy" />
-                    <button onClick={onOpenMe} className="h-9 px-3 rounded-lg text-sm text-muted hover:text-ink hover:bg-surface flex items-center gap-2">
-                        <UserRound className="w-4 h-4" /> Tôi
-                    </button>
+                    <NavLink href="/me" icon={<UserRound className="w-4 h-4" />} label="Tôi" />
                 </nav>
             </div>
         </header>

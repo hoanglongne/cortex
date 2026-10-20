@@ -61,7 +61,7 @@ export default function LearnedPage() {
                     click();
                     setShowHelp(true);
                 }}
-                className="fixed bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-surface-2 border border-line-strong hover:border-accent hover:bg-surface-3 transition-colors flex items-center justify-center text-muted hover:text-accent text-sm font-bold"
+                className="fixed bottom-24 lg:bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-surface-2 border border-line-strong hover:border-accent hover:bg-surface-3 transition-colors flex items-center justify-center text-muted hover:text-accent text-sm font-bold"
                 aria-label="Hướng dẫn"
             >
                 ?

@@ -4,14 +4,14 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, Settings, RotateCcw, X, BarChart3, TrendingDown, Zap, Check, Mic, Brain, Users, LayoutGrid, UserRound, HelpCircle, ChevronRight, Swords, Route, Home as HomeIcon, ArrowLeft, School } from 'lucide-react';
+import { TrendingUp, BookOpen, Award, RotateCcw, X, TrendingDown, Zap, Check, Brain, ArrowLeft } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
 import HomeHeader from './components/HomeHeader';
 import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
-import MoreList from './components/MoreList';
+import RecentWords from './components/RecentWords';
 import GuideCard from './components/GuideCard';
 import PledgeCard from './components/PledgeCard';
 import Motivation from './components/Motivation';
@@ -20,10 +20,8 @@ import OnboardingModal from './components/OnboardingModal';
 // Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
 import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
-import { hardWords } from './lib/engagement/hard';
-import { ARCHETYPE_OPTIONS } from './lib/content/persona';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { BRANCH_LABEL, currentDay, PACES, PATH_DAYS } from './lib/journey/path';
+import { BRANCH_LABEL, currentDay, PATH_DAYS } from './lib/journey/path';
 import { localDate } from './lib/engagement/ghost';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
@@ -31,10 +29,6 @@ import { analytics } from './lib/analytics';
 function HomeContent() {
   const userStats = useLexicaStore(state => state.userStats);
   const cardProgress = useLexicaStore(state => state.cardProgress);
-  const userArchetype = useLexicaStore(state => state.userArchetype);
-  const setUserArchetype = useLexicaStore(state => state.setUserArchetype);
-  const mySentenceOff = useLexicaStore(state => state.mySentencePrompt.off);
-  const setMySentenceOff = useLexicaStore(state => state.setMySentenceOff);
   const learnedCount = useLexicaStore(state => state.learnedWords.size);
   const selectedLevel = useLexicaStore(state => state.selectedLevel);
   const hasSeenWelcome = useLexicaStore(state => state.hasSeenWelcome);
@@ -45,10 +39,8 @@ function HomeContent() {
   const dailyProgress = useLexicaStore(state => state.dailyProgress);
   const path = useLexicaStore(state => state.path);
   const daysDone = useLexicaStore(state => state.daysDone);
-  const setPath = useLexicaStore(state => state.setPath);
 
   const setSelectedLevel = useLexicaStore(state => state.setSelectedLevel);
-  const resetProgress = useLexicaStore(state => state.resetProgress);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -67,10 +59,9 @@ function HomeContent() {
   const forceCortexReminder = searchParams.get('cortexReminder') === '1';
 
   // Session state - track if user has started learning session
-  const [sessionStarted, setSessionStarted] = useState(false);
+  // A free swipe session (the Drop's cards, from "Luyện"): /?swipe=1
+  const [sessionStarted, setSessionStarted] = useState(() => searchParams.get('swipe') === '1');
 
-  // Mobile stats modal state
-  const [showMobileStats, setShowMobileStats] = useState(false);
   const [showCortexReminder, setShowCortexReminder] = useState(false);
 
   // Goal celebration state
@@ -141,7 +132,6 @@ function HomeContent() {
   // Debug: Get difficulty analysis
   const analysis = getDifficultyAnalysis(userStats);
   const progressStats = getProgressStats(cardProgress);
-  const hardCount = hardWords(cardProgress).length;
   const dueToday = progressStats.dueToday;
   const pathDay = path ? currentDay(path, daysDone, localDate()) : null;
 
@@ -538,7 +528,7 @@ function HomeContent() {
       )}
 
       {/* Desktop header: logo, level, streak and the places to go */}
-      <HomeHeader due={dueToday} onChangeLevel={() => { click(); handleChangeLevel(); }} onOpenMe={() => { click(); setShowMobileStats(true); }} />
+      <HomeHeader due={dueToday} onChangeLevel={() => { click(); handleChangeLevel(); }} />
 
       {/* Help Button - Desktop Only */}
       <button
@@ -579,7 +569,7 @@ function HomeContent() {
             <GuideCard />
             <PledgeCard />
             <StepNumbers />
-            <MoreList onLearnMore={() => setSessionStarted(true)} />
+            <RecentWords />
             <div className="lg:hidden">
               <Motivation variant="strip" />
             </div>
@@ -620,267 +610,11 @@ function HomeContent() {
           )}
         </AnimatePresence>
 
-        {/* Mobile Bottom Navigation Bar - Fixed */}
-        <nav
-          aria-label="Điều hướng"
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-bg/95 backdrop-blur-md border-t border-line pb-[env(safe-area-inset-bottom)]"
-        >
-          <div className="grid grid-cols-4 max-w-md mx-auto">
-            <MobileTab label="Học" icon={<HomeIcon className="w-6 h-6" />} onClick={() => { click(); setSessionStarted(false); }} active />
-            <MobileTab href="/path" label="Lộ trình" icon={<Route className="w-6 h-6" />} />
-            <MobileTab href="/album" label="Album" icon={<LayoutGrid className="w-6 h-6" />} />
-            <MobileTab label="Tôi" icon={<UserRound className="w-6 h-6" />} onClick={() => { click(); setShowMobileStats(true); }} />
-          </div>
-        </nav>
 
         {/* Desktop: the game layer, narrow and quiet */}
         {!sessionStarted && <Motivation variant="column" />}
       </main>
 
-      {/* Mobile Stats Modal */}
-      <AnimatePresence>
-        {showMobileStats && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowMobileStats(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-            />
-
-            {/* Bottom Sheet */}
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-surface border-t-2 border-accent/30 rounded-t-3xl z-50 max-h-[85vh] overflow-y-auto lg:left-auto lg:right-6 lg:bottom-6 lg:w-96 lg:rounded-3xl lg:border-2"
-            >
-              {/* Header */}
-              <div className="sticky top-0 bg-surface border-b border-line px-6 py-4 flex items-center justify-between">
-                <h3 className="text-lg font-bold text-ink">Tôi</h3>
-                <button
-                  onClick={() => {
-                    click();
-                    setShowMobileStats(false);
-                  }}
-                  className="p-2 hover:bg-surface-2 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-muted" />
-                </button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 space-y-5">
-                {/* The path: branch and pace (docs/LEXICA_DIRECTION.md) */}
-                {path && (
-                  <div className="space-y-3 pb-4 border-b border-line">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted text-sm">Nhánh</span>
-                      <div className="flex gap-1.5">
-                        {(['cert', 'talk'] as const).map(b => (
-                          <button
-                            key={b}
-                            onClick={() => { click(); setPath({ ...path, branch: b }); }}
-                            aria-pressed={path.branch === b}
-                            className={`h-9 px-3 rounded-lg border text-xs font-medium ${path.branch === b ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
-                          >
-                            {BRANCH_LABEL[b]}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted text-sm">Nhịp học</span>
-                      <div className="flex gap-1.5">
-                        {PACES.map(n => (
-                          <button
-                            key={n}
-                            onClick={() => { click(); setPath({ ...path, pace: n }); }}
-                            aria-pressed={path.pace === n}
-                            className={`h-9 px-3 rounded-lg border text-xs font-medium ${path.pace === n ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
-                          >
-                            {n} từ/ngày
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-2">
-                  <Link href="/path" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
-                    <Route className="w-4 h-4 text-accent" /> Lộ trình
-                  </Link>
-                  <Link href="/class" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
-                    <School className="w-4 h-4 text-accent" /> Lớp học
-                  </Link>
-                  <Link href="/buddy" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
-                    <Users className="w-4 h-4 text-accent" /> Buddy
-                  </Link>
-                  <Link href="/review" onClick={() => { click(); setShowMobileStats(false); }} className="flex items-center gap-2 px-3 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium">
-                    <RotateCcw className="w-4 h-4 text-accent" /> Ôn tập
-                  </Link>
-                </div>
-
-                {/* Speaking practice: its own drill, it no longer blocks swiping */}
-                <Link
-                  href="/speak"
-                  onClick={() => { click(); setShowMobileStats(false); }}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
-                >
-                  <Mic className="w-4 h-4 text-accent" />
-                  Luyện nói 2 phút
-                  <ChevronRight className="w-4 h-4 text-subtle ml-auto" />
-                </Link>
-
-                {/* Example sentences per archetype (Studio variants) */}
-                <div className="space-y-2 pb-4 border-b border-line">
-                  <span className="text-muted text-sm">Câu ví dụ theo kiểu</span>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {ARCHETYPE_OPTIONS.map(opt => (
-                      <button
-                        key={opt.id}
-                        onClick={() => { click(); setUserArchetype(opt.id); }}
-                        aria-pressed={(userArchetype ?? 'casual') === opt.id}
-                        className={`h-10 rounded-lg border text-xs font-medium transition-colors ${(userArchetype ?? 'casual') === opt.id
-                          ? 'bg-accent/12 border-accent/40 text-accent'
-                          : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted">Câu ví dụ trên thẻ sẽ theo đời sống của bạn, với những thẻ đã có câu riêng.</p>
-                </div>
-
-                {/* "Câu của bạn" offers at the end of a session */}
-                <div className="space-y-2 pb-4 border-b border-line">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted text-sm">Gợi ý gắn từ với đời bạn</span>
-                    <button
-                      onClick={() => { click(); setMySentenceOff(!mySentenceOff); }}
-                      aria-pressed={!mySentenceOff}
-                      className={`inline-flex items-center rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${!mySentenceOff
-                        ? 'bg-accent/12 border-accent/35 text-accent'
-                        : 'bg-surface-2/40 border-line-strong/50 text-ink hover:border-line-strong/60'}`}
-                    >
-                      {mySentenceOff ? 'Đang tắt' : 'Đang bật'}
-                    </button>
-                  </div>
-                  <p className="text-xs text-muted">Cuối phiên, thỉnh thoảng app gợi ý bạn chọn hoặc viết một câu của riêng mình cho một từ vừa nhớ. Không bắt buộc.</p>
-                </div>
-
-                {/* Performance Stats */}
-                <div className="space-y-3">
-                  <h3 className="text-muted text-xs uppercase font-mono font-medium">Performance</h3>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-accent" />
-                      <span className="text-ink-2 text-sm">ELO Rating</span>
-                    </div>
-                    <span className="text-accent font-mono font-semibold">{userStats.currentElo}</span>
-                  </div>
-                </div>
-
-                {/* Progress Stats */}
-                <div className="space-y-3 pt-4 border-t border-line">
-                  <h3 className="text-muted text-xs uppercase font-mono font-medium">Progress</h3>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-accent" />
-                      <span className="text-ink-2 text-sm">Learned</span>
-                    </div>
-                    <span className="text-accent font-semibold">{learnedCount}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Award className="w-4 h-4 text-muted" />
-                      <span className="text-ink-2 text-sm">Mastered</span>
-                    </div>
-                    <span className="text-ink font-semibold">{progressStats.mastered}</span>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="space-y-2 pt-4 border-t border-line">
-                  <Link
-                    href="/learned"
-                    onClick={() => { click(); setShowMobileStats(false); }}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
-                  >
-                    <BookOpen className="w-4 h-4 text-accent" />
-                    Từ đã học
-                    <span className="ml-auto text-muted">{learnedCount}</span>
-                    <ChevronRight className="w-4 h-4 text-subtle" />
-                  </Link>
-                  {hardCount > 0 && (
-                    <Link
-                      href="/review?hard=1"
-                      onClick={() => { click(); setShowMobileStats(false); }}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg bg-warning/5 border border-warning/40 text-ink text-sm font-medium"
-                    >
-                      <Swords className="w-4 h-4 text-warning" />
-                      Ôn từ khó của bạn
-                      <span className="ml-auto text-warning">{hardCount}</span>
-                      <ChevronRight className="w-4 h-4 text-subtle" />
-                    </Link>
-                  )}
-                  <button
-                    onClick={() => { click(); setShowMobileStats(false); setShowOnboarding(true); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-surface-2/50 border border-line-strong/50 text-ink text-sm font-medium"
-                  >
-                    <HelpCircle className="w-4 h-4 text-muted" />
-                    Hướng dẫn
-                    <ChevronRight className="w-4 h-4 text-subtle ml-auto" />
-                  </button>
-                  <Link href="/stats">
-                    <button
-                      onClick={() => {
-                        click();
-                        setShowMobileStats(false);
-                      }}
-                      className="w-full mb-2 px-4 py-2.5 rounded-lg bg-accent/10 hover:bg-accent-strong/15 border border-accent/30 hover:border-accent/50 text-accent hover:text-accent text-sm font-medium transition-all flex items-center justify-center gap-2"
-                    >
-                      <BarChart3 className="w-4 h-4" />
-                      Xem thống kê chi tiết
-                    </button>
-                  </Link>
-                  <button
-                    onClick={() => {
-                      click();
-                      handleChangeLevel();
-                      setShowMobileStats(false);
-                    }}
-                    className="w-full px-4 py-2.5 rounded-lg bg-surface-2/50 hover:bg-surface-2 text-ink text-sm font-medium transition-colors border border-line-strong/50 hover:border-line-strong flex items-center justify-center gap-2"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Đổi level
-                  </button>
-                  {process.env.NODE_ENV === 'development' && (
-                    <button
-                      onClick={() => {
-                        click();
-                        resetProgress();
-                        setShowMobileStats(false);
-                      }}
-                      className="w-full px-4 py-2.5 rounded-lg bg-surface-2/30 hover:bg-surface-2/50 text-muted text-sm font-medium transition-colors border border-line-strong/30 hover:border-line-strong flex items-center justify-center gap-2"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      Reset Progress
-                    </button>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       {/* Story modals now handled by dedicated routes */}
     </div>
@@ -903,21 +637,4 @@ export default function Home() {
       <HomeContent />
     </Suspense>
   );
-}
-
-/** One tab of the mobile bottom bar: a link, or a button for the "Tôi" sheet. */
-function MobileTab({ href, label, icon, badge, onClick, active }: { href?: string; label: string; icon: React.ReactNode; badge?: number; onClick?: () => void; active?: boolean }) {
-  const body = (
-    <span className={`relative flex flex-col items-center justify-center gap-1 h-16 hover:text-ink active:scale-95 transition ${active ? 'text-accent' : 'text-muted'}`}>
-      {icon}
-      <span className="text-xs font-medium">{label}</span>
-      {badge !== undefined && (
-        <span className="absolute top-1.5 left-1/2 ml-2 min-w-5 h-5 px-1 rounded-full bg-warning text-bg text-[11px] font-bold leading-5 text-center">
-          {badge > 99 ? '99+' : badge}
-        </span>
-      )}
-    </span>
-  );
-  if (href) return <Link href={href} aria-label={badge ? `${label}: ${badge} từ` : label}>{body}</Link>;
-  return <button type="button" onClick={onClick} aria-label={label}>{body}</button>;
 }
