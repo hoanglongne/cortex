@@ -274,7 +274,7 @@ const VOICE_RMS = 0.015;
  * a microphone, unlike MediaRecorder's formats): a 16 kHz WAV for playback
  * and transcription, a pitch track, and whether a voice was heard.
  */
-function startRecording(stream: MediaStream) {
+export function startRecording(stream: MediaStream) {
     const chunks: Float32Array[] = [];
     const pitch: (number | null)[] = [];
     let voicedFrames = 0;

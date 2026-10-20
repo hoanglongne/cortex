@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><script src="node_modules/onnxruntime-web/dist/ort.wasm.min.js"></script>
+<script>
+window.bench = async (file, kind, threads) => {
+  ort.env.wasm.numThreads = threads; ort.env.wasm.wasmPaths = '/node_modules/onnxruntime-web/dist/';
+  const t0 = performance.now();
+  const buf = await (await fetch('/onnx/' + file)).arrayBuffer();
+  const t1 = performance.now();
+  const s = await ort.InferenceSession.create(buf, { executionProviders: ['wasm'] });
+  const t2 = performance.now();
+  const feeds = {};
+  const name = s.inputNames[0];
+  if (kind === 'audio3') feeds[name] = new ort.Tensor('float32', new Float32Array(48000).map(() => Math.random() * 0.1 - 0.05), [1, 48000]);
+  if (kind === 'audio6') feeds[name] = new ort.Tensor('float32', new Float32Array(96000).map(() => Math.random() * 0.1 - 0.05), [1, 96000]);
+  if (kind === 'mel5') feeds[name] = new ort.Tensor('float32', new Float32Array(80 * 500).map(() => Math.random()), [1, 80, 500]);
+  if (kind === 'mel10') feeds[name] = new ort.Tensor('float32', new Float32Array(80 * 1000).map(() => Math.random()), [1, 80, 1000]);
+  if (kind === 'mel30') feeds[name] = new ort.Tensor('float32', new Float32Array(80 * 3000).map(() => Math.random()), [1, 80, 3000]);
+  await s.run(feeds); // warm-up
+  const runs = [];
+  for (let i = 0; i < 3; i++) { const a = performance.now(); await s.run(feeds); runs.push(performance.now() - a); }
+  runs.sort((a, b) => a - b);
+  const mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1e6) : null;
+  return { file, kind, threads, isolated: crossOriginIsolated, createMs: Math.round(t2 - t1), runMs: Math.round(runs[1]), mem };
+};
+</script>

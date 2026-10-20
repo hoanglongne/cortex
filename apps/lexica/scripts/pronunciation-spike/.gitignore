@@ -1,0 +1,8 @@
+venv/
+onnx/
+whisper-phoneme/
+node_modules/
+test.parquet
+results.jsonl
+scores_*.npz
+package*.json
