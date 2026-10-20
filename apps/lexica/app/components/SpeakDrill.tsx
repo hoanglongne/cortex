@@ -72,8 +72,9 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
 // ─── Step 1: hear the difference ─────────────────────────────────────────
 
 function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
+    // A different pair and order each practice, so the listening round is not learned by heart.
+    const [seed] = useState(() => Math.floor(Math.random() * 1000));
     const rounds = useMemo(() => {
-        const seed = card.id.split('').reduce((s, c) => s + c.charCodeAt(0), 0);
         const { pair } = pairFor(card.word, card.ipa, seed);
         const near = nearSound(card.word, card.ipa);
         const list: { options: [string, string]; answer: string }[] = [{ options: [pair[0], pair[1]], answer: pair[seed % 2] }];
@@ -82,7 +83,7 @@ function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             list.push({ options: seed % 2 ? [word, near.distractor] : [near.distractor, word], answer: word });
         }
         return list;
-    }, [card]);
+    }, [card, seed]);
     const [round, setRound] = useState(0);
     const [picked, setPicked] = useState<string | null>(null);
     const [played, setPlayed] = useState(false);
@@ -205,7 +206,9 @@ function SayStep({ card, onDone }: { card: ContentCard; onDone: (level: SpeakLev
 
 function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
     const word = card.word.toLowerCase();
-    const phrase = (card.collocations?.[0] ?? word).toLowerCase();
+    // Another of the word's phrases each practice.
+    const [pick] = useState(() => Math.floor(Math.random() * 3));
+    const phrase = (card.collocations?.length ? card.collocations[pick % card.collocations.length] : word).toLowerCase();
     const syl = stressedSyllables(card.word, card.ipa);
     const stressedPart = syl.fromIpa ? undefined : syl.text.split('·').find((s) => s === s.toUpperCase());
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);

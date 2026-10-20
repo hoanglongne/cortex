@@ -121,9 +121,10 @@ function JoinForm({ onJoined, onError }: { onJoined: () => void; onError: (e: st
 function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
     const router = useRouter();
     const journeys = useLexicaStore((s) => s.journeys);
+    const cardProgress = useLexicaStore((s) => s.cardProgress);
     const queueCards = useLexicaStore((s) => s.queueCards);
     const [board, setBoard] = useState<LeaderRow[] | null>(null);
-    const mine = assignedCounts(journeys, cls);
+    const mine = assignedCounts(journeys, cls, cardProgress);
     const lessons = cls.assignments.filter((a) => a.app === 'lexica').map((a) => ({ a, words: lessonOf(a) }));
     const branch = lexicaModule.parseSettings(cls.settings.lexica).branch;
 

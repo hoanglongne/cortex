@@ -40,8 +40,8 @@ export async function refreshClasses(force = false): Promise<ClassInfo[]> {
 export async function reportNow(): Promise<void> {
     const classes = readCachedClasses().filter((c) => c.role === 'student');
     if (classes.length === 0 || !(await signedIn())) return;
-    const { journeys, currentStreak } = useLexicaStore.getState();
-    const report = lexicaReport(journeys, classes);
+    const { journeys, cardProgress, currentStreak } = useLexicaStore.getState();
+    const report = lexicaReport(journeys, classes, cardProgress);
     const key = JSON.stringify([report, currentStreak]);
     if (key === lastReport) return;
     try {
@@ -65,10 +65,11 @@ export function startClassSync(): () => void {
     if (started || typeof window === 'undefined') return () => {};
     started = true;
     void refreshClasses(true).then(() => reportNow());
-    let lastJourneys = useLexicaStore.getState().journeys;
+    let last = useLexicaStore.getState();
     const unsubscribe = useLexicaStore.subscribe((s) => {
-        if (s.journeys === lastJourneys) return;
-        lastJourneys = s.journeys;
+        // A review counts for a lesson even when no step moves (lib/classes.ts touchedSince).
+        if (s.journeys === last.journeys && s.cardProgress === last.cardProgress) return;
+        last = s;
         schedule();
     });
     const onVisibility = () => {

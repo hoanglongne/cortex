@@ -25,20 +25,7 @@ import SpeakDrill from '../components/SpeakDrill';
 import StepNumbers from '../components/StepNumbers';
 import InstallCard from '../components/InstallCard';
 import PledgeCard from '../components/PledgeCard';
-import { classWordsToQueue, onlyClassWords } from '../lib/classes';
-
-/**
- * A lesson assigned in "only" mode and not learned yet makes the whole Học
- * stage: fewer words than the day's pace means a shorter stage, never other
- * words slipped in among the teacher's. "Mixed" lessons are dealt first in a
- * normal stage.
- */
-function learnSize(newLeft: number): number {
-    const progress = useLexicaStore.getState().cardProgress;
-    const pending = onlyClassWords((id) => Boolean(progress[id])).length;
-    if (pending === 0) return newLeft;
-    return newLeft > 0 ? Math.min(pending, newLeft) : pending;
-}
+import { classWordsToQueue } from '../lib/classes';
 
 /** What a stage works on, fixed when the stage starts so answers don't reshuffle it. */
 type Frozen =
@@ -57,6 +44,7 @@ export default function TodayPage() {
     const picks = useTodayPlan();
     const { plan } = picks;
     const startToday = useLexicaStore((s) => s.startToday);
+    const startExtraRound = useLexicaStore((s) => s.startExtraRound);
     const finishStage = useLexicaStore((s) => s.finishStage);
     const completeToday = useLexicaStore((s) => s.completeToday);
     const path = useLexicaStore((s) => s.path);
@@ -70,10 +58,13 @@ export default function TodayPage() {
     useEffect(() => {
         if (!started.current) {
             started.current = true;
-            startToday();
-            capture('today_start', { next: plan.next ?? 'done' });
+            // "Học thêm" (?more=1) after the day's session: another round of the four stages.
+            const more = new URLSearchParams(window.location.search).get('more') === '1';
+            if (more && plan.complete) startExtraRound();
+            else startToday();
+            capture('today_start', { next: plan.next ?? 'done', more });
         }
-    }, [startToday, plan.next]);
+    }, [startToday, startExtraRound, plan.next, plan.complete]);
 
     useEffect(() => {
         if (frozen || !plan.next) return;
@@ -88,7 +79,7 @@ export default function TodayPage() {
                 stage === 'review'
                     ? { stage, ids: picks.reviewIds }
                     : stage === 'learn'
-                      ? { stage, size: learnSize(picks.newLeft) }
+                      ? { stage, size: picks.newLeft }
                       : stage === 'read'
                         ? { stage, passageId: picks.passage?.id ?? null, generate: picks.generate, fallbackId: picks.fallback?.id ?? null, quoteWord: picks.quoteWord }
                         : { stage, ids: picks.speakIds.length > 0 ? picks.speakIds : picks.learnedToday.slice(0, 3) },
@@ -117,7 +108,7 @@ export default function TodayPage() {
                     <Link href="/" className="text-muted hover:text-accent text-sm">
                         ← {plan.complete ? 'Trang chủ' : 'Tạm dừng'}
                     </Link>
-                    <p className="text-ink font-bold">Hôm nay</p>
+                    <p className="text-ink font-bold">{picks.round > 1 ? 'Học thêm' : 'Hôm nay'}</p>
                     <p className="font-mono text-[11px] text-muted w-16 text-right">{day ? `Ngày ${day}/${PATH_DAYS}` : ''}</p>
                 </div>
 

@@ -574,7 +574,7 @@ function HomeContent() {
               <span className="font-mono">{pathDay ? `Ngày ${pathDay}/${PATH_DAYS}` : ''}{path ? ` · ${BRANCH_LABEL[path.branch]}` : ''}</span>
             </div>
             <ErrorBoundary>
-              <TodayCard onLearnMore={() => setSessionStarted(true)} />
+              <TodayCard />
             </ErrorBoundary>
             <GuideCard />
             <PledgeCard />

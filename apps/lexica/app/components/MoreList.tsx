@@ -29,7 +29,7 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
             <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-subtle">Luyện thêm</p>
             <div className="rounded-2xl border border-line bg-surface divide-y divide-line">
                 <Row href="/review" icon={<RotateCcw className="w-4 h-4" />} title="Ôn tập" hint={due > 0 ? `${due} từ đến hạn` : 'Không có từ đến hạn'} badge={due > 0 ? due : undefined} />
-                <Row onClick={onLearnMore} icon={<Plus className="w-4 h-4" />} title="Học thêm từ mới" hint="10 thẻ, ngoài mục tiêu hôm nay" />
+                <Row href="/today?more=1" icon={<Plus className="w-4 h-4" />} title="Học thêm" hint="10 từ mới, kèm một bài đọc và luyện nói" />
                 <Row href="/read" icon={<BookOpen className="w-4 h-4" />} title="Đọc" hint="Đoạn văn ngắn có từ của bạn" />
                 <Row href="/speak" icon={<Mic className="w-4 h-4" />} title="Luyện nói" hint="Nghe, nói, xem máy nghe được gì" />
                 <Row href="/journal" icon={<PenLine className="w-4 h-4" />} title="Một câu hôm nay" hint="Trả lời một câu hỏi về ngày của bạn bằng từ vừa học" />

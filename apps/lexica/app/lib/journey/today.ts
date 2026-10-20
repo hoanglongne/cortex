@@ -27,6 +27,8 @@ export const REVIEW_CAP = 12;
 export const SPEAK_WORDS = 3;
 /** New words in the very first session. */
 export const FIRST_SESSION_WORDS = 5;
+/** New words in an extra round ("Học thêm") after the day's session. */
+export const EXTRA_WORDS = 10;
 
 export interface TodayLog {
     /** Local date the log belongs to. */
@@ -34,6 +36,12 @@ export interface TodayLog {
     done: Stage[];
     /** Step counts when the day's session started, for the recap. */
     start: StepCounts;
+    /** 1 for the day's session, 2+ for each extra round ("Học thêm"). */
+    round?: number;
+    /** Words learned today when this round started: an extra round counts its own. */
+    learnedAtStart?: number;
+    /** Stages run again today because a class gave new words (each at most once). */
+    again?: Stage[];
 }
 
 export type StageStatus = 'done' | 'todo' | 'empty';
@@ -57,6 +65,8 @@ export function planToday(input: {
     newLeft: number;
     canRead: boolean;
     speakCount: number;
+    /** Stages to run again although done (a class lesson arrived after them). */
+    reopen?: readonly Stage[];
 }): TodayPlan {
     const size: Record<Stage, number> = {
         review: Math.min(REVIEW_CAP, input.dueCount),
@@ -65,6 +75,7 @@ export function planToday(input: {
         speak: Math.min(SPEAK_WORDS, input.speakCount),
     };
     const done = new Set(input.log?.done ?? []);
+    for (const stage of input.reopen ?? []) done.delete(stage);
     const stages = STAGES.map((stage) => ({
         stage,
         size: size[stage],
@@ -82,6 +93,25 @@ export function planToday(input: {
 export function newWordsLeft(input: { pace: number; learnedToday: number; firstSession: boolean }): number {
     const target = input.firstSession ? Math.min(FIRST_SESSION_WORDS, input.pace) : input.pace;
     return Math.max(0, target - input.learnedToday);
+}
+
+/** New words left in an extra round: EXTRA_WORDS, minus the words learned since it started. */
+export function extraNewLeft(learnedToday: number, learnedAtStart: number): number {
+    return Math.max(0, EXTRA_WORDS - Math.max(0, learnedToday - learnedAtStart));
+}
+
+/**
+ * The Học stage's size with class lessons:
+ * - a lesson in "only" mode not learned yet is the whole stage (fewer words
+ *   than the pace means a shorter stage, never other words among the teacher's);
+ * - lesson words still new to the learner open a stage of their own when the
+ *   day's pace is already reached (a lesson given after today's session);
+ * - otherwise the pace; mixed lessons are dealt first within it.
+ */
+export function learnSize(input: { newLeft: number; pending: number; onlyPending: number }): number {
+    if (input.onlyPending > 0) return input.newLeft > 0 ? Math.min(input.onlyPending, input.newLeft) : input.onlyPending;
+    if (input.newLeft === 0 && input.pending > 0) return Math.min(input.pending, EXTRA_WORDS);
+    return input.newLeft;
 }
 
 /**
@@ -151,12 +181,16 @@ export function pickQuoteWord(journeys: Journeys, hasQuote: (cardId: string) => 
     return [...wordsAt(journeys, 'nho'), ...wordsAt(journeys, 'hieu')].find(hasQuote) ?? null;
 }
 
-/** Words for the Nói stage: met but not said yet, then today's new words, then remembered ones. */
-export function pickSpeakWords(journeys: Journeys, learnedToday: readonly string[], n = SPEAK_WORDS): string[] {
+/**
+ * Words for the Nói stage: met but not said yet, then today's new words, then
+ * remembered ones. Words already practised today (`spokenToday`) wait, so an
+ * extra round does not repeat the same three.
+ */
+export function pickSpeakWords(journeys: Journeys, learnedToday: readonly string[], n = SPEAK_WORDS, spokenToday: (id: string) => boolean = () => false): string[] {
     const out: string[] = [];
     for (const id of [...wordsAt(journeys, 'gap'), ...learnedToday, ...wordsAt(journeys, 'nho'), ...wordsAt(journeys, 'hieu')]) {
         if (out.length >= n) break;
-        if (!out.includes(id) && journeys[id] && !journeys[id].usedAt) out.push(id);
+        if (!out.includes(id) && journeys[id] && !journeys[id].usedAt && !spokenToday(id)) out.push(id);
     }
     return out;
 }

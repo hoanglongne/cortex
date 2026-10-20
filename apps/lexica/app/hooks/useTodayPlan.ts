@@ -7,13 +7,17 @@ import { getCard, getPassages, getQuotes, useContentVersion } from '../lib/conte
 import { readPassages } from '../lib/engagement/reading';
 import { canGenerateReading } from '../lib/content/generated';
 import { localDate } from '../lib/engagement/ghost';
-import { logFor, newWordsLeft, pickPassage, pickQuoteWord, pickSpeakWords, planToday, reviewIds, wordsToRead, type TodayPlan } from '../lib/journey/today';
+import { extraNewLeft, learnSize, logFor, newWordsLeft, pickPassage, pickQuoteWord, pickSpeakWords, planToday, reviewIds, wordsToRead, type Stage, type TodayPlan } from '../lib/journey/today';
+import { classWordsToRefresh, newClassWords, onlyClassWords } from '../lib/classes';
 import type { Passage } from '../lib/content/passages';
 
 export interface TodayPicks {
     plan: TodayPlan;
     reviewIds: string[];
+    /** Size of the Học stage (the pace, an extra round or a class lesson). */
     newLeft: number;
+    /** 2+ in an extra round ("Học thêm"). */
+    round: number;
     passage: Passage | null;
     /** Words to ask the API to write a passage around, when no ready-made one has them. */
     generate: string[] | null;
@@ -32,6 +36,7 @@ export function useTodayPlan(): TodayPicks {
     const version = useContentVersion();
     const cardProgress = useLexicaStore((s) => s.cardProgress);
     const journeys = useLexicaStore((s) => s.journeys);
+    const spokenAt = useLexicaStore((s) => s.spokenAt);
     const todayLog = useLexicaStore((s) => s.todayLog);
     const daysDone = useLexicaStore((s) => s.daysDone);
     const path = useLexicaStore((s) => s.path);
@@ -45,9 +50,21 @@ export function useTodayPlan(): TodayPicks {
         void version;
         const today = localDate();
         const learnedToday = lastReset === today ? [...todayLearned] : [];
-        const due = getDueCards(cardProgress).map((p) => p.cardId);
+        const log = logFor(todayLog, today);
+        const round = log?.round ?? 1;
+        // Class words the learner had before the lesson come back in Ôn once, so the lesson counts.
+        const refresh = classWordsToRefresh(journeys, cardProgress);
+        const due = [...new Set([...refresh, ...getDueCards(cardProgress).map((p) => p.cardId)])];
         const firstSession = daysDone.length === 0 && Object.keys(journeys).length === 0;
-        const newLeft = newWordsLeft({ pace: path ? path.pace : dailyGoal, learnedToday: learnedToday.length, firstSession });
+        const paceLeft =
+            round > 1
+                ? extraNewLeft(learnedToday.length, log?.learnedAtStart ?? 0)
+                : newWordsLeft({ pace: path ? path.pace : dailyGoal, learnedToday: learnedToday.length, firstSession });
+        const pending = newClassWords(cardProgress).length;
+        const newLeft = learnSize({ newLeft: paceLeft, pending, onlyPending: onlyClassWords((id) => Boolean(cardProgress[id])).length });
+        // A lesson given after today's Ôn or Học opens that stage again (once).
+        const again = new Set(log?.again ?? []);
+        const reopen: Stage[] = [...(refresh.length > 0 && !again.has('review') ? ['review' as const] : []), ...(pending > 0 && !again.has('learn') ? ['learn' as const] : [])];
 
         // Đọc: always about the learner's own words, never an unrelated text.
         // 1. a ready-made passage with at least two of today's words;
@@ -74,15 +91,16 @@ export function useTodayPlan(): TodayPicks {
         // If writing fails (offline), a ready-made passage with known words, or a quote, stands in.
         const fallback = generate && pick ? pick.passage : null;
         const quoteWord = passage ? null : pickQuoteWord(journeys, (id) => getQuotes(id).length > 0);
-        const speakIds = pickSpeakWords(journeys, learnedToday);
+        const speakIds = pickSpeakWords(journeys, learnedToday, undefined, (id) => (spokenAt[id] ?? 0) >= startOfDay);
         const plan = planToday({
-            log: logFor(todayLog, today),
+            log,
             dueCount: due.length,
+            reopen,
             newLeft,
             // Before the Học stage, today's words do not exist yet: a passage can be written once they do.
             canRead: Boolean(passage || generate || quoteWord || (canGenerateReading() && newLeft >= 2)),
             speakCount: speakIds.length || (newLeft > 0 ? 1 : 0),
         });
-        return { plan, reviewIds: reviewIds(due), newLeft, passage, generate, fallback, quoteWord, speakIds, learnedToday };
-    }, [version, cardProgress, journeys, todayLog, daysDone, path, dailyGoal, todayLearned, lastReset, read, now]);
+        return { plan, reviewIds: reviewIds(due), newLeft, round, passage, generate, fallback, quoteWord, speakIds, learnedToday };
+    }, [version, cardProgress, journeys, spokenAt, todayLog, daysDone, path, dailyGoal, todayLearned, lastReset, read, now]);
 }

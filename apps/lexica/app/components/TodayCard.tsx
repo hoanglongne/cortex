@@ -12,7 +12,7 @@ import { localDate } from '../lib/engagement/ghost';
  * The one main button of the app (docs/LEXICA_DIRECTION.md): today's four
  * stages and how long they take. Everything else on Home is secondary.
  */
-export default function TodayCard({ onLearnMore }: { onLearnMore: () => void }) {
+export default function TodayCard() {
     const { plan } = useTodayPlan();
     const path = useLexicaStore((s) => s.path);
     const daysDone = useLexicaStore((s) => s.daysDone);
@@ -46,9 +46,10 @@ export default function TodayCard({ onLearnMore }: { onLearnMore: () => void }) 
                     <Link href="/today" className="h-12 px-5 rounded-xl border border-line-strong bg-surface text-ink font-semibold flex items-center gap-2 hover:border-accent">
                         Xem kết quả hôm nay
                     </Link>
-                    <button onClick={onLearnMore} className="text-sm text-muted hover:text-ink underline">
-                        Học thêm từ mới
-                    </button>
+                    {/* Another round of the four stages: new words, a reading and speaking. */}
+                    <Link href="/today?more=1" className="text-sm text-muted hover:text-ink underline">
+                        Học thêm
+                    </Link>
                 </div>
             ) : (
                 <Link

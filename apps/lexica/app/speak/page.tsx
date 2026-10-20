@@ -20,10 +20,17 @@ export default function SpeakPage() {
     useContentVersion();
     const progress = useLexicaStore((s) => s.cardProgress);
     const misses = useLexicaStore((s) => s.speakMisses);
+    const spokenAt = useLexicaStore((s) => s.spokenAt);
+    const journeys = useLexicaStore((s) => s.journeys);
     const [words, setWords] = useState<string[] | null>(null);
     const [run, setRun] = useState(0);
+    // Fixed while the page is open, so the suggested words do not reshuffle under the learner.
+    const [now] = useState(() => Date.now());
 
-    const suggested = useMemo(() => pickDrillWords(progress, misses), [progress, misses]);
+    const suggested = useMemo(
+        () => pickDrillWords(progress, misses, now, undefined, { spokenAt, said: (id) => Boolean(journeys[id]?.usedAt), seed: Math.floor(now / 60_000) }),
+        [progress, misses, now, spokenAt, journeys],
+    );
     const hard = hardToSay(misses).filter((h) => getCard(h.cardId));
 
     const start = (ids: string[]) => {
@@ -55,7 +62,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
             <div className="rounded-2xl border border-line bg-surface p-5">
                 <h1 className="text-xl font-semibold text-ink">Luyện nói 2 phút</h1>
                 <p className="mt-2 text-sm text-muted">
-                    5 từ bạn vừa học hoặc đến hạn. Mỗi từ 3 bước ngắn: nghe phân biệt âm gần giống, nghe mẫu rồi nói và xem máy nghe được gì, rồi một mẹo và nói trong cụm.
+                    5 từ bạn đã học, mỗi lần một nhóm khác: từ chưa nói rõ và lâu chưa luyện trước. Mỗi từ 3 bước ngắn: nghe phân biệt âm gần giống, nghe mẫu rồi nói và xem máy nghe được gì, rồi một mẹo và nói trong cụm.
                 </p>
                 {suggested.length > 0 ? (
                     <>
