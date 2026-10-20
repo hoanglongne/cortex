@@ -12,6 +12,9 @@ import { isOwned } from '../lib/engagement/collection';
 import { localDate } from '../lib/engagement/ghost';
 import { AudioService } from '../lib/audio/AudioService';
 import { levelDef } from '../lib/levels';
+import { parseTurns } from '../lib/content/dialogue';
+import { usesWord } from '../lib/journey/outside';
+import DialogueScene from './DialogueScene';
 
 /** Reading speeds for "Nghe cả đoạn". */
 const RATES = { slow: 0.65, normal: 0.9 } as const;
@@ -27,6 +30,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
     const queueCards = useLexicaStore((s) => s.queueCards);
     const lightReview = useLexicaStore((s) => s.lightReview);
     const markMet = useLexicaStore((s) => s.markMet);
+    const recordSpeak = useLexicaStore((s) => s.recordSpeak);
     const [showTranslation, setShowTranslation] = useState(false);
     const [rate, setRate] = useState<keyof typeof RATES>('slow');
     const [speaking, setSpeaking] = useState(false);
@@ -49,6 +53,15 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
     const turns = dialogue ? split(passage.text).map(speakerOf) : [];
     const paragraphs = dialogue ? turns.map((t) => t.line) : split(passage.text);
     const translation = dialogue ? split(passage.translation).map((t) => speakerOf(t).line) : split(passage.translation);
+    // A dialogue opens as a scene, turn by turn; "Cả bài" is the whole text at once.
+    const [view, setView] = useState<'scene' | 'roleplay' | 'all'>(dialogue ? 'scene' : 'all');
+    const [sceneDone, setSceneDone] = useState(false);
+    const scenes = useMemo(() => (dialogue ? parseTurns(passage.text, passage.translation) : []), [dialogue, passage]);
+    const whole = view === 'all';
+    const wholeRef = useRef(whole);
+    useEffect(() => {
+        wholeRef.current = whole;
+    }, [whole]);
 
     const finish = () => {
         if (result) return;
@@ -71,7 +84,8 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
         const el = endRef.current;
         const io = el
             ? new IntersectionObserver((entries) => {
-                  if (entries.some((e) => e.isIntersecting) && scrolled.current) finish();
+                  // In a scene, the end of the page moves as turns appear: the scene finishes it.
+                  if (entries.some((e) => e.isIntersecting) && scrolled.current && wholeRef.current) finish();
               })
             : null;
         if (el && io) io.observe(el);
@@ -93,6 +107,25 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
         void AudioService.playText(paragraphs.join(' '), 'en', RATES[rate]);
         setSpeaking(true);
     };
+
+    const renderLine = (para: string) =>
+        splitByWords(para, targets).map((seg, j) =>
+            seg.cardId ? (
+                <button
+                    key={j}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setSelected(seg.cardId!);
+                    }}
+                    data-word={seg.cardId}
+                    className={isOwned(progress[seg.cardId]) ? 'underline decoration-ink/30 underline-offset-4 hover:decoration-ink' : 'rounded px-0.5 bg-accent/15 text-accent font-semibold hover:bg-accent/25'}
+                >
+                    {seg.text}
+                </button>
+            ) : (
+                <span key={j}>{seg.text}</span>
+            ),
+        );
 
     const add = (cardId: string) => {
         if (queueCards([cardId]) > 0) setAdded((a) => [...a, cardId]);
@@ -119,6 +152,32 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
 
                 <h1 className="text-2xl font-semibold text-ink">{passage.title}</h1>
 
+                {dialogue && (
+                    <div className="mt-4 grid grid-cols-3 gap-1 rounded-xl bg-surface-2 p-1" role="tablist" aria-label="Cách đọc hội thoại">
+                        {(
+                            [
+                                ['scene', 'Từng lượt'],
+                                ['roleplay', 'Đóng vai'],
+                                ['all', 'Cả bài'],
+                            ] as const
+                        ).map(([id, label]) => (
+                            <button
+                                key={id}
+                                role="tab"
+                                aria-selected={view === id}
+                                onClick={() => {
+                                    AudioService.stop();
+                                    setView(id);
+                                }}
+                                className={`h-9 rounded-lg text-sm ${view === id ? 'bg-surface text-ink font-semibold shadow-sm' : 'text-muted hover:text-ink'}`}
+                            >
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {whole && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
                     <button onClick={listen} className="h-9 px-3 rounded-lg border border-line bg-surface text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                         {speaking ? <Pause className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -139,43 +198,41 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                         <Languages className="w-4 h-4" /> Xem nghĩa tiếng Việt
                     </button>
                 </div>
+                )}
 
                 <p className="mt-4 font-mono text-[11px] text-subtle">
                     <span className="text-accent">Từ mới</span> · <span className="underline decoration-ink/30 underline-offset-4">từ đã học</span> · bấm vào từ để xem nghĩa
                 </p>
 
+                {whole ? (
                 <article data-testid="passage-text" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                     {paragraphs.map((para, i) => (
                         <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
                             {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
-                            <p className="text-lg leading-relaxed text-ink-2">
-                                {splitByWords(para, targets).map((seg, j) =>
-                                    seg.cardId ? (
-                                        <button
-                                            key={j}
-                                            onClick={() => setSelected(seg.cardId!)}
-                                            data-word={seg.cardId}
-                                            className={
-                                                isOwned(progress[seg.cardId])
-                                                    ? 'underline decoration-ink/30 underline-offset-4 hover:decoration-ink'
-                                                    : 'rounded px-0.5 bg-accent/15 text-accent font-semibold hover:bg-accent/25'
-                                            }
-                                        >
-                                            {seg.text}
-                                        </button>
-                                    ) : (
-                                        <span key={j}>{seg.text}</span>
-                                    ),
-                                )}
-                            </p>
+                            <p className="text-lg leading-relaxed text-ink-2">{renderLine(para)}</p>
                             {showTranslation && translation[i] && <p className="mt-1.5 text-sm leading-relaxed text-muted">{translation[i]}</p>}
                         </div>
                     ))}
                 </article>
+                ) : (
+                    <div className="mt-4">
+                        <DialogueScene
+                            key={view}
+                            turns={scenes}
+                            mode={view}
+                            renderLine={renderLine}
+                            onComplete={() => setSceneDone(true)}
+                            onSaid={(line) => {
+                                // Said clearly in role-play: the words of the passage in that line count as said (Dùng).
+                                for (const t of targets) if (usesWord(line, t.word)) recordSpeak(t.id, 'clear');
+                            }}
+                        />
+                    </div>
+                )}
 
                 <div ref={endRef} className="h-px" />
 
-                {!result ? (
+                {!result && !whole && !sceneDone ? null : !result ? (
                     <button onClick={finish} className="mt-8 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold flex items-center justify-center gap-2">
                         <Check className="w-4 h-4" /> Đọc xong
                     </button>

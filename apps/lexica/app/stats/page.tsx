@@ -156,7 +156,7 @@ function Steps({ counts, series }: { counts: StepCounts; series: { date: string;
     return (
         <section className="rounded-2xl border border-line bg-surface p-4">
             <h2 className="font-semibold text-ink">Bốn bước, 30 ngày qua</h2>
-            <p className="mt-1 text-xs text-muted">Số từ đã tới mỗi bước. Rê hoặc chạm vào đường để xem từng ngày.</p>
+            <p className="mt-1 text-xs text-muted">Số từ đã tới mỗi bước; bên phải là số tăng thêm trong 30 ngày. Rê hoặc chạm vào đường để xem từng ngày.</p>
             <div className="mt-3 space-y-3">
                 {STEPS.map((s) => {
                     const ys = series.map((x) => x.counts[s]);
@@ -165,7 +165,7 @@ function Steps({ counts, series }: { counts: StepCounts; series: { date: string;
                     const gain = ys[ys.length - 1] - ys[0];
                     const at = hover ?? ys.length - 1;
                     return (
-                        <div key={s} className="grid grid-cols-[4.5rem_1fr_4.5rem] items-center gap-3">
+                        <div key={s} className="grid grid-cols-[4.5rem_1fr_3rem] items-center gap-3">
                             <div>
                                 <p className="text-sm text-ink">{STEP_LABEL[s]}</p>
                                 <p className="font-mono text-lg font-bold text-ink leading-tight">{hover === null ? counts[s] : ys[at]}</p>
@@ -186,7 +186,7 @@ function Steps({ counts, series }: { counts: StepCounts; series: { date: string;
                                 <polyline points={pts} fill="none" className="stroke-accent" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
                                 {hover !== null && <line x1={(at / (ys.length - 1)) * 100} y1="0" x2={(at / (ys.length - 1)) * 100} y2="28" className="stroke-ink-2" strokeWidth="1" vectorEffect="non-scaling-stroke" />}
                             </svg>
-                            <p className="text-right text-xs text-muted">{hover === null ? (gain > 0 ? `+${gain} trong 30 ngày` : 'chưa đổi') : dm(series[at].date)}</p>
+                            <p className="text-right text-xs text-muted">{hover === null ? (gain > 0 ? `+${gain}` : '0') : dm(series[at].date)}</p>
                         </div>
                     );
                 })}
