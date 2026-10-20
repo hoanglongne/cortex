@@ -1,6 +1,18 @@
 # Lexica: chấm phát âm trên máy người học (thiết kế Đợt 6)
 
-Trạng thái: **chờ duyệt**. Chưa có dòng code nào cho Đợt 6. Các câu hỏi cần chốt nằm ở mục 9.
+Trạng thái: **đã chốt hướng** (mục 9). Chưa có code app cho Đợt 6, chỉ có trang ghi âm kiểm định `/ghi-am`. Việc tiếp theo: PR (a), song song với ghi âm giọng Việt.
+
+## Tóm tắt (đọc phần này là đủ)
+- **Mục tiêu:** người học nói xong biết sai **ở âm nào** và **sửa thế nào**, không chỉ nhận "Chưa rõ".
+- **Cách làm:** một mô hình nhỏ (27MB) **chạy ngay trên máy người học**.
+  - Tải khi người học bấm; file đặt trên Supabase Storage.
+  - Mô hình chấm từng âm của từ mẫu trong khoảng 0,3–0,5 giây.
+  - Mỗi lần nói, app báo tối đa 2 âm "có thể chưa rõ", kèm mẹo sửa cho lỗi hay gặp của người Việt.
+- **Bốn mức, làm trong 3 PR:**
+  - (a) so từ trong câu + chấm từng âm;
+  - (b) âm cuối, trọng âm, ngữ điệu, tốc độ;
+  - (c) sổ âm hay sai theo thời gian, bài luyện tự gợi ý, và số liệu cho giáo viên.
+- **Trước khi bật cho người dùng:** 3–5 người Việt ghi âm 20 từ bằng trang `/ghi-am` (quy trình: `docs/LEXICA_PRONUNCIATION_RECORDING.md`). Đạt khi app bắt đúng ≥ 60% lỗi và báo oan ≤ 20%.
 
 Cập nhật 20/10/2026:
 - người dùng cho phép dùng AI **chạy trên máy người học**;
@@ -30,7 +42,7 @@ Câu hỏi của mọi tính năng (theo quy tắc của T8): *"Nó giúp ngư�
   - Web Audio (cao độ, khoảng lặng);
   - luật viết tay (thư viện lỗi của người Việt).
 - **Gemini** (`/v1/lexica/transcribe`, khi trình duyệt không nghe được) chỉ để hiện chữ. Không dùng để chấm âm hay ghi sổ lỗi.
-- **Gói chấm phát âm tải khi người học bấm** ("Tải gói chấm phát âm, 27MB"):
+- **Gói chấm phát âm chỉ tải khi người học bấm** ("Tải gói chấm phát âm, 27MB"). Đã chốt: không tự tải, kể cả khi dùng Wi-Fi.
   - lưu vào Cache Storage, lần sau không tải lại;
   - chưa tải thì mức 2 dùng cách cũ: đoán qua từ máy nghe nhầm (5.4).
 
@@ -64,7 +76,7 @@ Ghi âm (đã có) ──┤
 - Mọi phần chấm là **hàm thuần** trong `apps/lexica/app/lib/pronunciation/`, test bằng vitest với dữ liệu cố định. Âm thanh mẫu là file WAV nhỏ trong `__tests__/fixtures`.
 - Chạy hoàn toàn trên máy người học. Không có bảng mới trên server, trừ phần số liệu cho lớp ở mức 4.
 - Mô hình chạy trong **Web Worker** (onnxruntime-web, WASM; dùng 4 luồng khi trang được cross-origin isolated), để không đứng giao diện.
-- File mô hình (26,6MB) và bộ hồi quy dạng JSON (khoảng 250KB) đặt trên kho tĩnh (HF Hub hoặc Supabase Storage), có kiểm sha256 như các content pack.
+- File mô hình (26,6MB) và bộ hồi quy dạng JSON (khoảng 250KB) đặt trên **Supabase Storage** (đã chốt), cùng bucket công khai với content pack. Có kiểm sha256 và tên file có phiên bản (`pron-model-v1.onnx`), để đổi mô hình mà không vỡ cache.
 - Giọng mẫu để so (mức 3): giọng tự nhiên đã sinh sẵn và cache trên Cortex API (`naturalVoiceUrl`). Đây là nội dung, không phải chấm điểm. Giọng hệ thống (`speechSynthesis`) không ghi lại được nên không dùng để so.
 
 ## 4. Mức 1: so khớp từ với câu mẫu
@@ -72,7 +84,6 @@ Ghi âm (đã có) ──┤
 **Dùng cho:**
 - cụm "Hay đi với" (collocations);
 - câu mẫu Tình huống của thẻ Giao tiếp (`situation.model`, 40 thẻ);
-- sau này cả câu của chính người học ("Câu của bạn").
 
 **Cách làm** (`lib/pronunciation/align.ts`):
 1. Chuẩn hoá cả hai câu:
@@ -221,7 +232,10 @@ Chạy trên bản ghi (`AudioBuffer`) sau khi nói xong, không chạy thời g
 - Teach (mô-đun Lexica):
   - mục **"Âm cả lớp hay sai"** trên trang lớp: 3 nhóm lỗi nhiều nhất của cả lớp, mỗi nhóm có bao nhiêu em;
   - trên trang học viên: mỗi em một dòng.
-- Cần sửa `packages/classroom-lexica/sql/classroom_lexica.sql` (`clean_metrics` lọc thêm `sounds`) và `parseMetrics`.
+- Đã chốt: làm nếu không phức tạp, và thực tế là không phức tạp:
+  - một trường JSON nhỏ trong metrics sẵn có (tối đa 11 nhóm × 2 số);
+  - không có bảng mới, không có RPC mới.
+- Cần sửa `packages/classroom-lexica/sql/classroom_lexica.sql` (`clean_metrics` lọc thêm `sounds`: chỉ nhận đúng các tên nhóm, số trong khoảng 0–10.000) và `parseMetrics`.
 - Người dùng phải chạy lại file SQL sau khi merge.
 - Câu cho học viên ở chỗ vào lớp sửa thành: "giáo viên thấy 4 con số Hiểu, Nhớ, Gặp, Dùng và **số lần sai theo từng nhóm âm**".
 
@@ -232,32 +246,38 @@ Chạy trên bản ghi (`AudioBuffer`) sau khi nói xong, không chạy thời g
   - trên speechocean762, câu ≤ 4,8 giây, bản int8 5 giây: AUC 0,91, âm cuối AUC 0,90–0,94;
   - ở ngưỡng 0,5–0,8, khoảng 2/3 số âm bị báo cũng bị người chấm cho là chưa chuẩn.
   - Còn thiếu: **giọng Việt** (bộ ghi âm nội bộ bên dưới, chạy cùng script) và **điện thoại thật**.
-  - Điều kiện bật cho người dùng: trên giọng Việt, ≥ 60% âm bị báo là đúng lỗi khi đối chiếu với người nghe; chấm ≤ 1,5 giây trên Android tầm trung.
+  - Điều kiện bật cho người dùng:
+    - trên bộ ghi âm giọng Việt, bắt đúng ≥ 60% lượt đọc sai và báo oan ≤ 20% lượt đọc đúng (`evalvi.py`);
+    - chấm ≤ 1,5 giây trên Android tầm trung.
+- **Bộ ghi âm giọng Việt** (quy trình chi tiết: `docs/LEXICA_PRONUNCIATION_RECORDING.md`):
+  - trang `/ghi-am` trong Lexica, script chấm `evalvi.py`;
+  - 20 từ × 2 lượt (đúng, sai có chủ ý), 3–5 người, khoảng 10 phút mỗi người.
 - **Mức 3:**
-  - Bộ ghi âm nội bộ: 20 từ × (đọc đúng / cố tình bỏ âm cuối / nhấn sai), 3–5 người Việt, trên laptop và điện thoại. Mục tiêu:
+  - Hai từ trọng âm trong bộ ghi âm trên (và thêm từ nếu cần khi làm mức 3). Mục tiêu:
     - âm cuối: đúng ≥ 80% trên các lần app có kết luận, và app "không kết luận" ≤ 30%;
     - trọng âm: đúng ≥ 75% với từ 2–3 âm tiết.
   - **speechocean762** (CC BY 4.0; 5.000 câu, có điểm từng âm, người nói là người Trung Quốc): dùng để kiểm mức "âm cuối yếu" có tương quan với điểm âm cuối của bộ dữ liệu không. Tham khảo thôi, không phải ngưỡng chính.
 - Chưa đạt ngưỡng thì phép đo đó ở chế độ **ẩn**: chỉ ghi vào sổ để xem dữ liệu (trên máy), không hiện cho người học.
-- Script kiểm định: `apps/lexica/scripts/pronunciation-spike/evalmdd.py`. Sẽ thêm chế độ đọc thư mục WAV kèm nhãn để chạy bộ ghi âm nội bộ. Không đưa vào CI vì dữ liệu ghi âm không commit vào repo.
+- Script kiểm định:
+  - `apps/lexica/scripts/pronunciation-spike/evalmdd.py` cho speechocean762;
+  - `evalvi.py` cho file zip từ `/ghi-am`.
 
-## 9. Câu hỏi cần chốt
+  Không đưa vào CI vì dữ liệu ghi âm không commit vào repo.
 
-1. ~~Web Speech và Gemini~~: **đã chốt** (20/10/2026).
-   - Được dùng AI chạy trên máy.
+## 9. Đã chốt (20/10/2026)
+
+1. Được dùng AI **chạy trên máy** người học.
    - Web Speech chỉ dùng để hiện chữ và so từ.
    - Gemini chỉ để hiện chữ.
-2. **Thứ tự làm.** Đề xuất 3 PR:
+2. **3 PR:**
    - (a) mức 1, mức 2 có gói chấm trên máy (ẩn sau cờ cho tới khi qua kiểm định giọng Việt), và cách dự phòng 5.3;
    - (b) mức 3, desktop trước, các phép đo chưa đạt kiểm định thì ẩn;
    - (c) mức 4, gồm cả SQL cho giáo viên.
-3. **Ghi âm kiểm định giọng Việt.** Bạn có tìm được 3–5 người ghi bộ 20 từ (mỗi người ~10 phút) không?
-   - Đây là điều kiện để bật gói chấm cho người dùng.
-   - Không có thì chỉ bật ở chế độ ẩn: ghi điểm trên máy, không hiện cho người học.
-4. **Nơi đặt file mô hình:** HF Hub (miễn phí, có CDN) hay Supabase Storage (cùng chỗ với content pack)? Đề xuất Supabase Storage, để tự kiểm soát phiên bản.
-5. **Tải gói khi nào:** chỉ khi người học bấm (đề xuất), hay tự tải khi đang dùng Wi-Fi ở lần thứ 2 vào Luyện nói?
-6. **Số liệu âm cho giáo viên** (mục 7.3): có muốn không? Nó làm lớp thấy nhiều hơn hiện nay, nên phải đổi câu báo cho học viên.
-7. **Câu của học viên** ("Câu của bạn") có được dùng làm câu mẫu cho mức 1 không? Không có giọng mẫu cho câu đó, nên chỉ chạy được mức 1 và 2, không chạy được mức 3.
+3. **Ghi âm kiểm định:** có người ghi. Quy trình phải đơn giản, đầu vào và đầu ra rõ ràng: `docs/LEXICA_PRONUNCIATION_RECORDING.md`, trang `/ghi-am`, script `evalvi.py`.
+4. **File mô hình** đặt trên Supabase Storage.
+5. **Chỉ tải gói khi người học bấm.**
+6. **Giáo viên thấy số lần sai theo nhóm âm**, vì phần này không phức tạp (mục 7.3).
+7. **Không** dùng "Câu của bạn" làm câu mẫu.
 
 ## 10. Ước lượng
 

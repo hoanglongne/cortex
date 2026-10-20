@@ -57,7 +57,7 @@
     - store thêm `sightings`, `hunt`, `tipsDismissed`, `checklistHidden`, nằm trong blob `lexica-storage` nên cũng được sao lưu qua cloudSync. Không gửi gì cho lớp học.
 
 ## Việc tiếp theo
-Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm không dùng AI). Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md`. Thử nghiệm mô hình chạy trên máy: `docs/LEXICA_PRONUNCIATION_SPIKE.md`, script ở `apps/lexica/scripts/pronunciation-spike/`. Chờ người dùng trả lời các câu hỏi ở mục 9 rồi mới code, theo 3 PR đề xuất ở đó.
+Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm không dùng AI). Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md`. Thử nghiệm mô hình chạy trên máy: `docs/LEXICA_PRONUNCIATION_SPIKE.md`, script ở `apps/lexica/scripts/pronunciation-spike/`. Hướng đã chốt (mục 9 của thiết kế). Việc tiếp theo là PR (a): mức 1 + gói chấm trên máy, ẩn sau cờ. Song song, người dùng cho 3–5 người ghi âm bằng trang `/ghi-am` của Lexica (quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md`); chạy `evalvi.py` trên các file zip nhận được để quyết định bật gói chấm.
 - Đợt 5 và 6 cần người dùng duyệt hướng hoặc thiết kế trước khi code.
 - Thêm app vào lớp học: làm theo quy trình trong `docs/CLASSROOM.md`, bước 1 là hỏi người dùng giáo viên giao gì, xem gì, xếp hạng theo gì.
 
