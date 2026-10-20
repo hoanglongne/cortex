@@ -8,6 +8,7 @@ import EngagementSync from "./components/EngagementSync";
 import ContentLoader from "./components/ContentLoader";
 import HydrationGate from "./components/HydrationGate";
 import AppNav from "./components/AppNav";
+import BuddySync from "./components/BuddySync";
 
 // Design system fonts (docs/DESIGN_SYSTEM.md). Vietnamese subset is required:
 // without it, accented letters fall back to the system font.
@@ -68,6 +69,7 @@ export default function RootLayout({
         <AuthProvider>
           <CloudSync />
           <ClassSync />
+          <BuddySync />
           <EngagementSync />
           <ContentLoader />
           <HydrationGate>

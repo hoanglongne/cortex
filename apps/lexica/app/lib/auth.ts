@@ -48,17 +48,9 @@ export async function signInWithPassword(email: string, password: string, repeat
     if (signUp.error) return { ok: false, error: signUp.error.message.includes('Password') ? 'Mật khẩu cần ít nhất 6 ký tự.' : signUp.error.message };
     // An existing email comes back with no identities: the password was wrong (or never set).
     if (signUp.data.user && signUp.data.user.identities?.length === 0) {
-        return { ok: false, error: 'Sai mật khẩu. Tài khoản cũ chưa có mật khẩu thì dùng "Nhận link đăng nhập" một lần, rồi đặt mật khẩu.' };
+        return { ok: false, error: 'Sai mật khẩu. Tài khoản cũ chưa có mật khẩu thì dùng "Nhận link đăng nhập".' };
     }
     return signUp.data.session ? { ok: true } : { ok: false, confirm: true };
-}
-
-/** Sets or changes the password of the signed-in account. */
-export async function setPassword(password: string): Promise<{ error: string | null }> {
-    const supabase = getSupabaseClient();
-    if (!supabase) return { error: 'Supabase chưa được cấu hình' };
-    const { error } = await supabase.auth.updateUser({ password });
-    return { error: error ? (error.message.includes('Password') ? 'Mật khẩu cần ít nhất 6 ký tự.' : error.message) : null };
 }
 
 /** Đăng xuất */
