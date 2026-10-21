@@ -6,6 +6,8 @@
 import { useLexicaStore } from '../store/lexicaStore';
 import { getSupabaseClient } from './supabase';
 import { cacheClasses, lexicaReport, myClasses, readCachedClasses, reportProgress, type ClassInfo } from './classes';
+import { reportSounds } from './pronunciation/soundLog';
+import { localDate } from './engagement/ghost';
 
 const FETCH_EVERY_MS = 10 * 60_000;
 const REPORT_DEBOUNCE_MS = 20_000;
@@ -40,8 +42,8 @@ export async function refreshClasses(force = false): Promise<ClassInfo[]> {
 export async function reportNow(): Promise<void> {
     const classes = readCachedClasses().filter((c) => c.role === 'student');
     if (classes.length === 0 || !(await signedIn())) return;
-    const { journeys, cardProgress, currentStreak } = useLexicaStore.getState();
-    const report = lexicaReport(journeys, classes, cardProgress);
+    const { journeys, cardProgress, currentStreak, soundLog } = useLexicaStore.getState();
+    const report = lexicaReport(journeys, classes, cardProgress, reportSounds(soundLog, localDate()));
     const key = JSON.stringify([report, currentStreak]);
     if (key === lastReport) return;
     try {
@@ -68,7 +70,7 @@ export function startClassSync(): () => void {
     let last = useLexicaStore.getState();
     const unsubscribe = useLexicaStore.subscribe((s) => {
         // A review counts for a lesson even when no step moves (lib/classes.ts touchedSince).
-        if (s.journeys === last.journeys && s.cardProgress === last.cardProgress) return;
+        if (s.journeys === last.journeys && s.cardProgress === last.cardProgress && s.soundLog === last.soundLog) return;
         last = s;
         schedule();
     });

@@ -9,6 +9,10 @@ import { recognitionCtor } from '../lib/pronunciation/speech';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
 import SpeakDrill from '../components/SpeakDrill';
 import { PackOffer } from '../components/pron/SoundTips';
+import SoundBook from '../components/pron/SoundBook';
+import SoundPractice from '../components/pron/SoundPractice';
+import { SOUND_KINDS } from '@cortex/classroom-lexica';
+import type { ErrorKind } from '../lib/pronunciation/pairs';
 import { setPronBeta } from '../lib/pronunciation/model/client';
 import { loadDict } from '../lib/pronunciation/phones';
 
@@ -30,10 +34,18 @@ export default function SpeakPage() {
     // Fixed while the page is open, so the suggested words do not reshuffle under the learner.
     const [now] = useState(() => Date.now());
     const [beta, setBeta] = useState(0);
+    const [practice, setPractice] = useState<ErrorKind | null>(null);
 
     useEffect(() => {
         // Phone scoring stays hidden until it passes the Vietnamese-voice check: `?pron=1` turns it on for a tester.
-        const flag = new URLSearchParams(window.location.search).get('pron');
+        const params = new URLSearchParams(window.location.search);
+        // "Luyện 2 phút" from the Home tip.
+        const sound = params.get('sound');
+        if (sound && (SOUND_KINDS as readonly string[]).includes(sound)) {
+            const t = setTimeout(() => setPractice(sound as ErrorKind), 0);
+            return () => clearTimeout(t);
+        }
+        const flag = params.get('pron');
         if (flag === '1' || flag === '0') {
             setPronBeta(flag === '1');
             const t = setTimeout(() => setBeta((b) => b + 1), 0);
@@ -66,10 +78,13 @@ export default function SpeakPage() {
                     <div className="w-12" />
                 </div>
 
-                {!words ? (
+                {practice ? (
+                    <SoundPractice key={practice} kind={practice} onDone={() => setPractice(null)} />
+                ) : !words ? (
                     <>
                         <Intro suggested={suggested} hard={hard} onStart={start} />
-                        <div className="mt-4">
+                        <div className="mt-4 space-y-4">
+                            <SoundBook onPractice={setPractice} />
                             <PackOffer key={beta} />
                         </div>
                     </>

@@ -9,6 +9,9 @@ import type { Quality } from '../lib/srs';
 import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentencePrompt } from '../lib/engagement/mySentence';
 import { getCard, getCardByWord, sameWordIds } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
+import { addAttempt, type SoundLog } from '../lib/pronunciation/soundLog';
+import { localDate } from '../lib/engagement/ghost';
+import type { ErrorKind } from '../lib/pronunciation/pairs';
 import type { SpeakLevel } from '../lib/pronunciation/score';
 import type { LearningPath } from '../lib/journey/path';
 import type { Stage, TodayLog } from '../lib/journey/today';
@@ -70,6 +73,8 @@ interface LexicaStore {
     speakMisses: Record<string, number>;
     /** When each word was last practised aloud, so the next practice picks others. */
     spokenAt: Record<string, number>;
+    /** Sound groups tried and heard off per day, 60 days (lib/pronunciation/soundLog.ts). */
+    soundLog: SoundLog;
 
     // The four steps of each word (lib/journey/steps.ts)
     journeys: Journeys;
@@ -187,6 +192,8 @@ interface LexicaStore {
 
     // Speaking actions
     recordSpeak: (cardId: string, level: SpeakLevel) => void;
+    /** One attempt's sound groups: those the words had, and those the app heard off. */
+    recordSounds: (tried: ErrorKind[], missed: ErrorKind[]) => void;
 
     // Reading actions
     /** Adds cards to the front of the next deck (as new cards). Returns how many were added. */
@@ -367,6 +374,7 @@ export const useLexicaStore = create<LexicaStore>()(
             queuedCardIds: [],
             speakMisses: {},
             spokenAt: {},
+            soundLog: {},
             journeys: {},
             stepHistory: {},
             path: null,
@@ -650,6 +658,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     queuedCardIds: [],
                     speakMisses: {},
                     spokenAt: {},
+                    soundLog: {},
                     journeys: {},
                     pledge: null,
                     sightings: [],
@@ -852,6 +861,11 @@ export const useLexicaStore = create<LexicaStore>()(
                 }
             },
 
+            recordSounds: (tried, missed) => {
+                if (tried.length === 0 && missed.length === 0) return;
+                set({ soundLog: addAttempt(get().soundLog, localDate(), tried, missed) });
+            },
+
             recordSpeak: (cardId, level) => {
                 const used = level === 'clear' ? sayClearly(get().journeys[cardId], Date.now()) : undefined;
                 set({
@@ -959,6 +973,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 queuedCardIds: state.queuedCardIds,
                 speakMisses: state.speakMisses,
                 spokenAt: state.spokenAt,
+                soundLog: state.soundLog,
                 journeys: state.journeys,
                 pledge: state.pledge,
                 sightings: state.sightings,

@@ -38,7 +38,7 @@ const GROUPS: { title: string; sub: string; items: { href: string; icon: React.R
         sub: '',
         items: [
             { href: '/album', icon: <LayoutGrid className="w-4 h-4" />, title: 'Album', text: 'Mỗi từ là một thẻ sưu tầm theo chủ đề. Ôn đúng đủ lần thì đúc được ấn bản đẹp hơn.' },
-            { href: '/class', icon: <School className="w-4 h-4" />, title: 'Lớp học', text: 'Vào lớp bằng link của giáo viên, học bài được giao. Giáo viên chỉ thấy tên bạn và bốn con số Hiểu, Nhớ, Gặp, Dùng.' },
+            { href: '/class', icon: <School className="w-4 h-4" />, title: 'Lớp học', text: 'Vào lớp bằng link của giáo viên, học bài được giao. Giáo viên chỉ thấy tên bạn, bốn con số Hiểu, Nhớ, Gặp, Dùng, và số lần sai theo từng nhóm âm.' },
             { href: '/buddy', icon: <Users className="w-4 h-4" />, title: 'Buddy', text: 'Học cùng một người bạn, giữ chuỗi ngày chung.' },
         ],
     },

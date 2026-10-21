@@ -10,19 +10,7 @@
 import { MINIMAL_PAIRS, type ErrorKind } from './pairs';
 import { bare, ipaOf, isVowel } from './phones';
 
-export const SOUND_LABEL: Record<ErrorKind, string> = {
-    final_consonant: 'Mất phụ âm cuối',
-    final_voicing: 'Phụ âm cuối',
-    th: 'Âm /θ ð/ (th)',
-    cluster: 'Cụm phụ âm',
-    ending: 'Đuôi -s, -ed',
-    long_short: 'Nguyên âm dài, ngắn',
-    ch_j: 'Âm /ʃ tʃ dʒ/',
-    final_ng: 'Âm /ŋ/ cuối',
-    final_l: 'Âm /l/ cuối, /r/',
-    initial_z: 'Âm /z/',
-    ae_e: 'Nguyên âm /æ/, /e/',
-};
+export { SOUND_LABEL } from '@cortex/classroom-lexica';
 
 export const SOUND_TIP: Record<ErrorKind, string> = {
     final_consonant: 'Đọc rõ phụ âm cuối rồi mới dừng, đừng nuốt.',

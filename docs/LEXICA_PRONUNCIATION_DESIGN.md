@@ -1,6 +1,6 @@
 # Lexica: chấm phát âm trên máy người học (thiết kế Đợt 6)
 
-Trạng thái: **PR (a) đã merge** (PR #45, mục 11), **PR (b) đang mở** (PR #46, mục 12). Gói chấm đã có trên Supabase. Việc tiếp theo: thêm người ghi âm giọng Việt, rồi PR (c).
+Trạng thái: **PR (a) đã merge** (PR #45, mục 11). **PR (b) và (c) đang mở** (PR #46, mục 12 và 13). Gói chấm đã có trên Supabase. Việc tiếp theo: thêm người ghi âm giọng Việt để quyết định bật cho mọi người.
 
 ## Tóm tắt (đọc phần này là đủ)
 - **Mục tiêu:** người học nói xong biết sai **ở âm nào** và **sửa thế nào**, không chỉ nhận "Chưa rõ".
@@ -399,3 +399,36 @@ Mọi file ở `apps/lexica/app/lib/pronunciation/`. Phần chấm đều là h�
 - **Ngưỡng âm cuối đặt theo chính bản ghi này**, có chừa khoảng an toàn: đoạn tắc "rõ" từ 15 dB, "yếu" dưới 10 dB; đoạn xát "rõ" từ 25 dB, "yếu" dưới 12 dB. Vì vậy kết quả trên chưa phải bằng chứng độc lập.
 - **Cần thêm người ghi, và thêm từ cho trọng âm và ngữ điệu**, trước khi hiện cho người học (mục 8).
 - **Ngữ điệu và tốc độ chưa được kiểm trên giọng thật:** bộ ghi âm chỉ có từ đơn. Hiện chỉ có test bằng âm tổng hợp.
+
+## 13. Đã làm trong PR (c) (PR #46)
+
+### Sổ âm hay sai (7.1)
+- `lib/pronunciation/soundLog.ts`, trường `soundLog` trong store (đồng bộ cloud như các trường khác):
+  - mỗi nhóm âm, mỗi ngày (giờ địa phương): `[số lần thử, số lần sai]`, giữ 60 ngày;
+  - **một lần thử:** người học nói một từ hay cụm có âm thuộc nhóm đó. Nhóm suy ra từ phiên âm (`exposures`), mỗi lần nói tính mỗi nhóm một lần;
+  - **một lần sai:** mức 2 báo âm thuộc nhóm đó, hoặc mức 3 báo âm cuối yếu.
+- **Lưu ý:** khi chưa có gói chấm, mức 2 chỉ bắt được lỗi khi máy nghe nhầm thành từ khác. Vì vậy với phần lớn người học, số lần sai đang thấp hơn thực tế.
+- **Trang Luyện nói** có mục **"Âm hay sai · 14 ngày"**:
+  - tối đa 3 nhóm có tỉ lệ sai cao nhất (cần từ 3 lần thử, có ít nhất 1 lần sai);
+  - xu hướng so với tuần trước, cần mỗi tuần từ 3 lần thử;
+  - câu khen khi một nhóm giảm rõ: từ 30% trở lên xuống ít nhất 20 điểm phần trăm.
+
+### Tự gợi ý bài luyện (7.2)
+- Một nhóm có từ 5 lần thử trong 14 ngày và sai trên 40% thì gợi ý **"Luyện 2 phút"**:
+  - nghe phân biệt 4 cặp từ dễ nhầm của nhóm đó, mỗi lần 3 giọng;
+  - rồi nói tối đa 5 từ đã học có âm đó (bước "Nghe mẫu rồi nói").
+- Gợi ý hiện ở hai chỗ:
+  - nút trong mục "Âm hay sai";
+  - một mẹo ở trang chủ (`lib/guide.ts`, mẹo `sound-<nhóm>`), mở `/speak?sound=<nhóm>`.
+- Không chặn gì, không bắt buộc.
+
+### Cho giáo viên (7.3)
+- **Số liệu gửi lớp** có thêm `sounds`: `[thử, sai]` của từng nhóm trong 14 ngày. Chỉ là con số.
+- **Lọc 2 lần:**
+  - `parseSounds` trong `@cortex/classroom-lexica`;
+  - SQL `classroom_lexica_clean_metrics`: chỉ nhận 11 tên nhóm, số nguyên 0–10.000, số sai không quá số thử. Đã chạy thử trên Postgres 16.
+- **Teach:**
+  - **trang lớp:** "Âm cả lớp hay sai (14 ngày)", 3 nhóm có nhiều em hay sai nhất, kèm số em. Một em "hay sai" một nhóm khi có từ 5 lần thử và sai trên 40%;
+  - **trang học viên:** mỗi nhóm một dòng "sai/thử".
+- **Câu nói với học viên** ở chỗ vào lớp, trang Lớp học và trang "Lexica có gì" đã ghi rõ: giáo viên thấy thêm số lần sai theo từng nhóm âm, không có bản ghi giọng nói.
+- **Sau khi merge:** chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`. Chưa chạy thì server bỏ trường `sounds`, giáo viên chỉ chưa thấy mục âm.

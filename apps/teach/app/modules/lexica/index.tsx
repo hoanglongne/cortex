@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { studentApp, type ClassroomModuleCore } from '@cortex/classroom';
-import { lexicaModule, STEP_LABEL, type LexicaMetrics, type LexicaSettings, type WordsPayload } from '@cortex/classroom-lexica';
+import { classSounds, lexicaModule, oftenMissed, SOUND_KINDS, SOUND_LABEL, STEP_LABEL, type LexicaMetrics, type LexicaSettings, type WordsPayload } from '@cortex/classroom-lexica';
 import { Badge, Field, inputClass } from '../../components/ui';
 import { LEXICA_URL } from '../../lib/config';
 import type { ModuleUI } from '../types';
@@ -79,10 +79,25 @@ export const lexicaUI: ModuleUI = {
         const all = board.students.map((s) => metricsOf(s.apps.lexica).counts);
         if (all.length === 0) return <p className="text-sm text-muted">Chưa có học viên.</p>;
         const avg = (k: 'hieu' | 'nho' | 'gap' | 'dung' | 'doi') => Math.round(all.reduce((n, c) => n + (c[k] ?? 0), 0) / all.length);
+        const sounds = classSounds(board);
         return (
             <>
                 <StepBar counts={{ hieu: avg('hieu'), nho: avg('nho'), gap: avg('gap'), dung: avg('dung'), doi: avg('doi') }} />
                 <p className="mt-1 text-xs text-subtle">trung bình mỗi em</p>
+                {sounds.length > 0 && (
+                    <div data-testid="class-sounds" className="mt-4">
+                        <p className="text-sm font-medium text-ink">Âm cả lớp hay sai (14 ngày)</p>
+                        <ul className="mt-1.5 space-y-1">
+                            {sounds.map((x) => (
+                                <li key={x.kind} className="flex items-baseline justify-between gap-3 text-sm">
+                                    <span className="text-ink-2">{SOUND_LABEL[x.kind]}</span>
+                                    <span className="text-muted shrink-0">{x.students} em</span>
+                                </li>
+                            ))}
+                        </ul>
+                        <p className="mt-1 text-xs text-subtle">Em “hay sai” một nhóm âm: Lexica nghe chưa rõ quá 40% trong ít nhất 5 lần nói.</p>
+                    </div>
+                )}
             </>
         );
     },
@@ -124,6 +139,7 @@ export const lexicaUI: ModuleUI = {
                     <StepBar counts={m.counts} />
                     {(m.counts.known ?? 0) > 0 && <p className="mt-1 text-xs text-subtle">Không tính {m.counts.known} từ em đánh dấu “biết rồi” mà chưa học trong Lexica.</p>}
                 </div>
+                <StudentSounds sounds={m.sounds} />
                 <div>
                     <p className="mb-2 text-sm font-medium text-ink">Từ của lớp: em đang ở bước nào</p>
                     {assigned.length === 0 ? (
@@ -153,3 +169,26 @@ export const lexicaUI: ModuleUI = {
 
     AssignForm,
 };
+
+/** One line per sound group the student said in 14 days: misses out of tries. */
+function StudentSounds({ sounds }: { sounds: LexicaMetrics['sounds'] }) {
+    const rows = SOUND_KINDS.map((kind) => ({ kind, pair: sounds[kind] }))
+        .filter((r): r is { kind: (typeof SOUND_KINDS)[number]; pair: [number, number] } => Boolean(r.pair && r.pair[1] > 0))
+        .sort((a, b) => b.pair[1] / b.pair[0] - a.pair[1] / a.pair[0]);
+    if (rows.length === 0) return null;
+    return (
+        <div data-testid="student-sounds">
+            <p className="mb-1.5 text-sm font-medium text-ink">Phát âm: số lần Lexica nghe chưa rõ (14 ngày)</p>
+            <ul className="space-y-1">
+                {rows.map((r) => (
+                    <li key={r.kind} className="flex items-baseline justify-between gap-3 text-sm">
+                        <span className={oftenMissed(r.pair) ? 'text-warm' : 'text-ink-2'}>{SOUND_LABEL[r.kind]}</span>
+                        <span className="text-muted shrink-0">
+                            {r.pair[1]}/{r.pair[0]} lần
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+}

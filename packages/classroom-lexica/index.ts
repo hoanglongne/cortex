@@ -30,12 +30,37 @@ export interface WordsPayload {
     mode: WordsMode;
 }
 
+/**
+ * The sound groups Vietnamese learners miss most (docs/LEXICA_PRONUNCIATION_DESIGN.md, 5.4),
+ * shared by Lexica's pronunciation feedback, the class report and the SQL that cleans it.
+ */
+export const SOUND_KINDS = ['final_consonant', 'final_voicing', 'th', 'cluster', 'ending', 'long_short', 'ch_j', 'final_ng', 'final_l', 'initial_z', 'ae_e'] as const;
+export type SoundKind = (typeof SOUND_KINDS)[number];
+
+export const SOUND_LABEL: Record<SoundKind, string> = {
+    final_consonant: 'Mất phụ âm cuối',
+    final_voicing: 'Phụ âm cuối',
+    th: 'Âm /θ ð/ (th)',
+    cluster: 'Cụm phụ âm',
+    ending: 'Đuôi -s, -ed',
+    long_short: 'Nguyên âm dài, ngắn',
+    ch_j: 'Âm /ʃ tʃ dʒ/',
+    final_ng: 'Âm /ŋ/ cuối',
+    final_l: 'Âm /l/ cuối, /r/',
+    initial_z: 'Âm /z/',
+    ae_e: 'Nguyên âm /æ/, /e/',
+};
+
+/** Per sound group over the last 14 days: [times the learner said a word with that sound, times the app heard it off]. */
+export type Sounds = Partial<Record<SoundKind, [number, number]>>;
+
 export interface LexicaMetrics {
     counts: Counts;
     /** The four steps over this class's assigned words, with how many there are. */
     assigned: Counts;
     /** Furthest step per assigned word: 1 Hiểu … 4 Dùng, 5 Đời. */
     words: Record<string, number>;
+    sounds: Sounds;
 }
 
 /** What the learning app sends (the server keeps each class's part of `assigned` and `words`). */
@@ -43,6 +68,41 @@ export interface LexicaReport {
     counts: Counts;
     assigned: Record<string, Counts>;
     words: Record<string, number>;
+    sounds: Sounds;
+}
+
+/** Only known groups, whole numbers 0–10 000, misses never above tries (as the SQL keeps them). */
+export function parseSounds(v: unknown): Sounds {
+    const out: Sounds = {};
+    for (const [k, pair] of Object.entries(obj(v))) {
+        if (!(SOUND_KINDS as readonly string[]).includes(k) || !Array.isArray(pair) || pair.length !== 2) continue;
+        const tries = Math.min(10000, Math.max(0, Math.round(num(pair[0]))));
+        const misses = Math.min(tries, Math.max(0, Math.round(num(pair[1]))));
+        out[k as SoundKind] = [tries, misses];
+    }
+    return out;
+}
+
+/** A learner "often misses" a group: at least 5 tries and more than 40% heard off (the rule Lexica's practice suggestion uses). */
+export const oftenMissed = ([tries, misses]: [number, number]) => tries >= 5 && misses / tries > 0.4;
+
+/** The class's top groups: how many students often miss each, then total misses. */
+export function classSounds(board: { students: readonly BoardStudent[] }, top = 3): { kind: SoundKind; students: number; misses: number }[] {
+    const out = SOUND_KINDS.map((kind) => {
+        let students = 0;
+        let misses = 0;
+        for (const s of board.students) {
+            const pair = parseSounds(obj(s.apps[LEXICA]?.metrics).sounds)[kind];
+            if (!pair) continue;
+            misses += pair[1];
+            if (oftenMissed(pair)) students++;
+        }
+        return { kind, students, misses };
+    });
+    return out
+        .filter((x) => x.students > 0)
+        .sort((a, b) => b.students - a.students || b.misses - a.misses)
+        .slice(0, top);
 }
 
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
@@ -100,7 +160,7 @@ export const lexicaModule: ClassroomModuleCore<LexicaSettings, WordsPayload, Lex
         const o = obj(raw);
         const words: Record<string, number> = {};
         for (const [k, v] of Object.entries(obj(o.words))) words[k] = num(v);
-        return { counts: counts(o.counts), assigned: counts(o.assigned), words };
+        return { counts: counts(o.counts), assigned: counts(o.assigned), words, sounds: parseSounds(o.sounds) };
     },
     /** Started: any word begun. Done: every word at Hiểu or further. Deep: every word said aloud (Dùng). */
     assignmentProgress(a: Assignment<WordsPayload>, students) {

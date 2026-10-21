@@ -13,6 +13,9 @@ import { analyze } from '../../lib/pronunciation/prosody';
 import { prosodyNotes, type ProsodyNote } from '../../lib/pronunciation/level3';
 import { modelVoiceSamples } from '../../lib/pronunciation/modelVoice';
 import { logProsody } from '../../lib/pronunciation/prosodyLog';
+import { exposures } from '../../lib/pronunciation/soundLog';
+import type { ErrorKind } from '../../lib/pronunciation/pairs';
+import { useLexicaStore } from '../../store/lexicaStore';
 
 export interface AttemptFeedback {
     sound: SoundFeedback;
@@ -49,6 +52,13 @@ export function useSoundFeedback(attempt: Attempt | null, target: string, opts: 
                 const r = prosodyNotes({ target, words: known, mine: analyze(attempt.samples!), model: modelSamples ? analyze(modelSamples) : null, scored });
                 prosody = r.notes;
                 logProsody({ at: Date.now(), target, measures: r.measures, notes: r.notes.map((n) => n.kind) });
+            }
+            // Level 4: the sound groups this attempt tried and missed, for "Âm hay sai" and the class report.
+            if (attempt.alternatives.length > 0 || attempt.voiced) {
+                const tried = new Set<ErrorKind>(withPhones.flatMap((w) => (w.phones ? [...exposures(w.phones)] : [])));
+                const missed = new Set<ErrorKind>(sound.issues.flatMap((x) => (x.kind ? [x.kind] : [])));
+                if (prosody.some((n) => n.kind === 'final')) missed.add('final_consonant');
+                useLexicaStore.getState().recordSounds([...tried], [...missed]);
             }
             if (live) setFeedback({ sound, prosody });
         })();
