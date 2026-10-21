@@ -74,6 +74,7 @@ create or replace function public.classroom_lexica_clean_metrics(p_class uuid, p
 returns jsonb language plpgsql stable security definer set search_path = public as $$
 declare
   words jsonb;
+  sounds jsonb;
 begin
   select coalesce(jsonb_object_agg(k, least(greatest((v #>> '{}')::int, 0), 5)), '{}') into words
   from jsonb_each(coalesce(p->'words', '{}')) e(k, v)
@@ -82,10 +83,23 @@ begin
       select 1 from cortex_class_assignments a
       where a.class_id = p_class and a.app = 'lexica' and a.payload->'card_ids' ? k
     );
+  -- Pronunciation (docs/LEXICA_PRONUNCIATION_DESIGN.md, 7.3): per sound group,
+  -- [tries, misses] over 14 days. Numbers only: known groups, 0-10000, misses <= tries.
+  select coalesce(jsonb_object_agg(k, jsonb_build_array(t, least(m, t))), '{}') into sounds
+  from (
+    select k,
+      least(greatest(round((v->>0)::numeric), 0), 10000)::int as t,
+      least(greatest(round((v->>1)::numeric), 0), 10000)::int as m
+    from jsonb_each(case when jsonb_typeof(p->'sounds') = 'object' then p->'sounds' else '{}' end) e(k, v)
+    where k in ('final_consonant', 'final_voicing', 'th', 'cluster', 'ending', 'long_short', 'ch_j', 'final_ng', 'final_l', 'initial_z', 'ae_e')
+      and jsonb_typeof(v) = 'array' and jsonb_array_length(v) = 2
+      and jsonb_typeof(v->0) = 'number' and jsonb_typeof(v->1) = 'number'
+  ) x;
   return jsonb_build_object(
     'counts', lexica_counts(coalesce(p->'counts', '{}')),
     'assigned', lexica_counts(coalesce(p->'assigned'->(p_class::text), '{}')),
-    'words', words
+    'words', words,
+    'sounds', sounds
   );
 end;
 $$;

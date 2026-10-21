@@ -106,7 +106,7 @@ function JoinForm({ onJoined, onError }: { onJoined: () => void; onError: (e: st
             <p className="font-semibold text-ink flex items-center gap-2">
                 <School className="w-4 h-4 text-accent" /> Vào lớp bằng mã
             </p>
-            <p className="mt-1 text-xs text-muted">Giáo viên sẽ thấy tên bạn và 4 con số Hiểu, Nhớ, Gặp, Dùng, không thấy gì khác.</p>
+            <p className="mt-1 text-xs text-muted">Giáo viên sẽ thấy tên bạn, 4 con số Hiểu, Nhớ, Gặp, Dùng, và số lần sai theo từng nhóm âm. Không thấy gì khác: không có bản ghi giọng nói.</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
                 <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Mã lớp (6 ký tự)" maxLength={6} className="h-11 rounded-xl border border-line bg-bg px-3 font-mono tracking-widest text-ink" aria-label="Mã lớp" />
                 <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên hiện trong lớp" maxLength={40} className="h-11 rounded-xl border border-line bg-bg px-3 text-ink" aria-label="Tên hiện trong lớp" />

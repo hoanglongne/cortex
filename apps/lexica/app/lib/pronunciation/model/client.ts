@@ -174,6 +174,7 @@ export interface WordScores {
     word: string;
     /** CMUdict phones, as shown to the learner. */
     phones: string[];
+    /** Times are seconds from the start of the recording. */
     scores: ScoredPhone[];
 }
 
@@ -195,9 +196,11 @@ export async function scoreRecording(audio: Float32Array, words: { word: string;
     const all = words.flatMap((w) => modelPhones(w.phones));
     const scored = scorePhones(logp, frames, all, voice.length / 16000, gbm);
     if (!scored) return null;
+    // Phone times from the start of the recording, not of the trimmed voice.
+    const offset = (voice.byteOffset - audio.byteOffset) / 4 / 16000;
     let at = 0;
     return words.map((w) => {
-        const scores = scored.slice(at, at + w.phones.length);
+        const scores = scored.slice(at, at + w.phones.length).map((x) => ({ ...x, start: x.start + offset, end: x.end + offset }));
         at += w.phones.length;
         return { word: w.word, phones: w.phones, scores };
     });

@@ -91,7 +91,7 @@ Trang chung tự lo phần còn lại: tạo lớp có ô chọn app, lớp nhi�
 ## 4. Luật
 
 **Riêng tư**
-- Metrics là **con số tối thiểu** giáo viên cần. Không gửi nội dung học viên tạo ra (ghi âm, câu viết, bản chép lời, prompt). Muốn hiện chi tiết theo bài giao thì lọc theo bài của chính lớp đó (như `clean_metrics` của Lexica chỉ giữ từ lớp đã giao).
+- Metrics là **con số tối thiểu** giáo viên cần. Không gửi nội dung học viên tạo ra (ghi âm, câu viết, bản chép lời, prompt). Ví dụ Lexica gửi phát âm chỉ là số lần thử và số lần sai theo 11 nhóm âm trong 14 ngày (`sounds`). Muốn hiện chi tiết theo bài giao thì lọc theo bài của chính lớp đó (như `clean_metrics` của Lexica chỉ giữ từ lớp đã giao).
 - Học viên phải được báo rõ giáo viên thấy gì, ngay ở chỗ vào lớp.
 - Không đọc bảng của app khác. Một mô-đun chỉ thấy `cortex_*` và bảng `<app>_*` của mình.
 

@@ -74,6 +74,9 @@ describe('Lexica in classes', () => {
         // v999 was only marked "biết rồi": counted apart, not as learned
         expect(r.counts).toMatchObject({ hieu: 2, doi: 1, known: 1 });
         expect(Object.keys(r.assigned)).toEqual(['c1', 'c2']);
+        // Sound groups go to every class as given: numbers only.
+        expect(r.sounds).toEqual({});
+        expect(lexicaReport(journeys, [a], {}, { th: [6, 3] }).sounds).toEqual({ th: [6, 3] });
     });
 
     it('counts a lesson from when it was given: words learned before it are not done', () => {
@@ -113,7 +116,7 @@ describe('Lexica in classes', () => {
         expect(weekDelta(app)).toEqual({ hieu: 0, nho: 5, gap: 0, dung: 4 });
         expect(lexicaModule.praise(app)).toEqual({ why: '+4 từ Dùng tuần này', score: 104 });
         expect(lexicaModule.parentLine(app)).toBe('Từ vựng: +5 từ nhớ được, +4 từ đã nói được tuần này; tổng 30 từ Nhớ, 6 từ Dùng. Từ của lớp: 2/10 từ đã nói được.');
-        expect(lexicaModule.parseMetrics('garbage')).toEqual({ counts: {}, assigned: {}, words: {} });
+        expect(lexicaModule.parseMetrics('garbage')).toEqual({ counts: {}, assigned: {}, words: {}, sounds: {} });
         expect(lexicaModule.parseSettings({ branch: 'talk', level: 'nope' })).toEqual({ branch: 'talk', level: null });
     });
 });

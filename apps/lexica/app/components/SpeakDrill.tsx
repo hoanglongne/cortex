@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Ear, Lightbulb, Mic, Play, Square, Volume2, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -15,6 +15,10 @@ import { contourMatch, modelContour, normalizeTrack } from '../lib/pronunciation
 import type { ContentCard } from '../lib/content/pack';
 import { alignAttempt } from '../lib/pronunciation/align';
 import AlignedLine from './pron/AlignedLine';
+import { chipLevel, type ChipLevel } from '../lib/pronunciation/chips';
+import { analyze, contour, ending } from '../lib/pronunciation/prosody';
+import { overlay } from '../lib/pronunciation/level3';
+import { modelVoiceSamples } from '../lib/pronunciation/modelVoice';
 import SoundTips, { alignmentFor, useSoundFeedback } from './pron/SoundTips';
 
 export type Step = 1 | 2 | 3;
@@ -32,6 +36,8 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
     const [index, setIndex] = useState(0);
     const [at, setAt] = useState(0);
     const [results, setResults] = useState<Record<string, SpeakLevel>>({});
+    // Each word's sound chips from the scoring pack, for the summary.
+    const [chips, setChips] = useState<Record<string, ChipLevel[]>>({});
     const card = getCard(words[index]);
     const cardSteps = card?.situation ? steps.filter((s) => s !== 1) : steps;
     const step = cardSteps[Math.min(at, cardSteps.length - 1)];
@@ -41,7 +47,7 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
         setIndex(index + 1);
     };
     if (!card || index >= words.length) {
-        return <Summary words={words} results={results} onDone={onDone} onAgain={onRestart ? () => onRestart(hardToSay(useLexicaStore.getState().speakMisses).map((h) => h.cardId)) : undefined} />;
+        return <Summary words={words} results={results} chips={chips} onDone={onDone} onAgain={onRestart ? () => onRestart(hardToSay(useLexicaStore.getState().speakMisses).map((h) => h.cardId)) : undefined} />;
     }
     return (
         <>
@@ -61,6 +67,7 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
                 <SayStep
                     key={`${card.id}-2`}
                     card={card}
+                    onChips={(levels) => setChips((c) => ({ ...c, [card.id]: levels }))}
                     onDone={(level) => {
                         setResults((r) => ({ ...r, [card.id]: level }));
                         next();
@@ -167,7 +174,7 @@ function useAttempt(target: string, onScored?: (level: SpeakLevel) => void, sent
     return { listening, attempt, start, stop };
 }
 
-function SayStep({ card, onDone }: { card: ContentCard; onDone: (level: SpeakLevel) => void }) {
+function SayStep({ card, onDone, onChips }: { card: ContentCard; onDone: (level: SpeakLevel) => void; onChips?: (levels: ChipLevel[]) => void }) {
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
     const word = card.word.toLowerCase();
     const syl = stressedSyllables(card.word, card.ipa);
@@ -190,7 +197,7 @@ function SayStep({ card, onDone }: { card: ContentCard; onDone: (level: SpeakLev
                 </button>
             </div>
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} label={attempt ? 'Nói lại' : 'Nói'} />
-            {attempt && <AttemptResult attempt={attempt} target={word} ipa={card.ipa} />}
+            {attempt && <AttemptResult attempt={attempt} target={word} ipa={card.ipa} onRetry={() => void start()} onChips={onChips} />}
             {attempt && (
                 <div className="mt-4 flex justify-end">
                     <button onClick={() => onDone(attempt.level)} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
@@ -244,8 +251,8 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
                 </button>
             </div>
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} label={attempt ? 'Nói lại' : 'Nói cả cụm'} />
-            {attempt && <AttemptResult attempt={attempt} target={phrase} />}
-            {attempt && attempt.pitch.length > 0 && <PitchTrace pitch={attempt.pitch} flags={flags} />}
+            {attempt && <AttemptResult attempt={attempt} target={phrase} onRetry={() => void start()} />}
+            {attempt && attempt.pitch.length > 0 && <PitchTrace pitch={attempt.pitch} flags={flags} text={phrase} />}
             <div className="mt-4 flex justify-end">
                 <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
                     {attempt ? 'Tiếp' : 'Bỏ qua'}
@@ -320,10 +327,23 @@ function SayModelSentence({ model }: { model: string }) {
     );
 }
 
-/** Desktop first: the learner's pitch over a model line shaped by stress. */
-function PitchTrace({ pitch, flags }: { pitch: (number | null)[]; flags: boolean[] }) {
+/**
+ * Desktop first: the learner's pitch over the model voice's, aligned in time
+ * (level 3, 6.3). Without the natural voice (no Cortex API), a model line
+ * shaped from the stress pattern stands in.
+ */
+function PitchTrace({ pitch, flags, text }: { pitch: (number | null)[]; flags: boolean[]; text: string }) {
+    const [voice, setVoice] = useState<number[] | null>(null);
+    useEffect(() => {
+        let live = true;
+        void modelVoiceSamples(text).then((s) => live && s && setVoice(contour(analyze(s))));
+        return () => {
+            live = false;
+        };
+    }, [text]);
     const mine = normalizeTrack(pitch);
-    const model = modelContour(flags);
+    const laid = voice ? overlay(mine, voice) : null;
+    const model = laid?.model ?? modelContour(flags);
     if (mine.length === 0) return null;
     const all = [...mine, ...model];
     const lo = Math.min(...all) - 1;
@@ -333,17 +353,24 @@ function PitchTrace({ pitch, flags }: { pitch: (number | null)[]; flags: boolean
     return (
         <div data-testid="pitch-trace" className="hidden lg:block mt-4 rounded-xl border border-line p-3">
             <div className="flex items-center justify-between font-mono text-[11px] text-muted">
-                <span>Cao độ: <span className="text-accent">giọng bạn</span> · <span className="text-subtle">đường mẫu (theo trọng âm)</span></span>
+                <span>
+                    Cao độ: <span className="text-accent">giọng bạn</span> · <span className="text-subtle">{laid ? 'giọng mẫu' : 'đường mẫu (theo trọng âm)'}</span>
+                </span>
                 <span>giống {match}%</span>
             </div>
             <svg viewBox="0 0 300 100" className="mt-2 w-full h-28" preserveAspectRatio="none" aria-label="Đường cao độ">
                 <path d={path(model)} fill="none" strokeWidth="2" strokeDasharray="4 4" className="stroke-subtle" />
                 <path d={path(mine)} fill="none" strokeWidth="2.5" className="stroke-accent" />
             </svg>
-            <p className="text-xs text-muted">Câu kể thường lên ở âm được nhấn rồi xuống giọng ở cuối.</p>
+            <p className="text-xs text-muted">
+                Cuối câu: <span className="text-subtle">mẫu {arrow(ending(model))}</span> · <span className="text-accent">bạn {arrow(ending(mine))}</span>. Câu kể thường lên ở âm được nhấn rồi xuống giọng ở cuối.
+            </p>
         </div>
     );
 }
+
+/** Which way the end of a pitch line goes. */
+const arrow = (semitones: number) => (semitones <= -1 ? '↘ xuống' : semitones >= 1 ? '↗ lên' : '→ ngang');
 
 /** Held this long, letting go ends the recording (push to talk); a shorter press is a tap. */
 const HOLD_MS = 350;
@@ -397,16 +424,35 @@ function MicButton({ listening, onStart, onStop, label }: { listening: boolean; 
  * a word or phrase also gets up to two sounds that may be off (level 2).
  * `sentence`: the learner said their own sentence, so only the phrase is shown.
  */
-function AttemptResult({ attempt, target, ipa, sentence = false }: { attempt: Attempt & { level: SpeakLevel; heard: string }; target: string; ipa?: string; sentence?: boolean }) {
+function AttemptResult({
+    attempt,
+    target,
+    ipa,
+    sentence = false,
+    onRetry,
+    onChips,
+}: {
+    attempt: Attempt & { level: SpeakLevel; heard: string };
+    target: string;
+    ipa?: string;
+    sentence?: boolean;
+    onRetry?: () => void;
+    onChips?: (levels: ChipLevel[]) => void;
+}) {
     const alignment = useMemo(() => (sentence ? null : alignmentFor(attempt, target)), [attempt, target, sentence]);
     const feedback = useSoundFeedback(sentence ? null : attempt, target, { ipa, heard: attempt.heard, alignment });
+    useEffect(() => {
+        if (feedback?.scored) onChips?.(feedback.scored.flatMap((w) => w.scores.map((s) => chipLevel(s.score))));
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- once per result
+    }, [feedback]);
     const tone = attempt.level === 'clear' ? 'text-accent border-accent/50' : attempt.level === 'close' ? 'text-warning border-warning/50' : 'text-danger border-danger/50';
     if (attempt.error === 'unsupported') return <p className="mt-3 text-sm text-warning">Trình duyệt này không nhận giọng nói.</p>;
     if (attempt.error === 'not-allowed') return <p className="mt-3 text-sm text-warning">Chưa có quyền dùng micro. Bật micro trong cài đặt trình duyệt rồi thử lại.</p>;
     return (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} data-testid="attempt" className="mt-4 rounded-xl border border-line p-4">
             <div className="flex items-center gap-3">
-                <span className={`rounded-lg border px-2 py-0.5 text-sm font-semibold ${tone}`}>{LEVEL_LABEL[attempt.level]}</span>
+                {/* With the sound chips, the chips say how clear it was; the recognizer's label would contradict them. */}
+                {!feedback?.scored && <span className={`rounded-lg border px-2 py-0.5 text-sm font-semibold ${tone}`}>{LEVEL_LABEL[attempt.level]}</span>}
                 <p className="text-sm text-ink-2">
                     Máy nghe:{' '}
                     {attempt.heard && alignment ? (
@@ -434,6 +480,7 @@ function AttemptResult({ attempt, target, ipa, sentence = false }: { attempt: At
                           : 'Micro thu rất nhỏ. Đưa micro lại gần, bấm nút rồi mới nói.'}
                 </p>
             )}
+            <SoundTips feedback={feedback} audioUrl={attempt.audioUrl} onRetry={onRetry} />
             {attempt.audioUrl && (
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-muted">Nghe lại:</span>
@@ -445,7 +492,6 @@ function AttemptResult({ attempt, target, ipa, sentence = false }: { attempt: At
                     </button>
                 </div>
             )}
-            <SoundTips feedback={feedback} />
         </motion.div>
     );
 }
@@ -461,7 +507,7 @@ function Panel({ icon, title, children }: { icon: React.ReactNode; title: string
     );
 }
 
-function Summary({ words, results, onAgain, onDone }: { words: string[]; results: Record<string, SpeakLevel>; onAgain?: () => void; onDone?: () => void }) {
+function Summary({ words, results, chips, onAgain, onDone }: { words: string[]; results: Record<string, SpeakLevel>; chips: Record<string, ChipLevel[]>; onAgain?: () => void; onDone?: () => void }) {
     const hard = hardToSay(useLexicaStore.getState().speakMisses);
     return (
         <div data-testid="speak-summary" className="rounded-2xl border border-line bg-surface p-5">
@@ -473,7 +519,15 @@ function Summary({ words, results, onAgain, onDone }: { words: string[]; results
                         <li key={id} className="flex items-center gap-2 text-sm">
                             {level === 'clear' ? <Check className="w-4 h-4 text-accent" /> : level === 'close' ? <Check className="w-4 h-4 text-warning" /> : <X className="w-4 h-4 text-danger" />}
                             <span className="text-ink lowercase">{getCard(id)?.word}</span>
-                            <span className="text-muted">· {LEVEL_LABEL[level]}</span>
+                            {chips[id] ? (
+                                <span className="ml-auto flex gap-0.5" aria-label="Từng âm">
+                                    {chips[id].map((c, i) => (
+                                        <i key={i} className={`w-3.5 h-3.5 rounded ${c === 'ok' ? 'bg-accent/70' : c === 'warn' ? 'bg-warning' : 'bg-danger'}`} />
+                                    ))}
+                                </span>
+                            ) : (
+                                <span className="text-muted">· {LEVEL_LABEL[level]}</span>
+                            )}
                         </li>
                     );
                 })}

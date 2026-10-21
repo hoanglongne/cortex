@@ -6,7 +6,10 @@
  * consonant clusters (docs/LEXICA_FEEDBACK_TASKS.md T8).
  */
 
-export type ErrorKind = 'final_consonant' | 'final_voicing' | 'th' | 'cluster' | 'ending' | 'long_short' | 'ch_j' | 'final_ng' | 'final_l' | 'initial_z' | 'ae_e';
+import type { SoundKind } from '@cortex/classroom-lexica';
+
+/** The sound groups (shared with the class report: @cortex/classroom-lexica). */
+export type ErrorKind = SoundKind;
 
 /** Real minimal pairs per error, a few each. */
 export const MINIMAL_PAIRS: Record<ErrorKind, readonly [string, string][]> = {

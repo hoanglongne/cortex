@@ -10,6 +10,7 @@ import { getSupabaseClient } from '../lib/supabase';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useSoundEffects } from '../hooks/useSoundEffects';
 import { deletePack, packMegabytes, packReady, pronBeta, setPronBeta } from '../lib/pronunciation/model/client';
+import { clearProsodyLog, readProsodyLog } from '../lib/pronunciation/prosodyLog';
 
 function SettingsPageContent() {
     const learnedCount = useLexicaStore(state => state.learnedWords.size);
@@ -260,17 +261,23 @@ function BackupStatus() {
 /** Testers only (phone scoring is behind a flag): the downloaded scoring pack, and turning the test off. */
 function PronPackSetting() {
     const [state, setState] = useState<'hidden' | 'none' | 'ready'>('hidden');
+    const [logCount, setLogCount] = useState(0);
+    const [beta] = useState(() => pronBeta());
     useEffect(() => {
-        if (!pronBeta()) return;
-        void packReady().then((ok) => setState(ok ? 'ready' : 'none'));
+        void packReady().then((ok) => {
+            setLogCount(readProsodyLog().length);
+            // Shown to whoever downloaded the pack; the measuring log only to testers.
+            if (ok || pronBeta()) setState(ok ? 'ready' : 'none');
+        });
     }, []);
     if (state === 'hidden') return null;
     return (
         <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
-            <p className="font-semibold text-ink">Chấm từng âm trên máy (thử nghiệm)</p>
+            <p className="font-semibold text-ink">Gói chấm phát âm</p>
             <p className="mt-1 text-sm text-muted">
-                {state === 'ready' ? `Gói chấm đã tải (khoảng ${packMegabytes()}MB).` : 'Chưa tải gói chấm. Tải ở trang Luyện nói.'}
+                {state === 'ready' ? `Đã tải (khoảng ${packMegabytes()}MB). Xoá gói thì Luyện nói không còn hiện từng âm, tải lại được ở trang Luyện nói.` : 'Chưa tải gói chấm. Tải ở trang Luyện nói.'}
             </p>
+            {beta && <p className="mt-1 text-xs text-subtle">Sổ đo ghi các con số về nhấn âm, ngữ điệu, tốc độ của mỗi lần nói (không có âm thanh), để kiểm lại ngưỡng.</p>}
             <div className="mt-3 flex flex-wrap gap-2">
                 {state === 'ready' && (
                     <button
@@ -283,16 +290,34 @@ function PronPackSetting() {
                         Xoá gói chấm
                     </button>
                 )}
-                <button
-                    onClick={async () => {
-                        await deletePack();
-                        setPronBeta(false);
-                        setState('hidden');
-                    }}
-                    className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
-                >
-                    Tắt thử nghiệm
-                </button>
+                {beta && (
+                    <>
+                        <button
+                            onClick={() => {
+                                const blob = new Blob([JSON.stringify(readProsodyLog(), null, 1)], { type: 'application/json' });
+                                const a = document.createElement('a');
+                                a.href = URL.createObjectURL(blob);
+                                a.download = `lexica-so-do-phat-am-${new Date().toISOString().slice(0, 10)}.json`;
+                                a.click();
+                                URL.revokeObjectURL(a.href);
+                            }}
+                            className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                        >
+                            Tải sổ đo ({logCount} lần nói)
+                        </button>
+                        <button
+                            onClick={async () => {
+                                await deletePack();
+                                clearProsodyLog();
+                                setPronBeta(false);
+                                setState('hidden');
+                            }}
+                            className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                        >
+                            Tắt thử nghiệm
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );

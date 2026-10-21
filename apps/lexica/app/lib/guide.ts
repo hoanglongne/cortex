@@ -31,6 +31,8 @@ export interface GuideFacts {
     weekday: number;
     /** Days since the first word was learned; null before. */
     daysSinceStart: number | null;
+    /** A sound group to practise (lib/pronunciation/soundLog.ts practiceSuggestion), with its label. */
+    sound?: { kind: string; label: string } | null;
 }
 
 export interface ChecklistItem {
@@ -77,6 +79,7 @@ export function nextTip(f: GuideFacts, dismissed: Record<string, string>, today:
         { id: 'spot-first', when: f.remembered >= 3 && f.sightings === 0 && f.met === 0, text: `Bạn đã nhớ ${f.remembered} từ. Gặp lại chúng ngoài app là lúc từ thật sự thành của bạn: thử săn 5 từ trong tuần này.`, href: '/spot?tab=hunt', action: 'Bắt đầu săn' },
         { id: 'speak-first', when: f.words >= 15 && f.spoken === 0, text: 'Bạn chưa nói thử từ nào. Nói to một lần giúp nhớ lâu hơn đọc mười lần.', href: '/speak', action: 'Luyện nói' },
         { id: 'write-first', when: f.remembered >= 5 && f.sentences === 0, text: 'Một câu về ngày của bạn, có một từ vừa học, nhớ lâu hơn mọi câu mẫu.', href: '/journal', action: 'Viết một câu' },
+        { id: `sound-${f.sound?.kind ?? ''}`, when: Boolean(f.sound), daily: true, text: `Gần đây máy hay nghe chưa rõ nhóm âm “${f.sound?.label ?? ''}”. Luyện riêng 2 phút: nghe phân biệt rồi nói 5 từ.`, href: `/speak?sound=${f.sound?.kind ?? ''}`, action: 'Luyện 2 phút' },
         { id: 'hard', when: f.hard >= 5, text: `Có ${f.hard} từ bạn hay quên. Luyện riêng chúng vài phút là đủ.`, href: '/review?hard=1', action: 'Luyện từ khó' },
         { id: 'guide', when: f.daysStudied >= 2, text: 'Lexica còn Đọc, Luyện nói, Album, Lớp học… Xem một lượt để biết dùng gì khi nào.', href: '/guide', action: 'Lexica có gì' },
     ];

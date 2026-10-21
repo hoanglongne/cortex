@@ -7,7 +7,7 @@
  * offline too.
  */
 import { classroomApi, type Assignment, type ClassInfo } from '@cortex/classroom';
-import { LEXICA, lexicaModule, type Counts, type LexicaReport, type WordsPayload } from '@cortex/classroom-lexica';
+import { LEXICA, lexicaModule, type Counts, type LexicaReport, type Sounds, type WordsPayload } from '@cortex/classroom-lexica';
 import { getSupabaseClient } from './supabase';
 import { getCard } from './content/repository';
 import { countLived, countSteps, isKnownAlready, stepIndex, stepOf, type Journeys, type WordJourney } from './journey/steps';
@@ -80,13 +80,15 @@ export function assignedSteps(journeys: Journeys, classes: readonly Pick<ClassIn
 }
 
 /** What Lexica reports to every class it is in; the server keeps each class's part. */
-export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[], progress: Progress = {}): LexicaReport {
+export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[], progress: Progress = {}, sounds: Sounds = {}): LexicaReport {
     const learned = Object.fromEntries(Object.entries(journeys).filter(([, j]) => !isKnownAlready(j)));
     return {
         // Steps reached by learning; words known beforehand are counted apart
         counts: { ...countSteps(learned), doi: countLived(journeys), known: Object.keys(journeys).length - Object.keys(learned).length },
         assigned: Object.fromEntries(classes.map((c) => [c.id, assignedCounts(journeys, c, progress)])),
         words: assignedSteps(journeys, classes, progress),
+        // Per sound group, 14 days of tries and misses (lib/pronunciation/soundLog.ts): numbers only.
+        sounds,
     };
 }
 

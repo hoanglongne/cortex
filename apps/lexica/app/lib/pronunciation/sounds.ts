@@ -10,19 +10,7 @@
 import { MINIMAL_PAIRS, type ErrorKind } from './pairs';
 import { bare, ipaOf, isVowel } from './phones';
 
-export const SOUND_LABEL: Record<ErrorKind, string> = {
-    final_consonant: 'Mất phụ âm cuối',
-    final_voicing: 'Phụ âm cuối',
-    th: 'Âm /θ ð/ (th)',
-    cluster: 'Cụm phụ âm',
-    ending: 'Đuôi -s, -ed',
-    long_short: 'Nguyên âm dài, ngắn',
-    ch_j: 'Âm /ʃ tʃ dʒ/',
-    final_ng: 'Âm /ŋ/ cuối',
-    final_l: 'Âm /l/ cuối, /r/',
-    initial_z: 'Âm /z/',
-    ae_e: 'Nguyên âm /æ/, /e/',
-};
+export { SOUND_LABEL } from '@cortex/classroom-lexica';
 
 export const SOUND_TIP: Record<ErrorKind, string> = {
     final_consonant: 'Đọc rõ phụ âm cuối rồi mới dừng, đừng nuốt.',
@@ -50,11 +38,16 @@ function where(phones: readonly string[], i: number) {
     return { final: i === phones.length - 1, initial: i === 0, onset: firstVowel < 0 || i < firstVowel, coda: i > lastVowel };
 }
 
+/** A grammatical ending in the spelling: plural or verb -s/-es, past -ed. */
+export const spelledEnding = (word: string) => /[^s](s|es)$|ed$/i.test(word.trim());
+
 /**
  * The known error a change to `phones[i]` matches: replaced by `heardAs`, or
- * dropped when `heardAs` is null. Null when it is no known pattern.
+ * dropped when `heardAs` is null. Null when it is no known pattern. With
+ * `word`, a final -s/-ed counts as an ending only when the word is spelled
+ * with one ("cats", "walked"; not "abundant").
  */
-export function classify(phones: readonly string[], i: number, heardAs: string | null): ErrorKind | null {
+export function classify(phones: readonly string[], i: number, heardAs: string | null, word?: string): ErrorKind | null {
     const p = bare(phones[i]);
     const h = heardAs === null ? null : bare(heardAs);
     const at = where(phones, i);
@@ -67,7 +60,7 @@ export function classify(phones: readonly string[], i: number, heardAs: string |
         if (p === 'L') return 'final_l';
         if (p === 'NG') return 'final_ng';
         // -s / -ed after another consonant ("walked", "cats").
-        if (at.final && ['S', 'Z', 'T', 'D'].includes(p) && i > 0 && !isVowel(phones[i - 1])) return 'ending';
+        if (at.final && ['S', 'Z', 'T', 'D'].includes(p) && i > 0 && !isVowel(phones[i - 1]) && (word === undefined || spelledEnding(word))) return 'ending';
         return 'final_consonant';
     }
     if (p === h) return null;
@@ -97,7 +90,7 @@ export interface SoundIssue {
 }
 
 export function describe(word: string, phones: readonly string[], index: number, heardAs: string | null): SoundIssue {
-    const kind = classify(phones, index, heardAs);
+    const kind = classify(phones, index, heardAs, word);
     const phone = phones[index];
     const at = where(phones, index);
     const sound = `/${ipaOf(phone)}/${at.final && !isVowel(phone) ? ' cuối' : ''}`;
@@ -139,7 +132,7 @@ export function issuesFromHeardWord(word: string, target: readonly string[], hea
     const GAP = 0.8;
     const sub = (i: number, j: number) => {
         if (t[i] === h[j]) return 0;
-        if (classify(target, i, heard[j])) return 0.4;
+        if (classify(target, i, heard[j], word)) return 0.4;
         return isVowel(t[i]) === isVowel(h[j]) ? 1 : 1.8;
     };
     const n = t.length;
@@ -173,7 +166,7 @@ export interface PhoneScore {
 }
 
 /** Below this a phone "may be unclear" (docs/LEXICA_PRONUNCIATION_SPIKE.md; tune on Vietnamese voices). */
-export const UNCLEAR_BELOW = 0.6;
+export const UNCLEAR_BELOW = 0.8;
 
 /**
  * Low-scoring phones of each word, worst first. The competing phone names
@@ -185,8 +178,8 @@ export function issuesFromScores(words: readonly { word: string; phones: readonl
     for (const w of words)
         w.scores.forEach((s, i) => {
             if (s.score >= threshold) return;
-            const swapped = classify(w.phones, i, s.competitor) ? s.competitor : null;
-            const dropped = !swapped && classify(w.phones, i, null) && where(w.phones, i).coda;
+            const swapped = classify(w.phones, i, s.competitor, w.word) ? s.competitor : null;
+            const dropped = !swapped && classify(w.phones, i, null, w.word) && where(w.phones, i).coda;
             low.push({ issue: describe(w.word, w.phones, i, swapped ?? (dropped ? null : s.phone)), score: s.score });
         });
     return low.sort((a, b) => a.score - b.score).map((x) => x.issue);

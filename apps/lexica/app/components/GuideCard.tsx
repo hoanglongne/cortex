@@ -9,6 +9,8 @@ import { hardWords } from '../lib/engagement/hard';
 import { localDate } from '../lib/engagement/ghost';
 import { sameWordIds } from '../lib/content/repository';
 import { checklist, nextTip, showChecklist, type GuideFacts } from '../lib/guide';
+import { practiceSuggestion } from '../lib/pronunciation/soundLog';
+import { SOUND_LABEL } from '@cortex/classroom-lexica';
 import { huntCaught, weekOf } from '../lib/journey/sightings';
 
 const DAY_MS = 86_400_000;
@@ -28,6 +30,7 @@ export default function GuideCard() {
     const tipsDismissed = useLexicaStore((s) => s.tipsDismissed);
     const dismissTip = useLexicaStore((s) => s.dismissTip);
     const checklistHidden = useLexicaStore((s) => s.checklistHidden);
+    const soundLog = useLexicaStore((s) => s.soundLog);
     const hideChecklist = useLexicaStore((s) => s.hideChecklist);
     const [now] = useState(() => Date.now());
     const today = localDate(now);
@@ -52,8 +55,12 @@ export default function GuideCard() {
             hunt: hunt && hunt.week === weekOf(today) ? { caught: huntCaught(hunt, sightings, wordId).size, total: hunt.cardIds.length } : null,
             weekday: new Date(now).getDay(),
             daysSinceStart: first === null ? null : Math.floor((now - first) / DAY_MS),
+            sound: (() => {
+                const kind = practiceSuggestion(soundLog ?? {}, today);
+                return kind ? { kind, label: SOUND_LABEL[kind] } : null;
+            })(),
         };
-    }, [journeys, mySentences, sightings, pledge, studyHistory, cardProgress, hunt, today, now]);
+    }, [journeys, mySentences, sightings, pledge, studyHistory, cardProgress, hunt, today, now, soundLog]);
 
     if (showChecklist(facts, checklistHidden)) {
         const items = checklist(facts);

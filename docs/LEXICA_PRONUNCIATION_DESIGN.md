@@ -1,6 +1,6 @@
 # Lexica: chấm phát âm trên máy người học (thiết kế Đợt 6)
 
-Trạng thái: **PR (a) đã làm** (PR #45, mục 11): mức 1, mức 2 có gói chấm trên máy (ẩn sau cờ) và cách dự phòng 5.3. Việc tiếp theo: đưa gói lên Supabase, ghi âm giọng Việt, rồi PR (b).
+Trạng thái: **PR (a) đã merge** (PR #45, mục 11). **PR (b) và (c) đang mở** (PR #46, mục 12 và 13). Gói chấm đã có trên Supabase. Việc tiếp theo: thêm người ghi âm giọng Việt để quyết định bật cho mọi người.
 
 ## Tóm tắt (đọc phần này là đủ)
 - **Mục tiêu:** người học nói xong biết sai **ở âm nào** và **sửa thế nào**, không chỉ nhận "Chưa rõ".
@@ -42,7 +42,7 @@ Câu hỏi của mọi tính năng (theo quy tắc của T8): *"Nó giúp ngư�
   - Web Audio (cao độ, khoảng lặng);
   - luật viết tay (thư viện lỗi của người Việt).
 - **Gemini** (`/v1/lexica/transcribe`, khi trình duyệt không nghe được) chỉ để hiện chữ. Không dùng để chấm âm hay ghi sổ lỗi.
-- **Gói chấm phát âm chỉ tải khi người học bấm** ("Tải gói chấm phát âm, 27MB"). Đã chốt: không tự tải, kể cả khi dùng Wi-Fi.
+- **Gói chấm phát âm chỉ tải khi người học bấm.** Từ PR #46, nút tải hiện cho mọi người học (chủ sản phẩm chốt: muốn xem từng âm thì tải); gói khoảng 38MB. Đã chốt: không tự tải, kể cả khi dùng Wi-Fi.
   - lưu vào Cache Storage, lần sau không tải lại;
   - chưa tải thì mức 2 dùng cách cũ: đoán qua từ máy nghe nhầm (5.4).
 
@@ -127,7 +127,7 @@ Ghi âm (đã có) ──┤
 3. Chạy mô hình ra log-xác suất của từng âm theo khung 20ms.
 4. **Căn CTC theo chuỗi âm mẫu** (Viterbi có blank). Mỗi âm có một đoạn thời gian.
 5. Tính đặc trưng GOP mỗi âm (trung bình, thấp nhất, âm cạnh tranh mạnh nhất, độ dài), rồi đưa qua bộ hồi quy 300 cây để ra **điểm 0–2**.
-6. Âm có điểm < **0,6** (ngưỡng chỉnh khi kiểm trên giọng Việt) là "có thể chưa rõ".
+6. Âm có điểm < **0,8** (đổi từ 0,6 sau lần kiểm giọng Việt đầu tiên) là "có thể chưa rõ".
    - Âm cạnh tranh mạnh nhất cho biết "nghe như âm gì", ví dụ /θ/ nghe như /s/.
    - Tra bảng 5.4 để ra tên lỗi và mẹo.
 7. Mỗi lần nói báo **tối đa 2 âm** điểm thấp nhất, ưu tiên lỗi có trong thư viện.
@@ -356,4 +356,79 @@ Mọi file ở `apps/lexica/app/lib/pronunciation/`. Phần chấm đều là h�
 - **Bỏ sót:** think thành sink, three thành tree, sheep thành ship, leave thành live, thing thành thin, bad thành bed, cats thành cat.
   - Phần lớn là lỗi **thay âm**: mô hình vẫn chấm âm gốc cao.
 - **Báo oan:** /p/ và nguyên âm trong play, /g/ và nguyên âm trong glass, /t/ cuối trong walked.
-- **Chưa đủ để kết luận:** mới 1 người, 36 lượt. Cần thêm 2–4 người. Nếu kết quả giữ như vậy thì nên đổi ngưỡng `UNCLEAR_BELOW` trong `sounds.ts` từ 0,6 lên 0,8.
+- **Chưa đủ để kết luận:** mới 1 người, 36 lượt. Cần thêm 2–4 người. Đã đổi ngưỡng `UNCLEAR_BELOW` trong `sounds.ts` từ 0,6 lên 0,8 (21/10/2026, theo quyết định của chủ sản phẩm). Kiểm lại khi có thêm người ghi.
+
+## 12. Đã làm trong PR (b) (PR #46)
+
+### Mã
+- `lib/pronunciation/prosody.ts`: các phép đo trên bản ghi 16 kHz, khung 10ms. Hàm thuần, có test bằng âm thanh tổng hợp.
+- `lib/pronunciation/level3.ts`: chọn lời nhận xét, tối đa 2 câu mỗi lần nói.
+- `lib/pronunciation/modelVoice.ts`: lấy giọng mẫu tự nhiên từ Cortex API (đã có sẵn cho nút "Nghe mẫu") và giải mã thành mẫu 16 kHz.
+- `lib/pronunciation/prosodyLog.ts`: sổ đo trên máy.
+- `scripts/pron-eval/`: chấm mức 3 trên file zip của `/ghi-am`.
+
+### Các phép đo
+- **Âm cuối (6.1)**, chỉ khi chưa có gói chấm:
+  - đo năng lượng dải trên 3 kHz trong 40–250ms sau khi hết giọng, so với tiếng ồn của phòng;
+  - chỉ đo phụ âm cuối đứng ngay sau nguyên âm hoặc âm vang (light, rice, wide). Với walked, cats, âm đứng trước vẫn để lại tiếng bật nên không tách được;
+  - không kết luận khi phòng quá ồn, hoặc bản ghi dừng quá sát sau giọng.
+- **Trọng âm (6.2)**, từ 2 âm tiết trở lên:
+  - tách âm tiết theo đỉnh năng lượng có giọng. Không dùng thời gian nguyên âm của mô hình: mô hình CTC chỉ đánh dấu 1–3 khung cho mỗi âm, nên độ dài đo ra vô nghĩa (thử trên giọng thật: lượt nhấn đúng bị báo sai);
+  - âm tiết nổi nhất là âm tiết có tổng cao nhất khi cộng độ dài, độ to và cao độ (đã chuẩn hoá trong từ);
+  - đếm ra số âm tiết khác từ điển thì không kết luận.
+- **Ngữ điệu (6.3)**, cụm và câu:
+  - so với giọng mẫu, theo bán âm quanh giọng giữa của mỗi người;
+  - chỉ 2 nhận xét: cuối câu đi sai hướng (câu kể phải xuống, câu hỏi có/không phải lên), hoặc giọng quá đều (dưới 3 bán âm trong khi mẫu trên 6).
+- **Tốc độ và ngắt (6.4):**
+  - số âm tiết trên số giây có tiếng; chậm hơn 0,6 lần hoặc nhanh hơn 1,4 lần giọng mẫu thì nhắc;
+  - chỗ lặng trên 300ms trong cụm ngắn (6 từ trở xuống) thì nhắc nói liền. Có gói chấm thì nói được ngắt sau từ nào.
+
+### Ai thấy gì
+- **Mọi người:** trên máy tính, đường cao độ ở bước "Nói trong cụm" vẽ giọng mẫu thật (căn thời gian bằng DTW), thay cho đường dựng theo trọng âm. Khi không có Cortex API thì vẫn dùng đường dựng theo trọng âm.
+- **Người thử nghiệm** (`?pron=1`):
+  - thấy khung "Nhấn âm, ngữ điệu, tốc độ (thử nghiệm)";
+  - mỗi lần nói, số đo được ghi vào sổ trên máy, chỉ có con số, không có âm thanh;
+  - Cài đặt có nút "Tải sổ đo" (file JSON) để đối chiếu.
+
+### Kiểm định lần đầu (1 người ghi, file zip ngày 21/10)
+| Phép đo | Đúng trên các lần có kết luận | Không kết luận |
+|---|---|---|
+| Âm cuối (light, bike, rice, wide; đúng và sai) | 7/7 | 1/8 |
+| Trọng âm (abundant, develop; đúng và sai) | 3/3 | 1/4 |
+
+- **Ngưỡng âm cuối đặt theo chính bản ghi này**, có chừa khoảng an toàn: đoạn tắc "rõ" từ 15 dB, "yếu" dưới 10 dB; đoạn xát "rõ" từ 25 dB, "yếu" dưới 12 dB. Vì vậy kết quả trên chưa phải bằng chứng độc lập.
+- **Cần thêm người ghi, và thêm từ cho trọng âm và ngữ điệu**, trước khi hiện cho người học (mục 8).
+- **Ngữ điệu và tốc độ chưa được kiểm trên giọng thật:** bộ ghi âm chỉ có từ đơn. Hiện chỉ có test bằng âm tổng hợp.
+
+## 13. Đã làm trong PR (c) (PR #46)
+
+### Sổ âm hay sai (7.1)
+- `lib/pronunciation/soundLog.ts`, trường `soundLog` trong store (đồng bộ cloud như các trường khác):
+  - mỗi nhóm âm, mỗi ngày (giờ địa phương): `[số lần thử, số lần sai]`, giữ 60 ngày;
+  - **một lần thử:** người học nói một từ hay cụm có âm thuộc nhóm đó. Nhóm suy ra từ phiên âm (`exposures`), mỗi lần nói tính mỗi nhóm một lần;
+  - **một lần sai:** mức 2 báo âm thuộc nhóm đó, hoặc mức 3 báo âm cuối yếu.
+- **Lưu ý:** khi chưa có gói chấm, mức 2 chỉ bắt được lỗi khi máy nghe nhầm thành từ khác. Vì vậy với phần lớn người học, số lần sai đang thấp hơn thực tế.
+- **Trang Luyện nói** có mục **"Âm hay sai · 14 ngày"**:
+  - tối đa 3 nhóm có tỉ lệ sai cao nhất (cần từ 3 lần thử, có ít nhất 1 lần sai);
+  - xu hướng so với tuần trước, cần mỗi tuần từ 3 lần thử;
+  - câu khen khi một nhóm giảm rõ: từ 30% trở lên xuống ít nhất 20 điểm phần trăm.
+
+### Tự gợi ý bài luyện (7.2)
+- Một nhóm có từ 5 lần thử trong 14 ngày và sai trên 40% thì gợi ý **"Luyện 2 phút"**:
+  - nghe phân biệt 4 cặp từ dễ nhầm của nhóm đó, mỗi lần 3 giọng;
+  - rồi nói tối đa 5 từ đã học có âm đó (bước "Nghe mẫu rồi nói").
+- Gợi ý hiện ở hai chỗ:
+  - nút trong mục "Âm hay sai";
+  - một mẹo ở trang chủ (`lib/guide.ts`, mẹo `sound-<nhóm>`), mở `/speak?sound=<nhóm>`.
+- Không chặn gì, không bắt buộc.
+
+### Cho giáo viên (7.3)
+- **Số liệu gửi lớp** có thêm `sounds`: `[thử, sai]` của từng nhóm trong 14 ngày. Chỉ là con số.
+- **Lọc 2 lần:**
+  - `parseSounds` trong `@cortex/classroom-lexica`;
+  - SQL `classroom_lexica_clean_metrics`: chỉ nhận 11 tên nhóm, số nguyên 0–10.000, số sai không quá số thử. Đã chạy thử trên Postgres 16.
+- **Teach:**
+  - **trang lớp:** "Âm cả lớp hay sai (14 ngày)", 3 nhóm có nhiều em hay sai nhất, kèm số em. Một em "hay sai" một nhóm khi có từ 5 lần thử và sai trên 40%;
+  - **trang học viên:** mỗi nhóm một dòng "sai/thử".
+- **Câu nói với học viên** ở chỗ vào lớp, trang Lớp học và trang "Lexica có gì" đã ghi rõ: giáo viên thấy thêm số lần sai theo từng nhóm âm, không có bản ghi giọng nói.
+- **Sau khi merge:** chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`. Chưa chạy thì server bỏ trường `sounds`, giáo viên chỉ chưa thấy mục âm.

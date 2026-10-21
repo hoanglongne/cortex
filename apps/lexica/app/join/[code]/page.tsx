@@ -46,7 +46,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
                     <p className="flex items-center gap-2 font-semibold text-ink">
                         <School className="w-4 h-4 text-accent" /> Vào lớp <span className="font-mono tracking-widest">{clean}</span>
                     </p>
-                    <p className="mt-1 text-sm text-muted">Giáo viên sẽ thấy tên bạn và 4 con số Hiểu, Nhớ, Gặp, Dùng, cùng tiến độ trên những từ lớp giao. Không thấy gì khác.</p>
+                    <p className="mt-1 text-sm text-muted">Giáo viên sẽ thấy tên bạn, 4 con số Hiểu, Nhớ, Gặp, Dùng, tiến độ trên những từ lớp giao, và số lần sai theo từng nhóm âm. Không thấy gì khác: không có bản ghi giọng nói.</p>
                     {user && (
                         <div className="mt-4 space-y-2">
                             <input

@@ -1,7 +1,7 @@
 """Scores the zips from the recording kit (Lexica /ghi-am) with the on-device model
 and prints whether it is good enough on Vietnamese voices.
 
-    python evalvi.py lexica-ghiam-lan-2026-10-20.zip [more.zip ...] [--threshold 0.6]
+    python evalvi.py lexica-ghiam-lan-2026-10-20.zip [more.zip ...] [--threshold 0.8]
 
 Input: each zip holds manifest.csv (the answer key) and one WAV per take.
 Output: a table per tester and in total, and ketqua.csv with one row per take.
@@ -60,7 +60,7 @@ def trim(a, sr=16000, frame=320, floor=3.0):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('zips', nargs='+')
-    ap.add_argument('--threshold', type=float, default=0.6)
+    ap.add_argument('--threshold', type=float, default=0.8)
     args = ap.parse_args()
     m = model_5s()
     rows, stats = [], defaultdict(lambda: {'dung': 0, 'oan': 0, 'sai': 0, 'bat': 0})
