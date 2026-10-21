@@ -1,6 +1,6 @@
 # Lexica: chấm phát âm trên máy người học (thiết kế Đợt 6)
 
-Trạng thái: **PR (a) đã làm** (PR #45, mục 11): mức 1, mức 2 có gói chấm trên máy (ẩn sau cờ) và cách dự phòng 5.3. Việc tiếp theo: đưa gói lên Supabase, ghi âm giọng Việt, rồi PR (b).
+Trạng thái: **PR (a) đã merge** (PR #45, mục 11), **PR (b) đang mở** (PR #46, mục 12). Gói chấm đã có trên Supabase. Việc tiếp theo: thêm người ghi âm giọng Việt, rồi PR (c).
 
 ## Tóm tắt (đọc phần này là đủ)
 - **Mục tiêu:** người học nói xong biết sai **ở âm nào** và **sửa thế nào**, không chỉ nhận "Chưa rõ".
@@ -357,3 +357,45 @@ Mọi file ở `apps/lexica/app/lib/pronunciation/`. Phần chấm đều là h�
   - Phần lớn là lỗi **thay âm**: mô hình vẫn chấm âm gốc cao.
 - **Báo oan:** /p/ và nguyên âm trong play, /g/ và nguyên âm trong glass, /t/ cuối trong walked.
 - **Chưa đủ để kết luận:** mới 1 người, 36 lượt. Cần thêm 2–4 người. Nếu kết quả giữ như vậy thì nên đổi ngưỡng `UNCLEAR_BELOW` trong `sounds.ts` từ 0,6 lên 0,8.
+
+## 12. Đã làm trong PR (b) (PR #46)
+
+### Mã
+- `lib/pronunciation/prosody.ts`: các phép đo trên bản ghi 16 kHz, khung 10ms. Hàm thuần, có test bằng âm thanh tổng hợp.
+- `lib/pronunciation/level3.ts`: chọn lời nhận xét, tối đa 2 câu mỗi lần nói.
+- `lib/pronunciation/modelVoice.ts`: lấy giọng mẫu tự nhiên từ Cortex API (đã có sẵn cho nút "Nghe mẫu") và giải mã thành mẫu 16 kHz.
+- `lib/pronunciation/prosodyLog.ts`: sổ đo trên máy.
+- `scripts/pron-eval/`: chấm mức 3 trên file zip của `/ghi-am`.
+
+### Các phép đo
+- **Âm cuối (6.1)**, chỉ khi chưa có gói chấm:
+  - đo năng lượng dải trên 3 kHz trong 40–250ms sau khi hết giọng, so với tiếng ồn của phòng;
+  - chỉ đo phụ âm cuối đứng ngay sau nguyên âm hoặc âm vang (light, rice, wide). Với walked, cats, âm đứng trước vẫn để lại tiếng bật nên không tách được;
+  - không kết luận khi phòng quá ồn, hoặc bản ghi dừng quá sát sau giọng.
+- **Trọng âm (6.2)**, từ 2 âm tiết trở lên:
+  - tách âm tiết theo đỉnh năng lượng có giọng; có gói chấm thì lấy thời gian từng nguyên âm từ mô hình;
+  - âm tiết nổi nhất là âm tiết có tổng cao nhất khi cộng độ dài, độ to và cao độ (đã chuẩn hoá trong từ);
+  - đếm ra số âm tiết khác từ điển thì không kết luận.
+- **Ngữ điệu (6.3)**, cụm và câu:
+  - so với giọng mẫu, theo bán âm quanh giọng giữa của mỗi người;
+  - chỉ 2 nhận xét: cuối câu đi sai hướng (câu kể phải xuống, câu hỏi có/không phải lên), hoặc giọng quá đều (dưới 3 bán âm trong khi mẫu trên 6).
+- **Tốc độ và ngắt (6.4):**
+  - số âm tiết trên số giây có tiếng; chậm hơn 0,6 lần hoặc nhanh hơn 1,4 lần giọng mẫu thì nhắc;
+  - chỗ lặng trên 300ms trong cụm ngắn (6 từ trở xuống) thì nhắc nói liền. Có gói chấm thì nói được ngắt sau từ nào.
+
+### Ai thấy gì
+- **Mọi người:** trên máy tính, đường cao độ ở bước "Nói trong cụm" vẽ giọng mẫu thật (căn thời gian bằng DTW), thay cho đường dựng theo trọng âm. Khi không có Cortex API thì vẫn dùng đường dựng theo trọng âm.
+- **Người thử nghiệm** (`?pron=1`):
+  - thấy khung "Nhấn âm, ngữ điệu, tốc độ (thử nghiệm)";
+  - mỗi lần nói, số đo được ghi vào sổ trên máy, chỉ có con số, không có âm thanh;
+  - Cài đặt có nút "Tải sổ đo" (file JSON) để đối chiếu.
+
+### Kiểm định lần đầu (1 người ghi, file zip ngày 21/10)
+| Phép đo | Đúng trên các lần có kết luận | Không kết luận |
+|---|---|---|
+| Âm cuối (light, bike, rice, wide; đúng và sai) | 7/7 | 1/8 |
+| Trọng âm (abundant, develop; đúng và sai) | 3/3 | 1/4 |
+
+- **Ngưỡng âm cuối đặt theo chính bản ghi này**, có chừa khoảng an toàn: đoạn tắc "rõ" từ 15 dB, "yếu" dưới 10 dB; đoạn xát "rõ" từ 25 dB, "yếu" dưới 12 dB. Vì vậy kết quả trên chưa phải bằng chứng độc lập.
+- **Cần thêm người ghi, và thêm từ cho trọng âm và ngữ điệu**, trước khi hiện cho người học (mục 8).
+- **Ngữ điệu và tốc độ chưa được kiểm trên giọng thật:** bộ ghi âm chỉ có từ đơn. Hiện chỉ có test bằng âm tổng hợp.

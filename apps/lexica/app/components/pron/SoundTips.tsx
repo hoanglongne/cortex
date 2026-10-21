@@ -8,7 +8,17 @@ import { alignAttempt, type Alignment } from '../../lib/pronunciation/align';
 import { soundFeedback, swapsOf, type SoundFeedback } from '../../lib/pronunciation/feedback';
 import { loadDict, phonesOf } from '../../lib/pronunciation/phones';
 import { SOUND_LABEL } from '../../lib/pronunciation/sounds';
-import { downloadPack, packAvailable, packMegabytes, packReady, pronBeta, scoreRecording, warmUp } from '../../lib/pronunciation/model/client';
+import { downloadPack, packAvailable, packMegabytes, packReady, pronBeta, scoreRecording, warmUp, type WordScores } from '../../lib/pronunciation/model/client';
+import { analyze } from '../../lib/pronunciation/prosody';
+import { prosodyNotes, type ProsodyNote } from '../../lib/pronunciation/level3';
+import { modelVoiceSamples } from '../../lib/pronunciation/modelVoice';
+import { logProsody } from '../../lib/pronunciation/prosodyLog';
+
+export interface AttemptFeedback {
+    sound: SoundFeedback;
+    /** Level 3 remarks: testers only until the measures pass the Vietnamese-voice check. */
+    prosody: ProsodyNote[];
+}
 
 /**
  * Sounds that may be off after an attempt (levels 1–2 of
@@ -17,7 +27,7 @@ import { downloadPack, packAvailable, packMegabytes, packReady, pronBeta, scoreR
  * instead. `heard`: the closest piece of what was heard, for one word.
  */
 export function useSoundFeedback(attempt: Attempt | null, target: string, opts: { ipa?: string; heard?: string; alignment?: Alignment | null }) {
-    const [feedback, setFeedback] = useState<SoundFeedback | null>(null);
+    const [feedback, setFeedback] = useState<AttemptFeedback | null>(null);
     useEffect(() => {
         if (!attempt) return;
         let live = true;
@@ -25,17 +35,22 @@ export function useSoundFeedback(attempt: Attempt | null, target: string, opts: 
             const dict = await loadDict();
             const words = target.split(/\s+/).filter(Boolean);
             const single = words.length === 1;
-            let scored = null;
-            if (pronBeta() && attempt.samples && attempt.voiced) {
-                const withPhones = words.map((word) => ({ word, phones: phonesOf(dict, word, single ? opts.ipa : undefined) }));
-                if (withPhones.every((w) => w.phones))
-                    scored = await scoreRecording(
-                        attempt.samples,
-                        withPhones.map((w) => ({ word: w.word, phones: w.phones! })),
-                    ).catch(() => null);
-            }
+            const withPhones = words.map((word) => ({ word, phones: phonesOf(dict, word, single ? opts.ipa : undefined) }));
+            const known = withPhones.every((w) => w.phones) ? withPhones.map((w) => ({ word: w.word, phones: w.phones! })) : null;
+            const beta = pronBeta() && Boolean(attempt.samples) && Boolean(attempt.voiced);
+            let scored: WordScores[] | null = null;
+            if (beta && known) scored = await scoreRecording(attempt.samples!, known).catch(() => null);
             const swaps = opts.alignment ? swapsOf(opts.alignment) : single && opts.heard ? [{ word: target, heard: opts.heard, ipa: opts.ipa }] : [];
-            if (live) setFeedback(soundFeedback({ dict, scored, swaps }));
+            const sound = soundFeedback({ dict, scored, swaps });
+            let prosody: ProsodyNote[] = [];
+            if (beta && known) {
+                // The model voice only matters for phrases (pitch line, speed).
+                const modelSamples = single ? null : await modelVoiceSamples(target);
+                const r = prosodyNotes({ target, words: known, mine: analyze(attempt.samples!), model: modelSamples ? analyze(modelSamples) : null, scored });
+                prosody = r.notes;
+                logProsody({ at: Date.now(), target, measures: r.measures, notes: r.notes.map((n) => n.kind) });
+            }
+            if (live) setFeedback({ sound, prosody });
         })();
         return () => {
             live = false;
@@ -48,8 +63,9 @@ export function useSoundFeedback(attempt: Attempt | null, target: string, opts: 
 /** Level 1 for a phrase or sentence: null for one word. */
 export const alignmentFor = (attempt: Attempt | null, target: string) => (attempt && target.trim().includes(' ') && attempt.alternatives.length > 0 ? alignAttempt(target, attempt.alternatives) : null);
 
-export default function SoundTips({ feedback }: { feedback: SoundFeedback | null }) {
-    if (!feedback) return null;
+export default function SoundTips({ feedback: both }: { feedback: AttemptFeedback | null }) {
+    if (!both) return null;
+    const feedback = both.sound;
     return (
         <div className="mt-3 space-y-3">
             {feedback.issues.map((x, i) => (
@@ -80,6 +96,16 @@ export default function SoundTips({ feedback }: { feedback: SoundFeedback | null
                 <p className="text-xs text-muted">
                     Máy chỉ đoán{feedback.source === 'model' ? ' (chấm từng âm trên máy, đang thử nghiệm)' : ' qua từ nó nghe được'}. Nghe lại giọng bạn cạnh giọng mẫu để tự kiểm tra.
                 </p>
+            )}
+            {both.prosody.length > 0 && (
+                <div data-testid="prosody" className="rounded-xl border border-dashed border-line-strong p-3 space-y-1.5">
+                    <p className="text-xs font-semibold text-subtle">Nhấn âm, ngữ điệu, tốc độ (thử nghiệm)</p>
+                    {both.prosody.map((n, i) => (
+                        <p key={i} className="text-sm text-ink">
+                            {n.text}
+                        </p>
+                    ))}
+                </div>
             )}
             <PackOffer />
         </div>

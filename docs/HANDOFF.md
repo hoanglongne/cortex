@@ -45,7 +45,7 @@
   - chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`;
   - kiểm tra project teach trên Vercel có `NEXT_PUBLIC_LEXICA_URL` (và `NEXT_PUBLIC_ORATIO_URL`).
 
-- PR #42, #43 (Đợt 3–5), #44 (thiết kế Đợt 6) đã merge. **PR #45** đang mở: Đợt 7 (góp ý sau khi dùng thử), công cụ "Tạo theo kế hoạch" của Studio, và PR (a) của Đợt 6 (chấm phát âm mức 1–2).
+- PR #42–#45 đã merge (#45: Đợt 7, công cụ "Tạo theo kế hoạch" của Studio, PR (a) của Đợt 6). **PR #46** (PR (b) của Đợt 6: mức 3) đang mở.
   - Lexica có thanh điều hướng chung `components/AppNav.tsx` (trong layout). Trang mới: `/practice` (Luyện), `/me` (Tôi), `/settings`. `tabOf()` quyết định trang nào có thanh; trang phiên học, bài kiểm tra, thiết lập thì không.
   - Phiên Hôm nay có "lượt học thêm" (`/today?more=1`, `startExtraRound`), và có thể mở lại chặng Ôn/Học một lần khi lớp giao từ mới (`todayLog.again`).
   - Bài lớp giao chỉ tính từ khi được giao (`touchedSince` trong `lib/classes.ts`).
@@ -65,7 +65,9 @@ Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm). Thiết kế: `do
 - **Việc của người dùng:**
   - đưa 3 file gói chấm lên Supabase Storage (`apps/lexica/scripts/pron-pack/README.md`);
   - cho 3–5 người ghi âm bằng trang `/ghi-am` (quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md`), gửi file zip.
-- **Việc tiếp của dev:** chạy `evalvi.py` trên các file zip để quyết định bật gói chấm cho mọi người, rồi làm PR (b) (mức 3).
+- **PR (b) đã làm** (PR #46): mức 3 (`prosody.ts`, `level3.ts`): âm cuối đo bằng năng lượng, trọng âm, ngữ điệu so với giọng mẫu, tốc độ và chỗ ngắt. Lời nhận xét chỉ người thử nghiệm thấy; số đo ghi vào sổ trên máy (`prosodyLog.ts`). Đường cao độ (máy tính) vẽ giọng mẫu thật cho mọi người.
+- **Gói chấm đã có trên Supabase** (`lexica-content/pron/v1/`, đã kiểm sha256).
+- **Việc tiếp của dev:** khi có thêm file zip, chạy `evalvi.py` (mức 2) và `scripts/pron-eval` (mức 3) để quyết định bật cho mọi người, rồi làm PR (c) (mức 4).
 - Đợt 5 và 6 cần người dùng duyệt hướng hoặc thiết kế trước khi code.
 - Thêm app vào lớp học: làm theo quy trình trong `docs/CLASSROOM.md`, bước 1 là hỏi người dùng giáo viên giao gì, xem gì, xếp hạng theo gì.
 

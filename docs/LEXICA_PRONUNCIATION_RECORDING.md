@@ -89,6 +89,13 @@ python evalvi.py lexica-ghiam-*.zip              # ngưỡng mặc định 0,6
 python evalvi.py lexica-ghiam-*.zip --threshold 0.8
 ```
 
+Mức 3 (âm cuối đo bằng năng lượng, trọng âm) dùng cùng các file zip, không cần Python. Giải nén mỗi zip vào một thư mục con, rồi:
+```bash
+cd apps/lexica
+PRON_EVAL_DIR=thu-muc-chua-cac-zip-da-giai-nen npx vitest run --config scripts/pron-eval/vitest.config.mts
+```
+Script in bảng từng lượt và tỉ lệ đúng trên các lần có kết luận, cùng tỉ lệ "không kết luận".
+
 ### Đầu ra
 Trên màn hình:
 ```

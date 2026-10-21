@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Ear, Lightbulb, Mic, Play, Square, Volume2, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -15,6 +15,9 @@ import { contourMatch, modelContour, normalizeTrack } from '../lib/pronunciation
 import type { ContentCard } from '../lib/content/pack';
 import { alignAttempt } from '../lib/pronunciation/align';
 import AlignedLine from './pron/AlignedLine';
+import { analyze, contour } from '../lib/pronunciation/prosody';
+import { overlay } from '../lib/pronunciation/level3';
+import { modelVoiceSamples } from '../lib/pronunciation/modelVoice';
 import SoundTips, { alignmentFor, useSoundFeedback } from './pron/SoundTips';
 
 export type Step = 1 | 2 | 3;
@@ -245,7 +248,7 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             </div>
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} label={attempt ? 'Nói lại' : 'Nói cả cụm'} />
             {attempt && <AttemptResult attempt={attempt} target={phrase} />}
-            {attempt && attempt.pitch.length > 0 && <PitchTrace pitch={attempt.pitch} flags={flags} />}
+            {attempt && attempt.pitch.length > 0 && <PitchTrace pitch={attempt.pitch} flags={flags} text={phrase} />}
             <div className="mt-4 flex justify-end">
                 <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
                     {attempt ? 'Tiếp' : 'Bỏ qua'}
@@ -320,10 +323,23 @@ function SayModelSentence({ model }: { model: string }) {
     );
 }
 
-/** Desktop first: the learner's pitch over a model line shaped by stress. */
-function PitchTrace({ pitch, flags }: { pitch: (number | null)[]; flags: boolean[] }) {
+/**
+ * Desktop first: the learner's pitch over the model voice's, aligned in time
+ * (level 3, 6.3). Without the natural voice (no Cortex API), a model line
+ * shaped from the stress pattern stands in.
+ */
+function PitchTrace({ pitch, flags, text }: { pitch: (number | null)[]; flags: boolean[]; text: string }) {
+    const [voice, setVoice] = useState<number[] | null>(null);
+    useEffect(() => {
+        let live = true;
+        void modelVoiceSamples(text).then((s) => live && s && setVoice(contour(analyze(s))));
+        return () => {
+            live = false;
+        };
+    }, [text]);
     const mine = normalizeTrack(pitch);
-    const model = modelContour(flags);
+    const laid = voice ? overlay(mine, voice) : null;
+    const model = laid?.model ?? modelContour(flags);
     if (mine.length === 0) return null;
     const all = [...mine, ...model];
     const lo = Math.min(...all) - 1;
@@ -333,7 +349,9 @@ function PitchTrace({ pitch, flags }: { pitch: (number | null)[]; flags: boolean
     return (
         <div data-testid="pitch-trace" className="hidden lg:block mt-4 rounded-xl border border-line p-3">
             <div className="flex items-center justify-between font-mono text-[11px] text-muted">
-                <span>Cao độ: <span className="text-accent">giọng bạn</span> · <span className="text-subtle">đường mẫu (theo trọng âm)</span></span>
+                <span>
+                    Cao độ: <span className="text-accent">giọng bạn</span> · <span className="text-subtle">{laid ? 'giọng mẫu' : 'đường mẫu (theo trọng âm)'}</span>
+                </span>
                 <span>giống {match}%</span>
             </div>
             <svg viewBox="0 0 300 100" className="mt-2 w-full h-28" preserveAspectRatio="none" aria-label="Đường cao độ">
