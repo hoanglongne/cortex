@@ -1,13 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getCard, useContentVersion } from '../lib/content/repository';
 import { hardToSay, pickDrillWords } from '../lib/pronunciation/drill';
 import { recognitionCtor } from '../lib/pronunciation/speech';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
 import SpeakDrill from '../components/SpeakDrill';
+import { PackOffer } from '../components/pron/SoundTips';
+import { setPronBeta } from '../lib/pronunciation/model/client';
+import { loadDict } from '../lib/pronunciation/phones';
 
 /**
  * "Luyện nói 2 phút" (docs/LEXICA_FEEDBACK_TASKS.md T8): five words, three
@@ -26,6 +29,20 @@ export default function SpeakPage() {
     const [run, setRun] = useState(0);
     // Fixed while the page is open, so the suggested words do not reshuffle under the learner.
     const [now] = useState(() => Date.now());
+    const [beta, setBeta] = useState(0);
+
+    useEffect(() => {
+        // Phone scoring stays hidden until it passes the Vietnamese-voice check: `?pron=1` turns it on for a tester.
+        const flag = new URLSearchParams(window.location.search).get('pron');
+        if (flag === '1' || flag === '0') {
+            setPronBeta(flag === '1');
+            const t = setTimeout(() => setBeta((b) => b + 1), 0);
+            return () => clearTimeout(t);
+        }
+    }, []);
+    useEffect(() => {
+        void loadDict();
+    }, []);
 
     const suggested = useMemo(
         () => pickDrillWords(progress, misses, now, undefined, { spokenAt, said: (id) => Boolean(journeys[id]?.usedAt), seed: Math.floor(now / 60_000) }),
@@ -49,7 +66,16 @@ export default function SpeakPage() {
                     <div className="w-12" />
                 </div>
 
-                {!words ? <Intro suggested={suggested} hard={hard} onStart={start} /> : <SpeakDrill key={run} words={words} onRestart={start} />}
+                {!words ? (
+                    <>
+                        <Intro suggested={suggested} hard={hard} onStart={start} />
+                        <div className="mt-4">
+                            <PackOffer key={beta} />
+                        </div>
+                    </>
+                ) : (
+                    <SpeakDrill key={run} words={words} onRestart={start} />
+                )}
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Volume2, VolumeX, Mic, RotateCcw, Trash2 } from 'lucide-react';
 import CortexSection from '../components/CortexSection';
@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { getSupabaseClient } from '../lib/supabase';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useSoundEffects } from '../hooks/useSoundEffects';
+import { deletePack, packMegabytes, packReady, pronBeta, setPronBeta } from '../lib/pronunciation/model/client';
 
 function SettingsPageContent() {
     const learnedCount = useLexicaStore(state => state.learnedWords.size);
@@ -37,6 +38,8 @@ function SettingsPageContent() {
                     <h1 className="text-md md:text-2xl font-bold text-ink ">Cài đặt</h1>
                     <div className="w-10 md:w-20" /> {/* spacer */}
                 </div>
+
+                <PronPackSetting />
 
                 {/* Settings Section */}
                 <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
@@ -250,6 +253,47 @@ function BackupStatus() {
                 reason="Đăng nhập để sao lưu tiến trình học và tiếp tục trên máy khác."
                 redirectPath="/settings"
             />
+        </div>
+    );
+}
+
+/** Testers only (phone scoring is behind a flag): the downloaded scoring pack, and turning the test off. */
+function PronPackSetting() {
+    const [state, setState] = useState<'hidden' | 'none' | 'ready'>('hidden');
+    useEffect(() => {
+        if (!pronBeta()) return;
+        void packReady().then((ok) => setState(ok ? 'ready' : 'none'));
+    }, []);
+    if (state === 'hidden') return null;
+    return (
+        <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
+            <p className="font-semibold text-ink">Chấm từng âm trên máy (thử nghiệm)</p>
+            <p className="mt-1 text-sm text-muted">
+                {state === 'ready' ? `Gói chấm đã tải (khoảng ${packMegabytes()}MB).` : 'Chưa tải gói chấm. Tải ở trang Luyện nói.'}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+                {state === 'ready' && (
+                    <button
+                        onClick={async () => {
+                            await deletePack();
+                            setState('none');
+                        }}
+                        className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                    >
+                        Xoá gói chấm
+                    </button>
+                )}
+                <button
+                    onClick={async () => {
+                        await deletePack();
+                        setPronBeta(false);
+                        setState('hidden');
+                    }}
+                    className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                >
+                    Tắt thử nghiệm
+                </button>
+            </div>
         </div>
     );
 }

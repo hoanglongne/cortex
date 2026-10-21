@@ -7,6 +7,8 @@ import { guessOptions, guessTurns, lineMatch, speakersOf, type Turn } from '../l
 import { NATURAL_VOICES, speakNatural } from '../lib/audio/AudioService';
 import { englishVoices, listenOnce, recognitionCtor, speakWith } from '../lib/pronunciation/speech';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
+import { alignAttempt } from '../lib/pronunciation/align';
+import AlignedLine from './pron/AlignedLine';
 
 /** Each speaker keeps one voice through the scene. */
 async function sayAs(text: string, speaker: number, slow = false): Promise<void> {
@@ -135,9 +137,12 @@ export default function DialogueScene({
                                     </button>
                                     {meaningOpen.has(i) && t.meaning && <p className="mt-1.5 text-sm text-muted">{t.meaning}</p>}
                                     {result && result !== 'skipped' && (
-                                        <p className={`mt-2 text-sm ${result.level === 'clear' ? 'text-accent' : 'text-muted'}`}>
-                                            {LEVEL[result.level]} · máy nghe: “{result.heard || '…'}”
-                                        </p>
+                                        <>
+                                            <p className={`mt-2 text-sm ${result.level === 'clear' ? 'text-accent' : 'text-muted'}`}>
+                                                {LEVEL[result.level]} · máy nghe: “{result.heard || '…'}”
+                                            </p>
+                                            {result.level !== 'clear' && <AlignedLine alignment={alignAttempt(t.line, [{ transcript: result.heard, confidence: 0 }])} />}
+                                        </>
                                     )}
                                 </>
                             )}

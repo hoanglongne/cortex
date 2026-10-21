@@ -6,7 +6,7 @@
  * consonant clusters (docs/LEXICA_FEEDBACK_TASKS.md T8).
  */
 
-export type ErrorKind = 'final_consonant' | 'th' | 'cluster' | 'ending' | 'long_short' | 'ch_j' | 'final_ng';
+export type ErrorKind = 'final_consonant' | 'final_voicing' | 'th' | 'cluster' | 'ending' | 'long_short' | 'ch_j' | 'final_ng' | 'final_l' | 'initial_z' | 'ae_e';
 
 /** Real minimal pairs per error, a few each. */
 export const MINIMAL_PAIRS: Record<ErrorKind, readonly [string, string][]> = {
@@ -17,6 +17,10 @@ export const MINIMAL_PAIRS: Record<ErrorKind, readonly [string, string][]> = {
     long_short: [['sheep', 'ship'], ['leave', 'live'], ['feet', 'fit'], ['seat', 'sit'], ['heel', 'hill']],
     ch_j: [['chip', 'ship'], ['cheap', 'sheep'], ['jeep', 'cheap'], ['watch', 'wash']],
     final_ng: [['thing', 'thin'], ['sing', 'sin'], ['wing', 'win'], ['ban', 'bang']],
+    final_voicing: [['bed', 'bet'], ['cab', 'cap'], ['bag', 'back'], ['prize', 'price'], ['leave', 'leaf']],
+    final_l: [['feel', 'fee'], ['bowl', 'bow'], ['mile', 'my'], ['seal', 'sea'], ['light', 'right']],
+    initial_z: [['zoo', 'sue'], ['zip', 'sip'], ['zeal', 'seal'], ['zone', 'sewn']],
+    ae_e: [['bad', 'bed'], ['man', 'men'], ['pan', 'pen'], ['bat', 'bet'], ['sad', 'said']],
 };
 
 /** Error kinds this word is exposed to, most important first. Sounds come from the IPA when there is one. */

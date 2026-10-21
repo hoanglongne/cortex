@@ -45,7 +45,7 @@
   - chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`;
   - kiểm tra project teach trên Vercel có `NEXT_PUBLIC_LEXICA_URL` (và `NEXT_PUBLIC_ORATIO_URL`).
 
-- PR #42, #43 (Đợt 3–5), #44 (thiết kế Đợt 6) đã merge. **PR #45** (Đợt 7, góp ý sau khi dùng thử) đang mở.
+- PR #42, #43 (Đợt 3–5), #44 (thiết kế Đợt 6) đã merge. **PR #45** đang mở: Đợt 7 (góp ý sau khi dùng thử), công cụ "Tạo theo kế hoạch" của Studio, và PR (a) của Đợt 6 (chấm phát âm mức 1–2).
   - Lexica có thanh điều hướng chung `components/AppNav.tsx` (trong layout). Trang mới: `/practice` (Luyện), `/me` (Tôi), `/settings`. `tabOf()` quyết định trang nào có thanh; trang phiên học, bài kiểm tra, thiết lập thì không.
   - Phiên Hôm nay có "lượt học thêm" (`/today?more=1`, `startExtraRound`), và có thể mở lại chặng Ôn/Học một lần khi lớp giao từ mới (`todayLog.again`).
   - Bài lớp giao chỉ tính từ khi được giao (`touchedSince` trong `lib/classes.ts`).
@@ -60,7 +60,12 @@
     - store thêm `sightings`, `hunt`, `tipsDismissed`, `checklistHidden`, nằm trong blob `lexica-storage` nên cũng được sao lưu qua cloudSync. Không gửi gì cho lớp học.
 
 ## Việc tiếp theo
-Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm không dùng AI). Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md`. Thử nghiệm mô hình chạy trên máy: `docs/LEXICA_PRONUNCIATION_SPIKE.md`, script ở `apps/lexica/scripts/pronunciation-spike/`. Hướng đã chốt (mục 9 của thiết kế). Việc tiếp theo là PR (a): mức 1 + gói chấm trên máy, ẩn sau cờ. Song song, người dùng cho 3–5 người ghi âm bằng trang `/ghi-am` của Lexica (quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md`); chạy `evalvi.py` trên các file zip nhận được để quyết định bật gói chấm.
+Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm). Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md`; thử nghiệm: `docs/LEXICA_PRONUNCIATION_SPIKE.md`.
+- **PR (a) đã làm** (trong PR #45): mức 1 (so từ trong cụm và câu mẫu), mức 2 (thư viện 11 lỗi, đoán qua từ máy nghe nhầm, gói chấm trên máy ẩn sau cờ `?pron=1`). Mã ở `apps/lexica/app/lib/pronunciation/` (`align.ts`, `phones.ts`, `sounds.ts`, `feedback.ts`, `model/`).
+- **Việc của người dùng:**
+  - đưa 3 file gói chấm lên Supabase Storage (`apps/lexica/scripts/pron-pack/README.md`);
+  - cho 3–5 người ghi âm bằng trang `/ghi-am` (quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md`), gửi file zip.
+- **Việc tiếp của dev:** chạy `evalvi.py` trên các file zip để quyết định bật gói chấm cho mọi người, rồi làm PR (b) (mức 3).
 - Đợt 5 và 6 cần người dùng duyệt hướng hoặc thiết kế trước khi code.
 - Thêm app vào lớp học: làm theo quy trình trong `docs/CLASSROOM.md`, bước 1 là hỏi người dùng giáo viên giao gì, xem gì, xếp hạng theo gì.
 

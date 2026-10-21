@@ -30,8 +30,8 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md` (PR #44). **Đã chốt hướng**: AI chạy trên máy, file mô hình trên Supabase, chỉ tải khi bấm, 3 PR, giáo viên thấy số lần sai theo nhóm âm.
 - [x] Bộ ghi âm kiểm định giọng Việt: trang `/ghi-am`, script `evalvi.py`, quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md` (PR #44). Việc của người dùng: tìm 3–5 người ghi, gửi file zip.
 - [x] Thử nghiệm mô hình: `docs/LEXICA_PRONUNCIATION_SPIKE.md` (PR #44). Chọn `whisper-base-en-phoneme-ctc` (MIT, 27MB int8, ~0,3–0,5 giây mỗi lần chấm). Còn kiểm trên giọng Việt và điện thoại thật.
-- [ ] PR (a) · Mức 1: so khớp từ với câu mẫu (từ thiếu, đổi, nhận sai; độ tin cậy, phương án nhận dạng khác).
-- [ ] PR (a) · Mức 2: chấm từng âm bằng mô hình trên máy (ẩn sau cờ tới khi qua kiểm định giọng Việt), âm vị qua CMU Pronouncing Dictionary; đoán âm sai; thư viện lỗi hay gặp của người Việt kèm cặp từ dễ nhầm.
+- [x] PR (a) · Mức 1: so khớp từ với câu mẫu (từ thiếu, đổi, nhận sai; độ tin cậy, phương án nhận dạng khác) (PR #45).
+- [x] PR (a) · Mức 2: chấm từng âm bằng mô hình trên máy (ẩn sau cờ tới khi qua kiểm định giọng Việt), âm vị qua CMU Pronouncing Dictionary; đoán âm sai; thư viện lỗi hay gặp của người Việt kèm cặp từ dễ nhầm (PR #45). Còn: người dùng đưa gói lên Supabase và gửi bản ghi giọng Việt.
 - [ ] PR (b) · Mức 3: Web Audio: năng lượng cuối từ (mất âm cuối), cao độ và độ dài (trọng âm, ngữ điệu), tốc độ, ngắt nghỉ; vẽ ngữ điệu so với giọng mẫu.
 - [ ] PR (c) · Mức 4: theo dõi âm hay sai theo thời gian, tự giao bài luyện, tóm tắt cho giáo viên.
 

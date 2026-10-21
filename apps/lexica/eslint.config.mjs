@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Generated service worker / workbox files
     "public/sw.js",
+    // onnxruntime-web's loader, copied as is (app/lib/pronunciation/model/pack.ts)
+    "public/pron/**",
     "public/workbox-*.js",
   ]),
 ]);

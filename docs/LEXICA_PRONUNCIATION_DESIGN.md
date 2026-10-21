@@ -1,6 +1,6 @@
 # Lexica: chấm phát âm trên máy người học (thiết kế Đợt 6)
 
-Trạng thái: **đã chốt hướng** (mục 9). Chưa có code app cho Đợt 6, chỉ có trang ghi âm kiểm định `/ghi-am`. Việc tiếp theo: PR (a), song song với ghi âm giọng Việt.
+Trạng thái: **PR (a) đã làm** (PR #45, mục 11): mức 1, mức 2 có gói chấm trên máy (ẩn sau cờ) và cách dự phòng 5.3. Việc tiếp theo: đưa gói lên Supabase, ghi âm giọng Việt, rồi PR (b).
 
 ## Tóm tắt (đọc phần này là đủ)
 - **Mục tiêu:** người học nói xong biết sai **ở âm nào** và **sửa thế nào**, không chỉ nhận "Chưa rõ".
@@ -295,3 +295,48 @@ Chạy trên bản ghi (`AudioBuffer`) sau khi nói xong, không chạy thời g
 - Mô hình chấm âm: https://huggingface.co/vb223/whisper-base-en-phoneme-ctc (MIT, dựa trên Whisper base.en của OpenAI, MIT)
 - Thử nghiệm và so sánh các mô hình: `docs/LEXICA_PRONUNCIATION_SPIKE.md`
 - Các nguồn HVPT, phản hồi cao độ và lỗi của người Việt: xem T8 trong `docs/LEXICA_FEEDBACK_TASKS.md`.
+
+## 11. Đã làm trong PR (a) (PR #45)
+
+### Mã
+Mọi file ở `apps/lexica/app/lib/pronunciation/`. Phần chấm đều là hàm thuần, có test.
+- `align.ts`: mức 1.
+- `phones.ts`: CMUdict rút gọn, đổi IPA sang ARPAbet, quy tắc trọng âm cho mô hình.
+- `sounds.ts`: thư viện 11 nhóm lỗi, đoán qua từ máy nghe nhầm, đọc kết quả mô hình.
+- `feedback.ts`: chọn tối đa 2 âm để báo.
+- `model/`: log-mel, căn CTC, GOP, bộ hồi quy, worker, tải và cache gói (`client.ts`).
+
+### Người học thấy gì
+- **Bước "Nghe mẫu rồi nói":** tối đa 2 âm "có thể chưa rõ", mỗi âm kèm mẹo sửa, nút nghe từ mẫu và cặp từ dễ nhầm.
+- **Bước "Nói trong cụm":** cả cụm hiện từng từ với dấu:
+  - gạch ngang: máy không nghe thấy;
+  - đỏ: máy nghe thành từ khác;
+  - gạch chấm: máy chưa chắc.
+- **Tình huống (thẻ Giao tiếp):** nút "Nói theo câu mẫu". Bấm thì người học đọc câu mẫu và thấy từng từ được đánh dấu. Câu tự đặt của người học vẫn không dùng làm mẫu.
+- **Đóng vai trong hội thoại:** câu chưa rõ hiện từng từ được đánh dấu.
+- **Gói chấm** (chỉ khi bật cờ):
+  - mời tải ở trang Luyện nói và sau mỗi lần nói;
+  - trang Cài đặt có nút xoá gói và tắt thử nghiệm.
+
+### Khác với thiết kế
+- **Trọng âm của từ một âm tiết.** Mô hình học trên speechocean762, nơi nguyên âm của từ một âm tiết ghi số 0; CMUdict ghi số 1. Đưa nguyên số 1 vào làm AUC giảm từ 0,92 xuống 0,80 (200 câu). App và `evalvi.py` đổi về 0 trước khi chấm (`modelPhones`). Từ nhiều âm tiết giữ trọng âm của CMUdict: kết quả gần như bằng nhãn gốc (AUC 0,880 so với 0,887).
+- **Gói tải về khoảng 38MB, không phải 27MB.** WebAssembly của onnxruntime (11,2MB) cũng tải khi người học bấm và lưu cùng mô hình. Nhờ vậy:
+  - lần sau chấm được khi không có mạng;
+  - không file nào của gói nằm trong bộ nhớ đệm lúc cài app.
+- **Từ điển** (`public/pron/cmudict-v1.json`, 337KB, nén còn khoảng 90KB):
+  - gồm 12.000 từ: mọi từ trong nội dung app (khoảng 4.000), cộng các từ thông dụng nhất theo bảng đếm của Peter Norvig (MIT);
+  - tải khi mở trang Luyện nói, không nằm trong bộ nhớ đệm lúc cài.
+- **Ghép từ ở mức 1.** Từ gần giống (như *think* / *sink*) ghép thành "nghe thành từ khác". Từ hoàn toàn khác thì tính là thiếu một từ, thừa một từ.
+
+### Đã kiểm
+- **So với Python:**
+  - log-mel: lệch tối đa 0,002;
+  - căn âm: khớp đúng từng khung với torchaudio;
+  - đặc trưng GOP và điểm: khớp;
+  - bộ hồi quy: khớp scikit-learn trên 100 dòng.
+- **Chạy trong Chromium** (onnxruntime-web, 1 luồng):
+  - 200 câu ngắn của speechocean762, 3.522 âm: AUC 0,905, so với 0,907 khi chạy bằng Python;
+  - tương quan điểm 0,98, chênh trung bình 0,017;
+  - mỗi lần chấm: log-mel 76ms, mô hình 454ms.
+- **Trong app** (Playwright, micro giả): tải gói, kiểm sha256, lưu cache, worker chấm, hiện mẹo.
+- **Chưa kiểm:** điện thoại thật, giọng Việt.
