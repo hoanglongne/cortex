@@ -30,7 +30,20 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md` (PR #44). **Đã chốt hướng**: AI chạy trên máy, file mô hình trên Supabase, chỉ tải khi bấm, 3 PR, giáo viên thấy số lần sai theo nhóm âm.
 - [x] Bộ ghi âm kiểm định giọng Việt: trang `/ghi-am`, script `evalvi.py`, quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md` (PR #44). Việc của người dùng: tìm 3–5 người ghi, gửi file zip.
 - [x] Thử nghiệm mô hình: `docs/LEXICA_PRONUNCIATION_SPIKE.md` (PR #44). Chọn `whisper-base-en-phoneme-ctc` (MIT, 27MB int8, ~0,3–0,5 giây mỗi lần chấm). Còn kiểm trên giọng Việt và điện thoại thật.
-- [ ] PR (a) · Mức 1: so khớp từ với câu mẫu (từ thiếu, đổi, nhận sai; độ tin cậy, phương án nhận dạng khác).
-- [ ] PR (a) · Mức 2: chấm từng âm bằng mô hình trên máy (ẩn sau cờ tới khi qua kiểm định giọng Việt), âm vị qua CMU Pronouncing Dictionary; đoán âm sai; thư viện lỗi hay gặp của người Việt kèm cặp từ dễ nhầm.
+- [x] PR (a) · Mức 1: so khớp từ với câu mẫu (từ thiếu, đổi, nhận sai; độ tin cậy, phương án nhận dạng khác) (PR #45).
+- [x] PR (a) · Mức 2: chấm từng âm bằng mô hình trên máy (ẩn sau cờ tới khi qua kiểm định giọng Việt), âm vị qua CMU Pronouncing Dictionary; đoán âm sai; thư viện lỗi hay gặp của người Việt kèm cặp từ dễ nhầm (PR #45). Còn: người dùng đưa gói lên Supabase và gửi bản ghi giọng Việt.
 - [ ] PR (b) · Mức 3: Web Audio: năng lượng cuối từ (mất âm cuối), cao độ và độ dài (trọng âm, ngữ điệu), tốc độ, ngắt nghỉ; vẽ ngữ điệu so với giọng mẫu.
 - [ ] PR (c) · Mức 4: theo dõi âm hay sai theo thời gian, tự giao bài luyện, tóm tắt cho giáo viên.
+
+## Đợt 7: góp ý sau khi dùng thử (PR #45)
+- [x] Buddy: làm lại (tuần học 7 ngày của từng bạn, xếp hạng tuần, nhắc bạn học, mời bằng link); hoạt động gửi lên từ mọi trang; bỏ nút đặt mật khẩu.
+- [x] Hội thoại trong Đọc: chế độ Từng lượt (giọng riêng mỗi người, đoán ý câu tiếp), Đóng vai (nói câu của một nhân vật), Cả bài.
+- [x] Thanh điều hướng điện thoại ở mọi trang chính: Hôm nay, Luyện, Từ của tôi, Album, Tôi.
+- [x] Thống kê từ dữ liệu thật: 7 ngày so với tuần trước, bốn bước 30 ngày, lịch ngày học, lịch ôn, từ cần chú ý. Cài đặt tách ra `/settings`.
+- [x] Lỗi: vào lớp bị tính đã học xong bài (bài chỉ tính từ khi được giao).
+- [x] Lỗi: luyện nói lặp nội dung (nhớ lúc luyện từng từ, đổi nhóm từ, cặp nghe và cụm).
+- [x] Lỗi: Học thêm sau phiên đầu không có Đọc và Nói (thêm lượt học thêm đủ 4 chặng).
+- [x] Trang chủ gọn lại, có phần Từ vừa học; danh sách luyện chuyển sang tab Luyện.
+- [x] Kế hoạch 100 bài đọc: `docs/LEXICA_READING_PLAN.md`.
+- [x] Công cụ "Tạo theo kế hoạch" trong Studio (trang Đọc): bảng đã có / chờ / thiếu, nút "Viết 5 bài còn thiếu"; sự kiện `today_stage` có thêm nguồn bài đọc (PR #45). Việc tiếp: biên tập viên viết và duyệt (bước 2).
+

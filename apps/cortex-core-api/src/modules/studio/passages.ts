@@ -310,3 +310,146 @@ export function passagesPath(body: string): { path: string; hash: string } {
   const hash = createHash('sha256').update(body, 'utf8').digest('hex');
   return { path: `packs/passages.${hash.slice(0, 12)}.json`, hash };
 }
+
+// ------------------------------------------------ the 100-passage plan
+// docs/LEXICA_READING_PLAN.md: targets per kind × level, counting the
+// passages already bundled in Lexica (apps/lexica/app/data/passages.ts).
+
+export const PASSAGE_PLAN: Record<PassageKind, Record<PassageLevel, number>> = {
+  text: { beginner: 18, intermediate: 20, advanced: 14, expert: 8 },
+  dialogue: { beginner: 16, intermediate: 16, advanced: 8, expert: 0 },
+};
+
+export interface PlanItem {
+  kind: PassageKind;
+  level: PassageLevel;
+  topic: string;
+}
+
+/** The passages bundled in the app; keep in step with Lexica's data/passages.ts. */
+export const BUNDLED_PASSAGES: readonly PlanItem[] = [
+  ['text', 'beginner', 'Công việc'],
+  ['text', 'beginner', 'Tiền bạc'],
+  ['text', 'beginner', 'Đời sống'],
+  ['text', 'beginner', 'Sức khoẻ'],
+  ['text', 'intermediate', 'Công việc'],
+  ['text', 'intermediate', 'Giáo dục'],
+  ['text', 'intermediate', 'Xã hội'],
+  ['text', 'advanced', 'Tiền bạc'],
+  ['text', 'advanced', 'Đời sống'],
+  ['text', 'expert', 'Môi trường'],
+  ['dialogue', 'beginner', 'Đời sống'],
+  ['dialogue', 'beginner', 'Du lịch'],
+  ['dialogue', 'intermediate', 'Công việc'],
+  ['dialogue', 'intermediate', 'Đời sống'],
+].map(([kind, level, topic]) => ({
+  kind: kind as PassageKind,
+  level: level as PassageLevel,
+  topic,
+}));
+
+/** Everyday situations dialogues lean towards. */
+const DIALOGUE_TOPICS = ['Đời sống', 'Du lịch', 'Công việc', 'Tiền bạc'];
+
+export interface PlanCell {
+  kind: PassageKind;
+  level: PassageLevel;
+  target: number;
+  bundled: number;
+  approved: number;
+  pending: number;
+  missing: number;
+}
+
+type PlanRow = Pick<PassageRow, 'level' | 'topic' | 'status'> & {
+  kind?: PassageKind | null;
+};
+
+const kindOf = (r: { kind?: PassageKind | null }): PassageKind =>
+  r.kind === 'dialogue' ? 'dialogue' : 'text';
+
+/** One cell per kind × level with a target: what is there and what is missing. */
+export function planCells(stored: readonly PlanRow[]): PlanCell[] {
+  const out: PlanCell[] = [];
+  for (const kind of PASSAGE_KINDS)
+    for (const level of PASSAGE_LEVELS) {
+      const target = PASSAGE_PLAN[kind][level];
+      if (target === 0) continue;
+      const here = (r: { level: string } & { kind?: PassageKind | null }) =>
+        kindOf(r) === kind && r.level === level;
+      const bundled = BUNDLED_PASSAGES.filter(here).length;
+      const approved = stored.filter(
+        (r) => here(r) && r.status === 'approved',
+      ).length;
+      const pending = stored.filter(
+        (r) => here(r) && r.status === 'pending',
+      ).length;
+      out.push({
+        kind,
+        level,
+        target,
+        bundled,
+        approved,
+        pending,
+        missing: Math.max(0, target - bundled - approved - pending),
+      });
+    }
+  return out;
+}
+
+/** Passages per topic of one kind (bundled and not rejected). */
+export function topicCounts(
+  stored: readonly PlanRow[],
+  kind: PassageKind,
+): Record<string, number> {
+  const counts = Object.fromEntries(PASSAGE_TOPICS.map((t) => [t, 0]));
+  for (const r of [...BUNDLED_PASSAGES, ...stored])
+    if (
+      kindOf(r) === kind &&
+      (!('status' in r) || r.status !== 'rejected') &&
+      r.topic in counts
+    )
+      counts[r.topic] += 1;
+  return counts;
+}
+
+/**
+ * The next `count` passages to write: each from the cell missing the most
+ * (lower levels first on a tie), on the topic that cell uses least, then
+ * the topic its kind uses least. Dialogues lean towards everyday topics.
+ */
+export function nextFromPlan(
+  stored: readonly PlanRow[],
+  count: number,
+): PlanItem[] {
+  const rowsSoFar: PlanRow[] = stored.filter((r) => r.status !== 'rejected');
+  const out: PlanItem[] = [];
+  for (let i = 0; i < count; i++) {
+    const cell = planCells(rowsSoFar)
+      .filter((c) => c.missing > 0)
+      .sort(
+        (a, b) =>
+          b.missing - a.missing ||
+          PASSAGE_LEVELS.indexOf(a.level) - PASSAGE_LEVELS.indexOf(b.level),
+      )[0];
+    if (!cell) break;
+    const { kind, level } = cell;
+    const all = [...BUNDLED_PASSAGES, ...rowsSoFar];
+    const inCell = (t: string) =>
+      all.filter(
+        (r) => kindOf(r) === kind && r.level === level && r.topic === t,
+      ).length;
+    const byKind = topicCounts(rowsSoFar, kind);
+    // A preferred dialogue topic counts as half used, so it comes up about twice as often.
+    const weight = (t: string) =>
+      kind === 'dialogue' && DIALOGUE_TOPICS.includes(t) ? 0.5 : 1;
+    const topic = [...PASSAGE_TOPICS].sort(
+      (a, b) =>
+        inCell(a) * weight(a) - inCell(b) * weight(b) ||
+        byKind[a] * weight(a) - byKind[b] * weight(b),
+    )[0];
+    out.push({ kind, level, topic });
+    rowsSoFar.push({ kind, level, topic, status: 'pending' });
+  }
+  return out;
+}

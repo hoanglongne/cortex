@@ -23,6 +23,17 @@ import whisper  # noqa: E402
 import modeling_whisper_phoneme as mw  # noqa: E402
 
 CTX_S = 5
+VOWELS = {'AA', 'AE', 'AH', 'AO', 'AW', 'AY', 'EH', 'ER', 'EY', 'IH', 'IY', 'OW', 'OY', 'UH', 'UW'}
+
+
+def model_phones(phones):
+    """Same rule as the app (lib/pronunciation/phones.ts, modelPhones): the model learned
+    speechocean762's stress marks, where a one-syllable word's vowel is 0, while CMUdict
+    writes 1. Feeding 1 there drops accuracy sharply."""
+    vowels = [p for p in phones if p.rstrip('012') in VOWELS]
+    if len(vowels) != 1:
+        return phones
+    return [p.rstrip('012') + '0' if p.rstrip('012') in VOWELS else p for p in phones]
 
 
 def model_5s():
@@ -62,7 +73,7 @@ def main():
             if a.ndim > 1:
                 a = a.mean(1)
             a = trim(a)[: CTX_S * 16000]
-            phones = r['am_mau'].split()
+            phones = model_phones(r['am_mau'].split())
             try:
                 scores = [p['score'] for p in m.score_utterance(a, phones)]
             except ValueError as e:

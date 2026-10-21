@@ -87,7 +87,16 @@ Chromium (Playwright), onnxruntime-web 1.22, WASM, máy chủ thử nghiệm 4 v
 
 Bộ nhớ heap JS khi chạy Whisper 5 giây khoảng 30MB; Speako khoảng 360MB.
 
-## Phần còn phải viết bằng JS khi làm thật
+## Sau thử nghiệm (PR a, 21/10/2026)
+
+- **Bản JS chạy trong trình duyệt chính xác như Python.**
+  - 200 câu ngắn, 3.522 âm: AUC 0,905 trong Chromium, so với 0,907 khi chạy bằng Python.
+  - Tương quan điểm 0,98.
+  - Thỉnh thoảng một âm lệch tới 0,35 điểm, do phép nhân int8 của onnxruntime-web khác bản Python.
+- **Trọng âm của từ một âm tiết phải ghi 0** như speechocean762. Ghi 1 như CMUdict làm AUC giảm từ 0,92 xuống 0,80.
+- Mã thật nằm ở `apps/lexica/app/lib/pronunciation/model/`. Cách tạo gói: `apps/lexica/scripts/pron-pack/README.md`.
+
+## Phần còn phải viết bằng JS khi làm thật (đã làm trong PR a)
 
 - **Log-mel của Whisper:** STFT 400/160, 80 dải mel, log10, kẹp ở max − 8, chuẩn hoá (x + 4) / 4. Transformers.js có sẵn `WhisperFeatureExtractor`; tự viết thì khoảng 80 dòng.
 - **Căn CTC** (Viterbi theo chuỗi âm mẫu, có blank) và đặc trưng GOP: khoảng 80 dòng thuần, test được bằng vitest.

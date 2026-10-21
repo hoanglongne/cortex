@@ -1,4 +1,5 @@
 import { getSupabaseClient } from './supabase';
+import { localDate } from './engagement/ghost';
 
 export interface DailyActivity {
     user_id: string;
@@ -31,10 +32,18 @@ export interface BuddyInfo {
     today: DailyActivity | null; // bạn bè học gì hôm nay
 }
 
+export const MAX_BUDDIES = 5;
+
 // ── Helpers ─────────────────────────────────────────────
 
+/** The learner's own calendar day: a day starts at midnight where they are, not in UTC. */
 function todayDate(): string {
-    return new Date().toISOString().split('T')[0];
+    return localDate();
+}
+
+/** The local dates of the last `n` days, oldest first. */
+export function lastDays(n: number, now = Date.now()): string[] {
+    return Array.from({ length: n }, (_, i) => localDate(now - (n - 1 - i) * 86_400_000));
 }
 
 function generateCode(len = 6): string {
@@ -118,46 +127,28 @@ export async function acceptInvite(
 /** Lấy danh sách buddies kèm hoạt động hôm nay */
 export async function getMyBuddies(userId: string): Promise<BuddyInfo[]> {
     const supabase = getSupabaseClient();
-    if (!supabase) {
-        console.log('No supabase client');
-        return [];
-    }
-
-    console.log('Fetching buddy pairs for user:', userId);
-    const { data: pairs, error: pairsError } = await supabase
+    if (!supabase) return [];
+    const { data: pairs } = await supabase
         .from('buddy_pairs')
         .select('*')
         .or(`user_a_id.eq.${userId},user_b_id.eq.${userId}`);
 
-    console.log('Pairs query results:', { data: pairs, error: pairsError });
-
-    if (!pairs || pairs.length === 0) {
-        console.log('No buddy pairs found');
-        return [];
-    }
+    if (!pairs || pairs.length === 0) return [];
 
     const buddyIds = pairs.map((p: BuddyPair) => (p.user_a_id === userId ? p.user_b_id : p.user_a_id));
 
     // Get profiles and activities in parallel
-    console.log('Fetching profiles for buddy IDs:', buddyIds);
     const [profilesRes, activityRes] = await Promise.all([
         // Other people's profiles are readable only through this view (no email)
         supabase.from('public_profiles')
             .select('id, nickname')
-            .or(buddyIds.map(id => `id.eq.${id}`).join(','))
-            .then(res => {
-                if (res.error) console.error('Profile query error:', res.error);
-                return res;
-            }),
+            .or(buddyIds.map(id => `id.eq.${id}`).join(',')),
         supabase
             .from('daily_activity')
             .select('*')
             .in('user_id', buddyIds)
             .eq('date', todayDate())
     ]);
-
-    console.log('Profiles query results:', profilesRes);
-    console.log('Activities query results:', activityRes);
 
     const profiles: Record<string, { nickname: string }> = {};
     for (const p of (profilesRes.data ?? [])) {
@@ -178,8 +169,6 @@ export async function getMyBuddies(userId: string): Promise<BuddyInfo[]> {
             today: activities[buddyId] ?? null,
         };
     });
-
-    console.log('Final mapped buddy data:', result);
     return result;
 }
 
@@ -188,8 +177,7 @@ export async function checkAndUpdateDuoStreak(pairId: string, userAId: string, u
     const supabase = getSupabaseClient();
     if (!supabase) return;
 
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = todayDate();
 
     // Check today's activities first
     const { data: todayActs } = await supabase
@@ -222,3 +210,30 @@ export async function removeBuddy(pairId: string): Promise<void> {
     const supabase = getSupabaseClient();
     await supabase?.from('buddy_pairs').delete().eq('id', pairId);
 }
+
+/** Each person's activity on each of the last `days` days: { userId: { date: activity } }. */
+export async function getWeek(userIds: string[], days = 7): Promise<Record<string, Record<string, DailyActivity>>> {
+    const supabase = getSupabaseClient();
+    const out: Record<string, Record<string, DailyActivity>> = {};
+    if (!supabase || userIds.length === 0) return out;
+    const dates = lastDays(days);
+    const { data } = await supabase.from('daily_activity').select('*').in('user_id', userIds).gte('date', dates[0]).lte('date', dates[dates.length - 1]);
+    for (const a of (data ?? []) as DailyActivity[]) (out[a.user_id] ??= {})[a.date] = a;
+    return out;
+}
+
+/** Days studied and words learned over the week, best first: a friendly ranking of the learner and their buddies. */
+export function weekRanking(people: { id: string; name: string }[], week: Record<string, Record<string, DailyActivity>>): { id: string; name: string; days: number; words: number }[] {
+    return people
+        .map((p) => {
+            const acts = Object.values(week[p.id] ?? {});
+            return { ...p, days: acts.filter((a) => a.words_swiped > 0 || a.goal_met).length, words: acts.reduce((n, a) => n + (a.words_learned_today ?? 0), 0) };
+        })
+        .sort((a, b) => b.days - a.days || b.words - a.words || a.name.localeCompare(b.name, 'vi'));
+}
+
+/** A link that opens Buddy with the invite code ready to accept. */
+export const inviteLink = (code: string, origin: string) => `${origin}/buddy?code=${encodeURIComponent(code)}`;
+
+/** A friendly nudge for a buddy who has not studied today. */
+export const nudgeText = (name: string, origin: string) => `${name} ơi, hôm nay mình học Lexica rồi, còn bạn? Vào giữ chuỗi đôi nhé: ${origin}`;

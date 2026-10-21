@@ -14,8 +14,14 @@ import {
   buildPassagesFile,
   checkPassage,
   deckWordsIn,
+  DIALOGUE_WORDS,
   NEW_WORDS,
+  nextFromPlan,
   PASSAGE_KINDS,
+  PASSAGE_PLAN,
+  PASSAGE_WORDS,
+  planCells,
+  topicCounts,
   parsePassageReply,
   PASSAGE_LEVELS,
   PASSAGE_PROMPT_VERSION,
@@ -43,18 +49,19 @@ const message = (err: unknown) =>
   err instanceof Error ? err.message : String(err);
 
 const RULE_TEXT: Record<string, string> = {
-  length: 'độ dài phải 120–200 từ',
   translation: 'thiếu bản dịch',
   title: 'thiếu tiêu đề',
   blocklist: 'chạm danh sách chặn',
   dialogue: 'không đúng dạng hội thoại "Tên: câu nói"',
 };
-const describe = (failed: string[]) =>
+const describe = (failed: string[], kind: PassageKind) =>
   failed
     .map((f) =>
       f.startsWith('missing:')
         ? `thiếu từ ${f.slice(8).replace(/\//g, ', ')}`
-        : (RULE_TEXT[f] ?? f),
+        : f === 'length'
+          ? `độ dài phải ${(kind === 'dialogue' ? DIALOGUE_WORDS : PASSAGE_WORDS).join('–')} từ`
+          : (RULE_TEXT[f] ?? f),
     )
     .join(', ');
 
@@ -169,7 +176,7 @@ export class PassagesService {
     const failed = checkPassage(draft, words, blocklist, kind);
     // Saved anyway when only the length is a little off: the editor can fix it.
     if (failed.some((f) => f !== 'length'))
-      return { saved: 0, failed: describe(failed) };
+      return { saved: 0, failed: describe(failed, kind) };
     const res = await db
       .from('studio_passages')
       .insert({
@@ -200,7 +207,7 @@ export class PassagesService {
     return {
       saved: 1,
       id: (res.data as { id: string }).id,
-      ...(failed.length > 0 ? { note: describe(failed) } : {}),
+      ...(failed.length > 0 ? { note: describe(failed, kind) } : {}),
     };
   }
 
@@ -267,7 +274,9 @@ export class PassagesService {
         kind,
       );
       if (failed.length > 0)
-        throw new BadRequestException(`Đoạn văn chưa đạt: ${describe(failed)}`);
+        throw new BadRequestException(
+          `Đoạn văn chưa đạt: ${describe(failed, kind)}`,
+        );
       Object.assign(patch, next, {
         words: deckWordsIn(next.text, cards, row.new_words),
       });
@@ -298,6 +307,100 @@ export class PassagesService {
           list.filter((p) => p.status === 'approved' && p.level === l).length,
         ]),
       ),
+    };
+  }
+
+  /** Passages saved in the last 24 hours plus card generations: the shared daily cap. */
+  private async usedToday(db: Db): Promise<number> {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const [cards, passages] = await Promise.all([
+      this.studio.generationsToday(db),
+      db
+        .from('studio_passages')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', since),
+    ]);
+    if (passages.error)
+      throw new InternalServerErrorException(
+        `Lỗi database: ${passages.error.message}`,
+      );
+    return cards + (passages.count ?? 0);
+  }
+
+  private async planRows(db: Db) {
+    return rows<Pick<PassageRow, 'kind' | 'level' | 'topic' | 'status'>>(
+      await db
+        .from('studio_passages')
+        .select('kind, level, topic, status')
+        .neq('status', 'rejected'),
+    );
+  }
+
+  /** The 100-passage plan (docs/LEXICA_READING_PLAN.md): each cell, topics per kind, today's cap. */
+  async plan(db: Db) {
+    const [stored, used] = await Promise.all([
+      this.planRows(db),
+      this.usedToday(db),
+    ]);
+    const cells = planCells(stored);
+    const sum = (f: (c: (typeof cells)[number]) => number) =>
+      cells.reduce((n, c) => n + f(c), 0);
+    return {
+      cells,
+      total: {
+        target: sum((c) => c.target),
+        done: sum((c) => c.bundled + c.approved),
+        pending: sum((c) => c.pending),
+        missing: sum((c) => c.missing),
+      },
+      topics: Object.fromEntries(
+        PASSAGE_KINDS.map((k) => [k, topicCounts(stored, k)]),
+      ),
+      next: nextFromPlan(stored, 5),
+      usedToday: used,
+      maxPerDay: this.studio.maxGenerationsPerDay,
+      levels: PASSAGE_PLAN,
+    };
+  }
+
+  /**
+   * Writes the next `count` passages the plan is missing, one by one, and
+   * stops at the daily cap. A failed one is reported and the rest go on.
+   */
+  async generateFromPlan(db: Db, userId: string | null, count: number) {
+    const n = Math.min(5, Math.max(1, Math.floor(count) || 1));
+    const [stored, used] = await Promise.all([
+      this.planRows(db),
+      this.usedToday(db),
+    ]);
+    const picks = nextFromPlan(stored, n);
+    const left = this.studio.maxGenerationsPerDay - used;
+    const results: ({
+      kind: PassageKind;
+      level: PassageLevel;
+      topic: string;
+    } & (
+      | { saved: 1; id: string; note?: string }
+      | { saved: 0; failed: string }
+    ))[] = [];
+    for (const [i, pick] of picks.entries()) {
+      if (i >= left) break;
+      try {
+        const r = await this.generate(db, userId, pick);
+        results.push({ ...pick, ...r } as (typeof results)[number]);
+      } catch (err) {
+        results.push({ ...pick, saved: 0, failed: message(err) });
+      }
+    }
+    return {
+      results,
+      saved: results.filter((r) => r.saved === 1).length,
+      ...(picks.length > Math.max(0, left)
+        ? {
+            stopped: `Đã chạm trần ${this.studio.maxGenerationsPerDay} lượt viết trong 24 giờ`,
+          }
+        : {}),
+      ...(picks.length === 0 ? { stopped: 'Kế hoạch đã đủ bài' } : {}),
     };
   }
 

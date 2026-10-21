@@ -1,13 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getCard, useContentVersion } from '../lib/content/repository';
 import { hardToSay, pickDrillWords } from '../lib/pronunciation/drill';
 import { recognitionCtor } from '../lib/pronunciation/speech';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
 import SpeakDrill from '../components/SpeakDrill';
+import { PackOffer } from '../components/pron/SoundTips';
+import { setPronBeta } from '../lib/pronunciation/model/client';
+import { loadDict } from '../lib/pronunciation/phones';
 
 /**
  * "Luyện nói 2 phút" (docs/LEXICA_FEEDBACK_TASKS.md T8): five words, three
@@ -20,10 +23,31 @@ export default function SpeakPage() {
     useContentVersion();
     const progress = useLexicaStore((s) => s.cardProgress);
     const misses = useLexicaStore((s) => s.speakMisses);
+    const spokenAt = useLexicaStore((s) => s.spokenAt);
+    const journeys = useLexicaStore((s) => s.journeys);
     const [words, setWords] = useState<string[] | null>(null);
     const [run, setRun] = useState(0);
+    // Fixed while the page is open, so the suggested words do not reshuffle under the learner.
+    const [now] = useState(() => Date.now());
+    const [beta, setBeta] = useState(0);
 
-    const suggested = useMemo(() => pickDrillWords(progress, misses), [progress, misses]);
+    useEffect(() => {
+        // Phone scoring stays hidden until it passes the Vietnamese-voice check: `?pron=1` turns it on for a tester.
+        const flag = new URLSearchParams(window.location.search).get('pron');
+        if (flag === '1' || flag === '0') {
+            setPronBeta(flag === '1');
+            const t = setTimeout(() => setBeta((b) => b + 1), 0);
+            return () => clearTimeout(t);
+        }
+    }, []);
+    useEffect(() => {
+        void loadDict();
+    }, []);
+
+    const suggested = useMemo(
+        () => pickDrillWords(progress, misses, now, undefined, { spokenAt, said: (id) => Boolean(journeys[id]?.usedAt), seed: Math.floor(now / 60_000) }),
+        [progress, misses, now, spokenAt, journeys],
+    );
     const hard = hardToSay(misses).filter((h) => getCard(h.cardId));
 
     const start = (ids: string[]) => {
@@ -42,7 +66,16 @@ export default function SpeakPage() {
                     <div className="w-12" />
                 </div>
 
-                {!words ? <Intro suggested={suggested} hard={hard} onStart={start} /> : <SpeakDrill key={run} words={words} onRestart={start} />}
+                {!words ? (
+                    <>
+                        <Intro suggested={suggested} hard={hard} onStart={start} />
+                        <div className="mt-4">
+                            <PackOffer key={beta} />
+                        </div>
+                    </>
+                ) : (
+                    <SpeakDrill key={run} words={words} onRestart={start} />
+                )}
             </div>
         </div>
     );
@@ -55,7 +88,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
             <div className="rounded-2xl border border-line bg-surface p-5">
                 <h1 className="text-xl font-semibold text-ink">Luyện nói 2 phút</h1>
                 <p className="mt-2 text-sm text-muted">
-                    5 từ bạn vừa học hoặc đến hạn. Mỗi từ 3 bước ngắn: nghe phân biệt âm gần giống, nghe mẫu rồi nói và xem máy nghe được gì, rồi một mẹo và nói trong cụm.
+                    5 từ bạn đã học, mỗi lần một nhóm khác: từ chưa nói rõ và lâu chưa luyện trước. Mỗi từ 3 bước ngắn: nghe phân biệt âm gần giống, nghe mẫu rồi nói và xem máy nghe được gì, rồi một mẹo và nói trong cụm.
                 </p>
                 {suggested.length > 0 ? (
                     <>

@@ -86,6 +86,8 @@ export interface Attempt {
     alternatives: Alternative[];
     /** Object URL of the learner's recording, when recording worked. */
     audioUrl: string | null;
+    /** The recording as 16 kHz samples, for phone scoring on the device. */
+    samples?: Float32Array;
     /** Pitch per ~40 ms frame (null = unvoiced). */
     pitch: (number | null)[];
     /** The recording had a voice in it (louder than the room). */
@@ -220,7 +222,7 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
     const take = rec.stop();
     stream.getTracks().forEach((t) => t.stop());
     const audioUrl = take.wav ? URL.createObjectURL(take.wav) : null;
-    const base = { audioUrl, pitch: take.pitch, voiced: take.voiced };
+    const base = { audioUrl, pitch: take.pitch, voiced: take.voiced, samples: take.samples ?? undefined };
     if (browser.alternatives.length > 0) return { ...browser, ...base };
     if (!take.voiced || !take.wav) return { alternatives: [], error: browser.error ?? 'no-speech', ...base };
     if (!server) return { ...browser, ...base };
@@ -310,11 +312,11 @@ export function startRecording(stream: MediaStream) {
     return {
         /** A voice was heard, then `ms` of quiet. */
         silentAfterVoice: (ms: number) => voicedFrames >= 3 && performance.now() - lastVoice > ms,
-        stop(): { wav: Blob | null; pitch: (number | null)[]; voiced: boolean } {
+        stop(): { wav: Blob | null; samples: Float32Array | null; pitch: (number | null)[]; voiced: boolean } {
             void ctx?.close();
-            if (!ctx || chunks.length === 0) return { wav: null, pitch, voiced: false };
+            if (!ctx || chunks.length === 0) return { wav: null, samples: null, pitch, voiced: false };
             const samples = downsample(chunks, sampleRate, RATE);
-            return { wav: encodeWav(samples, RATE), pitch, voiced: voicedFrames >= 3 };
+            return { wav: encodeWav(samples, RATE), samples, pitch, voiced: voicedFrames >= 3 };
         },
     };
 }

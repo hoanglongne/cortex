@@ -94,7 +94,7 @@ export default function EngagementSync() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
-                    className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 rounded-full border border-accent/40 bg-surface px-4 py-2 text-sm text-ink shadow-lg"
+                    className="fixed bottom-24 lg:bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 rounded-full border border-accent/40 bg-surface px-4 py-2 text-sm text-ink shadow-lg"
                     role="status"
                 >
                     <Gift className="w-4 h-4 text-accent" /> {toast}

@@ -97,7 +97,7 @@ describe('three-level score', () => {
 const prog = (id: string, lastReviewedAt: number, nextReviewAt: number): UserCardProgress => ({ cardId: id, state: 'sprout', lastReviewedAt, nextReviewAt, reviewCount: 1, wrongCount: 0 });
 
 describe('the drill words', () => {
-    it('takes hard-to-say words, then due ones, then the most recent, five at most', () => {
+    it('takes hard-to-say words, then due ones, then others, five at most', () => {
         const now = 1000;
         const progress = {
             a: prog('a', 10, 5000),
@@ -108,7 +108,24 @@ describe('the drill words', () => {
             f: prog('f', 700, 5000),
             g: prog('g', 600, 5000),
         };
-        expect(pickDrillWords(progress, { a: 2, zzz: 5 }, now)).toEqual(['a', 'c', 'b', 'd', 'e']);
+        const first = pickDrillWords(progress, { a: 2, zzz: 5 }, now);
+        expect(first.slice(0, 3)).toEqual(['a', 'c', 'b']);
+        expect(first).toHaveLength(5);
+    });
+
+    it('changes from one practice to the next', () => {
+        const now = Date.parse('2026-10-20T12:00:00');
+        const progress = Object.fromEntries(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'].map((id, i) => [id, prog(id, now - i * 1000, now + 86_400_000)]));
+        const first = pickDrillWords(progress, {}, now, 5, { seed: 1 });
+        // the words just practised rest for a few days
+        const spokenAt = Object.fromEntries(first.map((id) => [id, now]));
+        const second = pickDrillWords(progress, {}, now + 3_600_000, 5, { spokenAt, seed: 2 });
+        expect(second.filter((id) => first.includes(id))).toEqual([]);
+        // words already said clearly come after the others
+        const said = pickDrillWords(progress, {}, now, 5, { said: (id) => id !== 'j', seed: 3 });
+        expect(said[0]).toBe('j');
+        // a hard word practised today waits until tomorrow
+        expect(pickDrillWords(progress, { c: 3 }, now, 5, { spokenAt: { c: now - 1000 } })[0]).not.toBe('c');
     });
 
     it('keeps a word on the hard-to-say list until it is said clearly', () => {

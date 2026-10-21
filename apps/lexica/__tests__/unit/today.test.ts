@@ -1,11 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { logFor, newWordsLeft, pickPassage, wordsToRead, pickQuoteWord, pickSpeakWords, planLine, planToday, REVIEW_CAP, reviewIds, stepDelta } from '../../app/lib/journey/today';
+import { EXTRA_WORDS, extraNewLeft, learnSize, logFor, newWordsLeft, pickPassage, wordsToRead, pickQuoteWord, pickSpeakWords, planLine, planToday, REVIEW_CAP, reviewIds, stepDelta } from '../../app/lib/journey/today';
 import { currentDay, dueCheckpoint, expectedBy, finalTestWords, finishLine, mostMissed, nextLevel, pathCells, pathDays } from '../../app/lib/journey/path';
 import { knownAlready, meet, sayClearly, understand, type Journeys } from '../../app/lib/journey/steps';
 
 const zero = { hieu: 0, nho: 0, gap: 0, dung: 0 };
 
 describe('Today plan', () => {
+    it('sizes Học with class lessons and extra rounds', () => {
+        // an "only" lesson is the whole stage
+        expect(learnSize({ newLeft: 10, pending: 3, onlyPending: 3 })).toBe(3);
+        expect(learnSize({ newLeft: 0, pending: 4, onlyPending: 4 })).toBe(4);
+        // a lesson given after the pace was reached still gets its stage
+        expect(learnSize({ newLeft: 0, pending: 30, onlyPending: 0 })).toBe(EXTRA_WORDS);
+        expect(learnSize({ newLeft: 8, pending: 2, onlyPending: 0 })).toBe(8);
+        // an extra round counts its own words
+        expect(extraNewLeft(14, 10)).toBe(EXTRA_WORDS - 4);
+        expect(extraNewLeft(30, 10)).toBe(0);
+    });
+
+    it('reopens a stage a class lesson arrived after', () => {
+        const log = { date: '2026-10-20', done: ['review', 'learn', 'read', 'speak'] as const, start: { hieu: 0, nho: 0, gap: 0, dung: 0 } };
+        const base = { log: { ...log, done: [...log.done] }, dueCount: 0, newLeft: 5, canRead: true, speakCount: 3 };
+        expect(planToday(base).complete).toBe(true);
+        const p = planToday({ ...base, reopen: ['learn'] });
+        expect(p.next).toBe('learn');
+        expect(p.stages.find((s) => s.stage === 'read')?.status).toBe('done');
+    });
+
     it('runs the stages in order and skips the empty ones', () => {
         const plan = planToday({ log: null, dueCount: 0, newLeft: 10, canRead: true, speakCount: 3 });
         expect(plan.stages.map((s) => s.status)).toEqual(['empty', 'todo', 'todo', 'todo']);

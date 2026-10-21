@@ -1,112 +1,113 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Flame, Zap, Target, Plus, Copy, Check, UserX, ArrowLeft, Loader2, LogOut, BookOpen, Pencil } from 'lucide-react';
+import { Suspense, useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bell, Check, Copy, Flame, Loader2, LogOut, Pencil, Plus, Share2, Trophy, UserX, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
-import { useActivitySync } from '../hooks/useActivitySync';
 import { useLexicaStore } from '../store/lexicaStore';
 import AuthGate from '../components/AuthGate';
-import SetPassword from '../components/SetPassword';
-import { getMyBuddies, createInviteCode, acceptInvite, removeBuddy, checkAndUpdateDuoStreak, type BuddyInfo } from '../lib/buddy';
+import {
+    acceptInvite,
+    checkAndUpdateDuoStreak,
+    createInviteCode,
+    getMyBuddies,
+    getWeek,
+    inviteLink,
+    lastDays,
+    MAX_BUDDIES,
+    nudgeText,
+    removeBuddy,
+    weekRanking,
+    type BuddyInfo,
+    type DailyActivity,
+} from '../lib/buddy';
 import { upsertProfile } from '../lib/auth';
+import { localDate } from '../lib/engagement/ghost';
+
+type Week = Record<string, Record<string, DailyActivity>>;
+
+const DAY_SHORT = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const weekday = (date: string) => {
+    const [y, m, d] = date.split('-').map(Number);
+    return DAY_SHORT[new Date(y, m - 1, d, 12).getDay()];
+};
+
+/** Shares through the phone's share sheet, or copies when there is none. Returns what happened. */
+async function share(text: string, url?: string): Promise<'shared' | 'copied' | 'failed'> {
+    try {
+        if (navigator.share) {
+            await navigator.share(url ? { text, url } : { text });
+            return 'shared';
+        }
+        await navigator.clipboard.writeText(url ? `${text} ${url}` : text);
+        return 'copied';
+    } catch {
+        return 'failed';
+    }
+}
 
 export default function BuddyPage() {
-    useActivitySync(); // sync activity khi ở trang này
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+            <Buddy />
+        </Suspense>
+    );
+}
 
+/**
+ * Study Buddy: up to five friends learning side by side. Each sees the
+ * others' week, keeps a duo streak when both reach the day's goal, can
+ * nudge a friend who has not studied yet, and a friendly weekly ranking.
+ * Invites go by code or by link (/buddy?code=…).
+ */
+function Buddy() {
+    const params = useSearchParams();
     const { user, profile, loading: authLoading, signOut, refreshProfile } = useAuth();
-    const currentStreak = useLexicaStore(s => s.currentStreak);
-    const dailyProgress = useLexicaStore(s => s.dailyProgress);
-    const dailyGoal = useLexicaStore(s => s.dailyGoal);
+    const currentStreak = useLexicaStore((s) => s.currentStreak);
+    const daysDone = useLexicaStore((s) => s.daysDone);
+    const dailyProgress = useLexicaStore((s) => s.dailyProgress);
+    const dailyGoal = useLexicaStore((s) => s.dailyGoal);
 
     const [buddies, setBuddies] = useState<BuddyInfo[]>([]);
-    const [loadingBuddies, setLoadingBuddies] = useState(false);
-    const [inviteCode, setInviteCode] = useState<string | null>(null);
-    const [codeCopied, setCodeCopied] = useState(false);
-    const [joinCode, setJoinCode] = useState('');
-    const [joinStatus, setJoinStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
-    const [joinError, setJoinError] = useState('');
-    const [showAddPanel, setShowAddPanel] = useState(false);
-    const [editingNickname, setEditingNickname] = useState(false);
-    const [nicknameInput, setNicknameInput] = useState('');
-    const [savingNickname, setSavingNickname] = useState(false);
+    const [week, setWeek] = useState<Week>({});
+    const [loading, setLoading] = useState(false);
+    const [showAdd, setShowAdd] = useState(() => Boolean(params.get('code')));
+    const [editingName, setEditingName] = useState(false);
+    const [nameInput, setNameInput] = useState('');
+    const [savingName, setSavingName] = useState(false);
+    const [today] = useState(() => localDate());
 
-    // Load buddies when user changes
+    const goalMet = daysDone.includes(today) || dailyProgress >= dailyGoal;
+
+    const load = useCallback(async (userId: string) => {
+        setLoading(true);
+        try {
+            const list = await getMyBuddies(userId);
+            setBuddies(list);
+            setWeek(await getWeek([userId, ...list.map((b) => b.id)]));
+            for (const b of list) void checkAndUpdateDuoStreak(b.pairId, userId, b.id);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         if (!user) return;
-        const loadBuddies = async () => {
-            setLoadingBuddies(true);
-            try {
-                console.log('Starting buddy data load...');
-                const list = await getMyBuddies(user.id);
-                console.log('Buddy data loaded:', list);
-                setBuddies(list);
-                // Update duo streaks in background
-                for (const b of list) {
-                    checkAndUpdateDuoStreak(b.pairId, user.id, b.id);
-                }
-            } catch (error) {
-                console.error('Error loading buddies:', error);
-            } finally {
-                setLoadingBuddies(false);
-            }
-        };
-        loadBuddies();
-    }, [user]);
+        const t = setTimeout(() => void load(user.id), 0);
+        return () => clearTimeout(t);
+    }, [user, load]);
 
-    const handleCreateCode = async () => {
-        if (!user) return;
-        const code = await createInviteCode(user.id);
-        setInviteCode(code);
-    };
-
-    const handleCopyCode = async () => {
-        if (!inviteCode) return;
-        await navigator.clipboard.writeText(inviteCode);
-        setCodeCopied(true);
-        setTimeout(() => setCodeCopied(false), 2000);
-    };
-
-    const handleJoin = async () => {
-        if (!user || !joinCode.trim()) return;
-        setJoinStatus('loading');
-        const result = await acceptInvite(joinCode, user.id);
-        if (result.success) {
-            setJoinStatus('success');
-            setJoinCode('');
-            setShowAddPanel(false);
-            // Reload buddies after accepting invite
-            setLoadingBuddies(true);
-            const list = await getMyBuddies(user.id);
-            setBuddies(list);
-            setLoadingBuddies(false);
-        } else {
-            setJoinStatus('error');
-            setJoinError(result.error ?? 'Lỗi không xác định');
-        }
-    };
-
-    const handleRemoveBuddy = async (pairId: string) => {
-        await removeBuddy(pairId);
-        setBuddies(prev => prev.filter(b => b.pairId !== pairId));
-    };
-
-    const goalMet = dailyProgress >= dailyGoal;
-
-    const handleSaveNickname = async () => {
-        if (!user || !nicknameInput.trim() || nicknameInput.length > 20) {
-            setJoinError('Nickname must be 1-20 characters');
-            return;
-        }
-        setSavingNickname(true);
-        await upsertProfile(user.id, nicknameInput.trim());
+    const saveName = async () => {
+        if (!user || !nameInput.trim()) return;
+        setSavingName(true);
+        await upsertProfile(user.id, nameInput.trim().slice(0, 20));
         await refreshProfile();
-        setSavingNickname(false);
-        setEditingNickname(false);
+        setSavingName(false);
+        setEditingName(false);
     };
 
-    // ── Loading ──────────────────────────────────────────
     if (authLoading) {
         return (
             <div className="min-h-screen bg-bg flex items-center justify-center">
@@ -115,7 +116,6 @@ export default function BuddyPage() {
         );
     }
 
-    // ── Not logged in ────────────────────────────────────
     if (!user) {
         return (
             <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6">
@@ -123,295 +123,296 @@ export default function BuddyPage() {
                     <div className="text-center space-y-2">
                         <Users className="w-10 h-10 text-accent mx-auto" />
                         <h1 className="text-xl font-bold text-ink">Study Buddy</h1>
-                        <p className="text-muted text-sm">Học cùng bạn bè, duy trì chuỗi đôi, tạo động lực mỗi ngày.</p>
+                        <p className="text-muted text-sm">Học cùng tối đa 5 người bạn: thấy tuần học của nhau, giữ chuỗi đôi, nhắc nhau mỗi ngày.</p>
+                        {params.get('code') && <p className="text-sm text-accent">Đăng nhập để nhận lời mời của bạn.</p>}
                     </div>
-                    <AuthGate reason="Cần lưu tài khoản để kết nối với bạn bè." />
-                    <Link href="/" className="flex items-center justify-center gap-2 text-muted hover:text-ink text-sm transition-colors">
-                        <ArrowLeft className="w-4 h-4" /> Về trang chủ
+                    <AuthGate reason="Cần tài khoản để kết nối với bạn bè." redirectPath={`/buddy${params.get('code') ? `?code=${params.get('code')}` : ''}`} />
+                    <Link href="/me" className="block text-center text-muted hover:text-ink text-sm">
+                        ← Tôi
                     </Link>
                 </div>
             </div>
         );
     }
 
-    // ── Logged in ────────────────────────────────────────
+    const me = { id: user.id, name: profile?.nickname ?? 'Bạn' };
+    const ranking = weekRanking([me, ...buddies.map((b) => ({ id: b.id, name: b.nickname }))], week);
+    const days = lastDays(7);
+
     return (
         <div className="min-h-screen bg-bg pb-8">
-            {/* Header */}
-            <div className="sticky top-0 bg-bg/90 backdrop-blur border-b border-line z-10">
-                <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
-                    <Link href="/" className="text-muted hover:text-ink transition-colors">
-                        <ArrowLeft className="w-5 h-5" />
+            <div className="max-w-md mx-auto px-4 pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                    <Link href="/me" className="text-muted hover:text-accent text-sm">
+                        ← Tôi
                     </Link>
-                    <div className="flex items-center gap-2">
-                        <Link href="/buddy" className="text-accent hover:text-accent transition-colors">
-                            <Users className="w-4 h-4" />
-                        </Link>
-                        {editingNickname ? (
+                    <p className="text-ink font-bold">Study Buddy</p>
+                    <button onClick={signOut} className="text-muted hover:text-ink" aria-label="Đăng xuất">
+                        <LogOut className="w-4 h-4" />
+                    </button>
+                </div>
+
+                {/* Me: name, streak, today, this week */}
+                <section className={`rounded-2xl border p-4 ${goalMet ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
+                    <div className="flex items-center justify-between gap-2">
+                        {editingName ? (
                             <div className="flex items-center gap-1">
                                 <input
                                     autoFocus
-                                    value={nicknameInput}
-                                    onChange={e => setNicknameInput(e.target.value)}
-                                    onKeyDown={e => {
-                                        if (e.key === 'Enter') handleSaveNickname();
-                                        if (e.key === 'Escape') setEditingNickname(false);
+                                    value={nameInput}
+                                    onChange={(e) => setNameInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') void saveName();
+                                        if (e.key === 'Escape') setEditingName(false);
                                     }}
                                     maxLength={20}
-                                    className="w-28 px-2 py-0.5 bg-surface-2 border border-accent rounded text-ink text-sm focus:outline-none"
+                                    aria-label="Tên hiển thị"
+                                    className="w-36 h-9 px-2 bg-surface-2 border border-accent rounded-lg text-ink text-sm outline-none"
                                 />
-                                <button
-                                    onClick={handleSaveNickname}
-                                    disabled={savingNickname || !nicknameInput.trim()}
-                                    className="text-accent hover:text-accent disabled:opacity-40 transition-colors"
-                                >
-                                    {savingNickname ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                <button onClick={() => void saveName()} disabled={savingName || !nameInput.trim()} className="p-2 text-accent disabled:opacity-40" aria-label="Lưu tên">
+                                    {savingName ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                                 </button>
                             </div>
                         ) : (
                             <button
-                                onClick={() => { setNicknameInput(profile?.nickname ?? ''); setEditingNickname(true); }}
-                                className="flex items-center gap-1 font-bold text-ink text-sm hover:text-accent transition-colors group"
+                                onClick={() => {
+                                    setNameInput(profile?.nickname ?? '');
+                                    setEditingName(true);
+                                }}
+                                className="flex items-center gap-1.5 font-semibold text-ink hover:text-accent"
                             >
-                                {profile?.nickname ?? 'Đặt tên'}
-                                <Pencil className="w-3 h-3 text-muted group-hover:text-accent transition-colors" />
+                                {profile?.nickname ?? 'Đặt tên để bạn bè nhận ra'} <Pencil className="w-3.5 h-3.5 text-muted" />
                             </button>
                         )}
+                        <span className="flex items-center gap-1 text-sm text-ink-2">
+                            <Flame className={`w-4 h-4 ${currentStreak > 0 ? 'text-warning' : 'text-subtle'}`} /> {currentStreak} ngày
+                        </span>
                     </div>
-                    <button onClick={signOut} className="text-muted hover:text-ink transition-colors">
-                        <LogOut className="w-4 h-4" />
-                    </button>
-                </div>
-            </div>
+                    <p className="mt-1 text-sm text-muted">{goalMet ? 'Hôm nay bạn đã đạt mục tiêu. Bạn bè sẽ thấy điều đó.' : 'Xong phiên Hôm nay là đạt mục tiêu ngày, giữ chuỗi đôi với bạn bè.'}</p>
+                    <WeekDots days={days} acts={week[user.id]} today={today} forceToday={goalMet} />
+                </section>
 
-            <div className="max-w-md mx-auto px-4 pt-4 space-y-4">
-                <SetPassword />
-                {/* My stats today */}
-                <div className="bg-surface rounded-2xl p-4 border border-line">
-                    <p className="text-muted text-xs mb-3 uppercase font-mono">Hôm nay của bạn</p>
-                    <div className="grid grid-cols-3 gap-3">
-                        <StatPill icon={<Flame className="w-4 h-4 text-warning" />} label="Streak" value={`${currentStreak} ngày`} />
-                        <StatPill
-                            icon={<Target className="w-4 h-4 text-accent" />}
-                            label="Tiến độ"
-                            value={`${dailyProgress}/${dailyGoal}`}
-                            highlight={goalMet}
-                        />
-                        <StatPill
-                            icon={<BookOpen className="w-4 h-4 text-accent" />}
-                            label="Mục tiêu"
-                            value={goalMet ? 'Đạt' : 'Chưa'}
-                            highlight={goalMet}
-                        />
-                    </div>
-                </div>
-
-                {/* Buddies list */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-ink font-bold text-sm uppercase tracking-wide">Study Buddies ({buddies.length}/5)</h2>
-                        {buddies.length < 5 && (
-                            <button
-                                onClick={() => setShowAddPanel(v => !v)}
-                                className="flex items-center gap-1 text-accent hover:text-accent text-sm transition-colors"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Thêm bạn
-                            </button>
-                        )}
-                    </div>
-
-                    {/* Add buddy panel */}
-                    <AnimatePresence>
-                        {showAddPanel && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="bg-surface rounded-2xl p-4 border border-line space-y-4">
-                                    {/* Create invite */}
-                                    <div className="space-y-2">
-                                        <p className="text-muted text-xs">Tạo mã mời cho bạn bè</p>
-                                        {inviteCode ? (
-                                            <div className="flex gap-2">
-                                                <div className="flex-1 px-4 py-2 bg-surface-2 rounded-lg text-ink font-mono text-lg tracking-widest text-center">
-                                                    {inviteCode}
-                                                </div>
-                                                <button
-                                                    onClick={handleCopyCode}
-                                                    className="px-3 py-2 bg-accent hover:bg-accent-strong text-on-accent rounded-lg transition-all"
-                                                >
-                                                    {codeCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={handleCreateCode}
-                                                className="w-full py-2 bg-surface-2 hover:bg-surface-3 text-ink rounded-lg text-sm transition-all"
-                                            >
-                                                Tạo mã mời
-                                            </button>
-                                        )}
-                                        {inviteCode && (
-                                            <p className="text-muted text-xs text-center">Hết hạn sau 48 giờ</p>
-                                        )}
-                                    </div>
-
-                                    <div className="border-t border-line" />
-
-                                    {/* Enter invite code */}
-                                    <div className="space-y-2">
-                                        <p className="text-muted text-xs">Nhập mã từ bạn bè</p>
-                                        <div className="flex gap-2">
-                                            <input
-                                                value={joinCode}
-                                                onChange={e => { setJoinCode(e.target.value.toUpperCase()); setJoinStatus('idle'); }}
-                                                onKeyDown={e => e.key === 'Enter' && handleJoin()}
-                                                placeholder="ABC123"
-                                                maxLength={6}
-                                                className="flex-1 px-4 py-2 bg-surface-2 border border-line-strong rounded-lg text-ink font-mono placeholder-muted text-center text-lg tracking-widest focus:outline-none focus:border-accent transition-colors uppercase"
-                                            />
-                                            <button
-                                                onClick={handleJoin}
-                                                disabled={joinCode.length < 6 || joinStatus === 'loading'}
-                                                className="px-4 py-2 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent rounded-lg transition-all flex items-center"
-                                            >
-                                                {joinStatus === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'OK'}
-                                            </button>
-                                        </div>
-                                        {joinStatus === 'error' && <p className="text-danger text-xs">{joinError}</p>}
-                                        {joinStatus === 'success' && <p className="text-accent text-xs">Đã kết nối!</p>}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* Buddy cards */}
-                    {loadingBuddies ? (
-                        <div className="flex justify-center py-8">
-                            <Loader2 className="w-6 h-6 text-accent animate-spin" />
-                        </div>
-                    ) : buddies.length === 0 ? (
-                        <div className="bg-surface/50 rounded-2xl p-8 border border-line border-dashed text-center space-y-2">
-                            <Users className="w-8 h-8 text-subtle mx-auto" />
-                            <p className="text-muted text-sm">Chưa có buddy nào</p>
-                            <p className="text-muted text-xs">Tạo mã mời và gửi cho bạn bè để bắt đầu</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {buddies.map(buddy => (
-                                <BuddyCard
-                                    key={buddy.id}
-                                    buddy={buddy}
-                                    myGoalMet={goalMet}
-                                    onRemove={() => handleRemoveBuddy(buddy.pairId)}
-                                />
+                {/* Weekly ranking, only with friends */}
+                {buddies.length > 0 && (
+                    <section className="rounded-2xl border border-line bg-surface p-4">
+                        <h2 className="flex items-center gap-2 font-semibold text-ink">
+                            <Trophy className="w-4 h-4 text-warning" /> Tuần này
+                        </h2>
+                        <ol className="mt-2 space-y-1.5">
+                            {ranking.map((r, i) => (
+                                <li key={r.id} className={`flex items-center gap-3 rounded-lg px-2 py-1.5 ${r.id === user.id ? 'bg-accent/10' : ''}`}>
+                                    <span className="w-5 font-mono text-sm text-muted">{i + 1}</span>
+                                    <span className="flex-1 truncate text-sm text-ink">{r.id === user.id ? `${r.name} (bạn)` : r.name}</span>
+                                    <span className="text-xs text-muted tabular-nums">
+                                        {r.days}/7 ngày · {r.words} từ
+                                    </span>
+                                </li>
                             ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
+                        </ol>
+                    </section>
+                )}
 
-// ── Sub-components ──────────────────────────────────────
-function StatPill({ icon, label, value, highlight }: {
-    icon: React.ReactNode;
-    label: string;
-    value: string;
-    highlight?: boolean;
-}) {
-    return (
-        <div className={`rounded-xl p-3 text-center space-y-1 ${highlight ? 'bg-accent/10 border border-accent/30' : 'bg-surface-2/50'}`}>
-            <div className="flex justify-center">{icon}</div>
-            <div className="text-ink font-bold text-sm">{value}</div>
-            <div className="text-muted text-xs">{label}</div>
-        </div>
-    );
-}
-
-function BuddyCard({ buddy, myGoalMet, onRemove }: {
-    buddy: BuddyInfo;
-    myGoalMet: boolean;
-    onRemove: () => void;
-}) {
-    const [confirmRemove, setConfirmRemove] = useState(false);
-    const buddyGoalMet = buddy.today ? buddy.today.goal_met : false;
-    const duoActive = myGoalMet && buddyGoalMet;
-    const buddyStudiedToday = !!buddy.today;
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`bg-surface rounded-2xl p-4 border transition-all ${duoActive ? 'border-accent/30 bg-accent/10' : 'border-line'}`}
-        >
-            <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                    <div>
-                        <div className="text-ink font-semibold text-sm">{buddy.nickname}</div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                            {/* Personal streak */}
-                            <span className="text-warning text-xs flex items-center gap-0.5">
-                                <Flame className="w-3 h-3" />
-                                {buddy.today?.streak ?? 0}
-                            </span>
-                            {/* ELO Rating */}
-                            <span className="text-xs text-muted flex items-center gap-0.5">
-                                <Target className="w-3 h-3" />
-                                {buddy.today?.words_swiped || 0}/{buddy.today?.daily_goal || 0}
-                            </span>
-                            {/* Duo streak */}
-                            <span className={`text-xs flex items-center gap-0.5 ${duoActive ? 'text-accent' : 'text-muted'}`}>
-                                <Zap className="w-3 h-3" />
-                                {buddy.duoStreak} đôi
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Today status */}
-                <div className="text-right">
-                    {buddyStudiedToday ? (
-                        <div className="space-y-0.5">
-                            <div className="text-xs text-muted">
-                                {buddy.today!.words_swiped}/{buddy.today!.daily_goal} thẻ
-                            </div>
-                            <div className={`text-xs font-medium ${buddyGoalMet ? 'text-accent' : 'text-muted'}`}>
-                                {buddyGoalMet ? 'Đạt mục tiêu' : 'Đang học'}
-                            </div>
-                        </div>
-                    ) : (
-                        <span className="text-muted text-xs">Chưa học hôm nay</span>
-                    )}
-                </div>
-            </div>
-
-            {/* Duo streak banner */}
-            {duoActive && (
-                <div className="mt-3 bg-accent/10 border border-accent/30 rounded-xl px-3 py-2 text-center">
-                    <span className="text-accent text-xs font-medium flex items-center justify-center gap-1">
-                        <Zap className="w-3 h-3" /> Cả hai đều đạt mục tiêu hôm nay! Chuỗi đôi +1
-                    </span>
-                </div>
-            )}
-
-            {/* Remove button */}
-            <div className="mt-3 flex justify-end">
-                {confirmRemove ? (
-                    <div className="flex gap-2">
-                        <button onClick={() => setConfirmRemove(false)} className="text-muted hover:text-ink text-xs transition-colors">Hủy</button>
-                        <button onClick={onRemove} className="text-danger hover:text-danger text-xs transition-colors flex items-center gap-1">
-                            <UserX className="w-3 h-3" /> Xác nhận xóa
+                <div className="flex items-center justify-between">
+                    <h2 className="text-ink font-semibold">
+                        Bạn học ({buddies.length}/{MAX_BUDDIES})
+                    </h2>
+                    {buddies.length < MAX_BUDDIES && (
+                        <button onClick={() => setShowAdd((v) => !v)} className="flex items-center gap-1 text-accent text-sm">
+                            <Plus className="w-4 h-4" /> Thêm bạn
                         </button>
+                    )}
+                </div>
+
+                <AnimatePresence>
+                    {showAdd && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+                            <AddBuddy userId={user.id} initialCode={params.get('code') ?? ''} onAdded={() => void load(user.id)} />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {loading && buddies.length === 0 ? (
+                    <div className="flex justify-center py-8">
+                        <Loader2 className="w-6 h-6 text-accent animate-spin" />
+                    </div>
+                ) : buddies.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-line-strong p-6 text-center space-y-2">
+                        <Users className="w-8 h-8 text-subtle mx-auto" />
+                        <p className="text-ink text-sm">Chưa có bạn học nào</p>
+                        <p className="text-muted text-xs">Bấm “Thêm bạn”, gửi link mời qua Zalo hoặc Messenger. Bạn ấy mở link là kết nối.</p>
                     </div>
                 ) : (
-                    <button onClick={() => setConfirmRemove(true)} className="text-subtle hover:text-muted text-xs transition-colors">
-                        Xóa buddy
+                    <div className="space-y-3">
+                        {buddies.map((b) => (
+                            <BuddyCard
+                                key={b.id}
+                                buddy={b}
+                                days={days}
+                                week={week[b.id]}
+                                today={today}
+                                myGoalMet={goalMet}
+                                onRemove={async () => {
+                                    await removeBuddy(b.pairId);
+                                    setBuddies((list) => list.filter((x) => x.pairId !== b.pairId));
+                                }}
+                            />
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+/** Seven days, oldest first: filled when the person studied that day. */
+function WeekDots({ days, acts, today, forceToday = false }: { days: string[]; acts: Record<string, DailyActivity> | undefined; today: string; forceToday?: boolean }) {
+    return (
+        <ol className="mt-3 grid grid-cols-7 gap-1.5" aria-label="7 ngày qua">
+            {days.map((d) => {
+                const a = acts?.[d];
+                const studied = Boolean(a && (a.words_swiped > 0 || a.goal_met)) || (d === today && forceToday);
+                const met = Boolean(a?.goal_met) || (d === today && forceToday);
+                return (
+                    <li key={d} className="flex flex-col items-center gap-1" title={`${weekday(d)} ${Number(d.slice(8))}/${Number(d.slice(5, 7))}: ${met ? 'đạt mục tiêu' : studied ? 'có học' : 'chưa học'}`}>
+                        <span className={`w-7 h-7 rounded-full flex items-center justify-center ${met ? 'bg-accent text-on-accent' : studied ? 'bg-accent/30' : 'bg-surface-2'} ${d === today ? 'ring-1 ring-ink-2' : ''}`}>
+                            {met && <Check className="w-3.5 h-3.5" />}
+                        </span>
+                        <span className={`text-[10px] ${d === today ? 'text-ink' : 'text-subtle'}`}>{d === today ? 'Nay' : weekday(d)}</span>
+                    </li>
+                );
+            })}
+        </ol>
+    );
+}
+
+function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCode: string; onAdded: () => void }) {
+    const [code, setCode] = useState<string | null>(null);
+    const [shared, setShared] = useState('');
+    const [joinCode, setJoinCode] = useState(initialCode.toUpperCase().slice(0, 6));
+    const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
+    const [error, setError] = useState('');
+
+    const create = async () => setCode(await createInviteCode(userId));
+    const send = async () => {
+        if (!code) return;
+        const r = await share('Học từ vựng tiếng Anh cùng mình trên Lexica nhé! Mở link để thành bạn học:', inviteLink(code, window.location.origin));
+        setShared(r === 'copied' ? 'Đã chép link, dán vào tin nhắn cho bạn nhé.' : r === 'shared' ? 'Đã gửi.' : 'Không gửi được, chép mã ở trên nhé.');
+    };
+    const join = async () => {
+        if (joinCode.length < 6) return;
+        setStatus('loading');
+        const r = await acceptInvite(joinCode, userId);
+        if (r.success) {
+            setStatus('success');
+            setJoinCode('');
+            onAdded();
+        } else {
+            setStatus('error');
+            setError(r.error ?? 'Có lỗi, thử lại nhé.');
+        }
+    };
+
+    return (
+        <div className="rounded-2xl border border-line bg-surface p-4 space-y-4">
+            <div className="space-y-2">
+                <p className="text-sm text-ink-2">Mời một người bạn</p>
+                {code ? (
+                    <>
+                        <div className="flex gap-2">
+                            <div className="flex-1 h-11 rounded-lg bg-surface-2 text-ink font-mono text-lg tracking-widest flex items-center justify-center">{code}</div>
+                            <button onClick={() => void navigator.clipboard.writeText(code)} className="h-11 px-3 rounded-lg border border-line text-ink" aria-label="Chép mã">
+                                <Copy className="w-4 h-4" />
+                            </button>
+                        </div>
+                        <button onClick={() => void send()} className="w-full h-11 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2">
+                            <Share2 className="w-4 h-4" /> Gửi link mời
+                        </button>
+                        <p className="text-xs text-muted text-center">{shared || 'Mã và link dùng được trong 48 giờ, cho một người.'}</p>
+                    </>
+                ) : (
+                    <button onClick={() => void create()} className="w-full h-11 rounded-xl bg-surface-2 hover:bg-surface-3 text-ink text-sm">
+                        Tạo link mời
+                    </button>
+                )}
+            </div>
+            <div className="border-t border-line" />
+            <div className="space-y-2">
+                <p className="text-sm text-ink-2">Có mã từ bạn bè?</p>
+                <div className="flex gap-2">
+                    <input
+                        value={joinCode}
+                        onChange={(e) => {
+                            setJoinCode(e.target.value.toUpperCase());
+                            setStatus('idle');
+                        }}
+                        onKeyDown={(e) => e.key === 'Enter' && void join()}
+                        placeholder="ABC123"
+                        maxLength={6}
+                        aria-label="Mã mời"
+                        className="flex-1 h-11 px-4 bg-surface-2 border border-line-strong rounded-lg text-ink font-mono text-center text-lg tracking-widest outline-none focus:border-accent uppercase"
+                    />
+                    <button onClick={() => void join()} disabled={joinCode.length < 6 || status === 'loading'} className="h-11 px-4 rounded-lg bg-accent text-on-accent font-bold disabled:opacity-40">
+                        {status === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Kết bạn'}
+                    </button>
+                </div>
+                {status === 'error' && <p className="text-danger text-xs">{error}</p>}
+                {status === 'success' && <p className="text-accent text-xs">Đã kết nối! Từ giờ hai bạn thấy tuần học của nhau.</p>}
+            </div>
+        </div>
+    );
+}
+
+function BuddyCard({ buddy, days, week, today, myGoalMet, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onRemove: () => void }) {
+    const [confirm, setConfirm] = useState(false);
+    const [nudged, setNudged] = useState('');
+    const buddyMet = Boolean(buddy.today?.goal_met);
+    const studied = Boolean(buddy.today && (buddy.today.words_swiped > 0 || buddy.today.goal_met));
+    const both = myGoalMet && buddyMet;
+
+    return (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`rounded-2xl border p-4 ${both ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="font-semibold text-ink truncate">{buddy.nickname}</p>
+                    <p className="mt-0.5 flex items-center gap-3 text-xs text-muted">
+                        <span className="flex items-center gap-0.5">
+                            <Flame className="w-3 h-3 text-warning" /> {buddy.today?.streak ?? 0} ngày
+                        </span>
+                        <span className={`flex items-center gap-0.5 ${both ? 'text-accent' : ''}`} title="Số ngày cả hai cùng đạt mục tiêu liên tiếp">
+                            <Zap className="w-3 h-3" /> chuỗi đôi {buddy.duoStreak}
+                        </span>
+                    </p>
+                </div>
+                <span className={`text-xs font-medium ${buddyMet ? 'text-accent' : studied ? 'text-ink-2' : 'text-muted'}`}>{buddyMet ? 'Đạt mục tiêu' : studied ? 'Đang học' : 'Chưa học hôm nay'}</span>
+            </div>
+            <WeekDots days={days} acts={week} today={today} />
+            {both && <p className="mt-3 text-center text-xs font-medium text-accent">Cả hai đều đạt mục tiêu hôm nay: chuỗi đôi +1</p>}
+            <div className="mt-3 flex items-center justify-between gap-2">
+                {!studied ? (
+                    <button
+                        onClick={async () => {
+                            const r = await share(nudgeText(buddy.nickname, window.location.origin));
+                            setNudged(r === 'copied' ? 'Đã chép lời nhắc' : r === 'shared' ? 'Đã nhắc' : '');
+                        }}
+                        className="h-9 px-3 rounded-lg border border-line text-sm text-ink flex items-center gap-1.5 hover:border-line-strong"
+                    >
+                        <Bell className="w-4 h-4" /> {nudged || 'Nhắc bạn học'}
+                    </button>
+                ) : (
+                    <span />
+                )}
+                {confirm ? (
+                    <span className="flex gap-3 text-xs">
+                        <button onClick={() => setConfirm(false)} className="text-muted">
+                            Huỷ
+                        </button>
+                        <button onClick={onRemove} className="text-danger flex items-center gap-1">
+                            <UserX className="w-3 h-3" /> Xoá bạn này
+                        </button>
+                    </span>
+                ) : (
+                    <button onClick={() => setConfirm(true)} className="text-xs text-subtle hover:text-muted">
+                        Xoá
                     </button>
                 )}
             </div>

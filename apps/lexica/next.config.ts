@@ -13,6 +13,11 @@ const withPWAConfig = withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
+  // The pronouncing dictionary loads when the speaking drill opens, and the
+  // on-device scorer (onnxruntime) only when a tester downloads its pack:
+  // neither belongs in the install-time precache.
+  publicExcludes: ["!noprecache/**/*", "!pron/**/*"],
+  buildExcludes: [/middleware-manifest\.json$/, /\.wasm$/, /ort\.wasm/],
 });
 
 export default withPWAConfig(nextConfig as Parameters<typeof withPWAConfig>[0]);

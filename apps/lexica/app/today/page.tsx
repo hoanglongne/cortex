@@ -25,20 +25,7 @@ import SpeakDrill from '../components/SpeakDrill';
 import StepNumbers from '../components/StepNumbers';
 import InstallCard from '../components/InstallCard';
 import PledgeCard from '../components/PledgeCard';
-import { classWordsToQueue, onlyClassWords } from '../lib/classes';
-
-/**
- * A lesson assigned in "only" mode and not learned yet makes the whole Học
- * stage: fewer words than the day's pace means a shorter stage, never other
- * words slipped in among the teacher's. "Mixed" lessons are dealt first in a
- * normal stage.
- */
-function learnSize(newLeft: number): number {
-    const progress = useLexicaStore.getState().cardProgress;
-    const pending = onlyClassWords((id) => Boolean(progress[id])).length;
-    if (pending === 0) return newLeft;
-    return newLeft > 0 ? Math.min(pending, newLeft) : pending;
-}
+import { classWordsToQueue } from '../lib/classes';
 
 /** What a stage works on, fixed when the stage starts so answers don't reshuffle it. */
 type Frozen =
@@ -57,6 +44,7 @@ export default function TodayPage() {
     const picks = useTodayPlan();
     const { plan } = picks;
     const startToday = useLexicaStore((s) => s.startToday);
+    const startExtraRound = useLexicaStore((s) => s.startExtraRound);
     const finishStage = useLexicaStore((s) => s.finishStage);
     const completeToday = useLexicaStore((s) => s.completeToday);
     const path = useLexicaStore((s) => s.path);
@@ -70,10 +58,13 @@ export default function TodayPage() {
     useEffect(() => {
         if (!started.current) {
             started.current = true;
-            startToday();
-            capture('today_start', { next: plan.next ?? 'done' });
+            // "Học thêm" (?more=1) after the day's session: another round of the four stages.
+            const more = new URLSearchParams(window.location.search).get('more') === '1';
+            if (more && plan.complete) startExtraRound();
+            else startToday();
+            capture('today_start', { next: plan.next ?? 'done', more });
         }
-    }, [startToday, plan.next]);
+    }, [startToday, startExtraRound, plan.next, plan.complete]);
 
     useEffect(() => {
         if (frozen || !plan.next) return;
@@ -88,7 +79,7 @@ export default function TodayPage() {
                 stage === 'review'
                     ? { stage, ids: picks.reviewIds }
                     : stage === 'learn'
-                      ? { stage, size: learnSize(picks.newLeft) }
+                      ? { stage, size: picks.newLeft }
                       : stage === 'read'
                         ? { stage, passageId: picks.passage?.id ?? null, generate: picks.generate, fallbackId: picks.fallback?.id ?? null, quoteWord: picks.quoteWord }
                         : { stage, ids: picks.speakIds.length > 0 ? picks.speakIds : picks.learnedToday.slice(0, 3) },
@@ -101,9 +92,9 @@ export default function TodayPage() {
         if (plan.complete && !frozen) completeToday();
     }, [plan.complete, frozen, completeToday]);
 
-    const done = (stage: Stage) => {
+    const done = (stage: Stage, source?: ReadSource) => {
         finishStage(stage);
-        capture('today_stage', { stage });
+        capture('today_stage', source ? { stage, source } : { stage });
         setFrozen(null);
         window.scrollTo({ top: 0 });
     };
@@ -117,7 +108,7 @@ export default function TodayPage() {
                     <Link href="/" className="text-muted hover:text-accent text-sm">
                         ← {plan.complete ? 'Trang chủ' : 'Tạm dừng'}
                     </Link>
-                    <p className="text-ink font-bold">Hôm nay</p>
+                    <p className="text-ink font-bold">{picks.round > 1 ? 'Học thêm' : 'Hôm nay'}</p>
                     <p className="font-mono text-[11px] text-muted w-16 text-right">{day ? `Ngày ${day}/${PATH_DAYS}` : ''}</p>
                 </div>
 
@@ -139,7 +130,7 @@ export default function TodayPage() {
                             />
                         </div>
                     )}
-                    {frozen?.stage === 'read' && <ReadStage frozen={frozen} onDone={() => done('read')} />}
+                    {frozen?.stage === 'read' && <ReadStage frozen={frozen} onDone={(source) => done('read', source)} />}
                     {frozen?.stage === 'speak' &&
                         (frozen.ids.length > 0 ? (
                             <SpeakDrill words={frozen.ids} steps={[2, 3]} onDone={() => done('speak')} />
@@ -173,16 +164,19 @@ function StageBar({ plan, active }: { plan: ReturnType<typeof useTodayPlan>['pla
     );
 }
 
-function ReadStage({ frozen, onDone }: { frozen: Extract<Frozen, { stage: 'read' }>; onDone: () => void }) {
+/** Where the read stage's text came from, for the share of ready passages (docs/LEXICA_READING_PLAN.md). */
+type ReadSource = 'ready' | 'ai' | 'quote' | 'none';
+
+function ReadStage({ frozen, onDone }: { frozen: Extract<Frozen, { stage: 'read' }>; onDone: (source: ReadSource) => void }) {
     const passage = frozen.passageId ? (getPassage(frozen.passageId) ?? null) : null;
-    if (passage) return <PassageReader passage={passage} onDone={onDone} />;
+    if (passage) return <PassageReader passage={passage} onDone={() => onDone('ready')} />;
     if (frozen.generate) return <WrittenForYou ids={frozen.generate} fallbackId={frozen.fallbackId} quoteWord={frozen.quoteWord} onDone={onDone} />;
-    if (frozen.quoteWord) return <QuoteMeet cardId={frozen.quoteWord} onDone={onDone} />;
-    return <Skip text="Chưa có đoạn văn nào có từ bạn vừa học. Bài đọc riêng cho bạn cần kết nối mạng." onDone={onDone} />;
+    if (frozen.quoteWord) return <QuoteMeet cardId={frozen.quoteWord} onDone={() => onDone('quote')} />;
+    return <Skip text="Chưa có đoạn văn nào có từ bạn vừa học. Bài đọc riêng cho bạn cần kết nối mạng." onDone={() => onDone('none')} />;
 }
 
 /** A passage written for the words learned today (lib/content/generated.ts). */
-function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; fallbackId: string | null; quoteWord: string | null; onDone: () => void }) {
+function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; fallbackId: string | null; quoteWord: string | null; onDone: (source: ReadSource) => void }) {
     const level = useLexicaStore((s) => (s.selectedLevel && s.selectedLevel !== 'all' ? s.selectedLevel : 'beginner'));
     const branch = useLexicaStore((s) => s.path?.branch ?? 'cert');
     const [state, setState] = useState<{ passage: Passage } | { failed: true } | null>(null);
@@ -204,11 +198,11 @@ function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; 
             </div>
         );
     }
-    if ('passage' in state) return <PassageReader passage={state.passage} onDone={onDone} />;
+    if ('passage' in state) return <PassageReader passage={state.passage} onDone={() => onDone('ai')} />;
     const fallback = fallbackId ? getPassage(fallbackId) : undefined;
-    if (fallback) return <PassageReader passage={fallback} onDone={onDone} />;
-    if (quoteWord) return <QuoteMeet cardId={quoteWord} onDone={onDone} />;
-    return <Skip text="Chưa viết được đoạn đọc cho từ của bạn (mất kết nối). Mai thử lại nhé." onDone={onDone} />;
+    if (fallback) return <PassageReader passage={fallback} onDone={() => onDone('ready')} />;
+    if (quoteWord) return <QuoteMeet cardId={quoteWord} onDone={() => onDone('quote')} />;
+    return <Skip text="Chưa viết được đoạn đọc cho từ của bạn (mất kết nối). Mai thử lại nhé." onDone={() => onDone('none')} />;
 }
 
 function Skip({ text, onDone }: { text: string; onDone: () => void }) {

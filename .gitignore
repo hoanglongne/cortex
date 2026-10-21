@@ -46,3 +46,4 @@ apps/lexica/public/sw.js
 apps/lexica/public/sw.js.map
 apps/lexica/public/workbox-*.js
 apps/lexica/public/workbox-*.js.map
+apps/lexica/scripts/pron-pack/out/

@@ -7,14 +7,17 @@ import {
     assignedSteps,
     cacheClasses,
     classMessage,
+    classWordsToRefresh,
     classWordsToQueue,
     daysUntil,
     isSlipping,
     joinLink,
     lexicaReport,
+    newClassWords,
     onlyClassWords,
     readCachedClasses,
     studentState,
+    touchedSince,
     type Assignment,
     type ClassInfo,
 } from '../../app/lib/classes';
@@ -71,6 +74,26 @@ describe('Lexica in classes', () => {
         // v999 was only marked "biết rồi": counted apart, not as learned
         expect(r.counts).toMatchObject({ hieu: 2, doi: 1, known: 1 });
         expect(Object.keys(r.assigned)).toEqual(['c1', 'c2']);
+    });
+
+    it('counts a lesson from when it was given: words learned before it are not done', () => {
+        const given = Date.parse('2026-10-20T08:00:00');
+        const at = (ts: string) => Date.parse(ts);
+        const before = understand(undefined, at('2026-10-10T08:00:00'));
+        const recalledAfter = { ...before, recalls: ['2026-10-21'] };
+        expect(touchedSince(before, undefined, given)).toBe(false);
+        expect(touchedSince(recalledAfter, undefined, given)).toBe(true);
+        expect(touchedSince(before, { lastReviewedAt: at('2026-10-20T09:00:00') }, given)).toBe(true);
+        const a = cls('student', [{ ...lesson(['v001', 'v002']), created_at: '2026-10-20T08:00:00' }], 'c1');
+        const journeys = { v001: before, v002: understand(undefined, at('2026-10-20T10:00:00')) };
+        // v001 was learned on their own ten days earlier: not started for this lesson
+        expect(assignedSteps(journeys, [a])).toEqual({ v002: 1 });
+        expect(assignedCounts(journeys, a)).toMatchObject({ hieu: 1, total: 2 });
+        // A review after the lesson was given counts
+        expect(assignedSteps(journeys, [a], { v001: { lastReviewedAt: at('2026-10-21T08:00:00') } })).toEqual({ v001: 1, v002: 1 });
+        cacheClasses([a]);
+        expect(classWordsToRefresh(journeys, {})).toEqual(['v001']);
+        expect(newClassWords({ v001: { lastReviewedAt: 1 } })).toEqual(['v002']);
     });
 
     it('learns "only" lessons alone, deals mixed ones first, ignores other apps', () => {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, cached } from '../lib/api';
 import { quoteError } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
+import PlanPanel from './PlanPanel';
 
 /**
  * "Đọc" passages for Lexica: short English texts written around 3–5 deck
@@ -112,6 +113,7 @@ export default function PassagesPage() {
 
     return (
         <div className="flex flex-col gap-4">
+            <PlanPanel onWritten={() => void load(tab)} />
             <Card>
                 <p className="text-sm text-ink-2">
                     Đoạn văn ngắn (120–200 từ) cho trang &ldquo;Đọc&rdquo; của Lexica, hoặc hội thoại 6–10 lượt (60–170 từ) cho nhánh Giao tiếp. Máy chọn 3–5 từ (hoặc cụm

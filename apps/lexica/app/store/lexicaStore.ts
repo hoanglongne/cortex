@@ -68,6 +68,8 @@ interface LexicaStore {
     // Speaking ("Luyện nói", lib/pronunciation/drill.ts)
     /** "Chưa rõ" count per card; the words hard to say. */
     speakMisses: Record<string, number>;
+    /** When each word was last practised aloud, so the next practice picks others. */
+    spokenAt: Record<string, number>;
 
     // The four steps of each word (lib/journey/steps.ts)
     journeys: Journeys;
@@ -111,6 +113,8 @@ interface LexicaStore {
     /** Opens today's log (keeps it if it is already today's). */
     startToday: () => void;
     finishStage: (stage: Stage) => void;
+    /** "Học thêm" after the day's session: the four stages again, with their own words. */
+    startExtraRound: () => void;
     /** The last stage is done: today counts as a day of the path. */
     completeToday: () => void;
 
@@ -362,6 +366,7 @@ export const useLexicaStore = create<LexicaStore>()(
 
             queuedCardIds: [],
             speakMisses: {},
+            spokenAt: {},
             journeys: {},
             stepHistory: {},
             path: null,
@@ -393,6 +398,14 @@ export const useLexicaStore = create<LexicaStore>()(
                 get().startToday();
                 const log = get().todayLog!;
                 if (!log.done.includes(stage)) set({ todayLog: { ...log, done: [...log.done, stage] } });
+                // Run again (a class lesson arrived after it): remember, so it reopens once at most.
+                else if (!log.again?.includes(stage)) set({ todayLog: { ...log, again: [...(log.again ?? []), stage] } });
+            },
+            startExtraRound: () => {
+                get().startToday();
+                const { todayLog: log, journeys, todayLearnedWords, lastLearnedWordsReset } = get();
+                const learned = lastLearnedWordsReset === getTodayDateString() ? todayLearnedWords.size : 0;
+                set({ todayLog: { ...log!, done: [], again: [], round: (log!.round ?? 1) + 1, learnedAtStart: learned, start: countSteps(journeys) } });
             },
             completeToday: () => {
                 const today = getTodayDateString();
@@ -636,6 +649,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     recommendedLevel: null,
                     queuedCardIds: [],
                     speakMisses: {},
+                    spokenAt: {},
                     journeys: {},
                     pledge: null,
                     sightings: [],
@@ -842,6 +856,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 const used = level === 'clear' ? sayClearly(get().journeys[cardId], Date.now()) : undefined;
                 set({
                     speakMisses: applySpeakResult(get().speakMisses, cardId, level),
+                    spokenAt: { ...get().spokenAt, [cardId]: Date.now() },
                     ...(used && used !== get().journeys[cardId] ? withJourneys({ ...get().journeys, [cardId]: used }, get().stepHistory) : {}),
                 });
             },
@@ -943,6 +958,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 highestElo: state.highestElo,
                 queuedCardIds: state.queuedCardIds,
                 speakMisses: state.speakMisses,
+                spokenAt: state.spokenAt,
                 journeys: state.journeys,
                 pledge: state.pledge,
                 sightings: state.sightings,

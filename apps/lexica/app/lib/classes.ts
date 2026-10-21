@@ -10,7 +10,9 @@ import { classroomApi, type Assignment, type ClassInfo } from '@cortex/classroom
 import { LEXICA, lexicaModule, type Counts, type LexicaReport, type WordsPayload } from '@cortex/classroom-lexica';
 import { getSupabaseClient } from './supabase';
 import { getCard } from './content/repository';
-import { countLived, countSteps, isKnownAlready, stepIndex, stepOf, type Journeys } from './journey/steps';
+import { countLived, countSteps, isKnownAlready, stepIndex, stepOf, type Journeys, type WordJourney } from './journey/steps';
+import type { UserCardProgress } from './eloAlgorithm';
+import { localDate } from './engagement/ghost';
 
 export * from '@cortex/classroom';
 export { matchWords, weekDelta, type Counts } from '@cortex/classroom-lexica';
@@ -22,33 +24,69 @@ export const myClasses = () => api.myClasses(LEXICA);
 
 /** A Lexica lesson's words. */
 export const lessonOf = (a: Assignment): WordsPayload => lexicaModule.parsePayload(a.kind, a.payload);
-const lessons = (c: Pick<ClassInfo, 'assignments'>) => c.assignments.filter((a) => a.app === LEXICA).map(lessonOf);
+const lexicaAssignments = (c: Pick<ClassInfo, 'assignments'>) => c.assignments.filter((a) => a.app === LEXICA);
+const lessons = (c: Pick<ClassInfo, 'assignments'>) => lexicaAssignments(c).map(lessonOf);
 
-/** The four steps over a class's lesson words, with how many there are. */
-export function assignedCounts(journeys: Journeys, c: Pick<ClassInfo, 'assignments'>): Counts {
-    const ids = new Set(lessons(c).flatMap((l) => l.card_ids));
-    return { ...countSteps(journeys, ids), total: ids.size };
+type Progress = Readonly<Record<string, Pick<UserCardProgress, 'lastReviewedAt'> | undefined>>;
+
+/** When each lesson word was first given (ms), across the classes. */
+export function givenAt(classes: readonly Pick<ClassInfo, 'assignments'>[]): Map<string, number> {
+    const out = new Map<string, number>();
+    for (const a of classes.flatMap(lexicaAssignments)) {
+        const at = Date.parse(a.created_at) || 0;
+        for (const id of lessonOf(a).card_ids) out.set(id, Math.min(out.get(id) ?? at, at));
+    }
+    return out;
 }
 
-/** The furthest step of each lesson word (1 Hiểu … 4 Dùng, 5 used in real life); words not started are left out. */
-export function assignedSteps(journeys: Journeys, classes: readonly Pick<ClassInfo, 'assignments'>[]): Record<string, number> {
+/**
+ * The learner did something with the word since `since`: learned, recalled
+ * (right or wrong), met, said or used it. A word learned on their own before
+ * the lesson was given does not count for the lesson until they touch it again.
+ */
+export function touchedSince(j: WordJourney | undefined, p: Pick<UserCardProgress, 'lastReviewedAt'> | undefined, since: number): boolean {
+    if ((p?.lastReviewedAt ?? 0) >= since) return true;
+    if (!j) return false;
+    if ([j.understoodAt, j.rememberedAt, j.metAt, j.usedAt, j.livedAt].some((t) => (t ?? 0) >= since)) return true;
+    const day = localDate(since);
+    return j.recalls.some((d) => d > day);
+}
+
+/** Journeys of lesson words touched since they were given; the rest count as not started. */
+function lessonJourneys(journeys: Journeys, progress: Progress, given: Map<string, number>): Journeys {
+    const out: Journeys = {};
+    for (const [id, since] of given) if (journeys[id] && touchedSince(journeys[id], progress[id], since)) out[id] = journeys[id];
+    return out;
+}
+
+/** The four steps over a class's lesson words (counted from when each was given), with how many there are. */
+export function assignedCounts(journeys: Journeys, c: Pick<ClassInfo, 'assignments'>, progress: Progress = {}): Counts {
+    const given = givenAt([c]);
+    return { ...countSteps(lessonJourneys(journeys, progress, given), new Set(given.keys())), total: given.size };
+}
+
+/**
+ * The furthest step of each lesson word (1 Hiểu … 4 Dùng, 5 used in real
+ * life). Words not touched since they were given are left out: joining a
+ * class never shows a lesson as done from what was learned before it.
+ */
+export function assignedSteps(journeys: Journeys, classes: readonly Pick<ClassInfo, 'assignments'>[], progress: Progress = {}): Record<string, number> {
     const out: Record<string, number> = {};
-    for (const id of new Set(classes.flatMap((c) => lessons(c).flatMap((l) => l.card_ids)))) {
-        const j = journeys[id];
-        const n = j?.livedAt ? 5 : stepIndex(stepOf(j));
+    for (const [id, j] of Object.entries(lessonJourneys(journeys, progress, givenAt(classes)))) {
+        const n = j.livedAt ? 5 : stepIndex(stepOf(j));
         if (n > 0) out[id] = n;
     }
     return out;
 }
 
 /** What Lexica reports to every class it is in; the server keeps each class's part. */
-export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[]): LexicaReport {
+export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[], progress: Progress = {}): LexicaReport {
     const learned = Object.fromEntries(Object.entries(journeys).filter(([, j]) => !isKnownAlready(j)));
     return {
         // Steps reached by learning; words known beforehand are counted apart
         counts: { ...countSteps(learned), doi: countLived(journeys), known: Object.keys(journeys).length - Object.keys(learned).length },
-        assigned: Object.fromEntries(classes.map((c) => [c.id, assignedCounts(journeys, c)])),
-        words: assignedSteps(journeys, classes),
+        assigned: Object.fromEntries(classes.map((c) => [c.id, assignedCounts(journeys, c, progress)])),
+        words: assignedSteps(journeys, classes, progress),
     };
 }
 
@@ -80,6 +118,20 @@ const studentLessons = () => readCachedClasses().filter((c) => c.role === 'stude
 /** Lesson words that exist on this device, for the Học stage to deal first. */
 export function classWordsToQueue(): string[] {
     return [...new Set(studentLessons().flatMap((l) => l.card_ids))].filter((id) => getCard(id));
+}
+
+/** Lesson words the learner has never been dealt: the Học stage deals them. */
+export function newClassWords(progress: Progress): string[] {
+    return classWordsToQueue().filter((id) => !progress[id]);
+}
+
+/**
+ * Lesson words the learner already had before the lesson and has not touched
+ * since: the Ôn stage brings them back once, so the lesson counts for real.
+ */
+export function classWordsToRefresh(journeys: Journeys, progress: Progress): string[] {
+    const given = givenAt(readCachedClasses().filter((c) => c.role === 'student'));
+    return [...given].filter(([id, since]) => (journeys[id] || progress[id]) && getCard(id) && !touchedSince(journeys[id], progress[id], since)).map(([id]) => id);
 }
 
 /**

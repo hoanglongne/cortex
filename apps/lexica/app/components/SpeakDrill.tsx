@@ -13,6 +13,9 @@ import { ipaSyllables, spellingSyllables, stressedSyllables } from '../lib/pronu
 import { listenOnce, sayModel, speakVaried, variedVoiceCount, type Attempt } from '../lib/pronunciation/speech';
 import { contourMatch, modelContour, normalizeTrack } from '../lib/pronunciation/pitch';
 import type { ContentCard } from '../lib/content/pack';
+import { alignAttempt } from '../lib/pronunciation/align';
+import AlignedLine from './pron/AlignedLine';
+import SoundTips, { alignmentFor, useSoundFeedback } from './pron/SoundTips';
 
 export type Step = 1 | 2 | 3;
 const STEP_LABEL: Record<Step, string> = { 1: 'Nghe phân biệt', 2: 'Nghe mẫu rồi nói', 3: 'Mẹo và nói trong cụm' };
@@ -72,8 +75,9 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
 // ─── Step 1: hear the difference ─────────────────────────────────────────
 
 function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
+    // A different pair and order each practice, so the listening round is not learned by heart.
+    const [seed] = useState(() => Math.floor(Math.random() * 1000));
     const rounds = useMemo(() => {
-        const seed = card.id.split('').reduce((s, c) => s + c.charCodeAt(0), 0);
         const { pair } = pairFor(card.word, card.ipa, seed);
         const near = nearSound(card.word, card.ipa);
         const list: { options: [string, string]; answer: string }[] = [{ options: [pair[0], pair[1]], answer: pair[seed % 2] }];
@@ -82,7 +86,7 @@ function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             list.push({ options: seed % 2 ? [word, near.distractor] : [near.distractor, word], answer: word });
         }
         return list;
-    }, [card]);
+    }, [card, seed]);
     const [round, setRound] = useState(0);
     const [picked, setPicked] = useState<string | null>(null);
     const [played, setPlayed] = useState(false);
@@ -153,7 +157,9 @@ function useAttempt(target: string, onScored?: (level: SpeakLevel) => void, sent
         const a = await listenOnce({ target, signal: controller.signal, sentence });
         controller.abort();
         setListening(false);
-        const scored = scoreAttempt(target, a.alternatives);
+        // A phrase is read word by word (level 1); a word, or a phrase inside the learner's own sentence, as a whole.
+        const phrase = !sentence && target.trim().includes(' ') && a.alternatives.length > 0;
+        const scored = phrase ? { level: alignAttempt(target, a.alternatives).level, heard: a.alternatives[0].transcript.toLowerCase() } : scoreAttempt(target, a.alternatives);
         setAttempt({ ...a, ...scored });
         // Each real attempt counts once for the "từ khó nói" list.
         if (!a.error || a.error === 'no-speech') onScored?.(scored.level);
@@ -184,7 +190,7 @@ function SayStep({ card, onDone }: { card: ContentCard; onDone: (level: SpeakLev
                 </button>
             </div>
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} label={attempt ? 'Nói lại' : 'Nói'} />
-            {attempt && <AttemptResult attempt={attempt} target={word} />}
+            {attempt && <AttemptResult attempt={attempt} target={word} ipa={card.ipa} />}
             {attempt && (
                 <div className="mt-4 flex justify-end">
                     <button onClick={() => onDone(attempt.level)} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
@@ -205,7 +211,9 @@ function SayStep({ card, onDone }: { card: ContentCard; onDone: (level: SpeakLev
 
 function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
     const word = card.word.toLowerCase();
-    const phrase = (card.collocations?.[0] ?? word).toLowerCase();
+    // Another of the word's phrases each practice.
+    const [pick] = useState(() => Math.floor(Math.random() * 3));
+    const phrase = (card.collocations?.length ? card.collocations[pick % card.collocations.length] : word).toLowerCase();
     const syl = stressedSyllables(card.word, card.ipa);
     const stressedPart = syl.fromIpa ? undefined : syl.text.split('·').find((s) => s === s.toUpperCase());
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
@@ -282,13 +290,33 @@ function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void
                 )}
             </div>
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
-            {attempt && <AttemptResult attempt={attempt} target={phrase} />}
+            {attempt && <AttemptResult attempt={attempt} target={phrase} sentence />}
+            {showModel && <SayModelSentence model={situation.model} />}
             <div className="mt-4 flex justify-end">
                 <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
                     {attempt ? 'Tiếp' : 'Bỏ qua'}
                 </button>
             </div>
         </Panel>
+    );
+}
+
+/** Optional, after the learner's own sentence: say the model sentence and see each word marked. */
+function SayModelSentence({ model }: { model: string }) {
+    const [open, setOpen] = useState(false);
+    const { listening, attempt, start, stop } = useAttempt(model);
+    if (!open)
+        return (
+            <button onClick={() => setOpen(true)} className="mt-3 text-sm text-ink underline">
+                Nói theo câu mẫu
+            </button>
+        );
+    return (
+        <div className="mt-4 border-t border-line pt-4">
+            <p className="text-sm text-muted">Đọc to câu mẫu, app đánh dấu từng từ máy nghe được.</p>
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} label={attempt ? 'Nói lại câu mẫu' : 'Nói câu mẫu'} />
+            {attempt && <AttemptResult attempt={attempt} target={model} />}
+        </div>
     );
 }
 
@@ -364,7 +392,14 @@ function MicButton({ listening, onStart, onStop, label }: { listening: boolean; 
     );
 }
 
-function AttemptResult({ attempt, target }: { attempt: Attempt & { level: SpeakLevel; heard: string }; target: string }) {
+/**
+ * What the machine heard. A phrase shows each of its words marked (level 1);
+ * a word or phrase also gets up to two sounds that may be off (level 2).
+ * `sentence`: the learner said their own sentence, so only the phrase is shown.
+ */
+function AttemptResult({ attempt, target, ipa, sentence = false }: { attempt: Attempt & { level: SpeakLevel; heard: string }; target: string; ipa?: string; sentence?: boolean }) {
+    const alignment = useMemo(() => (sentence ? null : alignmentFor(attempt, target)), [attempt, target, sentence]);
+    const feedback = useSoundFeedback(sentence ? null : attempt, target, { ipa, heard: attempt.heard, alignment });
     const tone = attempt.level === 'clear' ? 'text-accent border-accent/50' : attempt.level === 'close' ? 'text-warning border-warning/50' : 'text-danger border-danger/50';
     if (attempt.error === 'unsupported') return <p className="mt-3 text-sm text-warning">Trình duyệt này không nhận giọng nói.</p>;
     if (attempt.error === 'not-allowed') return <p className="mt-3 text-sm text-warning">Chưa có quyền dùng micro. Bật micro trong cài đặt trình duyệt rồi thử lại.</p>;
@@ -374,7 +409,9 @@ function AttemptResult({ attempt, target }: { attempt: Attempt & { level: SpeakL
                 <span className={`rounded-lg border px-2 py-0.5 text-sm font-semibold ${tone}`}>{LEVEL_LABEL[attempt.level]}</span>
                 <p className="text-sm text-ink-2">
                     Máy nghe:{' '}
-                    {attempt.heard ? (
+                    {attempt.heard && alignment ? (
+                        <span className="font-mono text-ink">{attempt.alternatives[0]?.transcript}</span>
+                    ) : attempt.heard ? (
                         <span className="font-mono text-ink">
                             {diffHeard(attempt.heard, target).map((p, i) => (
                                 <span key={i} className={p.ok ? '' : 'text-danger underline decoration-danger/60'}>
@@ -387,6 +424,7 @@ function AttemptResult({ attempt, target }: { attempt: Attempt & { level: SpeakL
                     )}
                 </p>
             </div>
+            {alignment && <AlignedLine alignment={alignment} />}
             {!attempt.heard && (
                 <p data-testid="attempt-hint" className="mt-2 text-xs text-muted">
                     {attempt.error === 'network'
@@ -407,6 +445,7 @@ function AttemptResult({ attempt, target }: { attempt: Attempt & { level: SpeakL
                     </button>
                 </div>
             )}
+            <SoundTips feedback={feedback} />
         </motion.div>
     );
 }

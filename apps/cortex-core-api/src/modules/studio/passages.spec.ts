@@ -4,7 +4,10 @@ import {
   buildPassagesFile,
   checkPassage,
   deckWordsIn,
+  nextFromPlan,
   parsePassageReply,
+  planCells,
+  topicCounts,
   pickNewWords,
   publishedId,
   wordCount,
@@ -173,6 +176,83 @@ describe('buildPassagePrompt', () => {
   });
 });
 
+describe('the 100-passage plan', () => {
+  it('has 100 passages and counts bundled, approved and pending ones per cell', () => {
+    const cells = planCells([
+      { kind: 'text', level: 'beginner', topic: 'Du lịch', status: 'approved' },
+      { level: 'beginner', topic: 'Du lịch', status: 'pending' },
+      { level: 'beginner', topic: 'Du lịch', status: 'rejected' },
+    ]);
+    expect(cells.reduce((n, c) => n + c.target, 0)).toBe(100);
+    expect(
+      cells.find((c) => c.kind === 'dialogue' && c.level === 'expert'),
+    ).toBeUndefined();
+    expect(
+      cells.find((c) => c.kind === 'text' && c.level === 'beginner'),
+    ).toEqual({
+      kind: 'text',
+      level: 'beginner',
+      target: 18,
+      bundled: 4,
+      approved: 1,
+      pending: 1,
+      missing: 12,
+    });
+    expect(cells.reduce((n, c) => n + c.missing, 0)).toBe(84);
+  });
+
+  it('counts topics per kind, bundled ones included, rejected ones not', () => {
+    const t = topicCounts(
+      [
+        {
+          kind: 'dialogue',
+          level: 'beginner',
+          topic: 'Du lịch',
+          status: 'pending',
+        },
+        {
+          kind: 'dialogue',
+          level: 'beginner',
+          topic: 'Du lịch',
+          status: 'rejected',
+        },
+      ],
+      'dialogue',
+    );
+    expect(t['Du lịch']).toBe(2);
+    expect(t['Đời sống']).toBe(2);
+    expect(t['Công nghệ']).toBe(0);
+  });
+
+  it('picks the cells missing most and rotates topics', () => {
+    const picks = nextFromPlan([], 5);
+    expect(picks).toHaveLength(5);
+    // Trung cấp đoạn văn misses 17, then Cơ bản đoạn văn and both dialogue cells 14.
+    expect(picks[0]).toMatchObject({ kind: 'text', level: 'intermediate' });
+    expect(
+      new Set(picks.map((p) => `${p.kind} ${p.level} ${p.topic}`)).size,
+    ).toBe(5);
+    // A new topic for the cell, not one it already has.
+    expect(['Công việc', 'Giáo dục', 'Xã hội']).not.toContain(picks[0].topic);
+    const dialogues = nextFromPlan([], 40).filter((p) => p.kind === 'dialogue');
+    expect(dialogues.length).toBeGreaterThan(0);
+    expect(['Đời sống', 'Du lịch', 'Công việc', 'Tiền bạc']).toContain(
+      dialogues.find((p) => p.level === 'beginner')!.topic,
+    );
+  });
+
+  it('stops when the plan is full', () => {
+    const full = nextFromPlan([], 200);
+    expect(full).toHaveLength(86);
+    expect(
+      nextFromPlan(
+        full.map((p) => ({ ...p, status: 'approved' as const })),
+        3,
+      ),
+    ).toEqual([]);
+  });
+});
+
 describe('PassagesService', () => {
   const studio = {
     listBlocklist: () => Promise.resolve([]),
@@ -241,6 +321,23 @@ describe('PassagesService', () => {
       prompt_version: 'passage.v1',
     });
     expect((inserted[0].new_words as string[]).length).toBe(4);
+  });
+
+  it('writes from the plan and stops at the daily cap', async () => {
+    const { db } = setup({});
+    const capped = new PassagesService(
+      {} as StudioLlm,
+      {
+        ...studio,
+        generationsToday: () => Promise.resolve(28),
+        maxGenerationsPerDay: 30,
+      } as unknown as StudioService,
+    );
+    const r = await capped.generateFromPlan(db, 'u1', 5);
+    // The reply is empty, so each attempt fails, but only two are tried.
+    expect(r.results).toHaveLength(2);
+    expect(r.saved).toBe(0);
+    expect(r.stopped).toMatch(/30/);
   });
 
   it('refuses unknown levels and topics', async () => {
