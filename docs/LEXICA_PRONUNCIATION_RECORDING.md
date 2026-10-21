@@ -85,8 +85,8 @@ Các cột của `manifest.csv`:
 Chuẩn bị môi trường một lần, như mục "Chạy lại" trong `docs/LEXICA_PRONUNCIATION_SPIKE.md`. Sau đó:
 ```bash
 cd apps/lexica/scripts/pronunciation-spike
-python evalvi.py lexica-ghiam-*.zip              # ngưỡng mặc định 0,6
-python evalvi.py lexica-ghiam-*.zip --threshold 0.8
+python evalvi.py lexica-ghiam-*.zip              # ngưỡng mặc định 0,8, như app
+python evalvi.py lexica-ghiam-*.zip --threshold 0.6
 ```
 
 Mức 3 (âm cuối đo bằng năng lượng, trọng âm) dùng cùng các file zip, không cần Python. Giải nén mỗi zip vào một thư mục con, rồi:

@@ -127,7 +127,7 @@ Ghi âm (đã có) ──┤
 3. Chạy mô hình ra log-xác suất của từng âm theo khung 20ms.
 4. **Căn CTC theo chuỗi âm mẫu** (Viterbi có blank). Mỗi âm có một đoạn thời gian.
 5. Tính đặc trưng GOP mỗi âm (trung bình, thấp nhất, âm cạnh tranh mạnh nhất, độ dài), rồi đưa qua bộ hồi quy 300 cây để ra **điểm 0–2**.
-6. Âm có điểm < **0,6** (ngưỡng chỉnh khi kiểm trên giọng Việt) là "có thể chưa rõ".
+6. Âm có điểm < **0,8** (đổi từ 0,6 sau lần kiểm giọng Việt đầu tiên) là "có thể chưa rõ".
    - Âm cạnh tranh mạnh nhất cho biết "nghe như âm gì", ví dụ /θ/ nghe như /s/.
    - Tra bảng 5.4 để ra tên lỗi và mẹo.
 7. Mỗi lần nói báo **tối đa 2 âm** điểm thấp nhất, ưu tiên lỗi có trong thư viện.
@@ -356,7 +356,7 @@ Mọi file ở `apps/lexica/app/lib/pronunciation/`. Phần chấm đều là h�
 - **Bỏ sót:** think thành sink, three thành tree, sheep thành ship, leave thành live, thing thành thin, bad thành bed, cats thành cat.
   - Phần lớn là lỗi **thay âm**: mô hình vẫn chấm âm gốc cao.
 - **Báo oan:** /p/ và nguyên âm trong play, /g/ và nguyên âm trong glass, /t/ cuối trong walked.
-- **Chưa đủ để kết luận:** mới 1 người, 36 lượt. Cần thêm 2–4 người. Nếu kết quả giữ như vậy thì nên đổi ngưỡng `UNCLEAR_BELOW` trong `sounds.ts` từ 0,6 lên 0,8.
+- **Chưa đủ để kết luận:** mới 1 người, 36 lượt. Cần thêm 2–4 người. Đã đổi ngưỡng `UNCLEAR_BELOW` trong `sounds.ts` từ 0,6 lên 0,8 (21/10/2026, theo quyết định của chủ sản phẩm). Kiểm lại khi có thêm người ghi.
 
 ## 12. Đã làm trong PR (b) (PR #46)
 

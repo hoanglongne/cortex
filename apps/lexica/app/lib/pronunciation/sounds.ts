@@ -161,7 +161,7 @@ export interface PhoneScore {
 }
 
 /** Below this a phone "may be unclear" (docs/LEXICA_PRONUNCIATION_SPIKE.md; tune on Vietnamese voices). */
-export const UNCLEAR_BELOW = 0.6;
+export const UNCLEAR_BELOW = 0.8;
 
 /**
  * Low-scoring phones of each word, worst first. The competing phone names
