@@ -76,7 +76,6 @@ export function stop() {
 export const NATURAL_VOICES = ['Kore', 'Puck', 'Aoede'] as const;
 /** Off for the session after the API fails once, so every tap does not wait for it again. */
 let cloudOff = false;
-let slowCalls = 0;
 
 export function naturalVoiceUrl(text: string, opts: { slow?: boolean; voice?: string } = {}): string | null {
     const t = text.trim();
@@ -100,10 +99,11 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
     const mine = seq;
     el.src = url;
     el.playbackRate = opts.rate ? Math.min(1.3, Math.max(0.6, opts.rate / 0.9)) : 1;
-    // A long text is generated on first request; do not keep the learner waiting forever.
-    // A word should sound at once: if the natural voice is not ready quickly, the system voice speaks
-    // (and the natural one is fetched in the background for next time).
-    const waitMs = text.length <= 40 && !preloaded.has(url) ? 2000 : 6000 + text.length * 20;
+    // A text is generated on first request; do not keep the learner waiting forever. When the
+    // natural voice is late, the system voice speaks this once and the natural one keeps loading
+    // for next time. Slowness never switches the natural voice off: voices changing from one tap
+    // to the next sounded broken.
+    const waitMs = text.length <= 40 ? 4500 : 6000 + text.length * 20;
     const timeout = new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), waitMs));
     try {
         const started = await Promise.race([el.play().then(() => 'ok' as const), timeout]);
@@ -111,8 +111,6 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
         if (started === 'timeout') {
             el.pause();
             warm(url);
-            // Twice too slow: the system voice for the rest of the visit.
-            if (++slowCalls >= 2) cloudOff = true;
             return false;
         }
     } catch (e) {
@@ -194,4 +192,12 @@ export function preload(cardIds: string[], clip: Clip = 'word') {
     }
 }
 
-export const AudioService = { play, playText, preload, stop };
+/** Starts loading the natural voice for these texts, so the first tap plays at once. */
+export function preloadText(texts: readonly { text: string; slow?: boolean; voice?: string }[]) {
+    for (const t of texts) {
+        const url = naturalVoiceUrl(t.text, t);
+        if (url) warm(url);
+    }
+}
+
+export const AudioService = { play, playText, preload, preloadText, stop };
