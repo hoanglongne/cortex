@@ -98,21 +98,68 @@ export interface Attempt {
 const MODE_KEY = 'lexica-speech-mode';
 const canTranscribe = () => Boolean(CORTEX_API_URL);
 
-/** "server" once the browser's recognition missed a voice the recording had: then skip it. */
-function speechMode(): 'browser' | 'server' {
+/**
+ * How this browser listens, learned during the visit (sessionStorage, so a
+ * bad guess never sticks for good):
+ * - "browser": record and let the browser recognise at the same time;
+ * - "server": the browser missed a voice the recording had, the API read it: skip the browser;
+ * - "solo": neither read it (phones often can't record and recognise at once):
+ *   let the browser recognise alone, without our recording.
+ */
+type SpeechMode = 'browser' | 'server' | 'solo';
+
+function speechMode(): SpeechMode {
     try {
-        return localStorage.getItem(MODE_KEY) === 'server' ? 'server' : 'browser';
+        const m = sessionStorage.getItem(MODE_KEY);
+        return m === 'server' || m === 'solo' ? m : 'browser';
     } catch {
         return 'browser';
     }
 }
 
-function setSpeechMode(mode: 'browser' | 'server') {
+function setSpeechMode(mode: SpeechMode) {
     try {
-        localStorage.setItem(MODE_KEY, mode);
+        sessionStorage.setItem(MODE_KEY, mode);
     } catch {
-        // Private mode: decided again next time.
+        // Private mode: decided again next attempt.
     }
+}
+
+// ─── The microphone, kept open between attempts ─────────────────────────
+
+/**
+ * One microphone stream for the whole drill. Opening a new one for every
+ * attempt made Safari (and Chrome's "allow this time") ask for permission
+ * again and again. It closes after a minute unused, or when the page is hidden.
+ */
+let mic: MediaStream | null = null;
+let micIdle: ReturnType<typeof setTimeout> | null = null;
+const MIC_IDLE_MS = 60_000;
+
+function releaseMic() {
+    if (micIdle) clearTimeout(micIdle);
+    micIdle = null;
+    mic?.getTracks().forEach((t) => t.stop());
+    mic = null;
+}
+
+async function openMic(): Promise<MediaStream> {
+    if (micIdle) clearTimeout(micIdle);
+    micIdle = null;
+    if (mic && mic.getAudioTracks().some((t) => t.readyState === 'live')) return mic;
+    mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    if (typeof document !== 'undefined' && !openMic.watching) {
+        openMic.watching = true;
+        document.addEventListener('visibilitychange', () => document.hidden && releaseMic());
+        window.addEventListener('pagehide', releaseMic);
+    }
+    return mic;
+}
+openMic.watching = false;
+
+function keepMicAwhile() {
+    if (micIdle) clearTimeout(micIdle);
+    micIdle = setTimeout(releaseMic, MIC_IDLE_MS);
 }
 
 /**
@@ -125,19 +172,22 @@ function setSpeechMode(mode: 'browser' | 'server') {
  * ("Please keep in mind that…"). Then hearing the target is no reason to
  * stop: only a pause of `SENTENCE_PAUSE_MS` after speech, or the learner, ends it.
  */
-export async function listenOnce(opts: { target?: string; maxMs?: number; signal?: AbortSignal; sentence?: boolean } = {}): Promise<Attempt> {
+export async function listenOnce(opts: { target?: string; maxMs?: number; signal?: AbortSignal; sentence?: boolean; onReady?: () => void } = {}): Promise<Attempt> {
     const Ctor = recognitionCtor();
     const server = canTranscribe() && Boolean(opts.target);
     if (!Ctor && !server) return { alternatives: [], audioUrl: null, pitch: [], error: 'unsupported' };
-    let stream: MediaStream;
-    try {
-        stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
-    } catch {
-        return { alternatives: [], audioUrl: null, pitch: [], error: 'not-allowed' };
+    const mode = speechMode();
+    const solo = Boolean(Ctor) && mode === 'solo';
+    let rec: ReturnType<typeof startRecording> | null = null;
+    if (!solo) {
+        try {
+            rec = startRecording(await openMic());
+        } catch {
+            return { alternatives: [], audioUrl: null, pitch: [], error: 'not-allowed' };
+        }
     }
-
-    const rec = startRecording(stream);
-    const useBrowser = Boolean(Ctor) && !(server && speechMode() === 'server');
+    opts.onReady?.();
+    const useBrowser = Boolean(Ctor) && !(server && mode === 'server');
 
     const browser = await new Promise<Pick<Attempt, 'alternatives' | 'error'>>((resolve) => {
         let done = false;
@@ -158,9 +208,9 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
         const max = setTimeout(() => finish({ alternatives: heard, error: heard.length ? undefined : 'no-speech' }), opts.maxMs ?? (opts.sentence ? 20000 : 7000));
         // Without the browser's recognition, end on a pause after speech.
         const vad = setInterval(() => {
-            if (!recognition && rec.silentAfterVoice(opts.sentence ? SENTENCE_PAUSE_MS : words(opts.target ?? '').length > 1 ? 1500 : 900)) finish({ alternatives: [], error: 'no-speech' });
+            if (!recognition && rec?.silentAfterVoice(opts.sentence ? SENTENCE_PAUSE_MS : words(opts.target ?? '').length > 1 ? 1500 : 900)) finish({ alternatives: [], error: 'no-speech' });
             // A sentence ends when the learner stops talking, whatever the browser heard so far.
-            if (recognition && opts.sentence && heard.length > 0 && rec.silentAfterVoice(SENTENCE_PAUSE_MS)) finish({ alternatives: heard });
+            if (recognition && opts.sentence && heard.length > 0 && rec?.silentAfterVoice(SENTENCE_PAUSE_MS)) finish({ alternatives: heard });
         }, 100);
         opts.signal?.addEventListener('abort', () => {
             if (!recognition) return finish({ alternatives: [], error: 'no-speech' });
@@ -219,20 +269,32 @@ export async function listenOnce(opts: { target?: string; maxMs?: number; signal
         }
     });
 
-    const take = rec.stop();
-    stream.getTracks().forEach((t) => t.stop());
+    const take = rec?.stop() ?? { wav: null, samples: null, pitch: [], voiced: false };
+    keepMicAwhile();
     const audioUrl = take.wav ? URL.createObjectURL(take.wav) : null;
     const base = { audioUrl, pitch: take.pitch, voiced: take.voiced, samples: take.samples ?? undefined };
     if (browser.alternatives.length > 0) return { ...browser, ...base };
     if (!take.voiced || !take.wav) return { alternatives: [], error: browser.error ?? 'no-speech', ...base };
-    if (!server) return { ...browser, ...base };
-
-    // The recording has a voice the browser did not catch: ask the API.
+    // A voice was recorded but not read. Next time let the browser listen alone (phones
+    // often cannot record and recognise at once); the API reads this one if it can.
+    const tryAlone = () => {
+        if (Ctor && useBrowser) setSpeechMode('solo');
+        else if (mode === 'server') setSpeechMode(Ctor ? 'solo' : 'browser');
+    };
+    if (!server) {
+        tryAlone();
+        return { ...browser, ...base };
+    }
     try {
         const alternatives = await transcribe(take.wav, opts.target!);
-        if (useBrowser && alternatives.length > 0) setSpeechMode('server');
-        return { alternatives, error: alternatives.length ? undefined : 'no-speech', ...base };
+        if (alternatives.length > 0) {
+            if (useBrowser) setSpeechMode('server');
+            return { alternatives, ...base };
+        }
+        tryAlone();
+        return { alternatives: [], error: 'no-speech', ...base };
     } catch {
+        tryAlone();
         return { alternatives: [], error: 'network', ...base };
     }
 }
@@ -268,8 +330,12 @@ async function blobToBase64(blob: Blob): Promise<string> {
 const RATE = 16000;
 /** Quiet after speech that ends a sentence: long enough to think mid-sentence. */
 const SENTENCE_PAUSE_MS = 1800;
-/** RMS above the room's noise floor that counts as a voice. */
-const VOICE_RMS = 0.015;
+/** RMS that counts as a voice at least (quiet microphones with noise suppression stay low)… */
+const VOICE_RMS = 0.006;
+/** …and this many times the room's noise, measured in the first frames. */
+const VOICE_OVER_NOISE = 2.5;
+const NOISE_FRAMES = 4;
+const VOICE_NOISE_CAP = 0.012;
 
 /**
  * Raw microphone samples through Web Audio (works on every browser that has
@@ -281,6 +347,9 @@ export function startRecording(stream: MediaStream) {
     const pitch: (number | null)[] = [];
     let voicedFrames = 0;
     let lastVoice = 0;
+    let frames = 0;
+    /** The room, from the quietest of the first frames (before the learner starts). */
+    let noise = Infinity;
     let ctx: AudioContext | null = null;
     let sampleRate = 48000;
     try {
@@ -296,7 +365,10 @@ export function startRecording(stream: MediaStream) {
             chunks.push(new Float32Array(input));
             let sum = 0;
             for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
-            const loud = Math.sqrt(sum / input.length) > VOICE_RMS;
+            const rms = Math.sqrt(sum / input.length);
+            if (frames++ < NOISE_FRAMES) noise = Math.min(noise, rms);
+            // Capped: someone speaking from the first frame must not raise the bar above their own voice.
+            const loud = rms > Math.max(VOICE_RMS, Math.min(VOICE_NOISE_CAP, Number.isFinite(noise) ? noise * VOICE_OVER_NOISE : 0));
             if (loud) {
                 voicedFrames++;
                 lastVoice = performance.now();
