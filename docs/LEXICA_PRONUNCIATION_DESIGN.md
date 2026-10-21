@@ -42,7 +42,7 @@ Câu hỏi của mọi tính năng (theo quy tắc của T8): *"Nó giúp ngư�
   - Web Audio (cao độ, khoảng lặng);
   - luật viết tay (thư viện lỗi của người Việt).
 - **Gemini** (`/v1/lexica/transcribe`, khi trình duyệt không nghe được) chỉ để hiện chữ. Không dùng để chấm âm hay ghi sổ lỗi.
-- **Gói chấm phát âm chỉ tải khi người học bấm** ("Tải gói chấm phát âm, 27MB"). Đã chốt: không tự tải, kể cả khi dùng Wi-Fi.
+- **Gói chấm phát âm chỉ tải khi người học bấm.** Từ PR #46, nút tải hiện cho mọi người học (chủ sản phẩm chốt: muốn xem từng âm thì tải); gói khoảng 38MB. Đã chốt: không tự tải, kể cả khi dùng Wi-Fi.
   - lưu vào Cache Storage, lần sau không tải lại;
   - chưa tải thì mức 2 dùng cách cũ: đoán qua từ máy nghe nhầm (5.4).
 
@@ -373,7 +373,7 @@ Mọi file ở `apps/lexica/app/lib/pronunciation/`. Phần chấm đều là h�
   - chỉ đo phụ âm cuối đứng ngay sau nguyên âm hoặc âm vang (light, rice, wide). Với walked, cats, âm đứng trước vẫn để lại tiếng bật nên không tách được;
   - không kết luận khi phòng quá ồn, hoặc bản ghi dừng quá sát sau giọng.
 - **Trọng âm (6.2)**, từ 2 âm tiết trở lên:
-  - tách âm tiết theo đỉnh năng lượng có giọng; có gói chấm thì lấy thời gian từng nguyên âm từ mô hình;
+  - tách âm tiết theo đỉnh năng lượng có giọng. Không dùng thời gian nguyên âm của mô hình: mô hình CTC chỉ đánh dấu 1–3 khung cho mỗi âm, nên độ dài đo ra vô nghĩa (thử trên giọng thật: lượt nhấn đúng bị báo sai);
   - âm tiết nổi nhất là âm tiết có tổng cao nhất khi cộng độ dài, độ to và cao độ (đã chuẩn hoá trong từ);
   - đếm ra số âm tiết khác từ điển thì không kết luận.
 - **Ngữ điệu (6.3)**, cụm và câu:

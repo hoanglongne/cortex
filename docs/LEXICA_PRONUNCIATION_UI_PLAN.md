@@ -1,6 +1,6 @@
 # Lexica: làm lại giao diện kết quả chấm phát âm (kế hoạch)
 
-Trạng thái: **kế hoạch, chờ chủ sản phẩm duyệt**. Viết ngày 21/10/2026, sau Đợt 6 (`docs/LEXICA_PRONUNCIATION_DESIGN.md`).
+Trạng thái: **đã làm** (PR #46), sau khi chủ sản phẩm chốt 3 câu hỏi (mục cuối). Viết ngày 21/10/2026, sau Đợt 6 (`docs/LEXICA_PRONUNCIATION_DESIGN.md`). Những gì làm khác kế hoạch: mục "Đã làm".
 
 ## Vấn đề
 Phần chấm hiện chỉ có chữ:
@@ -150,10 +150,41 @@ Người học phải tự đọc và hình dung. Họ không **nhìn** thấy s
 
 Đề xuất làm thành **1 PR** (bước 1, 2, 4, 5) cộng **1 PR riêng cho hình miệng** (bước 3), vì phần hình cần chủ sản phẩm duyệt nét vẽ.
 
-## Cần chủ sản phẩm chốt
-1. Có hiện màu xanh cho âm máy **không kiểm** (khi chưa có gói chấm) không? Đề xuất: **không**, để xám, cho trung thực.
-2. Hình miệng: tự vẽ SVG đơn giản (đề xuất), hay dùng video miệng người thật (đẹp hơn, nhưng phải quay 11 đoạn)?
-3. "Rõ 3/4 âm" có được không, hay bỏ hẳn con số?
+## Đã chốt (21/10/2026)
+1. **Xem từng âm là tính năng của gói chấm: muốn dùng thì tải.** Vì vậy:
+   - nút "Tải gói chấm" hiện cho mọi người học, không chỉ người thử nghiệm;
+   - chưa tải thì không có hàng ô âm, chỉ có phần đoán qua từ nghe nhầm như cũ.
+2. **Tự vẽ hình miệng SVG**, miễn đủ rõ để hướng dẫn.
+3. **Bỏ con số** "Rõ 3/4 âm": chỉ còn màu và ký hiệu.
+
+## Đã làm (PR #46)
+
+### Mã
+- `lib/pronunciation/graphemes.ts`: ghép chữ cái với âm. Căn đủ 555/555 từ của kho thẻ có trong từ điển.
+- `lib/pronunciation/chips.ts`: mức màu (xanh từ 1,3; vàng 0,8–1,3; đỏ dưới 0,8) và lỗi của từng ô.
+- `lib/pronunciation/mouth.ts` và `components/pron/Mouth.tsx`: hình miệng nhìn nghiêng.
+  - Tư thế theo **vị trí cấu âm của âm đúng**, không theo nhóm lỗi. Có 18 tư thế, đủ cho mọi âm mô hình chấm.
+  - Mỗi hình có vòng tròn ở chỗ chạm, đường hơi đi, đường hơi qua mũi với âm mũi, dấu rung ở cổ họng với âm hữu thanh.
+  - Kèm một câu chỉ động tác, và câu "rung / không rung cổ họng".
+- `components/pron/SoundTips.tsx`:
+  - hàng ô âm, mỗi từ một hàng (cụm có nhiều hàng);
+  - bảng chi tiết trượt từ dưới lên, gồm: "bạn nói giống / bạn bỏ mất âm → đúng là", hình miệng, nghe từ đúng, nghe từ mình nói giống, nghe giọng mình, "Thử lại từ này";
+  - với người thử nghiệm: trọng âm bằng chấm to/nhỏ, thanh tốc độ.
+- **Đường cao độ** (máy tính) ghi hướng cuối câu: "mẫu ↘ xuống · bạn ↗ lên".
+- **Màn tổng kết:** mỗi từ có hàng ô nhỏ theo màu từng âm.
+
+### Khác với kế hoạch
+- **Hình miệng theo vị trí cấu âm**, không phải 11 hình theo nhóm lỗi. Ví dụ nhóm "mất phụ âm cuối" cần hình khác nhau cho /t/, /k/, /s/.
+- **Ẩn nhãn "Rõ / Gần đúng / Chưa rõ"** của máy nhận dạng khi đã có hàng ô âm. Nhãn đó chỉ nói máy có nghe ra đúng từ không, nên dễ mâu thuẫn với ô đỏ.
+- **Trọng âm luôn tách âm tiết theo năng lượng.** Thử trên giọng thật cho thấy dùng thời gian nguyên âm của mô hình làm lượt nhấn đúng bị báo sai.
+- **Nhóm "Đuôi -s, -ed"** chỉ áp dụng cho từ viết bằng -s, -es, -ed. /t/ cuối của "abundant" giờ là "Mất phụ âm cuối".
+
+### Đã kiểm
+- Test thuần cho ghép chữ–âm, mức màu, hình miệng.
+- Playwright với micro giả phát chính bản ghi "abundant" của chủ sản phẩm (từ `/ghi-am`):
+  - **lượt đọc đúng:** 8 ô xanh, trọng âm khớp mẫu;
+  - **lượt cố tình nhấn sai:** báo nhấn "A-bun-dant", nên nhấn "a-BUN-dant";
+  - bảng chi tiết của ô đỏ mở đúng.
 
 ## Nguồn
 - ELSA, mô tả màu và cách chấm: https://iastatedigitalpress.com/psllt/article/15397/galley/13528/view, https://learnenglish.life/reviews/elsa-speak/, https://makeheadway.com/blog/elsa-speak-review/

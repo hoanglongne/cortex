@@ -33,6 +33,7 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] PR (a) · Mức 1: so khớp từ với câu mẫu (từ thiếu, đổi, nhận sai; độ tin cậy, phương án nhận dạng khác) (PR #45).
 - [x] PR (a) · Mức 2: chấm từng âm bằng mô hình trên máy (ẩn sau cờ tới khi qua kiểm định giọng Việt), âm vị qua CMU Pronouncing Dictionary; đoán âm sai; thư viện lỗi hay gặp của người Việt kèm cặp từ dễ nhầm (PR #45). Còn: người dùng đưa gói lên Supabase và gửi bản ghi giọng Việt.
 - [x] PR (b) · Mức 3: Web Audio: năng lượng cuối từ (mất âm cuối), cao độ và độ dài (trọng âm, ngữ điệu), tốc độ, ngắt nghỉ; vẽ ngữ điệu so với giọng mẫu (PR #46). Lời nhận xét chỉ hiện cho người thử nghiệm cho tới khi kiểm đủ giọng.
+- [x] Giao diện chấm trực quan (`docs/LEXICA_PRONUNCIATION_UI_PLAN.md`): hàng ô âm tô màu, bảng sửa lỗi có hình miệng, trọng âm bằng chấm; gói chấm mở cho mọi người học tự tải; ngưỡng 0,8 (PR #46).
 - [x] PR (c) · Mức 4: theo dõi âm hay sai theo thời gian, tự giao bài luyện, tóm tắt cho giáo viên (PR #46). Người dùng chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`.
 
 ## Đợt 7: góp ý sau khi dùng thử (PR #45)

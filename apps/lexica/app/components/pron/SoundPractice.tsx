@@ -49,7 +49,7 @@ export default function SoundPractice({ kind, onDone }: { kind: ErrorKind; onDon
             .filter((c): c is NonNullable<typeof c> => Boolean(c) && !c!.word.includes(' '))
             .filter((c) => {
                 const ph = phonesOf(dict, c.word, c.ipa);
-                return ph ? exposures(ph).has(kind) : false;
+                return ph ? exposures(ph, c.word).has(kind) : false;
             })
             .slice(0, SAY)
             .map((c) => c.id);

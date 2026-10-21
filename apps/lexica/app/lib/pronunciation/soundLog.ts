@@ -9,6 +9,7 @@
 import { oftenMissed, SOUND_KINDS, type Sounds } from '@cortex/classroom-lexica';
 import type { ErrorKind } from './pairs';
 import { bare, isVowel } from './phones';
+import { spelledEnding } from './sounds';
 
 /** Per group, per local day ("2026-10-21"): [tries, misses]. */
 export type SoundLog = Partial<Record<ErrorKind, Record<string, [number, number]>>>;
@@ -17,8 +18,8 @@ export const KEEP_DAYS = 60;
 
 const SONORANTS = new Set(['L', 'R', 'M', 'N', 'NG', 'W', 'Y']);
 
-/** The groups a word gives a chance to get wrong, from its phones. */
-export function exposures(phones: readonly string[]): Set<ErrorKind> {
+/** The groups a word gives a chance to get wrong, from its phones (and spelling, for -s/-ed endings). */
+export function exposures(phones: readonly string[], word?: string): Set<ErrorKind> {
     const p = phones.map(bare);
     const out = new Set<ErrorKind>();
     const first = phones.findIndex(isVowel);
@@ -31,7 +32,7 @@ export function exposures(phones: readonly string[]): Set<ErrorKind> {
     if (n > 0 && !isVowel(phones[n - 1])) {
         out.add('final_consonant');
         if (['D', 'Z', 'V', 'G', 'B', 'JH', 'DH'].includes(last)) out.add('final_voicing');
-        if (['S', 'Z', 'T', 'D'].includes(last) && n > 1 && !isVowel(phones[n - 2]) && !SONORANTS.has(p[n - 2])) out.add('ending');
+        if (['S', 'Z', 'T', 'D'].includes(last) && n > 1 && !isVowel(phones[n - 2]) && (word === undefined ? !SONORANTS.has(p[n - 2]) : spelledEnding(word))) out.add('ending');
         if (last === 'NG') out.add('final_ng');
     }
     if (p.includes('TH') || p.includes('DH')) out.add('th');

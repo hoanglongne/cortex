@@ -66,7 +66,7 @@ Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm). Thiết kế: `do
   - đưa 3 file gói chấm lên Supabase Storage (`apps/lexica/scripts/pron-pack/README.md`);
   - cho 3–5 người ghi âm bằng trang `/ghi-am` (quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md`), gửi file zip.
 - **PR (b) đã làm** (PR #46): mức 3 (`prosody.ts`, `level3.ts`): âm cuối đo bằng năng lượng, trọng âm, ngữ điệu so với giọng mẫu, tốc độ và chỗ ngắt. Lời nhận xét chỉ người thử nghiệm thấy; số đo ghi vào sổ trên máy (`prosodyLog.ts`). Đường cao độ (máy tính) vẽ giọng mẫu thật cho mọi người.
-- **Gói chấm đã có trên Supabase** (`lexica-content/pron/v1/`, đã kiểm sha256).
+- **Gói chấm đã có trên Supabase** (`lexica-content/pron/v1/`, đã kiểm sha256). Từ PR #46, nút tải gói hiện cho mọi người học; tải rồi thì Luyện nói hiện hàng ô âm tô màu và bảng sửa lỗi có hình miệng (`docs/LEXICA_PRONUNCIATION_UI_PLAN.md`). Lời nhận xét mức 3 vẫn chỉ cho người thử nghiệm (`?pron=1`).
 - **PR (c) đã làm** (PR #46): sổ âm hay sai (`soundLog.ts`, trường `soundLog` trong store), "Âm hay sai" và "Luyện 2 phút" ở trang Luyện nói, mẹo ở trang chủ, số liệu `sounds` gửi lớp, mục "Âm cả lớp hay sai" trong Teach.
 - **Việc tiếp của dev:** khi có thêm file zip, chạy `evalvi.py` (mức 2) và `scripts/pron-eval` (mức 3) để quyết định bật chấm trên máy và lời nhận xét mức 3 cho mọi người. Đợt 6 không còn PR nào.
 - Đợt 5 và 6 cần người dùng duyệt hướng hoặc thiết kế trước khi code.

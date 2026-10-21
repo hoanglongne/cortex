@@ -39,7 +39,7 @@ function marked(word: string, k: number, count: number): string | null {
 /**
  * Remarks on one attempt at `target`. `words`: its words with dictionary
  * phones. `scored`: the phone-scoring model's output when it ran (then it
- * judges final consonants itself, and its vowel times drive the stress check).
+ * judges final consonants itself, and its word times place pauses).
  */
 export function prosodyNotes(opts: { target: string; words: { word: string; phones: string[] }[]; mine: Frames; model: Frames | null; scored: WordScores[] | null }): { notes: ProsodyNote[]; measures: ProsodyMeasures } {
     const { words, mine, model, scored } = opts;
@@ -56,9 +56,9 @@ export function prosodyNotes(opts: { target: string; words: { word: string; phon
             measures.finalVerdict = c.verdict;
             if (c.verdict === 'weak') notes.push({ kind: 'final', text: `Âm /${ipaOf(phones[phones.length - 1])}/ cuối của “${word}” nghe còn yếu. Đọc rõ âm cuối rồi mới dừng.` });
         }
-        // 6.2
-        const vowelSpans = scored?.[0]?.scores.filter((s) => isVowel(s.phone)).map((s) => ({ start: s.start, end: s.end }));
-        const s = stressCheck(mine, phones, vowelSpans);
+        // 6.2. Syllables from the energy, not the model's vowel times: CTC marks only 1–3 frames
+        // of each phone, so their lengths say nothing about how long a syllable was held.
+        const s = stressCheck(mine, phones);
         if (s) {
             measures.stress = { expected: s.expected, said: s.said };
             if (s.verdict === 'off' && s.said !== null) {
