@@ -340,3 +340,20 @@ Mọi file ở `apps/lexica/app/lib/pronunciation/`. Phần chấm đều là h�
   - mỗi lần chấm: log-mel 76ms, mô hình 454ms.
 - **Trong app** (Playwright, micro giả): tải gói, kiểm sha256, lưu cache, worker chấm, hiện mẹo.
 - **Chưa kiểm:** điện thoại thật, giọng Việt.
+
+### Kiểm định giọng Việt: lần đầu (21/10/2026, 1 người ghi)
+1 file zip từ `/ghi-am`: 18 từ chấm âm, mỗi từ đọc đúng 1 lần và đọc sai có chủ ý 1 lần. Ghi bằng điện thoại, không tai nghe.
+
+| Ngưỡng | Bắt đúng lỗi | Báo oan |
+|---|---|---|
+| 0,6 | 9/18 (50%) | 3/18 (17%) |
+| 0,8 | 11/18 (61%) | 3/18 (17%) |
+
+- **Bắt tốt:**
+  - mất phụ âm cuối: light, bike, rice, wide, feel, walked;
+  - bed thành bet; bỏ /l/ trong cụm play, glass;
+  - cheap thành sheep; zoo thành sue.
+- **Bỏ sót:** think thành sink, three thành tree, sheep thành ship, leave thành live, thing thành thin, bad thành bed, cats thành cat.
+  - Phần lớn là lỗi **thay âm**: mô hình vẫn chấm âm gốc cao.
+- **Báo oan:** /p/ và nguyên âm trong play, /g/ và nguyên âm trong glass, /t/ cuối trong walked.
+- **Chưa đủ để kết luận:** mới 1 người, 36 lượt. Cần thêm 2–4 người. Nếu kết quả giữ như vậy thì nên đổi ngưỡng `UNCLEAR_BELOW` trong `sounds.ts` từ 0,6 lên 0,8.
