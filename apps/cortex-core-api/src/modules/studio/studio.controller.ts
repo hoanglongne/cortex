@@ -498,6 +498,25 @@ export class StudioController {
     return this.passages.stats(db);
   }
 
+  @Get('passages/plan')
+  passagePlan(@StudioDb() db: Db) {
+    return this.passages.plan(db);
+  }
+
+  @Post('passages/plan/generate')
+  generateFromPlan(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Body() body: unknown,
+  ) {
+    const o = obj(body ?? {});
+    return this.passages.generateFromPlan(
+      db,
+      userId,
+      int(o, 'count', 1, 5) ?? 5,
+    );
+  }
+
   @Post('passages/generate')
   generatePassage(
     @StudioDb() db: Db,

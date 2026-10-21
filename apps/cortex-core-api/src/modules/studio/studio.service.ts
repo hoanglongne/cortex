@@ -83,7 +83,7 @@ export class StudioService {
     private readonly config: ConfigService,
   ) {}
 
-  private get maxGenerationsPerDay(): number {
+  get maxGenerationsPerDay(): number {
     return Number(this.config.get('STUDIO_MAX_GENERATIONS_PER_DAY') ?? 30);
   }
 

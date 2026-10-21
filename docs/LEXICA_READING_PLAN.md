@@ -42,11 +42,18 @@ Mục tiêu: **100 bài đọc** (đoạn văn và hội thoại) để phần �
 
 ## Làm thế nào
 
-### Bước 0: chuẩn bị (0,5 ngày)
+### Bước 0: chuẩn bị (0,5 ngày) — sửa nhỏ đã xong (PR #45)
 - **Kiểm số thẻ Giao tiếp trong Studio.** Hội thoại lấy từ mới từ kho Giao tiếp: 40 hội thoại × 3–4 từ ≈ 140 lượt từ. Nếu kho dưới 120 cụm, viết thêm thẻ Giao tiếp trước (trang "Giao tiếp" của Studio), ưu tiên Nâng cao.
 - **Sửa nhỏ:** câu báo luật độ dài trong Studio đang ghi "120–200 từ" cho cả hội thoại (`passages.ts`, `RULE_TEXT`).
 
-### Bước 1: công cụ "Tạo theo kế hoạch" trong Studio (1 PR, khoảng 1 ngày)
+### Bước 1: công cụ "Tạo theo kế hoạch" trong Studio — đã xong (PR #45)
+- **Đã làm:**
+  - Trang "Đọc" của Studio có khung "Kế hoạch 100 bài đọc": thanh tiến độ, bảng loại × level, số bài theo chủ đề, số lượt viết đã dùng trong 24 giờ.
+  - Nút "Viết N bài còn thiếu" (tối đa 5) gọi `POST /studio/passages/plan/generate` từng bài một, hiện kết quả từng bài.
+  - API: `GET /studio/passages/plan`. Chỉ tiêu và bài có sẵn nằm ở `passages.ts` (`PASSAGE_PLAN`, `BUNDLED_PASSAGES`); thêm bài vào app thì sửa `BUNDLED_PASSAGES`.
+  - Giới hạn: bài viết trong 24 giờ cộng lượt sinh thẻ, chung trần `STUDIO_MAX_GENERATIONS_PER_DAY`.
+  - Sự kiện `today_stage` của chặng Đọc có `source`: `ready` (bài sẵn), `ai`, `quote`, `none`.
+- **Thiết kế ban đầu:**
 - Một bảng như bảng phân bổ ở trên. Mỗi ô hiện **đã duyệt / đang chờ / còn thiếu**, đếm từ bảng `studio_passages`.
 - Nút **"Viết 5 bài còn thiếu"**: chọn các ô thiếu nhiều nhất, xoay vòng chủ đề, gọi `generate` lần lượt, dừng khi chạm giới hạn trong ngày.
 - Lý do: biên tập viên không phải tự chọn level, chủ đề cho từng bài, và nhìn một bảng là biết còn thiếu gì.

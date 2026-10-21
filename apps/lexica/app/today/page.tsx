@@ -92,9 +92,9 @@ export default function TodayPage() {
         if (plan.complete && !frozen) completeToday();
     }, [plan.complete, frozen, completeToday]);
 
-    const done = (stage: Stage) => {
+    const done = (stage: Stage, source?: ReadSource) => {
         finishStage(stage);
-        capture('today_stage', { stage });
+        capture('today_stage', source ? { stage, source } : { stage });
         setFrozen(null);
         window.scrollTo({ top: 0 });
     };
@@ -130,7 +130,7 @@ export default function TodayPage() {
                             />
                         </div>
                     )}
-                    {frozen?.stage === 'read' && <ReadStage frozen={frozen} onDone={() => done('read')} />}
+                    {frozen?.stage === 'read' && <ReadStage frozen={frozen} onDone={(source) => done('read', source)} />}
                     {frozen?.stage === 'speak' &&
                         (frozen.ids.length > 0 ? (
                             <SpeakDrill words={frozen.ids} steps={[2, 3]} onDone={() => done('speak')} />
@@ -164,16 +164,19 @@ function StageBar({ plan, active }: { plan: ReturnType<typeof useTodayPlan>['pla
     );
 }
 
-function ReadStage({ frozen, onDone }: { frozen: Extract<Frozen, { stage: 'read' }>; onDone: () => void }) {
+/** Where the read stage's text came from, for the share of ready passages (docs/LEXICA_READING_PLAN.md). */
+type ReadSource = 'ready' | 'ai' | 'quote' | 'none';
+
+function ReadStage({ frozen, onDone }: { frozen: Extract<Frozen, { stage: 'read' }>; onDone: (source: ReadSource) => void }) {
     const passage = frozen.passageId ? (getPassage(frozen.passageId) ?? null) : null;
-    if (passage) return <PassageReader passage={passage} onDone={onDone} />;
+    if (passage) return <PassageReader passage={passage} onDone={() => onDone('ready')} />;
     if (frozen.generate) return <WrittenForYou ids={frozen.generate} fallbackId={frozen.fallbackId} quoteWord={frozen.quoteWord} onDone={onDone} />;
-    if (frozen.quoteWord) return <QuoteMeet cardId={frozen.quoteWord} onDone={onDone} />;
-    return <Skip text="Chưa có đoạn văn nào có từ bạn vừa học. Bài đọc riêng cho bạn cần kết nối mạng." onDone={onDone} />;
+    if (frozen.quoteWord) return <QuoteMeet cardId={frozen.quoteWord} onDone={() => onDone('quote')} />;
+    return <Skip text="Chưa có đoạn văn nào có từ bạn vừa học. Bài đọc riêng cho bạn cần kết nối mạng." onDone={() => onDone('none')} />;
 }
 
 /** A passage written for the words learned today (lib/content/generated.ts). */
-function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; fallbackId: string | null; quoteWord: string | null; onDone: () => void }) {
+function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; fallbackId: string | null; quoteWord: string | null; onDone: (source: ReadSource) => void }) {
     const level = useLexicaStore((s) => (s.selectedLevel && s.selectedLevel !== 'all' ? s.selectedLevel : 'beginner'));
     const branch = useLexicaStore((s) => s.path?.branch ?? 'cert');
     const [state, setState] = useState<{ passage: Passage } | { failed: true } | null>(null);
@@ -195,11 +198,11 @@ function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; 
             </div>
         );
     }
-    if ('passage' in state) return <PassageReader passage={state.passage} onDone={onDone} />;
+    if ('passage' in state) return <PassageReader passage={state.passage} onDone={() => onDone('ai')} />;
     const fallback = fallbackId ? getPassage(fallbackId) : undefined;
-    if (fallback) return <PassageReader passage={fallback} onDone={onDone} />;
-    if (quoteWord) return <QuoteMeet cardId={quoteWord} onDone={onDone} />;
-    return <Skip text="Chưa viết được đoạn đọc cho từ của bạn (mất kết nối). Mai thử lại nhé." onDone={onDone} />;
+    if (fallback) return <PassageReader passage={fallback} onDone={() => onDone('ready')} />;
+    if (quoteWord) return <QuoteMeet cardId={quoteWord} onDone={() => onDone('quote')} />;
+    return <Skip text="Chưa viết được đoạn đọc cho từ của bạn (mất kết nối). Mai thử lại nhé." onDone={() => onDone('none')} />;
 }
 
 function Skip({ text, onDone }: { text: string; onDone: () => void }) {

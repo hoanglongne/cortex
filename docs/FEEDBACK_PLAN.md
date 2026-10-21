@@ -44,5 +44,6 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Lỗi: luyện nói lặp nội dung (nhớ lúc luyện từng từ, đổi nhóm từ, cặp nghe và cụm).
 - [x] Lỗi: Học thêm sau phiên đầu không có Đọc và Nói (thêm lượt học thêm đủ 4 chặng).
 - [x] Trang chủ gọn lại, có phần Từ vừa học; danh sách luyện chuyển sang tab Luyện.
-- [x] Kế hoạch 100 bài đọc: `docs/LEXICA_READING_PLAN.md`. Việc tiếp: công cụ "Tạo theo kế hoạch" trong Studio.
+- [x] Kế hoạch 100 bài đọc: `docs/LEXICA_READING_PLAN.md`.
+- [x] Công cụ "Tạo theo kế hoạch" trong Studio (trang Đọc): bảng đã có / chờ / thiếu, nút "Viết 5 bài còn thiếu"; sự kiện `today_stage` có thêm nguồn bài đọc (PR #45). Việc tiếp: biên tập viên viết và duyệt (bước 2).
 
