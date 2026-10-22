@@ -1,0 +1,13 @@
+{
+    "name": "lexica-voices",
+    "private": true,
+    "description": "Makes Lexica's model voices in advance with Kokoro (see pregen-tts.ts). Outside the pnpm workspace on purpose: Kokoro pulls in ~600 MB that no app should install.",
+    "scripts": {
+        "make": "tsx pregen-tts.ts"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "2.90.1",
+        "kokoro-js": "1.2.1",
+        "tsx": "4.19.2"
+    }
+}

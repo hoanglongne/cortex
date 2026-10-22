@@ -48,3 +48,11 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Kế hoạch 100 bài đọc: `docs/LEXICA_READING_PLAN.md`.
 - [x] Công cụ "Tạo theo kế hoạch" trong Studio (trang Đọc): bảng đã có / chờ / thiếu, nút "Viết 5 bài còn thiếu"; sự kiện `today_stage` có thêm nguồn bài đọc (PR #45). Việc tiếp: biên tập viên viết và duyệt (bước 2).
 
+
+## Đợt 8: luyện nói sau khi dùng thử
+- [x] Nút ghi âm một kiểu: bấm để bắt đầu, bấm Xong để kết thúc; ô âm sai gọn một dòng (PR #48).
+- [x] Laptop: kết quả chấm trượt ra bên phải, sang câu mới thì đề bài trượt về giữa (chuyển động mượt); điện thoại giữ kết quả bên dưới.
+- [x] Điểm vui 0–100 cho mỗi lần nói (vòng đếm, câu khen nhẹ nhàng, không lưu, không so sánh).
+- [x] Đa dạng bước dùng từ: xoay vòng Nói trong cụm, Nói theo câu thật (câu trích), Nói bằng tiếng Anh (từ câu tiếng Việt của thẻ), Đọc câu của bạn; bước nói từ thỉnh thoảng là "Nghe rồi nhắc lại" (giấu chữ).
+- [x] Nghiên cứu giọng đọc thay Gemini: `docs/LEXICA_TTS_RESEARCH.md`. Đề xuất: tạo sẵn audio bằng Kokoro cho nội dung cố định; Kokoro trên máy cho câu tự do.
+- [ ] Làm theo đề xuất giọng đọc (chờ người dùng duyệt).

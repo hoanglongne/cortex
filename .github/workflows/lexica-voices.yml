@@ -1,0 +1,50 @@
+name: Lexica voices
+
+# Makes Lexica's model voices with Kokoro and puts them in the Cortex API's
+# voice cache (tools/lexica-voices/pregen-tts.ts, docs/LEXICA_TTS_RESEARCH.md).
+# Run it by hand from the Actions tab after publishing new cards in Studio.
+on:
+  workflow_dispatch:
+    inputs:
+      overwrite:
+        description: "Replace clips already cached (the old Gemini voices too)"
+        type: boolean
+        default: false
+      limit:
+        description: "Make at most this many clips (empty: all)"
+        required: false
+        default: ""
+
+jobs:
+  voices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile --filter @cortex/lexica...
+
+      # Kokoro lives outside the workspace so no app installs it.
+      - run: npm ci --no-audit --no-fund
+        working-directory: tools/lexica-voices
+
+      # The model (~90 MB) downloads from Hugging Face on each run.
+      - name: Make voices
+        working-directory: tools/lexica-voices
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CONTENT_MANIFEST_URL: ${{ secrets.CONTENT_MANIFEST_URL }}
+        run: >
+          npm run make --
+          ${{ inputs.overwrite && '--overwrite' || '' }}
+          ${{ inputs.limit != '' && format('--limit {0}', inputs.limit) || '' }}

@@ -1,0 +1,5 @@
+{
+    "extends": "../../apps/lexica/tsconfig.json",
+    "compilerOptions": { "noEmit": true, "plugins": [] },
+    "include": ["pregen-tts.ts"]
+}
