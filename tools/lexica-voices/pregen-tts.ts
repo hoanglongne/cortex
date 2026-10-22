@@ -39,9 +39,26 @@ const limit = limitAt >= 0 ? Number(args[limitAt + 1]) : Infinity;
 /** The API's cache name (ttsKey in apps/cortex-core-api/src/modules/lexica/lexica-ai.ts). */
 const fileOf = (c: Clip) => `${createHash('sha256').update(clipKey(c), 'utf8').digest('hex').slice(0, 32)}.wav`;
 
-async function loadStudioContent(url: string) {
-    const manifest = parseManifest(await (await fetch(url)).json());
-    if (!manifest) throw new Error('Content manifest could not be read');
+/** Studio's published packs and quotes on top of the bundled cards. Returns false (and says why) when the manifest is not there. */
+async function loadStudioContent(url: string): Promise<boolean> {
+    const res = await fetch(url).catch((e: unknown) => {
+        console.warn(`Studio content skipped: ${url} could not be reached (${e instanceof Error ? e.message : String(e)})`);
+        return null;
+    });
+    if (!res) return false;
+    const body = await res.text();
+    let raw: unknown = null;
+    try {
+        raw = JSON.parse(body);
+    } catch {
+        // not JSON: reported below
+    }
+    const manifest = res.ok ? parseManifest(raw) : null;
+    if (!manifest) {
+        console.warn(`Studio content skipped: ${url} answered HTTP ${res.status}, not a content manifest: ${body.slice(0, 200)}`);
+        console.warn('Check CONTENT_MANIFEST_URL: it is the NEXT_PUBLIC_CONTENT_MANIFEST_URL of Lexica (open it in a browser: it should be JSON with "current" and "library"). Going on with the bundled cards only.');
+        return false;
+    }
     const get = async (ref: { url: string } | null) => (ref ? ((await (await fetch(ref.url)).json()) as unknown) : null);
     const packs: ContentPack[] = [];
     for (const ref of [manifest.current, manifest.library]) {
@@ -59,6 +76,7 @@ async function loadStudioContent(url: string) {
         quotes: overlay ? parseQuotes(overlay) : undefined,
     });
     console.log(`Studio: ${packs.reduce((n, p) => n + p.cards.length, 0)} cards in ${packs.length} packs`);
+    return true;
 }
 
 type Storage = ReturnType<typeof createClient>['storage'];
