@@ -4,20 +4,24 @@
  * Cortex API already generates and caches for the drill. The system voice
  * (speechSynthesis) cannot be recorded, so without the API there is none.
  */
-import { naturalVoiceUrl } from '../audio/AudioService';
+import { naturalVoiceUrl, storedVoiceUrl } from '../audio/AudioService';
 import { RATE } from './prosody';
 
 const cache = new Map<string, Promise<Float32Array | null>>();
 
 /** 16 kHz mono samples of `text` in the first natural voice, or null. */
 export function modelVoiceSamples(text: string): Promise<Float32Array | null> {
-    const url = naturalVoiceUrl(text);
+    const stored = storedVoiceUrl(text);
+    const api = naturalVoiceUrl(text);
+    const url = stored ?? api;
     if (!url || typeof OfflineAudioContext === 'undefined') return Promise.resolve(null);
     let hit = cache.get(url);
     if (!hit) {
         hit = (async () => {
             try {
-                const res = await fetch(url);
+                // The cached file, else the API.
+                let res = await fetch(url);
+                if (!res.ok && stored && api) res = await fetch(api);
                 if (!res.ok) return null;
                 const buf = await res.arrayBuffer();
                 // Decoding into a 16 kHz context resamples on the way.
