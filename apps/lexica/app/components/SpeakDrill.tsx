@@ -832,13 +832,10 @@ function FunScore({ score }: { score: number | null }) {
                 </svg>
                 <span className={`absolute inset-0 grid place-items-center font-mono text-lg font-bold tabular-nums ${tone}`}>{n}</span>
             </div>
-            <div>
-                <p className="flex items-center gap-1.5 font-semibold text-ink">
-                    {score >= 80 && <Sparkles className="h-4 w-4 text-accent" aria-hidden />}
-                    {line}
-                </p>
-                <p className="text-xs text-muted">Điểm cho vui thôi, nói lại bao nhiêu lần cũng được.</p>
-            </div>
+            <p className="flex items-center gap-1.5 font-semibold text-ink">
+                {score >= 80 && <Sparkles className="h-4 w-4 text-accent" aria-hidden />}
+                {line}
+            </p>
         </div>
     );
 }
