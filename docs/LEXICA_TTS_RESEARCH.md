@@ -36,6 +36,21 @@
 3. Cho `sayModel` và `speakVaried` dùng file tạo sẵn trước. Gemini chỉ còn là đường dự phòng.
 4. Sau đó mới tính Kokoro trên máy cho câu tự do.
 
+## Đã làm: tạo sẵn giọng mẫu (bước 1–3)
+- `apps/lexica/app/lib/audio/clips.ts`: danh sách các đoạn giọng mẫu mỗi thẻ cần, đúng như app yêu cầu: từ, bản chậm, 3 giọng, cụm từ, câu tình huống, câu trích. Phần luyện nói tải trước theo đúng danh sách này.
+- `apps/lexica/scripts/pregen-tts.ts`:
+  - tạo các đoạn đó bằng Kokoro-82M (q8, chạy trên CPU);
+  - ghi vào **cache giọng của Cortex API** (`lexica-content/cache/tts/<key>.wav`), tên file tính đúng như API (`ttsKey`);
+  - nhờ vậy API trả từ cache, không gọi Gemini, không tính hạn mức. App không cần sửa gì.
+- Giọng: Kore → `af_heart`, Puck → `am_michael`, Aoede → `bf_emma` (giọng Anh), Charon → `bm_george`. Bản chậm dùng tốc độ 0,8.
+- **Cách chạy**:
+  - Trên GitHub: tab Actions → "Lexica voices" → Run workflow. Cần secrets `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, và tuỳ chọn `CONTENT_MANIFEST_URL` để lấy cả thẻ của Studio.
+  - Trên máy: `pnpm --filter @cortex/lexica pregen:tts` với các biến môi trường như trên.
+  - `--dry-run` để xem danh sách trước, `--limit 50` để thử ít.
+  - `--overwrite` để thay cả những đoạn Gemini đã lưu trong cache, cho giọng đồng nhất.
+- Bộ thẻ có sẵn: 610 thẻ, khoảng 3.300 đoạn. Lần đầu chạy mất cỡ một tiếng (ước tính, chưa đo).
+- **Chưa chạy thật**: môi trường làm việc không truy cập được Hugging Face. Lần chạy đầu tiên, nên chạy `--limit 20`, nghe thử, rồi mới chạy hết.
+
 ## Nguồn
 - https://www.npmjs.com/package/kokoro-js
 - https://cdn.jsdelivr.net/npm/kokoro-js@1.2.0/README.md

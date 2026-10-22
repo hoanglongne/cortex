@@ -5,9 +5,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { Check, Ear, Lightbulb, Mic, Play, Sparkles, Square, Volume2, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { AudioService, NATURAL_VOICES } from '../lib/audio/AudioService';
+import { AudioService } from '../lib/audio/AudioService';
+import { cardClips, shadowQuote } from '../lib/audio/clips';
 import { getCard, getQuotes } from '../lib/content/repository';
-import { listenFirst, planUseKinds, shadowable, USE_LABEL, type UseKind } from '../lib/pronunciation/variety';
+import { listenFirst, planUseKinds, USE_LABEL, type UseKind } from '../lib/pronunciation/variety';
 import { hardToSay } from '../lib/pronunciation/drill';
 import { nearSound, pairFor, tipFor } from '../lib/pronunciation/pairs';
 import { diffHeard, LEVEL_LABEL, scoreAttempt, type SpeakLevel } from '../lib/pronunciation/score';
@@ -65,15 +66,7 @@ export default function SpeakDrill({ words, steps = [1, 2, 3], onDone, onRestart
         AudioService.preloadText(
             upcoming.split(',').flatMap((id) => {
                 const c = getCard(id);
-                if (!c) return [];
-                const w = c.word.toLowerCase();
-                return [
-                    { text: w },
-                    { text: w, slow: true },
-                    ...NATURAL_VOICES.map((voice) => ({ text: w, voice })),
-                    ...(c.collocations?.[0] ? [{ text: c.collocations[0].toLowerCase() }] : []),
-                    ...(c.situation ? [{ text: c.situation.model }] : []),
-                ];
+                return c ? cardClips(c, getQuotes(id)) : [];
             }),
         );
     }, [upcoming]);
@@ -340,9 +333,7 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
 // ─── Step 3, other ways to use the word (lib/pronunciation/variety.ts) ──
 
 /** A real quote with the word, short enough to say back, or null. */
-function quoteFor(cardId: string, word: string) {
-    return getQuotes(cardId).find((q) => shadowable(q.text) && q.text.toLowerCase().includes(word)) ?? null;
-}
+const quoteFor = (cardId: string, word: string) => shadowQuote(getQuotes(cardId), word);
 
 /** "Nói theo câu thật": hear a line from a book, the news or a song, then say it back. */
 function ShadowStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
