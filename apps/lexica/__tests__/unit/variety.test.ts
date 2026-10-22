@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { listenFirst, planUseKinds, shadowable, useKindsFor } from '../../app/lib/pronunciation/variety';
+import { listenFirst, planUseKinds, shadowable, allowedUseKinds } from '../../app/lib/pronunciation/variety';
 
 const facts = (hasQuote: boolean, hasScenario: boolean, hasMine: boolean) => ({ hasQuote, hasScenario, hasMine });
 
 describe('speaking drill variety', () => {
     it('offers only what a card has, phrase always', () => {
-        expect(useKindsFor(facts(false, false, false))).toEqual(['phrase']);
-        expect(useKindsFor(facts(true, true, true))).toEqual(['phrase', 'shadow', 'translate', 'mine']);
+        expect(allowedUseKinds(facts(false, false, false))).toEqual(['phrase']);
+        expect(allowedUseKinds(facts(true, true, true))).toEqual(['phrase', 'shadow', 'translate', 'mine']);
     });
 
     it('never gives two words in a row the same kind when there is a choice', () => {

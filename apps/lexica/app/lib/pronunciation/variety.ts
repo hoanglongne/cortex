@@ -30,7 +30,7 @@ export interface CardFacts {
 }
 
 /** What a card allows for step 3. */
-export function useKindsFor(f: CardFacts): UseKind[] {
+export function allowedUseKinds(f: CardFacts): UseKind[] {
     return USE_KINDS.filter((k) => k === 'phrase' || (k === 'shadow' && f.hasQuote) || (k === 'translate' && f.hasScenario) || (k === 'mine' && f.hasMine));
 }
 
@@ -43,7 +43,7 @@ export function planUseKinds(cards: readonly CardFacts[], seed: number): UseKind
     const out: UseKind[] = [];
     let at = 0;
     for (const facts of cards) {
-        const allowed = useKindsFor(facts);
+        const allowed = allowedUseKinds(facts);
         let pick: UseKind = 'phrase';
         for (let i = 0; i < order.length; i++) {
             const k = order[(at + i) % order.length];
