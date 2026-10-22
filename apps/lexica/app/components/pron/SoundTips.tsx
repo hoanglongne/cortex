@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Download, Ear, Mic, Play, Volume2, X } from 'lucide-react';
 import type { Attempt } from '../../lib/pronunciation/speech';
-import { sayModel } from '../../lib/pronunciation/speech';
+import { playRecording, sayModel } from '../../lib/pronunciation/speech';
 import { alignAttempt, type Alignment } from '../../lib/pronunciation/align';
 import { soundFeedback, swapsOf, type SoundFeedback } from '../../lib/pronunciation/feedback';
 import { ipaOf, isVowel, loadDict, phonesOf } from '../../lib/pronunciation/phones';
@@ -248,7 +248,7 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                 <div className="flex flex-wrap gap-2">
                     <ListenButton label={issue.word.toLowerCase()} onPlay={() => void sayModel(issue.word.toLowerCase(), 'slow')} icon={<Volume2 className="w-3.5 h-3.5" />} />
                     {swapped && pairWord && <ListenButton label={pairWord} onPlay={() => void sayModel(pairWord, 'slow')} icon={<Ear className="w-3.5 h-3.5" />} />}
-                    {audioUrl && <ListenButton label="Giọng bạn" onPlay={() => void new Audio(audioUrl).play()} icon={<Play className="w-3.5 h-3.5" />} />}
+                    {audioUrl && <ListenButton label="Giọng bạn" onPlay={() => playRecording(audioUrl)} icon={<Play className="w-3.5 h-3.5" />} />}
                 </div>
                 {onRetry && (
                     <button type="button" onClick={onRetry} className="w-full h-12 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2">

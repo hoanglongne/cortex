@@ -64,3 +64,5 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Bài nghe: thêm 12 cặp âm cuối, chọn giữa mọi nhóm lỗi của từ, tránh 12 cặp vừa nghe.
 - [x] Tạo sẵn giọng cho cặp từ, từ gây nhiễu, bài đọc và hội thoại (4.717 đoạn; chạy lại workflow để tạo ~1.450 đoạn mới).
 - [ ] Người dùng: thêm `NEXT_PUBLIC_SUPABASE_URL` và `SUPABASE_SERVICE_ROLE_KEY` cho Cortex API trên Railway (câu tự do vẫn cần API).
+- [x] Bấm nghe nhiều lần không còn chạy chồng: mỗi lần bấm dừng giọng cũ (cả chuỗi 3 giọng và "Giọng bạn").
+- [x] Bấm Xong: nút đổi ngay sang "Đang chấm…"; chờ API nhận dạng tối đa 6 giây, API lỗi thì bỏ qua cho cả lần truy cập.

@@ -13,7 +13,7 @@ import { hardToSay } from '../lib/pronunciation/drill';
 import { nearSound, pairFor, pairId, tipFor } from '../lib/pronunciation/pairs';
 import { clarity, diffHeard, LEVEL_LABEL, scoreAttempt, type SpeakLevel } from '../lib/pronunciation/score';
 import { ipaSyllables, spellingSyllables, stressedSyllables } from '../lib/pronunciation/syllables';
-import { listenOnce, sayModel, speakVaried, stopSpeaking, variedVoiceCount, type Attempt } from '../lib/pronunciation/speech';
+import { listenOnce, playRecording, sayModel, speakVaried, stopSpeaking, variedVoiceCount, type Attempt } from '../lib/pronunciation/speech';
 import { contourMatch, modelContour, normalizeTrack } from '../lib/pronunciation/pitch';
 import type { ContentCard } from '../lib/content/pack';
 import { alignAttempt } from '../lib/pronunciation/align';
@@ -225,7 +225,14 @@ function useAttempt(target: string, onScored?: (level: SpeakLevel) => void, sent
     const abort = useRef<AbortController | null>(null);
     /** When the microphone really started recording this attempt (null while it opens, or asks for permission). */
     const [recordingAt, setRecordingAt] = useState<number | null>(null);
-    const stop = () => abort.current?.abort();
+    /** "Xong" was tapped: the microphone is closing and the attempt is being read; the button says so at once. */
+    const [finishing, setFinishing] = useState(false);
+    const stop = () => {
+        if (!abort.current || abort.current.signal.aborted) return;
+        abort.current.abort();
+        setFinishing(true);
+        setRecordingAt(null);
+    };
     const start = async () => {
         if (abort.current && !abort.current.signal.aborted) return;
         window.speechSynthesis?.cancel();
@@ -233,8 +240,10 @@ function useAttempt(target: string, onScored?: (level: SpeakLevel) => void, sent
         abort.current = controller;
         setListening(true);
         setRecordingAt(null);
+        setFinishing(false);
         const a = await listenOnce({ target, signal: controller.signal, sentence, onReady: () => setRecordingAt(Date.now()) });
         setRecordingAt(null);
+        setFinishing(false);
         controller.abort();
         setListening(false);
         // A phrase is read word by word (level 1); a word, or a phrase inside the learner's own sentence, as a whole.
@@ -244,14 +253,14 @@ function useAttempt(target: string, onScored?: (level: SpeakLevel) => void, sent
         // Each real attempt counts once for the "từ khó nói" list; a voice the browser could not read says nothing about the learner.
         if (a.alternatives.length > 0 || (a.error === 'no-speech' && !a.voiced)) onScored?.(scored.level);
     };
-    return { listening, attempt, start, stop, recordingAt };
+    return { listening, attempt, start, stop, recordingAt, finishing };
 }
 
 function SayStep({ card, onDone, onChips, byEar = false }: { card: ContentCard; onDone: (level: SpeakLevel) => void; onChips?: (levels: ChipLevel[]) => void; byEar?: boolean }) {
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
     const word = card.word.toLowerCase();
     const syl = stressedSyllables(card.word, card.ipa);
-    const { listening, attempt, start, stop, recordingAt } = useAttempt(word, (level) => recordSpeak(card.id, level));
+    const { listening, attempt, start, stop, recordingAt, finishing } = useAttempt(word, (level) => recordSpeak(card.id, level));
     const phrase = word.includes(' ');
     // By ear: the spelling stays hidden until the learner has tried, or asks to see it.
     const [peek, setPeek] = useState(false);
@@ -292,7 +301,7 @@ function SayStep({ card, onDone, onChips, byEar = false }: { card: ContentCard; 
                     <Volume2 className="w-4 h-4" /> Mẫu thường
                 </button>
             </div>
-            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} label={attempt ? 'Nói lại' : 'Nói'} />
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói'} />
             {attempt && (
                 <div className="mt-4 flex justify-end">
                     <button onClick={() => onDone(attempt.level)} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
@@ -337,7 +346,7 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
     const stressedPart = syl.fromIpa ? undefined : syl.text.split('·').find((s) => s === s.toUpperCase());
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
     // Said clearly inside its phrase counts as Dùng too; a miss here does not add to "từ khó nói".
-    const { listening, attempt, start, stop, recordingAt } = useAttempt(phrase, (level) => level === 'clear' && recordSpeak(card.id, level));
+    const { listening, attempt, start, stop, recordingAt, finishing } = useAttempt(phrase, (level) => level === 'clear' && recordSpeak(card.id, level));
     const flags = useMemo(() => stressFlags(phrase, word, card.ipa), [phrase, word, card.ipa]);
 
     return (
@@ -361,7 +370,7 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
                     <Play className="w-4 h-4" /> Nghe mẫu
                 </button>
             </div>
-            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} label={attempt ? 'Nói lại' : 'Nói cả cụm'} />
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói cả cụm'} />
             <div className="mt-4 flex justify-end">
                 <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
                     {attempt ? 'Tiếp' : 'Bỏ qua'}
@@ -382,7 +391,7 @@ function ShadowStep({ card, onDone }: { card: ContentCard; onDone: () => void })
     const quote = useMemo(() => quoteFor(card.id, word), [card.id, word]);
     const line = quote?.text ?? word;
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
-    const { listening, attempt, start, stop, recordingAt } = useAttempt(line, (level) => level === 'clear' && recordSpeak(card.id, level));
+    const { listening, attempt, start, stop, recordingAt, finishing } = useAttempt(line, (level) => level === 'clear' && recordSpeak(card.id, level));
     return (
         <Panel
             icon={<Ear className="w-4 h-4" />}
@@ -420,7 +429,7 @@ function ShadowStep({ card, onDone }: { card: ContentCard; onDone: () => void })
                     </button>
                 </div>
             </blockquote>
-            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
             <StepNext attempted={Boolean(attempt)} onDone={onDone} />
         </Panel>
     );
@@ -430,7 +439,7 @@ function ShadowStep({ card, onDone }: { card: ContentCard; onDone: () => void })
 function TranslateStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
     const word = card.word.toLowerCase();
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
-    const { listening, attempt, start, stop, recordingAt } = useAttempt(word, (level) => level === 'clear' && recordSpeak(card.id, level), true);
+    const { listening, attempt, start, stop, recordingAt, finishing } = useAttempt(word, (level) => level === 'clear' && recordSpeak(card.id, level), true);
     const [hint, setHint] = useState(false);
     const parts = (card.scenario ?? word).split(new RegExp(`(${card.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'i'));
     return (
@@ -458,7 +467,7 @@ function TranslateStep({ card, onDone }: { card: ContentCard; onDone: () => void
                     Cần gợi ý?
                 </button>
             )}
-            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
             <StepNext attempted={Boolean(attempt)} onDone={onDone} />
         </Panel>
     );
@@ -468,7 +477,7 @@ function TranslateStep({ card, onDone }: { card: ContentCard; onDone: () => void
 function MineStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
     const mine = useLexicaStore((s) => s.mySentences[card.id]?.text) ?? card.word;
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
-    const { listening, attempt, start, stop, recordingAt } = useAttempt(mine, (level) => level === 'clear' && recordSpeak(card.id, level));
+    const { listening, attempt, start, stop, recordingAt, finishing } = useAttempt(mine, (level) => level === 'clear' && recordSpeak(card.id, level));
     return (
         <Panel
             icon={<Mic className="w-4 h-4" />}
@@ -487,7 +496,7 @@ function MineStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
             <button onClick={() => void sayModel(mine)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                 <Play className="w-4 h-4" /> Nghe máy đọc
             </button>
-            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} label={attempt ? 'Nói lại' : 'Đọc to'} />
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Đọc to'} />
             <StepNext attempted={Boolean(attempt)} onDone={onDone} />
         </Panel>
     );
@@ -514,7 +523,7 @@ function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
     const phrase = card.word.toLowerCase();
     const [showModel, setShowModel] = useState(false);
-    const { listening, attempt, start, stop, recordingAt } = useAttempt(phrase, (level) => level === 'clear' && recordSpeak(card.id, level), true);
+    const { listening, attempt, start, stop, recordingAt, finishing } = useAttempt(phrase, (level) => level === 'clear' && recordSpeak(card.id, level), true);
     const situation = card.situation!;
     return (
         <Panel icon={<Lightbulb className="w-4 h-4" />} title="Tình huống" aside={attempt && <AttemptResult attempt={attempt} target={phrase} sentence />}>
@@ -537,7 +546,7 @@ function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void
                     </button>
                 )}
             </div>
-            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
             {showModel && <SayModelSentence model={situation.model} />}
             <div className="mt-4 flex justify-end">
                 <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
@@ -551,7 +560,7 @@ function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void
 /** Optional, after the learner's own sentence: say the model sentence and see each word marked. */
 function SayModelSentence({ model }: { model: string }) {
     const [open, setOpen] = useState(false);
-    const { listening, attempt, start, stop, recordingAt } = useAttempt(model);
+    const { listening, attempt, start, stop, recordingAt, finishing } = useAttempt(model);
     if (!open)
         return (
             <button onClick={() => setOpen(true)} className="mt-3 text-sm text-ink underline">
@@ -561,7 +570,7 @@ function SayModelSentence({ model }: { model: string }) {
     return (
         <div className="mt-4 border-t border-line pt-4">
             <p className="text-sm text-muted">Đọc to câu mẫu, app đánh dấu từng từ máy nghe được.</p>
-            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} label={attempt ? 'Nói lại câu mẫu' : 'Nói câu mẫu'} />
+            <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại câu mẫu' : 'Nói câu mẫu'} />
             {attempt && <AttemptResult attempt={attempt} target={model} />}
         </div>
     );
@@ -619,7 +628,21 @@ const arrow = (semitones: number) => (semitones <= -1 ? '↘ xuống' : semitone
  * and dropped: on phones a permission prompt or a slight finger move ended
  * recordings at random.
  */
-function MicButton({ listening, onStart, onStop, recordingAt, label }: { listening: boolean; onStart: () => void; onStop: () => void; recordingAt: number | null; label: string }) {
+function MicButton({
+    listening,
+    onStart,
+    onStop,
+    recordingAt,
+    finishing = false,
+    label,
+}: {
+    listening: boolean;
+    onStart: () => void;
+    onStop: () => void;
+    recordingAt: number | null;
+    finishing?: boolean;
+    label: string;
+}) {
     const [now, setNow] = useState(() => Date.now());
     useEffect(() => {
         if (recordingAt === null) return;
@@ -627,16 +650,21 @@ function MicButton({ listening, onStart, onStop, recordingAt, label }: { listeni
         return () => clearInterval(t);
     }, [recordingAt]);
     const seconds = recordingAt === null ? 0 : Math.max(0, Math.floor((now - recordingAt) / 1000));
-    const opening = listening && recordingAt === null;
+    const opening = listening && recordingAt === null && !finishing;
     return (
         <>
             <button
                 type="button"
                 onClick={listening ? onStop : onStart}
+                disabled={finishing}
                 aria-pressed={listening}
                 className={`mt-5 w-full h-14 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors select-none ${listening ? 'bg-danger text-bg' : 'bg-accent text-on-accent hover:bg-accent-strong'}`}
             >
-                {listening ? (
+                {finishing ? (
+                    <>
+                        <Mic className="w-4 h-4 animate-pulse" /> Đang chấm…
+                    </>
+                ) : listening ? (
                     opening ? (
                         <>
                             <Mic className="w-4 h-4 animate-pulse" /> Đang mở micro…
@@ -653,7 +681,7 @@ function MicButton({ listening, onStart, onStop, recordingAt, label }: { listeni
                 )}
             </button>
             <p className="mt-1.5 text-center text-xs text-muted" aria-live="polite">
-                {opening ? 'Chờ micro bật rồi hãy nói.' : listening ? 'Đang nghe. Nói xong bấm Xong, hoặc im 2 giây là tự dừng.' : 'Bấm để bắt đầu nói.'}
+                {finishing ? 'Đã dừng thu, đang xem bạn nói gì.' : opening ? 'Chờ micro bật rồi hãy nói.' : listening ? 'Đang nghe. Nói xong bấm Xong, hoặc im 2 giây là tự dừng.' : 'Bấm để bắt đầu nói.'}
             </p>
         </>
     );
@@ -722,7 +750,7 @@ function AttemptResult({
             {attempt.audioUrl && (
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-muted">Nghe lại:</span>
-                    <button onClick={() => void new Audio(attempt.audioUrl!).play()} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
+                    <button onClick={() => playRecording(attempt.audioUrl!)} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
                         <Play className="w-3.5 h-3.5" /> Giọng bạn
                     </button>
                     <button onClick={() => void sayModel(target)} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
