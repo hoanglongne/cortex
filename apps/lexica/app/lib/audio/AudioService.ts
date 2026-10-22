@@ -1,13 +1,15 @@
 import { getCard } from '../content/repository';
 import { CORTEX_API_URL } from '../cortexConfig';
+import { voiceFileName } from './voiceKey';
 
 /**
  * One place for every sound Lexica speaks (docs/LEXICA_AUDIO_SPEC.md).
  *
  * play(cardId, clip) tries, in order:
  *   1. the pre-generated clip shipped in the content pack (card.audio),
- *   2. for English, a natural voice from the Cortex API (GET /v1/lexica/tts,
- *      generated once per text and cached by the server and the browser),
+ *   2. for English, a natural voice: first the file already made for it in the
+ *      voice cache (public Supabase Storage, made in advance with Kokoro by
+ *      tools/lexica-voices), else the Cortex API (GET /v1/lexica/tts),
  *   3. the browser's own voice (speechSynthesis), the best one on the device.
  */
 
@@ -77,6 +79,28 @@ export const NATURAL_VOICES = ['Kore', 'Puck', 'Aoede'] as const;
 /** Off for the session after the API fails once, so every tap does not wait for it again. */
 let cloudOff = false;
 
+/**
+ * The voice cache, read straight from public storage: the clips made in advance
+ * (and every clip the API made once) are files there. No server in the way,
+ * so a sleeping or misconfigured API never stands between the learner and a voice.
+ */
+const VOICE_CACHE_URL = (() => {
+    const own = process.env.NEXT_PUBLIC_VOICE_CACHE_URL?.trim().replace(/\/+$/, '');
+    if (own) return own;
+    const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, '');
+    return supabase ? `${supabase}/storage/v1/object/public/lexica-content/cache/tts` : null;
+})();
+/** Cache files that turned out not to exist this visit: the API is asked for those. */
+const notStored = new Set<string>();
+
+/** The cached file of a clip, or null (no cache configured, too long, or known missing). */
+export function storedVoiceUrl(text: string, opts: { slow?: boolean; voice?: string } = {}): string | null {
+    const t = text.trim();
+    if (!VOICE_CACHE_URL || !t || t.length > 1200) return null;
+    const url = `${VOICE_CACHE_URL}/${voiceFileName({ text: t, voice: opts.voice, slow: opts.slow })}`;
+    return notStored.has(url) ? null : url;
+}
+
 export function naturalVoiceUrl(text: string, opts: { slow?: boolean; voice?: string } = {}): string | null {
     const t = text.trim();
     if (!CORTEX_API_URL || cloudOff || !t || t.length > 1200) return null;
@@ -92,9 +116,32 @@ export function naturalVoiceUrl(text: string, opts: { slow?: boolean; voice?: st
  * uses the system voice. `rate` is the system-voice rate the caller wanted.
  */
 export async function speakNatural(text: string, opts: { slow?: boolean; voice?: string; rate?: number; wait?: boolean } = {}): Promise<boolean> {
-    const url = naturalVoiceUrl(text, opts);
     const el = audioElement();
-    if (!url || !el) return false;
+    if (!el) return false;
+    // The cached file first: instant, no server, no quota.
+    const stored = storedVoiceUrl(text, opts);
+    if (stored) {
+        stop();
+        const mine = seq;
+        el.src = stored;
+        el.playbackRate = opts.rate ? Math.min(1.3, Math.max(0.6, opts.rate / 0.9)) : 1;
+        try {
+            const started = await Promise.race([el.play().then(() => 'ok' as const), new Promise<'timeout'>((r) => setTimeout(() => r('timeout'), 3000))]);
+            if (mine !== seq) return true;
+            if (started === 'ok') {
+                if (opts.wait) await untilDone(el);
+                return true;
+            }
+            el.pause();
+        } catch (e) {
+            if (mine !== seq) return true;
+            if (e instanceof DOMException && e.name === 'NotAllowedError') return false;
+            // Not made yet: the API makes it (and caches it for everyone).
+            notStored.add(stored);
+        }
+    }
+    const url = naturalVoiceUrl(text, opts);
+    if (!url) return false;
     stop();
     const mine = seq;
     el.src = url;
@@ -119,13 +166,15 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
         if (!(e instanceof DOMException && e.name === 'NotAllowedError')) cloudOff = true;
         return false;
     }
-    if (opts.wait)
-        await new Promise<void>((r) => {
-            el.addEventListener('ended', () => r(), { once: true });
-            el.addEventListener('pause', () => r(), { once: true });
-        });
+    if (opts.wait) await untilDone(el);
     return true;
 }
+
+const untilDone = (el: HTMLAudioElement) =>
+    new Promise<void>((r) => {
+        el.addEventListener('ended', () => r(), { once: true });
+        el.addEventListener('pause', () => r(), { once: true });
+    });
 
 async function fallback(cardId: string, clip: Clip): Promise<AudioTier> {
     const card = getCard(cardId);
@@ -187,15 +236,19 @@ function warm(url: string) {
 export function preload(cardIds: string[], clip: Clip = 'word') {
     for (const id of cardIds) {
         const card = getCard(id);
-        const url = card?.audio?.[clip] ?? (card && clip === 'word' ? naturalVoiceUrl(card.word) : null);
+        const url = card?.audio?.[clip] ?? (card && clip === 'word' ? storedVoiceUrl(card.word) : null);
         if (url) warm(url);
     }
 }
 
-/** Starts loading the natural voice for these texts, so the first tap plays at once. */
+/**
+ * Starts loading the natural voice for these texts, so the first tap plays at
+ * once. Only cached files: preloading never asks the API to make a voice
+ * (that spent its daily quota on clips nobody played).
+ */
 export function preloadText(texts: readonly { text: string; slow?: boolean; voice?: string }[]) {
     for (const t of texts) {
-        const url = naturalVoiceUrl(t.text, t);
+        const url = storedVoiceUrl(t.text, t);
         if (url) warm(url);
     }
 }

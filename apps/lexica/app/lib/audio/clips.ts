@@ -8,6 +8,7 @@
 import type { CardQuote, ContentCard } from '../content/pack';
 import { shadowable } from '../pronunciation/variety';
 import { NATURAL_VOICES } from './AudioService';
+import { voiceKeyInput } from './voiceKey';
 
 export interface Clip {
     text: string;
@@ -44,15 +45,7 @@ export function cardClips(card: Pick<ContentCard, 'word' | 'collocations' | 'sit
     });
 }
 
-/** Text as the API reads it (ttsInput): no control characters, single spaces. */
-export const normalizeClipText = (text: string) =>
-    text
-        .replace(/\p{Cc}/gu, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-
-/** The API's default voice when none is sent. */
-export const DEFAULT_VOICE = 'Kore';
+export { DEFAULT_VOICE, normalizeClipText } from './voiceKey';
 
 /** What the API hashes into its cache file name (ttsKey): `voice|slow|text`. */
-export const clipKey = (c: Clip) => `${c.voice ?? DEFAULT_VOICE}|${c.slow ? 1 : 0}|${normalizeClipText(c.text)}`;
+export const clipKey = voiceKeyInput;
