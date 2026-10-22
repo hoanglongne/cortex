@@ -7,7 +7,7 @@
  * sent to the API to be transcribed, and later attempts go there directly.
  */
 import { CORTEX_API_URL } from '../cortexConfig';
-import { NATURAL_VOICES, speakNatural, voiceQuality } from '../audio/AudioService';
+import { NATURAL_VOICES, speakNatural, stop as stopAudio, voiceQuality } from '../audio/AudioService';
 import { detectPitch } from './pitch';
 import type { Alternative } from './score';
 
@@ -48,10 +48,33 @@ export function speakWith(text: string, voice: SpeechSynthesisVoice | null, rate
     });
 }
 
+/** Bumped by stopSpeaking: a sequence of voices (speakVaried) stops at its next step. */
+let speakRun = 0;
+
+/** Silences every model voice now, and the rest of any sequence that was playing. */
+export function stopSpeaking() {
+    speakRun++;
+    stopAudio();
+    recording?.pause();
+}
+
 /** The model: a natural voice, slow or normal, else the best system voice. Resolves when done. */
 export async function sayModel(text: string, speed: 'slow' | 'normal' = 'normal', voice?: string): Promise<void> {
+    // One voice at a time: a new tap cuts off the last one instead of playing over it.
+    stopSpeaking();
+    const run = speakRun;
     if (await speakNatural(text, { slow: speed === 'slow', voice, wait: true })) return;
+    if (run !== speakRun) return;
     await speakWith(text, englishVoices(1)[0] ?? null, speed === 'slow' ? 0.7 : 0.9);
+}
+
+/** The learner's own recording ("Giọng bạn"), on the same footing: it stops any voice playing, and a second tap restarts it. */
+let recording: HTMLAudioElement | null = null;
+export function playRecording(url: string) {
+    stopSpeaking();
+    if (!recording) recording = new Audio();
+    recording.src = url;
+    void recording.play().catch(() => undefined);
 }
 
 /**
@@ -61,13 +84,17 @@ export async function sayModel(text: string, speed: 'slow' | 'normal' = 'normal'
  */
 export async function speakVaried(text: string, times = 3): Promise<void> {
     const voices = englishVoices(times);
+    stopSpeaking();
+    const run = speakRun;
     for (let i = 0; i < times; i++) {
+        if (run !== speakRun) return; // stopped (the learner moved on)
         if (!(await speakNatural(text, { voice: NATURAL_VOICES[i % NATURAL_VOICES.length], wait: true }))) {
             const voice = voices[i % Math.max(1, voices.length)] ?? null;
             const shift = voices.length > i ? 1 : [0.85, 1.15, 1][i % 3];
             await speakWith(text, voice, 0.9, shift);
         }
         await new Promise((r) => setTimeout(r, 300));
+        if (run !== speakRun) return;
     }
 }
 
@@ -174,7 +201,7 @@ function keepMicAwhile() {
  */
 export async function listenOnce(opts: { target?: string; maxMs?: number; signal?: AbortSignal; sentence?: boolean; onReady?: () => void } = {}): Promise<Attempt> {
     const Ctor = recognitionCtor();
-    const server = canTranscribe() && Boolean(opts.target);
+    const server = canTranscribe() && Boolean(opts.target) && !transcribeDown;
     if (!Ctor && !server) return { alternatives: [], audioUrl: null, pitch: [], error: 'unsupported' };
     const mode = speechMode();
     const solo = Boolean(Ctor) && mode === 'solo';
@@ -306,14 +333,27 @@ const words = (s: string) =>
         .split(/\s+/)
         .filter(Boolean);
 
+/** Set when the transcription API failed this visit: later attempts do not wait for it again. */
+let transcribeDown = false;
+/** The longest the learner waits for the API after letting go: the attempt shows what the browser had. */
+const TRANSCRIBE_MS = 6000;
+
 async function transcribe(wav: Blob, target: string): Promise<Alternative[]> {
+    if (transcribeDown) throw new Error('transcribe off');
     const audio = await blobToBase64(wav);
     const res = await fetch(`${CORTEX_API_URL}/v1/lexica/transcribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ audio, target }),
+        signal: AbortSignal.timeout(TRANSCRIBE_MS),
+    }).catch((e: unknown) => {
+        transcribeDown = true;
+        throw e;
     });
-    if (!res.ok) throw new Error(`transcribe ${res.status}`);
+    if (!res.ok) {
+        transcribeDown = true;
+        throw new Error(`transcribe ${res.status}`);
+    }
     const body = (await res.json()) as { transcripts?: string[]; confidence?: number };
     return (body.transcripts ?? []).map((transcript) => ({ transcript, confidence: body.confidence ?? 0.8 }));
 }

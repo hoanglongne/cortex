@@ -56,3 +56,13 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Đa dạng bước dùng từ: xoay vòng Nói trong cụm, Nói theo câu thật (câu trích), Nói bằng tiếng Anh (từ câu tiếng Việt của thẻ), Đọc câu của bạn; bước nói từ thỉnh thoảng là "Nghe rồi nhắc lại" (giấu chữ).
 - [x] Nghiên cứu giọng đọc thay Gemini: `docs/LEXICA_TTS_RESEARCH.md`. Đề xuất: tạo sẵn audio bằng Kokoro cho nội dung cố định; Kokoro trên máy cho câu tự do.
 - [ ] Làm theo đề xuất giọng đọc (chờ người dùng duyệt).
+
+## Đợt 9: luyện nói, góp ý sau khi có giọng Kokoro
+- [x] Điểm liên tục thay cho 3 mức (92/70/40): độ khớp chữ, độ tin cậy, thứ hạng phương án nhận dạng; có gói chấm thì nghiêng về âm yếu nhất. Câu khen nhiều câu mỗi mức, không lặp câu liền trước.
+- [x] Đồ thị cao độ hiện ở bước nói từ, Nói trong cụm, Nói theo câu thật, Đọc câu của bạn (laptop).
+- [x] Bấm Tiếp hoặc Bỏ qua dừng ngay giọng đang phát, kể cả chuỗi 3 giọng; rời bài luyện cũng dừng.
+- [x] Bài nghe: thêm 12 cặp âm cuối, chọn giữa mọi nhóm lỗi của từ, tránh 12 cặp vừa nghe.
+- [x] Tạo sẵn giọng cho cặp từ, từ gây nhiễu, bài đọc và hội thoại (4.717 đoạn; chạy lại workflow để tạo ~1.450 đoạn mới).
+- [ ] Người dùng: thêm `NEXT_PUBLIC_SUPABASE_URL` và `SUPABASE_SERVICE_ROLE_KEY` cho Cortex API trên Railway (câu tự do vẫn cần API).
+- [x] Bấm nghe nhiều lần không còn chạy chồng: mỗi lần bấm dừng giọng cũ (cả chuỗi 3 giọng và "Giọng bạn").
+- [x] Bấm Xong: nút đổi ngay sang "Đang chấm…"; chờ API nhận dạng tối đa 6 giây, API lỗi thì bỏ qua cho cả lần truy cập.

@@ -13,7 +13,11 @@ export type ErrorKind = SoundKind;
 
 /** Real minimal pairs per error, a few each. */
 export const MINIMAL_PAIRS: Record<ErrorKind, readonly [string, string][]> = {
-    final_consonant: [['light', 'lie'], ['bike', 'buy'], ['cart', 'car'], ['rice', 'rye'], ['wide', 'why'], ['rope', 'row']],
+    final_consonant: [
+        ['light', 'lie'], ['bike', 'buy'], ['cart', 'car'], ['rice', 'rye'], ['wide', 'why'], ['rope', 'row'],
+        ['need', 'knee'], ['seat', 'sea'], ['road', 'row'], ['pipe', 'pie'], ['boat', 'bow'], ['time', 'tie'],
+        ['made', 'may'], ['plate', 'play'], ['bite', 'by'], ['note', 'no'], ['wait', 'way'], ['tight', 'tie'],
+    ],
     th: [['think', 'sink'], ['three', 'tree'], ['thin', 'tin'], ['bath', 'bat'], ['thank', 'tank']],
     cluster: [['play', 'pay'], ['street', 'seat'], ['bread', 'bed'], ['glass', 'gas'], ['crowd', 'cowed']],
     ending: [['walked', 'walk'], ['plays', 'play'], ['cats', 'cat'], ['needed', 'need']],
@@ -84,12 +88,22 @@ export function nearSound(word: string, ipa = ''): { kind: ErrorKind; distractor
     return null;
 }
 
-/** A real minimal pair for the word's first error kind (round 1 of the drill). */
-export function pairFor(word: string, ipa = '', seed = 0): { kind: ErrorKind; pair: readonly [string, string] } {
-    const kind = errorKinds(word, ipa)[0] ?? 'long_short';
-    const list = MINIMAL_PAIRS[kind];
-    return { kind, pair: list[Math.abs(seed) % list.length] };
+/**
+ * A real minimal pair for one of the word's error kinds (round 1 of the drill).
+ * `seed` varies the kind and the pair; pairs in `recent` (heard lately) are
+ * skipped while others are left, so the same "rice / rye" does not come back
+ * word after word.
+ */
+export function pairFor(word: string, ipa = '', seed = 0, recent: readonly string[] = []): { kind: ErrorKind; pair: readonly [string, string] } {
+    const kinds = errorKinds(word, ipa);
+    const options = (kinds.length ? kinds : (['long_short'] as ErrorKind[])).flatMap((kind) => MINIMAL_PAIRS[kind].map((pair) => ({ kind, pair })));
+    const fresh = options.filter((o) => !recent.includes(pairId(o.pair)));
+    const from = fresh.length ? fresh : options;
+    return from[Math.abs(seed) % from.length];
 }
+
+/** How a pair is remembered in the recent list. */
+export const pairId = (pair: readonly [string, string]) => `${pair[0]}/${pair[1]}`;
 
 /** The last consonant sound of a word, for the tip ("/t/"). */
 function finalSound(word: string, ipa: string): string {

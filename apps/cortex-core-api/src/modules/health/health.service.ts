@@ -3,7 +3,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { RedisService } from '../redis/redis.service';
 
 export type DependencyStatus = {
-  status: 'up' | 'down';
+  status: 'up' | 'down' | 'off';
   latencyMs?: number;
   error?: string;
 };
@@ -30,12 +30,14 @@ export class HealthService {
   async check(): Promise<HealthReport> {
     const [supabase, redis] = await Promise.all([
       this.probe(() => this.pingSupabase()),
-      this.probe(() => this.pingRedis()),
+      this.redisService.isConfigured()
+        ? this.probe(() => this.pingRedis())
+        : Promise.resolve<DependencyStatus>({ status: 'off' }),
     ]);
 
     return {
       status:
-        supabase.status === 'up' && redis.status === 'up' ? 'ok' : 'degraded',
+        supabase.status === 'up' && redis.status !== 'down' ? 'ok' : 'degraded',
       uptimeSeconds: Math.round(process.uptime()),
       timestamp: new Date().toISOString(),
       dependencies: { supabase, redis },
