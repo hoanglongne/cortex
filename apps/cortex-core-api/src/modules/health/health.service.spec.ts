@@ -13,7 +13,10 @@ function makeSupabase(error: { message: string } | null) {
 }
 
 function makeRedis(ping: () => Promise<string>) {
-  return { getClient: () => ({ ping }) } as unknown as RedisService;
+  return {
+    isConfigured: () => true,
+    getClient: () => ({ ping }),
+  } as unknown as RedisService;
 }
 
 describe('HealthService', () => {

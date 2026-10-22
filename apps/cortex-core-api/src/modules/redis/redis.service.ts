@@ -10,11 +10,18 @@ import Redis from 'ioredis';
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RedisService.name);
-  private client: Redis;
+  // Null when no Redis is configured: nothing depends on it yet, so the API
+  // runs without one instead of retrying localhost forever.
+  private client: Redis | null = null;
 
   constructor(private configService: ConfigService) {
     const redisUrl = this.configService.get<string>('REDIS_URL');
-    const host = this.configService.get<string>('REDIS_HOST', 'localhost');
+    const configuredHost = this.configService.get<string>('REDIS_HOST');
+    if (!redisUrl && !configuredHost) {
+      this.logger.log('Redis not configured (no REDIS_URL or REDIS_HOST)');
+      return;
+    }
+    const host = configuredHost ?? 'localhost';
     const port = this.configService.get<number>('REDIS_PORT', 6379);
     const password = this.configService.get<string>('REDIS_PASSWORD');
     const username = this.configService.get<string>('REDIS_USERNAME');
@@ -61,6 +68,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit() {
+    if (!this.client) return;
     // Don't await: ioredis queues the ping until it connects, so an
     // unreachable Redis would block startup forever and the API would never
     // listen (the host then answers with its own error page, no CORS).
@@ -78,10 +86,15 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    await this.client.quit();
+    await this.client?.quit();
+  }
+
+  isConfigured(): boolean {
+    return this.client !== null;
   }
 
   getClient(): Redis {
+    if (!this.client) throw new Error('Redis is not configured');
     return this.client;
   }
 
@@ -89,13 +102,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     const stringValue =
       typeof value === 'string' ? value : JSON.stringify(value);
     if (ttlSeconds) {
-      return this.client.set(key, stringValue, 'EX', ttlSeconds);
+      return this.getClient().set(key, stringValue, 'EX', ttlSeconds);
     }
-    return this.client.set(key, stringValue);
+    return this.getClient().set(key, stringValue);
   }
 
   async get<T>(key: string): Promise<T | null> {
-    const value = await this.client.get(key);
+    const value = await this.getClient().get(key);
     if (!value) return null;
 
     try {
@@ -106,6 +119,6 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async del(key: string) {
-    return this.client.del(key);
+    return this.getClient().del(key);
   }
 }
