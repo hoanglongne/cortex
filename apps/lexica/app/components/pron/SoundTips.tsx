@@ -112,7 +112,8 @@ export default function SoundTips({ feedback, audioUrl, onRetry }: { feedback: A
                     {rows.map((r, wi) => (
                         <div key={wi}>
                             {rows.length > 1 && <p className="mb-1 font-mono text-xs text-muted">{r.word}</p>}
-                            <div className="flex flex-wrap gap-1.5">
+                            {/* One word, one line: the chips scroll sideways on a narrow phone instead of wrapping. */}
+                            <div className="-mx-1 flex flex-nowrap gap-1 overflow-x-auto px-1 pt-2 pb-1">
                                 {r.chips.map((c, ci) => (
                                     <ChipButton key={ci} chip={c} onOpen={c.level === 'ok' ? undefined : () => setOpen({ word: wi, chip: ci })} />
                                 ))}
@@ -174,15 +175,15 @@ function ChipButton({ chip, onOpen }: { chip: Chip; onOpen?: () => void }) {
             onClick={onOpen}
             disabled={!onOpen}
             aria-label={`Âm /${chip.ipa}/${chip.letters ? `, chữ “${chip.letters}”` : ''}: ${s.label}`}
-            className={`relative min-w-12 rounded-xl border-[1.5px] px-2 pt-2 pb-1.5 flex flex-col items-center gap-0.5 ${s.box} ${onOpen ? 'cursor-pointer hover:-translate-y-px transition-transform' : 'cursor-default'}`}
+            className={`relative shrink-0 min-w-9 rounded-lg border-[1.5px] px-1.5 pt-1.5 pb-1 flex flex-col items-center gap-0.5 ${s.box} ${onOpen ? 'cursor-pointer hover:-translate-y-px transition-transform' : 'cursor-default'}`}
         >
-            <span className={`absolute -top-2 -right-1.5 w-[18px] h-[18px] rounded-full text-[11px] font-bold grid place-items-center ${s.badge}`} aria-hidden>
+            <span className={`absolute -top-1.5 -right-1 w-4 h-4 rounded-full text-[10px] font-bold grid place-items-center ${s.badge}`} aria-hidden>
                 {s.mark}
             </span>
-            <span className="font-mono text-xl leading-none text-ink">
+            <span className="font-mono text-lg leading-none text-ink">
                 {chip.ipa}
             </span>
-            <span className="font-mono text-[11px] text-muted min-h-[14px]">{chip.letters}</span>
+            <span className="font-mono text-[10px] text-muted min-h-[13px] whitespace-nowrap">{chip.letters}</span>
         </button>
     );
 }

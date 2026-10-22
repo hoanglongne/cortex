@@ -10,7 +10,7 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] **Lexica phát âm chậm**: đo, tải sẵn giọng, nhớ audio đã đọc.
 
 ## Đợt 2: trải nghiệm nhỏ (PR #42)
-- [x] Thu âm: nhấn giữ để nói, thả ra là dừng; nhắc "nói xong dừng 1–2 giây".
+- [x] Thu âm: nhấn giữ để nói, thả ra là dừng; nhắc "nói xong dừng 1–2 giây". Sau khi dùng thử: bỏ giữ-để-nói (khó kiểm soát trên điện thoại), chỉ còn bấm để bắt đầu, bấm Xong để kết thúc (PR #48).
 - [x] Đăng ký lần đầu: ô nhập lại mật khẩu (mọi app).
 - [x] Album: nói rõ còn bao nhiêu lần ôn đúng để đúc ấn bản.
 
