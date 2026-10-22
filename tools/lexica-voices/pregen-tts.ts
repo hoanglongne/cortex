@@ -4,9 +4,11 @@
  * lexica-content/cache/tts/<key>.wav), so the API answers from the cache
  * and never calls Gemini for them (docs/LEXICA_TTS_RESEARCH.md).
  *
+ *   pnpm install --filter @cortex/lexica...      # Lexica's own modules, once
+ *   cd tools/lexica-voices && npm install         # Kokoro (~600 MB, kept out of the apps)
  *   SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… \
  *   CONTENT_MANIFEST_URL=…   # optional: Studio's published packs and quotes too
- *   pnpm --filter @cortex/lexica pregen:tts [--dry-run] [--limit 50] [--overwrite]
+ *   npm run make -- [--dry-run] [--limit 50] [--overwrite]
  *
  * The first run downloads the model (~90 MB) from Hugging Face. Existing clips
  * are skipped unless --overwrite (which replaces the Gemini voices already cached,
@@ -15,9 +17,9 @@
 import { createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { KokoroTTS } from 'kokoro-js';
-import { cardClips, clipKey, DEFAULT_VOICE, normalizeClipText, type Clip } from '../app/lib/audio/clips';
-import { applyRemoteContent, getAllCards, getQuotes } from '../app/lib/content/repository';
-import { parseManifest, parsePack, parseQuotes, parseVariants, type ContentPack } from '../app/lib/content/pack';
+import { cardClips, clipKey, DEFAULT_VOICE, normalizeClipText, type Clip } from '../../apps/lexica/app/lib/audio/clips';
+import { applyRemoteContent, getAllCards, getQuotes } from '../../apps/lexica/app/lib/content/repository';
+import { parseManifest, parsePack, parseQuotes, parseVariants, type ContentPack } from '../../apps/lexica/app/lib/content/pack';
 
 type KokoroVoice = NonNullable<Parameters<KokoroTTS['generate']>[1]>['voice'];
 
