@@ -104,3 +104,25 @@ export function diffHeard(heard: string, target: string): DiffPart[] {
     }
     return out;
 }
+
+/**
+ * How clearly the target came through, 0–1, from recognition alone: how close
+ * the best reading is to the target (letters), how sure the engine was, and
+ * whether the right reading came first or only among the alternatives.
+ * Smooth where the three levels are steps, so the score moves with the attempt.
+ */
+export function clarity(target: string, alternatives: readonly Alternative[]): number {
+    if (alternatives.length === 0) return 0;
+    const t = letters(target);
+    if (!t) return 0;
+    let best = 0;
+    alternatives.forEach((a, rank) => {
+        const hit = closest(a.transcript, t);
+        const match = Math.max(0, 1 - hit.distance / Math.max(t.length, 1));
+        // 0 means "the browser does not say": treat as fairly sure, not as unsure.
+        const sure = a.confidence > 0 ? a.confidence : 0.85;
+        const value = match * (0.7 + 0.3 * sure) * (rank === 0 ? 1 : 0.85);
+        best = Math.max(best, value);
+    });
+    return best;
+}

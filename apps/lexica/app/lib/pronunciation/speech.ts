@@ -7,7 +7,7 @@
  * sent to the API to be transcribed, and later attempts go there directly.
  */
 import { CORTEX_API_URL } from '../cortexConfig';
-import { NATURAL_VOICES, speakNatural, voiceQuality } from '../audio/AudioService';
+import { NATURAL_VOICES, speakNatural, stop as stopAudio, voiceQuality } from '../audio/AudioService';
 import { detectPitch } from './pitch';
 import type { Alternative } from './score';
 
@@ -48,6 +48,15 @@ export function speakWith(text: string, voice: SpeechSynthesisVoice | null, rate
     });
 }
 
+/** Bumped by stopSpeaking: a sequence of voices (speakVaried) stops at its next step. */
+let speakRun = 0;
+
+/** Silences every model voice now, and the rest of any sequence that was playing. */
+export function stopSpeaking() {
+    speakRun++;
+    stopAudio();
+}
+
 /** The model: a natural voice, slow or normal, else the best system voice. Resolves when done. */
 export async function sayModel(text: string, speed: 'slow' | 'normal' = 'normal', voice?: string): Promise<void> {
     if (await speakNatural(text, { slow: speed === 'slow', voice, wait: true })) return;
@@ -61,13 +70,16 @@ export async function sayModel(text: string, speed: 'slow' | 'normal' = 'normal'
  */
 export async function speakVaried(text: string, times = 3): Promise<void> {
     const voices = englishVoices(times);
+    const run = speakRun;
     for (let i = 0; i < times; i++) {
+        if (run !== speakRun) return; // stopped (the learner moved on)
         if (!(await speakNatural(text, { voice: NATURAL_VOICES[i % NATURAL_VOICES.length], wait: true }))) {
             const voice = voices[i % Math.max(1, voices.length)] ?? null;
             const shift = voices.length > i ? 1 : [0.85, 1.15, 1][i % 3];
             await speakWith(text, voice, 0.9, shift);
         }
         await new Promise((r) => setTimeout(r, 300));
+        if (run !== speakRun) return;
     }
 }
 

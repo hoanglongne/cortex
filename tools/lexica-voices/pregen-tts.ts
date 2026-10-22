@@ -17,8 +17,9 @@
 import { createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { KokoroTTS } from 'kokoro-js';
-import { cardClips, clipKey, DEFAULT_VOICE, normalizeClipText, type Clip } from '../../apps/lexica/app/lib/audio/clips';
-import { applyRemoteContent, getAllCards, getQuotes } from '../../apps/lexica/app/lib/content/repository';
+import { cardClips, clipKey, DEFAULT_VOICE, normalizeClipText, pairClips, passageClips, type Clip } from '../../apps/lexica/app/lib/audio/clips';
+import { applyRemoteContent, getAllCards, getPassages, getQuotes } from '../../apps/lexica/app/lib/content/repository';
+import { parsePassages } from '../../apps/lexica/app/lib/content/passages';
 import { parseManifest, parsePack, parseQuotes, parseVariants, type ContentPack } from '../../apps/lexica/app/lib/content/pack';
 
 type KokoroVoice = NonNullable<Parameters<KokoroTTS['generate']>[1]>['voice'];
@@ -68,7 +69,9 @@ async function loadStudioContent(url: string): Promise<boolean> {
     const talk = parsePack(await get(manifest.talk));
     if (talk) packs.push({ ...talk, cards: talk.cards.map((c) => ({ ...c, branch: 'talk' as const })) });
     const overlay = await get(manifest.variants);
+    const passages = parsePassages(await get(manifest.passages));
     applyRemoteContent({
+        passages: passages.length > 0 ? passages : undefined,
         packs,
         retired: manifest.retired,
         currentDropId: manifest.current?.id ?? null,
@@ -95,10 +98,13 @@ async function main() {
     const manifestUrl = process.env.CONTENT_MANIFEST_URL ?? process.env.NEXT_PUBLIC_CONTENT_MANIFEST_URL;
     if (manifestUrl) await loadStudioContent(manifestUrl);
 
-    // Every clip once, in card order.
+    // Every clip once: cards first (what the drill plays most), then the minimal pairs and the readings.
     const all = new Map<string, Clip>();
-    for (const card of getAllCards()) for (const clip of cardClips(card, getQuotes(card.id))) all.set(fileOf(clip), { ...clip, text: normalizeClipText(clip.text) });
-    console.log(`${getAllCards().length} cards, ${all.size} clips`);
+    const add = (clips: Clip[]) => clips.forEach((clip) => all.set(fileOf(clip), { ...clip, text: normalizeClipText(clip.text) }));
+    for (const card of getAllCards()) add(cardClips(card, getQuotes(card.id)));
+    add(pairClips());
+    for (const passage of getPassages()) add(passageClips(passage));
+    console.log(`${getAllCards().length} cards, ${getPassages().length} readings, ${all.size} clips`);
 
     const url = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

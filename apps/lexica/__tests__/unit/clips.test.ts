@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { cardClips, clipKey, shadowQuote } from '../../app/lib/audio/clips';
+import { cardClips, clipKey, pairClips, passageClips, shadowQuote } from '../../app/lib/audio/clips';
 
 // The Cortex API's cache name for a clip (apps/cortex-core-api/src/modules/lexica/lexica-ai.ts, ttsKey).
 const apiKey = (voice: string, slow: boolean, text: string) => createHash('sha256').update(`${voice}|${slow ? 1 : 0}|${text}`, 'utf8').digest('hex').slice(0, 32);
@@ -25,6 +25,10 @@ describe('model-voice clips', () => {
             'Kore|0|Please keep in mind the deadline.',
             'Kore|0|Keep in mind that the road is long.',
             'Kore|1|Keep in mind that the road is long.',
+            // the near-sound word of the listening round, in its three voices
+            'Kore|0|keep in min',
+            'Puck|0|keep in min',
+            'Aoede|0|keep in min',
         ]);
         expect(shadowQuote(quotes, 'KEEP IN MIND')?.source).toBe('A book');
     });
@@ -32,5 +36,17 @@ describe('model-voice clips', () => {
     it('names files the way the API caches them', () => {
         expect(ourKey(clipKey({ text: '  Please keep\nin mind  ', slow: true }))).toBe(apiKey('Kore', true, 'Please keep in mind'));
         expect(ourKey(clipKey({ text: 'abundant', voice: 'Puck' }))).toBe(apiKey('Puck', false, 'abundant'));
+    });
+
+    it('covers the minimal pairs and the readings as they are played', () => {
+        expect(pairClips().map(clipKey)).toEqual(expect.arrayContaining(['Kore|0|rice', 'Puck|0|rye', 'Aoede|0|bike', 'Kore|1|buy']));
+        expect(passageClips({ text: 'One.\n\nTwo.', kind: undefined }).map(clipKey)).toEqual(['Kore|0|One. Two.', 'Kore|1|One. Two.']);
+        expect(passageClips({ text: 'Linh: Hi!\nTom: Hello.\nLinh: Bye.', kind: 'dialogue' }).map(clipKey)).toEqual([
+            'Kore|0|Hi! Hello. Bye.',
+            'Kore|1|Hi! Hello. Bye.',
+            'Kore|0|Hi!',
+            'Puck|0|Hello.',
+            'Kore|0|Bye.',
+        ]);
     });
 });
