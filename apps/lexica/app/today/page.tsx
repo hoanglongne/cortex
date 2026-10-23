@@ -88,9 +88,15 @@ export default function TodayPage() {
         return () => clearTimeout(t);
     }, [frozen, plan.next, picks]);
 
+    // Counted once, when the day is finished here (not when opening a day already done).
+    const wasComplete = useRef(plan.complete);
     useEffect(() => {
-        if (plan.complete && !frozen) completeToday();
-    }, [plan.complete, frozen, completeToday]);
+        if (plan.complete && !frozen) {
+            completeToday();
+            if (!wasComplete.current) capture('today_complete', { first_day: firstDay, days_done: daysDone.length });
+            wasComplete.current = true;
+        }
+    }, [plan.complete, frozen, completeToday, firstDay, daysDone.length]);
 
     const done = (stage: Stage, source?: ReadSource) => {
         finishStage(stage);

@@ -23,7 +23,7 @@ export function tabOf(path: string): TabId | null {
     if (['/practice', '/read', '/journal', '/spot', '/speak'].includes(path)) return 'practice';
     if (path === '/learned') return 'words';
     if (path === '/album') return 'album';
-    if (['/me', '/stats', '/settings', '/path', '/class', '/buddy', '/guide'].includes(path)) return 'me';
+    if (['/me', '/stats', '/settings', '/path', '/class', '/buddy', '/guide', '/feedback', '/privacy', '/terms'].includes(path)) return 'me';
     return null;
 }
 

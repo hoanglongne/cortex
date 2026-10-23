@@ -37,6 +37,7 @@ FILES=(
   apps/lexica/supabase/migration_engagement_lucky.sql
   apps/lexica/supabase/migration_engagement_lucky_status.sql
   apps/lexica/supabase/migration_engagement_review_dust.sql
+  apps/lexica/supabase/migration_feedback.sql
   packages/classroom/sql/classroom_core.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
   packages/classroom-oratio/sql/classroom_oratio.sql

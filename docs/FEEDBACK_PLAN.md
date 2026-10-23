@@ -66,3 +66,10 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [ ] Người dùng: thêm `NEXT_PUBLIC_SUPABASE_URL` và `SUPABASE_SERVICE_ROLE_KEY` cho Cortex API trên Railway (câu tự do vẫn cần API).
 - [x] Bấm nghe nhiều lần không còn chạy chồng: mỗi lần bấm dừng giọng cũ (cả chuỗi 3 giọng và "Giọng bạn").
 - [x] Bấm Xong: nút đổi ngay sang "Đang chấm…"; chờ API nhận dạng tối đa 6 giây, API lỗi thì bỏ qua cho cả lần truy cập.
+
+## Đợt 10: chuẩn bị beta kín
+- [x] Trang Góp ý và báo lỗi (`/feedback`, từ trang Tôi), lưu vào bảng `lexica_feedback` (đọc trong Supabase dashboard). Người dùng chạy `apps/lexica/supabase/migration_feedback.sql`.
+- [x] Trang Chính sách riêng tư (`/privacy`) và Điều khoản (`/terms`), bản nháp; dòng đồng ý khi tạo tài khoản. Nên nhờ người am hiểu pháp lý đọc lại trước khi ra mắt công khai.
+- [x] Đo thêm: `sign_up`, `sign_in`, `speak_attempt`, `today_complete`, `feedback_sent` (cùng `app_open`, `today_start`, `today_stage` sẵn có) để tính tỷ lệ quay lại và phễu phiên đầu trong PostHog.
+- [ ] Hạ tầng ổn định (VPS hoặc Vercel Pro), Cortex API chạy lại.
+- [ ] Thử trên 3–4 điện thoại thật (iPhone Safari, Android Chrome, máy rẻ).

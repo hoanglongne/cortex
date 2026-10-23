@@ -70,6 +70,11 @@ export default function AuthGate({ reason, onSent, redirectPath = '/buddy' }: Au
                 <>
                     <p className="text-sm text-ink-2">Chưa có tài khoản với email và mật khẩu này. Tạo tài khoản mới thì nhập lại mật khẩu. Đã có tài khoản thì kiểm tra lại mật khẩu.</p>
                     <input type="password" autoComplete="new-password" autoFocus value={repeat} onChange={(e) => setRepeat(e.target.value)} placeholder="Nhập lại mật khẩu" aria-label="Nhập lại mật khẩu" className={input} />
+                    <p className="text-xs text-muted">
+                        Tạo tài khoản là bạn đồng ý với{' '}
+                        <a href="/terms" target="_blank" className="underline">Điều khoản</a> và{' '}
+                        <a href="/privacy" target="_blank" className="underline">Chính sách riêng tư</a>.
+                    </p>
                 </>
             )}
             <button type="submit" disabled={busy || !email.includes('@') || password.length < 6 || (repeat !== null && repeat.length < 6)} className="py-3 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-bold rounded-xl flex items-center justify-center gap-2">
