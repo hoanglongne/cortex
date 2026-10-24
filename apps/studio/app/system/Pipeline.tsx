@@ -13,6 +13,7 @@ const JOBS = [
     { id: 'generate', label: 'Sinh nháp', hint: 'Sinh nháp cho trend trong hàng chờ (tốn lượt AI)' },
     { id: 'lifecycle', label: 'Lifecycle', hint: 'Giữ / cho nghỉ thẻ theo phản hồi, phát hành lại drop đang chạy' },
     { id: 'quotes', label: 'Câu ngoài đời', hint: 'Dựng thêm sách vào kho câu, rồi tìm câu trích cho thẻ chưa tìm (chạy mỗi đêm)' },
+    { id: 'passages', label: 'Bài đọc theo kế hoạch', hint: 'Viết tiếp bài đọc còn thiếu trong kế hoạch 100 bài, 5 bài mỗi lần, chờ duyệt ở trang Đọc (chạy 4h và 16h)' },
 ];
 
 export function Jobs({ onDone }: { onDone: () => void }) {

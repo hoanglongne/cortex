@@ -1,4 +1,5 @@
 import { getSupabaseClient } from './supabase';
+import { capture } from './productAnalytics';
 import type { Session, User } from '@supabase/supabase-js';
 
 export type { Session, User };
@@ -39,7 +40,10 @@ export async function signInWithPassword(email: string, password: string, repeat
     if (!supabase) return { ok: false, error: 'Supabase chưa được cấu hình' };
     const clean = email.trim().toLowerCase();
     const signIn = await supabase.auth.signInWithPassword({ email: clean, password });
-    if (!signIn.error) return { ok: true };
+    if (!signIn.error) {
+        capture('sign_in', { method: 'password' });
+        return { ok: true };
+    }
     if (!/invalid login credentials/i.test(signIn.error.message)) return { ok: false, error: signIn.error.message };
     // A new account (or a wrong password): the password is typed twice before an account is made with it.
     if (repeated === undefined) return { ok: false, isNew: true };
@@ -50,6 +54,7 @@ export async function signInWithPassword(email: string, password: string, repeat
     if (signUp.data.user && signUp.data.user.identities?.length === 0) {
         return { ok: false, error: 'Sai mật khẩu. Tài khoản cũ chưa có mật khẩu thì dùng "Nhận link đăng nhập".' };
     }
+    capture('sign_up', { method: 'password', confirm: !signUp.data.session });
     return signUp.data.session ? { ok: true } : { ok: false, confirm: true };
 }
 

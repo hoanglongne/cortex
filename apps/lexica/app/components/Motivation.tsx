@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { Flame, Ghost, LayoutGrid, Sparkles, Users } from 'lucide-react';
+import { Ghost, LayoutGrid, Sparkles, Users } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { useEconomy } from '../lib/engagement/economy';
 import { getRival } from '../lib/engagement/ghost';
@@ -16,7 +16,6 @@ import { getAllCards, getCurrentDrop, useContentVersion } from '../lib/content/r
  */
 export default function Motivation({ variant }: { variant: 'strip' | 'column' }) {
     const version = useContentVersion();
-    const streak = useLexicaStore((s) => s.currentStreak);
     const cardProgress = useLexicaStore((s) => s.cardProgress);
     const wallet = useEconomy((s) => s.state?.wallet ?? null);
     const [rival] = useState(() => (typeof window === 'undefined' ? null : getRival()));
@@ -35,9 +34,6 @@ export default function Motivation({ variant }: { variant: 'strip' | 'column' })
     if (variant === 'strip') {
         return (
             <section data-testid="motivation-strip" aria-label="Động lực" className="w-full rounded-2xl bg-surface-2/40 border border-line/60 px-4 py-3 flex items-center gap-4 overflow-x-auto text-xs text-muted">
-                <span className="flex items-center gap-1 shrink-0">
-                    <Flame className={`w-3.5 h-3.5 ${streak > 0 ? 'text-warning' : 'text-subtle'}`} /> {streak} ngày
-                </span>
                 {wallet && (
                     <span className="flex items-center gap-1 shrink-0">
                         <Sparkles className="w-3.5 h-3.5" /> {wallet.dust} Bụi
@@ -61,11 +57,8 @@ export default function Motivation({ variant }: { variant: 'strip' | 'column' })
     }
 
     return (
-        <aside data-testid="motivation-column" aria-label="Động lực" className="hidden lg:flex flex-col gap-3 rounded-2xl bg-surface-2/40 border border-line/60 p-4 text-sm text-muted self-start">
-            <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Động lực</p>
-            <p className="flex items-center gap-2">
-                <Flame className={`w-4 h-4 ${streak > 0 ? 'text-warning' : 'text-subtle'}`} /> Chuỗi {streak} ngày
-            </p>
+        <aside data-testid="motivation-column" aria-label="Động lực" className="hidden lg:flex flex-col gap-3 rounded-2xl bg-surface-2/40 border border-line/60 p-4 text-sm text-muted w-full">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Sưu tầm và bạn học</p>
             {wallet && (
                 <Link href="/album" className="flex items-center gap-2 hover:text-ink">
                     <Sparkles className="w-4 h-4" /> {wallet.dust} Bụi · {wallet.boxes} Hộp

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, ChevronRight, Compass, Route, School, Settings, Swords, Users } from 'lucide-react';
+import { BarChart3, ChevronRight, Compass, MessageSquareHeart, Route, School, Settings, Swords, Users } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { hardWords } from '../lib/engagement/hard';
 import { ARCHETYPE_OPTIONS } from '../lib/content/persona';
@@ -51,6 +51,7 @@ export default function MePage() {
                     <Row href="/buddy" icon={<Users className="w-4 h-4" />} title="Buddy" />
                     {hardCount > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó của bạn" hint={`${hardCount} từ`} />}
                     <Row href="/guide" icon={<Compass className="w-4 h-4" />} title="Lexica có gì" />
+                    <Row href="/feedback?from=/me" icon={<MessageSquareHeart className="w-4 h-4" />} title="Góp ý và báo lỗi" />
                 </section>
 
                 {path && (
@@ -108,6 +109,11 @@ export default function MePage() {
                         Âm thanh, sao lưu và các cài đặt khác
                     </Link>
                 </section>
+
+                <p className="flex justify-center gap-4 text-xs text-subtle">
+                    <Link href="/privacy" className="hover:text-ink">Chính sách riêng tư</Link>
+                    <Link href="/terms" className="hover:text-ink">Điều khoản</Link>
+                </p>
             </div>
         </div>
     );

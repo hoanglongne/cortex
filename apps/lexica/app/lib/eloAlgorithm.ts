@@ -350,12 +350,10 @@ export function recordSwipe(
     const correctSwipes = direction === 'right' ? userStats.correctSwipes + 1 : userStats.correctSwipes;
     const wrongSwipes = direction === 'left' ? userStats.wrongSwipes + 1 : userStats.wrongSwipes;
 
-    // Update user ELO
-    const currentElo = updateUserElo(userStats.currentElo, direction);
-
+    // ELO moves only with the level test (and later its re-take): a swipe
+    // says "I know / learned this word", which counts volume, not level.
     return {
         ...userStats,
-        currentElo,
         totalSwipes,
         correctSwipes,
         wrongSwipes,
