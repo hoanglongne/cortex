@@ -84,6 +84,9 @@ export default function PlacementResultView({
                     </div>
                 </section>
 
+                <a href="/score" className="block text-center text-sm text-accent hover:underline">
+                    Xem lịch sử điểm và chia sẻ
+                </a>
                 <p className="text-center text-xs text-subtle">
                     Thi lại được sau {RETAKE_DAYS} ngày và {RETAKE_REVIEWS} lượt ôn, để điểm phản ánh đúng những gì bạn học thêm.
                 </p>

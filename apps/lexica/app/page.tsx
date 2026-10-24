@@ -13,6 +13,7 @@ import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
 import PaceCard from './components/PaceCard';
 import LevelHintCard from './components/LevelHintCard';
+import RetakeCard from './components/RetakeCard';
 import RecentWords from './components/RecentWords';
 import GuideCard from './components/GuideCard';
 import PledgeCard from './components/PledgeCard';
@@ -514,6 +515,7 @@ function HomeContent() {
               <TodayCard />
             </ErrorBoundary>
             <LevelHintCard />
+            <RetakeCard />
             <GuideCard />
             <PledgeCard />
             <div className="lg:hidden flex flex-col gap-4">
