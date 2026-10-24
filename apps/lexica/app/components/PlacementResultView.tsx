@@ -1,7 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { levelDef } from '../lib/levels';
-import { ieltsRange, RETAKE_DAYS, RETAKE_REVIEWS, vocabSize, type PlacementResult } from '../lib/placement/engine';
+import { ieltsRange, RETAKE_DAYS, RETAKE_REVIEWS, vocabSize } from '../lib/placement/engine';
+import type { TestOutcome } from './PlacementTest';
 
 const KIND_LABEL = { meaning: 'Nhận nghĩa', phrase: 'Dùng trong cụm', real: 'Nhận ra từ', listen: 'Nghe ra từ' } as const;
 
@@ -12,7 +14,7 @@ export default function PlacementResultView({
     onAccept,
     onChoose,
 }: {
-    result: PlacementResult;
+    result: TestOutcome;
     /** The score of the test before, to show the change. */
     previous: number | null;
     onAccept: () => void;
@@ -84,9 +86,9 @@ export default function PlacementResultView({
                     </div>
                 </section>
 
-                <a href="/score" className="block text-center text-sm text-accent hover:underline">
-                    Xem lịch sử điểm và chia sẻ
-                </a>
+                <Link href="/score" className="block text-center text-sm text-accent hover:underline">
+                    {result.code ? 'Điểm đã xác minh: xem link và chia sẻ' : 'Xem lịch sử điểm và chia sẻ'}
+                </Link>
                 <p className="text-center text-xs text-subtle">
                     Thi lại được sau {RETAKE_DAYS} ngày và {RETAKE_REVIEWS} lượt ôn, để điểm phản ánh đúng những gì bạn học thêm.
                 </p>

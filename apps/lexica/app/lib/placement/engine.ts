@@ -52,8 +52,8 @@ export interface Response {
 export const MIN_ITEMS = 15;
 export const MAX_ITEMS = 30;
 /** Stop once the estimate's spread is this small. */
-export const TARGET_SD = 60;
-const PRIOR_SD = 250;
+export const TARGET_SD = 80;
+const PRIOR_SD = 400;
 const GRID_LO = 650;
 const GRID_HI = 1650;
 const STEP = 5;
@@ -299,6 +299,8 @@ export interface Placement {
     level: DifficultyLevel;
     /** Review answers given so far when this test was taken (sum over cards). */
     reviewsAt: number;
+    /** Public code of a verified score (scored by the server): /score/<code>. */
+    code?: string;
 }
 
 export const RETAKE_DAYS = 14;

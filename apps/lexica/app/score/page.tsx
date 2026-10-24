@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRef, useState } from 'react';
-import { Gauge, Loader2, Share2 } from 'lucide-react';
+import { BadgeCheck, Copy, Gauge, Loader2, Share2 } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { levelDef } from '../lib/levels';
 import { ieltsRange, retake, vocabSize, type Placement } from '../lib/placement/engine';
@@ -28,12 +28,14 @@ export default function ScorePage() {
     const before = placements[placements.length - 2];
     const reviews = Object.values(progress).reduce((n, c) => n + c.reviewCount + c.wrongCount, 0);
     const gate = retake(placements, reviews, now);
+    const link = last?.code && typeof window !== 'undefined' ? `${window.location.origin}/score/${last.code}` : null;
+    const [copied, setCopied] = useState(false);
 
     const share = async () => {
         if (!last || !canvas.current) return;
         setSharing('busy');
         const level = levelDef(last.level);
-        drawShareCard(canvas.current, { score: last.score, sd: last.sd, at: last.at, level: `${level.label} · ${level.cefr}`, change: before ? last.score - before.score : null }, SHARE_THEME);
+        drawShareCard(canvas.current, { score: last.score, sd: last.sd, at: last.at, level: `${level.label} · ${level.cefr}`, change: before ? last.score - before.score : null, verifyUrl: link }, SHARE_THEME);
         try {
             setSharing((await shareCanvas(canvas.current)) === 'downloaded' ? 'downloaded' : 'idle');
         } catch {
@@ -78,6 +80,25 @@ export default function ScorePage() {
                                 <Stat label="Tương đương IELTS từ vựng" value={`khoảng ${ieltsRange(last.score, last.sd)}`} />
                                 <Stat label="Vốn từ ước lượng" value={`~${vocabSize(last.score).toLocaleString('vi-VN')} từ`} />
                             </div>
+                            {link ? (
+                                <button
+                                    onClick={() => {
+                                        void navigator.clipboard?.writeText(link).then(() => setCopied(true));
+                                    }}
+                                    className="mt-3 w-full flex items-center gap-2 rounded-xl bg-bg/60 border border-line px-3 py-2 text-left"
+                                >
+                                    <BadgeCheck className="w-4 h-4 text-accent shrink-0" />
+                                    <span className="flex-1 min-w-0">
+                                        <span className="block text-xs text-ink">Đã xác minh · ai mở link cũng thấy điểm này</span>
+                                        <span className="block font-mono text-[11px] text-muted truncate">{link.replace(/^https?:\/\//, '')}</span>
+                                    </span>
+                                    <span className="text-xs text-accent shrink-0 flex items-center gap-1">
+                                        <Copy className="w-3.5 h-3.5" /> {copied ? 'Đã chép' : 'Chép'}
+                                    </span>
+                                </button>
+                            ) : (
+                                <p className="mt-3 text-xs text-muted">Điểm luyện tập (chấm trên máy). Đăng nhập rồi thi để có điểm đã xác minh và link chia sẻ.</p>
+                            )}
                             {sharing === 'downloaded' && <p className="mt-3 text-xs text-muted">Đã tải ảnh về máy. Đăng lên đâu tuỳ bạn.</p>}
                         </section>
 
@@ -109,7 +130,7 @@ export default function ScorePage() {
                                 )}
                             </div>
                         </section>
-                        <p className="text-center text-xs text-subtle">Điểm luyện tập, chấm trên máy bạn. Ước lượng, không phải điểm thi IELTS chính thức.</p>
+                        <p className="text-center text-xs text-subtle">Ước lượng, không phải điểm thi IELTS chính thức.</p>
                     </>
                 )}
                 <canvas ref={canvas} className="hidden" aria-hidden />

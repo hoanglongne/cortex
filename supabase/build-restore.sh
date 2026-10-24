@@ -40,6 +40,8 @@ FILES=(
   apps/lexica/supabase/migration_feedback.sql
   packages/classroom/sql/classroom_core.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
+  apps/lexica/supabase/migration_placement.sql
+  apps/lexica/supabase/placement_bank.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
   apps/oratio/supabase/migration_2026_10_answers.sql
   # Last: tightens public.profiles for every app (drops Lexica's read-all policy)

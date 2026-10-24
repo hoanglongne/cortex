@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useLexicaStore } from '../../store/lexicaStore';
-import PlacementTest from '../../components/PlacementTest';
+import PlacementTest, { type TestOutcome } from '../../components/PlacementTest';
+import { signedIn } from '../../lib/engagement/economy';
 import PlacementResultView from '../../components/PlacementResultView';
-import { retake, type PlacementResult } from '../../lib/placement/engine';
+import { retake } from '../../lib/placement/engine';
 
 /**
  * The adaptive vocabulary test and its result (docs/LEXICA_LEVEL_TEST_DESIGN.md).
@@ -21,13 +22,22 @@ export default function TestQuizPage() {
     const elo = useLexicaStore((s) => s.userStats.currentElo);
     const completePlacement = useLexicaStore((s) => s.completePlacement);
     const acceptRecommendedLevel = useLexicaStore((s) => s.acceptRecommendedLevel);
-    const [done, setDone] = useState<{ result: PlacementResult; previous: number | null } | null>(null);
+    const [done, setDone] = useState<{ result: TestOutcome; previous: number | null } | null>(null);
     const [gate] = useState(() => {
         const reviews = Object.values(cardProgress).reduce((n, c) => n + c.reviewCount + c.wrongCount, 0);
         return retake(placements, reviews, Date.now());
     });
     // A re-take starts from the last score; a first test from the middle of the scale.
     const [start] = useState(() => (placements.length > 0 ? elo : 1000));
+    // Signed in: a verified test (the server scores it); otherwise a practice one.
+    const [verify, setVerify] = useState<boolean | null>(null);
+    useEffect(() => {
+        let live = true;
+        void signedIn().then((yes) => live && setVerify(yes));
+        return () => {
+            live = false;
+        };
+    }, []);
 
     useEffect(() => {
         if (!isInTest && !done) router.replace('/test');
@@ -46,7 +56,7 @@ export default function TestQuizPage() {
             />
         );
     }
-    if (!isInTest) return null;
+    if (!isInTest || verify === null) return null;
 
     if (!gate.ok) {
         return (
@@ -70,13 +80,14 @@ export default function TestQuizPage() {
     return (
         <PlacementTest
             start={start}
+            verify={verify}
             onBack={() => {
                 useLexicaStore.setState({ isInTest: false });
                 router.back();
             }}
             onDone={(result) => {
                 const previous = placements.length > 0 ? placements[placements.length - 1].score : null;
-                completePlacement({ at: Date.now(), score: result.score, sd: result.sd, level: result.level });
+                completePlacement({ at: Date.now(), score: result.score, sd: result.sd, level: result.level, ...(result.code ? { code: result.code } : {}) });
                 setDone({ result, previous });
             }}
         />

@@ -94,6 +94,16 @@
 
 ## 5. Tiến độ
 - [x] PR A: bài kiểm tra thích ứng trên máy (`lib/placement/engine.ts`, `components/PlacementTest.tsx`, `components/PlacementResultView.tsx`). 3 dạng câu: chọn nghĩa, điền từ vào cụm, từ thật hay từ bịa. Có "Không biết" và 20 giây mỗi câu. Kết quả gồm điểm ± sai số, IELTS khoảng, vốn từ ước lượng, theo dạng câu. Lịch sử các lần thi lưu trong store; luật thi lại đã áp dụng.
-- [ ] PR B: gợi ý thi lại trên trang chủ, biểu đồ điểm, thẻ điểm để chia sẻ.
-- [ ] PR C: điểm đã xác minh (máy chủ chấm, link công khai, giáo viên xem).
-- [ ] Dạng câu Nghe (chờ quyết).
+- [x] PR B: thẻ gợi ý thi lại trên trang chủ, trang `/score` (biểu đồ các lần thi, lần thi tới), ảnh thẻ điểm 1080×1350 để chia sẻ.
+- [x] PR C: điểm đã xác minh, chạy hoàn toàn trên Supabase (không cần Cortex API):
+  - `apps/lexica/supabase/migration_placement.sql`: bảng bài thi và câu hỏi, các hàm `lexica_placement_start`, `lexica_placement_answer` (máy chủ chọn câu, giữ đáp án, giới hạn 25 giây, chấm), `lexica_score_public` (trang `/score/<mã>`), `lexica_my_scores`, `lexica_class_scores` (giáo viên).
+  - `apps/lexica/supabase/placement_bank.sql`: ngân hàng câu sinh từ bộ từ (test `placementBank` báo khi lệch).
+  - Luật máy chủ: 14 ngày giữa hai điểm, tối đa 5 lần bắt đầu mỗi ngày (bỏ dở cũng tính).
+  - Teach: "Điểm từ vựng đã xác minh" ở tổng quan lớp và trang học viên.
+  - Đăng nhập thì thi có xác minh; chưa đăng nhập, hoặc chưa chạy SQL, thì tự chuyển sang bài luyện tập.
+- [x] Dạng câu Nghe, tuỳ chọn ở đầu bài.
+
+## 6. Giới hạn đã biết
+- **Gian lận:** bộ từ (từ và nghĩa) có sẵn trong app, nên một người viết script vẫn tra được đáp án trong 20 giây. Câu nghe gửi tên file giọng, mà tên này tính được từ từ vựng. Điểm "đã xác minh" nghĩa là máy chủ chọn câu, giữ đáp án, giới hạn thời gian và luật thi lại, chưa phải bài thi có giám sát. Muốn chặt hơn: thêm câu chỉ có trên máy chủ (không có trong app), hoặc thi có camera.
+- **Đầu thang:** ngân hàng có ít từ trên 1400, nên người rất giỏi hay được chấm thấp hơn một chút (mô phỏng: khoảng 1300 cho trình độ 1400). Thêm từ Chuyên gia sẽ đỡ.
+- **Thang điểm:** độ khó của từ là `elo` do người soạn đặt, chưa hiệu chỉnh theo dữ liệu thật. Khi có vài trăm bài thi, nên tính lại độ khó từng từ từ tỉ lệ trả lời đúng.
