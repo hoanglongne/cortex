@@ -61,6 +61,21 @@ describe('adaptive vocabulary test', () => {
         expect(new Set(responses.filter((r) => r.item.kind !== 'real').map((r) => r.item.answer)).size).toBeGreaterThan(1);
     });
 
+    it('asks listening questions only when sound is on: one word, spoken, among the options', () => {
+        const rand = seeded(8);
+        const withSound: Response[] = [];
+        for (let i = 0; i < 24; i++) withSound.push({ item: nextItem(bank, withSound, rand, 1000, true)!, answer: 'right' });
+        const listen = withSound.filter((r) => r.item.kind === 'listen');
+        expect(listen.length).toBeGreaterThan(4);
+        for (const r of listen) {
+            expect(r.item.prompt).not.toContain(' ');
+            expect(r.item.options[r.item.answer]).toBe(r.item.prompt);
+        }
+        const quiet: Response[] = [];
+        for (let i = 0; i < 24; i++) quiet.push({ item: nextItem(bank, quiet, rand)!, answer: 'right' });
+        expect(quiet.some((r) => r.item.kind === 'listen')).toBe(false);
+    });
+
     it('reports made-up words called real', () => {
         expect(result(take(1100, 9, true)).fakes.yes).toBeGreaterThan(0);
     });

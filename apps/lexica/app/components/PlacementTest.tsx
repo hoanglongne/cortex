@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Check, X } from 'lucide-react';
+import { ArrowLeft, Check, Headphones, Volume2, X } from 'lucide-react';
+import { sayModel, stopSpeaking } from '../lib/pronunciation/speech';
 import { getDeckCards, useContentVersion } from '../lib/content/repository';
 import { isDone, MAX_ITEMS, nextItem, result, scoredCount, type BankCard, type Item, type PlacementResult, type Response } from '../lib/placement/engine';
 
@@ -12,6 +13,7 @@ const KIND_LABEL: Record<Item['kind'], string> = {
     meaning: 'Chọn nghĩa đúng',
     phrase: 'Điền từ vào cụm',
     real: 'Đây có phải từ tiếng Anh?',
+    listen: 'Nghe và chọn từ bạn nghe',
 };
 
 /**
@@ -26,7 +28,9 @@ export default function PlacementTest({ start, onDone, onBack }: { start: number
         return getDeckCards().filter((c) => (c.branch ?? 'cert') === 'cert');
     }, [version]);
     const [responses, setResponses] = useState<Response[]>([]);
-    const [item, setItem] = useState<Item | null>(() => nextItem(bank, [], Math.random, start));
+    // null until the learner says whether they can play sound.
+    const [sound, setSound] = useState<boolean | null>(null);
+    const [item, setItem] = useState<Item | null>(null);
     const [picked, setPicked] = useState<number | 'skip' | null>(null);
     const [left, setLeft] = useState(SECONDS);
 
@@ -42,13 +46,19 @@ export default function PlacementTest({ start, onDone, onBack }: { start: number
                     onDone(result(next, start));
                     return;
                 }
-                setItem(nextItem(bank, next, Math.random, start));
+                setItem(nextItem(bank, next, Math.random, start, sound === true));
                 setPicked(null);
                 setLeft(SECONDS);
             },
             choice === 'skip' ? 300 : 700,
         );
     };
+
+    // A listening question plays its word as it opens; leaving stops the voice.
+    useEffect(() => {
+        if (item?.kind === 'listen') void sayModel(item.prompt);
+    }, [item]);
+    useEffect(() => () => stopSpeaking(), []);
 
     // The clock: a second at a time while a question is open; at zero it is "không biết".
     useEffect(() => {
@@ -59,6 +69,37 @@ export default function PlacementTest({ start, onDone, onBack }: { start: number
     }, [left, item, picked]);
 
     const n = scoredCount(responses);
+    const begin = (withSound: boolean) => {
+        setSound(withSound);
+        setItem(nextItem(bank, [], Math.random, start, withSound));
+    };
+
+    if (sound === null) {
+        return (
+            <div className="min-h-screen bg-bg px-4 py-10">
+                <section className="max-w-md mx-auto rounded-3xl border border-line bg-surface p-6 space-y-4">
+                    <span className="w-11 h-11 rounded-2xl bg-accent/12 text-accent flex items-center justify-center">
+                        <Headphones className="w-5 h-5" />
+                    </span>
+                    <div>
+                        <p className="text-lg font-semibold text-ink">Bạn có nghe được tiếng không?</p>
+                        <p className="mt-1 text-sm text-muted">Có thì bài có thêm câu nghe: app đọc một từ, bạn chọn từ vừa nghe. Đo được cả việc nhận ra từ khi nghe. Đang ở nơi đông người thì bỏ qua.</p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <button onClick={() => begin(true)} className="h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold">
+                            Có, có câu nghe
+                        </button>
+                        <button onClick={() => begin(false)} className="h-12 rounded-xl border border-line text-sm text-ink-2 hover:border-line-strong">
+                            Không, chỉ câu đọc
+                        </button>
+                    </div>
+                    <button onClick={onBack} className="text-xs text-muted hover:text-ink">
+                        Để sau
+                    </button>
+                </section>
+            </div>
+        );
+    }
     if (!item) return <div className="min-h-screen bg-bg" />;
 
     return (
@@ -84,7 +125,15 @@ export default function PlacementTest({ start, onDone, onBack }: { start: number
                     <div className="mt-1 h-0.5 rounded-full bg-surface-3 overflow-hidden">
                         <div className="h-full bg-accent/60 transition-all duration-1000 ease-linear" style={{ width: `${(left / SECONDS) * 100}%` }} />
                     </div>
-                    <p className={`mt-6 mb-6 text-center font-semibold text-ink ${item.kind === 'phrase' ? 'text-2xl' : 'text-3xl'} ${item.kind !== 'phrase' ? 'lowercase' : ''}`}>{item.prompt}</p>
+                    {item.kind === 'listen' ? (
+                        <div className="my-6 flex justify-center">
+                            <button onClick={() => void sayModel(item.prompt)} aria-label="Nghe lại" className="w-20 h-20 rounded-full bg-accent/12 border border-accent/40 text-accent flex items-center justify-center hover:bg-accent/20">
+                                <Volume2 className="w-8 h-8" />
+                            </button>
+                        </div>
+                    ) : (
+                        <p className={`mt-6 mb-6 text-center font-semibold text-ink ${item.kind === 'phrase' ? 'text-2xl' : 'text-3xl'} ${item.kind !== 'phrase' ? 'lowercase' : ''}`}>{item.prompt}</p>
+                    )}
 
                     <div className={`grid gap-2 ${item.kind === 'real' ? 'grid-cols-2' : 'grid-cols-1'}`}>
                         {item.options.map((o, i) => {

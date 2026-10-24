@@ -8,7 +8,9 @@
  * - meaning: the word, four Vietnamese meanings;
  * - phrase: one of its collocations with the word blanked, four words;
  * - real: "is this an English word?", sometimes about a made-up word
- *   (those are not scored; saying yes to them is reported as overclaiming).
+ *   (those are not scored; saying yes to them is reported as overclaiming);
+ * - listen (when the learner can play sound): the word is spoken, not
+ *   shown; pick it among four written words.
  * "Không biết" and running out of time count as not knowing, without the
  * guessing floor. The test stops when the estimate is tight or after 30.
  * Pure functions; the page keeps the state.
@@ -16,7 +18,7 @@
 import type { DifficultyLevel } from '../../types/vocab';
 import { ELO_CEIL, ELO_FLOOR, levelForElo } from '../levels';
 
-export type ItemKind = 'meaning' | 'phrase' | 'real';
+export type ItemKind = 'meaning' | 'phrase' | 'real' | 'listen';
 export type Answer = 'right' | 'wrong' | 'skip';
 
 export interface BankCard {
@@ -110,6 +112,7 @@ export const FAKE_WORDS = [
 ];
 
 const KINDS: ItemKind[] = ['meaning', 'phrase', 'meaning', 'real'];
+const KINDS_WITH_SOUND: ItemKind[] = ['meaning', 'listen', 'phrase', 'real', 'meaning', 'listen'];
 
 /** The phrase with the word blanked, if the card has one that holds the word as is. */
 export function blankPhrase(card: BankCard): string | null {
@@ -163,6 +166,16 @@ export function makeItem(kind: ItemKind, card: BankCard | null, bank: readonly B
         const options = shuffle([card.translationHint, ...wrong], rand);
         return { kind, cardId: card.id, prompt: card.word.toLowerCase(), options, answer: options.indexOf(card.translationHint), difficulty: card.elo, guess: 0.25 };
     }
+    if (kind === 'listen') {
+        // Single words only: a spoken phrase gives itself away by its length.
+        if (card.word.includes(' ')) return null;
+        const wrong = distractors(card, bank, rand, 'word');
+        if (wrong.length < 3) return null;
+        const right = card.word.toLowerCase();
+        const options = shuffle([right, ...wrong], rand);
+        // The prompt is what is spoken; the page never shows it.
+        return { kind, cardId: card.id, prompt: right, options, answer: options.indexOf(right), difficulty: card.elo + 50, guess: 0.25 };
+    }
     const phrase = blankPhrase(card);
     if (!phrase) return null;
     const wrong = distractors(card, bank, rand, 'word');
@@ -178,17 +191,18 @@ export function makeItem(kind: ItemKind, card: BankCard | null, bank: readonly B
  * asked yet (one of the four nearest, at random), about one in three "real"
  * slots a made-up word.
  */
-export function nextItem(bank: readonly BankCard[], responses: readonly Response[], rand: () => number, start = 1000): Item | null {
+export function nextItem(bank: readonly BankCard[], responses: readonly Response[], rand: () => number, start = 1000, sound = false): Item | null {
     const asked = new Set(responses.map((r) => r.item.cardId).filter(Boolean));
     const fakesAsked = new Set(responses.filter((r) => r.item.cardId === null).map((r) => r.item.prompt));
     const target = estimate(responses, start).score;
-    const kind = KINDS[responses.length % KINDS.length];
+    const kinds = sound ? KINDS_WITH_SOUND : KINDS;
+    const kind = kinds[responses.length % kinds.length];
     if (kind === 'real' && rand() < 1 / 3) {
         const fake = FAKE_WORDS.find((w) => !fakesAsked.has(w));
         if (fake) return makeItem('real', null, bank, rand, fake);
     }
     const near = bank
-        .filter((c) => !asked.has(c.id) && (kind !== 'phrase' || blankPhrase(c) !== null))
+        .filter((c) => !asked.has(c.id) && (kind !== 'phrase' || blankPhrase(c) !== null) && (kind !== 'listen' || !c.word.includes(' ')))
         .sort((a, b) => Math.abs(a.elo - target) - Math.abs(b.elo - target))
         .slice(0, 4);
     for (const card of shuffle(near, rand)) {
@@ -217,7 +231,7 @@ export interface PlacementResult {
 export function result(responses: readonly Response[], start = 1000): PlacementResult {
     const { score, sd } = estimate(responses, start);
     const clamped = Math.min(ELO_CEIL, Math.max(ELO_FLOOR, score));
-    const byKind: PlacementResult['byKind'] = { meaning: { right: 0, total: 0 }, phrase: { right: 0, total: 0 }, real: { right: 0, total: 0 } };
+    const byKind: PlacementResult['byKind'] = { meaning: { right: 0, total: 0 }, phrase: { right: 0, total: 0 }, real: { right: 0, total: 0 }, listen: { right: 0, total: 0 } };
     const fakes = { yes: 0, total: 0 };
     for (const r of responses) {
         if (r.item.cardId === null) {

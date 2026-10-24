@@ -24,7 +24,7 @@ export default function TestResultPage() {
     const empty = { right: 0, total: 0 };
     return (
         <PlacementResultView
-            result={{ score: last.score, sd: last.sd, level: last.level, byKind: { meaning: empty, phrase: empty, real: empty }, fakes: { yes: 0, total: 0 }, questions: 0 }}
+            result={{ score: last.score, sd: last.sd, level: last.level, byKind: { meaning: empty, phrase: empty, real: empty, listen: empty }, fakes: { yes: 0, total: 0 }, questions: 0 }}
             previous={placements.length > 1 ? placements[placements.length - 2].score : null}
             onAccept={() => {
                 acceptRecommendedLevel();

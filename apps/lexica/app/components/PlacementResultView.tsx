@@ -3,7 +3,7 @@
 import { levelDef } from '../lib/levels';
 import { ieltsRange, RETAKE_DAYS, RETAKE_REVIEWS, vocabSize, type PlacementResult } from '../lib/placement/engine';
 
-const KIND_LABEL = { meaning: 'Nhận nghĩa', phrase: 'Dùng trong cụm', real: 'Nhận ra từ' } as const;
+const KIND_LABEL = { meaning: 'Nhận nghĩa', phrase: 'Dùng trong cụm', real: 'Nhận ra từ', listen: 'Nghe ra từ' } as const;
 
 /** The result of the adaptive test: the score with its spread, what it is roughly worth, strengths, the level to start. */
 export default function PlacementResultView({
