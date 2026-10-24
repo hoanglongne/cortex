@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, ClipboardPaste, Eye, ScanSearch } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards, getCard, getPassages, getQuotes, sameWordIds, useContentVersion } from '../lib/content/repository';
 import { localDate } from '../lib/engagement/ghost';
@@ -112,50 +112,66 @@ function HuntSection() {
         <section id="spot-hunt" data-testid="hunt" className="scroll-mt-4">
             <div className="mb-2 flex items-baseline justify-between gap-2 px-1">
                 <p className={label}>Để ý tuần này</p>
-                <p className="text-xs text-muted">
-                    <span className="font-mono text-ink">
-                        {caught.size}/{hunt.cardIds.length}
-                    </span>{' '}
-                    · còn {daysLeft} ngày
-                </p>
+                <p className="text-xs text-muted">còn {daysLeft} ngày</p>
             </div>
-            <ul className="rounded-2xl border border-line bg-surface divide-y divide-line">
-                {hunt.cardIds.map((id) => {
-                    const card = getCard(id);
-                    if (!card) return null;
-                    const got = caught.has(id);
-                    const where = got ? placeOf(id) : undefined;
-                    return (
-                        <li key={id} className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                                <div className="min-w-0 flex-1">
-                                    <p className={`text-sm font-medium lowercase ${got ? 'text-muted' : 'text-ink'}`}>{card.word}</p>
-                                    <p className="text-xs text-muted truncate">{got ? `Đã gặp${where ? ` · ${placeLabel(where)}` : ''}` : card.translationHint}</p>
+            <div className="rounded-2xl border border-line bg-surface overflow-hidden">
+                <div className="px-4 pt-4 pb-3 flex items-center gap-3">
+                    <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
+                        <Eye className="w-4 h-4" />
+                    </span>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-sm text-ink">
+                            Đã gặp <b className="text-accent">{caught.size}</b> trên {hunt.cardIds.length} từ
+                        </p>
+                        <div className="mt-1.5 h-1.5 rounded-full bg-surface-3 overflow-hidden">
+                            <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${(caught.size / hunt.cardIds.length) * 100}%` }} />
+                        </div>
+                    </div>
+                </div>
+                <ul className="divide-y divide-line border-t border-line">
+                    {hunt.cardIds.map((id) => {
+                        const card = getCard(id);
+                        if (!card) return null;
+                        const got = caught.has(id);
+                        const where = got ? placeOf(id) : undefined;
+                        return (
+                            <li key={id} className="px-4 py-3">
+                                <div className="flex items-center gap-3">
+                                    <span className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${got ? 'bg-accent text-on-accent' : 'border border-line-strong'}`}>
+                                        {got && <Check className="w-3.5 h-3.5" />}
+                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                        <p className={`text-sm font-medium lowercase ${got ? 'text-ink-2' : 'text-ink'}`}>{card.word}</p>
+                                        <p className="text-xs text-muted truncate">{got ? `Đã gặp${where ? ` · ${placeLabel(where)}` : ''}` : card.translationHint}</p>
+                                    </div>
+                                    {!got && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpen(open === id ? null : id)}
+                                            aria-expanded={open === id}
+                                            className={`h-8 px-3 shrink-0 rounded-lg border text-xs font-medium ${open === id ? 'border-accent bg-accent/12 text-accent' : 'border-accent/40 text-accent hover:bg-accent/10'}`}
+                                        >
+                                            Gặp rồi
+                                        </button>
+                                    )}
                                 </div>
-                                {got ? (
-                                    <Check className="w-4 h-4 text-accent shrink-0" aria-label="Đã gặp" />
-                                ) : (
-                                    <button type="button" onClick={() => setOpen(open === id ? null : id)} aria-expanded={open === id} className="h-8 px-3 shrink-0 rounded-lg border border-line text-xs text-ink-2 hover:border-line-strong">
-                                        Gặp rồi
-                                    </button>
+                                {open === id && !got && (
+                                    <div className="mt-3 ml-9 space-y-2">
+                                        <p className="text-xs text-muted">Ở đâu?</p>
+                                        <PlaceChips
+                                            onPick={(place) => {
+                                                recordSightings([{ cardId: id, at: Date.now(), place }]);
+                                                setOpen(null);
+                                            }}
+                                        />
+                                    </div>
                                 )}
-                            </div>
-                            {open === id && !got && (
-                                <div className="mt-3 space-y-2">
-                                    <p className="text-xs text-muted">Ở đâu?</p>
-                                    <PlaceChips
-                                        onPick={(place) => {
-                                            recordSightings([{ cardId: id, at: Date.now(), place }]);
-                                            setOpen(null);
-                                        }}
-                                    />
-                                </div>
-                            )}
-                        </li>
-                    );
-                })}
-            </ul>
-            {caught.size === hunt.cardIds.length && <p className="mt-2 px-1 text-xs text-muted">Đủ cả tuần này. Thứ Hai có 5 từ mới.</p>}
+                            </li>
+                        );
+                    })}
+                </ul>
+            </div>
+            {caught.size === hunt.cardIds.length && <p className="mt-2 px-1 text-xs text-accent">Đủ cả tuần này. Thứ Hai có 5 từ mới.</p>}
         </section>
     );
 }
@@ -201,7 +217,10 @@ function ScanSection({ initial }: { initial: string }) {
 
     const spotted = useMemo(() => {
         void version;
-        return spotWords(text, getAllCards().filter((c) => journeys[c.id]));
+        return spotWords(
+            text,
+            getAllCards().filter((c) => journeys[c.id]),
+        );
     }, [text, journeys, version]);
     const ids = [...new Set(spotted.map((s) => s.cardId))];
     const words = ids.map(wordOf).filter(Boolean);
@@ -232,11 +251,17 @@ function ScanSection({ initial }: { initial: string }) {
         setSaved(ids.length);
     };
     const link = 'text-xs text-muted hover:text-ink';
+    const action = 'h-8 px-3 rounded-lg border border-accent/40 text-xs font-medium text-accent hover:bg-accent/10 flex items-center gap-1.5';
 
     return (
         <section id="spot-scan" className="scroll-mt-4">
             <p className={`mb-2 px-1 ${label}`}>Quét một đoạn</p>
             <div className="rounded-2xl border border-line bg-surface p-4 space-y-3">
+                {!text.trim() && (
+                    <p className="flex items-start gap-2 text-sm text-ink-2">
+                        <ScanSearch className="w-4 h-4 mt-0.5 text-accent shrink-0" /> Đọc được gì bằng tiếng Anh? Dán vào đây, app tìm từ bạn đã học, kể cả khi đổi dạng.
+                    </p>
+                )}
                 {showText ? (
                     <div data-testid="spot-result" className="max-h-72 overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-ink-2">
                         <Highlighted text={text} spans={spotted} />
@@ -252,19 +277,19 @@ function ScanSection({ initial }: { initial: string }) {
                         autoFocus={editing}
                         rows={4}
                         maxLength={5000}
-                        placeholder="Dán một đoạn tiếng Anh bạn vừa đọc: email, caption, lời bài hát…"
+                        placeholder="Email, caption, lời bài hát…"
                         aria-label="Đoạn văn"
                         className="w-full rounded-xl border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-subtle outline-none focus:border-accent"
                     />
                 )}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
                     {!text.trim() && (
-                        <button type="button" onClick={() => void paste()} className={link}>
-                            Dán từ bộ nhớ
+                        <button type="button" onClick={() => void paste()} className={action}>
+                            <ClipboardPaste className="w-3.5 h-3.5" /> Dán
                         </button>
                     )}
                     {sample && !text.trim() && (
-                        <button type="button" onClick={() => edit(sample, true)} className={link}>
+                        <button type="button" onClick={() => edit(sample, true)} className="text-xs text-muted hover:text-ink underline underline-offset-2">
                             Xem thử với đoạn mẫu
                         </button>
                     )}
@@ -353,14 +378,14 @@ function CollectionSection() {
                             return (
                                 <li key={c.cardId} className="px-4 py-3">
                                     <div className="flex items-baseline justify-between gap-3">
-                                        <p className="text-sm font-medium text-ink lowercase">{card.word}</p>
+                                        <p className="text-sm font-semibold text-accent lowercase">{card.word}</p>
                                         <p className="text-xs text-subtle shrink-0">
                                             {c.places.map(placeLabel).join(', ')}
                                             {c.count > 1 ? ` · ${c.count} lần` : ''}
                                         </p>
                                     </div>
                                     {c.snippets.slice(0, 1).map((s) => (
-                                        <p key={s} className="mt-1 text-xs italic text-muted line-clamp-2">
+                                        <p key={s} className="mt-1.5 border-l-2 border-accent/50 pl-2.5 text-xs italic text-ink-2 line-clamp-2">
                                             “{s}”
                                         </p>
                                     ))}
@@ -387,7 +412,7 @@ function Highlighted({ text, spans }: { text: string; spans: { start: number; en
         if (s.start < at) continue;
         parts.push(text.slice(at, s.start));
         parts.push(
-            <mark key={s.start} className="rounded bg-accent/20 px-0.5 text-ink">
+            <mark key={s.start} className="rounded bg-accent/30 px-0.5 text-ink font-medium">
                 {text.slice(s.start, s.end)}
             </mark>,
         );
