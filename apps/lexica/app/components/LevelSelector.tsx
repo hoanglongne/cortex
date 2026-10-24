@@ -32,7 +32,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
     const elo = useLexicaStore((s) => s.userStats.currentElo);
     const swipes = useLexicaStore((s) => s.userStats.totalSwipes);
     const tested = useLexicaStore((s) => s.recommendedLevel);
-    const testScore = useLexicaStore((s) => s.testScore);
+    const testScore = useLexicaStore((s) => (s.placements.length > 0 ? s.userStats.currentElo : s.testScore));
     const version = useContentVersion();
     const branch = useLexicaStore((s) => s.path?.branch ?? 'cert');
 

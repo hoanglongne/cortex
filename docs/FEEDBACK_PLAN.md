@@ -80,4 +80,5 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Studio: job "Bài đọc theo kế hoạch" chạy 4h và 16h, mỗi lần viết 5 bài còn thiếu của kế hoạch 100 bài, chờ duyệt (`STUDIO_PASSAGES_PER_RUN`). Cần Cortex API chạy và `STUDIO_CRON=on`.
 - [x] ELO không còn cộng trừ theo mỗi lần vuốt, chỉ đổi khi làm bài kiểm tra; bỏ thông báo độ khó tiếng Anh trên trang chủ; trang chọn level ghi "Điểm bài kiểm tra".
 - [x] Trang chủ gợi ý đổi level theo tỉ lệ nhớ lại đúng 2 tuần qua (≥85%: thử level cao hơn; <50%: chậm lại).
-- [ ] Bài kiểm tra thích ứng, thi lại, điểm để khoe: thiết kế ở `docs/LEXICA_LEVEL_TEST_DESIGN.md`, chờ duyệt.
+- [x] Bài kiểm tra thích ứng (PR A trong `docs/LEXICA_LEVEL_TEST_DESIGN.md`): 15–30 câu, 3 dạng, "Không biết", 20 giây mỗi câu, điểm ± sai số và IELTS khoảng; thi lại sau 14 ngày và 100 lượt ôn. Sửa luôn lỗi người đã có level không làm lại bài được.
+- [ ] Bài kiểm tra: PR B (gợi ý thi lại, biểu đồ, thẻ chia sẻ), PR C (điểm đã xác minh).

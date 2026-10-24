@@ -86,8 +86,14 @@
    - Teach thấy điểm của lớp.
    - Cần Cortex API chạy ổn trước.
 
-## 4. Cần người dùng quyết
-1. Luật thi lại: 14 ngày cộng 100 lượt ôn có hợp không?
-2. Có hiện "band IELTS ước lượng" trên thẻ điểm không? Rủi ro: người ngoài hiểu nhầm là điểm IELTS thật. Đề xuất chỉ hiện CEFR ước lượng ở thẻ chia sẻ, còn band IELTS chỉ hiện trong app.
-3. Có cần dạng câu Nghe ngay từ PR A không? Dạng này cần giọng tạo sẵn cho các từ, phần lớn đã có.
-4. Thang điểm: giữ 800–1600 như ELO hiện tại, hay đổi sang 0–100 / 0–1000 cho dễ hiểu hơn?
+## 4. Đã chốt (24/10/2026)
+1. Thi lại: 14 ngày **và** 100 lượt ôn kể từ lần trước.
+2. Chỉ hiện **mức tương đương trong một khoảng** ("IELTS từ vựng khoảng 6.0–6.5"), không bao giờ một con số.
+3. Dạng câu Nghe: chưa chốt, làm sau (đã giải thích lại cho người dùng).
+4. Giữ thang điểm như ELO hiện tại (800–1500).
+
+## 5. Tiến độ
+- [x] PR A: bài kiểm tra thích ứng trên máy (`lib/placement/engine.ts`, `components/PlacementTest.tsx`, `components/PlacementResultView.tsx`). 3 dạng câu: chọn nghĩa, điền từ vào cụm, từ thật hay từ bịa. Có "Không biết" và 20 giây mỗi câu. Kết quả gồm điểm ± sai số, IELTS khoảng, vốn từ ước lượng, theo dạng câu. Lịch sử các lần thi lưu trong store; luật thi lại đã áp dụng.
+- [ ] PR B: gợi ý thi lại trên trang chủ, biểu đồ điểm, thẻ điểm để chia sẻ.
+- [ ] PR C: điểm đã xác minh (máy chủ chấm, link công khai, giáo viên xem).
+- [ ] Dạng câu Nghe (chờ quyết).

@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { VocabCardData, DifficultyLevel, UserArchetype } from '../types/vocab';
 import { UserStats, UserCardProgress, recordSwipe, generateInitialDeck, updateCardProgress } from '../lib/eloAlgorithm';
+import type { Placement } from '../lib/placement/engine';
 import type { Quality } from '../lib/srs';
 import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentencePrompt } from '../lib/engagement/mySentence';
 import { getCard, getCardByWord, sameWordIds } from '../lib/content/repository';
@@ -65,7 +66,7 @@ interface LexicaStore {
     // Level Test Flow
     hasSeenWelcome: boolean; // Has user seen the welcome screen
     isInTest: boolean; // Currently taking the test
-    testScore: number | null; // Test score (0-5)
+    testScore: number | null; // Score of the last level test (ELO scale; 0-5 in the old test)
     recommendedLevel: DifficultyLevel | null; // AI recommended level from test
 
     // Speaking ("Luyện nói", lib/pronunciation/drill.ts)
@@ -188,6 +189,10 @@ interface LexicaStore {
     startTest: () => void;
     skipToManual: () => void;
     completeTest: (score: number, recommendedLevel: DifficultyLevel, calibratedElo?: number) => void;
+    /** Every adaptive test taken (lib/placement/engine.ts), oldest first. */
+    placements: Placement[];
+    /** Records a finished adaptive test: its score becomes the ELO, its level the suggestion. */
+    completePlacement: (p: Omit<Placement, 'reviewsAt'>) => void;
     acceptRecommendedLevel: () => void;
 
     // Speaking actions
@@ -712,6 +717,19 @@ export const useLexicaStore = create<LexicaStore>()(
                 });
             },
 
+            placements: [],
+            completePlacement: (p) => {
+                const reviewsAt = Object.values(get().cardProgress).reduce((n, c) => n + c.reviewCount + c.wrongCount, 0);
+                set({
+                    placements: [...get().placements, { ...p, reviewsAt }].slice(-20),
+                    isInTest: false,
+                    testScore: p.score,
+                    recommendedLevel: p.level,
+                    userStats: { ...get().userStats, currentElo: p.score },
+                    highestElo: Math.max(get().highestElo, p.score),
+                });
+            },
+
             acceptRecommendedLevel: () => {
                 const { recommendedLevel } = get();
                 if (recommendedLevel) {
@@ -963,6 +981,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 hasSeenWelcome: state.hasSeenWelcome, // Persist welcome screen state
                 hasSeenOnboarding: state.hasSeenOnboarding,
                 testScore: state.testScore, // Persist test score
+                placements: state.placements,
                 recommendedLevel: state.recommendedLevel, // Persist recommendation
                 // Streak persistence
                 currentStreak: state.currentStreak,
