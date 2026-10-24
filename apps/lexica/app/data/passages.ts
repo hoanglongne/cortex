@@ -1,4 +1,8 @@
 import type { Passage } from '../lib/content/passages';
+import { BATCH_A } from './morePassages/batchA';
+import { BATCH_B } from './morePassages/batchB';
+import { BATCH_C } from './morePassages/batchC';
+import { BATCH_D } from './morePassages/batchD';
 
 /**
  * Passages that ship with the app: everyday texts (a first day at work, a
@@ -8,7 +12,7 @@ import type { Passage } from '../lib/content/passages';
  * repository from the deck. Studio publishes more; the Today session asks the
  * API for a passage around the learner's own words when none of these fit.
  */
-export const CORE_PASSAGES: Passage[] = [
+const FIRST_PASSAGES: Passage[] = [
     {
         id: 'p_first_day',
         level: 'beginner',
@@ -360,3 +364,6 @@ An: Haha! Thôi, chốt giờ trong nhóm chat nha.`,
         words: [],
     },
 ];
+
+/** The first 14 passages, then 40 more written around words no passage had yet (docs/LEXICA_READING_PLAN.md). */
+export const CORE_PASSAGES: Passage[] = [...FIRST_PASSAGES, ...BATCH_A, ...BATCH_B, ...BATCH_C, ...BATCH_D];

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, RotateCcw, X, TrendingDown, Zap, Check, Brain, ArrowLeft } from 'lucide-react';
+import { BookOpen, Award, RotateCcw, Check, Brain, ArrowLeft } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
@@ -12,6 +12,7 @@ import HomeHeader from './components/HomeHeader';
 import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
 import PaceCard from './components/PaceCard';
+import LevelHintCard from './components/LevelHintCard';
 import RecentWords from './components/RecentWords';
 import GuideCard from './components/GuideCard';
 import PledgeCard from './components/PledgeCard';
@@ -20,7 +21,7 @@ import DailyProgress from './components/DailyProgress';
 import OnboardingModal from './components/OnboardingModal';
 // Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
-import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
+import { getProgressStats } from './lib/eloAlgorithm';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
@@ -47,7 +48,6 @@ function greetingFor(hour: number): string {
 
 function HomeContent() {
   const [greeting] = useState(() => greetingFor(new Date().getHours()));
-  const userStats = useLexicaStore(state => state.userStats);
   const cardProgress = useLexicaStore(state => state.cardProgress);
   const learnedCount = useLexicaStore(state => state.learnedWords.size);
   const selectedLevel = useLexicaStore(state => state.selectedLevel);
@@ -90,9 +90,6 @@ function HomeContent() {
   const hasShownGoalCelebration = useRef<boolean>(false);
   const hasShownOverlearningReminder = useRef<boolean>(false);
 
-  // Difficulty status notification state
-  const [showDifficultyStatus, setShowDifficultyStatus] = useState(false);
-  const previousStatusRef = useRef<string | null>(null);
 
   // Initialize store on mount
   useEffect(() => {
@@ -148,8 +145,6 @@ function HomeContent() {
     }
   }, [hasSeenOnboarding, selectedLevel, isInTest, testScore, hasSeenWelcome, router, forceCortexReminder, path]);
 
-  // Debug: Get difficulty analysis
-  const analysis = getDifficultyAnalysis(userStats);
   const progressStats = getProgressStats(cardProgress);
   const dueToday = progressStats.dueToday;
 
@@ -195,74 +190,8 @@ function HomeContent() {
     }
   }, [learnedCount, forceCortexReminder]);
 
-  // Get status icon and color
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'very-hard':
-      case 'challenging':
-        return {
-          icon: TrendingDown,
-          color: 'text-ink-2',
-          bgColor: 'bg-surface-2/50',
-          borderColor: 'border-line-strong',
-        };
-      case 'too-easy':
-      case 'easy':
-        return {
-          icon: TrendingUp,
-          color: 'text-accent',
-          bgColor: 'bg-accent/10',
-          borderColor: 'border-accent/30',
-        };
-      case 'perfect':
-        return {
-          icon: Zap,
-          color: 'text-accent',
-          bgColor: 'bg-accent/10',
-          borderColor: 'border-accent/30',
-        };
-      default:
-        return {
-          icon: Check,
-          color: 'text-muted',
-          bgColor: 'bg-surface-2/50',
-          borderColor: 'border-line-strong',
-        };
-    }
-  };
 
-  const statusDisplay = getStatusDisplay(analysis.status);
 
-  // Track status changes and show notification
-  useEffect(() => {
-    const previousStatus = previousStatusRef.current;
-
-    // Only show if status actually changed (not initial load)
-    if (previousStatus !== null && previousStatus !== analysis.status) {
-      // Schedule state update for next tick to avoid cascading renders
-      const showTimer = setTimeout(() => {
-        setShowDifficultyStatus(true);
-      }, 0);
-
-      // Auto-hide after 5 seconds
-      const hideTimer = setTimeout(() => {
-        setShowDifficultyStatus(false);
-      }, 5000);
-
-      // Update ref for next comparison
-      previousStatusRef.current = analysis.status;
-
-      return () => {
-        clearTimeout(showTimer);
-        clearTimeout(hideTimer);
-      };
-    }
-
-    // Set initial value
-    if (previousStatus === null) {
-      previousStatusRef.current = analysis.status;
-    }
-  }, [analysis.status]);
 
   // Track goal completion and show celebration
   useEffect(() => {
@@ -584,6 +513,7 @@ function HomeContent() {
             <ErrorBoundary>
               <TodayCard />
             </ErrorBoundary>
+            <LevelHintCard />
             <GuideCard />
             <PledgeCard />
             <div className="lg:hidden flex flex-col gap-4">
@@ -597,39 +527,6 @@ function HomeContent() {
           </div>
         )}
 
-        {/* Difficulty Status Notification - Fixed to avoid layout shift */}
-        <AnimatePresence>
-          {showDifficultyStatus && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40"
-            >
-              <div className={`flex items-start gap-3 p-4 rounded-xl border-2 ${statusDisplay.bgColor} ${statusDisplay.borderColor} shadow-lg backdrop-blur-sm`}>
-                <statusDisplay.icon className={`w-6 h-6 ${statusDisplay.color} shrink-0 mt-0.5`} />
-                <div className="flex-1">
-                  <p className={`text-base font-bold ${statusDisplay.color}`}>
-                    {analysis.message.split(' - ')[0]}
-                  </p>
-                  <p className="text-sm text-ink-2 mt-1">
-                    {analysis.message.split(' - ')[1]}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    click();
-                    setShowDifficultyStatus(false);
-                  }}
-                  className="p-1 hover:bg-surface-2/50 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-muted" />
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
 
         {/* Desktop: the game layer, narrow and quiet */}

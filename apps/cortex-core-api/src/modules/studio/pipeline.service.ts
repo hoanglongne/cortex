@@ -15,6 +15,7 @@ import {
 } from './sources';
 import { CAPTURE_PLACEHOLDER } from './capture';
 import { QuotesService } from './quotes.service';
+import { PassagesService } from './passages.service';
 import { StudioService } from './studio.service';
 import type { BlockRule, CardRow, Lifecycle, TrendRow } from './studio.types';
 import {
@@ -35,7 +36,8 @@ export type JobName =
   | 'score'
   | 'generate'
   | 'lifecycle'
-  | 'quotes';
+  | 'quotes'
+  | 'passages';
 export const JOBS: JobName[] = [
   'collect',
   'cluster',
@@ -43,6 +45,7 @@ export const JOBS: JobName[] = [
   'generate',
   'lifecycle',
   'quotes',
+  'passages',
 ];
 
 const DAY_MS = 86_400_000;
@@ -91,7 +94,24 @@ export class PipelineService {
     private readonly studio: StudioService,
     private readonly config: ConfigService,
     @Optional() private readonly quotes?: QuotesService,
+    @Optional() private readonly passages?: PassagesService,
   ) {}
+
+  /**
+   * "Đọc": writes the next passages the 100-passage plan is missing
+   * (docs/LEXICA_READING_PLAN.md), up to STUDIO_PASSAGES_PER_RUN (default 5),
+   * within the daily generation cap. They wait in Studio for review.
+   */
+  private async runPassages(db: Db): Promise<Record<string, unknown>> {
+    if (!this.passages) return { skipped: 'passages service missing' };
+    const count = Number(this.config.get('STUDIO_PASSAGES_PER_RUN') ?? 5);
+    const r = await this.passages.generateFromPlan(db, null, count);
+    return {
+      saved: r.saved,
+      failed: r.results.length - r.saved,
+      ...(r.stopped ? { stopped: r.stopped } : {}),
+    };
+  }
 
   async run(
     db: Db,
@@ -117,7 +137,9 @@ export class PipelineService {
               ? await this.score(db)
               : job === 'quotes'
                 ? await this.runQuotes(db)
-                : await this.lifecycle(db, userId);
+                : job === 'passages'
+                  ? await this.runPassages(db)
+                  : await this.lifecycle(db, userId);
       await db
         .from('studio_job_runs')
         .update({ finished_at: new Date().toISOString(), ok: true, stats })

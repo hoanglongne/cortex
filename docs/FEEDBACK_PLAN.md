@@ -73,3 +73,11 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [x] Đo thêm: `sign_up`, `sign_in`, `speak_attempt`, `today_complete`, `feedback_sent` (cùng `app_open`, `today_start`, `today_stage` sẵn có) để tính tỷ lệ quay lại và phễu phiên đầu trong PostHog.
 - [ ] Hạ tầng ổn định (VPS hoặc Vercel Pro), Cortex API chạy lại.
 - [ ] Thử trên 3–4 điện thoại thật (iPhone Safari, Android Chrome, máy rẻ).
+
+## Đợt 11: bài đọc, ELO, bài kiểm tra
+- [x] 40 bài đọc mới (12 Cơ bản, 10 Trung cấp, 6 Nâng cao, 4 Chuyên gia, 8 hội thoại) viết quanh những từ chưa có bài nào: số từ có trong bài đọc tăng từ 79 lên hơn 250 trên 610 (test `corePassages`).
+- [x] Tìm cụm từ trong bài đọc và Bắt gặp nhận cả dạng chia và cụm bị tách ("looking forward to", "pushed the show back", "ran out of").
+- [x] Studio: job "Bài đọc theo kế hoạch" chạy 4h và 16h, mỗi lần viết 5 bài còn thiếu của kế hoạch 100 bài, chờ duyệt (`STUDIO_PASSAGES_PER_RUN`). Cần Cortex API chạy và `STUDIO_CRON=on`.
+- [x] ELO không còn cộng trừ theo mỗi lần vuốt, chỉ đổi khi làm bài kiểm tra; bỏ thông báo độ khó tiếng Anh trên trang chủ; trang chọn level ghi "Điểm bài kiểm tra".
+- [x] Trang chủ gợi ý đổi level theo tỉ lệ nhớ lại đúng 2 tuần qua (≥85%: thử level cao hơn; <50%: chậm lại).
+- [ ] Bài kiểm tra thích ứng, thi lại, điểm để khoe: thiết kế ở `docs/LEXICA_LEVEL_TEST_DESIGN.md`, chờ duyệt.

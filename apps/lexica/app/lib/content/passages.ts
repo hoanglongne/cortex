@@ -1,4 +1,5 @@
 import type { DifficultyLevel } from '../../types/vocab';
+import { phraseHits, tokens } from './phrases';
 
 /**
  * "Đọc": short passages (docs/LEXICA_FEEDBACK_TASKS.md T7). Each one brings
@@ -116,14 +117,22 @@ export function splitByWords(text: string, targets: readonly { id: string; word:
     };
     const re = new RegExp(`\\b(${list.map((t) => pattern(t.word)).join('|')})\\b`, 'gi');
     const own = list.map((t) => ({ t, re: new RegExp(`^${pattern(t.word)}$`, 'i') }));
-    const out: Segment[] = [];
-    let last = 0;
+    const hits: { start: number; end: number; cardId: string }[] = [];
     for (const m of text.matchAll(re)) {
         const target = own.find((o) => o.re.test(m[0]))?.t;
-        if (!target || m.index === undefined) continue;
-        if (m.index > last) out.push({ text: text.slice(last, m.index) });
-        out.push({ text: m[0], cardId: target.id });
-        last = m.index + m[0].length;
+        if (target && m.index !== undefined) hits.push({ start: m.index, end: m.index + m[0].length, cardId: target.id });
+    }
+    // Phrases also in other forms and split ("came up with", "push the show back").
+    const toks = tokens(text);
+    for (const t of list) if (t.word.trim().includes(' ')) for (const h of phraseHits(toks, t.word.trim().toLowerCase())) hits.push({ ...h, cardId: t.id });
+    hits.sort((x, y) => x.start - y.start || y.end - x.end);
+    const out: Segment[] = [];
+    let last = 0;
+    for (const h of hits) {
+        if (h.start < last) continue;
+        if (h.start > last) out.push({ text: text.slice(last, h.start) });
+        out.push({ text: text.slice(h.start, h.end), cardId: h.cardId });
+        last = h.end;
     }
     if (last < text.length) out.push({ text: text.slice(last) });
     return out;
