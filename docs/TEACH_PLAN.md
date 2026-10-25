@@ -1,139 +1,229 @@
 # Kế hoạch làm lại Teach (10/2026)
 
-Bản nháp chờ duyệt. Chưa code gì.
+## 0. Đã chốt (25/10/2026)
+- **Làm:**
+  - T1: dạy trên lớp;
+  - W4: dự báo, làm đến nơi đến chốn;
+  - T4: phụ huynh, bắt buộc với LMS;
+  - T2: quiz trực tiếp, lên kế hoạch kỹ trước.
+- **Để sau:**
+  - T3: giao bài thông minh, kiểm tra lớp (dễ làm nửa vời);
+  - T5: Oratio trong teach.
+- **Bỏ:**
+  - W1 radar phát âm cả lớp: nhiều em nói cùng lúc thì không chấm chuẩn được, và làm em yếu tự ti;
+  - W2 buổi học tự lái: khó đạt, lợi thế không rõ.
+- **W3** (giọng con cho phụ huynh): ý hay nhưng còn chung chung, và phụ huynh nhiều người không rành tiếng Anh. Phần đáng giữ là **nói cho phụ huynh hiểu con làm được gì bằng tiếng Việt dễ hiểu**, đưa vào T4 (mục 3.2).
 
-## 1. Teach hiện có gì
-- **Hôm nay:** việc cần để ý, em đáng khen, danh sách lớp.
-- **Lớp:**
-  - Tổng quan: bài đang làm, nhịp tuần, số liệu từng app.
-  - Bài tập: giao từ Lexica hoặc câu hỏi Oratio, có hạn nộp, xem cả lớp tới đâu.
-  - Học viên: lọc theo trạng thái, mời bằng link hoặc mã.
-  - Báo cáo tuần: in được, có đoạn nhắn phụ huynh.
-  - Cài đặt: bật bảng xếp hạng, lưu trữ lớp.
-- **Trang một em:** bốn bước của từ, âm hay sai, điểm từ vựng đã xác minh, 30 ngày học, ghi chú riêng.
-- **Học viên, Báo cáo, Trung tâm:** danh sách gộp, báo cáo tuần, chỗ ngồi và giáo viên.
+**Thứ tự làm:** T1 → W4 → T4 → T2.
 
-## 2. Vì sao chán
-1. **Chỉ để xem, không để làm.** Mọi màn hình đều là con số. Không có gì giáo viên dùng **trong giờ dạy**.
-2. **Không tiết kiệm thời gian.** Giao bài vẫn phải tự chọn từng từ. Báo cáo phụ huynh vẫn phải tự gửi. Không có gì tự chạy.
-3. **Số liệu không dẫn tới hành động.** Thấy "em A kẹt ở Nhớ" nhưng không có nút "giao em A ôn lại 10 từ đó".
-4. **Không có khoảnh khắc vui.** Không thi đua trực tiếp, không có gì để giáo viên khoe với lớp hay với phụ huynh.
-5. **Oratio trong teach mỏng:** chỉ có thanh điểm theo tiêu chí, giáo viên không nghe được bài nói, không chấm, không nhận xét.
+---
 
-## 3. Hướng "wow": dùng thứ chỉ Cortex có
+## 1. T1: Dạy trên lớp
 
-Những gì ở mục 6 (trình chiếu, Kahoot, báo cáo phụ huynh) app nào cũng có, nên không đủ khác biệt. Cortex có những thứ người khác không có:
-- chấm phát âm ngay trên điện thoại, theo từng âm;
-- sổ âm hay sai của từng em;
-- bốn bước của từng từ (Hiểu, Nhớ, Gặp, Dùng);
-- Studio tự viết bài đọc;
-- giọng Kokoro;
-- Oratio luyện nói theo cặp;
-- điểm từ vựng đã xác minh.
+### 1.1 Trình chiếu từ của bài
+- **Mở từ:** một bài giao Lexica, hoặc một nhóm từ tự chọn. Nút "Trình chiếu" trên mỗi bài giao.
+- **Toàn màn hình, chữ to cho máy chiếu**, luôn nền tối (dễ nhìn trên máy chiếu).
+- **Mỗi từ một slide:**
+  - từ, phiên âm, trọng âm;
+  - nút phát giọng Kokoro (bình thường, chậm);
+  - câu ví dụ, cụm đi kèm, câu trích ngoài đời nếu có.
+- **Phím tắt:**
+  - ← →: chuyển từ;
+  - Space: hiện hoặc ẩn nghĩa tiếng Việt, để giáo viên hỏi lớp trước;
+  - S: phát giọng;
+  - F: toàn màn hình.
+- **Thanh dưới:** "Từ 3/12", và **số em trong lớp đã ở bước Nhớ của từ này**, ví dụ "8/20 em đã nhớ". Giáo viên biết từ nào cần giảng kỹ.
+- **Chế độ "Đoán nghĩa":** hiện câu ví dụ có chỗ trống, lớp đoán từ, rồi mở đáp án.
 
-Ghép chúng lại thành 4 tính năng đặc trưng:
+### 1.2 Gọi tên và chia nhóm
+- **Gọi tên ngẫu nhiên:** vòng quay tên trong lớp. Có tuỳ chọn "ưu tiên em ít được gọi", nhớ trong buổi và trong tuần. Bấm "Đổi em khác" khi em vắng.
+- **Chia nhóm:** 2–6 em mỗi nhóm.
+  - Ngẫu nhiên;
+  - Đồng đều trình độ: mỗi nhóm có em mạnh và em yếu, xếp theo điểm từ vựng đã xác minh hoặc số từ Nhớ;
+  - Cùng trình độ.
+- **Đánh dấu em vắng** trước khi chia hoặc gọi, để không bị gọi trúng.
+- Hiện to trên máy chiếu, giữ được giữa các buổi nếu giáo viên muốn.
 
-### W1. "Radar phát âm" trên lớp
-- Giáo viên chiếu một từ hoặc một câu. **Cả lớp nói cùng lúc vào điện thoại.**
-- Máy chiếu hiện ngay **bản đồ nhiệt của lớp**, ví dụ: "14/22 em sai âm /θ/ trong *think*, 6 em mất âm cuối /k/".
-- Bấm vào một âm thì hiện hình miệng và cặp từ dễ nhầm. Cả lớp nói lại, thanh đỏ chuyển xanh ngay trước mắt.
-- Chấm chạy trên điện thoại từng em (đã có), máy chủ chỉ nhận kết quả theo âm qua Supabase Realtime. Không gửi giọng nói đi đâu.
-- **Vì sao wow:** giáo viên lần đầu *nhìn thấy* cả lớp phát âm thế nào trong 10 giây. Không app nào ở Việt Nam làm được, và là thứ trung tâm mang ra quảng cáo.
+### 1.3 Trang Hôm nay có nút hành động
+- Trang Hôm nay thành danh sách việc nên làm, lấy từ W4 (mục 2.4). Mỗi dòng có nút làm ngay: "Giao ôn lại", "Nhắn em", "Gửi phụ huynh", "Xem".
+- Làm cùng W4, vì phần lõi là dữ liệu của W4.
 
-### W2. "Buổi học tự lái"
-- Giáo viên gõ: *"Thứ 5, lớp B1, chủ đề Môi trường, 90 phút"*. Cortex dựng **cả buổi** từ dữ liệu thật của lớp:
-  1. **Chọn từ:** những từ cả lớp chưa biết, hoặc đang kẹt ở Hiểu.
-  2. **Khởi động:** quiz nhanh ôn lại từ buổi trước mà nhiều em sắp quên (theo lịch ôn).
-  3. **Trình chiếu từ mới:** giọng Kokoro, câu ví dụ, câu trích ngoài đời.
-  4. **Bài đọc viết riêng cho lớp:** Studio viết, chứa đúng những từ đó, đúng trình độ.
-  5. **Radar phát âm (W1)** với các từ khó.
-  6. **Ghép cặp nói kiểu Oratio** ngay trên lớp: bấm "ghép cặp", máy chiếu hiện ai nói với ai, đồng hồ đếm, đề bài.
-  7. **Quiz cuối giờ**, xếp hạng.
-  8. **Bài về nhà tự giao.** Sau buổi, báo cáo tự soạn cho phụ huynh.
-- Giáo viên chỉ cần bấm "Bắt đầu buổi học" và "Tiếp".
-- **Vì sao wow:** giảm khoảng 1–2 giờ soạn bài mỗi buổi. Trung tâm mua vì lý do này.
+**Kỹ thuật:** chỉ phía giao diện, dùng lại dữ liệu bảng lớp và từ của Lexica (`wordIndex`). Giọng lấy từ voice cache. Không cần SQL mới, trừ danh sách vắng (lưu tạm trên máy giáo viên).
 
-### W3. "Giọng con, tuần 1 và tuần 8" cho phụ huynh
-- Học viên đồng ý thì mỗi tuần lưu một câu mẫu đọc lại (cùng một câu).
-- Link phụ huynh có nút **nghe giọng con tuần đầu và tuần này**, kèm:
-  - đường điểm phát âm theo từng âm;
-  - điểm từ vựng đã xác minh lên bao nhiêu;
-  - số từ con đã *dùng* ngoài đời.
-- **Vì sao wow:** phụ huynh *nghe thấy* con tiến bộ, không chỉ đọc con số. Đây là thứ được chia sẻ lên Facebook hay Zalo, tức là quảng cáo miễn phí cho trung tâm.
-- Cần: tải đoạn ghi âm lên Supabase Storage khi có đồng ý, chính sách riêng tư cập nhật, phụ huynh xác nhận với học viên dưới 16 tuổi.
+---
 
-### W4. "Dự báo" thay cho báo cáo
-- Từ dữ liệu ôn tập và điểm:
-  - *"Tuần này em A sẽ quên 12 từ nếu không ôn. Giao ôn lại?"* (một chạm);
-  - *"Với nhịp hiện tại, cuối khoá lớp đạt khoảng 1150–1200 điểm, tương đương IELTS từ vựng 6.0–6.5"*;
-  - *"3 em có dấu hiệu bỏ học: giảm từ 5 xuống 1 ngày mỗi tuần."*
-- Trang Hôm nay của giáo viên thành **danh sách việc nên làm**, mỗi dòng có nút hành động.
-- **Vì sao wow:** giáo viên và chủ trung tâm thấy *tương lai*, không chỉ quá khứ. Dự báo điểm cuối khoá là thứ chốt sale với phụ huynh.
+## 2. W4: Dự báo (làm đến nơi)
 
-### Thứ tự đề xuất cho hướng wow
-| Đợt | Gồm | Ghi chú |
-|---|---|---|
-| **W-1** | Radar phát âm (W1) | Ấn tượng nhất, phần khó (chấm âm) đã có sẵn; cần Realtime và màn hình chiếu |
-| **W-2** | Buổi học tự lái (W2), gồm trình chiếu, quiz, ghép cặp nói, bài về nhà | Lớn nhất, chia 2–3 PR; dùng lại W1 |
-| **W-3** | Dự báo (W4) và trang Hôm nay mới | Thuần dữ liệu đã có |
-| **W-4** | Giọng con tuần 1 và tuần 8 (W3) và link phụ huynh | Cần đồng ý ghi âm và lưu trữ |
+Mục tiêu: mỗi con số dự báo đều **có cơ sở, nói rõ độ tin cậy, và đi kèm một hành động**. Thiếu dữ liệu thì im lặng, không đoán bừa.
 
-## 6. Bản đề xuất đầu (nền tảng, làm kèm khi cần)
+### 2.1 Dữ liệu cần thêm
+Lexica gửi thêm trong báo cáo lớp. Chỉ là con số, đúng nguyên tắc riêng tư:
 
-### A. Dạy trên lớp (biến teach thành công cụ trên lớp)
-1. **Trình chiếu từ của bài:** chế độ toàn màn hình cho máy chiếu. Mỗi từ một slide: từ, phiên âm, giọng đọc Kokoro, câu ví dụ, ảnh hoặc câu trích. Phím mũi tên để chuyển, ẩn hoặc hiện nghĩa để hỏi lớp.
-2. **Quiz trực tiếp kiểu Kahoot:**
-   - Giáo viên mở quiz từ một bài giao; màn hình chiếu hiện mã phòng và câu hỏi.
-   - Học viên trả lời trên điện thoại bằng Lexica (đã có tài khoản và lớp).
-   - Bảng xếp hạng sau mỗi câu, vinh danh top 3 cuối giờ.
-   - Câu hỏi dùng lại bộ máy của bài kiểm tra: chọn nghĩa, điền cụm, nghe.
-   - Kỹ thuật: Supabase Realtime (đã dùng cho Oratio), bảng `class_live_*`.
-3. **Gọi tên ngẫu nhiên và chia nhóm:** quay tên một em để trả lời; chia nhóm 2–4 em theo trình độ hoặc ngẫu nhiên. Nhỏ, nhưng giáo viên dùng mỗi buổi.
+| Trường | Ý nghĩa |
+|---|---|
+| `review.overdue` | Số từ đã quá hạn ôn |
+| `review.due7` | Số từ sẽ đến hạn trong 7 ngày tới |
+| `review.recall14` | `[đúng, tổng]` số lần nhớ lại khi ôn trong 14 ngày |
+| `review.atRisk` | Từ của **bài lớp giao** đang quá hạn quá 3 ngày (danh sách mã thẻ), để "giao ôn lại" đúng những từ đó |
 
-### B. Giao bài thông minh, kiểm tra
-1. **Giao bài một chạm theo gợi ý:**
-   - "15 từ cả lớp hay quên nhất tuần này";
-   - "từ còn ở Hiểu sau 7 ngày";
-   - "gói Studio cùng chủ đề với bài trước".
-   
-   Kèm giao riêng cho một em hoặc một nhóm, từ chính trang của em đó.
-2. **Bài kiểm tra từ vựng của lớp:** dùng máy chấm đã có (chạy trên Supabase), giới hạn trong từ đã giao, có giờ mở và đóng, chấm tự động, xuất bảng điểm (CSV / Google Sheets).
-3. **Theo dõi điểm từ vựng đã xác minh của lớp theo thời gian:** biểu đồ đầu khoá so với hiện tại. Đây là thứ trung tâm dùng để chứng minh hiệu quả với phụ huynh.
-4. **Bài giao theo lịch:** giao trước cả tuần, tự mở theo ngày.
+Máy chủ đã có sẵn:
+- `cortex_class_activity_daily`: ngày học của từng em;
+- `lexica_placement_sessions`: điểm từ vựng đã xác minh theo thời gian.
 
-### C. Phụ huynh và trung tâm
-1. **Link báo cáo cho phụ huynh:**
-   - mỗi em một link riêng (giống trang `/score/<mã>`), không cần tài khoản;
-   - nội dung: tuần này học mấy ngày, bao nhiêu từ lên Nhớ hoặc Dùng, điểm từ vựng, lời nhận xét của giáo viên.
-   - Gửi qua Zalo bằng một nút "Chép link" hoặc "Chia sẻ".
-2. **Báo cáo tự động hằng tuần:** tối Chủ nhật tự tạo báo cáo cho cả lớp, sáng thứ Hai giáo viên duyệt rồi bấm gửi tất cả.
-3. **Trang trung tâm:**
-   - so sánh lớp: mức tiến bộ điểm từ vựng, tỉ lệ đi học đều;
-   - giáo viên nào lớp đang chững lại;
-   - xuất báo cáo tháng cho chủ trung tâm.
+Lớp cần thêm **ngày kết thúc khoá** (cài đặt lớp, không bắt buộc) để dự báo điểm cuối khoá.
 
-### D. Oratio trong teach
-1. **Nghe lại bài nói** của học viên (bản ghi đã có, đang tự xoá sau một thời gian).
-2. **Giáo viên chấm band và nhận xét** theo 4 tiêu chí IELTS, đặt cạnh điểm máy chấm. Học viên thấy nhận xét trong Oratio.
-3. **Ngân hàng đề của lớp:** giáo viên thêm câu hỏi riêng, giao cho buổi tới.
+### 2.2 Các dự báo
 
-### E. Làm mới giao diện (làm kèm các nhóm trên)
-- Trang Hôm nay theo dạng "việc cần làm" có nút hành động ngay trên từng dòng: "Nhắc em", "Giao ôn lại", "Gửi phụ huynh".
-- Cùng phong cách Lexica vừa làm: gọn, ít màu, chữ rõ.
-- Bản điện thoại dùng được: giáo viên hay xem trên đường đi dạy.
-
-## 7. Thứ tự của bản đầu
-
-| Đợt | Gồm | Vì sao trước | Ước lượng |
+| Dự báo | Cách tính | Khi nào hiện | Hành động |
 |---|---|---|---|
-| **T1** | A1 trình chiếu, A3 gọi tên và chia nhóm, E trang Hôm nay có nút hành động | Dùng được ngay buổi dạy tới, không cần dữ liệu mới | 1 PR |
-| **T2** | A2 quiz trực tiếp | Tính năng "wow" để trung tâm muốn dùng và học viên muốn vào Lexica | 1–2 PR (realtime) |
-| **T3** | B1 giao bài một chạm, B2 bài kiểm tra lớp, B3 biểu đồ điểm lớp | Biến số liệu thành hành động; trung tâm cần điểm để báo cáo | 1–2 PR |
-| **T4** | C1 link phụ huynh, C2 báo cáo tự động | Điểm bán hàng lớn với trung tâm ở Việt Nam | 1 PR |
-| **T5** | D Oratio chấm và nghe, C3 trang trung tâm | Khi Oratio có người dùng thật | 1–2 PR |
+| **Sắp quên** | `overdue` cộng các từ của bài giao trong `atRisk` | Từ 5 từ trở lên | "Giao ôn lại N từ cho em" (một chạm: tạo bài giao riêng cho em, chế độ "chỉ từ của bài") |
+| **Sắp bỏ học** | Số ngày học tuần này so với trung bình 3 tuần trước, cộng số ngày liền không học | Giảm từ 50% trở lên và có ít nhất 3 tuần dữ liệu, hoặc 5 ngày liền không học | "Nhắn em" (mẫu tin nhắn tiếng Việt, chép gửi Zalo), "Báo phụ huynh" |
+| **Nhớ kém** | `recall14` dưới 60% với ít nhất 30 lượt | Có | "Giảm số từ mới mỗi ngày cho em" (gợi ý cài đặt), "Giao ôn lại" |
+| **Tiến nhanh** | `recall14` từ 90% trở lên, đi học đều, điểm tăng | Có | "Khen em" (thẻ khen gửi về Lexica), "Gợi ý lên level" |
+| **Điểm cuối khoá** | Hồi quy tuyến tính trên các điểm đã xác minh của em (ít nhất 2 lần, cách nhau từ 14 ngày), tốc độ tăng mỗi tuần, chặn trong khoảng hợp lý (tối đa +25 điểm/tuần), kéo tới ngày kết thúc khoá | Có ngày kết thúc khoá và đủ 2 lần thi | Hiện **khoảng**, ví dụ "1150–1200 · IELTS từ vựng khoảng 6.0–6.5", ghi "dự báo nếu giữ nhịp hiện tại" |
+| **Cả lớp** | Trung bình các dự báo trên, cộng "lớp sẽ đạt mục tiêu?" nếu giáo viên đặt điểm mục tiêu | Có | Danh sách em kéo lớp xuống |
 
-## 8. Cần quyết (bản đầu)
-1. Thứ tự trên có hợp không, hay ưu tiên phụ huynh (T4) trước, vì đó là thứ trung tâm hỏi nhiều nhất?
-2. Quiz trực tiếp: học viên trả lời bằng **Lexica** (cần tài khoản và lớp), hay bằng một **trang web riêng chỉ cần nhập mã**, kiểu Kahoot, không cần tài khoản?
-3. Link phụ huynh: có cần mật khẩu hoặc mã PIN không, hay chỉ cần link khó đoán là đủ?
-4. Có muốn gửi báo cáo qua **Zalo OA** tự động không? Cần đăng ký Zalo Official Account và có phí. Nếu không thì giáo viên tự chép link gửi.
+### 2.3 Làm cho đáng tin
+- Mọi ngưỡng nằm trong một file (`packages/classroom-lexica/forecast.ts`) với hàm thuần và unit test, gồm cả trường hợp thiếu dữ liệu.
+- **Mỗi dự báo có nút "Vì sao?"** nói rõ dựa trên số liệu nào. Ví dụ: "3 tuần trước em học 5, 4, 5 ngày; tuần này 1 ngày".
+- **Kiểm chứng lùi:** khi đủ dữ liệu thật (vài lớp, 4–6 tuần), chạy lại dự báo trên số liệu cũ để xem "sắp bỏ học" có đúng không, rồi chỉnh ngưỡng. Ghi kết quả vào file này.
+- **Không dự báo khi dữ liệu mỏng.** Hiện "Chưa đủ dữ liệu, cần thêm N ngày".
+
+### 2.4 Chỗ hiện
+- **Trang Hôm nay:** danh sách việc, xếp theo mức gấp. Mỗi dòng có tên em, lớp, lý do một dòng và nút hành động. Đã xử lý thì ẩn trong 7 ngày.
+- **Trang một em:** khung "Sắp tới" với các dự báo của em.
+- **Tổng quan lớp:** "Cả lớp" (mục 2.2) và biểu đồ dự báo điểm.
+- **Trang trung tâm:** lớp nào đang có nhiều em sắp bỏ học.
+
+### 2.5 PR
+1. Lexica gửi `review.*`; cập nhật `classroom_lexica.sql` (lọc và giữ trường mới); `forecast.ts` kèm test.
+2. Teach: trang Hôm nay mới, khung "Sắp tới", "Vì sao?", hành động một chạm (giao ôn lại riêng cho em: SQL giao bài cho một học viên). Thêm ngày kết thúc khoá và điểm mục tiêu trong cài đặt lớp.
+
+---
+
+## 3. T4: Phụ huynh
+
+### 3.1 Link riêng cho phụ huynh
+- **Mỗi học viên một link khó đoán**, ví dụ `teach…/p/<mã 12 ký tự>`. Giáo viên bấm "Lấy link phụ huynh" ở trang em, chép gửi Zalo. Có nút tạo lại link (link cũ hết hiệu lực).
+- **Không cần tài khoản.** Có thêm **mã PIN 4 số** nếu trung tâm muốn (cài đặt lớp).
+- **Chỉ hiện thứ dành cho phụ huynh**, không hiện ghi chú riêng của giáo viên.
+
+### 3.2 Phụ huynh thấy gì: viết cho người không rành tiếng Anh
+Lấy ý hay của W3: **nói con làm được gì bằng tiếng Việt đời thường**, thay vì thuật ngữ.
+- **Câu tóm tắt đầu trang**, ghép từ số liệu thật. Ví dụ: *"Tuần này con học 5/7 ngày. Con nhớ thêm 23 từ mới và đã dùng được 6 từ khi nói. Con còn hay nhầm âm 'th' (như trong 'think'), cô đang cho con luyện thêm."*
+- **"Con làm được gì":** 3 việc cụ thể trong tuần, mỗi việc kèm ví dụ thật. Ví dụ:
+  - "Con đọc hiểu một đoạn văn 150 từ về Môi trường";
+  - "Con nói rõ 12 từ mới, máy nghe đúng";
+  - "Con tự đặt câu với từ *sustainable*", kèm câu của con (chỉ khi con cho phép).
+- **Một con số chính:** điểm từ vựng đã xác minh và mức tương đương (khoảng IELTS), với mũi tên lên xuống so với lần trước. Không bày nhiều số.
+- **Lời nhận xét của giáo viên** (mục 3.3).
+- **"Phụ huynh có thể giúp":** một gợi ý cụ thể, sinh theo tình hình. Ví dụ: "Con hay học buổi tối, nhắc con mở Lexica 10 phút trước 21h", hoặc "Hỏi con nghĩa của 3 từ: …".
+- **Lịch sử:** các tuần trước, gập lại.
+- Nút "Nghe con đọc": để sau, cần đồng ý ghi âm (xem mục 0).
+
+### 3.3 Báo cáo tuần tự động
+- **Tối Chủ nhật** hệ thống soạn sẵn báo cáo tuần cho từng em: câu tóm tắt, việc làm được, gợi ý.
+- **Sáng thứ Hai** giáo viên vào "Báo cáo tuần": xem lần lượt từng em, sửa hoặc thêm một câu nhận xét (có gợi ý nhanh: "Con chăm", "Cần đều hơn"…), bấm **"Duyệt"**.
+- **Gửi:**
+  - **Chép tất cả link vào tin nhắn Zalo**, mỗi phụ huynh một dòng;
+  - hoặc **tự gửi qua email** nếu có email phụ huynh (Supabase gửi mail).
+  
+  Zalo OA tự động để sau, vì cần đăng ký và có phí.
+- **Theo dõi:** phụ huynh đã mở link chưa (đếm lượt mở), giáo viên thấy "15/20 phụ huynh đã xem".
+
+### 3.4 Dữ liệu và bảo mật
+- **Bảng mới:**
+  - `cortex_parent_links`: học viên, lớp, mã, PIN đã băm, ngày tạo, ngày thu hồi;
+  - `cortex_weekly_reports`: lớp, học viên, tuần, nội dung đã soạn, nhận xét, đã duyệt, số lượt mở.
+- **Đọc ghi:**
+  - phụ huynh đọc qua hàm security definer theo mã (và PIN), chỉ trả nội dung đã duyệt;
+  - giáo viên đọc ghi qua `classroom_can_teach`.
+- **Soạn báo cáo:** một hàm SQL chạy theo lịch (`pg_cron` của Supabase), hoặc job của Cortex API khi API ổn.
+- **Học viên đồng ý chia sẻ câu tự viết:** một công tắc trong Lexica, mặc định tắt.
+
+### 3.5 PR
+1. Bảng, hàm, trang phụ huynh `/p/<mã>`, nút lấy link.
+2. Báo cáo tuần: soạn tự động, trang duyệt, gửi và chép link, đếm lượt xem.
+
+---
+
+## 4. T2: Quiz trực tiếp "Đấu trường từ vựng" (kế hoạch kỹ)
+
+### 4.1 Khác Kahoot ở đâu
+Kahoot chỉ là trò chơi trong giờ; chơi xong là hết. Đấu trường của Cortex **nối vào việc học**:
+- **Câu hỏi lấy từ chính từ của lớp:**
+  - từ của bài giao;
+  - từ cả lớp sắp quên (W4);
+  - dạng câu của bài kiểm tra: chọn nghĩa, điền cụm, nghe, từ thật hay bịa, nghe rồi chọn câu đúng.
+- **Chơi xong, từng em tự có bài ôn:**
+  - từ em trả lời sai được đẩy vào hàng ôn của em trong Lexica;
+  - từ em trả lời đúng nhanh được tính là một lần nhớ lại đúng (đi tiếp các bước Hiểu, Nhớ, Gặp, Dùng);
+  - giáo viên không phải làm gì.
+- **Giáo viên có ngay bảng phân tích:** câu nào cả lớp sai nhiều, em nào đoán bừa (trả lời quá nhanh và sai), từ nào nên giảng lại. Bấm một nút để mở trình chiếu (T1) đúng những từ đó.
+- **Công bằng cho em yếu:** chế độ đội và chế độ "tiến bộ" bên dưới, để em yếu vẫn có cơ hội thắng, tránh tự ti.
+
+### 4.2 Các chế độ chơi
+| Chế độ | Luật | Dùng khi |
+|---|---|---|
+| **Cổ điển** | Ai cũng trả lời mọi câu; đúng và nhanh thì điểm cao; bảng xếp hạng sau mỗi câu, top 5 | Khởi động, ôn cuối giờ |
+| **Đội** | Chia đội (dùng chia nhóm của T1, đồng đều trình độ); điểm đội là trung bình điểm thành viên, nên em yếu cũng góp sức; hiện thanh đua giữa các đội | Lớp đông, tránh em yếu bị lộ |
+| **Sống sót** | Sai một câu là "bị loại" khỏi top, nhưng vẫn chơi tiếp để gỡ lại vị trí; còn lại ai là "người sống sót" | Cuối khoá, lớp mạnh |
+| **Tiến bộ** | Điểm tính theo mức hơn **chính mình**: câu khó vượt trình độ (theo điểm từ vựng) được nhiều điểm hơn | Lớp chênh trình độ |
+
+Bảng xếp hạng có thể **ẩn tên** (chỉ hiện top 3 với tên, còn lại hiện số), để không ai bị bêu.
+
+### 4.3 Luồng chơi
+1. **Giáo viên** (teach, máy chiếu) chọn nguồn câu hỏi (bài giao, từ sắp quên, tự chọn), số câu (10–20), chế độ, thời gian mỗi câu (10–30 giây), rồi bấm "Mở phòng".
+2. **Máy chiếu** hiện mã phòng 6 số và mã QR, cùng danh sách em đã vào, cập nhật trực tiếp.
+3. **Học viên** vào bằng một trong hai cách (xem mục 4.6):
+   - mở Lexica → nút "Vào đấu trường", hoặc quét QR;
+   - nhập mã ở trang `lexica…/play`.
+4. **Mỗi câu:**
+   - máy chiếu hiện câu hỏi to và đồng hồ; câu Nghe thì máy chiếu phát giọng cho cả lớp;
+   - điện thoại học viên chỉ hiện 4 nút màu, chữ ngắn;
+   - hết giờ hoặc mọi em đã trả lời thì máy chiếu hiện đáp án, số em chọn mỗi đáp án, rồi bảng xếp hạng;
+   - điện thoại hiện đúng hay sai, điểm, hạng.
+5. **Kết thúc:** bục vinh danh top 3 (có hiệu ứng), "Em tiến bộ nhất buổi", "Câu khó nhất"; điện thoại hiện "Em sai 4 từ, đã thêm vào bài ôn của em".
+6. **Sau đó:** giáo viên xem bảng phân tích (mục 4.1), lưu buổi chơi vào lịch sử lớp.
+
+### 4.4 Kỹ thuật
+- **Thời gian thực:** Supabase Realtime.
+  - Kênh `arena:<mã>`: *broadcast* cho sự kiện (câu mới, khoá câu, kết quả), *presence* cho danh sách người chơi.
+  - Đã dùng Realtime cho Oratio nên dự án có sẵn.
+- **Máy chủ là trọng tài:**
+  - câu hỏi và đáp án nằm trong bảng `arena_questions`, chỉ hàm SQL đọc được;
+  - học viên gửi câu trả lời qua hàm `arena_answer(phòng, câu, lựa chọn)`;
+  - máy chủ ghi thời điểm, tính điểm theo thời gian máy chủ (không tin đồng hồ điện thoại), từ chối câu trả lời sau khi khoá.
+  - Máy chiếu chỉ phát tín hiệu "mở câu" và "khoá câu", qua hàm SQL có kiểm tra quyền giáo viên.
+- **Điểm:** đúng thì `1000 × (1 − 0.5 × thời gian dùng / thời gian cho phép)`; chuỗi đúng liên tiếp được thưởng nhỏ; chế độ Tiến bộ nhân thêm theo độ khó so với trình độ em.
+- **Quy mô:** một phòng tới 60 em. Presence và broadcast của Supabase chịu được; mỗi câu chỉ có khoảng 60 lượt gọi hàm.
+- **Mất mạng:** học viên vào lại phòng thì tiếp tục câu hiện tại. Máy chiếu tải lại trang thì lấy lại trạng thái từ bảng.
+- **Nối vào Lexica:** khi kết thúc, hàm `arena_finish` ghi kết quả từng em vào bảng `arena_results`; Lexica của em đọc lần mở sau (hoặc qua Realtime) để thêm từ sai vào hàng ôn và tính lần nhớ đúng.
+- **Bảng:** `arena_rooms`, `arena_players`, `arena_questions`, `arena_answers`, `arena_results`. Bảng bật RLS, chỉ đi qua hàm.
+
+### 4.5 Rủi ro và cách xử lý
+| Rủi ro | Cách xử lý |
+|---|---|
+| Wifi lớp yếu, trễ vài trăm ms | Tính điểm theo thời điểm máy chủ nhận; chênh trễ nhỏ so với 10–30 giây mỗi câu. Hiện "đã gửi" ngay trên điện thoại |
+| Em không có điện thoại | Chơi theo đội, mỗi đội một máy; hoặc giáo viên bật "ghép đôi chung máy" |
+| Em đoán bừa cho nhanh | Sai thì không có điểm; trả lời dưới 1 giây và sai nhiều lần thì giáo viên thấy trong bảng phân tích |
+| Em yếu tự ti | Chế độ Đội và Tiến bộ, ẩn tên ngoài top 3, câu "em tiến bộ nhất" |
+| Supabase Realtime giới hạn ở gói Free | Gói Free giới hạn kết nối đồng thời (khoảng 200); vài lớp chơi cùng lúc vẫn ổn, trung tâm lớn thì cần gói Pro (đã tính trong `BUSINESS_MODEL.md`) |
+
+### 4.6 Cần quyết
+1. **Học viên vào bằng gì?**
+   - **Đề xuất:** qua **Lexica** (đã đăng nhập, đã ở lớp), vì như vậy mới nối được kết quả vào việc học (mục 4.1), và đây là lý do học viên mở Lexica.
+   - Thêm một trang `play` nhập mã, cho khách hoặc em chưa có tài khoản: chơi được nhưng không lưu vào việc học.
+2. **Chế độ nào làm trước?** Đề xuất: Cổ điển và Đội ở PR đầu; Sống sót và Tiến bộ ở PR sau.
+
+### 4.7 PR
+1. **T2a:** bảng và hàm SQL, luồng phòng (mở, vào, câu, khoá, kết thúc), màn hình máy chiếu, màn hình điện thoại trong Lexica, chế độ Cổ điển.
+2. **T2b:** chế độ Đội, bảng phân tích cho giáo viên, đẩy từ sai vào hàng ôn, bục vinh danh.
+3. **T2c:** chế độ Sống sót và Tiến bộ, trang `play` cho khách, lịch sử buổi chơi.
+
+---
+
+## 5. Để sau
+- **T3** giao bài thông minh và bài kiểm tra lớp.
+- **T5** Oratio trong teach.
+- **"Nghe con đọc"** cho phụ huynh, khi đã có đồng ý ghi âm.
