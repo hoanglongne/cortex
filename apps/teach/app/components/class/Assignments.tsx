@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Presentation, Trash2 } from 'lucide-react';
 import { daysUntil, type Board } from '@cortex/classroom';
-import { Badge, Button, Card, Drawer, Empty, ErrorNote, errorText } from '../ui';
+import { Badge, Button, Card, Drawer, Empty, ErrorNote, errorText, LinkButton } from '../ui';
 import { api } from '../../lib/supabase';
 import { moduleFor, modulesOf, type ModuleUI } from '../../modules';
 import AppDot from './AppDot';
@@ -52,21 +52,28 @@ export default function Assignments({ board, onChanged, startOpen }: { board: Bo
                                         {a.due_on && <Badge tone={late !== null && late <= 1 && p && p.done < p.total ? 'warm' : 'neutral'}>{dueText(a.due_on)}</Badge>}
                                     </p>
                                 </div>
-                                <Button
-                                    kind="danger"
-                                    size="sm"
-                                    onClick={async () => {
-                                        if (!window.confirm(`Xoá bài “${a.title}”? Học viên sẽ không còn được giao phần này (tiến độ các em vẫn giữ).`)) return;
-                                        try {
-                                            await api.unassign(a.id);
-                                            onChanged();
-                                        } catch (e) {
-                                            setError(errorText(e));
-                                        }
-                                    }}
-                                >
-                                    <Trash2 className="h-4 w-4" /> Xoá
-                                </Button>
+                                <div className="flex gap-2">
+                                    {a.app === 'lexica' && (
+                                        <LinkButton href={`/present/${board.class.id}?tool=slides&assignment=${a.id}`} kind="secondary" size="sm">
+                                            <Presentation className="h-4 w-4" /> Trình chiếu
+                                        </LinkButton>
+                                    )}
+                                    <Button
+                                        kind="danger"
+                                        size="sm"
+                                        onClick={async () => {
+                                            if (!window.confirm(`Xoá bài “${a.title}”? Học viên sẽ không còn được giao phần này (tiến độ các em vẫn giữ).`)) return;
+                                            try {
+                                                await api.unassign(a.id);
+                                                onChanged();
+                                            } catch (e) {
+                                                setError(errorText(e));
+                                            }
+                                        }}
+                                    >
+                                        <Trash2 className="h-4 w-4" /> Xoá
+                                    </Button>
+                                </div>
                             </div>
                             {m ? (
                                 <div className="mt-3">

@@ -8,11 +8,12 @@ import { parseManifest, parsePack, type ContentCard } from '../../lib/content/pa
  * packs Studio published (current drop, library, Giao tiếp), minus retired
  * cards. Refreshed hourly; a Studio outage leaves the bundled deck.
  * `pack` (a Studio drop or trend) and `scenario` let teachers browse and
- * preview cards when choosing a lesson.
+ * preview cards when choosing a lesson; `collocations` fill the slides of
+ * teach's present mode.
  */
 export const revalidate = 3600;
 
-type Entry = { id: string; word: string; meaning: string; level: string; branch: 'cert' | 'talk'; ipa?: string; scenario?: string; pack?: string };
+type Entry = { id: string; word: string; meaning: string; level: string; branch: 'cert' | 'talk'; ipa?: string; scenario?: string; pack?: string; collocations?: string[] };
 
 const entry = (c: ContentCard, branch?: 'talk', dropTitle?: string): Entry => {
     const pack = dropTitle ?? c.trend?.label;
@@ -26,6 +27,8 @@ const entry = (c: ContentCard, branch?: 'talk', dropTitle?: string): Entry => {
         ...(c.ipa ? { ipa: c.ipa } : {}),
         ...(scenario ? { scenario } : {}),
         ...(pack ? { pack } : {}),
+        // For the teacher's slides (teach /present).
+        ...(c.collocations?.length ? { collocations: c.collocations.slice(0, 3) } : {}),
     };
 };
 
