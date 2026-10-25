@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { studentApp, type ClassroomModuleCore } from '@cortex/classroom';
-import { classSounds, lexicaModule, oftenMissed, SOUND_KINDS, SOUND_LABEL, STEP_LABEL, type LexicaMetrics, type LexicaSettings, type WordsPayload } from '@cortex/classroom-lexica';
+import { classSounds, lexicaModule, oftenMissed, SOUND_KINDS, SOUND_LABEL, STEP_LABEL, TARGET_MAX, TARGET_MIN, type LexicaMetrics, type LexicaSettings, type WordsPayload } from '@cortex/classroom-lexica';
 import { Badge, Field, inputClass } from '../../components/ui';
 import { LEXICA_URL } from '../../lib/config';
 import type { ModuleUI } from '../types';
@@ -42,7 +42,8 @@ export const lexicaUI: ModuleUI = {
     settingsLine(raw) {
         const s = lexicaModule.parseSettings(raw);
         const level = LEVELS.find((l) => l.id === s.level)?.label;
-        return [BRANCH_LABEL[s.branch], level].filter(Boolean).join(' · ');
+        const ends = s.ends_on ? `đến ${Number(s.ends_on.slice(8))}/${Number(s.ends_on.slice(5, 7))}` : null;
+        return [BRANCH_LABEL[s.branch], level, ends].filter(Boolean).join(' · ');
     },
 
     SettingsFields({ value, onChange }) {
@@ -68,6 +69,7 @@ export const lexicaUI: ModuleUI = {
                         ))}
                     </select>
                 </Field>
+                <CourseFields value={value} onChange={(patch) => onChange({ ...s, ...patch })} />
             </div>
         );
     },
@@ -174,6 +176,43 @@ export const lexicaUI: ModuleUI = {
 };
 
 /** One line per sound group the student said in 14 days: misses out of tries. */
+/**
+ * The course's end and the class's target score, for the forecasts. The raw
+ * value is shown so a number half typed is not wiped; the server keeps only
+ * a real date and a score in TARGET_MIN..TARGET_MAX.
+ */
+function CourseFields({ value, onChange }: { value: unknown; onChange: (patch: Partial<LexicaSettings>) => void }) {
+    const raw = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+    const target = typeof raw.target_score === 'number' ? raw.target_score : null;
+    const bad = target !== null && (target < TARGET_MIN || target > TARGET_MAX);
+    return (
+        <>
+            <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Ngày kết thúc khoá (không bắt buộc)">
+                    <input type="date" value={typeof raw.ends_on === 'string' ? raw.ends_on : ''} onChange={(e) => onChange({ ends_on: e.target.value || null })} className={inputClass} />
+                </Field>
+                <Field label="Điểm từ vựng mục tiêu (không bắt buộc)">
+                    <input
+                        type="number"
+                        inputMode="numeric"
+                        min={TARGET_MIN}
+                        max={TARGET_MAX}
+                        step={10}
+                        value={target ?? ''}
+                        onChange={(e) => onChange({ target_score: e.target.value === '' ? null : Number(e.target.value) })}
+                        placeholder="Ví dụ 1150"
+                        aria-invalid={bad}
+                        className={`${inputClass} ${bad ? 'border-danger' : ''}`}
+                    />
+                </Field>
+            </div>
+            <p className="text-xs text-muted">
+                {bad ? `Điểm mục tiêu nằm trong khoảng ${TARGET_MIN}–${TARGET_MAX}. ` : ''}Có ngày kết thúc khoá thì Teach dự báo điểm từ vựng cuối khoá của từng em; có điểm mục tiêu thì biết lớp có kịp không.
+            </p>
+        </>
+    );
+}
+
 function StudentSounds({ sounds }: { sounds: LexicaMetrics['sounds'] }) {
     const rows = SOUND_KINDS.map((kind) => ({ kind, pair: sounds[kind] }))
         .filter((r): r is { kind: (typeof SOUND_KINDS)[number]; pair: [number, number] } => Boolean(r.pair && r.pair[1] > 0))

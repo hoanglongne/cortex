@@ -85,17 +85,20 @@ Cập nhật 25/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - `components/present/` (Slides, Picker, Groups);
   - `lib/classroom/tools.ts` (có test);
   - `lib/voice.ts`.
-  - Còn thiếu một phần của T1: "Trang Hôm nay có nút hành động", làm cùng W4.
-- **Việc tiếp theo: W4 Dự báo** (TEACH_PLAN mục 2). Người dùng dặn **"làm đến nơi đến chốn, đừng chỉ cho có"**:
-  1. Lexica gửi thêm `review.overdue`, `due7`, `recall14`, `atRisk` trong báo cáo lớp (`apps/lexica/app/lib/classes.ts` → `lexicaReport`; kiểu `LexicaReport` ở `packages/classroom-lexica/index.ts`; lọc phía máy chủ ở `packages/classroom-lexica/sql/classroom_lexica.sql` → `classroom_lexica_clean_metrics`).
-  2. `packages/classroom-lexica/forecast.ts`: hàm thuần cho 6 dự báo, ngưỡng rõ ràng, kèm unit test (cả trường hợp thiếu dữ liệu). Mỗi dự báo có lý do cho nút "Vì sao?".
-  3. Teach:
-     - trang Hôm nay thành danh sách việc có nút hành động;
-     - khung "Sắp tới" ở trang một em;
-     - phần "Cả lớp" ở tổng quan;
-     - hành động một chạm "Giao ôn lại" (cần SQL giao bài cho một học viên);
-     - cài đặt lớp: ngày kết thúc khoá, điểm mục tiêu.
-  4. Dữ liệu sẵn có: `cortex_class_activity_daily` (ngày học), `lexica_placement_sessions` (điểm theo thời gian).
+  - Phần "Trang Hôm nay có nút hành động" làm cùng W4 (đã xong, xem dưới).
+- **W4 Dự báo: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 2, trạng thái ở mục 2.6):
+  - **Lexica:** nhật ký ôn theo ngày (`app/lib/journey/reviewLog.ts`, store `reviewLog`); báo cáo lớp gửi `review` (`overdue`, `due7`, `recall14`, `atRisk`).
+  - **Lõi dự báo:** `packages/classroom-lexica/forecast.ts`, ngưỡng ở `THRESHOLDS`; test ở `apps/teach/__tests__/forecast.test.ts` và `forecastItems.test.ts`. Thang IELTS dùng chung ở `packages/classroom-lexica/ielts.ts`.
+  - **SQL:**
+    - `classroom_core.sql`: `cortex_class_assignments.for_user`, `classroom_assign_to`, `classroom_dropout_risk`, `at_risk` trong tổng quan trung tâm;
+    - `classroom_lexica.sql`: lọc `review`, cài đặt `ends_on` và `target_score`;
+    - `migration_placement.sql`: `lexica_class_score_history`.
+  - **Teach:**
+    - `app/lib/forecasts.ts`, `useForecasts.ts`, `components/Forecast.tsx`, `components/class/ClassAhead.tsx`;
+    - trang Hôm nay, trang một em ("Sắp tới"), tổng quan lớp ("Cả lớp sắp tới"), cài đặt lớp, trang trung tâm.
+  - **Người dùng cần chạy lại trên Supabase, theo thứ tự:** `packages/classroom/sql/classroom_core.sql`, `packages/classroom-lexica/sql/classroom_lexica.sql`, `apps/lexica/supabase/migration_placement.sql`.
+  - **Còn để sau:** "Khen em" chỉ chép tin nhắn, chưa gửi thẻ khen về Lexica; kiểm chứng lùi ngưỡng khi có dữ liệu thật (TEACH_PLAN 2.3).
+- **Việc tiếp theo: T4 phụ huynh** (TEACH_PLAN mục 3).
 - **Sau W4:**
   - **T4 phụ huynh:** link riêng, nội dung tiếng Việt đời thường, báo cáo tuần tự soạn rồi giáo viên duyệt;
   - **T2 Đấu trường từ vựng:** Supabase Realtime, máy chủ làm trọng tài, từ sai tự vào bài ôn trong Lexica. Đề xuất học viên vào qua Lexica, PR đầu làm chế độ Cổ điển và Đội.

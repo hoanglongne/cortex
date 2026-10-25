@@ -11,6 +11,7 @@ import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentenceP
 import { getCard, getCardByWord, sameWordIds } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import { addAttempt, type SoundLog } from '../lib/pronunciation/soundLog';
+import { addRecall, type ReviewLog } from '../lib/journey/reviewLog';
 import { localDate } from '../lib/engagement/ghost';
 import type { ErrorKind } from '../lib/pronunciation/pairs';
 import type { SpeakLevel } from '../lib/pronunciation/score';
@@ -76,6 +77,8 @@ interface LexicaStore {
     spokenAt: Record<string, number>;
     /** Sound groups tried and heard off per day, 60 days (lib/pronunciation/soundLog.ts). */
     soundLog: SoundLog;
+    /** Recalls of words seen before, right and all, per day, 30 days (lib/journey/reviewLog.ts): the class report's recall rate. */
+    reviewLog: ReviewLog;
 
     // The four steps of each word (lib/journey/steps.ts)
     journeys: Journeys;
@@ -380,6 +383,7 @@ export const useLexicaStore = create<LexicaStore>()(
             speakMisses: {},
             spokenAt: {},
             soundLog: {},
+            reviewLog: {},
             journeys: {},
             stepHistory: {},
             path: null,
@@ -568,6 +572,8 @@ export const useLexicaStore = create<LexicaStore>()(
                 // Four steps: a new card remembered is Hiểu; a card seen before is a recall.
                 const now = Date.now();
                 const journeys = { ...get().journeys };
+                // A card seen before is a recall for the class report's recall rate
+                const reviewLog = existingProgress ? addRecall(get().reviewLog ?? {}, localDate(now), direction === 'right') : get().reviewLog;
                 if (existingProgress) {
                     if (journeys[cardId] || direction === 'right') journeys[cardId] = recall(journeys[cardId], direction === 'right', today, now);
                 } else if (direction === 'right') {
@@ -584,6 +590,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     dailyProgress: newDailyProgress,
                     studyHistory: updatedStudyHistory,
                     highestElo: newHighestElo,
+                    reviewLog,
                     ...streakUpdate,
                     ...withJourneys(journeys, get().stepHistory),
                 });
@@ -664,6 +671,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     speakMisses: {},
                     spokenAt: {},
                     soundLog: {},
+                    reviewLog: {},
                     journeys: {},
                     pledge: null,
                     sightings: [],
@@ -817,6 +825,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 set({
                     cardProgress: { ...cardProgress, [cardId]: updated },
                     studyHistory: updatedStudyHistory,
+                    reviewLog: addRecall(get().reviewLog ?? {}, localDate(), correct),
                     ...withJourneys(journeys, get().stepHistory),
                 });
 
@@ -993,6 +1002,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 speakMisses: state.speakMisses,
                 spokenAt: state.spokenAt,
                 soundLog: state.soundLog,
+                reviewLog: state.reviewLog,
                 journeys: state.journeys,
                 pledge: state.pledge,
                 sightings: state.sightings,

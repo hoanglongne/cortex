@@ -6,7 +6,9 @@
 --   words  {card_ids: text[], missing_words: text[], mode: 'only'|'mixed'}
 -- Metrics (per class):
 --   {counts: {hieu,nho,gap,dung,doi,known}, assigned: {hieu,nho,gap,dung,total}, words: {cardId: 1..5}}
--- Settings: {branch: 'cert'|'talk', level: 'beginner'|'intermediate'|'advanced'|'expert'|null}
+-- Settings: {branch: 'cert'|'talk', level: 'beginner'|'intermediate'|'advanced'|'expert'|null,
+--            ends_on: 'YYYY-MM-DD'|null, target_score: 400..1800|null}  (the last two feed the forecasts)
+-- Metrics also carry review: {overdue, due7, recall14: [right, total], atRisk: [cardId]} (W4 forecasts)
 
 insert into cortex_apps (id, name) values ('lexica', 'Lexica') on conflict (id) do update set name = excluded.name;
 
@@ -49,7 +51,11 @@ create or replace function public.classroom_lexica_clean_settings(p jsonb)
 returns jsonb language sql immutable as $$
   select jsonb_strip_nulls(jsonb_build_object(
     'branch', case when p->>'branch' = 'talk' then 'talk' else 'cert' end,
-    'level', case when p->>'level' in ('beginner','intermediate','advanced','expert') then p->>'level' end
+    'level', case when p->>'level' in ('beginner','intermediate','advanced','expert') then p->>'level' end,
+    -- The course's last day and the class's target score, for the forecasts (forecast.ts)
+    'ends_on', case when p->>'ends_on' ~ '^\d{4}-\d{2}-\d{2}$' and (p->>'ends_on') between '2020-01-01' and '2100-12-31' then p->>'ends_on' end,
+    'target_score', case when jsonb_typeof(p->'target_score') = 'number' and (p->>'target_score')::numeric between 400 and 1800
+      then round((p->>'target_score')::numeric)::int end
   ));
 $$;
 
@@ -75,14 +81,44 @@ returns jsonb language plpgsql stable security definer set search_path = public 
 declare
   words jsonb;
   sounds jsonb;
+  review jsonb;
+  r jsonb := case when jsonb_typeof(p->'review') = 'object' then p->'review' end;
+  total int;
 begin
+  -- Words of this class's lessons: the whole class's, and the ones given to this student alone
   select coalesce(jsonb_object_agg(k, least(greatest((v #>> '{}')::int, 0), 5)), '{}') into words
   from jsonb_each(coalesce(p->'words', '{}')) e(k, v)
   where jsonb_typeof(v) = 'number'
     and exists (
       select 1 from cortex_class_assignments a
       where a.class_id = p_class and a.app = 'lexica' and a.payload->'card_ids' ? k
+        and (a.for_user is null or a.for_user = auth.uid())
     );
+  -- Review numbers (docs/TEACH_PLAN.md 2.1): counts 0-100000, right <= total, and only
+  -- this class's lesson words among the ones at risk.
+  if r is not null then
+    total := case when jsonb_typeof(r->'recall14') = 'array' and jsonb_typeof(r->'recall14'->1) = 'number'
+      then least(greatest(round((r->'recall14'->>1)::numeric), 0), 100000)::int else 0 end;
+    review := jsonb_build_object(
+      'overdue', case when jsonb_typeof(r->'overdue') = 'number' then least(greatest(round((r->>'overdue')::numeric), 0), 100000)::int else 0 end,
+      'due7', case when jsonb_typeof(r->'due7') = 'number' then least(greatest(round((r->>'due7')::numeric), 0), 100000)::int else 0 end,
+      'recall14', jsonb_build_array(
+        case when jsonb_typeof(r->'recall14'->0) = 'number' then least(greatest(round((r->'recall14'->>0)::numeric), 0), total)::int else 0 end,
+        total),
+      'atRisk', coalesce((
+        select jsonb_agg(x) from (
+          select distinct x from jsonb_array_elements_text(case when jsonb_typeof(r->'atRisk') = 'array' then r->'atRisk' else '[]' end) x
+          where char_length(x) between 1 and 40
+            and exists (
+              select 1 from cortex_class_assignments a
+              where a.class_id = p_class and a.app = 'lexica' and a.payload->'card_ids' ? x
+                and (a.for_user is null or a.for_user = auth.uid())
+            )
+          limit 200
+        ) t
+      ), '[]')
+    );
+  end if;
   -- Pronunciation (docs/LEXICA_PRONUNCIATION_DESIGN.md, 7.3): per sound group,
   -- [tries, misses] over 14 days. Numbers only: known groups, 0-10000, misses <= tries.
   select coalesce(jsonb_object_agg(k, jsonb_build_array(t, least(m, t))), '{}') into sounds
@@ -100,7 +136,7 @@ begin
     'assigned', lexica_counts(coalesce(p->'assigned'->(p_class::text), '{}')),
     'words', words,
     'sounds', sounds
-  );
+  ) || case when review is not null then jsonb_build_object('review', review) else '{}'::jsonb end;
 end;
 $$;
 

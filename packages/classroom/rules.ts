@@ -1,5 +1,5 @@
 /** Rules every app's classes follow the same way (unit tested in the apps that use them). */
-import type { BoardStudent } from './types';
+import type { Assignment, BoardStudent } from './types';
 
 const MESSAGES: Record<string, string> = {
     'own class': 'Đây là lớp bạn dạy, không cần vào bằng mã.',
@@ -64,4 +64,9 @@ export function joinLink(appUrl: string, code: string): string {
 
 export function inviteLink(teachUrl: string, token: string): string {
     return `${teachUrl.replace(/\/+$/, '')}/invite/${encodeURIComponent(token)}`;
+}
+
+/** Who an assignment is for: the one student it was given to, or the whole class. */
+export function assignmentStudents<S extends Pick<BoardStudent, 'user_id'>>(a: Pick<Assignment, 'for_user'>, students: readonly S[]): S[] {
+    return a.for_user ? students.filter((s) => s.user_id === a.for_user) : [...students];
 }

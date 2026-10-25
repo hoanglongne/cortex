@@ -42,6 +42,9 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         board: (classId: string) => rpc<Board>('classroom_class_board', { p_class: classId }),
         assign: (classId: string, a: { app: AppId; kind: string; title: string; payload: unknown; due: string | null }) =>
             rpc<{ id: string; payload: unknown }>('classroom_assign', { p_class: classId, p_app: a.app, p_kind: a.kind, p_title: a.title, p_payload: a.payload, p_due: a.due }),
+        /** Work for one student of the class only (W4 "Giao ôn lại"). */
+        assignTo: (classId: string, userId: string, a: { app: AppId; kind: string; title: string; payload: unknown; due: string | null }) =>
+            rpc<{ id: string; payload: unknown }>('classroom_assign_to', { p_class: classId, p_user: userId, p_app: a.app, p_kind: a.kind, p_title: a.title, p_payload: a.payload, p_due: a.due }),
         updateAssignment: (id: string, patch: { title?: string; due?: string | null; payload?: Partial<Assignment['payload'] & object> }) =>
             rpc<{ ok: boolean }>('classroom_assignment_update', {
                 p_assignment: id,

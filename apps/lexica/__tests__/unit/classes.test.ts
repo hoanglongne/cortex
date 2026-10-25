@@ -117,7 +117,7 @@ describe('Lexica in classes', () => {
         expect(lexicaModule.praise(app)).toEqual({ why: '+4 từ Dùng tuần này', score: 104 });
         expect(lexicaModule.parentLine(app)).toBe('Từ vựng: +5 từ nhớ được, +4 từ đã nói được tuần này; tổng 30 từ Nhớ, 6 từ Dùng. Từ của lớp: 2/10 từ đã nói được.');
         expect(lexicaModule.parseMetrics('garbage')).toEqual({ counts: {}, assigned: {}, words: {}, sounds: {} });
-        expect(lexicaModule.parseSettings({ branch: 'talk', level: 'nope' })).toEqual({ branch: 'talk', level: null });
+        expect(lexicaModule.parseSettings({ branch: 'talk', level: 'nope' })).toEqual({ branch: 'talk', level: null, ends_on: null, target_score: null });
     });
 });
 

@@ -1,25 +1,63 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PartyPopper, Plus } from 'lucide-react';
 import { Badge, Card, CardTitle, CopyChip, Empty, LinkButton, PageHeader } from '../components/ui';
 import { useTeaching } from '../lib/teaching';
 import { greeting, needs, praise, summaryLine, type Need } from '../lib/today';
 import { moduleFor } from '../modules';
 import { dueMessage, nudgeMessage, praiseMessage } from '../lib/messages';
+import { dropoutStudents, forecastItems, localDay, type ForecastItem } from '../lib/forecasts';
+import { useDone, useScoreHistories } from '../lib/useForecasts';
+import { loadBoard } from '../lib/teaching';
+import { ForecastBlock } from '../components/Forecast';
 
 /**
- * "Hôm nay": the question is "what do I need to do today?". What needs the
- * teacher comes first, praise next, the classes last; numbers live on each
- * class's page.
+ * "Hôm nay": the question is "what do I need to do today?". A to-do list,
+ * most urgent first: the forecasts (W4) with a button each, work due, who to
+ * nudge. Praise next, the classes last; numbers live on each class's page.
  */
 export default function TodayPage() {
     const { data, error } = useTeaching();
     const [now] = useState(() => Date.now());
-    const boards = data ? data.classes.map((c) => data.boards[c.id]).filter(Boolean) : [];
-    const todo = needs(boards, moduleFor, now);
-    const good = praise(boards, moduleFor);
+    const boards = useMemo(() => (data ? data.classes.map((c) => data.boards[c.id]).filter(Boolean) : []), [data]);
+    const histories = useScoreHistories(boards.map((b) => b.class.id));
+    const [done, markDone] = useDone();
+    const forecasts = useMemo(() => forecastItems(boards, histories ?? {}, localDay(now), done, now), [boards, histories, done, now]);
+    const leaving = dropoutStudents(forecasts.todo);
+    // Students with a dropout forecast get its row (with why and what to do) instead of the plain nudge
+    const plain = needs(boards, moduleFor, now).flatMap((n): Need[] => {
+        if (n.kind !== 'nudge') return [n];
+        const board = boards.find((b) => b.class.id === n.classId);
+        const names = n.names.filter((name) => !board?.students.some((s) => s.name === name && leaving.has(`${n.classId}:${s.user_id}`)));
+        return names.length ? [{ ...n, names }] : [];
+    });
+    const urgent = forecasts.todo.filter((i) => i.forecast.urgency === 'urgent');
+    const watch = forecasts.todo.filter((i) => i.forecast.urgency !== 'urgent');
+    const count = forecasts.todo.length + plain.length;
+    const praised = new Set(forecasts.good.map((i) => `${i.classId}:${i.userId}`));
+    const good = praise(boards, moduleFor).filter((p) => !praised.has(`${p.classId}:${p.userId}`));
+    const row = (i: ForecastItem) => {
+        const board = boards.find((b) => b.class.id === i.classId)!;
+        return (
+            <li key={i.key}>
+                <ForecastBlock
+                    forecast={i.forecast}
+                    board={board}
+                    userId={i.userId}
+                    onAssigned={() => void loadBoard(i.classId)}
+                    onDone={() => markDone(i.key)}
+                    who={
+                        <>
+                            <b className="font-semibold">{i.name}</b> <span className="text-muted">· {i.className}</span>
+                            <br />
+                        </>
+                    }
+                />
+            </li>
+        );
+    };
     const dateLine = new Date(now).toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric' });
 
     return (
@@ -50,17 +88,26 @@ export default function TodayPage() {
                 </Empty>
             ) : (
                 <div className="space-y-5">
-                    <Card tone={todo.length ? 'warm' : 'accent'}>
-                        <CardTitle aside={todo.length ? <Badge tone="warm">{todo.length} việc</Badge> : null}>Cần bạn để ý</CardTitle>
-                        {todo.length === 0 ? (
+                    <Card tone={count ? 'warm' : 'accent'}>
+                        <CardTitle aside={count ? <Badge tone="warm">{count} việc</Badge> : null}>Việc nên làm hôm nay</CardTitle>
+                        {count === 0 ? (
                             <p className="flex items-center gap-2 text-ink-2">
                                 <PartyPopper className="h-4 w-4 text-accent" /> Mọi lớp đều đang vào nhịp. Không có gì cần nhắc hôm nay.
                             </p>
                         ) : (
                             <ul className="divide-y divide-warm/15">
-                                {todo.map((n, i) => (
-                                    <NeedRow key={i} need={n} />
-                                ))}
+                                {urgent.map(row)}
+                                {plain
+                                    .filter((n) => n.kind === 'due')
+                                    .map((n, i) => (
+                                        <NeedRow key={`due-${i}`} need={n} />
+                                    ))}
+                                {watch.map(row)}
+                                {plain
+                                    .filter((n) => n.kind !== 'due')
+                                    .map((n, i) => (
+                                        <NeedRow key={`n-${i}`} need={n} />
+                                    ))}
                             </ul>
                         )}
                     </Card>
@@ -68,7 +115,8 @@ export default function TodayPage() {
                     <div className="grid gap-5 md:grid-cols-2">
                         <Card tone="lilac">
                             <CardTitle>Đáng khen tuần này</CardTitle>
-                            {good.length === 0 ? (
+                            {forecasts.good.length > 0 && <ul className="mb-2 divide-y divide-lilac/15">{forecasts.good.map(row)}</ul>}
+                            {good.length === 0 && forecasts.good.length === 0 ? (
                                 <p className="text-sm text-muted">Khi một em tiến bộ rõ (nhiều từ Dùng mới, chuỗi 7 ngày), em ấy sẽ hiện ở đây để bạn khen kịp lúc.</p>
                             ) : (
                                 <ul className="space-y-2.5">

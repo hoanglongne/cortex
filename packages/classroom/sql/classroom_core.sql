@@ -98,6 +98,8 @@ create table if not exists cortex_class_assignments (
   created_at timestamptz not null default now()
 );
 create index if not exists cortex_class_assignments_class_idx on cortex_class_assignments (class_id, created_at);
+-- Work given to one student only (W4 "Giao ôn lại"); null = the whole class. Other students never see it.
+alter table cortex_class_assignments add column if not exists for_user uuid references auth.users(id) on delete cascade;
 
 -- What a student's app reports, per class and app (the latest), and one snapshot per day.
 create table if not exists cortex_class_activity (
@@ -466,6 +468,33 @@ $$;
 
 -- ── a center (its admins) ───────────────────────────────────────────────
 
+-- "Sắp bỏ học" for the center page, the same rule as packages/classroom-lexica/forecast.ts
+-- (THRESHOLDS.dropout): 5 days in a row without study, or, with 3 weeks of history, the last
+-- 7 days at half or less of the 3 weeks before (which averaged at least 1 day a week).
+create or replace function public.classroom_dropout_risk(p_class uuid, p_user uuid)
+returns boolean language plpgsql stable security definer set search_path = public as $$
+declare
+  t date := cortex_today();
+  joined date;
+  last_day date;
+  w int[];
+  avg_before numeric;
+begin
+  select (joined_at at time zone 'Asia/Ho_Chi_Minh')::date into joined from cortex_class_members where class_id = p_class and user_id = p_user;
+  if joined is null then return false; end if;
+  select max(date) into last_day from cortex_class_activity_daily where class_id = p_class and user_id = p_user and date <= t;
+  if t - coalesce(last_day, joined) >= 5 and t - joined >= 5 then return true; end if;
+  if t - joined < 27 then return false; end if;
+  select array_agg(n order by k) into w from (
+    select k, (select count(distinct date) from cortex_class_activity_daily
+               where class_id = p_class and user_id = p_user and date between t - 7 * k - 6 and t - 7 * k)::int as n
+    from generate_series(0, 3) k
+  ) x;
+  avg_before := (w[2] + w[3] + w[4]) / 3.0;
+  return avg_before >= 1 and w[1] <= avg_before * 0.5;
+end;
+$$;
+
 create or replace function public.classroom_org_overview(p_org uuid)
 returns jsonb language plpgsql stable security definer set search_path = public, auth as $$
 begin
@@ -486,7 +515,8 @@ begin
           'id', c.id, 'name', c.name, 'apps', c.apps,
           'teacher', (select email from auth.users where id = c.teacher_id),
           'members', (select count(*) from cortex_class_members where class_id = c.id),
-          'active_week', (select count(distinct a.user_id) from cortex_class_activity a where a.class_id = c.id and a.last_active >= cortex_today() - 6)
+          'active_week', (select count(distinct a.user_id) from cortex_class_activity a where a.class_id = c.id and a.last_active >= cortex_today() - 6),
+          'at_risk', (select count(*) from cortex_class_members m where m.class_id = c.id and classroom_dropout_risk(c.id, m.user_id))
         ) order by c.created_at)
         from cortex_classes c where c.org_id = o.id and not c.archived
       ), '[]'::jsonb)
@@ -622,8 +652,9 @@ returns jsonb language sql stable security definer set search_path = public as $
       'code', case when classroom_can_teach(c.id) then c.code end,
       'members', (select count(*) from cortex_class_members where class_id = c.id),
       'assignments', coalesce((
-        select jsonb_agg(jsonb_build_object('id', a.id, 'app', a.app, 'kind', a.kind, 'title', a.title, 'payload', a.payload, 'due_on', a.due_on, 'created_at', a.created_at) order by a.created_at desc)
+        select jsonb_agg(jsonb_build_object('id', a.id, 'app', a.app, 'kind', a.kind, 'title', a.title, 'payload', a.payload, 'due_on', a.due_on, 'created_at', a.created_at, 'for_user', a.for_user) order by a.created_at desc)
         from cortex_class_assignments a where a.class_id = c.id and (p_app is null or a.app = p_app)
+          and (a.for_user is null or a.for_user = auth.uid() or classroom_can_teach(c.id))
       ), '[]'::jsonb)
     ) as item
     from cortex_classes c
@@ -681,7 +712,7 @@ begin
         from cortex_classes c where c.id = p_class
       ),
       'assignments', coalesce((
-        select jsonb_agg(jsonb_build_object('id', a.id, 'app', a.app, 'kind', a.kind, 'title', a.title, 'payload', a.payload, 'due_on', a.due_on, 'created_at', a.created_at) order by a.created_at desc)
+        select jsonb_agg(jsonb_build_object('id', a.id, 'app', a.app, 'kind', a.kind, 'title', a.title, 'payload', a.payload, 'due_on', a.due_on, 'created_at', a.created_at, 'for_user', a.for_user) order by a.created_at desc)
         from cortex_class_assignments a where a.class_id = p_class
       ), '[]'::jsonb),
       'students', coalesce((
@@ -762,6 +793,27 @@ begin
 end;
 $$;
 
+-- Giving work to one student of the class (W4 "Giao ôn lại"): same checks as classroom_assign.
+create or replace function public.classroom_assign_to(p_class uuid, p_user uuid, p_app text, p_kind text, p_title text, p_payload jsonb, p_due date default null)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  clean_hook text := classroom_hook_name(p_app, 'clean_payload');
+  after_hook text := classroom_hook_name(p_app, 'after_assign');
+  clean jsonb;
+  aid uuid;
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  if not exists (select 1 from cortex_class_members where class_id = p_class and user_id = p_user) then raise exception 'not in this class'; end if;
+  if not exists (select 1 from cortex_classes where id = p_class and p_app = any(apps)) then raise exception 'app not in class'; end if;
+  if clean_hook is null then raise exception 'app has no clean_payload'; end if;
+  execute format('select %I($1, $2)', clean_hook) into clean using p_kind, coalesce(p_payload, '{}'::jsonb);
+  insert into cortex_class_assignments (class_id, app, kind, title, payload, due_on, created_by, for_user)
+  values (p_class, p_app, p_kind, trim(p_title), clean, p_due, auth.uid(), p_user) returning id into aid;
+  if after_hook is not null then execute format('select %I($1, $2, $3)', after_hook) using p_class, aid, clean; end if;
+  return jsonb_build_object('id', aid, 'payload', clean);
+end;
+$$;
+
 create or replace function public.classroom_assignment_update(p_assignment uuid, p_title text default null, p_due date default null, p_clear_due boolean default false, p_payload jsonb default null)
 returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
@@ -820,7 +872,7 @@ begin
     'classroom_class_create(text, text[], jsonb, uuid)', 'classroom_class_update(uuid, text, text[], jsonb, boolean, text, boolean)',
     'classroom_class_new_code(uuid)', 'classroom_class_join(text, text)', 'classroom_class_leave(uuid)', 'classroom_my_classes(text)',
     'classroom_report(text, jsonb, int)', 'classroom_class_board(uuid)', 'classroom_class_leaderboard(uuid)',
-    'classroom_assign(uuid, text, text, text, jsonb, date)', 'classroom_assignment_update(uuid, text, date, boolean, jsonb)',
+    'classroom_assign(uuid, text, text, text, jsonb, date)', 'classroom_assign_to(uuid, uuid, text, text, text, jsonb, date)', 'classroom_assignment_update(uuid, text, date, boolean, jsonb)',
     'classroom_unassign(uuid)', 'classroom_member_update(uuid, uuid, text, boolean)'
   ] loop
     execute format('revoke all on function public.%s from public, anon', f);
@@ -829,7 +881,8 @@ begin
   revoke all on function public.classroom_invite_info(text) from public;
   grant execute on function public.classroom_invite_info(text) to anon, authenticated;
   foreach f in array array['classroom_is_admin()', 'classroom_is_org_admin(uuid)', 'classroom_can_teach(uuid)',
-    'classroom_hook_name(text, text)', 'classroom_clean_apps(text[])', 'classroom_clean_settings(text[], jsonb)', 'classroom_code()'] loop
+    'classroom_hook_name(text, text)', 'classroom_clean_apps(text[])', 'classroom_clean_settings(text[], jsonb)', 'classroom_code()',
+    'classroom_dropout_risk(uuid, uuid)'] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
   end loop;
 end $$;

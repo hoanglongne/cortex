@@ -4,7 +4,7 @@
  * rules (who went quiet, what is due) hold for every app; each module adds
  * what only it knows (docs/CLASSROOM.md). Pure, unit tested.
  */
-import { daysUntil, studentApp, studentState, type Board } from '@cortex/classroom';
+import { assignmentStudents, daysUntil, studentApp, studentState, type Board } from '@cortex/classroom';
 import type { ModuleUI } from '../modules/types';
 
 export type Need =
@@ -35,7 +35,7 @@ export function needs(boards: readonly Board[], moduleFor: Modules, now = Date.n
             if (!m || !a.due_on || b.students.length === 0) continue;
             const days = daysUntil(a.due_on, now);
             if (days < 0 || days > 2) continue;
-            const p = m.core.assignmentProgress({ ...a, payload: m.core.parsePayload(a.kind, a.payload) }, b.students);
+            const p = m.core.assignmentProgress({ ...a, payload: m.core.parsePayload(a.kind, a.payload) }, assignmentStudents(a, b.students));
             if (p.done < p.total) due.push({ kind: 'due', ...base, title: a.title, days, notDone: p.total - p.done, total: p.total });
         }
         for (const app of b.class.apps) {

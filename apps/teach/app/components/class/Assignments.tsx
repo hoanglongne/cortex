@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Presentation, Trash2 } from 'lucide-react';
-import { daysUntil, type Board } from '@cortex/classroom';
+import { assignmentStudents, daysUntil, type Board } from '@cortex/classroom';
 import { Badge, Button, Card, Drawer, Empty, ErrorNote, errorText, LinkButton } from '../ui';
 import { api } from '../../lib/supabase';
 import { moduleFor, modulesOf, type ModuleUI } from '../../modules';
@@ -40,7 +40,8 @@ export default function Assignments({ board, onChanged, startOpen }: { board: Bo
             ) : (
                 board.assignments.map((a) => {
                     const m = moduleFor(a.app);
-                    const p = m?.core.assignmentProgress({ ...a, payload: m.core.parsePayload(a.kind, a.payload) }, board.students);
+                    const p = m?.core.assignmentProgress({ ...a, payload: m.core.parsePayload(a.kind, a.payload) }, assignmentStudents(a, board.students));
+                    const forName = a.for_user ? (board.students.find((s) => s.user_id === a.for_user)?.name ?? 'một em') : null;
                     const late = a.due_on ? daysUntil(a.due_on) : null;
                     return (
                         <Card key={a.id}>
@@ -49,6 +50,7 @@ export default function Assignments({ board, onChanged, startOpen }: { board: Bo
                                     <p className="text-[16px] font-semibold text-ink">{a.title}</p>
                                     <p className="mt-1 flex flex-wrap items-center gap-2">
                                         {many && <AppDot app={a.app} />}
+                                        {forName && <Badge tone="lilac">Riêng cho {forName}</Badge>}
                                         {a.due_on && <Badge tone={late !== null && late <= 1 && p && p.done < p.total ? 'warm' : 'neutral'}>{dueText(a.due_on)}</Badge>}
                                     </p>
                                 </div>

@@ -99,6 +99,19 @@ Lớp cần thêm **ngày kết thúc khoá** (cài đặt lớp, không bắt b
 1. Lexica gửi `review.*`; cập nhật `classroom_lexica.sql` (lọc và giữ trường mới); `forecast.ts` kèm test.
 2. Teach: trang Hôm nay mới, khung "Sắp tới", "Vì sao?", hành động một chạm (giao ôn lại riêng cho em: SQL giao bài cho một học viên). Thêm ngày kết thúc khoá và điểm mục tiêu trong cài đặt lớp.
 
+### 2.6 Trạng thái (25/10/2026): đã làm, chưa có PR
+- **Đã làm đủ 6 dự báo**, theo các ngưỡng trong bảng 2.2, cùng "Vì sao?", "Chưa đủ dữ liệu, cần thêm …" và hành động cho từng dự báo.
+- **Khác so với bảng trên:**
+  - **Sắp quên:** chỉ tính `overdue`, vì `atRisk` đã nằm trong đó. "Giao ôn lại" chỉ hiện khi em có từ của bài lớp trong `atRisk`, vì máy chủ chỉ giữ những từ đó. Nếu trong 7 ngày đã giao bài ôn riêng cho em thì không hiện lại nút, chỉ ghi "Đã giao bài … ngày …".
+  - **Nhớ kém và Tiến nhanh:** "Giảm số từ mới" và "Gợi ý lên level" là lời khuyên trong "Vì sao?". Teach chưa đổi được cài đặt Lexica của em.
+  - **Khen em:** chép tin nhắn, chưa có thẻ khen gửi về Lexica.
+  - **Điểm cuối khoá:**
+    - khoảng điểm = độ lệch của lần thi cuối (tối thiểu 25) cộng 8 điểm cho mỗi tuần còn lại;
+    - chỉ dùng các lần thi trong 180 ngày;
+    - so với mục tiêu: chắc đạt, có thể, khó đạt.
+  - **"Đã xử lý":** lưu trên máy giáo viên, ẩn việc đó 7 ngày.
+- **Kiểm chứng lùi:** chưa làm, chờ dữ liệu thật.
+
 ---
 
 ## 3. T4: Phụ huynh

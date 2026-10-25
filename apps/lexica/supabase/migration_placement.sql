@@ -341,6 +341,28 @@ begin
 end;
 $$;
 
+-- A class's verified scores over time, for the end-of-course forecast in Teach
+-- (packages/classroom-lexica/forecast.ts): per student the last 10 tests of 180 days.
+create or replace function public.lexica_class_score_history(p_class uuid)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not your class'; end if;
+  return coalesce((
+    select jsonb_object_agg(m.user_id, t.tests)
+      from cortex_class_members m
+      join lateral (
+        select jsonb_agg(jsonb_build_object('score', x.score, 'sd', x.sd, 'at', x.finished_at) order by x.finished_at) as tests
+          from (
+            select s.score, s.sd, s.finished_at from lexica_placement_sessions s
+             where s.user_id = m.user_id and s.score is not null and s.finished_at > now() - interval '180 days'
+             order by s.finished_at desc limit 10
+          ) x
+      ) t on t.tests is not null
+     where m.class_id = p_class
+  ), '{}'::jsonb);
+end;
+$$;
+
 revoke all on function public.lexica_pl_estimate(uuid) from public, anon, authenticated;
 revoke all on function public.lexica_pl_view(lexica_placement_items) from public, anon, authenticated;
 revoke all on function public.lexica_pl_next(uuid) from public, anon, authenticated;
@@ -352,4 +374,6 @@ grant execute on function public.lexica_placement_start(boolean) to authenticate
 grant execute on function public.lexica_placement_answer(uuid, int) to authenticated;
 grant execute on function public.lexica_my_scores() to authenticated;
 grant execute on function public.lexica_class_scores(uuid) to authenticated;
+revoke all on function public.lexica_class_score_history(uuid) from public, anon;
+grant execute on function public.lexica_class_score_history(uuid) to authenticated;
 grant execute on function public.lexica_score_public(text) to anon, authenticated;

@@ -20,6 +20,8 @@ export interface Assignment<Payload = unknown> {
     payload: Payload;
     due_on: string | null;
     created_at: string;
+    /** Given to one student only ("Giao ôn lại"); null or missing for the whole class. */
+    for_user?: string | null;
 }
 
 export interface ClassInfo {
@@ -102,7 +104,7 @@ export interface OrgOverview {
     seats: number;
     used: number;
     people: { user_id: string; email: string; role: 'admin' | 'teacher'; classes: number }[];
-    classes: { id: string; name: string; apps: AppId[]; teacher: string | null; members: number; active_week: number }[];
+    classes: { id: string; name: string; apps: AppId[]; teacher: string | null; members: number; active_week: number; at_risk?: number }[];
 }
 
 export interface AdminOverview {
