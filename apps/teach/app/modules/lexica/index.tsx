@@ -9,6 +9,7 @@ import type { ModuleUI } from '../types';
 import AssignForm from './AssignForm';
 import StepBar from './StepBar';
 import { wordIndex, type WordIndex } from './words';
+import { useClassScores, type VerifiedScore } from './scores';
 
 const BRANCH_LABEL = { cert: 'Chứng chỉ', talk: 'Giao tiếp' } as const;
 const LEVELS = [
@@ -84,6 +85,7 @@ export const lexicaUI: ModuleUI = {
             <>
                 <StepBar counts={{ hieu: avg('hieu'), nho: avg('nho'), gap: avg('gap'), dung: avg('dung'), doi: avg('doi') }} />
                 <p className="mt-1 text-xs text-subtle">trung bình mỗi em</p>
+                <ClassScores classId={board.class.id} students={board.students.length} />
                 {sounds.length > 0 && (
                     <div data-testid="class-sounds" className="mt-4">
                         <p className="text-sm font-medium text-ink">Âm cả lớp hay sai (14 ngày)</p>
@@ -139,6 +141,7 @@ export const lexicaUI: ModuleUI = {
                     <StepBar counts={m.counts} />
                     {(m.counts.known ?? 0) > 0 && <p className="mt-1 text-xs text-subtle">Không tính {m.counts.known} từ em đánh dấu “biết rồi” mà chưa học trong Lexica.</p>}
                 </div>
+                <StudentScore classId={board.class.id} userId={student.user_id} />
                 <StudentSounds sounds={m.sounds} />
                 <div>
                     <p className="mb-2 text-sm font-medium text-ink">Từ của lớp: em đang ở bước nào</p>
@@ -192,3 +195,44 @@ function StudentSounds({ sounds }: { sounds: LexicaMetrics['sounds'] }) {
         </div>
     );
 }
+
+/** The class's verified vocabulary scores: how many took the test, the average, the average change. */
+function ClassScores({ classId, students }: { classId: string; students: number }) {
+    const scores = useClassScores(classId);
+    const list = Object.values(scores ?? {});
+    if (list.length === 0) return null;
+    const avg = Math.round(list.reduce((n, x) => n + x.score, 0) / list.length);
+    const moved = list.filter((x) => x.previous !== null);
+    const change = moved.length > 0 ? Math.round(moved.reduce((n, x) => n + (x.score - (x.previous ?? x.score)), 0) / moved.length) : null;
+    return (
+        <div data-testid="class-scores" className="mt-4">
+            <p className="text-sm font-medium text-ink">Điểm từ vựng đã xác minh</p>
+            <p className="mt-1 text-sm text-ink-2">
+                Trung bình <b className="font-mono">{avg}</b> · {list.length}/{students} em đã thi
+                {change !== null && change !== 0 ? ` · ${change > 0 ? '+' : ''}${change} so với lần thi trước` : ''}
+            </p>
+            <p className="mt-1 text-xs text-subtle">Bài kiểm tra do máy chủ Lexica chọn câu và chấm; mỗi em thi lại được sau 14 ngày.</p>
+        </div>
+    );
+}
+
+/** One student's last verified score, with the change since the test before. */
+function StudentScore({ classId, userId }: { classId: string; userId: string }) {
+    const scores = useClassScores(classId);
+    const s: VerifiedScore | undefined = scores?.[userId];
+    if (!scores) return null;
+    return (
+        <div>
+            <p className="text-sm font-medium text-ink">Điểm từ vựng đã xác minh</p>
+            {s ? (
+                <p className="mt-1 text-sm text-ink-2">
+                    <b className="font-mono text-ink">{s.score}</b> ± {s.sd} · {new Date(s.at).toLocaleDateString('vi-VN')}
+                    {s.previous !== null ? ` · ${s.score - s.previous >= 0 ? '+' : ''}${s.score - s.previous} so với lần trước` : ''}
+                </p>
+            ) : (
+                <p className="mt-1 text-sm text-muted">Em chưa làm bài kiểm tra từ vựng có xác minh trong Lexica.</p>
+            )}
+        </div>
+    );
+}
+

@@ -13,6 +13,7 @@ import { hardToSay } from '../lib/pronunciation/drill';
 import { nearSound, pairFor, pairId, tipFor } from '../lib/pronunciation/pairs';
 import { clarity, diffHeard, LEVEL_LABEL, scoreAttempt, type SpeakLevel } from '../lib/pronunciation/score';
 import { ipaSyllables, spellingSyllables, stressedSyllables } from '../lib/pronunciation/syllables';
+import { capture } from '../lib/productAnalytics';
 import { listenOnce, playRecording, sayModel, speakVaried, stopSpeaking, variedVoiceCount, type Attempt } from '../lib/pronunciation/speech';
 import { contourMatch, modelContour, normalizeTrack } from '../lib/pronunciation/pitch';
 import type { ContentCard } from '../lib/content/pack';
@@ -250,6 +251,7 @@ function useAttempt(target: string, onScored?: (level: SpeakLevel) => void, sent
         const phrase = !sentence && target.trim().includes(' ') && a.alternatives.length > 0;
         const scored = phrase ? { level: alignAttempt(target, a.alternatives).level, heard: a.alternatives[0].transcript.toLowerCase() } : scoreAttempt(target, a.alternatives);
         setAttempt({ ...a, ...scored });
+        capture('speak_attempt', { heard: a.alternatives.length > 0, level: scored.level, sentence: Boolean(sentence), phrase });
         // Each real attempt counts once for the "từ khó nói" list; a voice the browser could not read says nothing about the learner.
         if (a.alternatives.length > 0 || (a.error === 'no-speech' && !a.voiced)) onScored?.(scored.level);
     };

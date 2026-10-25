@@ -10,6 +10,7 @@
  * Pure functions, unit tested.
  */
 import { stem } from '../answerMatch';
+import { phraseHits, tokens } from '../content/phrases';
 import { wordsAt, type Journeys } from './steps';
 import type { UserArchetype } from '../../types/vocab';
 
@@ -53,7 +54,6 @@ export function pledgeIdea(cardId: string, archetype: UserArchetype | null, situ
     return `Thử dùng ${list[seed % list.length]}.`;
 }
 
-const tokens = (text: string) => [...text.matchAll(/[A-Za-z]+(?:'[A-Za-z]+)?/g)].map((m) => ({ word: m[0].toLowerCase(), start: m.index!, end: m.index! + m[0].length }));
 
 /** A word and its stems, one suffix at a time (DECISIONS → DECISION → DECIS), so two forms meet. */
 function stems(word: string): string[] {
@@ -70,7 +70,8 @@ export interface Spotted {
 
 /**
  * Learned words in a text, any form (annoyed for annoy, decisions for
- * decision); phrases ("keep in mind") as written. One card per word.
+ * decision); phrases ("keep in mind") with their first word in any form and
+ * small gaps ("pointed out", "push the show back"). One card per word.
  */
 export function spotWords(text: string, cards: readonly { id: string; word: string }[]): Spotted[] {
     const toks = tokens(text);
@@ -78,18 +79,16 @@ export function spotWords(text: string, cards: readonly { id: string; word: stri
     toks.forEach((t, i) => {
         for (const k of stems(t.word)) byStem.set(k, [...(byStem.get(k) ?? []), i]);
     });
-    const lower = text.toLowerCase();
     const out: Spotted[] = [];
     const seenWord = new Set<string>();
     for (const c of cards) {
         const w = c.word.trim().toLowerCase();
         if (!w || seenWord.has(w)) continue;
         if (w.includes(' ')) {
-            const re = new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+')}\\b`, 'g');
-            const hits = [...lower.matchAll(re)];
+            const hits = phraseHits(toks, w);
             if (hits.length) {
                 seenWord.add(w);
-                for (const h of hits) out.push({ cardId: c.id, start: h.index!, end: h.index! + h[0].length });
+                for (const h of hits) out.push({ cardId: c.id, ...h });
             }
             continue;
         }

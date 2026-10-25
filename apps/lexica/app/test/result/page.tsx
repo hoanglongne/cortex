@@ -1,65 +1,36 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useLexicaStore } from '../../store/lexicaStore';
-import LevelTestResult from '../../components/LevelTestResult';
+import PlacementResultView from '../../components/PlacementResultView';
 
-
-function TestResultContent() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-
-    const testScore = useLexicaStore(state => state.testScore);
-    const recommendedLevel = useLexicaStore(state => state.recommendedLevel) || 'beginner';
-    const userStats = useLexicaStore(state => state.userStats);
-    const acceptRecommendedLevel = useLexicaStore(state => state.acceptRecommendedLevel);
-    const skipToManual = useLexicaStore(state => state.skipToManual);
-    const setSelectedLevel = useLexicaStore(state => state.setSelectedLevel);
-
-    // Use score from store (source of truth), fallback to URL param for backwards compatibility
-    const score = testScore ?? parseInt(searchParams.get('score') || '0');
-    const calibratedElo = userStats.currentElo;
-
-    // Only redirect if no test score (user shouldn't be here)
-    useEffect(() => {
-        if (testScore === null) {
-            router.replace('/');
-        }
-    }, [testScore, router]);
-
-    const handleAccept = () => {
-        acceptRecommendedLevel();
-        router.replace('/');
-    };
-
-    const handleChooseManually = () => {
-        // Reset test state and redirect to level selector
-        skipToManual();
-        setSelectedLevel(null);
-        router.replace('/level-select');
-    };
-
-    if (testScore === null) {
-        return null;
-    }
-
-    return (
-        <LevelTestResult
-            score={score}
-            totalQuestions={10}
-            recommendedLevel={recommendedLevel}
-            calibratedElo={calibratedElo}
-            onAccept={handleAccept}
-            onChooseManually={handleChooseManually}
-        />
-    );
-}
-
+/**
+ * The last test's result, for a learner who left before choosing a level
+ * (Home sends them here). The breakdown by kind is only shown right after
+ * the test (app/test/quiz).
+ */
 export default function TestResultPage() {
+    const router = useRouter();
+    const placements = useLexicaStore((s) => s.placements);
+    const acceptRecommendedLevel = useLexicaStore((s) => s.acceptRecommendedLevel);
+    const last = placements[placements.length - 1];
+
+    useEffect(() => {
+        if (!last) router.replace('/level-select');
+    }, [last, router]);
+    if (!last) return null;
+
+    const empty = { right: 0, total: 0 };
     return (
-        <Suspense fallback={<div className="min-h-screen bg-bg" />}>
-            <TestResultContent />
-        </Suspense>
+        <PlacementResultView
+            result={{ score: last.score, sd: last.sd, level: last.level, byKind: { meaning: empty, phrase: empty, real: empty, listen: empty }, fakes: { yes: 0, total: 0 }, questions: 0 }}
+            previous={placements.length > 1 ? placements[placements.length - 2].score : null}
+            onAccept={() => {
+                acceptRecommendedLevel();
+                router.replace('/');
+            }}
+            onChoose={() => router.replace('/level-select')}
+        />
     );
 }

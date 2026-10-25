@@ -72,7 +72,7 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                                     </span>
                                 </div>
                                 <p className="text-sm text-muted leading-relaxed">
-                                    5 câu hỏi giúp hệ thống đánh giá và gợi ý level phù hợp nhất
+                                    15–30 câu, khoảng 6 phút. Câu hỏi khó dần hoặc dễ dần theo câu trả lời của bạn
                                 </p>
                             </div>
                         </div>

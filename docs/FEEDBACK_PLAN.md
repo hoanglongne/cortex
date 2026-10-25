@@ -66,3 +66,20 @@ Theo dõi việc sửa và cải tiến từ đánh giá tổng hợp các app. 
 - [ ] Người dùng: thêm `NEXT_PUBLIC_SUPABASE_URL` và `SUPABASE_SERVICE_ROLE_KEY` cho Cortex API trên Railway (câu tự do vẫn cần API).
 - [x] Bấm nghe nhiều lần không còn chạy chồng: mỗi lần bấm dừng giọng cũ (cả chuỗi 3 giọng và "Giọng bạn").
 - [x] Bấm Xong: nút đổi ngay sang "Đang chấm…"; chờ API nhận dạng tối đa 6 giây, API lỗi thì bỏ qua cho cả lần truy cập.
+
+## Đợt 10: chuẩn bị beta kín
+- [x] Trang Góp ý và báo lỗi (`/feedback`, từ trang Tôi), lưu vào bảng `lexica_feedback` (đọc trong Supabase dashboard). Người dùng chạy `apps/lexica/supabase/migration_feedback.sql`.
+- [x] Trang Chính sách riêng tư (`/privacy`) và Điều khoản (`/terms`), bản nháp; dòng đồng ý khi tạo tài khoản. Nên nhờ người am hiểu pháp lý đọc lại trước khi ra mắt công khai.
+- [x] Đo thêm: `sign_up`, `sign_in`, `speak_attempt`, `today_complete`, `feedback_sent` (cùng `app_open`, `today_start`, `today_stage` sẵn có) để tính tỷ lệ quay lại và phễu phiên đầu trong PostHog.
+- [ ] Hạ tầng ổn định (VPS hoặc Vercel Pro), Cortex API chạy lại.
+- [ ] Thử trên 3–4 điện thoại thật (iPhone Safari, Android Chrome, máy rẻ).
+
+## Đợt 11: bài đọc, ELO, bài kiểm tra
+- [x] 40 bài đọc mới (12 Cơ bản, 10 Trung cấp, 6 Nâng cao, 4 Chuyên gia, 8 hội thoại) viết quanh những từ chưa có bài nào: số từ có trong bài đọc tăng từ 79 lên hơn 250 trên 610 (test `corePassages`).
+- [x] Tìm cụm từ trong bài đọc và Bắt gặp nhận cả dạng chia và cụm bị tách ("looking forward to", "pushed the show back", "ran out of").
+- [x] Studio: job "Bài đọc theo kế hoạch" chạy 4h và 16h, mỗi lần viết 5 bài còn thiếu của kế hoạch 100 bài, chờ duyệt (`STUDIO_PASSAGES_PER_RUN`). Cần Cortex API chạy và `STUDIO_CRON=on`.
+- [x] ELO không còn cộng trừ theo mỗi lần vuốt, chỉ đổi khi làm bài kiểm tra; bỏ thông báo độ khó tiếng Anh trên trang chủ; trang chọn level ghi "Điểm bài kiểm tra".
+- [x] Trang chủ gợi ý đổi level theo tỉ lệ nhớ lại đúng 2 tuần qua (≥85%: thử level cao hơn; <50%: chậm lại).
+- [x] Bài kiểm tra thích ứng (PR A trong `docs/LEXICA_LEVEL_TEST_DESIGN.md`): 15–30 câu, 3 dạng, "Không biết", 20 giây mỗi câu, điểm ± sai số và IELTS khoảng; thi lại sau 14 ngày và 100 lượt ôn. Sửa luôn lỗi người đã có level không làm lại bài được.
+- [x] Bài kiểm tra PR B: gợi ý thi lại, trang `/score` có biểu đồ, ảnh điểm để chia sẻ. Dạng câu Nghe tuỳ chọn.
+- [x] Bài kiểm tra PR C: điểm đã xác minh do Supabase chấm, link `/score/<mã>`, giáo viên thấy điểm. Người dùng chạy `apps/lexica/supabase/migration_placement.sql` rồi `apps/lexica/supabase/placement_bank.sql` (sau `classroom_core.sql`).

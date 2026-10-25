@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BarChart3, ChevronRight, Compass, Route, School, Settings, Swords, Users } from 'lucide-react';
+import { BarChart3, ChevronRight, Compass, Gauge, MessageSquareHeart, Route, School, Settings, Swords, Users } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { hardWords } from '../lib/engagement/hard';
 import { ARCHETYPE_OPTIONS } from '../lib/content/persona';
@@ -25,6 +25,7 @@ export default function MePage() {
     const setMySentenceOff = useLexicaStore((s) => s.setMySentenceOff);
     const cardProgress = useLexicaStore((s) => s.cardProgress);
     const hardCount = hardWords(cardProgress).length;
+    const lastScore = useLexicaStore((s) => s.placements[s.placements.length - 1]?.score ?? null);
 
     const changeLevel = () => {
         const store = useLexicaStore.getState();
@@ -47,10 +48,12 @@ export default function MePage() {
 
                 <section className="rounded-2xl border border-line bg-surface divide-y divide-line">
                     <Row href="/path" icon={<Route className="w-4 h-4" />} title="Lộ trình 30 ngày" />
+                    <Row href="/score" icon={<Gauge className="w-4 h-4" />} title="Điểm từ vựng" hint={lastScore ? String(lastScore) : 'Chưa thi'} />
                     <Row href="/class" icon={<School className="w-4 h-4" />} title="Lớp học" />
                     <Row href="/buddy" icon={<Users className="w-4 h-4" />} title="Buddy" />
                     {hardCount > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó của bạn" hint={`${hardCount} từ`} />}
                     <Row href="/guide" icon={<Compass className="w-4 h-4" />} title="Lexica có gì" />
+                    <Row href="/feedback?from=/me" icon={<MessageSquareHeart className="w-4 h-4" />} title="Góp ý và báo lỗi" />
                 </section>
 
                 {path && (
@@ -108,6 +111,11 @@ export default function MePage() {
                         Âm thanh, sao lưu và các cài đặt khác
                     </Link>
                 </section>
+
+                <p className="flex justify-center gap-4 text-xs text-subtle">
+                    <Link href="/privacy" className="hover:text-ink">Chính sách riêng tư</Link>
+                    <Link href="/terms" className="hover:text-ink">Điều khoản</Link>
+                </p>
             </div>
         </div>
     );

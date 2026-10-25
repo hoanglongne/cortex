@@ -84,7 +84,7 @@ let cloudOff = false;
  * (and every clip the API made once) are files there. No server in the way,
  * so a sleeping or misconfigured API never stands between the learner and a voice.
  */
-const VOICE_CACHE_URL = (() => {
+export const VOICE_CACHE_URL = (() => {
     const own = process.env.NEXT_PUBLIC_VOICE_CACHE_URL?.trim().replace(/\/+$/, '');
     if (own) return own;
     const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, '');

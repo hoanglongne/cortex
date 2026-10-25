@@ -11,8 +11,9 @@ import { getCurrentDrop, useContentVersion } from '../lib/content/repository';
 const DAY_MS = 86_400_000;
 
 /**
- * "Luyện thêm": every single practice, for after today's session or for a
- * learner who wants just one thing. Quiet rows; the accent stays on Today.
+ * "Luyện": every single practice, grouped by what it does for a word: keep it
+ * (review), use it (read, speak, write), add more, meet it outside the app.
+ * Quiet rows; the accent stays on Today.
  */
 export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
     useContentVersion();
@@ -25,16 +26,23 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
     const dropFresh = drop ? drop.cards.filter((c) => !cardProgress[c.id]).length : 0;
 
     return (
-        <section aria-label="Luyện thêm" className="w-full">
-            <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-subtle">Luyện thêm</p>
-            <div className="rounded-2xl border border-line bg-surface divide-y divide-line">
+        <div className="w-full space-y-5">
+            <Group title="Giữ từ đã học" sub="Ôn đúng lúc sắp quên">
                 <Row href="/review" icon={<RotateCcw className="w-4 h-4" />} title="Ôn tập" hint={due > 0 ? `${due} từ đến hạn` : 'Không có từ đến hạn'} badge={due > 0 ? due : undefined} />
-                <Row href="/today?more=1" icon={<Plus className="w-4 h-4" />} title="Học thêm" hint="10 từ mới, kèm một bài đọc và luyện nói" />
-                <Row href="/read" icon={<BookOpen className="w-4 h-4" />} title="Đọc" hint="Đoạn văn ngắn có từ của bạn" />
-                <Row href="/speak" icon={<Mic className="w-4 h-4" />} title="Luyện nói" hint="Nghe, nói, xem máy nghe được gì" />
-                <Row href="/journal" icon={<PenLine className="w-4 h-4" />} title="Một câu hôm nay" hint="Trả lời một câu hỏi về ngày của bạn bằng từ vừa học" />
-                <Row href="/spot" icon={<ScanSearch className="w-4 h-4" />} title="Bắt gặp" hint="Săn từ của tuần, dán đoạn đọc được, xem bộ sưu tập" />
                 {hard > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó" hint={`${hard} từ hay quên`} />}
+            </Group>
+
+            <section aria-label="Luyện kỹ năng">
+                <GroupHead title="Dùng từ" sub="Đọc, nói, viết với từ của bạn" />
+                <div className="grid grid-cols-3 gap-2">
+                    <Tile href="/read" icon={<BookOpen className="w-5 h-5" />} title="Đọc" hint="Đoạn ngắn" />
+                    <Tile href="/speak" icon={<Mic className="w-5 h-5" />} title="Nói" hint="Nghe và nói" />
+                    <Tile href="/journal" icon={<PenLine className="w-5 h-5" />} title="Viết" hint="Câu của bạn" />
+                </div>
+            </section>
+
+            <Group title="Thêm từ mới" sub="Khi đã xong phiên hôm nay">
+                <Row href="/today?more=1" icon={<Plus className="w-4 h-4" />} title="Học thêm" hint="10 từ mới, kèm một bài đọc và luyện nói" />
                 {drop && dropFresh > 0 && (
                     <Row
                         onClick={() => {
@@ -46,9 +54,44 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
                         hint={`${dropFresh} thẻ mới${drop.expiresAt ? ` · còn ${Math.max(0, Math.ceil((Date.parse(drop.expiresAt) - now) / DAY_MS))} ngày` : ''}`}
                     />
                 )}
-                <Row href="/guide" icon={<Compass className="w-4 h-4" />} title="Lexica có gì" hint="Mọi phần của app, dùng gì khi nào" />
-            </div>
+            </Group>
+
+            <Group title="Ngoài đời" sub="Gặp lại từ ngoài app">
+                <Row href="/spot" icon={<ScanSearch className="w-4 h-4" />} title="Bắt gặp" hint="Săn từ của tuần, dán đoạn đọc được, xem bộ sưu tập" />
+            </Group>
+
+            <Link href="/guide" className="flex items-center justify-center gap-1.5 text-sm text-muted hover:text-ink">
+                <Compass className="w-4 h-4" /> Lexica có gì, dùng gì khi nào
+            </Link>
+        </div>
+    );
+}
+
+function GroupHead({ title, sub }: { title: string; sub: string }) {
+    return (
+        <div className="mb-2 flex items-baseline justify-between gap-2">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{title}</p>
+            <p className="text-xs text-subtle truncate">{sub}</p>
+        </div>
+    );
+}
+
+function Group({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
+    return (
+        <section aria-label={title}>
+            <GroupHead title={title} sub={sub} />
+            <div className="rounded-2xl border border-line bg-surface divide-y divide-line">{children}</div>
         </section>
+    );
+}
+
+function Tile({ href, icon, title, hint }: { href: string; icon: React.ReactNode; title: string; hint: string }) {
+    return (
+        <Link href={href} className="rounded-2xl border border-line bg-surface p-3 flex flex-col items-center gap-1.5 text-center hover:border-line-strong transition-colors">
+            <span className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-muted">{icon}</span>
+            <span className="text-sm font-medium text-ink">{title}</span>
+            <span className="text-[11px] text-muted leading-tight">{hint}</span>
+        </Link>
     );
 }
 

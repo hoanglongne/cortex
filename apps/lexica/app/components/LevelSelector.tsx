@@ -32,6 +32,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
     const elo = useLexicaStore((s) => s.userStats.currentElo);
     const swipes = useLexicaStore((s) => s.userStats.totalSwipes);
     const tested = useLexicaStore((s) => s.recommendedLevel);
+    const testScore = useLexicaStore((s) => (s.placements.length > 0 ? s.userStats.currentElo : s.testScore));
     const version = useContentVersion();
     const branch = useLexicaStore((s) => s.path?.branch ?? 'cert');
 
@@ -52,10 +53,10 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
         <div className="w-full max-w-5xl mx-auto px-4 pt-20 md:pt-24 pb-10 space-y-6">
             <header className="space-y-1">
                 <h1 className="text-3xl md:text-4xl font-semibold text-ink tracking-tight">Chọn độ khó</h1>
-                <p className="text-muted text-sm">Đổi lúc nào cũng được. Trong lúc học, độ khó vẫn tự điều chỉnh theo câu trả lời của bạn.</p>
+                <p className="text-muted text-sm">Đổi lúc nào cũng được. Khi bạn nhớ từ quá dễ hoặc quá khó, trang chủ sẽ gợi ý đổi level.</p>
             </header>
 
-            <EloScale elo={elo} />
+            <EloScale elo={elo} tested={testScore !== null} />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {LEVELS.map((l) => {
@@ -133,17 +134,23 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
     );
 }
 
-/** The ELO scale with the level bands and "Bạn đang ở …". */
-function EloScale({ elo }: { elo: number }) {
+/** The ELO scale with the level bands and the score from the level test (ELO moves only with the test). */
+function EloScale({ elo, tested }: { elo: number; tested: boolean }) {
     const at = scalePosition(elo);
     return (
         <section className="rounded-2xl bg-surface border border-line p-5" aria-label="Thang ELO">
             <div className="flex items-baseline justify-between gap-3">
                 <p className="text-sm text-ink">
-                    Bạn đang ở <span className="font-mono text-accent font-bold">ELO {elo}</span>
+                    {tested ? (
+                        <>
+                            Điểm bài kiểm tra: <span className="font-mono text-accent font-bold">{elo}</span>
+                        </>
+                    ) : (
+                        'Chưa làm bài kiểm tra từ vựng'
+                    )}
                 </p>
                 <Link href="/test" className="flex items-center gap-1.5 text-sm text-muted hover:text-ink">
-                    <RotateCcw className="w-3.5 h-3.5" /> Làm lại bài test
+                    <RotateCcw className="w-3.5 h-3.5" /> {tested ? 'Làm lại bài test' : 'Làm bài test'}
                 </Link>
             </div>
             <div className="relative mt-6">
@@ -152,11 +159,11 @@ function EloScale({ elo }: { elo: number }) {
                         <div key={l.id} className="h-full bg-surface-3" style={{ width: `${(scalePosition(l.eloMax) - scalePosition(l.eloMin)) * 100}%` }} />
                     ))}
                 </div>
-                <span
+                {tested && <span
                     className="absolute -top-1.5 w-1 h-5 rounded-full bg-accent -translate-x-1/2"
                     style={{ left: `${at * 100}%` }}
                     aria-hidden
-                />
+                />}
                 <div className="relative mt-2 h-4 font-mono text-[10px] text-subtle">
                     {LEVELS.map((l) => (
                         <span key={l.id} className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: `${((scalePosition(l.eloMin) + scalePosition(l.eloMax)) / 2) * 100}%` }}>

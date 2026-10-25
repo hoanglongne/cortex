@@ -4,13 +4,16 @@ import { useEffect, useState, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { TrendingUp, BookOpen, Award, RotateCcw, X, TrendingDown, Zap, Check, Brain, ArrowLeft } from 'lucide-react';
+import { BookOpen, Award, RotateCcw, Check, Brain, ArrowLeft } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
 import HomeHeader from './components/HomeHeader';
 import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
+import PaceCard from './components/PaceCard';
+import LevelHintCard from './components/LevelHintCard';
+import RetakeCard from './components/RetakeCard';
 import RecentWords from './components/RecentWords';
 import GuideCard from './components/GuideCard';
 import PledgeCard from './components/PledgeCard';
@@ -19,15 +22,33 @@ import DailyProgress from './components/DailyProgress';
 import OnboardingModal from './components/OnboardingModal';
 // Level selection now handled by route: /level-select
 import { useLexicaStore, initializeLexicaStore } from './store/lexicaStore';
-import { getDifficultyAnalysis, getProgressStats } from './lib/eloAlgorithm';
+import { getProgressStats } from './lib/eloAlgorithm';
 import { useSoundEffects } from './hooks/useSoundEffects';
-import { BRANCH_LABEL, currentDay, PATH_DAYS } from './lib/journey/path';
-import { localDate } from './lib/engagement/ghost';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
 
+/** Home's "four numbers" with a heading, so a new learner knows what they count. */
+function WordSteps() {
+  return (
+    <section aria-label="Từ của bạn đi tới đâu" className="w-full">
+      <div className="mb-2 flex items-baseline justify-between gap-2 px-1">
+        <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Từ của bạn đi tới đâu</p>
+        <Link href="/guide" className="text-xs text-subtle hover:text-ink">Bốn bước là gì?</Link>
+      </div>
+      <StepNumbers />
+    </section>
+  );
+}
+
+function greetingFor(hour: number): string {
+  if (hour < 11) return 'Chào buổi sáng';
+  if (hour < 14) return 'Chào buổi trưa';
+  if (hour < 18) return 'Chào buổi chiều';
+  return 'Chào buổi tối';
+}
+
 function HomeContent() {
-  const userStats = useLexicaStore(state => state.userStats);
+  const [greeting] = useState(() => greetingFor(new Date().getHours()));
   const cardProgress = useLexicaStore(state => state.cardProgress);
   const learnedCount = useLexicaStore(state => state.learnedWords.size);
   const selectedLevel = useLexicaStore(state => state.selectedLevel);
@@ -38,7 +59,6 @@ function HomeContent() {
   const dailyGoal = useLexicaStore(state => state.dailyGoal);
   const dailyProgress = useLexicaStore(state => state.dailyProgress);
   const path = useLexicaStore(state => state.path);
-  const daysDone = useLexicaStore(state => state.daysDone);
 
   const setSelectedLevel = useLexicaStore(state => state.setSelectedLevel);
 
@@ -71,9 +91,6 @@ function HomeContent() {
   const hasShownGoalCelebration = useRef<boolean>(false);
   const hasShownOverlearningReminder = useRef<boolean>(false);
 
-  // Difficulty status notification state
-  const [showDifficultyStatus, setShowDifficultyStatus] = useState(false);
-  const previousStatusRef = useRef<string | null>(null);
 
   // Initialize store on mount
   useEffect(() => {
@@ -129,11 +146,8 @@ function HomeContent() {
     }
   }, [hasSeenOnboarding, selectedLevel, isInTest, testScore, hasSeenWelcome, router, forceCortexReminder, path]);
 
-  // Debug: Get difficulty analysis
-  const analysis = getDifficultyAnalysis(userStats);
   const progressStats = getProgressStats(cardProgress);
   const dueToday = progressStats.dueToday;
-  const pathDay = path ? currentDay(path, daysDone, localDate()) : null;
 
   // Update badge count when progress changes
   useEffect(() => {
@@ -177,74 +191,8 @@ function HomeContent() {
     }
   }, [learnedCount, forceCortexReminder]);
 
-  // Get status icon and color
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'very-hard':
-      case 'challenging':
-        return {
-          icon: TrendingDown,
-          color: 'text-ink-2',
-          bgColor: 'bg-surface-2/50',
-          borderColor: 'border-line-strong',
-        };
-      case 'too-easy':
-      case 'easy':
-        return {
-          icon: TrendingUp,
-          color: 'text-accent',
-          bgColor: 'bg-accent/10',
-          borderColor: 'border-accent/30',
-        };
-      case 'perfect':
-        return {
-          icon: Zap,
-          color: 'text-accent',
-          bgColor: 'bg-accent/10',
-          borderColor: 'border-accent/30',
-        };
-      default:
-        return {
-          icon: Check,
-          color: 'text-muted',
-          bgColor: 'bg-surface-2/50',
-          borderColor: 'border-line-strong',
-        };
-    }
-  };
 
-  const statusDisplay = getStatusDisplay(analysis.status);
 
-  // Track status changes and show notification
-  useEffect(() => {
-    const previousStatus = previousStatusRef.current;
-
-    // Only show if status actually changed (not initial load)
-    if (previousStatus !== null && previousStatus !== analysis.status) {
-      // Schedule state update for next tick to avoid cascading renders
-      const showTimer = setTimeout(() => {
-        setShowDifficultyStatus(true);
-      }, 0);
-
-      // Auto-hide after 5 seconds
-      const hideTimer = setTimeout(() => {
-        setShowDifficultyStatus(false);
-      }, 5000);
-
-      // Update ref for next comparison
-      previousStatusRef.current = analysis.status;
-
-      return () => {
-        clearTimeout(showTimer);
-        clearTimeout(hideTimer);
-      };
-    }
-
-    // Set initial value
-    if (previousStatus === null) {
-      previousStatusRef.current = analysis.status;
-    }
-  }, [analysis.status]);
 
   // Track goal completion and show celebration
   useEffect(() => {
@@ -540,7 +488,7 @@ function HomeContent() {
       </button>
 
       {/* Main: learning first (Today, the four numbers, Luyện thêm); the game layer after it on mobile, in a narrow right column on desktop */}
-      <main className={`flex-1 flex flex-col items-center gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-24 max-w-6xl xl:max-w-7xl mx-auto w-full lg:grid lg:items-start lg:content-start lg:gap-8 lg:px-8 lg:pt-8 lg:pb-8 lg:overflow-y-auto ${sessionStarted ? 'justify-center overflow-hidden lg:grid-cols-1' : 'overflow-y-auto lg:grid-cols-[1fr_280px]'}`}>
+      <main className={`flex-1 flex flex-col items-center gap-4 px-3 sm:px-4 pt-3 sm:pt-4 pb-24 max-w-6xl xl:max-w-7xl mx-auto w-full lg:grid lg:items-start lg:content-start lg:gap-8 lg:px-8 lg:pt-8 lg:pb-8 lg:overflow-y-auto ${sessionStarted ? 'justify-center overflow-hidden lg:grid-cols-1' : 'overflow-y-auto lg:grid-cols-[minmax(0,1fr)_340px] lg:max-w-6xl'}`}>
 
         {sessionStarted ? (
           <div className="w-full flex flex-col items-center">
@@ -558,17 +506,22 @@ function HomeContent() {
           </div>
         ) : (
           <div className="w-full max-w-xl mx-auto flex flex-col gap-4 lg:max-w-none">
-            {/* Mobile: where the learner is on the path */}
-            <div className="lg:hidden flex items-center justify-between text-xs text-muted px-1">
-              <span className="font-semibold text-ink text-base">LEXICA</span>
-              <span className="font-mono">{pathDay ? `Ngày ${pathDay}/${PATH_DAYS}` : ''}{path ? ` · ${BRANCH_LABEL[path.branch]}` : ''}</span>
+            {/* Mobile: a greeting; the day and streak live in "Nhịp học" */}
+            <div className="lg:hidden flex items-center justify-between px-1">
+              <span className="font-semibold text-ink text-base tracking-wide">LEXICA</span>
+              <span className="text-sm text-muted">{greeting}</span>
             </div>
             <ErrorBoundary>
               <TodayCard />
             </ErrorBoundary>
+            <LevelHintCard />
+            <RetakeCard />
             <GuideCard />
             <PledgeCard />
-            <StepNumbers />
+            <div className="lg:hidden flex flex-col gap-4">
+              <PaceCard />
+              <WordSteps />
+            </div>
             <RecentWords />
             <div className="lg:hidden">
               <Motivation variant="strip" />
@@ -576,43 +529,16 @@ function HomeContent() {
           </div>
         )}
 
-        {/* Difficulty Status Notification - Fixed to avoid layout shift */}
-        <AnimatePresence>
-          {showDifficultyStatus && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed bottom-24 left-1/2 -translate-x-1/2 w-full max-w-md px-4 z-40"
-            >
-              <div className={`flex items-start gap-3 p-4 rounded-xl border-2 ${statusDisplay.bgColor} ${statusDisplay.borderColor} shadow-lg backdrop-blur-sm`}>
-                <statusDisplay.icon className={`w-6 h-6 ${statusDisplay.color} shrink-0 mt-0.5`} />
-                <div className="flex-1">
-                  <p className={`text-base font-bold ${statusDisplay.color}`}>
-                    {analysis.message.split(' - ')[0]}
-                  </p>
-                  <p className="text-sm text-ink-2 mt-1">
-                    {analysis.message.split(' - ')[1]}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    click();
-                    setShowDifficultyStatus(false);
-                  }}
-                  className="p-1 hover:bg-surface-2/50 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-muted" />
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
 
         {/* Desktop: the game layer, narrow and quiet */}
-        {!sessionStarted && <Motivation variant="column" />}
+        {!sessionStarted && (
+          <div className="hidden lg:flex flex-col gap-4 self-start">
+            <PaceCard />
+            <WordSteps />
+            <Motivation variant="column" />
+          </div>
+        )}
       </main>
 
 

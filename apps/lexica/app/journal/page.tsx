@@ -58,45 +58,51 @@ export default function JournalPage() {
     };
 
     return (
-        <div className="min-h-screen bg-bg px-4 py-8">
-            <div className="max-w-2xl mx-auto space-y-4">
-                <div className="flex items-center justify-between">
-                    <Link href="/" className="text-muted hover:text-accent text-sm">
-                        ← Học
+        <div className="min-h-screen bg-bg px-4 py-6">
+            <div className="max-w-2xl mx-auto space-y-5">
+                <header className="flex items-center justify-between">
+                    <Link href="/practice" className="text-muted hover:text-accent text-sm">
+                        ← Luyện
                     </Link>
-                    <p className="text-ink font-bold">Một câu hôm nay</p>
-                    <span className="w-10" />
-                </div>
+                    <h1 className="text-ink font-bold">Một câu hôm nay</h1>
+                    <span className="w-12 text-right text-xs text-muted">{saved.length > 0 ? `${saved.length} câu` : ''}</span>
+                </header>
+
                 {words.length === 0 ? (
-                    <p className="text-sm text-muted">Học vài từ trước đã, rồi quay lại viết về ngày của bạn bằng chúng.</p>
+                    <section className="rounded-3xl border border-dashed border-line-strong p-8 text-center">
+                        <PenLine className="mx-auto w-8 h-8 text-accent" />
+                        <p className="mt-3 font-semibold text-ink">Học vài từ trước đã</p>
+                        <p className="mt-1 text-sm text-muted">Rồi quay lại viết về ngày của bạn bằng chúng.</p>
+                    </section>
                 ) : (
-                    <section className="rounded-2xl border border-line bg-surface p-4 space-y-3">
-                        <p className="flex items-center gap-2 font-semibold text-ink">
-                            <PenLine className="w-4 h-4 text-accent" /> Viết về ngày của bạn
-                        </p>
-                        <p className="text-sm text-muted">Trả lời câu hỏi bên dưới bằng một câu thật, có một từ bạn đang học. Câu về chính mình nhớ lâu hơn mọi câu mẫu.</p>
-                        <div className="flex flex-wrap gap-1.5" role="list" aria-label="Chọn từ">
-                            {words.map((id) => (
-                                <button
-                                    key={id}
-                                    onClick={() => setPicked(id)}
-                                    className={`h-9 px-3 rounded-full border text-sm lowercase ${id === current ? 'border-accent bg-accent/10 text-ink' : 'border-line text-ink-2 hover:border-line-strong'}`}
-                                >
-                                    {saved.includes(id) && <Check className="inline w-3.5 h-3.5 mr-1 text-accent" />}
-                                    {getCard(id)?.word}
-                                </button>
-                            ))}
+                    <>
+                        {/* 1. The word: one row, scrolls sideways on a phone */}
+                        <div>
+                            <p className="px-1 mb-2 font-mono text-[11px] uppercase tracking-wider text-subtle">Viết với từ</p>
+                            <div className="-mx-4 px-4 flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none]" role="list" aria-label="Chọn từ">
+                                {words.map((id) => (
+                                    <button
+                                        key={id}
+                                        onClick={() => setPicked(id)}
+                                        aria-pressed={id === current}
+                                        className={`h-9 px-3.5 shrink-0 rounded-full border text-sm lowercase flex items-center gap-1 ${id === current ? 'border-accent bg-accent text-on-accent font-semibold' : 'border-line bg-surface text-ink-2 hover:border-line-strong'}`}
+                                    >
+                                        {saved.includes(id) && <Check className="w-3.5 h-3.5" />}
+                                        {getCard(id)?.word}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
+
                         {card && (
-                            <div key={card.id} className="space-y-2">
-                                <p className="text-sm text-ink-2">
-                                    <b className="text-ink lowercase">{card.word}</b> · {card.translationHint}
-                                </p>
+                            <section key={card.id} className="rounded-3xl border border-line bg-surface overflow-hidden">
+                                {/* 2. The question, large; its settings quiet underneath */}
                                 {prompt && (
-                                    <div data-testid="journal-prompt" className="rounded-xl border border-line bg-bg p-3 space-y-2.5">
-                                        <p className="text-ink font-medium leading-snug">{prompt.text}</p>
-                                        <div className="flex flex-wrap items-center gap-1.5">
-                                            <div className="flex rounded-full border border-line p-0.5" role="group" aria-label="Độ sâu câu hỏi">
+                                    <div data-testid="journal-prompt" className="bg-gradient-to-b from-accent/10 to-transparent p-5 pb-4">
+                                        <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Câu hỏi cho bạn</p>
+                                        <p className="mt-2 text-xl font-semibold text-ink leading-snug">{prompt.text}</p>
+                                        <div className="mt-4 flex items-center gap-2">
+                                            <div className="flex rounded-full bg-bg/60 border border-line p-0.5" role="group" aria-label="Độ sâu câu hỏi">
                                                 {([1, 2, 3] as const).map((d) => (
                                                     <button
                                                         key={d}
@@ -105,7 +111,7 @@ export default function JournalPage() {
                                                             setDepth(d);
                                                             setRoll(null);
                                                         }}
-                                                        className={`h-7 px-3 rounded-full text-xs ${depth === d ? 'bg-accent/15 text-accent font-semibold' : 'text-muted hover:text-ink'}`}
+                                                        className={`h-7 px-3 rounded-full text-xs ${depth === d ? 'bg-surface text-ink font-semibold shadow-sm' : 'text-muted hover:text-ink'}`}
                                                     >
                                                         {DEPTH_LABEL[d]}
                                                     </button>
@@ -118,37 +124,60 @@ export default function JournalPage() {
                                                     setRoll(null);
                                                 }}
                                                 aria-label="Chủ đề câu hỏi"
-                                                className="h-8 rounded-full border border-line bg-surface px-2 text-xs text-ink-2"
+                                                className="h-8 min-w-0 max-w-[9rem] rounded-full border border-line bg-bg/60 px-2.5 text-xs text-ink-2 truncate"
                                             >
-                                                <option value="">Chủ đề theo từ</option>
+                                                <option value="">Chủ đề của từ</option>
                                                 {TOPICS.map((t) => (
                                                     <option key={t.id} value={t.id}>
                                                         {t.label}
                                                     </option>
                                                 ))}
                                             </select>
-                                            <button onClick={another} className="ml-auto h-8 px-3 inline-flex items-center gap-1.5 rounded-full text-xs font-medium text-accent hover:bg-accent/10">
-                                                <Shuffle className="w-3.5 h-3.5" /> Đổi câu
+                                            <button onClick={another} aria-label="Đổi câu hỏi" title="Đổi câu hỏi" className="ml-auto w-9 h-9 shrink-0 rounded-full border border-line bg-bg/60 flex items-center justify-center text-accent hover:border-accent/60">
+                                                <Shuffle className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </div>
                                 )}
-                                {mySentences[card.id] && <p className="text-xs text-muted">Câu cũ của bạn: “{mySentences[card.id].text}”. Lưu câu mới sẽ thay nó.</p>}
-                                <SentenceBox
-                                    word={card.word.toLowerCase()}
-                                    meaning={card.translationHint}
-                                    placeholder={`Hôm nay mình… (dùng “${card.word.toLowerCase()}”)`}
-                                    saveLabel="Lưu làm câu của bạn"
-                                    onSave={(sentence) => {
-                                        setMySentence(card.id, sentence, 'written');
-                                        setSaved((s) => [...s, card.id]);
-                                        setPicked(null);
-                                    }}
-                                />
-                            </div>
+
+                                {/* 3. The answer */}
+                                <div className="p-5 pt-3 space-y-3 border-t border-line">
+                                    <p className="text-sm text-ink-2">
+                                        Dùng <b className="text-accent lowercase">{card.word}</b> <span className="text-muted">· {card.translationHint}</span>
+                                    </p>
+                                    {mySentences[card.id] && <p className="rounded-lg bg-bg px-3 py-2 text-xs text-muted">Câu cũ: “{mySentences[card.id].text}”. Lưu câu mới sẽ thay nó.</p>}
+                                    <SentenceBox
+                                        word={card.word.toLowerCase()}
+                                        meaning={card.translationHint}
+                                        placeholder={`Hôm nay mình… (dùng “${card.word.toLowerCase()}”)`}
+                                        saveLabel="Lưu làm câu của bạn"
+                                        onSave={(sentence) => {
+                                            setMySentence(card.id, sentence, 'written');
+                                            setSaved((s) => [...s, card.id]);
+                                            setPicked(null);
+                                        }}
+                                    />
+                                </div>
+                            </section>
                         )}
-                        {saved.length > 0 && <p className="text-sm text-accent">Đã lưu {saved.length} câu. Khi ôn, thẻ sẽ hiện câu của bạn.</p>}
-                    </section>
+
+                        {/* What was written this visit, as the learner will meet it again on the cards */}
+                        {saved.length > 0 && (
+                            <section className="space-y-2">
+                                <p className="px-1 font-mono text-[11px] uppercase tracking-wider text-subtle">Câu bạn vừa viết · sẽ hiện khi ôn</p>
+                                {saved.map((id) =>
+                                    mySentences[id] ? (
+                                        <figure key={id} className="rounded-2xl border border-accent/30 bg-accent/5 px-4 py-3">
+                                            <blockquote className="text-ink">“{mySentences[id].text}”</blockquote>
+                                            <figcaption className="mt-1 text-xs text-muted lowercase">{getCard(id)?.word}</figcaption>
+                                        </figure>
+                                    ) : null,
+                                )}
+                            </section>
+                        )}
+
+                        {!card && saved.length > 0 && <p className="text-center text-sm text-muted">Hết từ cho hôm nay. Mai quay lại nhé.</p>}
+                    </>
                 )}
             </div>
         </div>
