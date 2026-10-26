@@ -104,6 +104,7 @@ Lớp cần thêm **ngày kết thúc khoá** (cài đặt lớp, không bắt b
 - **Khác so với bảng trên:**
   - **Sắp quên:** chỉ tính `overdue`, vì `atRisk` đã nằm trong đó. "Giao ôn lại" chỉ hiện khi em có từ của bài lớp trong `atRisk`, vì máy chủ chỉ giữ những từ đó. Nếu trong 7 ngày đã giao bài ôn riêng cho em thì không hiện lại nút, chỉ ghi "Đã giao bài … ngày …".
   - **Nhớ kém và Tiến nhanh:** "Giảm số từ mới" và "Gợi ý lên level" là lời khuyên trong "Vì sao?". Teach chưa đổi được cài đặt Lexica của em.
+  - **Mỗi dự báo cần giáo viên đều có ít nhất một nút** (26/10): "Nhớ kém" luôn có "Nhắn em" (lời khuyên viết cho em), kể cả khi em không có từ của bài lớp để giao ôn lại; "Cuối khoá dưới mục tiêu" có "Nhắn em" (khoảng điểm và mục tiêu) và "Giao ôn lại" khi có từ của bài lớp. Dự báo "Cuối khoá" khác (chắc đạt, có thể) chỉ để đọc.
   - **Khen em:** chép tin nhắn, chưa có thẻ khen gửi về Lexica.
   - **Điểm cuối khoá:**
     - khoảng điểm = độ lệch của lần thi cuối (tối thiểu 25) cộng 8 điểm cho mỗi tuần còn lại;

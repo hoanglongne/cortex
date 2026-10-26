@@ -114,7 +114,14 @@ describe('nhớ kém, tiến nhanh', () => {
     it('flags under 60% right recalls with advice', () => {
         const f = studentForecast(student({ review: review({ recall14: [25, 48], atRisk: ['v9'] }) }), noCourse, TODAY).forecasts.find((x) => x.kind === 'weak_recall')!;
         expect(f.title).toBe('Nhớ kém: 52% lượt ôn đúng');
-        expect(f.actions.map((a) => a.kind)).toEqual(['advice', 'assign_review']);
+        expect(f.actions.map((a) => a.kind)).toEqual(['assign_review', 'message', 'advice']);
+    });
+
+    it('always gives something to send for weak recall, even without class words at risk', () => {
+        const f = studentForecast(student({ review: review({ recall14: [25, 48] }) }), noCourse, TODAY).forecasts.find((x) => x.kind === 'weak_recall')!;
+        expect(f.actions.map((a) => a.kind)).toEqual(['message', 'advice']);
+        expect(f.actions[0]).toMatchObject({ kind: 'message' });
+        expect((f.actions[0] as { text: string }).text).toContain('52%');
     });
 
     it('praises 90%+ with regular study and a rising score', () => {
@@ -177,6 +184,19 @@ describe('điểm cuối khoá', () => {
 
     it('says no forecast once the course is over', () => {
         expect(scoreForecast(student({ scores: rising }), { endsOn: '2026-10-01', targetScore: null }, TODAY)).toEqual({ forecast: null, notYet: null });
+    });
+
+    it('below the target: a message with the range and the target, and a review when class words are at risk', () => {
+        const flat = [
+            { score: 900, sd: 30, at: `${ago(40)}T10:00:00Z` },
+            { score: 910, sd: 30, at: `${ago(5)}T10:00:00Z` },
+        ];
+        const f = scoreForecast(student({ scores: flat, review: review({ atRisk: ['v3'] }) }), { endsOn: '2026-12-06', targetScore: 1200 }, TODAY).forecast!;
+        expect(f.score!.target).toBe('no');
+        expect(f.actions.map((a) => a.kind)).toEqual(['assign_review', 'message', 'advice']);
+        expect((f.actions[1] as { text: string }).text).toContain('mục tiêu của lớp là 1200');
+        const onTrack = scoreForecast(student({ scores: flat }), { endsOn: '2026-12-06', targetScore: 800 }, TODAY).forecast!;
+        expect(onTrack.actions).toEqual([]);
     });
 });
 

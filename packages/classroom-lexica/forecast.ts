@@ -186,10 +186,14 @@ function recall(s: StudentInput, today: string): { forecast: Forecast | null; no
     const rate = right / total;
     const base = `14 ngày qua em ôn ${total} lượt, nhớ đúng ${right} (${pct(rate)}).`;
     if (rate < T.weak) {
-        const actions: ForecastAction[] = [
-            { kind: 'advice', text: 'Gợi ý em giảm số từ mới mỗi ngày trong Lexica (mục tiêu mỗi ngày), để kịp ôn từ cũ.' },
-        ];
+        const actions: ForecastAction[] = [];
         if (r.atRisk.length) actions.push({ kind: 'assign_review', cardIds: r.atRisk });
+        // Something to send even without class words at risk: the advice, in words for the student
+        actions.push({
+            kind: 'message',
+            text: `Chào ${s.name}! Hai tuần nay em nhớ đúng ${pct(rate)} số lần ôn. Em thử giảm số từ mới mỗi ngày trong Lexica (mục tiêu mỗi ngày) để có thời gian ôn từ cũ nhé, nhớ chắc vài từ còn hơn học nhiều mà quên.`,
+        });
+        actions.push({ kind: 'advice', text: 'Gợi ý em giảm số từ mới mỗi ngày trong Lexica (mục tiêu mỗi ngày), để kịp ôn từ cũ.' });
         return {
             forecast: { kind: 'weak_recall', urgency: 'watch', title: `Nhớ kém: ${pct(rate)} lượt ôn đúng`, why: [base, `Mức nên có: từ ${pct(T.weak)} trở lên.`], actions },
             notYet: null,
@@ -284,7 +288,17 @@ export function scoreForecast(s: StudentInput, course: CourseInput, today: strin
             urgency: target === 'no' ? 'watch' : 'info',
             title: `Cuối khoá: ${low}–${high} · IELTS từ vựng khoảng ${ielts}`,
             why,
-            actions: target === 'no' ? [{ kind: 'advice', text: 'Giao thêm bài ôn và nhắc em học đều hơn để kịp mục tiêu.' }] : [],
+            actions:
+                target === 'no'
+                    ? [
+                          ...(s.review?.atRisk.length ? [{ kind: 'assign_review' as const, cardIds: s.review.atRisk }] : []),
+                          {
+                              kind: 'message' as const,
+                              text: `Chào ${s.name}! Theo nhịp hiện tại, cuối khoá em ở khoảng ${low}–${high} điểm từ vựng, mục tiêu của lớp là ${course.targetScore}. Mỗi ngày em học đều phiên "Hôm nay" trong Lexica là kịp nhé.`,
+                          },
+                          { kind: 'advice' as const, text: 'Giao thêm bài ôn và nhắc em học đều hơn để kịp mục tiêu.' },
+                      ]
+                    : [],
             score: { low, high, ielts, target, perWeek: Math.round(perWeek) },
         },
         notYet: null,

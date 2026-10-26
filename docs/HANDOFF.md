@@ -97,6 +97,7 @@ Cập nhật 25/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
     - `app/lib/forecasts.ts`, `useForecasts.ts`, `components/Forecast.tsx`, `components/class/ClassAhead.tsx`;
     - trang Hôm nay, trang một em ("Sắp tới"), tổng quan lớp ("Cả lớp sắp tới"), cài đặt lớp, trang trung tâm.
   - **Người dùng cần chạy lại trên Supabase, theo thứ tự:** `packages/classroom/sql/classroom_core.sql`, `packages/classroom-lexica/sql/classroom_lexica.sql`, `apps/lexica/supabase/migration_placement.sql`.
+  - **Đã soát lại (26/10):** chụp Playwright trang Hôm nay, trang một em, tổng quan lớp; thêm nút "Nhắn em" cho "Nhớ kém" và "Cuối khoá dưới mục tiêu" để dự báo nào cần giáo viên cũng có hành động.
   - **Còn để sau:** "Khen em" chỉ chép tin nhắn, chưa gửi thẻ khen về Lexica; kiểm chứng lùi ngưỡng khi có dữ liệu thật (TEACH_PLAN 2.3).
 - **Việc tiếp theo: T4 phụ huynh** (TEACH_PLAN mục 3).
 - **Sau W4:**
