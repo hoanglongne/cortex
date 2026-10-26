@@ -139,7 +139,7 @@ export const oratioUI: ModuleUI = {
         if (!app) return <p className="text-sm text-muted">Em chưa mở Oratio. Gửi em link lớp để vào bằng Oratio nhé.</p>;
         const g = weekGain(app);
         return (
-            <div className="space-y-5">
+            <div className="space-y-8">
                 <p className="text-sm text-ink-2">
                     <b className="tabular text-ink">{m.sessions}</b> buổi · <b className="tabular text-ink">{m.minutes}</b> phút nói (tuần này {g.sessions} buổi, {g.minutes} phút)
                     {m.current_band != null && ` · em tự đặt band ${fmtBand(m.current_band)}${m.target_band ? `, mục tiêu ${fmtBand(m.target_band)}` : ''}`}

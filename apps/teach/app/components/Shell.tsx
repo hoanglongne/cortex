@@ -37,23 +37,23 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="min-h-screen bg-bg lg:flex">
-            <aside className="hidden w-60 shrink-0 border-r border-line bg-surface-2/50 lg:flex lg:flex-col">
-                <Link href="/" className="px-6 pb-4 pt-6">
-                    <p className="text-[15px] font-semibold text-ink">Cortex cho lớp</p>
-                    <p className="text-xs text-muted">{me!.orgs[0]?.name ?? (me!.admin ? 'Quản trị Lexica' : 'Giáo viên độc lập')}</p>
+            <aside className="sticky top-0 hidden h-screen w-64 shrink-0 lg:flex lg:flex-col">
+                <Link href="/" className="px-8 pb-8 pt-10">
+                    <p className="font-serif text-xl font-semibold text-ink">Cortex cho lớp</p>
+                    <p className="mt-0.5 text-[13px] text-muted">{me!.orgs[0]?.name ?? (me!.admin ? 'Quản trị Lexica' : 'Giáo viên độc lập')}</p>
                 </Link>
-                <nav className="flex-1 space-y-1 px-3" aria-label="Điều hướng">
+                <nav className="flex-1 space-y-1.5 px-5" aria-label="Điều hướng">
                     {nav.map(({ href, label, icon: Icon }) => (
                         <Link
                             key={href}
                             href={href}
-                            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] transition-colors ${active(href) ? 'bg-accent-soft font-semibold text-accent-strong' : 'text-ink-2 hover:bg-surface'}`}
+                            className={`flex h-11 items-center gap-3 rounded-[10px] px-3.5 text-[15px] transition-colors ${active(href) ? 'bg-surface font-semibold text-ink shadow-[var(--shadow-card)]' : 'text-ink-2 hover:bg-surface/60'}`}
                         >
-                            <Icon className="h-[18px] w-[18px]" /> {label}
+                            <Icon className={`h-[18px] w-[18px] ${active(href) ? 'text-accent' : 'text-muted'}`} /> {label}
                         </Link>
                     ))}
                 </nav>
-                <div className="border-t border-line px-6 py-4">
+                <div className="space-y-1 px-8 py-8">
                     <p className="truncate text-xs text-muted" title={me!.email ?? ''}>
                         {me!.email}
                     </p>
@@ -64,15 +64,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     <ThemeToggle />
                 </div>
             </aside>
-            <div className="sticky top-0 z-30 flex gap-1 overflow-x-auto border-b border-line bg-bg/95 px-3 py-2 backdrop-blur lg:hidden">
+            <div className="sticky top-0 z-30 flex gap-1.5 overflow-x-auto bg-bg/95 px-4 py-3 backdrop-blur lg:hidden">
                 {nav.map(({ href, label }) => (
-                    <Link key={href} href={href} className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm ${active(href) ? 'bg-accent-soft font-semibold text-accent-strong' : 'text-ink-2'}`}>
+                    <Link key={href} href={href} className={`flex h-10 shrink-0 items-center whitespace-nowrap rounded-[10px] px-3.5 text-[15px] ${active(href) ? 'bg-surface font-semibold text-ink shadow-[var(--shadow-card)]' : 'text-ink-2'}`}>
                         {label}
                     </Link>
                 ))}
             </div>
-            <main className="min-w-0 flex-1 px-4 py-6 sm:px-8 lg:py-10">
-                <div className="mx-auto max-w-5xl">{children}</div>
+            <main className="min-w-0 flex-1 px-5 pb-16 pt-6 sm:px-10 lg:px-14 lg:pt-12">
+                <div className="mx-auto max-w-6xl">{children}</div>
             </main>
         </div>
     );
@@ -81,8 +81,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 function NoAccess({ email, onSignOut }: { email: string; onSignOut: () => void }) {
     return (
         <div className="flex min-h-screen items-center justify-center bg-bg px-4">
-            <div className="max-w-md rounded-[var(--radius-card)] border border-line bg-surface p-8 text-center shadow-[var(--shadow-card)]">
-                <p className="text-lg font-semibold text-ink">Trang này dành cho giáo viên và trung tâm</p>
+            <div className="max-w-md rounded-[var(--radius-card)] bg-surface p-8 text-center shadow-[var(--shadow-card)]">
+                <p className="font-serif text-2xl font-semibold text-ink">Trang này dành cho giáo viên và trung tâm</p>
                 <p className="mt-2 text-sm text-muted">
                     Tài khoản <b className="text-ink-2">{email}</b> chưa có lời mời. Nếu trung tâm của bạn dùng Lexica, nhờ quản lý gửi link mời; nếu muốn đưa Lexica vào lớp của mình, hãy liên hệ đội Lexica.
                 </p>

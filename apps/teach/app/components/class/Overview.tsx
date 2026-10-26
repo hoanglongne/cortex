@@ -20,8 +20,8 @@ export default function Overview({ board, onGo, onChanged }: { board: Board; onG
     const many = board.class.apps.length > 1;
 
     return (
-        <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-            <div className="space-y-5">
+        <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+            <div className="space-y-8">
             <Card>
                 <CardTitle aside={<Button kind="ghost" size="sm" onClick={() => onGo('assignments')}>Tất cả bài</Button>}>Bài đang giao</CardTitle>
                 {lessons.length === 0 ? (
@@ -29,7 +29,7 @@ export default function Overview({ board, onGo, onChanged }: { board: Board; onG
                         Bài giao đi thẳng vào phiên học của học viên trong ứng dụng.
                     </Empty>
                 ) : (
-                    <ul className="space-y-4">
+                    <ul className="space-y-6">
                         {lessons.map((a) => {
                             const m = moduleFor(a.app);
                             if (!m) return null;
@@ -52,7 +52,7 @@ export default function Overview({ board, onGo, onChanged }: { board: Board; onG
             </Card>
             <ClassAhead board={board} />
             </div>
-            <div className="space-y-5">
+            <div className="space-y-8">
                 <Card>
                     <CardTitle>Nhịp học 7 ngày</CardTitle>
                     <div className="flex h-24 items-end gap-2" role="img" aria-label="Số em học mỗi ngày trong 7 ngày qua">

@@ -26,7 +26,7 @@ export default function Assignments({ board, onChanged, startOpen }: { board: Bo
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div className="flex justify-end">
                 <Button onClick={open} disabled={mods.length === 0}>
                     <Plus className="h-4 w-4" /> Giao bài mới

@@ -53,7 +53,7 @@ export default function AdminPage() {
             {!data ? (
                 <div className="h-48 animate-pulse rounded-[var(--radius-card)] bg-surface-2" />
             ) : (
-                <div className="space-y-5">
+                <div className="space-y-8">
                     <Card flush>
                         <div className="px-5 pt-5">
                             <CardTitle>Trung tâm</CardTitle>
@@ -70,7 +70,7 @@ export default function AdminPage() {
                             </ul>
                         )}
                     </Card>
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid gap-8 md:grid-cols-2">
                         <Card>
                             <CardTitle>Giáo viên độc lập</CardTitle>
                             {data.indie.length === 0 ? (
@@ -188,7 +188,7 @@ function CreateOrg({ open, onClose, onCreated }: { open: boolean; onClose: () =>
     const [error, setError] = useState('');
     return (
         <Drawer open={open} title="Tạo trung tâm" onClose={onClose}>
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <Field label="Tên trung tâm">
                     <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} className={inputClass} autoFocus />
                 </Field>

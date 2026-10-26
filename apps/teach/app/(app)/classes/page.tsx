@@ -121,7 +121,7 @@ function CreateClass({ open, onClose, onCreated }: { open: boolean; onClose: () 
 
     return (
         <Drawer open={open} title="Tạo lớp" onClose={onClose}>
-            <div className="space-y-5">
+            <div className="space-y-8">
                 <Field label="Tên lớp" hint="Học viên sẽ thấy tên này, ví dụ “IELTS tối 2-4-6”.">
                     <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} className={inputClass} autoFocus />
                 </Field>

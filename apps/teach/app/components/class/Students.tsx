@@ -23,7 +23,7 @@ export default function Students({ board, onChanged, welcome, filter }: { board:
     const count = (st: StudentState) => rows.filter((r) => r.state === st).length;
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-8">
             {(welcome || board.students.length === 0) && <InviteStudents board={board} onChanged={onChanged} highlight={welcome} />}
             {board.students.length === 0 ? (
                 <Empty title="Chưa có học viên">Khi học viên mở link mời và đăng nhập, các em sẽ hiện ở đây kèm tiến độ.</Empty>

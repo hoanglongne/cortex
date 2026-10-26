@@ -46,6 +46,13 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - phải dùng được trên điện thoại 390px và ở chế độ tối;
   - copy tiếng Việt giọng mềm; khen tiến bộ, không khen điểm.
   - **Người dùng không thích giao diện "lố"** (gradient, icon to, câu sến). Giữ phong cách gọn kiểu trang Luyện và Tôi của Lexica, thêm điểm nhấn màu vừa phải.
+  - **Teach có hệ thiết kế riêng** (đã duyệt 26/10, canvas "Teach: thiết kế lại"):
+    - nền kem, thẻ trắng bo 16 bóng rất nhẹ, không tô nền màu;
+    - tiêu đề và con số chính dùng chữ có chân Lora (`font-serif`), nội dung Be Vietnam Pro 16;
+    - một màu nhấn xanh lá (nút chính, liên kết, "ổn"), cam đất chỉ cho "cần làm ngay";
+    - khoảng cách rộng: giữa các phần 48, trong thẻ 24–28;
+    - mỗi dòng việc có tối đa một nút chính, "Vì sao?" là liên kết, ô tròn ở đầu dòng để đánh dấu "đã xử lý";
+    - dùng các thành phần chung trong `apps/teach/app/components/ui.tsx`: `Card`, `SectionTitle`, `Label`, `Stat`, `CopyChip` (có `primary`), `DoneButton`.
 - **Kiểm tra giao diện bằng ảnh chụp Playwright:**
   - Chromium có sẵn ở `/opt/pw-browsers/chromium`. Không chạy `playwright install`; cài `playwright-core` trong thư mục tạm.
   - Lexica: đặt sẵn `localStorage['lexica-storage']` (state giả).
@@ -54,7 +61,7 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
 - **Riêng tư lớp học:** số liệu gửi cho lớp chỉ là con số, không gửi nội dung học viên tạo ra.
 - Chạy nhiều agent hoặc workflow song song phải **hỏi người dùng trước**.
 
-## 3. Đã xong (đến PR #53, đã merge vào `main`)
+## 3. Đã xong (đến PR #54, đã merge vào `main`; T1, W4, T4 nằm trong PR #54)
 - **Lexica:**
   - **Hôm nay:** 4 chặng dạng đường đi, thẻ Nhịp học (chuỗi ngày, 7 ngày, lộ trình 30 ngày).
   - **Luyện:** gom nhóm Giữ từ, Dùng từ (Đọc · Nói · Viết), Thêm từ, Ngoài đời.

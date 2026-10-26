@@ -65,7 +65,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ onSubmit, onCancel }) => {
     const num = (v: string, max: number) => Math.min(max, Math.max(0, Math.round(Number(v) || 0)));
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-8">
             <div role="radiogroup" aria-label="Loại bài" className="grid grid-cols-3 gap-2">
                 {KINDS.map((k) => (
                     <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} onClick={() => setKind(k.id)} className={`h-11 rounded-xl border text-sm ${kind === k.id ? 'border-accent bg-accent-soft font-semibold text-accent-strong' : 'border-line-strong bg-surface text-ink-2'}`}>

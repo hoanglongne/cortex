@@ -67,8 +67,8 @@ function Center({ orgId }: { orgId: string }) {
                 }
             />
             <ErrorNote error={error} />
-            <div className="grid gap-5 lg:grid-cols-[1fr_1.4fr]">
-                <div className="space-y-5">
+            <div className="grid gap-8 lg:grid-cols-[1fr_1.4fr]">
+                <div className="space-y-8">
                     <Card tone={full >= 0.9 ? 'warm' : undefined}>
                         <CardTitle>Chỗ học viên</CardTitle>
                         <p className="text-2xl font-semibold text-ink tabular">
