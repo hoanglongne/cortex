@@ -6,6 +6,7 @@ import { activityByDay } from '../../lib/board';
 import { moduleFor, modulesOf } from '../../modules';
 import InviteStudents from './InviteStudents';
 import AppDot from './AppDot';
+import ClassAhead from './ClassAhead';
 
 /** "Lớp này đang thế nào?": work in progress, the week's rhythm, each app's numbers. */
 export default function Overview({ board, onGo, onChanged }: { board: Board; onGo: (tab: 'students' | 'assignments') => void; onChanged: () => void }) {
@@ -14,11 +15,13 @@ export default function Overview({ board, onGo, onChanged }: { board: Board; onG
     const states = students.map((s) => studentState(s));
     const days = activityByDay(board);
     const maxDay = Math.max(1, ...days.map((d) => d.count));
-    const lessons = board.assignments.slice(0, 3);
+    // The class's work; reviews given to one student live on that student's page
+    const lessons = board.assignments.filter((a) => !a.for_user).slice(0, 3);
     const many = board.class.apps.length > 1;
 
     return (
         <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+            <div className="space-y-5">
             <Card>
                 <CardTitle aside={<Button kind="ghost" size="sm" onClick={() => onGo('assignments')}>Tất cả bài</Button>}>Bài đang giao</CardTitle>
                 {lessons.length === 0 ? (
@@ -47,6 +50,8 @@ export default function Overview({ board, onGo, onChanged }: { board: Board; onG
                     </ul>
                 )}
             </Card>
+            <ClassAhead board={board} />
+            </div>
             <div className="space-y-5">
                 <Card>
                     <CardTitle>Nhịp học 7 ngày</CardTitle>

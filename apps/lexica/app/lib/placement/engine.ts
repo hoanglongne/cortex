@@ -15,6 +15,7 @@
  * guessing floor. The test stops when the estimate is tight or after 30.
  * Pure functions; the page keeps the state.
  */
+import { ieltsRange } from '@cortex/classroom-lexica';
 import type { DifficultyLevel } from '../../types/vocab';
 import { ELO_CEIL, ELO_FLOOR, levelForElo } from '../levels';
 
@@ -245,32 +246,8 @@ export function result(responses: readonly Response[], start = 1000): PlacementR
     return { score: clamped, sd, level: levelForElo(clamped), byKind, fakes, questions: responses.length };
 }
 
-/** IELTS band on the score scale (the level table in lib/levels.ts, one band per 200 points). */
-function band(score: number): number {
-    const points: [number, number][] = [
-        [800, 4.5],
-        [950, 5.5],
-        [1150, 6.5],
-        [1350, 7.5],
-        [1500, 8.5],
-    ];
-    if (score <= points[0][0]) return points[0][1];
-    for (let i = 1; i < points.length; i++) {
-        const [x1, y1] = points[i];
-        const [x0, y0] = points[i - 1];
-        if (score <= x1) return y0 + ((score - x0) / (x1 - x0)) * (y1 - y0);
-    }
-    return points[points.length - 1][1];
-}
-
-const half = (x: number) => Math.round(x * 2) / 2;
-
-/** "IELTS khoảng 6.0–6.5": a range from the score's spread, never one number. */
-export function ieltsRange(score: number, sd: number): string {
-    const lo = half(band(score - sd));
-    const hi = Math.max(lo + 0.5, half(band(score + sd)));
-    return `${lo.toFixed(1)}–${hi.toFixed(1)}`;
-}
+/** "IELTS khoảng 6.0–6.5": shared with the teacher app (packages/classroom-lexica/ielts.ts). */
+export { ieltsRange };
 
 /** Rough count of English words known at a score (ước lượng). */
 export function vocabSize(score: number): number {

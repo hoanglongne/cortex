@@ -11,6 +11,7 @@ import { LEXICA, lexicaModule, type Counts, type LexicaReport, type Sounds, type
 import { getSupabaseClient } from './supabase';
 import { getCard } from './content/repository';
 import { countLived, countSteps, isKnownAlready, stepIndex, stepOf, type Journeys, type WordJourney } from './journey/steps';
+import { reviewNumbers, type ReviewLog } from './journey/reviewLog';
 import type { UserCardProgress } from './eloAlgorithm';
 import { localDate } from './engagement/ghost';
 
@@ -27,7 +28,7 @@ export const lessonOf = (a: Assignment): WordsPayload => lexicaModule.parsePaylo
 const lexicaAssignments = (c: Pick<ClassInfo, 'assignments'>) => c.assignments.filter((a) => a.app === LEXICA);
 const lessons = (c: Pick<ClassInfo, 'assignments'>) => lexicaAssignments(c).map(lessonOf);
 
-type Progress = Readonly<Record<string, Pick<UserCardProgress, 'lastReviewedAt'> | undefined>>;
+type Progress = Readonly<Record<string, Pick<UserCardProgress, 'lastReviewedAt'> & Partial<Pick<UserCardProgress, 'nextReviewAt'>> | undefined>>;
 
 /** When each lesson word was first given (ms), across the classes. */
 export function givenAt(classes: readonly Pick<ClassInfo, 'assignments'>[]): Map<string, number> {
@@ -80,8 +81,9 @@ export function assignedSteps(journeys: Journeys, classes: readonly Pick<ClassIn
 }
 
 /** What Lexica reports to every class it is in; the server keeps each class's part. */
-export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[], progress: Progress = {}, sounds: Sounds = {}): LexicaReport {
+export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[], progress: Progress = {}, sounds: Sounds = {}, reviewLog: ReviewLog = {}, now = Date.now()): LexicaReport {
     const learned = Object.fromEntries(Object.entries(journeys).filter(([, j]) => !isKnownAlready(j)));
+    const schedule = Object.fromEntries(Object.entries(progress).flatMap(([id, p]) => (p && typeof p.nextReviewAt === 'number' ? [[id, { nextReviewAt: p.nextReviewAt }]] : [])));
     return {
         // Steps reached by learning; words known beforehand are counted apart
         counts: { ...countSteps(learned), doi: countLived(journeys), known: Object.keys(journeys).length - Object.keys(learned).length },
@@ -89,6 +91,8 @@ export function lexicaReport(journeys: Journeys, classes: readonly ClassInfo[], 
         words: assignedSteps(journeys, classes, progress),
         // Per sound group, 14 days of tries and misses (lib/pronunciation/soundLog.ts): numbers only.
         sounds,
+        // The review schedule and recall rate, for the teacher's forecasts (lib/journey/reviewLog.ts).
+        review: reviewNumbers(schedule, journeys, new Set(givenAt(classes).keys()), reviewLog, localDate(now), now),
     };
 }
 

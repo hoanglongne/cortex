@@ -1,5 +1,5 @@
 /** Rules every app's classes follow the same way (unit tested in the apps that use them). */
-import type { BoardStudent } from './types';
+import type { Assignment, BoardStudent } from './types';
 
 const MESSAGES: Record<string, string> = {
     'own class': 'Đây là lớp bạn dạy, không cần vào bằng mã.',
@@ -20,6 +20,10 @@ const MESSAGES: Record<string, string> = {
     'bad payload': 'Bài giao chưa đúng dạng.',
     'no words': 'Chưa có từ nào để giao.',
     'no questions': 'Chưa chọn câu hỏi nào.',
+    'link not found': 'Link này không còn dùng được. Xin giáo viên một link mới nhé.',
+    'link locked': 'Nhập sai mã PIN nhiều lần. Thử lại sau 15 phút.',
+    'bad report': 'Báo cáo còn trống, chưa duyệt được.',
+    'week starts on Monday': 'Tuần chưa đúng (tuần tính từ thứ Hai).',
 };
 
 export function classMessage(raw: string): string {
@@ -64,4 +68,9 @@ export function joinLink(appUrl: string, code: string): string {
 
 export function inviteLink(teachUrl: string, token: string): string {
     return `${teachUrl.replace(/\/+$/, '')}/invite/${encodeURIComponent(token)}`;
+}
+
+/** Who an assignment is for: the one student it was given to, or the whole class. */
+export function assignmentStudents<S extends Pick<BoardStudent, 'user_id'>>(a: Pick<Assignment, 'for_user'>, students: readonly S[]): S[] {
+    return a.for_user ? students.filter((s) => s.user_id === a.for_user) : [...students];
 }

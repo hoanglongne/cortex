@@ -6,6 +6,7 @@
  * apps/teach/app/modules/lexica). SQL: sql/classroom_lexica.sql.
  */
 import type { Assignment, BoardStudent, ClassroomModuleCore, StudentApp } from '@cortex/classroom';
+import type { CourseInput, StudentInput } from './forecast';
 
 export const LEXICA = 'lexica';
 
@@ -19,7 +20,15 @@ export type Counts = Partial<Record<Step | 'doi' | 'total' | 'known', number>>;
 export interface LexicaSettings {
     branch: 'cert' | 'talk';
     level: 'beginner' | 'intermediate' | 'advanced' | 'expert' | null;
+    /** When the course ends ("YYYY-MM-DD"): the score forecast looks that far (forecast.ts). */
+    ends_on: string | null;
+    /** The verified vocabulary score the class aims for by then. */
+    target_score: number | null;
 }
+
+/** The score scale's bounds for a class target (Lexica's ELO_FLOOR..ELO_CEIL, rounded). */
+export const TARGET_MIN = 400;
+export const TARGET_MAX = 1800;
 
 export type WordsMode = 'only' | 'mixed';
 
@@ -54,6 +63,22 @@ export const SOUND_LABEL: Record<SoundKind, string> = {
 /** Per sound group over the last 14 days: [times the learner said a word with that sound, times the app heard it off]. */
 export type Sounds = Partial<Record<SoundKind, [number, number]>>;
 
+/**
+ * The learner's review schedule (W4 forecasts, docs/TEACH_PLAN.md 2.1),
+ * numbers only: words overdue now, words due in the next 7 days, recalls in
+ * the last 14 days as [right, total], and the class's assigned words overdue
+ * by more than AT_RISK_DAYS (card ids; the server keeps each class's own).
+ */
+export interface Review {
+    overdue: number;
+    due7: number;
+    recall14: [number, number];
+    atRisk: string[];
+}
+
+/** An assigned word overdue by more than this many days is "at risk" of being forgotten. */
+export const AT_RISK_DAYS = 3;
+
 export interface LexicaMetrics {
     counts: Counts;
     /** The four steps over this class's assigned words, with how many there are. */
@@ -61,6 +86,8 @@ export interface LexicaMetrics {
     /** Furthest step per assigned word: 1 Hiểu … 4 Dùng, 5 Đời. */
     words: Record<string, number>;
     sounds: Sounds;
+    /** Missing in reports from Lexica versions before the forecasts. */
+    review?: Review;
 }
 
 /** What the learning app sends (the server keeps each class's part of `assigned` and `words`). */
@@ -69,6 +96,7 @@ export interface LexicaReport {
     assigned: Record<string, Counts>;
     words: Record<string, number>;
     sounds: Sounds;
+    review: Review;
 }
 
 /** Only known groups, whole numbers 0–10 000, misses never above tries (as the SQL keeps them). */
@@ -103,6 +131,21 @@ export function classSounds(board: { students: readonly BoardStudent[] }, top = 
         .filter((x) => x.students > 0)
         .sort((a, b) => b.students - a.students || b.misses - a.misses)
         .slice(0, top);
+}
+
+/** As the SQL keeps it: whole numbers 0–100 000, right never above total, at most 200 ids; null when absent. */
+export function parseReview(v: unknown): Review | null {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
+    const o = v as Record<string, unknown>;
+    const n = (x: unknown) => Math.min(100000, Math.max(0, Math.round(num(x))));
+    const pair = Array.isArray(o.recall14) && o.recall14.length === 2 ? o.recall14 : [0, 0];
+    const total = n(pair[1]);
+    return {
+        overdue: n(o.overdue),
+        due7: n(o.due7),
+        recall14: [Math.min(total, n(pair[0])), total],
+        atRisk: [...new Set(strings(o.atRisk))].slice(0, 200),
+    };
 }
 
 const obj = (v: unknown): Record<string, unknown> => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
@@ -150,7 +193,9 @@ export const lexicaModule: ClassroomModuleCore<LexicaSettings, WordsPayload, Lex
     parseSettings(raw) {
         const o = obj(raw);
         const level = ['beginner', 'intermediate', 'advanced', 'expert'].includes(o.level as string) ? (o.level as LexicaSettings['level']) : null;
-        return { branch: o.branch === 'talk' ? 'talk' : 'cert', level };
+        const ends = typeof o.ends_on === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(o.ends_on) ? o.ends_on : null;
+        const target = typeof o.target_score === 'number' && o.target_score >= TARGET_MIN && o.target_score <= TARGET_MAX ? Math.round(o.target_score) : null;
+        return { branch: o.branch === 'talk' ? 'talk' : 'cert', level, ends_on: ends, target_score: target };
     },
     parsePayload(_kind, raw) {
         const o = obj(raw);
@@ -160,7 +205,8 @@ export const lexicaModule: ClassroomModuleCore<LexicaSettings, WordsPayload, Lex
         const o = obj(raw);
         const words: Record<string, number> = {};
         for (const [k, v] of Object.entries(obj(o.words))) words[k] = num(v);
-        return { counts: counts(o.counts), assigned: counts(o.assigned), words, sounds: parseSounds(o.sounds) };
+        const review = parseReview(o.review);
+        return { counts: counts(o.counts), assigned: counts(o.assigned), words, sounds: parseSounds(o.sounds), ...(review ? { review } : {}) };
     },
     /** Started: any word begun. Done: every word at Hiểu or further. Deep: every word said aloud (Dùng). */
     assignmentProgress(a: Assignment<WordsPayload>, students) {
@@ -197,3 +243,19 @@ export const lexicaModule: ClassroomModuleCore<LexicaSettings, WordsPayload, Lex
 
 /** Words a student can use (Dùng), read back from a leaderboard score (classroom_lexica_rank: dung × 100000 + nho). */
 export const dungFromScore = (score: number) => Math.floor(score / 100000);
+
+/** One student's forecast input (forecast.ts) from the class board and their verified scores. */
+export function forecastInput(s: BoardStudent, scores: readonly { score: number; sd: number; at: string }[] = []): StudentInput {
+    const raw = obj(obj(s.apps[LEXICA]?.metrics).review);
+    return { name: s.name, joinedAt: s.joined_at, days: s.days ?? [], review: parseReview(Object.keys(raw).length ? raw : null), scores };
+}
+
+/** The course settings the forecasts read, from the class's Lexica settings. */
+export function courseInput(settings: unknown): CourseInput {
+    const p = lexicaModule.parseSettings(settings);
+    return { endsOn: p.ends_on, targetScore: p.target_score };
+}
+
+export * from './ielts';
+export * from './forecast';
+export * from './parentWeek';

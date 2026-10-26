@@ -39,6 +39,7 @@ FILES=(
   apps/lexica/supabase/migration_engagement_review_dust.sql
   apps/lexica/supabase/migration_feedback.sql
   packages/classroom/sql/classroom_core.sql
+  packages/classroom/sql/classroom_parents.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
   apps/lexica/supabase/migration_placement.sql
   apps/lexica/supabase/placement_bank.sql

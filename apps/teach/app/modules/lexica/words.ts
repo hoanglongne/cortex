@@ -9,6 +9,8 @@ export interface IndexCard {
     ipa?: string;
     /** The card's sentence, for a preview (older Lexica builds don't send it). */
     scenario?: string;
+    /** Up to three phrases with the word (newer Lexica builds), for the slides. */
+    collocations?: string[];
     /** The Studio drop or trend it came from; none for Lexica's own deck. */
     pack?: string;
 }

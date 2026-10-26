@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { Suspense, use } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { PageHeader } from '../../../components/ui';
+import { Presentation } from 'lucide-react';
+import { LinkButton, PageHeader } from '../../../components/ui';
 import { useBoard } from '../../../lib/teaching';
 import { modulesOf } from '../../../modules';
 import Overview from '../../../components/class/Overview';
@@ -44,7 +45,10 @@ function ClassView({ id }: { id: string }) {
     if (error) {
         return (
             <p className="text-danger">
-                {error} <Link href="/classes" className="text-accent underline">Về danh sách lớp</Link>
+                {error}{' '}
+                <Link href="/classes" className="text-accent underline">
+                    Về danh sách lớp
+                </Link>
             </p>
         );
     }
@@ -57,7 +61,15 @@ function ClassView({ id }: { id: string }) {
                 ← Lớp của tôi
             </Link>
             <div className="mt-2">
-                <PageHeader title={c.name} sub={[...modulesOf(board).map((m) => [m.core.name, m.settingsLine(c.settings[m.core.id])].filter(Boolean).join(': ')), c.org ?? 'Lớp riêng', `${board.students.length} học viên`].join(' · ')} />
+                <PageHeader
+                    title={c.name}
+                    actions={
+                        <LinkButton href={`/present/${c.id}`} kind="secondary" size="sm">
+                            <Presentation className="h-4 w-4" /> Trên lớp
+                        </LinkButton>
+                    }
+                    sub={[...modulesOf(board).map((m) => [m.core.name, m.settingsLine(c.settings[m.core.id])].filter(Boolean).join(': ')), c.org ?? 'Lớp riêng', `${board.students.length} học viên`].join(' · ')}
+                />
             </div>
             <nav className="-mt-2 mb-6 flex gap-1 overflow-x-auto border-b border-line" aria-label="Các mục của lớp">
                 {TABS.map((t) => (

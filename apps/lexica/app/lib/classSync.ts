@@ -42,8 +42,8 @@ export async function refreshClasses(force = false): Promise<ClassInfo[]> {
 export async function reportNow(): Promise<void> {
     const classes = readCachedClasses().filter((c) => c.role === 'student');
     if (classes.length === 0 || !(await signedIn())) return;
-    const { journeys, cardProgress, currentStreak, soundLog } = useLexicaStore.getState();
-    const report = lexicaReport(journeys, classes, cardProgress, reportSounds(soundLog, localDate()));
+    const { journeys, cardProgress, currentStreak, soundLog, reviewLog } = useLexicaStore.getState();
+    const report = lexicaReport(journeys, classes, cardProgress, reportSounds(soundLog, localDate()), reviewLog);
     const key = JSON.stringify([report, currentStreak]);
     if (key === lastReport) return;
     try {
@@ -70,7 +70,7 @@ export function startClassSync(): () => void {
     let last = useLexicaStore.getState();
     const unsubscribe = useLexicaStore.subscribe((s) => {
         // A review counts for a lesson even when no step moves (lib/classes.ts touchedSince).
-        if (s.journeys === last.journeys && s.cardProgress === last.cardProgress && s.soundLog === last.soundLog) return;
+        if (s.journeys === last.journeys && s.cardProgress === last.cardProgress && s.soundLog === last.soundLog && s.reviewLog === last.reviewLog) return;
         last = s;
         schedule();
     });

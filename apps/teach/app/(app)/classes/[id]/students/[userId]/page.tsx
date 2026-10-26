@@ -10,6 +10,10 @@ import { useBoard } from '../../../../../lib/teaching';
 import { api } from '../../../../../lib/supabase';
 import { parentMessage } from '../../../../../lib/today';
 import { moduleFor, modulesOf } from '../../../../../modules';
+import { boardForecasts, localDay } from '../../../../../lib/forecasts';
+import { useScoreHistories } from '../../../../../lib/useForecasts';
+import { ForecastBlock } from '../../../../../components/Forecast';
+import ParentCard from '../../../../../components/parents/ParentCard';
 
 /** "Em này kẹt ở đâu?": each app's own section, 30 days of learning, a private note. */
 export default function StudentPage({ params }: { params: Promise<{ id: string; userId: string }> }) {
@@ -21,6 +25,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
     const s = board?.students.find((x) => x.user_id === userId);
+    const histories = useScoreHistories([id]);
 
     if (!board) return <div className="h-64 animate-pulse rounded-[var(--radius-card)] bg-surface-2" />;
     if (!s) return <p className="text-muted">Không tìm thấy học viên này trong lớp.</p>;
@@ -32,6 +37,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
     });
     const noteValue = note ?? s.note ?? '';
     const many = board.class.apps.length > 1;
+    const ahead = boardForecasts(board, histories?.[id] ?? {}, localDay(now)).find((r) => r.userId === userId)?.forecast ?? null;
 
     return (
         <>
@@ -47,6 +53,32 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
             </div>
             <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
                 <div className="space-y-5">
+                    {ahead && (
+                        <Card>
+                            <CardTitle>Sắp tới</CardTitle>
+                            {ahead.forecasts.length === 0 ? (
+                                <p className="text-sm text-ink-2">
+                                    {/* Without review numbers there is nothing to say either way */}
+                                    {ahead.notYet.some((n) => n.kind === 'forget') ? 'Chưa có dự báo nào cho em.' : 'Chưa thấy điều gì đáng lo: em không có nhiều từ quá hạn ôn và vẫn học đều.'}
+                                </p>
+                            ) : (
+                                <ul className="-my-3 divide-y divide-line">
+                                    {ahead.forecasts.map((f) => (
+                                        <li key={f.kind}>
+                                            <ForecastBlock forecast={f} board={board} userId={userId} onAssigned={() => void reload()} />
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {ahead.notYet.length > 0 && (
+                                <ul className="mt-3 space-y-1 border-t border-line pt-3 text-xs text-muted">
+                                    {ahead.notYet.map((n) => (
+                                        <li key={n.kind}>{n.need}</li>
+                                    ))}
+                                </ul>
+                            )}
+                        </Card>
+                    )}
                     {modulesOf(board).map((m) => (
                         <Card key={m.core.id}>
                             <CardTitle aside={<Badge tone={state === 'nudge' ? 'warm' : state === 'active' ? 'accent' : 'neutral'}>{state === 'nudge' ? 'Cần nhắc' : state === 'active' ? 'Đang học' : 'Mới vào'}</Badge>}>
@@ -66,6 +98,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                         </div>
                         <p className="mt-2 text-xs text-muted">{s.days.length} ngày có học</p>
                     </Card>
+                    <ParentCard board={board} userId={userId} name={s.name} />
                     <Card>
                         <CardTitle>Ghi chú riêng</CardTitle>
                         <p className="mb-2 text-xs text-muted">Chỉ giáo viên và quản lý thấy.</p>

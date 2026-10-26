@@ -140,20 +140,24 @@ function Center({ orgId }: { orgId: string }) {
                         <CardTitle>Các lớp</CardTitle>
                     </div>
                     <ul className="divide-y divide-line">
-                        {org.classes.map((c) => {
+                        {/* Classes with students who may drop out first (the rule in classroom_dropout_risk) */}
+                        {[...org.classes].sort((a, b) => (b.at_risk ?? 0) - (a.at_risk ?? 0)).map((c) => {
                             const quiet = c.members > 0 && c.active_week / c.members < 0.5;
                             return (
                                 <li key={c.id}>
-                                    <Link href={`/classes/${c.id}`} className="flex items-center justify-between gap-3 px-5 py-3 hover:bg-surface-2/60">
+                                    <Link href={`/classes/${c.id}`} className="flex flex-col gap-2 px-5 py-3 hover:bg-surface-2/60 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                                         <div className="min-w-0">
                                             <p className="truncate font-medium text-ink">{c.name}</p>
                                             <p className="truncate text-xs text-muted">
                                                 {c.teacher ?? '—'} · {c.members} em · {c.apps.map((a) => moduleFor(a)?.core.name ?? a).join(', ')}
                                             </p>
                                         </div>
-                                        <Badge tone={quiet ? 'warm' : 'accent'}>
-                                            {c.active_week}/{c.members} học tuần này
-                                        </Badge>
+                                        <span className="flex shrink-0 flex-wrap gap-1.5 sm:justify-end">
+                                            {(c.at_risk ?? 0) > 0 && <Badge tone="warm">{c.at_risk} em có thể bỏ học</Badge>}
+                                            <Badge tone={quiet ? 'warm' : 'accent'}>
+                                                {c.active_week}/{c.members} học tuần này
+                                            </Badge>
+                                        </span>
                                     </Link>
                                 </li>
                             );

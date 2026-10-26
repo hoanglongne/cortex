@@ -1,77 +1,125 @@
 # Bàn giao cho người (hoặc AI) làm tiếp
 
-Đọc file này trước, rồi `docs/FEEDBACK_PLAN.md` (việc còn lại) và `docs/CLASSROOM.md` (hệ thống lớp học).
+Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau đó đọc file kế hoạch của việc đang làm (mục 4).
 
-## Repo
+## 1. Repo
 - Monorepo pnpm + turbo. Gói trong workspace dùng `main: ./index.ts` và phải có trong `transpilePackages` của app Next dùng nó.
 - Một Supabase cho mọi app: chung tài khoản, chung database.
 - `apps/`
-  - `lexica`: từ vựng, 4 bước Hiểu, Nhớ, Gặp, Dùng (+ Đời). Build bằng `next build --webpack`.
-  - `oratio`: thi thử IELTS Speaking với bạn luyện, qua LiveKit. Code trong `src/`, server actions. Một phiên khác đang làm giao diện "direction D" ở đây.
-  - `teach`: "Cortex cho lớp", app giáo viên cho mọi app. Mỗi app cắm vào bằng một mô-đun trong `app/modules/<app>/`.
-  - `studio`: biên tập viên viết thẻ cho Lexica.
-  - Còn lại: `solilo`, `synapse` (chưa có mô-đun lớp), `landing`, `cortex-core-api`.
+  - `lexica`: học từ vựng, 4 bước Hiểu, Nhớ, Gặp, Dùng (+ Đời). Build bằng `next build --webpack`.
+  - `oratio`: luyện IELTS Speaking theo cặp qua LiveKit.
+  - `teach`: app giáo viên cho mọi app. Mỗi app cắm vào bằng một mô-đun trong `app/modules/<app>/`.
+  - `studio`: biên tập viên viết thẻ, bài đọc cho Lexica.
+  - `cortex-core-api`: NestJS trên Railway (giọng đọc, nhận dạng giọng, job Studio).
+  - Còn lại: `landing`, `solilo`, `synapse`.
 - `packages/`
-  - `classroom`: lõi lớp học (types, API, luật, hợp đồng mô-đun, `sql/classroom_core.sql`).
-  - `classroom-lexica`, `classroom-oratio`: hai mô-đun lớp học.
+  - `classroom`: lõi lớp học;
+  - `classroom-lexica`, `classroom-oratio`: hai mô-đun lớp học;
   - `ui`, `cortex-types`, cấu hình eslint và typescript.
+- `tools/lexica-voices`: tạo sẵn giọng Kokoro (nằm ngoài workspace), chạy bằng GitHub Action "Lexica voices".
 - `supabase/build-restore.sh`: gom mọi file SQL theo thứ tự thành `restore_all.sql`. Thêm file SQL mới thì thêm vào danh sách đó rồi chạy lại script.
 
-## Quy ước làm việc
+## 2. Quy ước làm việc (bắt buộc)
 - **Trả lời người dùng bằng tiếng Việt**, ngắn gọn, dễ hiểu. Comment code và commit message bằng tiếng Anh, theo giọng code xung quanh.
-- **Nhánh làm việc**: `long/serene-turing-6gfppj`. Có thể có phiên khác (Oratio) đẩy lên cùng nhánh:
-  - luôn `git fetch` rồi `git merge` trước khi đẩy;
-  - không force-push đè lên commit của họ;
-  - ghi tên commit của họ trong mô tả PR.
-- Trước khi đẩy, kiểm tra PR của nhánh. Nếu PR đã merge thì đưa nhánh lên `main` mới (fast-forward) và mở PR mới.
-- **Vercel**: chỉ deploy `main` (preview đã tắt vì hết lượt mỗi ngày). `scripts/vercel-ignore.mjs` bỏ qua app không đổi.
-- **Kiểm tra trước khi đẩy**, cho mỗi app có sửa: `npx tsc --noEmit -p .`, `npx eslint`, `npx vitest run`, `pnpm run build`.
+- **Không mở PR khi người dùng chưa bảo.** Cứ sửa, commit, đẩy lên nhánh. Khi họ nói "mở PR" thì mới mở.
+- **Nhánh làm việc:** `long/serene-turing-6gfppj`.
+  - Luôn `git fetch` và `git merge` trước khi đẩy; không force-push.
+  - **Trước khi đẩy, kiểm tra PR trước đã merge chưa.** Nếu đã merge thì đưa nhánh về `main` mới (fast-forward). Commit mới phải nằm trong một PR mới. Khi PR cũ đã merge mà commit mới chưa có PR nào chứa, phải báo người dùng.
+- **Commit** kết thúc bằng:
+  ```
+  Co-Authored-By: <tên model> <noreply@anthropic.com>
+  Claude-Session: <link phiên>
+  ```
+  (hoặc dòng tương đương của công cụ bạn dùng). Không ghi mã model trong commit hay PR.
+- **Không bao giờ** đưa khoá bí mật (`SUPABASE_SERVICE_ROLE_KEY`, …) vào code hay chat. Chỉ đặt trong GitHub, Vercel hoặc Railway secrets.
+- **Kiểm tra trước khi đẩy**, cho mỗi app có sửa: `npx tsc --noEmit -p .`, `npx eslint app`, `npx vitest run`, `pnpm run build`.
   - Build cần biến môi trường giả: `NEXT_PUBLIC_SUPABASE_URL=https://fake.supabase.co NEXT_PUBLIC_SUPABASE_ANON_KEY=fake`.
-  - Build làm đổi `next-env.d.ts`: trả file này về như cũ, đừng commit.
-  - Lexica có route chạy phía server (`app/api/*`): đừng import code phía client (store, hook React) vào đó, build webpack sẽ hỏng (xem PR #38).
-- **SQL**:
+  - Build làm đổi `next-env.d.ts`: trả file này về như cũ, không commit.
+  - Lexica có route chạy phía server (`app/api/*`): không import code phía client vào đó.
+- **SQL:**
   - viết sao cho chạy lại nhiều lần không lỗi;
-  - mọi đọc/ghi đi qua hàm `security definer`; bảng bật RLS, không có policy cho client;
-  - thử bằng PGlite trước khi giao cho người dùng chạy;
-  - người dùng tự chạy SQL trên Supabase SQL Editor: luôn nói rõ file nào cần chạy.
-- **Giao diện**: chỉ dùng token màu của theme, phải dùng được trên điện thoại 390px và ở chế độ tối. Copy tiếng Việt giọng mềm. Khen tiến bộ, không khen điểm.
-- **Riêng tư lớp học**: metrics chỉ là con số, không gửi nội dung học viên tạo ra.
+  - mọi đọc ghi đi qua hàm `security definer`; bảng bật RLS, không có policy cho client;
+  - thử bằng PGlite trước (npm `@electric-sql/pglite` trong thư mục tạm; giả `auth.users(id, email)`, `auth.uid()` đọc `current_setting('t.uid')`, role `anon`, `authenticated`);
+  - người dùng tự chạy SQL trên Supabase SQL Editor: luôn nói rõ file nào, theo thứ tự nào.
+- **Giao diện:**
+  - chỉ dùng token màu của theme;
+  - phải dùng được trên điện thoại 390px và ở chế độ tối;
+  - copy tiếng Việt giọng mềm; khen tiến bộ, không khen điểm.
+  - **Người dùng không thích giao diện "lố"** (gradient, icon to, câu sến). Giữ phong cách gọn kiểu trang Luyện và Tôi của Lexica, thêm điểm nhấn màu vừa phải.
+- **Kiểm tra giao diện bằng ảnh chụp Playwright:**
+  - Chromium có sẵn ở `/opt/pw-browsers/chromium`. Không chạy `playwright install`; cài `playwright-core` trong thư mục tạm.
+  - Lexica: đặt sẵn `localStorage['lexica-storage']` (state giả).
+  - Teach: auth giả bằng `localStorage['sb-fake-auth-token']`; chặn `https://fake.supabase.co/**` và trả về JSON mẫu (`classroom_whoami`, `classroom_class_board`, …).
+  - **Tắt dev server bằng PID**, không dùng `pkill -f` (sẽ giết luôn shell).
+- **Riêng tư lớp học:** số liệu gửi cho lớp chỉ là con số, không gửi nội dung học viên tạo ra.
+- Chạy nhiều agent hoặc workflow song song phải **hỏi người dùng trước**.
 
-## Trạng thái (19/10/2026)
-- Đã merge: lõi lớp học, mô-đun Lexica và Oratio, app teach, đăng nhập bằng mật khẩu, sửa build Lexica (PR #35–#41).
-- **PR #42 đang mở** (Đợt 1–2 trong `docs/FEEDBACK_PLAN.md`): lỗi Oratio khi ghép phòng, chặn giao bài khi danh sách từ không tải được, tách từ "biết rồi", ghi âm Tình huống, giữ-để-nói, tải trước giọng đọc, nhập lại mật khẩu, Album ghi rõ số lần.
-  - Chưa thử trên trình duyệt thật: ghi âm, giọng đọc, màn gọi Oratio, đăng ký.
-- Người dùng cần làm sau khi merge PR #42:
-  - chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`;
-  - kiểm tra project teach trên Vercel có `NEXT_PUBLIC_LEXICA_URL` (và `NEXT_PUBLIC_ORATIO_URL`).
+## 3. Đã xong (đến PR #53, đã merge vào `main`)
+- **Lexica:**
+  - **Hôm nay:** 4 chặng dạng đường đi, thẻ Nhịp học (chuỗi ngày, 7 ngày, lộ trình 30 ngày).
+  - **Luyện:** gom nhóm Giữ từ, Dùng từ (Đọc · Nói · Viết), Thêm từ, Ngoài đời.
+  - **Bắt gặp** (`/spot`) bản gọn; **Một câu hôm nay** (`/journal`) bố cục mới.
+  - **Luyện nói `/speak`:** điểm vui 0–100, đồ thị cao độ, giọng Kokoro tạo sẵn (đọc thẳng từ Supabase Storage `lexica-content/cache/tts/<sha256>.wav`, xem `lib/audio/voiceKey.ts`), một giọng phát một lúc.
+  - **Beta:** trang `/feedback` (bảng `lexica_feedback`), `/privacy`, `/terms`; sự kiện PostHog `sign_up`, `speak_attempt`, `today_complete`, …
+  - **Bài đọc:** 54 bài sẵn trong app (`data/passages.ts` và `data/morePassages/`); tìm cụm từ cả dạng chia và cụm tách (`lib/content/phrases.ts`).
+  - **ELO:** chỉ đổi khi làm bài kiểm tra. Gợi ý đổi level theo tỉ lệ nhớ đúng (`lib/journey/levelHint.ts`).
+  - **Bài kiểm tra từ vựng thích ứng** (`docs/LEXICA_LEVEL_TEST_DESIGN.md`):
+    - phần lõi `lib/placement/engine.ts`;
+    - 4 dạng câu, câu Nghe là tuỳ chọn;
+    - thi lại sau 14 ngày và 100 lượt ôn;
+    - trang `/score` có biểu đồ và ảnh chia sẻ;
+    - **điểm đã xác minh do Supabase chấm** (`supabase/migration_placement.sql`, `placement_bank.sql`), trang công khai `/score/<mã>`.
+- **Teach:** điểm đã xác minh của lớp và từng em (`modules/lexica/scores.ts`).
+- **Studio:** job "Bài đọc theo kế hoạch" chạy 4h và 16h (cần API và `STUDIO_CRON=on`).
+- **Cortex API:** chạy được khi không có Redis.
+- **Tài liệu:**
+  - `docs/BUSINESS_MODEL.md`: giá, B2B, gọi vốn;
+  - `docs/MIGRATION_VPS.md`: chuyển sang VPS Singapore, Coolify, Cloudflare, LiveKit tự chạy;
+  - `docs/FEEDBACK_PLAN.md`: lịch sử các đợt.
+- Người dùng **đã chạy** trên Supabase: `migration_feedback.sql`, `migration_placement.sql`, `placement_bank.sql`.
 
-- PR #42–#45 đã merge (#45: Đợt 7, công cụ "Tạo theo kế hoạch" của Studio, PR (a) của Đợt 6). **PR #46** (PR (b) và (c) của Đợt 6: mức 3 và 4) đang mở. Sau khi merge phải chạy lại `packages/classroom-lexica/sql/classroom_lexica.sql`.
-  - Lexica có thanh điều hướng chung `components/AppNav.tsx` (trong layout). Trang mới: `/practice` (Luyện), `/me` (Tôi), `/settings`. `tabOf()` quyết định trang nào có thanh; trang phiên học, bài kiểm tra, thiết lập thì không.
-  - Phiên Hôm nay có "lượt học thêm" (`/today?more=1`, `startExtraRound`), và có thể mở lại chặng Ôn/Học một lần khi lớp giao từ mới (`todayLog.again`).
-  - Bài lớp giao chỉ tính từ khi được giao (`touchedSince` trong `lib/classes.ts`).
-  - Đợt 4: `/api/word-index` của Lexica gửi thêm `pack` (tên drop hiện tại, hoặc trend của thẻ thư viện), `scenario`, `ipa`. Teach lọc bằng `apps/teach/app/modules/lexica/browse.ts`. Bản Lexica cũ không gửi các trường này thì teach vẫn chạy, chỉ thiếu bộ thẻ và câu mẫu.
-  - Teach: dữ liệu lớp nằm trong một cache dùng chung (`apps/teach/app/lib/teaching.ts`, dùng được 30 giây). Sửa gì thì gọi `reload` của `useBoard`/`useTeaching`. Tab trong lớp đổi URL bằng `history.replaceState`, đừng đổi lại thành `router.replace`.
-  - Studio: `api()` giữ kết quả GET gần nhất (`cached(path)`), mọi thao tác ghi xoá cache.
+## 4. Đang làm: làm lại Teach (`docs/TEACH_PLAN.md`, đọc kỹ)
+- **Thứ tự đã chốt:** T1 → W4 → T4 → T2. T3, T5 để sau. W1, W2 đã bỏ.
+- **T1 "Trên lớp": đã xong**, commit `9fe1886` trên nhánh, **chưa có PR**:
+  - `apps/teach/app/present/[id]/page.tsx`;
+  - `components/present/` (Slides, Picker, Groups);
+  - `lib/classroom/tools.ts` (có test);
+  - `lib/voice.ts`.
+  - Phần "Trang Hôm nay có nút hành động" làm cùng W4 (đã xong, xem dưới).
+- **W4 Dự báo: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 2, trạng thái ở mục 2.6):
+  - **Lexica:** nhật ký ôn theo ngày (`app/lib/journey/reviewLog.ts`, store `reviewLog`); báo cáo lớp gửi `review` (`overdue`, `due7`, `recall14`, `atRisk`).
+  - **Lõi dự báo:** `packages/classroom-lexica/forecast.ts`, ngưỡng ở `THRESHOLDS`; test ở `apps/teach/__tests__/forecast.test.ts` và `forecastItems.test.ts`. Thang IELTS dùng chung ở `packages/classroom-lexica/ielts.ts`.
+  - **SQL:**
+    - `classroom_core.sql`: `cortex_class_assignments.for_user`, `classroom_assign_to`, `classroom_dropout_risk`, `at_risk` trong tổng quan trung tâm;
+    - `classroom_lexica.sql`: lọc `review`, cài đặt `ends_on` và `target_score`;
+    - `migration_placement.sql`: `lexica_class_score_history`.
+  - **Teach:**
+    - `app/lib/forecasts.ts`, `useForecasts.ts`, `components/Forecast.tsx`, `components/class/ClassAhead.tsx`;
+    - trang Hôm nay, trang một em ("Sắp tới"), tổng quan lớp ("Cả lớp sắp tới"), cài đặt lớp, trang trung tâm.
+  - **Người dùng cần chạy lại trên Supabase, theo thứ tự:** `packages/classroom/sql/classroom_core.sql`, `packages/classroom-lexica/sql/classroom_lexica.sql`, `apps/lexica/supabase/migration_placement.sql`.
+  - **Đã soát lại (26/10):** chụp Playwright trang Hôm nay, trang một em, tổng quan lớp; thêm nút "Nhắn em" cho "Nhớ kém" và "Cuối khoá dưới mục tiêu" để dự báo nào cần giáo viên cũng có hành động.
+  - **Còn để sau:** "Khen em" chỉ chép tin nhắn, chưa gửi thẻ khen về Lexica; kiểm chứng lùi ngưỡng khi có dữ liệu thật (TEACH_PLAN 2.3).
+- **T4 Phụ huynh: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 3, trạng thái ở mục 3.6):
+  - SQL mới: `packages/classroom/sql/classroom_parents.sql` (đã thêm vào `build-restore.sh`, chạy sau `classroom_core.sql`);
+  - soạn báo cáo: `packages/classroom-lexica/parentWeek.ts`, `apps/teach/app/lib/parentReport.ts`; kiểu và tuần ở `packages/classroom/parents.ts`;
+  - Teach: `components/class/Report.tsx` (duyệt báo cáo tuần), `components/parents/` (ReportView, ParentCard), `lib/useParents.ts`, trang `app/p/[code]`, thẻ PIN trong `Settings.tsx`.
+- **Khi merge, người dùng chạy trên Supabase, theo thứ tự:**
+  1. `packages/classroom/sql/classroom_core.sql`
+  2. `packages/classroom/sql/classroom_parents.sql`
+  3. `packages/classroom-lexica/sql/classroom_lexica.sql`
+  4. `apps/lexica/supabase/migration_placement.sql`
+- **Việc tiếp theo: T2 Đấu trường từ vựng** (TEACH_PLAN mục 4):
+  - **T2 Đấu trường từ vựng:** Supabase Realtime, máy chủ làm trọng tài, từ sai tự vào bài ôn trong Lexica. Đề xuất học viên vào qua Lexica, PR đầu làm chế độ Cổ điển và Đội.
 
-  - Đợt 5 (Lexica):
-    - câu hỏi "Một câu hôm nay": `app/data/journalPrompts.ts`, chọn bằng `lib/journey/prompts.ts`;
-    - Bắt gặp: `lib/journey/sightings.ts`, trang `/spot` có 3 tab;
-    - hướng dẫn: `lib/guide.ts`, `components/GuideCard.tsx`, trang `/guide`;
-    - store thêm `sightings`, `hunt`, `tipsDismissed`, `checklistHidden`, nằm trong blob `lexica-storage` nên cũng được sao lưu qua cloudSync. Không gửi gì cho lớp học.
+## 5. Việc của người dùng còn treo
+- Railway, Cortex API: thêm `SUPABASE_SERVICE_ROLE_KEY`, `STUDIO_CRON=on`, rồi Redeploy. Railway từng có sự cố tạm dừng deploy.
+- Vercel hết lượt deploy (100 mỗi ngày): cân nhắc Vercel Pro hoặc chuyển VPS (`docs/MIGRATION_VPS.md`).
+- Chạy workflow "Lexica voices" để tạo giọng cho các đoạn mới (cặp từ, bài đọc, 40 bài mới).
+- Thử trên điện thoại thật: luyện nói, bài kiểm tra có xác minh, ảnh chia sẻ.
 
-## Việc tiếp theo
-Theo `docs/FEEDBACK_PLAN.md`, **Đợt 6** (chấm phát âm). Thiết kế: `docs/LEXICA_PRONUNCIATION_DESIGN.md`; thử nghiệm: `docs/LEXICA_PRONUNCIATION_SPIKE.md`.
-- **PR (a) đã làm** (trong PR #45): mức 1 (so từ trong cụm và câu mẫu), mức 2 (thư viện 11 lỗi, đoán qua từ máy nghe nhầm, gói chấm trên máy ẩn sau cờ `?pron=1`). Mã ở `apps/lexica/app/lib/pronunciation/` (`align.ts`, `phones.ts`, `sounds.ts`, `feedback.ts`, `model/`).
-- **Việc của người dùng:**
-  - đưa 3 file gói chấm lên Supabase Storage (`apps/lexica/scripts/pron-pack/README.md`);
-  - cho 3–5 người ghi âm bằng trang `/ghi-am` (quy trình `docs/LEXICA_PRONUNCIATION_RECORDING.md`), gửi file zip.
-- **PR (b) đã làm** (PR #46): mức 3 (`prosody.ts`, `level3.ts`): âm cuối đo bằng năng lượng, trọng âm, ngữ điệu so với giọng mẫu, tốc độ và chỗ ngắt. Lời nhận xét chỉ người thử nghiệm thấy; số đo ghi vào sổ trên máy (`prosodyLog.ts`). Đường cao độ (máy tính) vẽ giọng mẫu thật cho mọi người.
-- **Gói chấm đã có trên Supabase** (`lexica-content/pron/v1/`, đã kiểm sha256). Từ PR #46, nút tải gói hiện cho mọi người học; tải rồi thì Luyện nói hiện hàng ô âm tô màu và bảng sửa lỗi có hình miệng (`docs/LEXICA_PRONUNCIATION_UI_PLAN.md`). Lời nhận xét mức 3 vẫn chỉ cho người thử nghiệm (`?pron=1`).
-- **PR (c) đã làm** (PR #46): sổ âm hay sai (`soundLog.ts`, trường `soundLog` trong store), "Âm hay sai" và "Luyện 2 phút" ở trang Luyện nói, mẹo ở trang chủ, số liệu `sounds` gửi lớp, mục "Âm cả lớp hay sai" trong Teach.
-- **Việc tiếp của dev:** khi có thêm file zip, chạy `evalvi.py` (mức 2) và `scripts/pron-eval` (mức 3) để quyết định bật chấm trên máy và lời nhận xét mức 3 cho mọi người. Đợt 6 không còn PR nào.
-- Đợt 5 và 6 cần người dùng duyệt hướng hoặc thiết kế trước khi code.
-- Thêm app vào lớp học: làm theo quy trình trong `docs/CLASSROOM.md`, bước 1 là hỏi người dùng giáo viên giao gì, xem gì, xếp hạng theo gì.
-
-## Công cụ hữu ích
-- Chụp màn hình bằng Playwright: Chromium có sẵn tại `/opt/pw-browsers/chromium`. Không chạy `playwright install`.
-- App teach chạy được với Supabase giả: chặn các request `https://fake.supabase.co/rest/v1/rpc/*` và trả về board mẫu. Auth giả bằng localStorage `sb-fake-auth-token`.
+## 6. Ghi chú kỹ thuật hay vấp
+- **Lexica service worker** giữ bản cũ: sau deploy phải tải lại 1–2 lần.
+- Danh sách từ cho teach lấy từ `lexica /api/word-index` (cần `NEXT_PUBLIC_LEXICA_URL` ở teach).
+- Tên file giọng: `sha256("Kore|<0 hoặc 1 nếu chậm>|<text>")` lấy 32 ký tự đầu, đuôi `.wav`. Từ được lưu ở dạng chữ thường.
+- Bộ từ: chỉ khoảng 250 trên 610 từ có trong bài đọc (test `corePassages`). Thêm bài thì phủ được nhiều từ hơn.
+- Máy làm việc từ xa không vào được Hugging Face, Supabase thật hay Railway (proxy chặn). Phần nào phụ thuộc mấy chỗ này thì nhờ người dùng thử.
