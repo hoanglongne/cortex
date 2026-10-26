@@ -1,6 +1,6 @@
 # Bàn giao cho người (hoặc AI) làm tiếp
 
-Cập nhật 25/10/2026. **Đọc hết file này trước khi làm gì.** Sau đó đọc file kế hoạch của việc đang làm (mục 4).
+Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau đó đọc file kế hoạch của việc đang làm (mục 4).
 
 ## 1. Repo
 - Monorepo pnpm + turbo. Gói trong workspace dùng `main: ./index.ts` và phải có trong `transpilePackages` của app Next dùng nó.
@@ -99,9 +99,16 @@ Cập nhật 25/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - **Người dùng cần chạy lại trên Supabase, theo thứ tự:** `packages/classroom/sql/classroom_core.sql`, `packages/classroom-lexica/sql/classroom_lexica.sql`, `apps/lexica/supabase/migration_placement.sql`.
   - **Đã soát lại (26/10):** chụp Playwright trang Hôm nay, trang một em, tổng quan lớp; thêm nút "Nhắn em" cho "Nhớ kém" và "Cuối khoá dưới mục tiêu" để dự báo nào cần giáo viên cũng có hành động.
   - **Còn để sau:** "Khen em" chỉ chép tin nhắn, chưa gửi thẻ khen về Lexica; kiểm chứng lùi ngưỡng khi có dữ liệu thật (TEACH_PLAN 2.3).
-- **Việc tiếp theo: T4 phụ huynh** (TEACH_PLAN mục 3).
-- **Sau W4:**
-  - **T4 phụ huynh:** link riêng, nội dung tiếng Việt đời thường, báo cáo tuần tự soạn rồi giáo viên duyệt;
+- **T4 Phụ huynh: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 3, trạng thái ở mục 3.6):
+  - SQL mới: `packages/classroom/sql/classroom_parents.sql` (đã thêm vào `build-restore.sh`, chạy sau `classroom_core.sql`);
+  - soạn báo cáo: `packages/classroom-lexica/parentWeek.ts`, `apps/teach/app/lib/parentReport.ts`; kiểu và tuần ở `packages/classroom/parents.ts`;
+  - Teach: `components/class/Report.tsx` (duyệt báo cáo tuần), `components/parents/` (ReportView, ParentCard), `lib/useParents.ts`, trang `app/p/[code]`, thẻ PIN trong `Settings.tsx`.
+- **Khi merge, người dùng chạy trên Supabase, theo thứ tự:**
+  1. `packages/classroom/sql/classroom_core.sql`
+  2. `packages/classroom/sql/classroom_parents.sql`
+  3. `packages/classroom-lexica/sql/classroom_lexica.sql`
+  4. `apps/lexica/supabase/migration_placement.sql`
+- **Việc tiếp theo: T2 Đấu trường từ vựng** (TEACH_PLAN mục 4):
   - **T2 Đấu trường từ vựng:** Supabase Realtime, máy chủ làm trọng tài, từ sai tự vào bài ôn trong Lexica. Đề xuất học viên vào qua Lexica, PR đầu làm chế độ Cổ điển và Đội.
 
 ## 5. Việc của người dùng còn treo

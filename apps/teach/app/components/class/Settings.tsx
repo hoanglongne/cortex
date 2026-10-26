@@ -7,6 +7,9 @@ import { Button, Card, CardTitle, ErrorNote, errorText, Field, inputClass } from
 import { api } from '../../lib/supabase';
 import { useSession } from '../../lib/session';
 import { moduleFor, MODULES } from '../../modules';
+import { useClassParents } from '../../lib/useParents';
+import { localDay } from '../../lib/forecasts';
+import { lastWeek } from '@cortex/classroom';
 
 /** The class's name, its apps and their settings; the leaderboard switch (off by default); archiving. */
 export default function Settings({ board, onChanged }: { board: Board; onChanged: () => void }) {
@@ -52,7 +55,7 @@ export default function Settings({ board, onChanged }: { board: Board; onChanged
                                         type="checkbox"
                                         checked={apps.includes(a.id)}
                                         onChange={(e) => setApps((prev) => (e.target.checked ? [...prev, a.id] : prev.filter((x) => x !== a.id)))}
-                                        className="h-4 w-4 accent-[var(--color-accent)]"
+                                        className="h-5 w-5 accent-[var(--color-accent)]"
                                     />
                                     <span className="text-ink">{a.name}</span>
                                     <span className="truncate text-xs text-muted">{MODULES[a.id].core.tagline}</span>
@@ -74,6 +77,7 @@ export default function Settings({ board, onChanged }: { board: Board; onChanged
                     </Button>
                 </div>
             </Card>
+            <ParentPin classId={c.id} />
             <Card>
                 <CardTitle>Bảng xếp hạng trong lớp</CardTitle>
                 <p className="text-sm text-muted">Học viên thấy lớp xếp theo tiến bộ thật trong ứng dụng (với Lexica: số từ Dùng), không theo điểm. Tắt nếu lớp bạn không hợp với so sánh.</p>
@@ -110,5 +114,38 @@ export default function Settings({ board, onChanged }: { board: Board; onChanged
             </Card>
             <ErrorNote error={error} />
         </div>
+    );
+}
+
+/** Parents' links ask for a 4-digit PIN (off by default). Links made before keep how they were made. */
+function ParentPin({ classId }: { classId: string }) {
+    const [week] = useState(() => lastWeek(localDay(Date.now())));
+    const { parents, reload } = useClassParents(classId, week);
+    const [error, setError] = useState('');
+    if (!parents) return null;
+    return (
+        <Card>
+            <CardTitle>Link cho phụ huynh</CardTitle>
+            <p className="text-sm text-ink-2">Mỗi em có một link riêng cho phụ huynh (lấy ở trang của em). Bật mã PIN nếu trung tâm muốn chắc chỉ phụ huynh mở được.</p>
+            <label className="mt-3 flex items-center gap-2 text-ink">
+                <input
+                    type="checkbox"
+                    checked={parents.pin}
+                    onChange={async (e) => {
+                        setError('');
+                        try {
+                            await api.setParentPin(classId, e.target.checked);
+                            await reload();
+                        } catch (err) {
+                            setError(errorText(err));
+                        }
+                    }}
+                    className="h-5 w-5 accent-[var(--color-accent)]"
+                />
+                {parents.pin ? 'Link mới cần mã PIN 4 số' : 'Không cần mã PIN'}
+            </label>
+            <p className="mt-1 text-xs text-muted">Chỉ áp dụng cho link tạo sau khi đổi. Sai mã 5 lần thì link tạm khoá 15 phút.</p>
+            <ErrorNote error={error} />
+        </Card>
     );
 }

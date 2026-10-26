@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { classMessage } from './rules';
 import type { AdminOverview, AppId, Assignment, Board, ClassInfo, InviteKind, LeaderRow, OpenInvite, OrgOverview, Whoami } from './types';
+import type { ClassParents, ParentView, ReportContent, WeekMetrics } from './parents';
 
 export class ClassError extends Error {}
 
@@ -56,6 +57,18 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         unassign: (id: string) => rpc<{ ok: boolean }>('classroom_unassign', { p_assignment: id }),
         setNote: (classId: string, userId: string, note: string) => rpc<{ ok: boolean }>('classroom_member_update', { p_class: classId, p_user: userId, p_note: note }),
         removeStudent: (classId: string, userId: string) => rpc<{ ok: boolean }>('classroom_member_update', { p_class: classId, p_user: userId, p_remove: true }),
+
+        // Parents (sql/classroom_parents.sql)
+        parents: (classId: string, week: string) => rpc<ClassParents>('classroom_parents', { p_class: classId, p_week: week }),
+        setParentPin: (classId: string, on: boolean) => rpc<{ ok: boolean }>('classroom_parent_pin_set', { p_class: classId, p_on: on }),
+        /** A new parent link (the old one stops working); `pin` only when the class uses PINs, shown this once. */
+        newParentLink: (classId: string, userId: string) => rpc<{ code: string; pin?: string }>('classroom_parent_link_new', { p_class: classId, p_user: userId }),
+        revokeParentLink: (classId: string, userId: string) => rpc<{ ok: boolean }>('classroom_parent_link_revoke', { p_class: classId, p_user: userId }),
+        weekMetrics: (classId: string, week: string) => rpc<WeekMetrics>('classroom_week_metrics', { p_class: classId, p_week: week }),
+        approveReport: (classId: string, userId: string, week: string, content: ReportContent) =>
+            rpc<{ ok: boolean; content: ReportContent }>('classroom_report_approve', { p_class: classId, p_user: userId, p_week: week, p_content: content }),
+        /** No account needed: the parent page. */
+        parentView: (code: string, pin?: string) => rpc<ParentView>('parent_view', { p_code: code, p_pin: pin ?? null }),
 
         // Centers and invitations
         orgOverview: (orgId: string) => rpc<OrgOverview>('classroom_org_overview', { p_org: orgId }),

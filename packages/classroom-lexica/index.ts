@@ -258,3 +258,4 @@ export function courseInput(settings: unknown): CourseInput {
 
 export * from './ielts';
 export * from './forecast';
+export * from './parentWeek';

@@ -13,6 +13,7 @@ import { moduleFor, modulesOf } from '../../../../../modules';
 import { boardForecasts, localDay } from '../../../../../lib/forecasts';
 import { useScoreHistories } from '../../../../../lib/useForecasts';
 import { ForecastBlock } from '../../../../../components/Forecast';
+import ParentCard from '../../../../../components/parents/ParentCard';
 
 /** "Em này kẹt ở đâu?": each app's own section, 30 days of learning, a private note. */
 export default function StudentPage({ params }: { params: Promise<{ id: string; userId: string }> }) {
@@ -97,6 +98,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                         </div>
                         <p className="mt-2 text-xs text-muted">{s.days.length} ngày có học</p>
                     </Card>
+                    <ParentCard board={board} userId={userId} name={s.name} />
                     <Card>
                         <CardTitle>Ghi chú riêng</CardTitle>
                         <p className="mb-2 text-xs text-muted">Chỉ giáo viên và quản lý thấy.</p>

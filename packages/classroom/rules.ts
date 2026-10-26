@@ -20,6 +20,10 @@ const MESSAGES: Record<string, string> = {
     'bad payload': 'Bài giao chưa đúng dạng.',
     'no words': 'Chưa có từ nào để giao.',
     'no questions': 'Chưa chọn câu hỏi nào.',
+    'link not found': 'Link này không còn dùng được. Xin giáo viên một link mới nhé.',
+    'link locked': 'Nhập sai mã PIN nhiều lần. Thử lại sau 15 phút.',
+    'bad report': 'Báo cáo còn trống, chưa duyệt được.',
+    'week starts on Monday': 'Tuần chưa đúng (tuần tính từ thứ Hai).',
 };
 
 export function classMessage(raw: string): string {

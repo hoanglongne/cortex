@@ -14,7 +14,7 @@
   - W2 buổi học tự lái: khó đạt, lợi thế không rõ.
 - **W3** (giọng con cho phụ huynh): ý hay nhưng còn chung chung, và phụ huynh nhiều người không rành tiếng Anh. Phần đáng giữ là **nói cho phụ huynh hiểu con làm được gì bằng tiếng Việt dễ hiểu**, đưa vào T4 (mục 3.2).
 
-**Thứ tự làm:** T1 → W4 → T4 → T2.
+**Thứ tự làm:** T1 → W4 → T4 → T2. T1, W4, T4 đã làm (chưa có PR).
 
 ---
 
@@ -158,6 +158,28 @@ Lấy ý hay của W3: **nói con làm được gì bằng tiếng Việt đời
 ### 3.5 PR
 1. Bảng, hàm, trang phụ huynh `/p/<mã>`, nút lấy link.
 2. Báo cáo tuần: soạn tự động, trang duyệt, gửi và chép link, đếm lượt xem.
+
+### 3.6 Trạng thái (26/10/2026): đã làm, chưa có PR
+- **Đã chốt với người dùng:**
+  1. Báo cáo soạn ngay khi giáo viên mở tab "Báo cáo", từ số liệu của đúng tuần đã xong (thứ Hai đến Chủ nhật, `classroom_week_metrics`), nên mở hôm nào cũng ra cùng kết quả. Không dùng `pg_cron`.
+  2. Email để sau. Chỉ làm "Chép link gửi Zalo".
+  3. Không đưa câu con tự viết (giữ đúng quy ước riêng tư). Ví dụ thật lấy từ từ của bài lớp.
+  4. PIN do từng lớp bật hoặc tắt, mặc định tắt. Mỗi link có PIN riêng, chỉ hiện một lần khi tạo.
+- **SQL** (`packages/classroom/sql/classroom_parents.sql`):
+  - bảng `cortex_parent_links`, `cortex_weekly_reports`; cột `cortex_classes.parent_pin`;
+  - hàm cho giáo viên: `classroom_parents`, `classroom_parent_pin_set`, `classroom_parent_link_new`, `classroom_parent_link_revoke`, `classroom_week_metrics`, `classroom_report_approve`;
+  - hàm cho phụ huynh: `parent_view` (anon).
+  - Máy chủ lọc nội dung báo cáo (`cortex_clean_report`). Sai PIN 5 lần thì khoá 15 phút. Phụ huynh không thấy ghi chú riêng của giáo viên.
+- **Soạn báo cáo** (thuần, có test `apps/teach/__tests__/parentReport.test.ts`):
+  - `packages/classroom-lexica/parentWeek.ts`: phần của Lexica trong tuần (từ mới Nhớ, Dùng, Đời; từ của bài lớp làm ví dụ; âm hay nhầm kèm từ ví dụ; điểm đã xác minh);
+  - `apps/teach/app/lib/parentReport.ts`: câu tóm tắt, tối đa 3 việc làm được, một gợi ý cho phụ huynh, lời nhắn của giáo viên.
+  - Tuần đầu vào lớp chỉ nói tổng số; tuần không có số liệu thì nói thẳng là chưa có.
+- **Teach:**
+  - tab "Báo cáo" của lớp thành nơi duyệt: chọn tuần, xem trước đúng như phụ huynh thấy, lời nhắn có gợi ý nhanh, "Duyệt", "Duyệt N báo cáo còn lại", "Chép N link gửi Zalo", đếm phụ huynh đã xem;
+  - khung "Phụ huynh" ở trang một em;
+  - "Link cho phụ huynh" (PIN) trong cài đặt lớp;
+  - trang `/p/<mã>` (không cần tài khoản, `noindex`).
+- **Để sau:** gửi email, câu con tự viết (cần công tắc đồng ý trong Lexica), "Nghe con đọc", soạn tự động tối Chủ nhật bằng `pg_cron`, phần của Oratio trong báo cáo.
 
 ---
 

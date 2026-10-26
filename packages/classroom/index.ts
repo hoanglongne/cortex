@@ -7,3 +7,4 @@ export * from './types';
 export * from './api';
 export * from './rules';
 export * from './module';
+export * from './parents';
