@@ -13,6 +13,7 @@ import { TEACH_URL } from '../lib/cortexConfig';
 import { refreshClasses, reportNow } from '../lib/classSync';
 import { BRANCH_LABEL } from '../lib/journey/path';
 import { getCard } from '../lib/content/repository';
+import { applyArenaResults } from '../arena/applyResults';
 
 /**
  * "Lớp học" for a student (docs/LEXICA_DIRECTION.md, "Trung tâm"): join a
@@ -32,6 +33,8 @@ export default function ClassPage() {
 
     const load = useCallback(async () => {
         setClasses(await refreshClasses(true));
+        // Words missed in a class quiz go back into review (once per quiz)
+        applyArenaResults().catch(() => undefined);
     }, []);
 
     useEffect(() => {

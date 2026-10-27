@@ -14,7 +14,7 @@
   - W2 buổi học tự lái: khó đạt, lợi thế không rõ.
 - **W3** (giọng con cho phụ huynh): ý hay nhưng còn chung chung, và phụ huynh nhiều người không rành tiếng Anh. Phần đáng giữ là **nói cho phụ huynh hiểu con làm được gì bằng tiếng Việt dễ hiểu**, đưa vào T4 (mục 3.2).
 
-**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học (mục 3.7) và T2a (mục 4.8) đã làm, chưa có PR.
+**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học (mục 3.7), T2a và T2b (mục 4.8, 4.9) đã làm, chưa có PR.
 
 ---
 
@@ -291,7 +291,21 @@ Bảng xếp hạng có thể **ẩn tên** (chỉ hiện top 3 với tên, còn
 - **Câu hỏi** (`apps/teach/app/lib/arena.ts`, có test): xen kẽ "từ → chọn nghĩa" và "nghĩa → chọn từ"; đáp án sai lấy cùng cấp độ, cùng nhánh trước, không bao giờ có hai đáp án đúng. Nguồn: một bài giao, từ cả lớp sắp quên (W4), mọi bài của lớp, hoặc các từ khó của ván trước.
 - **Teach** ("Trên lớp" → "Đấu trường", `components/arena/Arena.tsx`): chọn từ, số câu, giây mỗi câu, ẩn tên ngoài top 3 → phòng chờ (mã to, danh sách em đã vào) → câu hỏi (đồng hồ, số em đã trả lời, tự khoá khi hết giờ hoặc cả lớp đã trả lời) → đáp án, số em chọn từng ý, top dẫn đầu → bục vinh danh, "Câu khó nhất", "Chơi lại N từ khó".
 - **Lexica** (`app/arena/`): trang `/arena` (một chạm vào phòng của lớp, hoặc nhập mã; link `?code=`), 4 nút màu có hình, "Đã gửi", đúng/sai và điểm sau khi khoá, hạng cuối ván; trang Lớp học có thẻ "Vào đấu trường" khi lớp đang mở phòng.
-- **Còn lại cho T2b, T2c:** chế độ Đội, Sống sót, Tiến bộ; đẩy từ sai vào hàng ôn trong Lexica và tính lần nhớ đúng; bảng phân tích kỹ hơn (em đoán bừa); mã QR; trang `play` cho khách; lịch sử các ván; câu Nghe.
+
+### 4.9 Trạng thái T2b (27/10/2026): đã làm, chưa có PR
+- **Chế độ Đội** (2–4 đội, tên theo màu: Xanh lá, Cam, Xanh dương, Vàng):
+  - Teach chia đều sức ngay ở phòng chờ (em mạnh nhất chia lần lượt qua lại giữa các đội: `arenaTeams`), có nút "Chia đều lại"; em vào sau vào đội ít người nhất (cả ở máy chủ khi đã bắt đầu);
+  - điểm đội là **điểm trung bình** của thành viên; máy chiếu hiện thanh đua giữa các đội sau mỗi câu và đội thắng ở cuối; điện thoại hiện đội và hạng của đội.
+  - SQL: `cortex_arena_rooms.teams`, `cortex_arena_players.team`, `arena_teams_set`, `arena_open(…, p_mode, p_teams)`.
+- **Từ sai vào bài ôn** (`apps/lexica/app/lib/arenaReview.ts`, có test): khi ván kết thúc (và mỗi lần mở trang Lớp học), Lexica đọc `arena_my_results` (14 ngày):
+  - từ đã học mà trả lời sai: ôn lại ngay (như trả lời sai trong phần Ôn);
+  - từ đã học mà đúng nhanh (dưới 60% thời gian): tính là một lần nhớ đúng;
+  - từ chưa học mà sai: vào thẻ mới của phiên Hôm nay;
+  - mỗi ván chỉ áp một lần (`arenaApplied` trong store).
+  - Điện thoại báo "Em sai N từ, đã thêm vào bài ôn của em".
+- **Phân tích cho giáo viên** (cuối ván, ẩn sẵn vì máy chiếu đang bật): từng em đúng bao nhiêu câu, mất bao lâu mỗi câu, cờ "Đoán vội" (ít nhất 2 câu sai trả lời dưới 1,5 giây và chiếm từ một phần ba số câu: `guessers`).
+- **Giảng lại:** nút "Giảng lại N từ" mở Trình chiếu từ với đúng các từ cả lớp sai nhiều (`/present/<lớp>?tool=slides&words=…`).
+- **Còn lại cho T2c:** chế độ Sống sót, Tiến bộ; mã QR; trang `play` cho khách; lịch sử các ván; câu Nghe.
 
 ---
 

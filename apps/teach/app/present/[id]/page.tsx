@@ -89,19 +89,26 @@ function Present({ id }: { id: string }) {
         void wordIndex().then(setWords);
     }, []);
 
-    const setParam = (k: string, v: string | null) => {
+    const setParams = (patch: Record<string, string | null>) => {
         const q = new URLSearchParams(params.toString());
-        if (v === null) q.delete(k);
-        else q.set(k, v);
+        for (const [k, v] of Object.entries(patch)) {
+            if (v === null) q.delete(k);
+            else q.set(k, v);
+        }
         window.history.replaceState(null, '', `${path}?${q.toString()}`);
     };
+    const setParam = (k: string, v: string | null) => setParams({ [k]: v });
+    // Words to teach again from the arena (?words=id,id), instead of a lesson
+    const again = params.get('words')?.split(',').filter(Boolean) ?? null;
 
     const lessons = useMemo(() => (board?.assignments ?? []).filter((a) => a.app === 'lexica'), [board]);
     const lesson = lessons.find((a) => a.id === assignmentId) ?? lessons[0] ?? null;
+    const againKey = again?.join(',') ?? '';
     const cards = useMemo<IndexCard[]>(() => {
-        if (!lesson || !words) return [];
-        return lexicaModule.parsePayload('words', lesson.payload).card_ids.map((cid) => words.byId.get(cid)).filter((c): c is IndexCard => Boolean(c));
-    }, [lesson, words]);
+        if (!words) return [];
+        const ids = againKey ? againKey.split(',') : lesson ? lexicaModule.parsePayload('words', lesson.payload).card_ids : [];
+        return ids.map((cid) => words.byId.get(cid)).filter((c): c is IndexCard => Boolean(c));
+    }, [lesson, words, againKey]);
 
     const present = useMemo<Person[]>(() => {
         if (!board) return [];
@@ -144,7 +151,15 @@ function Present({ id }: { id: string }) {
                         </button>
                     ))}
                 </nav>
-                {tool === 'slides' && lessons.length > 1 && (
+                {tool === 'slides' && again && (
+                    <span className="flex h-10 items-center gap-2 rounded-xl bg-warm-soft px-3 text-sm text-warm">
+                        {again.length} từ khó từ Đấu trường
+                        <button onClick={() => setParam('words', null)} aria-label="Về bài giao" className="text-warm hover:text-ink">
+                            <X className="h-4 w-4" />
+                        </button>
+                    </span>
+                )}
+                {tool === 'slides' && !again && lessons.length > 1 && (
                     <select value={lesson?.id ?? ''} onChange={(e) => setParam('assignment', e.target.value)} aria-label="Bài" className="h-10 max-w-[14rem] rounded-xl border border-line bg-surface px-2 text-sm text-ink-2">
                         {lessons.map((a) => (
                             <option key={a.id} value={a.id}>
@@ -204,18 +219,18 @@ function Present({ id }: { id: string }) {
 
             <main className="min-h-0 flex-1">
                 {tool === 'slides' &&
-                    (lessons.length === 0 ? (
+                    (lessons.length === 0 && !again ? (
                         <p className="p-10 text-center text-muted">Lớp chưa có bài từ vựng nào. Giao một bài ở mục Bài giao rồi quay lại trình chiếu.</p>
                     ) : !words ? (
                         <div className="h-full animate-pulse bg-surface-2/40" />
                     ) : words.error ? (
                         <p className="p-10 text-center text-danger">{words.error}</p>
                     ) : (
-                        <Slides key={lesson?.id} cards={cards} remembered={remembered} students={board.students.length} />
+                        <Slides key={againKey || lesson?.id} cards={cards} remembered={remembered} students={board.students.length} />
                     ))}
                 {tool === 'pick' && <Picker classId={id} people={present} onAbsent={(sid) => !absent.includes(sid) && toggle(sid)} />}
                 {tool === 'groups' && <Groups people={present} />}
-                {tool === 'arena' && <Arena board={board} words={words} />}
+                {tool === 'arena' && <Arena board={board} words={words} people={present} onTeach={(ids) => setParams({ tool: 'slides', words: ids.join(',') })} />}
             </main>
         </div>
     );

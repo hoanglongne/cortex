@@ -5270,7 +5270,11 @@ notify pgrst, 'reload schema';
 --
 -- Rooms: one live room per class (opening a new one finishes the old), a
 -- 6-digit code, 3 to 30 questions, 10 to 60 seconds each. Players are the
--- class's students. Every read and write goes through the functions below;
+-- class's students. Modes: classic (everyone for themselves) and team (2–4
+-- teams the teacher balances; a team's score is its members' average, so a
+-- weaker student still adds to it). When the room finishes, each player's
+-- answers stay readable to them (arena_my_results) so Lexica can put the
+-- words they missed back into review. Every read and write goes through the functions below;
 -- the tables have RLS on and no policies.
 
 create table if not exists cortex_arena_rooms (
@@ -5278,7 +5282,7 @@ create table if not exists cortex_arena_rooms (
   class_id uuid not null references cortex_classes(id) on delete cascade,
   code text not null check (code ~ '^[0-9]{6}$'),
   host uuid references auth.users(id) on delete set null,
-  mode text not null default 'classic' check (mode in ('classic')),
+  mode text not null default 'classic',
   seconds int not null check (seconds between 10 and 60),
   -- Only the top 3 by name on the projector; the rest see their own rank on their phone
   hide_names boolean not null default true,
@@ -5289,6 +5293,10 @@ create table if not exists cortex_arena_rooms (
   finished_at timestamptz
 );
 -- A code is unique among rooms still running
+-- Added with team mode (T2b)
+alter table cortex_arena_rooms add column if not exists teams int not null default 0;
+alter table cortex_arena_rooms drop constraint if exists cortex_arena_rooms_mode_check;
+alter table cortex_arena_rooms add constraint cortex_arena_rooms_mode_check check (mode in ('classic', 'team') and teams between 0 and 4 and (mode = 'classic') = (teams = 0));
 create unique index if not exists cortex_arena_rooms_code_idx on cortex_arena_rooms (code) where state <> 'finished';
 create index if not exists cortex_arena_rooms_class_idx on cortex_arena_rooms (class_id, created_at desc);
 
@@ -5312,6 +5320,8 @@ create table if not exists cortex_arena_players (
   joined_at timestamptz not null default now(),
   primary key (room_id, user_id)
 );
+
+alter table cortex_arena_players add column if not exists team int check (team between 1 and 4);
 
 create table if not exists cortex_arena_answers (
   room_id uuid not null references cortex_arena_rooms(id) on delete cascade,
@@ -5351,6 +5361,26 @@ returns table (user_id uuid, name text, score int, rank int) language sql stable
   select p.user_id, p.name, p.score, (rank() over (order by p.score desc))::int
   from cortex_arena_players p where p.room_id = p_room
   order by p.score desc, p.joined_at;
+$$;
+
+-- Each team's score (its members' average, rounded), size and rank; empty outside team mode.
+create or replace function public.cortex_arena_teams(p_room uuid)
+returns table (team int, members int, score int, rank int) language sql stable as $$
+  select t.team, t.members, t.score, (rank() over (order by t.score desc))::int
+  from (
+    select p.team, count(*)::int as members, round(avg(p.score))::int as score
+    from cortex_arena_players p where p.room_id = p_room and p.team is not null
+    group by p.team
+  ) t
+  order by t.score desc, t.team;
+$$;
+
+-- The team with the fewest players (the lowest number on a tie), for someone without one.
+create or replace function public.cortex_arena_smallest_team(p_room uuid)
+returns int language sql stable as $$
+  select g from generate_series(1, (select teams from cortex_arena_rooms where id = p_room)) g
+  order by (select count(*) from cortex_arena_players p where p.room_id = p_room and p.team = g), g
+  limit 1;
 $$;
 
 -- Questions a teacher sends: 3–30 objects {card_id?, kind, prompt, options[2..4], answer}. Bad ones are refused.
@@ -5397,7 +5427,8 @@ $$;
 -- ── teacher ─────────────────────────────────────────────────────────────
 
 -- Open a room for the class with these questions; a room still running in the class is finished first.
-create or replace function public.arena_open(p_class uuid, p_seconds int, p_questions jsonb, p_hide_names boolean default true)
+drop function if exists public.arena_open(uuid, int, jsonb, boolean);
+create or replace function public.arena_open(p_class uuid, p_seconds int, p_questions jsonb, p_hide_names boolean default true, p_mode text default 'classic', p_teams int default 0)
 returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
   qs jsonb;
@@ -5406,6 +5437,7 @@ declare
   b bytea;
 begin
   if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  if coalesce(p_mode, 'classic') not in ('classic', 'team') or (p_mode = 'team' and coalesce(p_teams, 0) not between 2 and 4) then raise exception 'bad mode'; end if;
   qs := cortex_arena_clean_questions(p_questions);
   update cortex_arena_rooms set state = 'finished', finished_at = now() where class_id = p_class and state <> 'finished';
   loop
@@ -5413,8 +5445,9 @@ begin
     c := lpad((((get_byte(b, 0) * 65536 + get_byte(b, 1) * 256 + get_byte(b, 2)) % 900000) + 100000)::text, 6, '0');
     exit when not exists (select 1 from cortex_arena_rooms where code = c and state <> 'finished');
   end loop;
-  insert into cortex_arena_rooms (class_id, code, host, seconds, hide_names)
-  values (p_class, c, auth.uid(), least(greatest(coalesce(p_seconds, 20), 10), 60), coalesce(p_hide_names, true))
+  insert into cortex_arena_rooms (class_id, code, host, seconds, hide_names, mode, teams)
+  values (p_class, c, auth.uid(), least(greatest(coalesce(p_seconds, 20), 10), 60), coalesce(p_hide_names, true),
+    coalesce(p_mode, 'classic'), case when p_mode = 'team' then p_teams else 0 end)
   returning id into rid;
   insert into cortex_arena_questions (room_id, idx, card_id, kind, prompt, options, answer)
   select rid, (o - 1)::int, q->>'card_id', q->>'kind', q->>'prompt', q->'options', (q->>'answer')::int
@@ -5433,6 +5466,16 @@ begin
   if r.state = 'finished' then return jsonb_build_object('state', 'finished'); end if;
   if r.state = 'question' then raise exception 'question still open'; end if;
   select count(*) into total from cortex_arena_questions where room_id = p_room;
+  -- Starting a team game: anyone the teacher's split missed joins the smallest team
+  if r.q_index = -1 and r.mode = 'team' then
+    perform 1 from cortex_arena_players where room_id = p_room for update;
+    declare u uuid;
+    begin
+      for u in select user_id from cortex_arena_players where room_id = p_room and team is null order by joined_at loop
+        update cortex_arena_players set team = cortex_arena_smallest_team(p_room) where room_id = p_room and user_id = u;
+      end loop;
+    end;
+  end if;
   if r.q_index + 1 >= total then
     update cortex_arena_rooms set state = 'finished', finished_at = now() where id = p_room;
     return jsonb_build_object('state', 'finished');
@@ -5466,6 +5509,22 @@ begin
 end;
 $$;
 
+-- The teacher's split into teams (user id → team 1..N), before the first question.
+create or replace function public.arena_teams_set(p_room uuid, p_teams jsonb)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms := cortex_arena_room_teach(p_room);
+begin
+  if r.mode <> 'team' or r.state <> 'lobby' then raise exception 'bad mode'; end if;
+  if jsonb_typeof(p_teams) <> 'object' then raise exception 'bad mode'; end if;
+  update cortex_arena_players p set team = (t.value #>> '{}')::int
+  from jsonb_each(p_teams) t
+  where p.room_id = p_room and p.user_id::text = t.key
+    and jsonb_typeof(t.value) = 'number' and (t.value #>> '{}') ~ '^[1-4]$' and (t.value #>> '{}')::int <= r.teams;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
 -- Everything the projector shows: the room, the players, the question (with
 -- its answer only once locked), how many answered, and per option how many
 -- chose it once locked; at the end, each question's share of right answers.
@@ -5477,10 +5536,12 @@ declare
 begin
   select * into q from cortex_arena_questions where room_id = p_room and idx = r.q_index;
   return jsonb_build_object(
-    'id', r.id, 'class_id', r.class_id, 'code', r.code, 'mode', r.mode, 'seconds', r.seconds, 'hide_names', r.hide_names,
+    'id', r.id, 'class_id', r.class_id, 'code', r.code, 'mode', r.mode, 'teams', r.teams, 'seconds', r.seconds, 'hide_names', r.hide_names,
     'state', r.state, 'q_index', r.q_index, 'q_opened_at', r.q_opened_at, 'now', now(),
     'total', (select count(*) from cortex_arena_questions where room_id = p_room),
-    'players', coalesce((select jsonb_agg(jsonb_build_object('user_id', k.user_id, 'name', k.name, 'score', k.score, 'rank', k.rank)) from cortex_arena_ranking(p_room) k), '[]'::jsonb),
+    'players', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('user_id', k.user_id, 'name', k.name, 'score', k.score, 'rank', k.rank,
+      'team', (select team from cortex_arena_players x where x.room_id = p_room and x.user_id = k.user_id)))) from cortex_arena_ranking(p_room) k), '[]'::jsonb),
+    'team_scores', case when r.mode = 'team' then coalesce((select jsonb_agg(jsonb_build_object('team', t.team, 'members', t.members, 'score', t.score, 'rank', t.rank)) from cortex_arena_teams(p_room) t), '[]'::jsonb) end,
     'question', case when q.room_id is not null and r.state in ('question', 'reveal') then jsonb_strip_nulls(jsonb_build_object(
       'idx', q.idx, 'card_id', q.card_id, 'kind', q.kind, 'prompt', q.prompt, 'options', q.options,
       'answer', case when r.state = 'reveal' then q.answer end,
@@ -5497,6 +5558,17 @@ begin
         'correct', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.idx = x.idx and a.correct)
       ) order by x.idx)
       from cortex_arena_questions x where x.room_id = p_room
+    ), '[]'::jsonb) end,
+    -- Per student at the end: right answers, how fast, and quick wrong answers (under 1.5 s: likely a guess)
+    'stats', case when r.state = 'finished' then coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'user_id', p.user_id, 'name', p.name,
+        'answered', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id),
+        'correct', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id and a.correct),
+        'avg_ms', (select round(avg(a.ms))::int from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id),
+        'fast_wrong', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id and not a.correct and a.ms < 1500)
+      ) order by p.name)
+      from cortex_arena_players p where p.room_id = p_room
     ), '[]'::jsonb) end
   );
 end;
@@ -5528,6 +5600,10 @@ begin
   if nm is null then raise exception 'not in this class'; end if;
   insert into cortex_arena_players (room_id, user_id, name) values (r.id, auth.uid(), nm)
   on conflict (room_id, user_id) do nothing;
+  -- A team game already under way: a newcomer joins the smallest team
+  if r.mode = 'team' and r.state <> 'lobby' then
+    update cortex_arena_players set team = cortex_arena_smallest_team(r.id) where room_id = r.id and user_id = auth.uid() and team is null;
+  end if;
   return jsonb_build_object('id', r.id);
 end;
 $$;
@@ -5555,6 +5631,10 @@ begin
     'total', (select count(*) from cortex_arena_questions where room_id = p_room),
     'class', (select name from cortex_classes where id = r.class_id),
     'name', me.name, 'score', me.score, 'streak', me.streak, 'rank', my_rank,
+    'mode', r.mode, 'team', me.team,
+    'team_score', (select t.score from cortex_arena_teams(p_room) t where t.team = me.team),
+    'team_rank', (select t.rank from cortex_arena_teams(p_room) t where t.team = me.team),
+    'teams', nullif(r.teams, 0),
     'players', (select count(*) from cortex_arena_players where room_id = p_room),
     'question', case when q.room_id is not null and r.state in ('question', 'reveal') then jsonb_strip_nulls(jsonb_build_object(
       'idx', q.idx, 'kind', q.kind, 'prompt', q.prompt, 'options', q.options,
@@ -5603,16 +5683,34 @@ begin
 end;
 $$;
 
+-- A student's answers in rooms finished in the last 14 days, by the word asked:
+-- Lexica puts the words they got wrong back into review, and counts a quick
+-- right answer as remembering it. Lexica keeps which rooms it already applied.
+create or replace function public.arena_my_results()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'room_id', r.id, 'seconds', r.seconds, 'finished_at', r.finished_at,
+    'answers', (
+      select coalesce(jsonb_agg(jsonb_build_object('card_id', q.card_id, 'correct', a.correct, 'ms', a.ms) order by q.idx), '[]'::jsonb)
+      from cortex_arena_answers a join cortex_arena_questions q on q.room_id = a.room_id and q.idx = a.idx
+      where a.room_id = r.id and a.user_id = auth.uid() and q.card_id is not null
+    )
+  ) order by r.finished_at), '[]'::jsonb)
+  from cortex_arena_rooms r
+  join cortex_arena_players p on p.room_id = r.id and p.user_id = auth.uid()
+  where r.state = 'finished' and r.finished_at > now() - interval '14 days';
+$$;
+
 do $$
 declare f text;
 begin
-  foreach f in array array['arena_open(uuid, int, jsonb, boolean)', 'arena_next(uuid)', 'arena_lock(uuid)', 'arena_finish(uuid)',
+  foreach f in array array['arena_open(uuid, int, jsonb, boolean, text, int)', 'arena_teams_set(uuid, jsonb)', 'arena_my_results()', 'arena_next(uuid)', 'arena_lock(uuid)', 'arena_finish(uuid)',
     'arena_host_state(uuid)', 'arena_open_rooms()', 'arena_join(text)', 'arena_state(uuid)', 'arena_answer(uuid, int, int)'] loop
     execute format('revoke all on function public.%s from public, anon', f);
     execute format('grant execute on function public.%s to authenticated', f);
   end loop;
   foreach f in array array['cortex_arena_grace()', 'cortex_arena_points(boolean, int, int, int)', 'cortex_arena_ranking(uuid)',
-    'cortex_arena_clean_questions(jsonb)', 'cortex_arena_room_teach(uuid)'] loop
+    'cortex_arena_clean_questions(jsonb)', 'cortex_arena_room_teach(uuid)', 'cortex_arena_teams(uuid)', 'cortex_arena_smallest_team(uuid)'] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
   end loop;
 end $$;

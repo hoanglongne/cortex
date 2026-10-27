@@ -16,20 +16,56 @@ export interface ArenaQuestionInput {
     answer: number;
 }
 
+export type ArenaMode = 'classic' | 'team';
+
 export interface ArenaPlayer {
     user_id: string;
     name: string;
     score: number;
     /** 1 for the leader; ties share a rank. */
     rank: number;
+    /** Team mode: 1..4. */
+    team?: number;
 }
+
+/** A team's standing: its members' average score. */
+export interface ArenaTeamScore {
+    team: number;
+    members: number;
+    score: number;
+    rank: number;
+}
+
+/** One student's game, for the teacher at the end. */
+export interface ArenaStat {
+    user_id: string;
+    name: string;
+    answered: number;
+    correct: number;
+    avg_ms: number | null;
+    /** Wrong answers given in under 1.5 seconds. */
+    fast_wrong: number;
+}
+
+/** A student's answers in a finished room (arena_my_results), for Lexica's review. */
+export interface ArenaResult {
+    room_id: string;
+    seconds: number;
+    finished_at: string;
+    answers: { card_id: string; correct: boolean; ms: number }[];
+}
+
+/** Team names by number, each the colour of the matching answer tile (arena-1..4). */
+export const ARENA_TEAMS = ['', 'Đội Xanh lá', 'Đội Cam', 'Đội Xanh dương', 'Đội Vàng'] as const;
 
 /** The projector's view (arena_host_state). */
 export interface ArenaHost {
     id: string;
     class_id: string;
     code: string;
-    mode: 'classic';
+    mode: ArenaMode;
+    /** Team mode: how many teams (2–4); 0 otherwise. */
+    teams: number;
     seconds: number;
     hide_names: boolean;
     state: ArenaState;
@@ -53,6 +89,10 @@ export interface ArenaHost {
     };
     /** At the end: each question's share of right answers. */
     summary?: { idx: number; card_id?: string; prompt: string; right: string; answered: number; correct: number }[];
+    /** Team mode. */
+    team_scores?: ArenaTeamScore[];
+    /** At the end: each student's game. */
+    stats?: ArenaStat[];
 }
 
 /** A player's phone (arena_state). */
@@ -70,6 +110,12 @@ export interface ArenaPlayerView {
     streak: number;
     rank: number;
     players: number;
+    mode: ArenaMode;
+    /** Team mode: this player's team, its score and rank, and how many teams. */
+    team?: number;
+    team_score?: number;
+    team_rank?: number;
+    teams?: number;
     question?: { idx: number; kind: string; prompt: string; options: string[]; answer?: number };
     /** This player's answer to the current question; right or wrong only once locked. */
     mine?: { choice: number; correct?: boolean; points?: number };

@@ -100,6 +100,7 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - Teach: `components/arena/Arena.tsx`, `lib/arena.ts` (ra câu hỏi, có test `__tests__/arena.test.ts`), `lib/useArenaHost.ts`; mở từ "Trên lớp" → "Đấu trường".
   - Lexica: `app/arena/` (trang `/arena`, `useArenaPlayer.ts`), thẻ "Vào đấu trường" ở `/class`.
   - Màu 4 đáp án là token `arena-1..4` trong theme của cả hai app.
+- **T2b: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN 4.9): chế độ Đội, từ sai vào bài ôn trong Lexica (`app/lib/arenaReview.ts`, `app/arena/applyResults.ts`, store `applyArena`), phân tích từng em và "Giảng lại N từ". SQL vẫn ở `classroom_arena.sql` (chạy lại file này).
 - **Người dùng chạy trên Supabase, theo thứ tự** (chạy lại nhiều lần không lỗi):
   1. `packages/classroom/sql/classroom_core.sql`
   2. `packages/classroom/sql/classroom_parents.sql`
@@ -107,7 +108,7 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   4. `packages/classroom/sql/classroom_arena.sql`
   5. `packages/classroom-lexica/sql/classroom_lexica.sql`
   6. `apps/lexica/supabase/migration_placement.sql`
-- **Việc tiếp theo: T2b** (TEACH_PLAN 4.7): chế độ Đội, đẩy từ sai vào hàng ôn trong Lexica, bảng phân tích cho giáo viên. Cần thử T2a với lớp thật trước (Realtime trên Supabase thật, wifi lớp).
+- **Việc tiếp theo:** thử Đấu trường với lớp thật (Realtime trên Supabase thật, wifi lớp), rồi T2c (TEACH_PLAN 4.9) hoặc T3, T5.
 
 ## 5. Việc của người dùng còn treo
 - Railway, Cortex API: thêm `SUPABASE_SERVICE_ROLE_KEY`, `STUDIO_CRON=on`, rồi Redeploy. Railway từng có sự cố tạm dừng deploy.

@@ -32,6 +32,7 @@ const MESSAGES: Record<string, string> = {
     'too late': 'Hết giờ cho câu này rồi.',
     'question still open': 'Câu hỏi còn đang mở.',
     'bad answer': 'Lựa chọn không hợp lệ.',
+    'bad mode': 'Chế độ đội cần 2 đến 4 đội, và chỉ chia đội trước khi bắt đầu.',
 };
 
 export function classMessage(raw: string): string {

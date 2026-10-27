@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Check, Swords, Trophy, X } from 'lucide-react';
-import { ARENA_SHAPES, timeLeft, type ArenaPlayerView, type ArenaRoomOpen } from '@cortex/classroom';
+import { ARENA_SHAPES, ARENA_TEAMS, timeLeft, type ArenaPlayerView, type ArenaRoomOpen } from '@cortex/classroom';
 import { useAuth } from '../context/AuthContext';
 import AuthGate from '../components/AuthGate';
 import { arenaJoin, arenaOpenRooms } from '../lib/classes';
 import { useArenaPlayer } from './useArenaPlayer';
+import { applyArenaResults } from './applyResults';
 
 const TILE = ['bg-arena-1', 'bg-arena-2', 'bg-arena-3', 'bg-arena-4'];
 const ROOM_KEY = 'lexica-arena-room';
@@ -33,7 +34,9 @@ function writeRoom(id: string | null) {
  * "Đấu trường từ vựng", the student's phone (docs/TEACH_PLAN.md 4): join the
  * room the teacher opened for the class (one tap, or the 6-digit code), then
  * answer each question on the projector with four big buttons. Right or
- * wrong, points and rank show once the teacher closes the question.
+ * wrong, points and rank (and the team's, in team mode) show once the
+ * teacher closes the question. At the end, the words they missed go back
+ * into their review.
  */
 export default function ArenaPage() {
     return (
@@ -176,6 +179,19 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
     const [picked, setPicked] = useState<{ idx: number; choice: number } | null>(null);
     const [sendError, setSendError] = useState('');
     const open = view?.state === 'question';
+    const [applied, setApplied] = useState<{ again: number; recalled: number; queued: number } | null>(null);
+    const finished = view?.state === 'finished';
+    useEffect(() => {
+        if (!finished) return;
+        let live = true;
+        applyArenaResults().then(
+            (r) => live && setApplied(r),
+            () => undefined,
+        );
+        return () => {
+            live = false;
+        };
+    }, [finished]);
 
     useEffect(() => {
         if (!open) return;
@@ -206,6 +222,12 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
 
     return (
         <div className="mt-4 flex flex-1 flex-col">
+            {view.team && (
+                <p className={`mb-3 self-start rounded-full px-3 py-1 text-sm font-bold text-on-arena ${TILE[view.team - 1]}`}>
+                    {ARENA_TEAMS[view.team]}
+                    {view.team_rank && view.teams ? ` · hạng ${view.team_rank}/${view.teams}` : ''}
+                </p>
+            )}
             <div className="flex items-center justify-between font-mono text-sm text-muted">
                 <span>{view.state === 'lobby' || view.state === 'finished' ? view.class : `Câu ${view.q_index + 1}/${view.total}`}</span>
                 <span className="text-ink">
@@ -277,11 +299,20 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
             {view.state === 'finished' && (
                 <div className="flex flex-1 flex-col items-center justify-center text-center">
                     <Trophy className="h-12 w-12 text-warning" />
+                    {view.team && view.team_rank && (
+                        <p className="mt-4 text-xl font-bold text-ink">{view.team_rank === 1 ? `${ARENA_TEAMS[view.team]} thắng!` : `${ARENA_TEAMS[view.team]} về thứ ${view.team_rank}`}</p>
+                    )}
                     <p className="mt-4 text-3xl font-bold text-ink">
                         Hạng {view.rank}
                         <span className="text-lg text-muted">/{view.players}</span>
                     </p>
                     <p className="mt-1 font-mono text-muted">{view.score} điểm</p>
+                    {applied && applied.again + applied.queued + applied.recalled > 0 && (
+                        <p className="mt-4 max-w-xs text-sm text-ink-2">
+                            {applied.again + applied.queued > 0 ? `Em sai ${applied.again + applied.queued} từ, đã thêm vào bài ôn của em.` : ''}
+                            {applied.recalled > 0 ? ` ${applied.recalled} từ em trả lời nhanh được tính là đã nhớ.` : ''}
+                        </p>
+                    )}
                     {view.top && view.top.length > 0 && (
                         <ol className="mt-6 w-full max-w-xs space-y-1.5 text-left">
                             {view.top.map((t) => (
@@ -336,6 +367,11 @@ function Reveal({ view }: { view: ArenaPlayerView }) {
             <p className="mt-8 font-mono text-sm text-ink-2">
                 {view.score} điểm · hạng {view.rank}/{view.players}
             </p>
+            {view.team && view.team_score !== undefined && (
+                <p className="mt-1 font-mono text-sm text-muted">
+                    {ARENA_TEAMS[view.team]}: {view.team_score} điểm · hạng {view.team_rank}/{view.teams}
+                </p>
+            )}
         </div>
     );
 }

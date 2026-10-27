@@ -41,7 +41,7 @@ export function shortMeaning(m: string): string {
     return first.length > 60 ? `${first.slice(0, 59).trimEnd()}…` : first;
 }
 
-function shuffle<T>(xs: T[], rand: () => number): T[] {
+function shuffle<T>(xs: readonly T[], rand: () => number): T[] {
     const a = [...xs];
     for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(rand() * (i + 1));
@@ -88,4 +88,46 @@ export function arenaQuestions(targets: readonly IndexCard[], pool: readonly Ind
 /** Words most of the class got wrong (under 60% right): the next round, or the next lesson. */
 export function hardWords(summary: readonly { card_id?: string; answered: number; correct: number }[], share = 0.6): string[] {
     return summary.filter((q) => q.card_id && q.answered > 0 && q.correct / q.answered < share).map((q) => q.card_id!);
+}
+
+/**
+ * Team mode: `teams` teams of even strength. Strongest first, dealt back
+ * and forth (1, 2, 3, 3, 2, 1…) so no team gets all the strong students;
+ * a student with no known level counts as the class middle; ties fall
+ * differently each time.
+ */
+export function arenaTeams(players: readonly { id: string; strength: number | null }[], teams: number, rand: () => number = Math.random): Record<string, number> {
+    const known = players.filter((p) => p.strength !== null).map((p) => p.strength!);
+    const middle = known.length ? known.reduce((a, b) => a + b, 0) / known.length : 0;
+    const sorted = shuffle(players, rand).sort((a, b) => (b.strength ?? middle) - (a.strength ?? middle));
+    const out: Record<string, number> = {};
+    sorted.forEach((p, i) => {
+        const round = Math.floor(i / teams);
+        const pos = i % teams;
+        out[p.id] = (round % 2 === 0 ? pos : teams - 1 - pos) + 1;
+    });
+    return out;
+}
+
+/** Players who joined after the split go to the smallest team, the lowest number on a tie. */
+export function fillTeams(split: Record<string, number>, ids: readonly string[], teams: number): Record<string, number> {
+    const out: Record<string, number> = {};
+    for (const id of ids) if (split[id] >= 1 && split[id] <= teams) out[id] = split[id];
+    for (const id of ids) {
+        if (out[id]) continue;
+        const size = (t: number) => Object.values(out).filter((x) => x === t).length;
+        let best = 1;
+        for (let t = 2; t <= teams; t++) if (size(t) < size(best)) best = t;
+        out[id] = best;
+    }
+    return out;
+}
+
+/**
+ * Students who seem to tap before reading: at least 2 wrong answers in under
+ * 1.5 seconds, and at least a third of what they answered. The teacher sees
+ * this at the end, never the class.
+ */
+export function guessers<S extends { answered: number; fast_wrong: number }>(stats: readonly S[]): S[] {
+    return stats.filter((s) => s.fast_wrong >= 2 && s.fast_wrong * 3 >= s.answered);
 }

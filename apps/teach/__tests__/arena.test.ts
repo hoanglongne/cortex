@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { timeLeft, type Board } from '@cortex/classroom';
-import { arenaQuestions, forgettingWords, hardWords, shortMeaning, sourceWords } from '../app/lib/arena';
+import { arenaQuestions, arenaTeams, fillTeams, forgettingWords, guessers, hardWords, shortMeaning, sourceWords } from '../app/lib/arena';
 import type { IndexCard } from '../app/modules/lexica/words';
 
 const card = (id: string, word: string, meaning: string, level = 'intermediate', branch: 'cert' | 'talk' = 'cert'): IndexCard => ({ id, word, meaning, level, branch });
@@ -93,5 +93,41 @@ describe('shared clock', () => {
         expect(timeLeft(v, got, got + 3_000)).toBe(12_000);
         expect(timeLeft(v, got, got + 60_000)).toBe(0);
         expect(timeLeft({ ...v, q_opened_at: null }, got, got)).toBe(0);
+    });
+});
+
+describe('teams', () => {
+    const players = [
+        { id: 'a', strength: 1200 },
+        { id: 'b', strength: 1100 },
+        { id: 'c', strength: 1000 },
+        { id: 'd', strength: 900 },
+        { id: 'e', strength: null },
+        { id: 'f', strength: 800 },
+    ];
+
+    it('deals strongest first, back and forth, so teams are even', () => {
+        const t = arenaTeams(players, 2, seq);
+        expect(Object.keys(t)).toHaveLength(6);
+        const sum = (n: number) => players.filter((p) => t[p.id] === n).reduce((x, p) => x + (p.strength ?? 1000), 0);
+        expect(Object.values(t).filter((x) => x === 1)).toHaveLength(3);
+        // 1200 and 1100 are split; the totals are close
+        expect(t.a).not.toBe(t.b);
+        expect(Math.abs(sum(1) - sum(2))).toBeLessThanOrEqual(200);
+        const three = arenaTeams(players, 3, seq);
+        expect(new Set(Object.values(three))).toEqual(new Set([1, 2, 3]));
+        expect([1, 2, 3].map((n) => Object.values(three).filter((x) => x === n).length)).toEqual([2, 2, 2]);
+    });
+
+    it('puts late players in the smallest team and drops ones who left', () => {
+        expect(fillTeams({ a: 1, b: 2, c: 1, gone: 2 }, ['a', 'b', 'c', 'd', 'e'], 2)).toEqual({ a: 1, b: 2, c: 1, d: 2, e: 1 });
+        expect(fillTeams({ a: 7 }, ['a'], 3)).toEqual({ a: 1 });
+    });
+});
+
+describe('guessing', () => {
+    it('flags several quick wrong answers, not one slip', () => {
+        const s = (fast_wrong: number, answered: number) => ({ name: `${fast_wrong}/${answered}`, fast_wrong, answered });
+        expect(guessers([s(1, 10), s(2, 10), s(3, 9), s(4, 10), s(2, 4)]).map((x) => x.name)).toEqual(['3/9', '4/10', '2/4']);
     });
 });
