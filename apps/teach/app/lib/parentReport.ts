@@ -52,7 +52,21 @@ function lexicaPart(lx: LexicaWeek | null): string {
     return s;
 }
 
-function did(lx: LexicaWeek | null): ReportItem[] {
+type OratioWeek = { sessions: number; minutes: number; first: boolean };
+
+/** Speaking with a partner in Oratio, as a parent reads it. */
+function spoke(o: OratioWeek | null | undefined): ReportItem | null {
+    if (!o || o.sessions === 0) return null;
+    return { text: o.first ? `Đến nay con đã luyện nói tiếng Anh ${o.sessions} buổi (${o.minutes} phút) với bạn học trên Oratio` : `Con luyện nói tiếng Anh ${o.sessions} buổi (${o.minutes} phút) với bạn học trên Oratio` };
+}
+
+function did(lx: LexicaWeek | null, oratio?: OratioWeek | null): ReportItem[] {
+    const speaking = spoke(oratio);
+    const words = lexicaDid(lx);
+    return speaking ? [...words.slice(0, 2), speaking] : words;
+}
+
+function lexicaDid(lx: LexicaWeek | null): ReportItem[] {
     if (!lx?.hasData || lx.firstWeek) return [];
     const out: ReportItem[] = [];
     if (lx.saidWords.length) out.push({ text: `Con nói rõ ${lx.saidWords.length} từ của bài trên lớp, máy nghe đúng`, words: list(lx.saidWords, 5) });
@@ -64,17 +78,18 @@ function did(lx: LexicaWeek | null): ReportItem[] {
 }
 
 /** One concrete thing to do at home, the most useful first. */
-function help(days: number, lx: LexicaWeek | null, attend?: Attend): string {
+function help(days: number, lx: LexicaWeek | null, attend?: Attend, oratio?: OratioWeek | null): string {
     const off = missed(attend);
     if (off > 0) return `Con vắng ${off} buổi trên lớp không báo trước. Nhắc con học bù từ của buổi đó trong Lexica, và báo cô/thầy khi con phải nghỉ.`;
     if (days <= 2) return 'Nhắc con mở Lexica mỗi ngày 10 phút: học đều quan trọng hơn học dồn.';
     if (lx?.overdue && lx.overdue >= 10) return `Con đang có ${lx.overdue} từ đến lúc ôn lại. Nhắc con mở phần Ôn chừng 10 phút để không quên.`;
+    if (oratio && !oratio.first && oratio.sessions === 0) return 'Tuần này con chưa luyện nói. Nhắc con mở Oratio nói với bạn một buổi 10 phút: nói thường xuyên mới quen miệng.';
     if (lx && lx.rememberedWords.length >= 3) return `Hỏi con nghĩa của 3 từ: ${joinVi(list(lx.rememberedWords, 3))}.`;
     if (lx?.hardSound) return `Nhờ con đọc to vài từ có ${lx.hardSound.name}, như "${lx.hardSound.example}".`;
     return 'Hỏi con tuần này học được từ nào hay, và nhờ con đặt một câu với từ đó.';
 }
 
-export function composeReport(input: { days: number; lexica: LexicaWeek | null; attend?: Attend | null; note?: string }): ReportContent {
+export function composeReport(input: { days: number; lexica: LexicaWeek | null; attend?: Attend | null; oratio?: OratioWeek | null; note?: string }): ReportContent {
     const days = Math.max(0, Math.min(7, Math.round(input.days)));
     const lx = input.lexica;
     const attend = input.attend && input.attend.held > 0 ? input.attend : undefined;
@@ -83,10 +98,10 @@ export function composeReport(input: { days: number; lexica: LexicaWeek | null; 
         v: 1,
         days,
         summary: summary(days, lx, attend),
-        did: did(lx),
+        did: did(lx, input.oratio),
         ...(attend ? { attend } : {}),
         ...(lx?.score ? { score: lx.score } : {}),
-        help: help(days, lx, attend),
+        help: help(days, lx, attend, input.oratio),
         ...(note ? { note } : {}),
     };
 }

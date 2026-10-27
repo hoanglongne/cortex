@@ -184,3 +184,14 @@ export const oratioModule: ClassroomModuleCore<OratioSettings, OratioPayload, Or
         return `Nói: ${g.sessions} buổi, ${g.minutes} phút tuần này${b ? `; bạn luyện chấm gần đây khoảng band ${fmtBand(b)}` : ''}.`;
     },
 };
+
+export * from './descriptors';
+
+/** A finished week in Oratio for the parents' report: sessions and minutes spoken (null: no report at all). `first`: no report before the week, so these are totals so far. */
+export function oratioWeek(end: unknown, start: unknown): { sessions: number; minutes: number; first: boolean } | null {
+    if (!end) return null;
+    const e = oratioModule.parseMetrics(end);
+    if (!start) return { sessions: e.sessions, minutes: e.minutes, first: true };
+    const s = oratioModule.parseMetrics(start);
+    return { sessions: Math.max(0, e.sessions - s.sessions), minutes: Math.max(0, e.minutes - s.minutes), first: false };
+}

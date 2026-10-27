@@ -14,7 +14,7 @@
   - W2 buổi học tự lái: khó đạt, lợi thế không rõ.
 - **W3** (giọng con cho phụ huynh): ý hay nhưng còn chung chung, và phụ huynh nhiều người không rành tiếng Anh. Phần đáng giữ là **nói cho phụ huynh hiểu con làm được gì bằng tiếng Việt dễ hiểu**, đưa vào T4 (mục 3.2).
 
-**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học (mục 3.7), T2a và T2b (mục 4.8, 4.9) đã làm, chưa có PR.
+**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học (mục 3.7), T2a, T2b (mục 4.8, 4.9), T3 và T5 (mục 5) đã làm, chưa có PR.
 
 ---
 
@@ -309,7 +309,29 @@ Bảng xếp hạng có thể **ẩn tên** (chỉ hiện top 3 với tên, còn
 
 ---
 
-## 5. Để sau
-- **T3** giao bài thông minh và bài kiểm tra lớp.
-- **T5** Oratio trong teach.
-- **"Nghe con đọc"** cho phụ huynh, khi đã có đồng ý ghi âm.
+## 5. T3 và T5 (27/10/2026): đã làm, chưa có PR
+
+### 5.1 T3: Giao bài thông minh và bài kiểm tra lớp
+- **Gợi ý giao bài** (đầu tab "Bài giao", `apps/teach/app/lib/suggest.ts`, có test), mỗi gợi ý một lần bấm:
+  - **từ cả lớp chưa vững**: từ của bài giao từ một tuần trước mà chưa tới nửa lớp nhớ (cần ít nhất 3 em có số liệu) → giao cả lớp ôn;
+  - **ôn riêng cho từng em**: từ của lớp em sắp quên (W4 `atRisk`, ít nhất 3 từ) → mỗi em một bài riêng; bỏ qua em đã có bài ôn riêng trong tuần.
+- **Bài kiểm tra lớp** (tab "Kiểm tra"; SQL `packages/classroom/sql/classroom_tests.sql`):
+  - giáo viên chọn nguồn từ (một bài, mọi bài, từ cả lớp sắp quên), 10/20/30 câu, hạn nộp; câu hỏi như Đấu trường (từ ↔ nghĩa);
+  - học viên làm trong Lexica (`/class/test/<id>`; thẻ "Bài kiểm tra" ở trang Lớp học): từng câu, lưu ngay khi chọn, nộp một lần; sau khi nộp mới thấy đáp án; từ sai vào bài ôn, câu đúng tính là nhớ đúng;
+  - máy chủ giữ đáp án và chấm; bài đã đóng thì không làm tiếp nhưng xem được đáp án;
+  - giáo viên thấy điểm từng em, ai chưa làm, câu sai nhiều nhất; "Giao ôn từ sai cho N em" (mỗi em đúng những từ em sai), "Giảng lại N từ", đóng/mở lại, xoá.
+
+### 5.2 T5: Oratio trong Teach
+- Phần đã có từ trước: giao chủ đề, câu hỏi, mục tiêu buổi/phút; band bạn luyện chấm; band mục tiêu của lớp.
+- **"Luyện nói" trên lớp** (Trên lớp → Luyện nói, `components/present/Speaking.tsx`, `lib/speaking.ts` có test):
+  - câu hỏi IELTS của Oratio theo Part và chủ đề, hoặc theo bài giao Oratio; không lặp câu trong buổi;
+  - đồng hồ như đi thi: Part 1 30 giây, Part 2 một phút chuẩn bị rồi hai phút nói (có tiếng báo), Part 3 60 giây; thẻ đề Part 2 tách thành đề và các ý;
+  - ghép cặp: em mạnh với em đang cố gắng, một em nói một em chấm, "Đổi vai";
+  - tiêu chí chấm: 4 tiêu chí với mô tả band (5–8, mặc định theo band mục tiêu của lớp). Mô tả band và cách đọc thẻ đề nay dùng chung ở `packages/classroom-oratio/descriptors.ts` (Oratio dùng lại).
+- **Báo cáo phụ huynh có phần Oratio**: "Con luyện nói tiếng Anh 3 buổi (25 phút) với bạn học trên Oratio"; tuần không nói thì gợi ý phụ huynh nhắc con (`oratioWeek`).
+
+### 5.3 Để sau
+- T2c: chế độ Sống sót, Tiến bộ; mã QR; trang `play` cho khách; lịch sử các ván; câu Nghe.
+- Bài kiểm tra: giới hạn thời gian, câu Nghe, xuất bảng điểm ra Excel.
+- Oratio: dự báo cho kỹ năng nói (như W4), giáo viên nghe bài ghi âm (cần học viên đồng ý chia sẻ).
+- "Nghe con đọc" cho phụ huynh, khi đã có đồng ý ghi âm.

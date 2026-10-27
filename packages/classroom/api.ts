@@ -3,6 +3,7 @@ import { classMessage } from './rules';
 import type { AdminOverview, AppId, Assignment, Board, ClassInfo, InviteKind, LeaderRow, OpenInvite, OrgOverview, Whoami } from './types';
 import type { ClassParents, ParentView, ReportContent, WeekMetrics } from './parents';
 import type { AttendanceByClass, Mark, Session, Slot } from './attendance';
+import type { ClassTest, MyTest, TestResults, TestTake } from './tests';
 import type { ArenaHost, ArenaMode, ArenaPlayerView, ArenaQuestionInput, ArenaResult, ArenaRoomOpen, ArenaState } from './arena';
 
 export class ClassError extends Error {}
@@ -105,6 +106,18 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         arenaAnswer: (roomId: string, idx: number, choice: number) => rpc<{ received: boolean }>('arena_answer', { p_room: roomId, p_idx: idx, p_choice: choice }),
         /** This student's answers in rooms finished in the last 14 days. */
         arenaMyResults: () => rpc<ArenaResult[]>('arena_my_results'),
+
+        // Class tests (sql/classroom_tests.sql)
+        testCreate: (classId: string, title: string, due: string | null, questions: ArenaQuestionInput[]) =>
+            rpc<{ id: string }>('test_create', { p_class: classId, p_title: title, p_due: due, p_questions: questions }),
+        testClose: (testId: string, closed: boolean) => rpc<{ ok: boolean }>('test_close', { p_test: testId, p_closed: closed }),
+        testDelete: (testId: string) => rpc<{ ok: boolean }>('test_delete', { p_test: testId }),
+        testsList: (classId: string) => rpc<ClassTest[]>('tests_list', { p_class: classId }),
+        testResults: (testId: string) => rpc<TestResults>('test_results', { p_test: testId }),
+        myTests: () => rpc<MyTest[]>('my_tests'),
+        testTake: (testId: string) => rpc<TestTake>('test_take', { p_test: testId }),
+        testAnswer: (testId: string, idx: number, choice: number) => rpc<{ ok: boolean }>('test_answer', { p_test: testId, p_idx: idx, p_choice: choice }),
+        testSubmit: (testId: string) => rpc<TestTake>('test_submit', { p_test: testId }),
 
         // Centers and invitations
         orgOverview: (orgId: string) => rpc<OrgOverview>('classroom_org_overview', { p_org: orgId }),

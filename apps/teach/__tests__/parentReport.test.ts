@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { lastWeek, weekLabel, parentLink } from '@cortex/classroom';
 import { lexicaWeek, type LexicaWeek } from '@cortex/classroom-lexica';
+import { oratioWeek } from '@cortex/classroom-oratio';
 import { composeReport, joinVi, linksMessage, scoreLine } from '../app/lib/parentReport';
 
 const WORDS: Record<string, string> = { v1: 'environment', v2: 'sustainable', v3: 'pollution', v4: 'recycle' };
@@ -101,6 +102,21 @@ describe('the report', () => {
         // No lesson with a mark: as before
         expect(composeReport({ days: 5, lexica: lx, attend: null }).summary).toMatch(/^Tuần này con học 5\/7 ngày\./);
         expect(composeReport({ days: 5, lexica: lx, attend: { held: 0, came: 0 } })).not.toHaveProperty('attend');
+    });
+
+    it("reads Oratio's week from its reports", () => {
+        expect(oratioWeek({ sessions: 9, minutes: 70 }, { sessions: 6, minutes: 45 })).toEqual({ sessions: 3, minutes: 25, first: false });
+        expect(oratioWeek({ sessions: 4, minutes: 30 }, null)).toEqual({ sessions: 4, minutes: 30, first: true });
+        expect(oratioWeek(null, null)).toBeNull();
+    });
+
+    it('tells what the child spoke in Oratio, and nudges when they did not', () => {
+        const r = composeReport({ days: 5, lexica: lx, oratio: { sessions: 3, minutes: 25, first: false } });
+        expect(r.did).toHaveLength(3);
+        expect(r.did[2]).toEqual({ text: 'Con luyện nói tiếng Anh 3 buổi (25 phút) với bạn học trên Oratio' });
+        expect(composeReport({ days: 5, lexica: null, oratio: { sessions: 4, minutes: 30, first: true } }).did).toEqual([{ text: 'Đến nay con đã luyện nói tiếng Anh 4 buổi (30 phút) với bạn học trên Oratio' }]);
+        expect(composeReport({ days: 5, lexica: { ...lx, hardSound: null, rememberedWords: [] }, oratio: { sessions: 0, minutes: 0, first: false } }).help).toContain('chưa luyện nói');
+        expect(composeReport({ days: 5, lexica: lx, oratio: null }).did).toHaveLength(3);
     });
 
     it('writes one Zalo line per parent', () => {

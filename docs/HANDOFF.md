@@ -40,7 +40,7 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - viết sao cho chạy lại nhiều lần không lỗi;
   - mọi đọc ghi đi qua hàm `security definer`; bảng bật RLS, không có policy cho client;
   - thử bằng PGlite trước (npm `@electric-sql/pglite` trong thư mục tạm; giả `auth.users(id, email)`, `auth.uid()` đọc `current_setting('t.uid')`, role `anon`, `authenticated`);
-  - người dùng tự chạy SQL trên Supabase SQL Editor: luôn nói rõ file nào, theo thứ tự nào.
+  - người dùng tự chạy SQL trên Supabase SQL Editor: luôn nói rõ file nào, theo thứ tự nào. Với Teach: chỉ `supabase/teach_all.sql`.
 - **Giao diện:**
   - chỉ dùng token màu của theme;
   - phải dùng được trên điện thoại 390px và ở chế độ tối;
@@ -101,13 +101,8 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - Lexica: `app/arena/` (trang `/arena`, `useArenaPlayer.ts`), thẻ "Vào đấu trường" ở `/class`.
   - Màu 4 đáp án là token `arena-1..4` trong theme của cả hai app.
 - **T2b: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN 4.9): chế độ Đội, từ sai vào bài ôn trong Lexica (`app/lib/arenaReview.ts`, `app/arena/applyResults.ts`, store `applyArena`), phân tích từng em và "Giảng lại N từ". SQL vẫn ở `classroom_arena.sql` (chạy lại file này).
-- **Người dùng chạy trên Supabase, theo thứ tự** (chạy lại nhiều lần không lỗi):
-  1. `packages/classroom/sql/classroom_core.sql`
-  2. `packages/classroom/sql/classroom_parents.sql`
-  3. `packages/classroom/sql/classroom_attendance.sql`
-  4. `packages/classroom/sql/classroom_arena.sql`
-  5. `packages/classroom-lexica/sql/classroom_lexica.sql`
-  6. `apps/lexica/supabase/migration_placement.sql`
+- **T3 (gợi ý giao bài, bài kiểm tra lớp) và T5 (Luyện nói trên lớp, Oratio trong báo cáo phụ huynh): đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 5). SQL mới: `packages/classroom/sql/classroom_tests.sql`.
+- **SQL cho Teach: chỉ một file.** `supabase/build-restore.sh` sinh thêm `supabase/teach_all.sql` gồm mọi file Teach cần, đúng thứ tự (core, parents, attendance, arena, tests, Lexica module, `migration_placement.sql`, Oratio module). Sau mỗi lần cập nhật Teach, người dùng chỉ chạy file này trong SQL Editor (chạy lại nhiều lần không lỗi). Thêm file SQL mới của Teach thì thêm vào mảng `TEACH` trong script.
 - **Việc tiếp theo:** thử Đấu trường với lớp thật (Realtime trên Supabase thật, wifi lớp), rồi T2c (TEACH_PLAN 4.9) hoặc T3, T5.
 
 ## 5. Việc của người dùng còn treo

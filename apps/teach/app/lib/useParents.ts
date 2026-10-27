@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { weekAttendance, type Board, type ClassParents, type ReportContent, type WeekMetrics } from '@cortex/classroom';
 import { LEXICA, lexicaWeek } from '@cortex/classroom-lexica';
+import { ORATIO, oratioWeek } from '@cortex/classroom-oratio';
 import { api } from './supabase';
 import { composeReport } from './parentReport';
 import { useScoreHistories } from './useForecasts';
@@ -85,7 +86,8 @@ export function useDrafts(board: Board, week: string): Record<string, ReportCont
                   weekEnd: sunday(week),
               })
             : null;
-        out[s.user_id] = composeReport({ days: m?.days.length ?? 0, lexica, attend: weekAttendance(sessions, s.user_id, week) });
+        const oratio = board.class.apps.includes(ORATIO) ? oratioWeek(m?.apps[ORATIO]?.end ?? null, m?.apps[ORATIO]?.start ?? null) : null;
+        out[s.user_id] = composeReport({ days: m?.days.length ?? 0, lexica, attend: weekAttendance(sessions, s.user_id, week), oratio });
     }
     return out;
 }

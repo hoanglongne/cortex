@@ -19,12 +19,14 @@ import Slides from '../../components/present/Slides';
 import Picker from '../../components/present/Picker';
 import Groups from '../../components/present/Groups';
 import Arena from '../../components/arena/Arena';
+import Speaking from '../../components/present/Speaking';
 
 const TOOLS = [
     { id: 'slides', label: 'Trình chiếu từ' },
     { id: 'pick', label: 'Gọi tên' },
     { id: 'groups', label: 'Chia nhóm' },
     { id: 'arena', label: 'Đấu trường' },
+    { id: 'speak', label: 'Luyện nói' },
 ] as const;
 type Tool = (typeof TOOLS)[number]['id'];
 
@@ -230,6 +232,7 @@ function Present({ id }: { id: string }) {
                     ))}
                 {tool === 'pick' && <Picker classId={id} people={present} onAbsent={(sid) => !absent.includes(sid) && toggle(sid)} />}
                 {tool === 'groups' && <Groups people={present} />}
+                {tool === 'speak' && <Speaking board={board} people={present} />}
                 {tool === 'arena' && <Arena board={board} words={words} people={present} onTeach={(ids) => setParams({ tool: 'slides', words: ids.join(',') })} />}
             </main>
         </div>

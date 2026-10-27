@@ -12,6 +12,7 @@ import Students from '../../../components/class/Students';
 import Assignments from '../../../components/class/Assignments';
 import Report from '../../../components/class/Report';
 import Lessons from '../../../components/class/Lessons';
+import Tests from '../../../components/class/Tests';
 import Settings from '../../../components/class/Settings';
 
 const TABS = [
@@ -19,12 +20,13 @@ const TABS = [
     { id: 'students', label: 'Học viên' },
     { id: 'assignments', label: 'Bài giao' },
     { id: 'lessons', label: 'Buổi học' },
+    { id: 'tests', label: 'Kiểm tra' },
     { id: 'report', label: 'Báo cáo' },
     { id: 'settings', label: 'Cài đặt' },
 ] as const;
 type Tab = (typeof TABS)[number]['id'];
 
-/** One class: six tabs, each answering one question (Claude Doc, Cấu trúc màn hình). */
+/** One class: seven tabs, each answering one question (Claude Doc, Cấu trúc màn hình). */
 export default function ClassPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
     return (
@@ -88,6 +90,7 @@ function ClassView({ id }: { id: string }) {
             {tab === 'students' && <Students board={board} onChanged={reload} welcome={params.get('welcome') === '1'} filter={params.get('filter')} />}
             {tab === 'assignments' && <Assignments board={board} onChanged={reload} startOpen={params.get('assign') === '1'} />}
             {tab === 'lessons' && <Lessons board={board} startRoll={params.get('roll')} />}
+            {tab === 'tests' && <Tests board={board} />}
             {tab === 'report' && <Report board={board} />}
             {tab === 'settings' && <Settings board={board} onChanged={reload} />}
         </>
