@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { classMessage } from './rules';
 import type { AdminOverview, AppId, Assignment, Board, ClassInfo, InviteKind, LeaderRow, OpenInvite, OrgOverview, Whoami } from './types';
 import type { ClassParents, ParentView, ReportContent, WeekMetrics } from './parents';
+import type { AttendanceByClass, Mark, Session, Slot } from './attendance';
 
 export class ClassError extends Error {}
 
@@ -69,6 +70,17 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
             rpc<{ ok: boolean; content: ReportContent }>('classroom_report_approve', { p_class: classId, p_user: userId, p_week: week, p_content: content }),
         /** No account needed: the parent page. */
         parentView: (code: string, pin?: string) => rpc<ParentView>('parent_view', { p_code: code, p_pin: pin ?? null }),
+
+        // Sessions and attendance (sql/classroom_attendance.sql)
+        setSchedule: (classId: string, schedule: Slot[]) => rpc<{ schedule: Slot[] }>('classroom_schedule_set', { p_class: classId, p_schedule: schedule }),
+        /** The timetable and sessions between two days, for each class this person teaches. */
+        attendance: (classIds: string[], from: string, to: string) => rpc<AttendanceByClass>('classroom_attendance', { p_classes: classIds, p_from: from, p_to: to }),
+        /** Take the roll for a day; a null mark clears it. `topic` when given ('' clears it). */
+        markAttendance: (classId: string, date: string, marks: Record<string, Mark | null>, topic?: string) =>
+            rpc<Session>('classroom_attendance_mark', { p_class: classId, p_date: date, p_marks: marks, p_topic: topic ?? null }),
+        /** A day's topic, or cancel it (its marks are dropped). */
+        setSession: (classId: string, date: string, patch: { topic?: string; cancelled?: boolean }) =>
+            rpc<Session>('classroom_session_set', { p_class: classId, p_date: date, p_topic: patch.topic ?? null, p_cancelled: patch.cancelled ?? null }),
 
         // Centers and invitations
         orgOverview: (orgId: string) => rpc<OrgOverview>('classroom_org_overview', { p_org: orgId }),

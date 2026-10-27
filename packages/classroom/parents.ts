@@ -20,6 +20,8 @@ export interface ReportContent {
     summary: string;
     /** Up to 3. */
     did: ReportItem[];
+    /** Lessons in class that week (attendance.ts): held, came (on time or late), late, with leave. */
+    attend?: { held: number; came: number; late?: number; excused?: number };
     /** The one number: the verified vocabulary score, its IELTS range, the change since the test before. */
     score?: { score: number; ielts: string; delta?: number; at?: string };
     /** One concrete way the parent can help. */

@@ -3,10 +3,15 @@
 import Link from 'next/link';
 import { Suspense, use, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Maximize, UserCheck, X } from 'lucide-react';
+import { Check, Maximize, UserCheck, X } from 'lucide-react';
+import { rollMarks } from '@cortex/classroom';
 import { lexicaModule } from '@cortex/classroom-lexica';
 import { hasAccess, useSession } from '../../lib/session';
 import { useBoard } from '../../lib/teaching';
+import { api } from '../../lib/supabase';
+import { localDay } from '../../lib/forecasts';
+import { useClassAttendance } from '../../lib/useAttendance';
+import { errorText } from '../../components/ui';
 import { wordIndex, type IndexCard, type WordIndex } from '../../modules/lexica/words';
 import { useClassScores } from '../../modules/lexica/scores';
 import type { Person } from '../../lib/classroom/tools';
@@ -24,7 +29,7 @@ type Tool = (typeof TOOLS)[number]['id'];
 /**
  * "Trên lớp" (docs/TEACH_PLAN.md, T1): the class on the projector, without
  * the app's sidebar. The lesson's words as slides, calling on a student,
- * splitting into groups; who is absent today is kept for the three.
+ * splitting into groups; the roll taken here is saved as today's attendance.
  */
 export default function PresentPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);
@@ -35,27 +40,28 @@ export default function PresentPage({ params }: { params: Promise<{ id: string }
     );
 }
 
-/** Who is absent today, kept in this tab (sessionStorage) so a reload keeps it. */
-function useAbsent(classId: string) {
-    const key = `teach-absent-${classId}-${new Date().toDateString()}`;
-    const [absent, setAbsent] = useState<string[]>(() => {
-        try {
-            return JSON.parse(sessionStorage.getItem(key) ?? '[]') as string[];
-        } catch {
-            return [];
-        }
+/**
+ * Who is absent today: the roll saved for today (sql/classroom_attendance.sql),
+ * with the teacher's taps on top until they save. Absent and on leave both
+ * count as away here.
+ */
+function useAbsent(classId: string, studentIds: readonly string[]) {
+    const [today] = useState(() => localDay(Date.now()));
+    const { attendance, reload } = useClassAttendance(classId, today);
+    const saved = attendance?.sessions.find((x) => x.date === today && !x.cancelled);
+    const savedAbsent = useMemo(() => studentIds.filter((sid) => saved?.marks[sid] === 'absent' || saved?.marks[sid] === 'excused'), [saved, studentIds]);
+    const [local, setLocal] = useState<string[] | null>(null);
+    const absent = local ?? savedAbsent;
+    const toggle = (sid: string) => setLocal((a) => {
+        const base = a ?? savedAbsent;
+        return base.includes(sid) ? base.filter((x) => x !== sid) : [...base, sid];
     });
-    const toggle = (id: string) =>
-        setAbsent((a) => {
-            const next = a.includes(id) ? a.filter((x) => x !== id) : [...a, id];
-            try {
-                sessionStorage.setItem(key, JSON.stringify(next));
-            } catch {
-                // private mode: for this visit only
-            }
-            return next;
-        });
-    return { absent, toggle };
+    const save = async () => {
+        await api.markAttendance(classId, today, rollMarks(studentIds, absent, saved?.marks ?? {}));
+        await reload();
+        setLocal(null);
+    };
+    return { absent, toggle, save, dirty: local !== null, saved: Boolean(saved && Object.keys(saved.marks).length) };
 }
 
 function Present({ id }: { id: string }) {
@@ -67,7 +73,10 @@ function Present({ id }: { id: string }) {
     const scores = useClassScores(id);
     const [words, setWords] = useState<WordIndex | null>(null);
     const [roll, setRoll] = useState(false);
-    const { absent, toggle } = useAbsent(id);
+    const ids = useMemo(() => (board?.students ?? []).map((s) => s.user_id), [board]);
+    const { absent, toggle, save, dirty, saved } = useAbsent(id, ids);
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState('');
     const tool = (TOOLS.find((t) => t.id === params.get('tool'))?.id ?? 'slides') as Tool;
     const assignmentId = params.get('assignment');
 
@@ -145,6 +154,7 @@ function Present({ id }: { id: string }) {
                 <div className="ml-auto flex items-center gap-1">
                     <button onClick={() => setRoll((r) => !r)} aria-pressed={roll} className={`flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm ${roll ? 'bg-accent-soft text-accent-strong' : 'text-muted hover:text-ink'}`}>
                         <UserCheck className="h-4 w-4" /> Điểm danh{absent.length > 0 ? ` · vắng ${absent.length}` : ''}
+                        {dirty ? <span className="text-warm"> · chưa lưu</span> : saved ? <Check className="h-4 w-4 text-accent" aria-label="đã lưu" /> : null}
                     </button>
                     <button onClick={() => void document.documentElement.requestFullscreen?.()} aria-label="Toàn màn hình" className="flex h-10 w-10 items-center justify-center rounded-xl text-muted hover:text-ink">
                         <Maximize className="h-4 w-4" />
@@ -154,7 +164,29 @@ function Present({ id }: { id: string }) {
 
             {roll && (
                 <div className="border-b border-line bg-surface px-4 py-3">
-                    <p className="mb-2 text-xs text-muted">Bấm tên em vắng hôm nay. Em vắng không bị gọi tên, không vào nhóm.</p>
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-xs text-muted">Bấm tên em vắng hôm nay. Em vắng không bị gọi tên, không vào nhóm. Lưu để Teach nhớ cho báo cáo phụ huynh.</p>
+                        <span className="flex items-center gap-2">
+                            {saveError && <span className="text-xs text-danger">{saveError}</span>}
+                            <button
+                                disabled={saving || (!dirty && saved)}
+                                onClick={async () => {
+                                    setSaving(true);
+                                    setSaveError('');
+                                    try {
+                                        await save();
+                                    } catch (e) {
+                                        setSaveError(errorText(e));
+                                    } finally {
+                                        setSaving(false);
+                                    }
+                                }}
+                                className="h-9 rounded-xl bg-accent px-3 text-sm font-semibold text-on-accent hover:bg-accent-strong disabled:opacity-40"
+                            >
+                                {!dirty && saved ? 'Đã lưu' : `Lưu: ${ids.length - absent.length}/${ids.length} có mặt`}
+                            </button>
+                        </span>
+                    </div>
                     <div className="flex flex-wrap gap-1.5">
                         {board.students.map((s) => {
                             const off = absent.includes(s.user_id);

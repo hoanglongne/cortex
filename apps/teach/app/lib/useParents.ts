@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { type Board, type ClassParents, type ReportContent, type WeekMetrics } from '@cortex/classroom';
+import { weekAttendance, type Board, type ClassParents, type ReportContent, type WeekMetrics } from '@cortex/classroom';
 import { LEXICA, lexicaWeek } from '@cortex/classroom-lexica';
 import { api } from './supabase';
 import { composeReport } from './parentReport';
 import { useScoreHistories } from './useForecasts';
+import { useAttendance } from './useAttendance';
 import { wordIndex, type WordIndex } from '../modules/lexica/words';
 
 /** The class's parent links and one week's approved reports; reload after any change. */
@@ -68,7 +69,9 @@ export function useDrafts(board: Board, week: string): Record<string, ReportCont
     const metrics = useWeekMetrics(board.class.id, week);
     const histories = useScoreHistories([board.class.id]);
     const words = useWords();
-    if (!metrics || !histories || !words) return null;
+    const { attendance } = useAttendance([board.class.id], week, sunday(week));
+    if (!metrics || !histories || !words || !attendance) return null;
+    const sessions = attendance[board.class.id]?.sessions ?? [];
     const history = histories[board.class.id] ?? {};
     const out: Record<string, ReportContent> = {};
     for (const s of board.students) {
@@ -82,7 +85,7 @@ export function useDrafts(board: Board, week: string): Record<string, ReportCont
                   weekEnd: sunday(week),
               })
             : null;
-        out[s.user_id] = composeReport({ days: m?.days.length ?? 0, lexica });
+        out[s.user_id] = composeReport({ days: m?.days.length ?? 0, lexica, attend: weekAttendance(sessions, s.user_id, week) });
     }
     return out;
 }

@@ -24,6 +24,9 @@ const MESSAGES: Record<string, string> = {
     'link locked': 'Nhập sai mã PIN nhiều lần. Thử lại sau 15 phút.',
     'bad report': 'Báo cáo còn trống, chưa duyệt được.',
     'week starts on Monday': 'Tuần chưa đúng (tuần tính từ thứ Hai).',
+    'bad session date': 'Chỉ điểm danh được cho hôm nay hoặc các buổi trong 4 tháng qua.',
+    'bad attendance': 'Điểm danh chưa đúng dạng.',
+    'bad date range': 'Khoảng ngày chưa đúng.',
 };
 
 export function classMessage(raw: string): string {

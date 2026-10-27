@@ -104,6 +104,7 @@ export function ForecastBlock({
     onAssigned,
     onDone,
     who,
+    note,
     variant = 'row',
 }: {
     forecast: Forecast;
@@ -112,6 +113,8 @@ export function ForecastBlock({
     onAssigned?: () => void;
     onDone?: () => void;
     who?: { name: string; className: string };
+    /** One more fact from outside the forecast (lessons missed in class). */
+    note?: string;
     variant?: 'card' | 'row';
 }) {
     const [open, setOpen] = useState(false);
@@ -129,6 +132,7 @@ export function ForecastBlock({
                     <p className={`text-[13px] font-semibold uppercase tracking-[0.06em] ${u.className}`}>{u.label}</p>
                 )}
                 <p className={who ? 'mt-1 text-ink-2' : 'mt-1 text-[17px] font-medium text-ink'}>{forecast.title}</p>
+                {note && <p className="mt-1 font-medium text-warm">{note}</p>}
                 <Why forecast={forecast} open={open} />
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                     <ForecastActions forecast={forecast} board={board} userId={userId} onAssigned={onAssigned} />

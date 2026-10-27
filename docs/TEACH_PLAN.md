@@ -14,7 +14,7 @@
   - W2 buổi học tự lái: khó đạt, lợi thế không rõ.
 - **W3** (giọng con cho phụ huynh): ý hay nhưng còn chung chung, và phụ huynh nhiều người không rành tiếng Anh. Phần đáng giữ là **nói cho phụ huynh hiểu con làm được gì bằng tiếng Việt dễ hiểu**, đưa vào T4 (mục 3.2).
 
-**Thứ tự làm:** T1 → W4 → T4 → T2. T1, W4, T4 đã làm (chưa có PR).
+**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học đã làm (mục 3.7, chưa có PR).
 
 ---
 
@@ -180,6 +180,29 @@ Lấy ý hay của W3: **nói con làm được gì bằng tiếng Việt đời
   - "Link cho phụ huynh" (PIN) trong cài đặt lớp;
   - trang `/p/<mã>` (không cần tài khoản, `noindex`).
 - **Để sau:** gửi email, câu con tự viết (cần công tắc đồng ý trong Lexica), "Nghe con đọc", soạn tự động tối Chủ nhật bằng `pg_cron`, phần của Oratio trong báo cáo.
+
+### 3.7 Buổi học và điểm danh (27/10/2026): đã làm, chưa có PR
+Thêm theo yêu cầu người dùng ("teach vẫn thiếu tính năng"): việc giáo viên làm mỗi buổi, và làm số liệu ở chỗ khác tốt hơn.
+- **Cách hiểu:**
+  - lớp có **lịch học tuần** (mỗi thứ tối đa một buổi: giờ bắt đầu, độ dài);
+  - một **buổi** là một ngày của lớp: có khi giáo viên điểm danh, ghi "buổi này học gì", hoặc báo nghỉ (nghỉ lễ);
+  - mỗi em một dấu: Có mặt, Muộn, Vắng, Có phép.
+- **SQL** (`packages/classroom/sql/classroom_attendance.sql`):
+  - cột `cortex_classes.schedule`; bảng `cortex_class_sessions`, `cortex_attendance` (RLS bật, không policy);
+  - hàm `classroom_schedule_set`, `classroom_attendance(lớp[], từ, đến)` (một lần gọi cho mọi lớp), `classroom_attendance_mark` (hôm nay hoặc 120 ngày trước), `classroom_session_set` (ghi chủ đề, báo nghỉ: xoá điểm danh buổi đó).
+  - Chỉ giáo viên của lớp đọc ghi. Phụ huynh chỉ thấy qua báo cáo đã duyệt.
+- **Quy tắc** (`packages/classroom/attendance.ts`, có test):
+  - "Chưa điểm danh" chỉ tính từ buổi điểm danh đầu tiên và trong 14 ngày, nên giáo viên không dùng điểm danh thì không bị nhắc;
+  - chỉ tính buổi có dấu của em (em vào lớp sau thì không bị tính vắng);
+  - "vắng liền": số buổi Vắng liên tiếp đến buổi gần nhất; Có phép không tính và không ngắt chuỗi. Từ 2 buổi thì hiện ở Hôm nay (trong 21 ngày).
+- **Teach:**
+  - tab **Buổi học**: Sắp tới (nghỉ buổi này / vẫn học), Đã qua (đếm có mặt, nút Điểm danh hoặc Sửa), điểm danh buổi bù, lịch học, chuyên cần 8 tuần;
+  - khung **Điểm danh**: mặc định cả lớp có mặt, bấm em ngoại lệ, ghi buổi học gì, lưu một lần;
+  - **Trên lớp**: bấm tên em vắng như trước, rồi "Lưu" thành điểm danh hôm nay (giữ Muộn, Có phép đã có);
+  - **Hôm nay**: "Buổi dạy hôm nay" ở đầu trang; "Nên để ý" có em vắng 2 buổi liền (chép tin cho phụ huynh, cho em) và lớp chưa điểm danh. Em đã có dự báo bỏ học thì dòng vắng gộp vào thẻ dự báo đó;
+  - trang một em: khung **Trên lớp** (chấm từng buổi, số buổi có mặt);
+  - **báo cáo phụ huynh**: "Tuần này con đi học đủ 3/3 buổi trên lớp và tự học ở nhà 5/7 ngày"; vắng không báo thì gợi ý cho phụ huynh nói đến việc học bù.
+- **Để sau:** tỉ lệ đi học của từng lớp ở trang trung tâm; học viên tự điểm danh bằng mã trong Lexica; xuất bảng điểm danh ra Excel.
 
 ---
 

@@ -17,9 +17,29 @@ const list = (words: readonly string[], n: number) => words.slice(0, n);
 /** "a, b và c" */
 export const joinVi = (xs: readonly string[]) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} và ${xs[xs.length - 1]}`);
 
-function summary(days: number, lx: LexicaWeek | null): string {
+type Attend = NonNullable<ReportContent['attend']>;
+
+/** "đi học đủ 3/3 buổi trên lớp", "đi học 2/3 buổi trên lớp (1 buổi nghỉ có phép)" */
+function attendPart(a: Attend): string {
+    const notes = [a.late ? `${a.late} buổi đi muộn` : '', a.excused ? `${a.excused} buổi nghỉ có phép` : ''].filter(Boolean);
+    if (a.came === 0) return `vắng cả ${a.held} buổi trên lớp${a.excused ? ` (${a.excused === a.held ? 'đều' : `${a.excused} buổi`} có phép)` : ''}`;
+    return `đi học ${a.came === a.held ? 'đủ ' : ''}${a.came}/${a.held} buổi trên lớp${notes.length ? ` (${joinVi(notes)})` : ''}`;
+}
+
+/** Lessons missed without leave. */
+const missed = (a: Attend | undefined) => (a ? a.held - a.came - (a.excused ?? 0) : 0);
+
+function summary(days: number, lx: LexicaWeek | null, attend?: Attend): string {
+    if (attend) {
+        if (days === 0) return `Tuần này con ${attendPart(attend)}, ${lx?.hasData ? 'nhưng chưa mở Lexica ở nhà.' : 'chưa có số liệu tự học ở nhà.'}`;
+        return `Tuần này con ${attendPart(attend)} và tự học ở nhà ${days}/7 ngày.${lexicaPart(lx)}`;
+    }
     if (days === 0) return lx?.hasData ? 'Tuần này con chưa mở Lexica.' : 'Tuần này chưa có số liệu học của con.';
-    let s = `Tuần này con học ${days}/7 ngày.`;
+    return `Tuần này con học ${days}/7 ngày.${lexicaPart(lx)}`;
+}
+
+function lexicaPart(lx: LexicaWeek | null): string {
+    let s = '';
     if (lx?.hasData) {
         if (lx.firstWeek) s += ` Đây là tuần đầu con học cùng lớp${lx.nho ? `; đến nay con đã nhớ ${lx.nho} từ` : ''}.`;
         else {
@@ -44,7 +64,9 @@ function did(lx: LexicaWeek | null): ReportItem[] {
 }
 
 /** One concrete thing to do at home, the most useful first. */
-function help(days: number, lx: LexicaWeek | null): string {
+function help(days: number, lx: LexicaWeek | null, attend?: Attend): string {
+    const off = missed(attend);
+    if (off > 0) return `Con vắng ${off} buổi trên lớp không báo trước. Nhắc con học bù từ của buổi đó trong Lexica, và báo cô/thầy khi con phải nghỉ.`;
     if (days <= 2) return 'Nhắc con mở Lexica mỗi ngày 10 phút: học đều quan trọng hơn học dồn.';
     if (lx?.overdue && lx.overdue >= 10) return `Con đang có ${lx.overdue} từ đến lúc ôn lại. Nhắc con mở phần Ôn chừng 10 phút để không quên.`;
     if (lx && lx.rememberedWords.length >= 3) return `Hỏi con nghĩa của 3 từ: ${joinVi(list(lx.rememberedWords, 3))}.`;
@@ -52,17 +74,19 @@ function help(days: number, lx: LexicaWeek | null): string {
     return 'Hỏi con tuần này học được từ nào hay, và nhờ con đặt một câu với từ đó.';
 }
 
-export function composeReport(input: { days: number; lexica: LexicaWeek | null; note?: string }): ReportContent {
+export function composeReport(input: { days: number; lexica: LexicaWeek | null; attend?: Attend | null; note?: string }): ReportContent {
     const days = Math.max(0, Math.min(7, Math.round(input.days)));
     const lx = input.lexica;
+    const attend = input.attend && input.attend.held > 0 ? input.attend : undefined;
     const note = input.note?.trim();
     return {
         v: 1,
         days,
-        summary: summary(days, lx),
+        summary: summary(days, lx, attend),
         did: did(lx),
+        ...(attend ? { attend } : {}),
         ...(lx?.score ? { score: lx.score } : {}),
-        help: help(days, lx),
+        help: help(days, lx, attend),
         ...(note ? { note } : {}),
     };
 }

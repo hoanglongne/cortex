@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { activeLabel, studentState } from '@cortex/classroom';
+import { activeLabel, dayLabel, MARK_LABEL, MISSED_IN_ROW, studentRecord, studentState } from '@cortex/classroom';
 import { Button, Card, CopyChip, ErrorNote, errorText, inputClass, Label, PageHeader, SectionTitle } from '../../../../../components/ui';
 import AppDot from '../../../../../components/class/AppDot';
 import { useBoard } from '../../../../../lib/teaching';
@@ -14,6 +14,8 @@ import { boardForecasts, localDay } from '../../../../../lib/forecasts';
 import { useScoreHistories } from '../../../../../lib/useForecasts';
 import { ForecastBlock } from '../../../../../components/Forecast';
 import ParentCard from '../../../../../components/parents/ParentCard';
+import { MARK_DOT } from '../../../../../components/lessons/Roll';
+import { useClassAttendance } from '../../../../../lib/useAttendance';
 
 /** "Em này kẹt ở đâu?": each app's own section, 30 days of learning, a private note. */
 export default function StudentPage({ params }: { params: Promise<{ id: string; userId: string }> }) {
@@ -26,6 +28,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
     const [error, setError] = useState('');
     const s = board?.students.find((x) => x.user_id === userId);
     const histories = useScoreHistories([id]);
+    const { attendance } = useClassAttendance(id, localDay(now));
 
     if (!board) return <div className="h-64 animate-pulse rounded-[var(--radius-card)] bg-surface-2" />;
     if (!s) return <p className="text-muted">Không tìm thấy học viên này trong lớp.</p>;
@@ -102,6 +105,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                         </div>
                         <p className="mt-3 text-ink-2">{s.days.length} ngày có học</p>
                     </section>
+                    {attendance && (attendance.schedule.length > 0 || attendance.sessions.length > 0) && <InClass sessions={attendance.sessions} userId={userId} classId={id} />}
                     <ParentCard board={board} userId={userId} name={s.name} />
                     <section>
                         <Label>Ghi chú riêng</Label>
@@ -147,5 +151,41 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                 </div>
             </div>
         </>
+    );
+}
+
+/** "Trên lớp": the latest lessons as dots (oldest first), and the count. */
+function InClass({ sessions, userId, classId }: { sessions: Parameters<typeof studentRecord>[0]; userId: string; classId: string }) {
+    const r = studentRecord(sessions, userId);
+    return (
+        <section>
+            <Label>Trên lớp</Label>
+            {r.held === 0 ? (
+                <p className="text-[15px] text-muted">
+                    Chưa có buổi điểm danh nào có em.{' '}
+                    <Link href={`/classes/${classId}?tab=lessons`} className="text-accent-strong hover:underline">
+                        Điểm danh
+                    </Link>
+                </p>
+            ) : (
+                <>
+                    <div className="flex flex-wrap gap-1.5" role="img" aria-label={`${r.came} trên ${r.held} buổi có mặt`}>
+                        {[...r.recent].reverse().map((m) => (
+                            <span key={m.date} title={`${dayLabel(m.date, true)}: ${MARK_LABEL[m.mark]}`} className={`h-4 w-4 rounded-full ${MARK_DOT[m.mark]}`} />
+                        ))}
+                    </div>
+                    <p className="mt-3 text-ink-2">
+                        <span className="tabular">
+                            {r.came}/{r.held}
+                        </span>{' '}
+                        buổi có mặt
+                        {r.late > 0 && <> · {r.late} muộn</>}
+                        {r.absent > 0 && <> · {r.absent} vắng</>}
+                        {r.excused > 0 && <> · {r.excused} có phép</>}
+                    </p>
+                    {r.missedInRow >= MISSED_IN_ROW && <p className="mt-1 font-semibold text-warm">Vắng {r.missedInRow} buổi liền gần nhất</p>}
+                </>
+            )}
+        </section>
     );
 }

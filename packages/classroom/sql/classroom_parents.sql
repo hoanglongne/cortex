@@ -69,6 +69,7 @@ returns jsonb language plpgsql immutable as $$
 declare
   did jsonb;
   score jsonb;
+  attend jsonb;
   t text;
 begin
   if jsonb_typeof(p) <> 'object' then raise exception 'bad report'; end if;
@@ -91,11 +92,21 @@ begin
       'at', case when (p->'score'->>'at') ~ '^\d{4}-\d{2}-\d{2}' then left(p->'score'->>'at', 10) end
     ));
   end if;
+  -- Lessons in class that week (classroom_attendance.sql): held, came (on time or late), late, excused
+  if jsonb_typeof(p->'attend') = 'object' and jsonb_typeof(p->'attend'->'held') = 'number' and (p->'attend'->>'held')::numeric >= 1 then
+    attend := jsonb_strip_nulls(jsonb_build_object(
+      'held', least(round((p->'attend'->>'held')::numeric), 14)::int,
+      'came', case when jsonb_typeof(p->'attend'->'came') = 'number' then least(greatest(round((p->'attend'->>'came')::numeric), 0), least(round((p->'attend'->>'held')::numeric), 14))::int else 0 end,
+      'late', case when jsonb_typeof(p->'attend'->'late') = 'number' then nullif(least(greatest(round((p->'attend'->>'late')::numeric), 0), 14)::int, 0) end,
+      'excused', case when jsonb_typeof(p->'attend'->'excused') = 'number' then nullif(least(greatest(round((p->'attend'->>'excused')::numeric), 0), 14)::int, 0) end
+    ));
+  end if;
   return jsonb_strip_nulls(jsonb_build_object(
     'v', 1,
     'days', case when jsonb_typeof(p->'days') = 'number' then least(greatest(round((p->>'days')::numeric), 0), 7)::int else 0 end,
     'summary', t,
     'did', did,
+    'attend', attend,
     'score', score,
     'help', nullif(left(trim(coalesce(p->>'help', '')), 300), ''),
     'note', nullif(left(trim(coalesce(p->>'note', '')), 500), '')

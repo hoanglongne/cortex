@@ -8,3 +8,4 @@ export * from './api';
 export * from './rules';
 export * from './module';
 export * from './parents';
+export * from './attendance';
