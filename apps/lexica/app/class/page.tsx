@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Crown, LogOut, School, Users } from 'lucide-react';
+import { Crown, LogOut, School, Swords, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthGate from '../components/AuthGate';
 import { useLexicaStore } from '../store/lexicaStore';
-import { assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, lessonOf, type ClassInfo, type LeaderRow } from '../lib/classes';
+import { arenaOpenRooms, assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, lessonOf, type ArenaRoomOpen, type ClassInfo, type LeaderRow } from '../lib/classes';
 import { dungFromScore, lexicaModule } from '@cortex/classroom-lexica';
 import { TEACH_URL } from '../lib/cortexConfig';
 import { refreshClasses, reportNow } from '../lib/classSync';
@@ -65,6 +65,7 @@ export default function ClassPage() {
                     <AuthGate reason="Đăng nhập để vào lớp của trung tâm và gửi tiến độ cho giáo viên." redirectPath="/class" />
                 ) : (
                     <>
+                        <OpenArenas />
                         <JoinForm onJoined={load} onError={setError} />
                         {error && <p className="text-sm text-danger">{error}</p>}
                         {classes === null ? (
@@ -78,6 +79,38 @@ export default function ClassPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+/** A live quiz the teacher opened for one of the classes: one tap to join (app/arena). */
+function OpenArenas() {
+    const [rooms, setRooms] = useState<ArenaRoomOpen[]>([]);
+    useEffect(() => {
+        let live = true;
+        const load = () =>
+            arenaOpenRooms()
+                .then((r) => live && setRooms(r))
+                .catch(() => undefined);
+        const first = setTimeout(load, 0);
+        const t = setInterval(load, 15000);
+        return () => {
+            live = false;
+            clearTimeout(first);
+            clearInterval(t);
+        };
+    }, []);
+    return (
+        <>
+            {rooms.map((r) => (
+                <Link key={r.id} href={`/arena?code=${r.code}`} className="flex items-center gap-3 rounded-2xl bg-accent p-4 text-on-accent">
+                    <Swords className="h-6 w-6 shrink-0" />
+                    <span className="min-w-0">
+                        <span className="block font-bold">Vào đấu trường</span>
+                        <span className="block text-sm opacity-80">{r.class} đang chơi quiz từ vựng trên lớp</span>
+                    </span>
+                </Link>
+            ))}
+        </>
     );
 }
 

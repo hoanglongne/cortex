@@ -18,11 +18,13 @@ import type { Person } from '../../lib/classroom/tools';
 import Slides from '../../components/present/Slides';
 import Picker from '../../components/present/Picker';
 import Groups from '../../components/present/Groups';
+import Arena from '../../components/arena/Arena';
 
 const TOOLS = [
     { id: 'slides', label: 'Trình chiếu từ' },
     { id: 'pick', label: 'Gọi tên' },
     { id: 'groups', label: 'Chia nhóm' },
+    { id: 'arena', label: 'Đấu trường' },
 ] as const;
 type Tool = (typeof TOOLS)[number]['id'];
 
@@ -213,6 +215,7 @@ function Present({ id }: { id: string }) {
                     ))}
                 {tool === 'pick' && <Picker classId={id} people={present} onAbsent={(sid) => !absent.includes(sid) && toggle(sid)} />}
                 {tool === 'groups' && <Groups people={present} />}
+                {tool === 'arena' && <Arena board={board} words={words} />}
             </main>
         </div>
     );

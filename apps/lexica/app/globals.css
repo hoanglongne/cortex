@@ -29,6 +29,13 @@
   --color-on-accent: #0E0F11;
 
   /* Status */
+  /* Đấu trường (live class quiz): the four answers, same as teach, white text */
+  --color-arena-1: #2F8A63;
+  --color-arena-2: #C2541F;
+  --color-arena-3: #3B6FA3;
+  --color-arena-4: #9C7A17;
+  --color-on-arena: #FFFFFF;
+
   --color-danger: #FF6B5B;
   --color-warning: #F5B83D;
   --color-on-status: #0E0F11;

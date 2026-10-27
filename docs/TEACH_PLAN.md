@@ -14,7 +14,7 @@
   - W2 buổi học tự lái: khó đạt, lợi thế không rõ.
 - **W3** (giọng con cho phụ huynh): ý hay nhưng còn chung chung, và phụ huynh nhiều người không rành tiếng Anh. Phần đáng giữ là **nói cho phụ huynh hiểu con làm được gì bằng tiếng Việt dễ hiểu**, đưa vào T4 (mục 3.2).
 
-**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học đã làm (mục 3.7, chưa có PR).
+**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học (mục 3.7) và T2a (mục 4.8) đã làm, chưa có PR.
 
 ---
 
@@ -279,6 +279,19 @@ Bảng xếp hạng có thể **ẩn tên** (chỉ hiện top 3 với tên, còn
 1. **T2a:** bảng và hàm SQL, luồng phòng (mở, vào, câu, khoá, kết thúc), màn hình máy chiếu, màn hình điện thoại trong Lexica, chế độ Cổ điển.
 2. **T2b:** chế độ Đội, bảng phân tích cho giáo viên, đẩy từ sai vào hàng ôn, bục vinh danh.
 3. **T2c:** chế độ Sống sót và Tiến bộ, trang `play` cho khách, lịch sử buổi chơi.
+
+### 4.8 Trạng thái T2a (27/10/2026): đã làm, chưa có PR
+- **Theo đề xuất ở 4.6:** học viên vào qua Lexica (đã đăng nhập, phải là học viên của lớp); chế độ Cổ điển trước.
+- **SQL** (`packages/classroom/sql/classroom_arena.sql`, chạy sau `classroom_core.sql`):
+  - bảng `cortex_arena_rooms`, `cortex_arena_questions`, `cortex_arena_players`, `cortex_arena_answers` (RLS bật, không policy);
+  - giáo viên: `arena_open` (mỗi lớp một phòng đang chạy, mã 6 số, 3–30 câu, 10–60 giây), `arena_next`, `arena_lock`, `arena_finish`, `arena_host_state`;
+  - học viên: `arena_open_rooms`, `arena_join`, `arena_state` (không có đáp án khi câu còn mở), `arena_answer`.
+  - Điểm: đúng thì `1000 × (1 − 0.5 × thời gian / thời gian cho phép)`, cộng 50 cho mỗi câu đúng liền trước đó (tối đa 200). Trả lời trễ quá 1,5 giây sau hết giờ thì bị từ chối. Không trả lời thì mất chuỗi đúng.
+- **Thời gian thực:** kênh Supabase Realtime `arena:<id phòng>` chỉ báo "có thay đổi" (không mang đáp án); hai bên gọi hàm SQL để lấy trạng thái, kèm hỏi lại mỗi 2,5–3 giây khi mất kết nối. Đồng hồ hai bên tính theo giờ máy chủ (`timeLeft`).
+- **Câu hỏi** (`apps/teach/app/lib/arena.ts`, có test): xen kẽ "từ → chọn nghĩa" và "nghĩa → chọn từ"; đáp án sai lấy cùng cấp độ, cùng nhánh trước, không bao giờ có hai đáp án đúng. Nguồn: một bài giao, từ cả lớp sắp quên (W4), mọi bài của lớp, hoặc các từ khó của ván trước.
+- **Teach** ("Trên lớp" → "Đấu trường", `components/arena/Arena.tsx`): chọn từ, số câu, giây mỗi câu, ẩn tên ngoài top 3 → phòng chờ (mã to, danh sách em đã vào) → câu hỏi (đồng hồ, số em đã trả lời, tự khoá khi hết giờ hoặc cả lớp đã trả lời) → đáp án, số em chọn từng ý, top dẫn đầu → bục vinh danh, "Câu khó nhất", "Chơi lại N từ khó".
+- **Lexica** (`app/arena/`): trang `/arena` (một chạm vào phòng của lớp, hoặc nhập mã; link `?code=`), 4 nút màu có hình, "Đã gửi", đúng/sai và điểm sau khi khoá, hạng cuối ván; trang Lớp học có thẻ "Vào đấu trường" khi lớp đang mở phòng.
+- **Còn lại cho T2b, T2c:** chế độ Đội, Sống sót, Tiến bộ; đẩy từ sai vào hàng ôn trong Lexica và tính lần nhớ đúng; bảng phân tích kỹ hơn (em đoán bừa); mã QR; trang `play` cho khách; lịch sử các ván; câu Nghe.
 
 ---
 

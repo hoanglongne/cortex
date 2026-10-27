@@ -19,7 +19,7 @@ export * from '@cortex/classroom';
 export { matchWords, weekDelta, type Counts } from '@cortex/classroom-lexica';
 
 const api = classroomApi(getSupabaseClient);
-export const { joinClass, leaveClass, leaderboard } = api;
+export const { joinClass, leaveClass, leaderboard, arenaOpenRooms, arenaJoin, arenaState, arenaAnswer } = api;
 /** Classes that use Lexica, with their Lexica lessons. */
 export const myClasses = () => api.myClasses(LEXICA);
 

@@ -39,6 +39,13 @@
   --color-step-gap: #5BA27E;
   --color-step-dung: #2E7556;
 
+  /* Đấu trường: the four answers (with shapes ▲ ◆ ● ■), white text on each */
+  --color-arena-1: #2E7556;
+  --color-arena-2: #B4400F;
+  --color-arena-3: #2F5D8A;
+  --color-arena-4: #8A6A0E;
+  --color-on-arena: #FFFFFF;
+
   --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
   --font-serif: var(--font-lora), Georgia, serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
@@ -72,6 +79,10 @@
   --color-step-nho: #3D6A52;
   --color-step-gap: #4F9171;
   --color-step-dung: #6CC195;
+  --color-arena-1: #2F8A63;
+  --color-arena-2: #C2541F;
+  --color-arena-3: #3B6FA3;
+  --color-arena-4: #9C7A17;
   --shadow-card: 0 0 0 1px #2F2C27;
   color-scheme: dark;
 }
@@ -99,6 +110,10 @@
   --color-step-nho: #3D6A52;
   --color-step-gap: #4F9171;
   --color-step-dung: #6CC195;
+  --color-arena-1: #2F8A63;
+  --color-arena-2: #C2541F;
+  --color-arena-3: #3B6FA3;
+  --color-arena-4: #9C7A17;
   --shadow-card: 0 0 0 1px #2F2C27;
   color-scheme: dark;
   }

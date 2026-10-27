@@ -95,13 +95,19 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - SQL mới: `packages/classroom/sql/classroom_attendance.sql` (chạy sau `classroom_parents.sql`); `classroom_parents.sql` có sửa (báo cáo giữ phần `attend`).
   - Phần thuần: `packages/classroom/attendance.ts`, `apps/teach/app/lib/lessons.ts`; test ở `apps/teach/__tests__/attendance.test.ts` và `parentReport.test.ts`.
   - Teach: tab "Buổi học" (`components/class/Lessons.tsx`, `components/lessons/`), điểm danh ở Trên lớp lưu lên máy chủ, trang Hôm nay (buổi dạy hôm nay, buổi chưa điểm danh, em vắng 2 buổi liền), khung "Trên lớp" ở trang một em, dòng đi học trong báo cáo phụ huynh. Dữ liệu nạp qua `lib/useAttendance.ts`.
+- **T2a Đấu trường từ vựng (chế độ Cổ điển): đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 4.8):
+  - SQL mới: `packages/classroom/sql/classroom_arena.sql`; kiểu và đồng hồ chung: `packages/classroom/arena.ts`.
+  - Teach: `components/arena/Arena.tsx`, `lib/arena.ts` (ra câu hỏi, có test `__tests__/arena.test.ts`), `lib/useArenaHost.ts`; mở từ "Trên lớp" → "Đấu trường".
+  - Lexica: `app/arena/` (trang `/arena`, `useArenaPlayer.ts`), thẻ "Vào đấu trường" ở `/class`.
+  - Màu 4 đáp án là token `arena-1..4` trong theme của cả hai app.
 - **Người dùng chạy trên Supabase, theo thứ tự** (chạy lại nhiều lần không lỗi):
   1. `packages/classroom/sql/classroom_core.sql`
   2. `packages/classroom/sql/classroom_parents.sql`
   3. `packages/classroom/sql/classroom_attendance.sql`
-  4. `packages/classroom-lexica/sql/classroom_lexica.sql`
-  5. `apps/lexica/supabase/migration_placement.sql`
-- **Việc tiếp theo: T2 Đấu trường từ vựng** (TEACH_PLAN mục 4): Supabase Realtime, máy chủ làm trọng tài, từ sai tự vào bài ôn trong Lexica. Đề xuất học viên vào qua Lexica, PR đầu làm chế độ Cổ điển và Đội.
+  4. `packages/classroom/sql/classroom_arena.sql`
+  5. `packages/classroom-lexica/sql/classroom_lexica.sql`
+  6. `apps/lexica/supabase/migration_placement.sql`
+- **Việc tiếp theo: T2b** (TEACH_PLAN 4.7): chế độ Đội, đẩy từ sai vào hàng ôn trong Lexica, bảng phân tích cho giáo viên. Cần thử T2a với lớp thật trước (Realtime trên Supabase thật, wifi lớp).
 
 ## 5. Việc của người dùng còn treo
 - Railway, Cortex API: thêm `SUPABASE_SERVICE_ROLE_KEY`, `STUDIO_CRON=on`, rồi Redeploy. Railway từng có sự cố tạm dừng deploy.

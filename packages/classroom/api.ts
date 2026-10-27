@@ -3,6 +3,7 @@ import { classMessage } from './rules';
 import type { AdminOverview, AppId, Assignment, Board, ClassInfo, InviteKind, LeaderRow, OpenInvite, OrgOverview, Whoami } from './types';
 import type { ClassParents, ParentView, ReportContent, WeekMetrics } from './parents';
 import type { AttendanceByClass, Mark, Session, Slot } from './attendance';
+import type { ArenaHost, ArenaPlayerView, ArenaQuestionInput, ArenaRoomOpen, ArenaState } from './arena';
 
 export class ClassError extends Error {}
 
@@ -81,6 +82,18 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         /** A day's topic, or cancel it (its marks are dropped). */
         setSession: (classId: string, date: string, patch: { topic?: string; cancelled?: boolean }) =>
             rpc<Session>('classroom_session_set', { p_class: classId, p_date: date, p_topic: patch.topic ?? null, p_cancelled: patch.cancelled ?? null }),
+
+        // Arena (sql/classroom_arena.sql): the teacher's screen drives, students answer
+        arenaOpen: (classId: string, seconds: number, questions: ArenaQuestionInput[], hideNames = true) =>
+            rpc<{ id: string; code: string }>('arena_open', { p_class: classId, p_seconds: seconds, p_questions: questions, p_hide_names: hideNames }),
+        arenaNext: (roomId: string) => rpc<{ state: ArenaState; q_index?: number }>('arena_next', { p_room: roomId }),
+        arenaLock: (roomId: string) => rpc<{ state: ArenaState }>('arena_lock', { p_room: roomId }),
+        arenaFinish: (roomId: string) => rpc<{ state: ArenaState }>('arena_finish', { p_room: roomId }),
+        arenaHost: (roomId: string) => rpc<ArenaHost>('arena_host_state', { p_room: roomId }),
+        arenaOpenRooms: () => rpc<ArenaRoomOpen[]>('arena_open_rooms'),
+        arenaJoin: (code: string) => rpc<{ id: string }>('arena_join', { p_code: code }),
+        arenaState: (roomId: string) => rpc<ArenaPlayerView>('arena_state', { p_room: roomId }),
+        arenaAnswer: (roomId: string, idx: number, choice: number) => rpc<{ received: boolean }>('arena_answer', { p_room: roomId, p_idx: idx, p_choice: choice }),
 
         // Centers and invitations
         orgOverview: (orgId: string) => rpc<OrgOverview>('classroom_org_overview', { p_org: orgId }),

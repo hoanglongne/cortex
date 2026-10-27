@@ -27,6 +27,11 @@ const MESSAGES: Record<string, string> = {
     'bad session date': 'Chỉ điểm danh được cho hôm nay hoặc các buổi trong 4 tháng qua.',
     'bad attendance': 'Điểm danh chưa đúng dạng.',
     'bad date range': 'Khoảng ngày chưa đúng.',
+    'bad questions': 'Cần ít nhất 3 câu hỏi, mỗi câu có các lựa chọn khác nhau.',
+    'no such room': 'Không thấy phòng này. Kiểm tra lại mã trên màn hình của giáo viên.',
+    'too late': 'Hết giờ cho câu này rồi.',
+    'question still open': 'Câu hỏi còn đang mở.',
+    'bad answer': 'Lựa chọn không hợp lệ.',
 };
 
 export function classMessage(raw: string): string {
