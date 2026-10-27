@@ -25,7 +25,7 @@ export function localDay(t: number): string {
 /** A review given to the student alone in the last week: no second "Giao ôn lại" until Lexica reports again. */
 const REVIEW_FRESH_DAYS = 7;
 
-function recentReview(board: Board, userId: string, today: string) {
+export function recentReview(board: Board, userId: string, today: string) {
     const since = Date.parse(`${today}T00:00:00`) - REVIEW_FRESH_DAYS * 86_400_000;
     return board.assignments.find((a) => a.for_user === userId && a.app === LEXICA && Date.parse(a.created_at) >= since) ?? null;
 }

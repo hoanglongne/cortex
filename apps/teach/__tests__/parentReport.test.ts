@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { lastWeek, weekLabel, parentLink } from '@cortex/classroom';
 import { lexicaWeek, type LexicaWeek } from '@cortex/classroom-lexica';
+import { oratioWeek } from '@cortex/classroom-oratio';
 import { composeReport, joinVi, linksMessage, scoreLine } from '../app/lib/parentReport';
 
 const WORDS: Record<string, string> = { v1: 'environment', v2: 'sustainable', v3: 'pollution', v4: 'recycle' };
@@ -81,6 +82,41 @@ describe('the report', () => {
         const first = composeReport({ days: 3, lexica: week(end, null) });
         expect(first.summary).toContain('tuần đầu con học cùng lớp; đến nay con đã nhớ 43 từ');
         expect(first.did).toEqual([]);
+    });
+
+    it('opens with the lessons in class when the roll was taken', () => {
+        const full = composeReport({ days: 5, lexica: lx, attend: { held: 3, came: 3, late: 1 } });
+        expect(full.summary).toMatch(/^Tuần này con đi học đủ 3\/3 buổi trên lớp \(1 buổi đi muộn\) và tự học ở nhà 5\/7 ngày\. Con nhớ thêm 23 từ/);
+        expect(full.attend).toEqual({ held: 3, came: 3, late: 1 });
+        expect(full.help).toBe('Nhờ con đọc to vài từ có âm "th", như "think".');
+        // Leave is not a missed lesson
+        const leave = composeReport({ days: 4, lexica: lx, attend: { held: 2, came: 1, excused: 1 } });
+        expect(leave.summary).toContain('đi học 1/2 buổi trên lớp (1 buổi nghỉ có phép)');
+        expect(leave.help).not.toContain('vắng');
+        // A missed lesson comes first in how to help
+        const off = composeReport({ days: 0, lexica: lx, attend: { held: 2, came: 1 } });
+        expect(off.summary).toBe('Tuần này con đi học 1/2 buổi trên lớp, nhưng chưa mở Lexica ở nhà.');
+        expect(off.help).toContain('Con vắng 1 buổi trên lớp không báo trước');
+        expect(composeReport({ days: 3, lexica: lx, attend: { held: 2, came: 0 } }).summary).toMatch(/^Tuần này con vắng cả 2 buổi trên lớp và tự học/);
+        expect(composeReport({ days: 3, lexica: lx, attend: { held: 2, came: 0, excused: 2 } }).summary).toContain('vắng cả 2 buổi trên lớp (đều có phép)');
+        // No lesson with a mark: as before
+        expect(composeReport({ days: 5, lexica: lx, attend: null }).summary).toMatch(/^Tuần này con học 5\/7 ngày\./);
+        expect(composeReport({ days: 5, lexica: lx, attend: { held: 0, came: 0 } })).not.toHaveProperty('attend');
+    });
+
+    it("reads Oratio's week from its reports", () => {
+        expect(oratioWeek({ sessions: 9, minutes: 70 }, { sessions: 6, minutes: 45 })).toEqual({ sessions: 3, minutes: 25, first: false });
+        expect(oratioWeek({ sessions: 4, minutes: 30 }, null)).toEqual({ sessions: 4, minutes: 30, first: true });
+        expect(oratioWeek(null, null)).toBeNull();
+    });
+
+    it('tells what the child spoke in Oratio, and nudges when they did not', () => {
+        const r = composeReport({ days: 5, lexica: lx, oratio: { sessions: 3, minutes: 25, first: false } });
+        expect(r.did).toHaveLength(3);
+        expect(r.did[2]).toEqual({ text: 'Con luyện nói tiếng Anh 3 buổi (25 phút) với bạn học trên Oratio' });
+        expect(composeReport({ days: 5, lexica: null, oratio: { sessions: 4, minutes: 30, first: true } }).did).toEqual([{ text: 'Đến nay con đã luyện nói tiếng Anh 4 buổi (30 phút) với bạn học trên Oratio' }]);
+        expect(composeReport({ days: 5, lexica: { ...lx, hardSound: null, rememberedWords: [] }, oratio: { sessions: 0, minutes: 0, first: false } }).help).toContain('chưa luyện nói');
+        expect(composeReport({ days: 5, lexica: lx, oratio: null }).did).toHaveLength(3);
     });
 
     it('writes one Zalo line per parent', () => {

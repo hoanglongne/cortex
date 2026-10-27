@@ -26,7 +26,7 @@ export default function InviteDrawer({ open, onClose, make, title, hint }: { ope
                     <CopyField value={link} label="Chép link mời" />
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <Field label="Gửi cho ai (để bạn nhớ)" hint="Ví dụ “Cô Lan, lớp tối”. Người nhận không thấy dòng này.">
                         <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={80} className={inputClass} />
                     </Field>

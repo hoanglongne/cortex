@@ -40,10 +40,10 @@ export default function Settings({ board, onChanged }: { board: Board; onChanged
     };
 
     return (
-        <div className="max-w-xl space-y-5">
+        <div className="max-w-xl space-y-8">
             <Card>
                 <CardTitle>Thông tin lớp</CardTitle>
-                <div className="space-y-5">
+                <div className="space-y-8">
                     <Field label="Tên lớp">
                         <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} className={inputClass} />
                     </Field>

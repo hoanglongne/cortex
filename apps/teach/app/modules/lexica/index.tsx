@@ -49,7 +49,7 @@ export const lexicaUI: ModuleUI = {
     SettingsFields({ value, onChange }) {
         const s: LexicaSettings = lexicaModule.parseSettings(value);
         return (
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <Field label="Nhánh học">
                     <div className="grid grid-cols-2 gap-2">
                         {(['cert', 'talk'] as const).map((b) => (
@@ -138,7 +138,7 @@ export const lexicaUI: ModuleUI = {
         const assigned = [...new Set(board.assignments.filter((a) => a.app === 'lexica').flatMap((a) => lessonOf(a.payload).card_ids))];
         const groups = STEP_NAMES.map((label, n) => ({ label, n, ids: assigned.filter((id) => (m.words[id] ?? 0) === n) })).filter((g) => g.ids.length > 0);
         return (
-            <div className="space-y-5">
+            <div className="space-y-8">
                 <div>
                     <StepBar counts={m.counts} />
                     {(m.counts.known ?? 0) > 0 && <p className="mt-1 text-xs text-subtle">Không tính {m.counts.known} từ em đánh dấu “biết rồi” mà chưa học trong Lexica.</p>}
@@ -150,7 +150,7 @@ export const lexicaUI: ModuleUI = {
                     {assigned.length === 0 ? (
                         <p className="text-sm text-muted">Lớp chưa giao bài từ vựng nào.</p>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {groups.map((g) => (
                                 <div key={g.n}>
                                     <p className={`text-sm font-medium ${g.n <= 1 ? 'text-warm' : 'text-ink-2'}`}>

@@ -12,6 +12,8 @@ import { getCard, getCardByWord, sameWordIds } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import { addAttempt, type SoundLog } from '../lib/pronunciation/soundLog';
 import { addRecall, type ReviewLog } from '../lib/journey/reviewLog';
+import { APPLIED_KEEP, arenaReview } from '../lib/arenaReview';
+import type { ArenaResult } from '@cortex/classroom';
 import { localDate } from '../lib/engagement/ghost';
 import type { ErrorKind } from '../lib/pronunciation/pairs';
 import type { SpeakLevel } from '../lib/pronunciation/score';
@@ -79,6 +81,8 @@ interface LexicaStore {
     soundLog: SoundLog;
     /** Recalls of words seen before, right and all, per day, 30 days (lib/journey/reviewLog.ts): the class report's recall rate. */
     reviewLog: ReviewLog;
+    /** Class quiz rooms already put into review (lib/arenaReview.ts). */
+    arenaApplied: string[];
 
     // The four steps of each word (lib/journey/steps.ts)
     journeys: Journeys;
@@ -208,6 +212,8 @@ interface LexicaStore {
     queueCards: (cardIds: string[]) => number;
     /** A light "good" review for each card (reading a passage). */
     lightReview: (cardIds: string[]) => void;
+    /** A class quiz's results: wrong words back into review, quick right ones as a right recall. */
+    applyArena: (results: ArenaResult[]) => { again: number; recalled: number; queued: number };
 
     // Cortex Integration
     syncAllToCortex: () => Promise<void>;
@@ -384,6 +390,7 @@ export const useLexicaStore = create<LexicaStore>()(
             spokenAt: {},
             soundLog: {},
             reviewLog: {},
+            arenaApplied: [],
             journeys: {},
             stepHistory: {},
             path: null,
@@ -672,6 +679,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     spokenAt: {},
                     soundLog: {},
                     reviewLog: {},
+                    arenaApplied: [],
                     journeys: {},
                     pledge: null,
                     sightings: [],
@@ -911,6 +919,16 @@ export const useLexicaStore = create<LexicaStore>()(
                 return fresh.length;
             },
 
+            applyArena: (results) => {
+                const plan = arenaReview(results, get().arenaApplied ?? [], (id) => Boolean(get().cardProgress[id]));
+                if (plan.rooms.length === 0) return { again: 0, recalled: 0, queued: 0 };
+                for (const id of plan.again) get().submitReviewAnswer(id, false);
+                for (const id of plan.recalled) get().submitReviewAnswer(id, true, 'good');
+                const queued = plan.queue.length ? get().queueCards(plan.queue) : 0;
+                set({ arenaApplied: [...(get().arenaApplied ?? []), ...plan.rooms].slice(-APPLIED_KEEP) });
+                return { again: plan.again.length, recalled: plan.recalled.length, queued };
+            },
+
             lightReview: (cardIds) => {
                 const { cardProgress } = get();
                 const updated = { ...cardProgress };
@@ -1003,6 +1021,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 spokenAt: state.spokenAt,
                 soundLog: state.soundLog,
                 reviewLog: state.reviewLog,
+                arenaApplied: state.arenaApplied,
                 journeys: state.journeys,
                 pledge: state.pledge,
                 sightings: state.sightings,

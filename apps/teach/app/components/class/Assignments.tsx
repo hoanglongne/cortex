@@ -8,6 +8,7 @@ import { api } from '../../lib/supabase';
 import { moduleFor, modulesOf, type ModuleUI } from '../../modules';
 import AppDot from './AppDot';
 import { dueText } from './Overview';
+import Suggestions from './Suggestions';
 
 /** "Giao gì, tới đâu rồi?": every app's work, newest first, each with its due date and how far the class got. */
 export default function Assignments({ board, onChanged, startOpen }: { board: Board; onChanged: () => void; startOpen: boolean }) {
@@ -26,13 +27,14 @@ export default function Assignments({ board, onChanged, startOpen }: { board: Bo
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div className="flex justify-end">
                 <Button onClick={open} disabled={mods.length === 0}>
                     <Plus className="h-4 w-4" /> Giao bài mới
                 </Button>
             </div>
             <ErrorNote error={error} />
+            <Suggestions board={board} onChanged={onChanged} />
             {board.assignments.length === 0 ? (
                 <Empty title="Chưa có bài nào" action={<Button onClick={open}>Giao bài đầu tiên</Button>}>
                     Một bài là phần việc của một buổi học. Phiên học của học viên trong ứng dụng sẽ đưa bài này lên trước.

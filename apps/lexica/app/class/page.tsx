@@ -3,16 +3,17 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Crown, LogOut, School, Users } from 'lucide-react';
+import { ClipboardCheck, Crown, LogOut, School, Swords, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthGate from '../components/AuthGate';
 import { useLexicaStore } from '../store/lexicaStore';
-import { assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, lessonOf, type ClassInfo, type LeaderRow } from '../lib/classes';
+import { arenaOpenRooms, myTests, assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, lessonOf, type ArenaRoomOpen, type ClassInfo, type LeaderRow, type MyTest } from '../lib/classes';
 import { dungFromScore, lexicaModule } from '@cortex/classroom-lexica';
 import { TEACH_URL } from '../lib/cortexConfig';
 import { refreshClasses, reportNow } from '../lib/classSync';
 import { BRANCH_LABEL } from '../lib/journey/path';
 import { getCard } from '../lib/content/repository';
+import { applyArenaResults } from '../arena/applyResults';
 
 /**
  * "Lớp học" for a student (docs/LEXICA_DIRECTION.md, "Trung tâm"): join a
@@ -32,6 +33,8 @@ export default function ClassPage() {
 
     const load = useCallback(async () => {
         setClasses(await refreshClasses(true));
+        // Words missed in a class quiz go back into review (once per quiz)
+        applyArenaResults().catch(() => undefined);
     }, []);
 
     useEffect(() => {
@@ -65,6 +68,8 @@ export default function ClassPage() {
                     <AuthGate reason="Đăng nhập để vào lớp của trung tâm và gửi tiến độ cho giáo viên." redirectPath="/class" />
                 ) : (
                     <>
+                        <OpenArenas />
+                        <ClassTests />
                         <JoinForm onJoined={load} onError={setError} />
                         {error && <p className="text-sm text-danger">{error}</p>}
                         {classes === null ? (
@@ -78,6 +83,90 @@ export default function ClassPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+/** A live quiz the teacher opened for one of the classes: one tap to join (app/arena). */
+function OpenArenas() {
+    const [rooms, setRooms] = useState<ArenaRoomOpen[]>([]);
+    useEffect(() => {
+        let live = true;
+        const load = () =>
+            arenaOpenRooms()
+                .then((r) => live && setRooms(r))
+                .catch(() => undefined);
+        const first = setTimeout(load, 0);
+        const t = setInterval(load, 15000);
+        return () => {
+            live = false;
+            clearTimeout(first);
+            clearInterval(t);
+        };
+    }, []);
+    return (
+        <>
+            {rooms.map((r) => (
+                <Link key={r.id} href={`/arena?code=${r.code}`} className="flex items-center gap-3 rounded-2xl bg-accent p-4 text-on-accent">
+                    <Swords className="h-6 w-6 shrink-0" />
+                    <span className="min-w-0">
+                        <span className="block font-bold">Vào đấu trường</span>
+                        <span className="block text-sm opacity-80">{r.class} đang chơi quiz từ vựng trên lớp</span>
+                    </span>
+                </Link>
+            ))}
+        </>
+    );
+}
+
+/** Class tests (T3): the ones still to do first, then scores of the ones handed in. */
+function ClassTests() {
+    const [tests, setTests] = useState<MyTest[]>([]);
+    useEffect(() => {
+        let live = true;
+        const t = setTimeout(() => {
+            myTests()
+                .then((r) => live && setTests(r))
+                .catch(() => undefined);
+        }, 0);
+        return () => {
+            live = false;
+            clearTimeout(t);
+        };
+    }, []);
+    const todo = tests.filter((t) => t.status !== 'submitted' && !t.closed);
+    const done = tests.filter((t) => t.status === 'submitted').slice(0, 5);
+    if (todo.length + done.length === 0) return null;
+    return (
+        <section className="rounded-2xl border border-line bg-surface p-4">
+            <p className="flex items-center gap-2 font-semibold text-ink">
+                <ClipboardCheck className="h-4 w-4 text-accent" /> Bài kiểm tra
+            </p>
+            <ul className="mt-2 space-y-1.5">
+                {todo.map((t) => (
+                    <li key={t.id}>
+                        <Link href={`/class/test/${t.id}`} className="flex items-center justify-between gap-3 rounded-xl bg-accent px-3 py-2.5 text-on-accent">
+                            <span className="min-w-0">
+                                <span className="block font-bold">{t.title}</span>
+                                <span className="block text-xs opacity-80">
+                                    {t.class} · {t.total} câu{t.due_on ? ` · ${dueLabel(t.due_on)}` : ''}
+                                </span>
+                            </span>
+                            <span className="shrink-0 text-sm font-bold">{t.status === 'started' ? 'Làm tiếp' : 'Làm bài'}</span>
+                        </Link>
+                    </li>
+                ))}
+                {done.map((t) => (
+                    <li key={t.id}>
+                        <Link href={`/class/test/${t.id}`} className="flex items-center justify-between gap-3 px-1 py-1.5 text-sm">
+                            <span className="min-w-0 truncate text-ink-2">{t.title}</span>
+                            <span className="shrink-0 font-mono text-ink">
+                                {t.correct}/{t.total}
+                            </span>
+                        </Link>
+                    </li>
+                ))}
+            </ul>
+        </section>
     );
 }
 

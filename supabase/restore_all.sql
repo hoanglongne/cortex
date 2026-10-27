@@ -4851,6 +4851,7 @@ returns jsonb language plpgsql immutable as $$
 declare
   did jsonb;
   score jsonb;
+  attend jsonb;
   t text;
 begin
   if jsonb_typeof(p) <> 'object' then raise exception 'bad report'; end if;
@@ -4873,11 +4874,21 @@ begin
       'at', case when (p->'score'->>'at') ~ '^\d{4}-\d{2}-\d{2}' then left(p->'score'->>'at', 10) end
     ));
   end if;
+  -- Lessons in class that week (classroom_attendance.sql): held, came (on time or late), late, excused
+  if jsonb_typeof(p->'attend') = 'object' and jsonb_typeof(p->'attend'->'held') = 'number' and (p->'attend'->>'held')::numeric >= 1 then
+    attend := jsonb_strip_nulls(jsonb_build_object(
+      'held', least(round((p->'attend'->>'held')::numeric), 14)::int,
+      'came', case when jsonb_typeof(p->'attend'->'came') = 'number' then least(greatest(round((p->'attend'->>'came')::numeric), 0), least(round((p->'attend'->>'held')::numeric), 14))::int else 0 end,
+      'late', case when jsonb_typeof(p->'attend'->'late') = 'number' then nullif(least(greatest(round((p->'attend'->>'late')::numeric), 0), 14)::int, 0) end,
+      'excused', case when jsonb_typeof(p->'attend'->'excused') = 'number' then nullif(least(greatest(round((p->'attend'->>'excused')::numeric), 0), 14)::int, 0) end
+    ));
+  end if;
   return jsonb_strip_nulls(jsonb_build_object(
     'v', 1,
     'days', case when jsonb_typeof(p->'days') = 'number' then least(greatest(round((p->>'days')::numeric), 0), 7)::int else 0 end,
     'summary', t,
     'did', did,
+    'attend', attend,
     'score', score,
     'help', nullif(left(trim(coalesce(p->>'help', '')), 300), ''),
     'note', nullif(left(trim(coalesce(p->>'note', '')), 500), '')
@@ -5050,6 +5061,936 @@ begin
   revoke all on function public.parent_view(text, text) from public;
   grant execute on function public.parent_view(text, text) to anon, authenticated;
   foreach f in array array['cortex_parent_code()', 'cortex_pin_hash(text, text)', 'cortex_clean_report(jsonb)'] loop
+    execute format('revoke all on function public.%s from public, anon, authenticated', f);
+  end loop;
+end $$;
+
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- packages/classroom/sql/classroom_attendance.sql
+-- ============================================================
+
+-- Class sessions and attendance (Teach "Buổi học"): the weekly timetable, and
+-- who came to each lesson. Runs after classroom_core.sql. Safe to re-run.
+--
+-- A class has a weekly schedule (days and a start time). A session is one class
+-- day: it exists once the teacher takes the roll, writes what the lesson was
+-- about, or cancels it (a holiday). One session per class per day. Marks are
+-- per student: present, late, absent, excused (absent with a reason).
+-- Only the class's teachers read or write them; students and parents see the
+-- roll only through an approved weekly report. Every read and write goes
+-- through the functions below; the tables have RLS on and no policies.
+
+alter table cortex_classes add column if not exists schedule jsonb not null default '[]'::jsonb;
+
+create table if not exists cortex_class_sessions (
+  class_id uuid not null references cortex_classes(id) on delete cascade,
+  on_date date not null,
+  topic text check (topic is null or char_length(topic) <= 120),
+  cancelled boolean not null default false,
+  updated_at timestamptz not null default now(),
+  primary key (class_id, on_date)
+);
+
+create table if not exists cortex_attendance (
+  class_id uuid not null,
+  on_date date not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  status text not null check (status in ('present', 'late', 'absent', 'excused')),
+  marked_by uuid references auth.users(id) on delete set null,
+  marked_at timestamptz not null default now(),
+  primary key (class_id, on_date, user_id),
+  foreign key (class_id, on_date) references cortex_class_sessions(class_id, on_date) on delete cascade
+);
+create index if not exists cortex_attendance_user_idx on cortex_attendance (class_id, user_id, on_date);
+
+alter table cortex_class_sessions enable row level security;
+alter table cortex_attendance enable row level security;
+
+-- ── helpers ─────────────────────────────────────────────────────────────
+
+-- A timetable as packages/classroom/attendance.ts reads it: at most one slot per
+-- weekday (ISO, Monday 1), a start "HH:MM" and a length of 15 to 300 minutes.
+-- Bad slots are dropped, not rejected.
+create or replace function public.cortex_clean_schedule(p jsonb)
+returns jsonb language sql immutable as $$
+  select coalesce(jsonb_agg(jsonb_build_object('dow', dow, 'start', start, 'minutes', minutes) order by dow), '[]'::jsonb)
+  from (
+    select distinct on (dow) dow, start, minutes from (
+      select (x->>'dow')::int as dow,
+             x->>'start' as start,
+             least(greatest(coalesce(round((x->>'minutes')::numeric)::int, 90), 15), 300) as minutes
+      from jsonb_array_elements(case when jsonb_typeof(p) = 'array' then p else '[]'::jsonb end) x
+      where jsonb_typeof(x) = 'object'
+        and coalesce(x->>'dow', '') ~ '^[1-7]$'
+        and coalesce(x->>'start', '') ~ '^([01][0-9]|2[0-3]):[0-5][0-9]$'
+        and (x->'minutes' is null or jsonb_typeof(x->'minutes') = 'number')
+    ) s
+    order by dow, start
+  ) d;
+$$;
+
+-- One session as Teach reads it: its date, topic, whether it was cancelled, and the marks by student.
+create or replace function public.cortex_session_json(p_class uuid, p_date date)
+returns jsonb language sql stable as $$
+  select jsonb_build_object(
+    'date', s.on_date,
+    'topic', s.topic,
+    'cancelled', s.cancelled,
+    'marks', coalesce((select jsonb_object_agg(a.user_id, a.status) from cortex_attendance a where a.class_id = s.class_id and a.on_date = s.on_date), '{}'::jsonb)
+  )
+  from cortex_class_sessions s where s.class_id = p_class and s.on_date = p_date;
+$$;
+
+-- ── teacher ─────────────────────────────────────────────────────────────
+
+create or replace function public.classroom_schedule_set(p_class uuid, p_schedule jsonb)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  clean jsonb := cortex_clean_schedule(p_schedule);
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  update cortex_classes set schedule = clean where id = p_class;
+  return jsonb_build_object('schedule', clean);
+end;
+$$;
+
+-- The timetable and sessions between two dates for each class asked for that
+-- this person teaches (others are left out): one call for the Today page.
+create or replace function public.classroom_attendance(p_classes uuid[], p_from date, p_to date)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+begin
+  if p_from is null or p_to is null or p_to < p_from or p_to - p_from > 400 then raise exception 'bad date range'; end if;
+  if coalesce(array_length(p_classes, 1), 0) > 100 then raise exception 'bad date range'; end if;
+  return coalesce((
+    select jsonb_object_agg(c.id, jsonb_build_object(
+      'schedule', c.schedule,
+      'sessions', coalesce((
+        select jsonb_agg(cortex_session_json(c.id, s.on_date) order by s.on_date desc)
+        from cortex_class_sessions s where s.class_id = c.id and s.on_date between p_from and p_to
+      ), '[]'::jsonb)
+    ))
+    from cortex_classes c
+    where c.id = any(p_classes) and classroom_can_teach(c.id)
+  ), '{}'::jsonb);
+end;
+$$;
+
+-- Take the roll for a day (today or up to 120 days back): `p_marks` maps a
+-- student to a status, or to null to clear their mark. Students no longer in
+-- the class are skipped. Marking a cancelled day reopens it. `p_topic` (when
+-- given; '' clears it) is what the lesson was about.
+create or replace function public.classroom_attendance_mark(p_class uuid, p_date date, p_marks jsonb, p_topic text default null)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  if p_date is null or p_date > cortex_today() or p_date < cortex_today() - 120 then raise exception 'bad session date'; end if;
+  if jsonb_typeof(coalesce(p_marks, '{}'::jsonb)) <> 'object' then raise exception 'bad attendance'; end if;
+
+  insert into cortex_class_sessions (class_id, on_date, topic)
+  values (p_class, p_date, nullif(left(trim(coalesce(p_topic, '')), 120), ''))
+  on conflict (class_id, on_date) do update set
+    cancelled = false,
+    topic = case when p_topic is null then cortex_class_sessions.topic else excluded.topic end,
+    updated_at = now();
+
+  delete from cortex_attendance a
+  using jsonb_each(coalesce(p_marks, '{}'::jsonb)) m
+  where a.class_id = p_class and a.on_date = p_date and a.user_id::text = m.key and jsonb_typeof(m.value) = 'null';
+
+  insert into cortex_attendance (class_id, on_date, user_id, status, marked_by)
+  select p_class, p_date, mem.user_id, m.value #>> '{}', auth.uid()
+  from jsonb_each(coalesce(p_marks, '{}'::jsonb)) m
+  join cortex_class_members mem on mem.class_id = p_class and mem.user_id::text = m.key
+  where jsonb_typeof(m.value) = 'string' and m.value #>> '{}' in ('present', 'late', 'absent', 'excused')
+  on conflict (class_id, on_date, user_id) do update set status = excluded.status, marked_by = excluded.marked_by, marked_at = now();
+
+  return cortex_session_json(p_class, p_date);
+end;
+$$;
+
+-- What a day's lesson was about, or cancel it (a holiday: its marks are
+-- dropped). Up to 120 days either side of today. A day left with no topic, no
+-- marks and not cancelled is removed, so it is a plain timetable day again.
+create or replace function public.classroom_session_set(p_class uuid, p_date date, p_topic text, p_cancelled boolean)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  if p_date is null or abs(p_date - cortex_today()) > 120 then raise exception 'bad session date'; end if;
+
+  insert into cortex_class_sessions (class_id, on_date, topic, cancelled)
+  values (p_class, p_date, nullif(left(trim(coalesce(p_topic, '')), 120), ''), coalesce(p_cancelled, false))
+  on conflict (class_id, on_date) do update set
+    topic = case when p_topic is null then cortex_class_sessions.topic else excluded.topic end,
+    cancelled = coalesce(p_cancelled, cortex_class_sessions.cancelled),
+    updated_at = now();
+  if coalesce(p_cancelled, false) then
+    delete from cortex_attendance where class_id = p_class and on_date = p_date;
+  end if;
+  delete from cortex_class_sessions s
+  where s.class_id = p_class and s.on_date = p_date and not s.cancelled and s.topic is null
+    and not exists (select 1 from cortex_attendance a where a.class_id = p_class and a.on_date = p_date);
+
+  return coalesce(cortex_session_json(p_class, p_date), jsonb_build_object('date', p_date, 'topic', null, 'cancelled', false, 'marks', '{}'::jsonb));
+end;
+$$;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['classroom_schedule_set(uuid, jsonb)', 'classroom_attendance(uuid[], date, date)',
+    'classroom_attendance_mark(uuid, date, jsonb, text)', 'classroom_session_set(uuid, date, text, boolean)'] loop
+    execute format('revoke all on function public.%s from public, anon', f);
+    execute format('grant execute on function public.%s to authenticated', f);
+  end loop;
+  foreach f in array array['cortex_clean_schedule(jsonb)', 'cortex_session_json(uuid, date)'] loop
+    execute format('revoke all on function public.%s from public, anon, authenticated', f);
+  end loop;
+end $$;
+
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- packages/classroom/sql/classroom_arena.sql
+-- ============================================================
+
+-- "Đấu trường từ vựng" (docs/TEACH_PLAN.md, section 4, T2a): a live quiz the
+-- teacher runs on the projector, students answer on their phones in Lexica.
+-- Runs after classroom_core.sql. Safe to re-run.
+--
+-- The server is the referee: questions and answers sit in tables only these
+-- functions read; a student gets a question without its answer until the
+-- teacher locks it; answers are timed and scored by the server's clock, and
+-- refused once the time is up or the question is locked. The teacher's screen
+-- drives the room (open, next question, lock, finish); Supabase Realtime only
+-- carries "something changed" signals, never answers.
+--
+-- Rooms: one live room per class (opening a new one finishes the old), a
+-- 6-digit code, 3 to 30 questions, 10 to 60 seconds each. Players are the
+-- class's students. Modes: classic (everyone for themselves) and team (2–4
+-- teams the teacher balances; a team's score is its members' average, so a
+-- weaker student still adds to it). When the room finishes, each player's
+-- answers stay readable to them (arena_my_results) so Lexica can put the
+-- words they missed back into review. Every read and write goes through the functions below;
+-- the tables have RLS on and no policies.
+
+create table if not exists cortex_arena_rooms (
+  id uuid primary key default gen_random_uuid(),
+  class_id uuid not null references cortex_classes(id) on delete cascade,
+  code text not null check (code ~ '^[0-9]{6}$'),
+  host uuid references auth.users(id) on delete set null,
+  mode text not null default 'classic',
+  seconds int not null check (seconds between 10 and 60),
+  -- Only the top 3 by name on the projector; the rest see their own rank on their phone
+  hide_names boolean not null default true,
+  state text not null default 'lobby' check (state in ('lobby', 'question', 'reveal', 'finished')),
+  q_index int not null default -1,
+  q_opened_at timestamptz,
+  created_at timestamptz not null default now(),
+  finished_at timestamptz
+);
+-- A code is unique among rooms still running
+-- Added with team mode (T2b)
+alter table cortex_arena_rooms add column if not exists teams int not null default 0;
+alter table cortex_arena_rooms drop constraint if exists cortex_arena_rooms_mode_check;
+alter table cortex_arena_rooms add constraint cortex_arena_rooms_mode_check check (mode in ('classic', 'team') and teams between 0 and 4 and (mode = 'classic') = (teams = 0));
+create unique index if not exists cortex_arena_rooms_code_idx on cortex_arena_rooms (code) where state <> 'finished';
+create index if not exists cortex_arena_rooms_class_idx on cortex_arena_rooms (class_id, created_at desc);
+
+create table if not exists cortex_arena_questions (
+  room_id uuid not null references cortex_arena_rooms(id) on delete cascade,
+  idx int not null,
+  card_id text,
+  kind text not null,
+  prompt text not null,
+  options jsonb not null,
+  answer int not null,
+  primary key (room_id, idx)
+);
+
+create table if not exists cortex_arena_players (
+  room_id uuid not null references cortex_arena_rooms(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  score int not null default 0,
+  streak int not null default 0,
+  joined_at timestamptz not null default now(),
+  primary key (room_id, user_id)
+);
+
+alter table cortex_arena_players add column if not exists team int check (team between 1 and 4);
+
+create table if not exists cortex_arena_answers (
+  room_id uuid not null references cortex_arena_rooms(id) on delete cascade,
+  idx int not null,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  choice int not null,
+  correct boolean not null,
+  ms int not null,
+  points int not null,
+  at timestamptz not null default now(),
+  primary key (room_id, idx, user_id)
+);
+
+alter table cortex_arena_rooms enable row level security;
+alter table cortex_arena_questions enable row level security;
+alter table cortex_arena_players enable row level security;
+alter table cortex_arena_answers enable row level security;
+
+-- ── helpers ─────────────────────────────────────────────────────────────
+
+-- Late answers: a little grace for the network, on top of the question's time.
+create or replace function public.cortex_arena_grace()
+returns interval language sql immutable as $$ select interval '1500 milliseconds' $$;
+
+-- Points for a right answer: 1000 at once, down to 500 at the last second,
+-- plus 50 for each right answer in a row before it (up to 200). Wrong: 0.
+create or replace function public.cortex_arena_points(p_correct boolean, p_ms int, p_seconds int, p_streak int)
+returns int language sql immutable as $$
+  select case when not p_correct then 0
+    else round(1000 * (1 - 0.5 * least(greatest(p_ms, 0), p_seconds * 1000)::numeric / (p_seconds * 1000)))::int + 50 * least(greatest(p_streak, 0), 4)
+  end;
+$$;
+
+-- The room's ranking: score, then who joined first. `rank` starts at 1; ties share it.
+create or replace function public.cortex_arena_ranking(p_room uuid)
+returns table (user_id uuid, name text, score int, rank int) language sql stable as $$
+  select p.user_id, p.name, p.score, (rank() over (order by p.score desc))::int
+  from cortex_arena_players p where p.room_id = p_room
+  order by p.score desc, p.joined_at;
+$$;
+
+-- Each team's score (its members' average, rounded), size and rank; empty outside team mode.
+create or replace function public.cortex_arena_teams(p_room uuid)
+returns table (team int, members int, score int, rank int) language sql stable as $$
+  select t.team, t.members, t.score, (rank() over (order by t.score desc))::int
+  from (
+    select p.team, count(*)::int as members, round(avg(p.score))::int as score
+    from cortex_arena_players p where p.room_id = p_room and p.team is not null
+    group by p.team
+  ) t
+  order by t.score desc, t.team;
+$$;
+
+-- The team with the fewest players (the lowest number on a tie), for someone without one.
+create or replace function public.cortex_arena_smallest_team(p_room uuid)
+returns int language sql stable as $$
+  select g from generate_series(1, (select teams from cortex_arena_rooms where id = p_room)) g
+  order by (select count(*) from cortex_arena_players p where p.room_id = p_room and p.team = g), g
+  limit 1;
+$$;
+
+-- Questions a teacher sends: 3–30 objects {card_id?, kind, prompt, options[2..4], answer}. Bad ones are refused.
+create or replace function public.cortex_arena_clean_questions(p jsonb)
+returns jsonb language plpgsql immutable as $$
+declare
+  out jsonb := '[]'::jsonb;
+  q jsonb;
+  opts jsonb;
+  n int;
+begin
+  if jsonb_typeof(p) <> 'array' or jsonb_array_length(p) < 3 or jsonb_array_length(p) > 30 then raise exception 'bad questions'; end if;
+  for q in select * from jsonb_array_elements(p) loop
+    if jsonb_typeof(q) <> 'object' or jsonb_typeof(q->'options') <> 'array' or jsonb_typeof(q->'answer') <> 'number' then raise exception 'bad questions'; end if;
+    select jsonb_agg(left(trim(o), 80)) into opts from jsonb_array_elements_text(q->'options') o;
+    n := coalesce(jsonb_array_length(opts), 0);
+    if n < 2 or n > 4 or (select count(distinct lower(x)) from jsonb_array_elements_text(opts) x where x <> '') <> n then raise exception 'bad questions'; end if;
+    if (q->>'answer')::numeric <> floor((q->>'answer')::numeric) or (q->>'answer')::int not between 0 and n - 1 then raise exception 'bad questions'; end if;
+    if coalesce(trim(q->>'prompt'), '') = '' then raise exception 'bad questions'; end if;
+    out := out || jsonb_build_array(jsonb_build_object(
+      'card_id', left(q->>'card_id', 64),
+      'kind', left(coalesce(q->>'kind', 'meaning'), 20),
+      'prompt', left(trim(q->>'prompt'), 200),
+      'options', opts,
+      'answer', (q->>'answer')::int
+    ));
+  end loop;
+  return out;
+end;
+$$;
+
+create or replace function public.cortex_arena_room_teach(p_room uuid)
+returns cortex_arena_rooms language plpgsql stable security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms;
+begin
+  select * into r from cortex_arena_rooms where id = p_room;
+  if r.id is null then raise exception 'no such room'; end if;
+  if not classroom_can_teach(r.class_id) then raise exception 'not the teacher'; end if;
+  return r;
+end;
+$$;
+
+-- ── teacher ─────────────────────────────────────────────────────────────
+
+-- Open a room for the class with these questions; a room still running in the class is finished first.
+drop function if exists public.arena_open(uuid, int, jsonb, boolean);
+create or replace function public.arena_open(p_class uuid, p_seconds int, p_questions jsonb, p_hide_names boolean default true, p_mode text default 'classic', p_teams int default 0)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  qs jsonb;
+  c text;
+  rid uuid;
+  b bytea;
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  if coalesce(p_mode, 'classic') not in ('classic', 'team') or (p_mode = 'team' and coalesce(p_teams, 0) not between 2 and 4) then raise exception 'bad mode'; end if;
+  qs := cortex_arena_clean_questions(p_questions);
+  update cortex_arena_rooms set state = 'finished', finished_at = now() where class_id = p_class and state <> 'finished';
+  loop
+    b := decode(replace(gen_random_uuid()::text, '-', ''), 'hex');
+    c := lpad((((get_byte(b, 0) * 65536 + get_byte(b, 1) * 256 + get_byte(b, 2)) % 900000) + 100000)::text, 6, '0');
+    exit when not exists (select 1 from cortex_arena_rooms where code = c and state <> 'finished');
+  end loop;
+  insert into cortex_arena_rooms (class_id, code, host, seconds, hide_names, mode, teams)
+  values (p_class, c, auth.uid(), least(greatest(coalesce(p_seconds, 20), 10), 60), coalesce(p_hide_names, true),
+    coalesce(p_mode, 'classic'), case when p_mode = 'team' then p_teams else 0 end)
+  returning id into rid;
+  insert into cortex_arena_questions (room_id, idx, card_id, kind, prompt, options, answer)
+  select rid, (o - 1)::int, q->>'card_id', q->>'kind', q->>'prompt', q->'options', (q->>'answer')::int
+  from jsonb_array_elements(qs) with ordinality as t(q, o);
+  return jsonb_build_object('id', rid, 'code', c);
+end;
+$$;
+
+-- The next question (from the lobby, or after a reveal); past the last one, the room finishes.
+create or replace function public.arena_next(p_room uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms := cortex_arena_room_teach(p_room);
+  total int;
+begin
+  if r.state = 'finished' then return jsonb_build_object('state', 'finished'); end if;
+  if r.state = 'question' then raise exception 'question still open'; end if;
+  select count(*) into total from cortex_arena_questions where room_id = p_room;
+  -- Starting a team game: anyone the teacher's split missed joins the smallest team
+  if r.q_index = -1 and r.mode = 'team' then
+    perform 1 from cortex_arena_players where room_id = p_room for update;
+    declare u uuid;
+    begin
+      for u in select user_id from cortex_arena_players where room_id = p_room and team is null order by joined_at loop
+        update cortex_arena_players set team = cortex_arena_smallest_team(p_room) where room_id = p_room and user_id = u;
+      end loop;
+    end;
+  end if;
+  if r.q_index + 1 >= total then
+    update cortex_arena_rooms set state = 'finished', finished_at = now() where id = p_room;
+    return jsonb_build_object('state', 'finished');
+  end if;
+  update cortex_arena_rooms set state = 'question', q_index = r.q_index + 1, q_opened_at = now() where id = p_room;
+  return jsonb_build_object('state', 'question', 'q_index', r.q_index + 1);
+end;
+$$;
+
+-- Close the open question: no more answers; whoever did not answer loses their run of right answers.
+create or replace function public.arena_lock(p_room uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms := cortex_arena_room_teach(p_room);
+begin
+  if r.state <> 'question' then return jsonb_build_object('state', r.state); end if;
+  update cortex_arena_rooms set state = 'reveal' where id = p_room;
+  update cortex_arena_players p set streak = 0
+  where p.room_id = p_room and not exists (select 1 from cortex_arena_answers a where a.room_id = p_room and a.idx = r.q_index and a.user_id = p.user_id);
+  return jsonb_build_object('state', 'reveal');
+end;
+$$;
+
+create or replace function public.arena_finish(p_room uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms := cortex_arena_room_teach(p_room);
+begin
+  update cortex_arena_rooms set state = 'finished', finished_at = coalesce(finished_at, now()) where id = r.id;
+  return jsonb_build_object('state', 'finished');
+end;
+$$;
+
+-- The teacher's split into teams (user id → team 1..N), before the first question.
+create or replace function public.arena_teams_set(p_room uuid, p_teams jsonb)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms := cortex_arena_room_teach(p_room);
+begin
+  if r.mode <> 'team' or r.state <> 'lobby' then raise exception 'bad mode'; end if;
+  if jsonb_typeof(p_teams) <> 'object' then raise exception 'bad mode'; end if;
+  update cortex_arena_players p set team = (t.value #>> '{}')::int
+  from jsonb_each(p_teams) t
+  where p.room_id = p_room and p.user_id::text = t.key
+    and jsonb_typeof(t.value) = 'number' and (t.value #>> '{}') ~ '^[1-4]$' and (t.value #>> '{}')::int <= r.teams;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- Everything the projector shows: the room, the players, the question (with
+-- its answer only once locked), how many answered, and per option how many
+-- chose it once locked; at the end, each question's share of right answers.
+create or replace function public.arena_host_state(p_room uuid)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms := cortex_arena_room_teach(p_room);
+  q cortex_arena_questions;
+begin
+  select * into q from cortex_arena_questions where room_id = p_room and idx = r.q_index;
+  return jsonb_build_object(
+    'id', r.id, 'class_id', r.class_id, 'code', r.code, 'mode', r.mode, 'teams', r.teams, 'seconds', r.seconds, 'hide_names', r.hide_names,
+    'state', r.state, 'q_index', r.q_index, 'q_opened_at', r.q_opened_at, 'now', now(),
+    'total', (select count(*) from cortex_arena_questions where room_id = p_room),
+    'players', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('user_id', k.user_id, 'name', k.name, 'score', k.score, 'rank', k.rank,
+      'team', (select team from cortex_arena_players x where x.room_id = p_room and x.user_id = k.user_id)))) from cortex_arena_ranking(p_room) k), '[]'::jsonb),
+    'team_scores', case when r.mode = 'team' then coalesce((select jsonb_agg(jsonb_build_object('team', t.team, 'members', t.members, 'score', t.score, 'rank', t.rank)) from cortex_arena_teams(p_room) t), '[]'::jsonb) end,
+    'question', case when q.room_id is not null and r.state in ('question', 'reveal') then jsonb_strip_nulls(jsonb_build_object(
+      'idx', q.idx, 'card_id', q.card_id, 'kind', q.kind, 'prompt', q.prompt, 'options', q.options,
+      'answer', case when r.state = 'reveal' then q.answer end,
+      'answered', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.idx = q.idx),
+      'counts', case when r.state = 'reveal' then (
+        select jsonb_agg((select count(*) from cortex_arena_answers a where a.room_id = p_room and a.idx = q.idx and a.choice = i) order by i)
+        from generate_series(0, jsonb_array_length(q.options) - 1) i
+      ) end
+    )) end,
+    'summary', case when r.state = 'finished' then coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'idx', x.idx, 'card_id', x.card_id, 'prompt', x.prompt, 'right', x.options->>x.answer,
+        'answered', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.idx = x.idx),
+        'correct', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.idx = x.idx and a.correct)
+      ) order by x.idx)
+      from cortex_arena_questions x where x.room_id = p_room
+    ), '[]'::jsonb) end,
+    -- Per student at the end: right answers, how fast, and quick wrong answers (under 1.5 s: likely a guess)
+    'stats', case when r.state = 'finished' then coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'user_id', p.user_id, 'name', p.name,
+        'answered', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id),
+        'correct', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id and a.correct),
+        'avg_ms', (select round(avg(a.ms))::int from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id),
+        'fast_wrong', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id and not a.correct and a.ms < 1500)
+      ) order by p.name)
+      from cortex_arena_players p where p.room_id = p_room
+    ), '[]'::jsonb) end
+  );
+end;
+$$;
+
+-- ── students ────────────────────────────────────────────────────────────
+
+-- Rooms running now in this student's classes (Lexica shows "Vào đấu trường").
+create or replace function public.arena_open_rooms()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', r.id, 'code', r.code, 'class', c.name, 'state', r.state) order by r.created_at desc), '[]'::jsonb)
+  from cortex_arena_rooms r
+  join cortex_classes c on c.id = r.class_id
+  join cortex_class_members m on m.class_id = r.class_id and m.user_id = auth.uid()
+  where r.state <> 'finished' and r.created_at > now() - interval '6 hours';
+$$;
+
+-- Join by code: only the class's students. Joining again (a reload, a lost connection) keeps the score.
+create or replace function public.arena_join(p_code text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms;
+  nm text;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select * into r from cortex_arena_rooms where code = trim(p_code) and state <> 'finished' and created_at > now() - interval '6 hours';
+  if r.id is null then raise exception 'no such room'; end if;
+  select display_name into nm from cortex_class_members where class_id = r.class_id and user_id = auth.uid();
+  if nm is null then raise exception 'not in this class'; end if;
+  insert into cortex_arena_players (room_id, user_id, name) values (r.id, auth.uid(), nm)
+  on conflict (room_id, user_id) do nothing;
+  -- A team game already under way: a newcomer joins the smallest team
+  if r.mode = 'team' and r.state <> 'lobby' then
+    update cortex_arena_players set team = cortex_arena_smallest_team(r.id) where room_id = r.id and user_id = auth.uid() and team is null;
+  end if;
+  return jsonb_build_object('id', r.id);
+end;
+$$;
+
+-- What a player's phone shows: the question without its answer while open;
+-- once locked, the answer, their own result, score and rank; at the end,
+-- their rank and the top 3.
+create or replace function public.arena_state(p_room uuid)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms;
+  q cortex_arena_questions;
+  me cortex_arena_players;
+  mine cortex_arena_answers;
+  my_rank int;
+begin
+  select * into r from cortex_arena_rooms where id = p_room;
+  select * into me from cortex_arena_players where room_id = p_room and user_id = auth.uid();
+  if r.id is null or me.user_id is null then raise exception 'no such room'; end if;
+  select * into q from cortex_arena_questions where room_id = p_room and idx = r.q_index;
+  select * into mine from cortex_arena_answers where room_id = p_room and idx = r.q_index and user_id = auth.uid();
+  select k.rank into my_rank from cortex_arena_ranking(p_room) k where k.user_id = auth.uid();
+  return jsonb_strip_nulls(jsonb_build_object(
+    'id', r.id, 'state', r.state, 'q_index', r.q_index, 'seconds', r.seconds, 'q_opened_at', r.q_opened_at, 'now', now(),
+    'total', (select count(*) from cortex_arena_questions where room_id = p_room),
+    'class', (select name from cortex_classes where id = r.class_id),
+    'name', me.name, 'score', me.score, 'streak', me.streak, 'rank', my_rank,
+    'mode', r.mode, 'team', me.team,
+    'team_score', (select t.score from cortex_arena_teams(p_room) t where t.team = me.team),
+    'team_rank', (select t.rank from cortex_arena_teams(p_room) t where t.team = me.team),
+    'teams', nullif(r.teams, 0),
+    'players', (select count(*) from cortex_arena_players where room_id = p_room),
+    'question', case when q.room_id is not null and r.state in ('question', 'reveal') then jsonb_strip_nulls(jsonb_build_object(
+      'idx', q.idx, 'kind', q.kind, 'prompt', q.prompt, 'options', q.options,
+      'answer', case when r.state = 'reveal' then q.answer end
+    )) end,
+    'mine', case when mine.user_id is not null then jsonb_build_object(
+      'choice', mine.choice,
+      'correct', case when r.state <> 'question' then mine.correct end,
+      'points', case when r.state <> 'question' then mine.points end
+    ) end,
+    'top', case when r.state = 'finished' then (select jsonb_agg(jsonb_build_object('name', k.name, 'score', k.score, 'rank', k.rank)) from (select * from cortex_arena_ranking(p_room) limit 3) k) end
+  ));
+end;
+$$;
+
+-- An answer to the open question: first one counts, timed by the server.
+-- Says only that it was received; right or wrong shows when the teacher locks.
+create or replace function public.arena_answer(p_room uuid, p_idx int, p_choice int)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms;
+  q cortex_arena_questions;
+  me cortex_arena_players;
+  ms int;
+  ok boolean;
+  pts int;
+begin
+  select * into r from cortex_arena_rooms where id = p_room for update;
+  select * into me from cortex_arena_players where room_id = p_room and user_id = auth.uid() for update;
+  if r.id is null or me.user_id is null then raise exception 'no such room'; end if;
+  if r.state <> 'question' or r.q_index <> p_idx or now() > r.q_opened_at + make_interval(secs => r.seconds) + cortex_arena_grace() then
+    raise exception 'too late';
+  end if;
+  select * into q from cortex_arena_questions where room_id = p_room and idx = p_idx;
+  if p_choice is null or p_choice < 0 or p_choice >= jsonb_array_length(q.options) then raise exception 'bad answer'; end if;
+  if exists (select 1 from cortex_arena_answers where room_id = p_room and idx = p_idx and user_id = auth.uid()) then
+    return jsonb_build_object('received', true);
+  end if;
+  ms := least(greatest((extract(epoch from now() - r.q_opened_at) * 1000)::int, 0), r.seconds * 1000);
+  ok := p_choice = q.answer;
+  pts := cortex_arena_points(ok, ms, r.seconds, me.streak);
+  insert into cortex_arena_answers (room_id, idx, user_id, choice, correct, ms, points) values (p_room, p_idx, auth.uid(), p_choice, ok, ms, pts);
+  update cortex_arena_players set score = score + pts, streak = case when ok then streak + 1 else 0 end
+  where room_id = p_room and user_id = auth.uid();
+  return jsonb_build_object('received', true);
+end;
+$$;
+
+-- A student's answers in rooms finished in the last 14 days, by the word asked:
+-- Lexica puts the words they got wrong back into review, and counts a quick
+-- right answer as remembering it. Lexica keeps which rooms it already applied.
+create or replace function public.arena_my_results()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'room_id', r.id, 'seconds', r.seconds, 'finished_at', r.finished_at,
+    'answers', (
+      select coalesce(jsonb_agg(jsonb_build_object('card_id', q.card_id, 'correct', a.correct, 'ms', a.ms) order by q.idx), '[]'::jsonb)
+      from cortex_arena_answers a join cortex_arena_questions q on q.room_id = a.room_id and q.idx = a.idx
+      where a.room_id = r.id and a.user_id = auth.uid() and q.card_id is not null
+    )
+  ) order by r.finished_at), '[]'::jsonb)
+  from cortex_arena_rooms r
+  join cortex_arena_players p on p.room_id = r.id and p.user_id = auth.uid()
+  where r.state = 'finished' and r.finished_at > now() - interval '14 days';
+$$;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['arena_open(uuid, int, jsonb, boolean, text, int)', 'arena_teams_set(uuid, jsonb)', 'arena_my_results()', 'arena_next(uuid)', 'arena_lock(uuid)', 'arena_finish(uuid)',
+    'arena_host_state(uuid)', 'arena_open_rooms()', 'arena_join(text)', 'arena_state(uuid)', 'arena_answer(uuid, int, int)'] loop
+    execute format('revoke all on function public.%s from public, anon', f);
+    execute format('grant execute on function public.%s to authenticated', f);
+  end loop;
+  foreach f in array array['cortex_arena_grace()', 'cortex_arena_points(boolean, int, int, int)', 'cortex_arena_ranking(uuid)',
+    'cortex_arena_clean_questions(jsonb)', 'cortex_arena_room_teach(uuid)', 'cortex_arena_teams(uuid)', 'cortex_arena_smallest_team(uuid)'] loop
+    execute format('revoke all on function public.%s from public, anon, authenticated', f);
+  end loop;
+end $$;
+
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- packages/classroom/sql/classroom_tests.sql
+-- ============================================================
+
+-- Class tests (docs/TEACH_PLAN.md, T3): the teacher gives a test of multiple
+-- choice questions on the class's words; each student takes it in Lexica in
+-- their own time, once, before the due date. Runs after classroom_arena.sql
+-- (it checks questions the same way). Safe to re-run.
+--
+-- The server keeps the answers: a student sees a question's answer only after
+-- handing the test in, and the score is counted here. The teacher sees each
+-- student's score and the words they missed, to give a review per student.
+-- Every read and write goes through the functions below; the tables have RLS
+-- on and no policies.
+
+create table if not exists cortex_class_tests (
+  id uuid primary key default gen_random_uuid(),
+  class_id uuid not null references cortex_classes(id) on delete cascade,
+  title text not null check (char_length(title) between 1 and 120),
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  due_on date,
+  closed_at timestamptz
+);
+create index if not exists cortex_class_tests_class_idx on cortex_class_tests (class_id, created_at desc);
+
+create table if not exists cortex_class_test_questions (
+  test_id uuid not null references cortex_class_tests(id) on delete cascade,
+  idx int not null,
+  card_id text,
+  kind text not null,
+  prompt text not null,
+  options jsonb not null,
+  answer int not null,
+  primary key (test_id, idx)
+);
+
+create table if not exists cortex_class_test_attempts (
+  test_id uuid not null references cortex_class_tests(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  started_at timestamptz not null default now(),
+  submitted_at timestamptz,
+  correct int,
+  primary key (test_id, user_id)
+);
+
+create table if not exists cortex_class_test_answers (
+  test_id uuid not null references cortex_class_tests(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  idx int not null,
+  choice int not null,
+  at timestamptz not null default now(),
+  primary key (test_id, user_id, idx)
+);
+
+alter table cortex_class_tests enable row level security;
+alter table cortex_class_test_questions enable row level security;
+alter table cortex_class_test_attempts enable row level security;
+alter table cortex_class_test_answers enable row level security;
+
+-- ── helpers ─────────────────────────────────────────────────────────────
+
+create or replace function public.cortex_test_teach(p_test uuid)
+returns cortex_class_tests language plpgsql stable security definer set search_path = public as $$
+declare
+  t cortex_class_tests;
+begin
+  select * into t from cortex_class_tests where id = p_test;
+  if t.id is null then raise exception 'no such test'; end if;
+  if not classroom_can_teach(t.class_id) then raise exception 'not the teacher'; end if;
+  return t;
+end;
+$$;
+
+-- The test, for one of its class's students.
+create or replace function public.cortex_test_student(p_test uuid)
+returns cortex_class_tests language plpgsql stable security definer set search_path = public as $$
+declare
+  t cortex_class_tests;
+begin
+  select * into t from cortex_class_tests where id = p_test;
+  if t.id is null or not exists (select 1 from cortex_class_members where class_id = t.class_id and user_id = auth.uid()) then
+    raise exception 'no such test';
+  end if;
+  return t;
+end;
+$$;
+
+-- ── teacher ─────────────────────────────────────────────────────────────
+
+create or replace function public.test_create(p_class uuid, p_title text, p_due date, p_questions jsonb)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  qs jsonb;
+  tid uuid;
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  qs := cortex_arena_clean_questions(p_questions);
+  insert into cortex_class_tests (class_id, title, created_by, due_on)
+  values (p_class, left(coalesce(nullif(trim(p_title), ''), 'Bài kiểm tra'), 120), auth.uid(), p_due)
+  returning id into tid;
+  insert into cortex_class_test_questions (test_id, idx, card_id, kind, prompt, options, answer)
+  select tid, (o - 1)::int, q->>'card_id', q->>'kind', q->>'prompt', q->'options', (q->>'answer')::int
+  from jsonb_array_elements(qs) with ordinality as t(q, o);
+  return jsonb_build_object('id', tid);
+end;
+$$;
+
+-- Close a test (no more answers) or open it again.
+create or replace function public.test_close(p_test uuid, p_closed boolean)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  t cortex_class_tests := cortex_test_teach(p_test);
+begin
+  update cortex_class_tests set closed_at = case when coalesce(p_closed, true) then coalesce(closed_at, now()) end where id = t.id;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+create or replace function public.test_delete(p_test uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  t cortex_class_tests := cortex_test_teach(p_test);
+begin
+  delete from cortex_class_tests where id = t.id;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- The class's tests, newest first, with how many handed in and the average score.
+create or replace function public.tests_list(p_class uuid)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  return coalesce((
+    select jsonb_agg(jsonb_build_object(
+      'id', t.id, 'title', t.title, 'created_at', t.created_at, 'due_on', t.due_on, 'closed', t.closed_at is not null,
+      'total', (select count(*) from cortex_class_test_questions q where q.test_id = t.id),
+      'submitted', (select count(*) from cortex_class_test_attempts a where a.test_id = t.id and a.submitted_at is not null),
+      'average', (select round(avg(a.correct)::numeric, 1) from cortex_class_test_attempts a where a.test_id = t.id and a.submitted_at is not null)
+    ) order by t.created_at desc)
+    from cortex_class_tests t where t.class_id = p_class
+  ), '[]'::jsonb);
+end;
+$$;
+
+-- A test's results: each student of the class (handed in, started, or not
+-- yet), their score and the words they missed; each question's share right.
+create or replace function public.test_results(p_test uuid)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare
+  t cortex_class_tests := cortex_test_teach(p_test);
+begin
+  return jsonb_build_object(
+    'id', t.id, 'title', t.title, 'created_at', t.created_at, 'due_on', t.due_on, 'closed', t.closed_at is not null,
+    'total', (select count(*) from cortex_class_test_questions q where q.test_id = t.id),
+    'students', coalesce((
+      select jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+        'user_id', m.user_id, 'name', m.display_name,
+        'status', case when a.submitted_at is not null then 'submitted' when a.user_id is not null then 'started' else 'not_started' end,
+        'correct', a.correct, 'submitted_at', a.submitted_at,
+        'missed', case when a.submitted_at is not null then (
+          select coalesce(jsonb_agg(q.card_id order by q.idx), '[]'::jsonb) from cortex_class_test_questions q
+          where q.test_id = t.id and q.card_id is not null
+            and not exists (select 1 from cortex_class_test_answers x where x.test_id = t.id and x.user_id = m.user_id and x.idx = q.idx and x.choice = q.answer)
+        ) end
+      )) order by m.display_name)
+      from cortex_class_members m
+      left join cortex_class_test_attempts a on a.test_id = t.id and a.user_id = m.user_id
+      where m.class_id = t.class_id
+    ), '[]'::jsonb),
+    'questions', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'idx', q.idx, 'card_id', q.card_id, 'prompt', q.prompt, 'right', q.options->>q.answer,
+        'answered', (select count(*) from cortex_class_test_answers x join cortex_class_test_attempts a on a.test_id = x.test_id and a.user_id = x.user_id and a.submitted_at is not null where x.test_id = t.id and x.idx = q.idx),
+        'correct', (select count(*) from cortex_class_test_answers x join cortex_class_test_attempts a on a.test_id = x.test_id and a.user_id = x.user_id and a.submitted_at is not null where x.test_id = t.id and x.idx = q.idx and x.choice = q.answer)
+      ) order by q.idx)
+      from cortex_class_test_questions q where q.test_id = t.id
+    ), '[]'::jsonb)
+  );
+end;
+$$;
+
+-- ── students ────────────────────────────────────────────────────────────
+
+-- This student's tests from the last 60 days, in every class: still to do first.
+create or replace function public.my_tests()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+    'id', t.id, 'class_id', t.class_id, 'class', c.name, 'title', t.title, 'due_on', t.due_on, 'closed', t.closed_at is not null,
+    'total', (select count(*) from cortex_class_test_questions q where q.test_id = t.id),
+    'status', case when a.submitted_at is not null then 'submitted' when a.user_id is not null then 'started' else 'not_started' end,
+    'correct', a.correct
+  )) order by (a.submitted_at is not null), t.created_at desc), '[]'::jsonb)
+  from cortex_class_tests t
+  join cortex_classes c on c.id = t.class_id
+  join cortex_class_members m on m.class_id = t.class_id and m.user_id = auth.uid()
+  left join cortex_class_test_attempts a on a.test_id = t.id and a.user_id = auth.uid()
+  where t.created_at > now() - interval '60 days';
+$$;
+
+-- Open a test: its questions, without answers until handed in (or the test
+-- is closed); this student's answers so far. Opening an open test starts the attempt.
+create or replace function public.test_take(p_test uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  t cortex_class_tests := cortex_test_student(p_test);
+  a cortex_class_test_attempts;
+begin
+  if t.closed_at is null then
+    insert into cortex_class_test_attempts (test_id, user_id) values (t.id, auth.uid()) on conflict do nothing;
+  end if;
+  select * into a from cortex_class_test_attempts where test_id = t.id and user_id = auth.uid();
+  return jsonb_build_object(
+    'id', t.id, 'title', t.title, 'due_on', t.due_on, 'closed', t.closed_at is not null,
+    'class', (select name from cortex_classes where id = t.class_id),
+    'submitted', a.submitted_at is not null, 'correct', a.correct,
+    'questions', coalesce((
+      select jsonb_agg(jsonb_strip_nulls(jsonb_build_object(
+        'idx', q.idx, 'card_id', q.card_id, 'kind', q.kind, 'prompt', q.prompt, 'options', q.options,
+        'answer', case when a.submitted_at is not null or t.closed_at is not null then q.answer end,
+        'choice', (select x.choice from cortex_class_test_answers x where x.test_id = t.id and x.user_id = auth.uid() and x.idx = q.idx)
+      )) order by q.idx)
+      from cortex_class_test_questions q where q.test_id = t.id
+    ), '[]'::jsonb)
+  );
+end;
+$$;
+
+-- Answer (or change an answer) before handing in.
+create or replace function public.test_answer(p_test uuid, p_idx int, p_choice int)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  t cortex_class_tests := cortex_test_student(p_test);
+  n int;
+begin
+  if t.closed_at is not null then raise exception 'test closed'; end if;
+  if exists (select 1 from cortex_class_test_attempts where test_id = t.id and user_id = auth.uid() and submitted_at is not null) then raise exception 'already handed in'; end if;
+  select jsonb_array_length(options) into n from cortex_class_test_questions where test_id = t.id and idx = p_idx;
+  if n is null or p_choice is null or p_choice < 0 or p_choice >= n then raise exception 'bad answer'; end if;
+  insert into cortex_class_test_attempts (test_id, user_id) values (t.id, auth.uid()) on conflict do nothing;
+  insert into cortex_class_test_answers (test_id, user_id, idx, choice) values (t.id, auth.uid(), p_idx, p_choice)
+  on conflict (test_id, user_id, idx) do update set choice = excluded.choice, at = now();
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- Hand in: the score is counted here (a question left blank is wrong), once.
+create or replace function public.test_submit(p_test uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  t cortex_class_tests := cortex_test_student(p_test);
+  c int;
+begin
+  if t.closed_at is not null then raise exception 'test closed'; end if;
+  if exists (select 1 from cortex_class_test_attempts where test_id = t.id and user_id = auth.uid() and submitted_at is not null) then raise exception 'already handed in'; end if;
+  select count(*) into c from cortex_class_test_answers x join cortex_class_test_questions q on q.test_id = x.test_id and q.idx = x.idx
+  where x.test_id = t.id and x.user_id = auth.uid() and x.choice = q.answer;
+  insert into cortex_class_test_attempts (test_id, user_id, submitted_at, correct) values (t.id, auth.uid(), now(), c)
+  on conflict (test_id, user_id) do update set submitted_at = now(), correct = c;
+  return test_take(p_test);
+end;
+$$;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['test_create(uuid, text, date, jsonb)', 'test_close(uuid, boolean)', 'test_delete(uuid)', 'tests_list(uuid)',
+    'test_results(uuid)', 'my_tests()', 'test_take(uuid)', 'test_answer(uuid, int, int)', 'test_submit(uuid)'] loop
+    execute format('revoke all on function public.%s from public, anon', f);
+    execute format('grant execute on function public.%s to authenticated', f);
+  end loop;
+  foreach f in array array['cortex_test_teach(uuid)', 'cortex_test_student(uuid)'] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
   end loop;
 end $$;

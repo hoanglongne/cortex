@@ -24,6 +24,18 @@ const MESSAGES: Record<string, string> = {
     'link locked': 'Nhập sai mã PIN nhiều lần. Thử lại sau 15 phút.',
     'bad report': 'Báo cáo còn trống, chưa duyệt được.',
     'week starts on Monday': 'Tuần chưa đúng (tuần tính từ thứ Hai).',
+    'bad session date': 'Chỉ điểm danh được cho hôm nay hoặc các buổi trong 4 tháng qua.',
+    'bad attendance': 'Điểm danh chưa đúng dạng.',
+    'bad date range': 'Khoảng ngày chưa đúng.',
+    'bad questions': 'Cần ít nhất 3 câu hỏi, mỗi câu có các lựa chọn khác nhau.',
+    'no such room': 'Không thấy phòng này. Kiểm tra lại mã trên màn hình của giáo viên.',
+    'too late': 'Hết giờ cho câu này rồi.',
+    'question still open': 'Câu hỏi còn đang mở.',
+    'bad answer': 'Lựa chọn không hợp lệ.',
+    'no such test': 'Không thấy bài kiểm tra này.',
+    'test closed': 'Bài kiểm tra đã đóng.',
+    'already handed in': 'Bạn đã nộp bài này rồi.',
+    'bad mode': 'Chế độ đội cần 2 đến 4 đội, và chỉ chia đội trước khi bắt đầu.',
 };
 
 export function classMessage(raw: string): string {

@@ -14,7 +14,7 @@
   - W2 buổi học tự lái: khó đạt, lợi thế không rõ.
 - **W3** (giọng con cho phụ huynh): ý hay nhưng còn chung chung, và phụ huynh nhiều người không rành tiếng Anh. Phần đáng giữ là **nói cho phụ huynh hiểu con làm được gì bằng tiếng Việt dễ hiểu**, đưa vào T4 (mục 3.2).
 
-**Thứ tự làm:** T1 → W4 → T4 → T2. T1, W4, T4 đã làm (chưa có PR).
+**Thứ tự làm:** T1 → W4 → T4 → Buổi học → T2. T1, W4, T4 đã merge (PR #54); Buổi học (mục 3.7), T2a, T2b (mục 4.8, 4.9), T3 và T5 (mục 5) đã làm, chưa có PR.
 
 ---
 
@@ -181,6 +181,29 @@ Lấy ý hay của W3: **nói con làm được gì bằng tiếng Việt đời
   - trang `/p/<mã>` (không cần tài khoản, `noindex`).
 - **Để sau:** gửi email, câu con tự viết (cần công tắc đồng ý trong Lexica), "Nghe con đọc", soạn tự động tối Chủ nhật bằng `pg_cron`, phần của Oratio trong báo cáo.
 
+### 3.7 Buổi học và điểm danh (27/10/2026): đã làm, chưa có PR
+Thêm theo yêu cầu người dùng ("teach vẫn thiếu tính năng"): việc giáo viên làm mỗi buổi, và làm số liệu ở chỗ khác tốt hơn.
+- **Cách hiểu:**
+  - lớp có **lịch học tuần** (mỗi thứ tối đa một buổi: giờ bắt đầu, độ dài);
+  - một **buổi** là một ngày của lớp: có khi giáo viên điểm danh, ghi "buổi này học gì", hoặc báo nghỉ (nghỉ lễ);
+  - mỗi em một dấu: Có mặt, Muộn, Vắng, Có phép.
+- **SQL** (`packages/classroom/sql/classroom_attendance.sql`):
+  - cột `cortex_classes.schedule`; bảng `cortex_class_sessions`, `cortex_attendance` (RLS bật, không policy);
+  - hàm `classroom_schedule_set`, `classroom_attendance(lớp[], từ, đến)` (một lần gọi cho mọi lớp), `classroom_attendance_mark` (hôm nay hoặc 120 ngày trước), `classroom_session_set` (ghi chủ đề, báo nghỉ: xoá điểm danh buổi đó).
+  - Chỉ giáo viên của lớp đọc ghi. Phụ huynh chỉ thấy qua báo cáo đã duyệt.
+- **Quy tắc** (`packages/classroom/attendance.ts`, có test):
+  - "Chưa điểm danh" chỉ tính từ buổi điểm danh đầu tiên và trong 14 ngày, nên giáo viên không dùng điểm danh thì không bị nhắc;
+  - chỉ tính buổi có dấu của em (em vào lớp sau thì không bị tính vắng);
+  - "vắng liền": số buổi Vắng liên tiếp đến buổi gần nhất; Có phép không tính và không ngắt chuỗi. Từ 2 buổi thì hiện ở Hôm nay (trong 21 ngày).
+- **Teach:**
+  - tab **Buổi học**: Sắp tới (nghỉ buổi này / vẫn học), Đã qua (đếm có mặt, nút Điểm danh hoặc Sửa), điểm danh buổi bù, lịch học, chuyên cần 8 tuần;
+  - khung **Điểm danh**: mặc định cả lớp có mặt, bấm em ngoại lệ, ghi buổi học gì, lưu một lần;
+  - **Trên lớp**: bấm tên em vắng như trước, rồi "Lưu" thành điểm danh hôm nay (giữ Muộn, Có phép đã có);
+  - **Hôm nay**: "Buổi dạy hôm nay" ở đầu trang; "Nên để ý" có em vắng 2 buổi liền (chép tin cho phụ huynh, cho em) và lớp chưa điểm danh. Em đã có dự báo bỏ học thì dòng vắng gộp vào thẻ dự báo đó;
+  - trang một em: khung **Trên lớp** (chấm từng buổi, số buổi có mặt);
+  - **báo cáo phụ huynh**: "Tuần này con đi học đủ 3/3 buổi trên lớp và tự học ở nhà 5/7 ngày"; vắng không báo thì gợi ý cho phụ huynh nói đến việc học bù.
+- **Để sau:** tỉ lệ đi học của từng lớp ở trang trung tâm; học viên tự điểm danh bằng mã trong Lexica; xuất bảng điểm danh ra Excel.
+
 ---
 
 ## 4. T2: Quiz trực tiếp "Đấu trường từ vựng" (kế hoạch kỹ)
@@ -257,9 +280,58 @@ Bảng xếp hạng có thể **ẩn tên** (chỉ hiện top 3 với tên, còn
 2. **T2b:** chế độ Đội, bảng phân tích cho giáo viên, đẩy từ sai vào hàng ôn, bục vinh danh.
 3. **T2c:** chế độ Sống sót và Tiến bộ, trang `play` cho khách, lịch sử buổi chơi.
 
+### 4.8 Trạng thái T2a (27/10/2026): đã làm, chưa có PR
+- **Theo đề xuất ở 4.6:** học viên vào qua Lexica (đã đăng nhập, phải là học viên của lớp); chế độ Cổ điển trước.
+- **SQL** (`packages/classroom/sql/classroom_arena.sql`, chạy sau `classroom_core.sql`):
+  - bảng `cortex_arena_rooms`, `cortex_arena_questions`, `cortex_arena_players`, `cortex_arena_answers` (RLS bật, không policy);
+  - giáo viên: `arena_open` (mỗi lớp một phòng đang chạy, mã 6 số, 3–30 câu, 10–60 giây), `arena_next`, `arena_lock`, `arena_finish`, `arena_host_state`;
+  - học viên: `arena_open_rooms`, `arena_join`, `arena_state` (không có đáp án khi câu còn mở), `arena_answer`.
+  - Điểm: đúng thì `1000 × (1 − 0.5 × thời gian / thời gian cho phép)`, cộng 50 cho mỗi câu đúng liền trước đó (tối đa 200). Trả lời trễ quá 1,5 giây sau hết giờ thì bị từ chối. Không trả lời thì mất chuỗi đúng.
+- **Thời gian thực:** kênh Supabase Realtime `arena:<id phòng>` chỉ báo "có thay đổi" (không mang đáp án); hai bên gọi hàm SQL để lấy trạng thái, kèm hỏi lại mỗi 2,5–3 giây khi mất kết nối. Đồng hồ hai bên tính theo giờ máy chủ (`timeLeft`).
+- **Câu hỏi** (`apps/teach/app/lib/arena.ts`, có test): xen kẽ "từ → chọn nghĩa" và "nghĩa → chọn từ"; đáp án sai lấy cùng cấp độ, cùng nhánh trước, không bao giờ có hai đáp án đúng. Nguồn: một bài giao, từ cả lớp sắp quên (W4), mọi bài của lớp, hoặc các từ khó của ván trước.
+- **Teach** ("Trên lớp" → "Đấu trường", `components/arena/Arena.tsx`): chọn từ, số câu, giây mỗi câu, ẩn tên ngoài top 3 → phòng chờ (mã to, danh sách em đã vào) → câu hỏi (đồng hồ, số em đã trả lời, tự khoá khi hết giờ hoặc cả lớp đã trả lời) → đáp án, số em chọn từng ý, top dẫn đầu → bục vinh danh, "Câu khó nhất", "Chơi lại N từ khó".
+- **Lexica** (`app/arena/`): trang `/arena` (một chạm vào phòng của lớp, hoặc nhập mã; link `?code=`), 4 nút màu có hình, "Đã gửi", đúng/sai và điểm sau khi khoá, hạng cuối ván; trang Lớp học có thẻ "Vào đấu trường" khi lớp đang mở phòng.
+
+### 4.9 Trạng thái T2b (27/10/2026): đã làm, chưa có PR
+- **Chế độ Đội** (2–4 đội, tên theo màu: Xanh lá, Cam, Xanh dương, Vàng):
+  - Teach chia đều sức ngay ở phòng chờ (em mạnh nhất chia lần lượt qua lại giữa các đội: `arenaTeams`), có nút "Chia đều lại"; em vào sau vào đội ít người nhất (cả ở máy chủ khi đã bắt đầu);
+  - điểm đội là **điểm trung bình** của thành viên; máy chiếu hiện thanh đua giữa các đội sau mỗi câu và đội thắng ở cuối; điện thoại hiện đội và hạng của đội.
+  - SQL: `cortex_arena_rooms.teams`, `cortex_arena_players.team`, `arena_teams_set`, `arena_open(…, p_mode, p_teams)`.
+- **Từ sai vào bài ôn** (`apps/lexica/app/lib/arenaReview.ts`, có test): khi ván kết thúc (và mỗi lần mở trang Lớp học), Lexica đọc `arena_my_results` (14 ngày):
+  - từ đã học mà trả lời sai: ôn lại ngay (như trả lời sai trong phần Ôn);
+  - từ đã học mà đúng nhanh (dưới 60% thời gian): tính là một lần nhớ đúng;
+  - từ chưa học mà sai: vào thẻ mới của phiên Hôm nay;
+  - mỗi ván chỉ áp một lần (`arenaApplied` trong store).
+  - Điện thoại báo "Em sai N từ, đã thêm vào bài ôn của em".
+- **Phân tích cho giáo viên** (cuối ván, ẩn sẵn vì máy chiếu đang bật): từng em đúng bao nhiêu câu, mất bao lâu mỗi câu, cờ "Đoán vội" (ít nhất 2 câu sai trả lời dưới 1,5 giây và chiếm từ một phần ba số câu: `guessers`).
+- **Giảng lại:** nút "Giảng lại N từ" mở Trình chiếu từ với đúng các từ cả lớp sai nhiều (`/present/<lớp>?tool=slides&words=…`).
+- **Còn lại cho T2c:** chế độ Sống sót, Tiến bộ; mã QR; trang `play` cho khách; lịch sử các ván; câu Nghe.
+
 ---
 
-## 5. Để sau
-- **T3** giao bài thông minh và bài kiểm tra lớp.
-- **T5** Oratio trong teach.
-- **"Nghe con đọc"** cho phụ huynh, khi đã có đồng ý ghi âm.
+## 5. T3 và T5 (27/10/2026): đã làm, chưa có PR
+
+### 5.1 T3: Giao bài thông minh và bài kiểm tra lớp
+- **Gợi ý giao bài** (đầu tab "Bài giao", `apps/teach/app/lib/suggest.ts`, có test), mỗi gợi ý một lần bấm:
+  - **từ cả lớp chưa vững**: từ của bài giao từ một tuần trước mà chưa tới nửa lớp nhớ (cần ít nhất 3 em có số liệu) → giao cả lớp ôn;
+  - **ôn riêng cho từng em**: từ của lớp em sắp quên (W4 `atRisk`, ít nhất 3 từ) → mỗi em một bài riêng; bỏ qua em đã có bài ôn riêng trong tuần.
+- **Bài kiểm tra lớp** (tab "Kiểm tra"; SQL `packages/classroom/sql/classroom_tests.sql`):
+  - giáo viên chọn nguồn từ (một bài, mọi bài, từ cả lớp sắp quên), 10/20/30 câu, hạn nộp; câu hỏi như Đấu trường (từ ↔ nghĩa);
+  - học viên làm trong Lexica (`/class/test/<id>`; thẻ "Bài kiểm tra" ở trang Lớp học): từng câu, lưu ngay khi chọn, nộp một lần; sau khi nộp mới thấy đáp án; từ sai vào bài ôn, câu đúng tính là nhớ đúng;
+  - máy chủ giữ đáp án và chấm; bài đã đóng thì không làm tiếp nhưng xem được đáp án;
+  - giáo viên thấy điểm từng em, ai chưa làm, câu sai nhiều nhất; "Giao ôn từ sai cho N em" (mỗi em đúng những từ em sai), "Giảng lại N từ", đóng/mở lại, xoá.
+
+### 5.2 T5: Oratio trong Teach
+- Phần đã có từ trước: giao chủ đề, câu hỏi, mục tiêu buổi/phút; band bạn luyện chấm; band mục tiêu của lớp.
+- **"Luyện nói" trên lớp** (Trên lớp → Luyện nói, `components/present/Speaking.tsx`, `lib/speaking.ts` có test):
+  - câu hỏi IELTS của Oratio theo Part và chủ đề, hoặc theo bài giao Oratio; không lặp câu trong buổi;
+  - đồng hồ như đi thi: Part 1 30 giây, Part 2 một phút chuẩn bị rồi hai phút nói (có tiếng báo), Part 3 60 giây; thẻ đề Part 2 tách thành đề và các ý;
+  - ghép cặp: em mạnh với em đang cố gắng, một em nói một em chấm, "Đổi vai";
+  - tiêu chí chấm: 4 tiêu chí với mô tả band (5–8, mặc định theo band mục tiêu của lớp). Mô tả band và cách đọc thẻ đề nay dùng chung ở `packages/classroom-oratio/descriptors.ts` (Oratio dùng lại).
+- **Báo cáo phụ huynh có phần Oratio**: "Con luyện nói tiếng Anh 3 buổi (25 phút) với bạn học trên Oratio"; tuần không nói thì gợi ý phụ huynh nhắc con (`oratioWeek`).
+
+### 5.3 Để sau
+- T2c: chế độ Sống sót, Tiến bộ; mã QR; trang `play` cho khách; lịch sử các ván; câu Nghe.
+- Bài kiểm tra: giới hạn thời gian, câu Nghe, xuất bảng điểm ra Excel.
+- Oratio: dự báo cho kỹ năng nói (như W4), giáo viên nghe bài ghi âm (cần học viên đồng ý chia sẻ).
+- "Nghe con đọc" cho phụ huynh, khi đã có đồng ý ghi âm.

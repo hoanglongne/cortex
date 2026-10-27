@@ -2,6 +2,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { classMessage } from './rules';
 import type { AdminOverview, AppId, Assignment, Board, ClassInfo, InviteKind, LeaderRow, OpenInvite, OrgOverview, Whoami } from './types';
 import type { ClassParents, ParentView, ReportContent, WeekMetrics } from './parents';
+import type { AttendanceByClass, Mark, Session, Slot } from './attendance';
+import type { ClassTest, MyTest, TestResults, TestTake } from './tests';
+import type { ArenaHost, ArenaMode, ArenaPlayerView, ArenaQuestionInput, ArenaResult, ArenaRoomOpen, ArenaState } from './arena';
 
 export class ClassError extends Error {}
 
@@ -69,6 +72,52 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
             rpc<{ ok: boolean; content: ReportContent }>('classroom_report_approve', { p_class: classId, p_user: userId, p_week: week, p_content: content }),
         /** No account needed: the parent page. */
         parentView: (code: string, pin?: string) => rpc<ParentView>('parent_view', { p_code: code, p_pin: pin ?? null }),
+
+        // Sessions and attendance (sql/classroom_attendance.sql)
+        setSchedule: (classId: string, schedule: Slot[]) => rpc<{ schedule: Slot[] }>('classroom_schedule_set', { p_class: classId, p_schedule: schedule }),
+        /** The timetable and sessions between two days, for each class this person teaches. */
+        attendance: (classIds: string[], from: string, to: string) => rpc<AttendanceByClass>('classroom_attendance', { p_classes: classIds, p_from: from, p_to: to }),
+        /** Take the roll for a day; a null mark clears it. `topic` when given ('' clears it). */
+        markAttendance: (classId: string, date: string, marks: Record<string, Mark | null>, topic?: string) =>
+            rpc<Session>('classroom_attendance_mark', { p_class: classId, p_date: date, p_marks: marks, p_topic: topic ?? null }),
+        /** A day's topic, or cancel it (its marks are dropped). */
+        setSession: (classId: string, date: string, patch: { topic?: string; cancelled?: boolean }) =>
+            rpc<Session>('classroom_session_set', { p_class: classId, p_date: date, p_topic: patch.topic ?? null, p_cancelled: patch.cancelled ?? null }),
+
+        // Arena (sql/classroom_arena.sql): the teacher's screen drives, students answer
+        arenaOpen: (classId: string, seconds: number, questions: ArenaQuestionInput[], opts: { hideNames?: boolean; mode?: ArenaMode; teams?: number } = {}) =>
+            rpc<{ id: string; code: string }>('arena_open', {
+                p_class: classId,
+                p_seconds: seconds,
+                p_questions: questions,
+                p_hide_names: opts.hideNames ?? true,
+                p_mode: opts.mode ?? 'classic',
+                p_teams: opts.mode === 'team' ? (opts.teams ?? 2) : 0,
+            }),
+        /** Team mode, in the lobby: who plays in which team (1..N). */
+        arenaTeamsSet: (roomId: string, teams: Record<string, number>) => rpc<{ ok: boolean }>('arena_teams_set', { p_room: roomId, p_teams: teams }),
+        arenaNext: (roomId: string) => rpc<{ state: ArenaState; q_index?: number }>('arena_next', { p_room: roomId }),
+        arenaLock: (roomId: string) => rpc<{ state: ArenaState }>('arena_lock', { p_room: roomId }),
+        arenaFinish: (roomId: string) => rpc<{ state: ArenaState }>('arena_finish', { p_room: roomId }),
+        arenaHost: (roomId: string) => rpc<ArenaHost>('arena_host_state', { p_room: roomId }),
+        arenaOpenRooms: () => rpc<ArenaRoomOpen[]>('arena_open_rooms'),
+        arenaJoin: (code: string) => rpc<{ id: string }>('arena_join', { p_code: code }),
+        arenaState: (roomId: string) => rpc<ArenaPlayerView>('arena_state', { p_room: roomId }),
+        arenaAnswer: (roomId: string, idx: number, choice: number) => rpc<{ received: boolean }>('arena_answer', { p_room: roomId, p_idx: idx, p_choice: choice }),
+        /** This student's answers in rooms finished in the last 14 days. */
+        arenaMyResults: () => rpc<ArenaResult[]>('arena_my_results'),
+
+        // Class tests (sql/classroom_tests.sql)
+        testCreate: (classId: string, title: string, due: string | null, questions: ArenaQuestionInput[]) =>
+            rpc<{ id: string }>('test_create', { p_class: classId, p_title: title, p_due: due, p_questions: questions }),
+        testClose: (testId: string, closed: boolean) => rpc<{ ok: boolean }>('test_close', { p_test: testId, p_closed: closed }),
+        testDelete: (testId: string) => rpc<{ ok: boolean }>('test_delete', { p_test: testId }),
+        testsList: (classId: string) => rpc<ClassTest[]>('tests_list', { p_class: classId }),
+        testResults: (testId: string) => rpc<TestResults>('test_results', { p_test: testId }),
+        myTests: () => rpc<MyTest[]>('my_tests'),
+        testTake: (testId: string) => rpc<TestTake>('test_take', { p_test: testId }),
+        testAnswer: (testId: string, idx: number, choice: number) => rpc<{ ok: boolean }>('test_answer', { p_test: testId, p_idx: idx, p_choice: choice }),
+        testSubmit: (testId: string) => rpc<TestTake>('test_submit', { p_test: testId }),
 
         // Centers and invitations
         orgOverview: (orgId: string) => rpc<OrgOverview>('classroom_org_overview', { p_org: orgId }),

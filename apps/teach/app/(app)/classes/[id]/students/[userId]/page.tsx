@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { use, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { activeLabel, studentState } from '@cortex/classroom';
-import { Badge, Button, Card, CardTitle, CopyChip, ErrorNote, errorText, inputClass, PageHeader } from '../../../../../components/ui';
+import { activeLabel, dayLabel, MARK_LABEL, MISSED_IN_ROW, studentRecord, studentState } from '@cortex/classroom';
+import { Button, Card, CopyChip, ErrorNote, errorText, inputClass, Label, PageHeader, SectionTitle } from '../../../../../components/ui';
 import AppDot from '../../../../../components/class/AppDot';
 import { useBoard } from '../../../../../lib/teaching';
 import { api } from '../../../../../lib/supabase';
@@ -14,6 +14,8 @@ import { boardForecasts, localDay } from '../../../../../lib/forecasts';
 import { useScoreHistories } from '../../../../../lib/useForecasts';
 import { ForecastBlock } from '../../../../../components/Forecast';
 import ParentCard from '../../../../../components/parents/ParentCard';
+import { MARK_DOT } from '../../../../../components/lessons/Roll';
+import { useClassAttendance } from '../../../../../lib/useAttendance';
 
 /** "Em này kẹt ở đâu?": each app's own section, 30 days of learning, a private note. */
 export default function StudentPage({ params }: { params: Promise<{ id: string; userId: string }> }) {
@@ -26,6 +28,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
     const [error, setError] = useState('');
     const s = board?.students.find((x) => x.user_id === userId);
     const histories = useScoreHistories([id]);
+    const { attendance } = useClassAttendance(id, localDay(now));
 
     if (!board) return <div className="h-64 animate-pulse rounded-[var(--radius-card)] bg-surface-2" />;
     if (!s) return <p className="text-muted">Không tìm thấy học viên này trong lớp.</p>;
@@ -41,28 +44,29 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
 
     return (
         <>
-            <Link href={`/classes/${id}?tab=students`} className="text-sm text-muted hover:text-ink">
+            <Link href={`/classes/${id}?tab=students`} className="text-muted hover:text-ink">
                 ← {board.class.name}
             </Link>
-            <div className="mt-2">
+            <div className="mt-4">
                 <PageHeader
                     title={s.name}
                     sub={`${activeLabel(s.inactive_days, s.joined_at, now)} · vào lớp ${new Date(s.joined_at).toLocaleDateString('vi-VN')}${s.streak ? ` · chuỗi ${s.streak} ngày` : ''}`}
                     actions={<CopyChip text={parentMessage(s, board, moduleFor)} label="Chép tin cho phụ huynh" />}
                 />
             </div>
-            <div className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
-                <div className="space-y-5">
+            <div className="grid gap-12 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-14">
+                <div className="min-w-0 space-y-12">
                     {ahead && (
-                        <Card>
-                            <CardTitle>Sắp tới</CardTitle>
+                        <section>
+                            <SectionTitle>Sắp tới</SectionTitle>
+                            <Card className={ahead.forecasts.length ? '!py-1' : ''}>
                             {ahead.forecasts.length === 0 ? (
-                                <p className="text-sm text-ink-2">
+                                <p className="text-ink-2">
                                     {/* Without review numbers there is nothing to say either way */}
                                     {ahead.notYet.some((n) => n.kind === 'forget') ? 'Chưa có dự báo nào cho em.' : 'Chưa thấy điều gì đáng lo: em không có nhiều từ quá hạn ôn và vẫn học đều.'}
                                 </p>
                             ) : (
-                                <ul className="-my-3 divide-y divide-line">
+                                <ul className="divide-y divide-line">
                                     {ahead.forecasts.map((f) => (
                                         <li key={f.kind}>
                                             <ForecastBlock forecast={f} board={board} userId={userId} onAssigned={() => void reload()} />
@@ -70,42 +74,46 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                                     ))}
                                 </ul>
                             )}
+                            </Card>
                             {ahead.notYet.length > 0 && (
-                                <ul className="mt-3 space-y-1 border-t border-line pt-3 text-xs text-muted">
+                                <ul className="mt-4 space-y-1.5 px-1 text-[15px] text-muted">
                                     {ahead.notYet.map((n) => (
                                         <li key={n.kind}>{n.need}</li>
                                     ))}
                                 </ul>
                             )}
-                        </Card>
+                        </section>
                     )}
                     {modulesOf(board).map((m) => (
-                        <Card key={m.core.id}>
-                            <CardTitle aside={<Badge tone={state === 'nudge' ? 'warm' : state === 'active' ? 'accent' : 'neutral'}>{state === 'nudge' ? 'Cần nhắc' : state === 'active' ? 'Đang học' : 'Mới vào'}</Badge>}>
+                        <section key={m.core.id}>
+                            <SectionTitle aside={state === 'nudge' ? 'Cần nhắc' : state === 'active' ? 'Đang học' : 'Mới vào'} tone={state === 'nudge' ? 'warm' : state === 'active' ? 'accent' : 'muted'}>
                                 {many ? <AppDot app={m.core.id} /> : 'Tiến độ của em'}
-                            </CardTitle>
-                            <m.StudentSection student={s} board={board} />
-                        </Card>
+                            </SectionTitle>
+                            <Card>
+                                <m.StudentSection student={s} board={board} />
+                            </Card>
+                        </section>
                     ))}
                 </div>
-                <div className="space-y-5">
-                    <Card>
-                        <CardTitle>30 ngày học</CardTitle>
+                <div className="min-w-0 space-y-10 lg:pt-1">
+                    <section>
+                        <Label>30 ngày học</Label>
                         <div className="grid grid-cols-10 gap-1.5" role="img" aria-label={`${s.days.length} ngày học trong 30 ngày`}>
                             {days.map((day) => (
-                                <span key={day} title={day} className={`aspect-square rounded-md ${s.days.includes(day) ? 'bg-step-gap' : 'bg-surface-2'}`} />
+                                <span key={day} title={day} className={`aspect-square rounded-full ${s.days.includes(day) ? 'bg-step-dung' : 'bg-line'}`} />
                             ))}
                         </div>
-                        <p className="mt-2 text-xs text-muted">{s.days.length} ngày có học</p>
-                    </Card>
+                        <p className="mt-3 text-ink-2">{s.days.length} ngày có học</p>
+                    </section>
+                    {attendance && (attendance.schedule.length > 0 || attendance.sessions.length > 0) && <InClass sessions={attendance.sessions} userId={userId} classId={id} />}
                     <ParentCard board={board} userId={userId} name={s.name} />
-                    <Card>
-                        <CardTitle>Ghi chú riêng</CardTitle>
-                        <p className="mb-2 text-xs text-muted">Chỉ giáo viên và quản lý thấy.</p>
-                        <textarea value={noteValue} onChange={(e) => setNote(e.target.value)} rows={4} maxLength={500} className={`${inputClass} h-auto py-2`} placeholder="Ví dụ: hay quên từ dài, thích chủ đề du lịch" />
+                    <section>
+                        <Label>Ghi chú riêng</Label>
+                        <p className="-mt-1 mb-3 text-[15px] text-muted">Chỉ giáo viên và quản lý thấy.</p>
+                        <textarea value={noteValue} onChange={(e) => setNote(e.target.value)} rows={4} maxLength={500} className={`${inputClass} h-auto py-3`} placeholder="Ví dụ: hay quên từ dài, thích chủ đề du lịch" />
                         <Button
                             size="sm"
-                            className="mt-2"
+                            className="mt-3"
                             disabled={busy || note === null}
                             onClick={async () => {
                                 setBusy(true);
@@ -122,7 +130,7 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                         >
                             Lưu ghi chú
                         </Button>
-                    </Card>
+                    </section>
                     <Button
                         kind="danger"
                         size="sm"
@@ -143,5 +151,41 @@ export default function StudentPage({ params }: { params: Promise<{ id: string; 
                 </div>
             </div>
         </>
+    );
+}
+
+/** "Trên lớp": the latest lessons as dots (oldest first), and the count. */
+function InClass({ sessions, userId, classId }: { sessions: Parameters<typeof studentRecord>[0]; userId: string; classId: string }) {
+    const r = studentRecord(sessions, userId);
+    return (
+        <section>
+            <Label>Trên lớp</Label>
+            {r.held === 0 ? (
+                <p className="text-[15px] text-muted">
+                    Chưa có buổi điểm danh nào có em.{' '}
+                    <Link href={`/classes/${classId}?tab=lessons`} className="text-accent-strong hover:underline">
+                        Điểm danh
+                    </Link>
+                </p>
+            ) : (
+                <>
+                    <div className="flex flex-wrap gap-1.5" role="img" aria-label={`${r.came} trên ${r.held} buổi có mặt`}>
+                        {[...r.recent].reverse().map((m) => (
+                            <span key={m.date} title={`${dayLabel(m.date, true)}: ${MARK_LABEL[m.mark]}`} className={`h-4 w-4 rounded-full ${MARK_DOT[m.mark]}`} />
+                        ))}
+                    </div>
+                    <p className="mt-3 text-ink-2">
+                        <span className="tabular">
+                            {r.came}/{r.held}
+                        </span>{' '}
+                        buổi có mặt
+                        {r.late > 0 && <> · {r.late} muộn</>}
+                        {r.absent > 0 && <> · {r.absent} vắng</>}
+                        {r.excused > 0 && <> · {r.excused} có phép</>}
+                    </p>
+                    {r.missedInRow >= MISSED_IN_ROW && <p className="mt-1 font-semibold text-warm">Vắng {r.missedInRow} buổi liền gần nhất</p>}
+                </>
+            )}
+        </section>
     );
 }

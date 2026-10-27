@@ -46,7 +46,7 @@ export default function Report({ board }: { board: Board }) {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap gap-1.5" role="group" aria-label="Chọn tuần">
                     {weeks.map((w, i) => (
@@ -91,7 +91,7 @@ export default function Report({ board }: { board: Board }) {
             {!parents || !drafts ? (
                 <div className="h-48 animate-pulse rounded-[var(--radius-card)] bg-surface-2" />
             ) : (
-                <ul className="space-y-4">
+                <ul className="space-y-6">
                     {board.students.map((s) => (
                         <li key={s.user_id}>
                             <StudentReport
@@ -142,8 +142,8 @@ function StudentReport({
 
     return (
         <Card>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <p className="font-semibold text-ink">{name}</p>
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                <p className="font-serif text-xl font-semibold text-ink">{name}</p>
                 <span className="flex flex-wrap gap-1.5">
                     {approved ? (
                         <Badge tone="accent">
@@ -155,25 +155,25 @@ function StudentReport({
                     {!hasLink && <Badge>Chưa có link</Badge>}
                 </span>
             </div>
-            <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-                <div className="rounded-xl border border-line bg-bg p-3.5">
+            <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
+                <div className="rounded-[12px] bg-bg p-5">
                     <ReportView content={shown} />
                 </div>
                 <div>
-                    <label className="text-sm text-ink-2" htmlFor={`note-${userId}`}>
+                    <label className="text-[15px] font-medium text-ink-2" htmlFor={`note-${userId}`}>
                         Lời nhắn của bạn (không bắt buộc)
                     </label>
-                    <textarea id={`note-${userId}`} value={value} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} className={`${inputClass} mt-1 h-auto py-2`} placeholder="Một câu cho phụ huynh" />
-                    <div className="mt-2 flex flex-wrap gap-1.5">
+                    <textarea id={`note-${userId}`} value={value} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={500} className={`${inputClass} mt-2 h-auto py-3`} placeholder="Một câu cho phụ huynh" />
+                    <div className="mt-3 flex flex-wrap gap-2">
                         {NOTE_CHIPS.map((c) => (
-                            <button key={c} type="button" onClick={() => setNote(value.trim() ? `${value.trim()} ${c}` : c)} className="rounded-full border border-line-strong px-2.5 py-0.5 text-xs text-ink-2 hover:bg-surface-2">
+                            <button key={c} type="button" onClick={() => setNote(value.trim() ? `${value.trim()} ${c}` : c)} className="rounded-full border border-line-strong px-3 py-1 text-[13px] text-ink-2 hover:bg-surface-2">
                                 {c}
                             </button>
                         ))}
                     </div>
                     <Button
                         size="sm"
-                        className="mt-3"
+                        className="mt-4"
                         disabled={busy || !changed}
                         onClick={async () => {
                             setBusy(true);

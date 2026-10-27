@@ -40,12 +40,19 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
   - viết sao cho chạy lại nhiều lần không lỗi;
   - mọi đọc ghi đi qua hàm `security definer`; bảng bật RLS, không có policy cho client;
   - thử bằng PGlite trước (npm `@electric-sql/pglite` trong thư mục tạm; giả `auth.users(id, email)`, `auth.uid()` đọc `current_setting('t.uid')`, role `anon`, `authenticated`);
-  - người dùng tự chạy SQL trên Supabase SQL Editor: luôn nói rõ file nào, theo thứ tự nào.
+  - người dùng tự chạy SQL trên Supabase SQL Editor: luôn nói rõ file nào, theo thứ tự nào. Với Teach: chỉ `supabase/teach_all.sql`.
 - **Giao diện:**
   - chỉ dùng token màu của theme;
   - phải dùng được trên điện thoại 390px và ở chế độ tối;
   - copy tiếng Việt giọng mềm; khen tiến bộ, không khen điểm.
   - **Người dùng không thích giao diện "lố"** (gradient, icon to, câu sến). Giữ phong cách gọn kiểu trang Luyện và Tôi của Lexica, thêm điểm nhấn màu vừa phải.
+  - **Teach có hệ thiết kế riêng** (đã duyệt 26/10, canvas "Teach: thiết kế lại"):
+    - nền kem, thẻ trắng bo 16 bóng rất nhẹ, không tô nền màu;
+    - tiêu đề và con số chính dùng chữ có chân Lora (`font-serif`), nội dung Be Vietnam Pro 16;
+    - một màu nhấn xanh lá (nút chính, liên kết, "ổn"), cam đất chỉ cho "cần làm ngay";
+    - khoảng cách rộng: giữa các phần 48, trong thẻ 24–28;
+    - mỗi dòng việc có tối đa một nút chính, "Vì sao?" là liên kết, ô tròn ở đầu dòng để đánh dấu "đã xử lý";
+    - dùng các thành phần chung trong `apps/teach/app/components/ui.tsx`: `Card`, `SectionTitle`, `Label`, `Stat`, `CopyChip` (có `primary`), `DoneButton`.
 - **Kiểm tra giao diện bằng ảnh chụp Playwright:**
   - Chromium có sẵn ở `/opt/pw-browsers/chromium`. Không chạy `playwright install`; cài `playwright-core` trong thư mục tạm.
   - Lexica: đặt sẵn `localStorage['lexica-storage']` (state giả).
@@ -54,7 +61,7 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
 - **Riêng tư lớp học:** số liệu gửi cho lớp chỉ là con số, không gửi nội dung học viên tạo ra.
 - Chạy nhiều agent hoặc workflow song song phải **hỏi người dùng trước**.
 
-## 3. Đã xong (đến PR #53, đã merge vào `main`)
+## 3. Đã xong (đến PR #54, đã merge vào `main`; T1, W4, T4 nằm trong PR #54)
 - **Lexica:**
   - **Hôm nay:** 4 chặng dạng đường đi, thẻ Nhịp học (chuỗi ngày, 7 ngày, lộ trình 30 ngày).
   - **Luyện:** gom nhóm Giữ từ, Dùng từ (Đọc · Nói · Viết), Thêm từ, Ngoài đời.
@@ -79,37 +86,24 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
 - Người dùng **đã chạy** trên Supabase: `migration_feedback.sql`, `migration_placement.sql`, `placement_bank.sql`.
 
 ## 4. Đang làm: làm lại Teach (`docs/TEACH_PLAN.md`, đọc kỹ)
-- **Thứ tự đã chốt:** T1 → W4 → T4 → T2. T3, T5 để sau. W1, W2 đã bỏ.
-- **T1 "Trên lớp": đã xong**, commit `9fe1886` trên nhánh, **chưa có PR**:
-  - `apps/teach/app/present/[id]/page.tsx`;
-  - `components/present/` (Slides, Picker, Groups);
-  - `lib/classroom/tools.ts` (có test);
-  - `lib/voice.ts`.
-  - Phần "Trang Hôm nay có nút hành động" làm cùng W4 (đã xong, xem dưới).
-- **W4 Dự báo: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 2, trạng thái ở mục 2.6):
-  - **Lexica:** nhật ký ôn theo ngày (`app/lib/journey/reviewLog.ts`, store `reviewLog`); báo cáo lớp gửi `review` (`overdue`, `due7`, `recall14`, `atRisk`).
-  - **Lõi dự báo:** `packages/classroom-lexica/forecast.ts`, ngưỡng ở `THRESHOLDS`; test ở `apps/teach/__tests__/forecast.test.ts` và `forecastItems.test.ts`. Thang IELTS dùng chung ở `packages/classroom-lexica/ielts.ts`.
-  - **SQL:**
-    - `classroom_core.sql`: `cortex_class_assignments.for_user`, `classroom_assign_to`, `classroom_dropout_risk`, `at_risk` trong tổng quan trung tâm;
-    - `classroom_lexica.sql`: lọc `review`, cài đặt `ends_on` và `target_score`;
-    - `migration_placement.sql`: `lexica_class_score_history`.
-  - **Teach:**
-    - `app/lib/forecasts.ts`, `useForecasts.ts`, `components/Forecast.tsx`, `components/class/ClassAhead.tsx`;
-    - trang Hôm nay, trang một em ("Sắp tới"), tổng quan lớp ("Cả lớp sắp tới"), cài đặt lớp, trang trung tâm.
-  - **Người dùng cần chạy lại trên Supabase, theo thứ tự:** `packages/classroom/sql/classroom_core.sql`, `packages/classroom-lexica/sql/classroom_lexica.sql`, `apps/lexica/supabase/migration_placement.sql`.
-  - **Đã soát lại (26/10):** chụp Playwright trang Hôm nay, trang một em, tổng quan lớp; thêm nút "Nhắn em" cho "Nhớ kém" và "Cuối khoá dưới mục tiêu" để dự báo nào cần giáo viên cũng có hành động.
-  - **Còn để sau:** "Khen em" chỉ chép tin nhắn, chưa gửi thẻ khen về Lexica; kiểm chứng lùi ngưỡng khi có dữ liệu thật (TEACH_PLAN 2.3).
-- **T4 Phụ huynh: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 3, trạng thái ở mục 3.6):
-  - SQL mới: `packages/classroom/sql/classroom_parents.sql` (đã thêm vào `build-restore.sh`, chạy sau `classroom_core.sql`);
-  - soạn báo cáo: `packages/classroom-lexica/parentWeek.ts`, `apps/teach/app/lib/parentReport.ts`; kiểu và tuần ở `packages/classroom/parents.ts`;
-  - Teach: `components/class/Report.tsx` (duyệt báo cáo tuần), `components/parents/` (ReportView, ParentCard), `lib/useParents.ts`, trang `app/p/[code]`, thẻ PIN trong `Settings.tsx`.
-- **Khi merge, người dùng chạy trên Supabase, theo thứ tự:**
-  1. `packages/classroom/sql/classroom_core.sql`
-  2. `packages/classroom/sql/classroom_parents.sql`
-  3. `packages/classroom-lexica/sql/classroom_lexica.sql`
-  4. `apps/lexica/supabase/migration_placement.sql`
-- **Việc tiếp theo: T2 Đấu trường từ vựng** (TEACH_PLAN mục 4):
-  - **T2 Đấu trường từ vựng:** Supabase Realtime, máy chủ làm trọng tài, từ sai tự vào bài ôn trong Lexica. Đề xuất học viên vào qua Lexica, PR đầu làm chế độ Cổ điển và Đội.
+- **Thứ tự đã chốt:** T1 → W4 → T4 → Buổi học → T2. T3, T5 để sau. W1, W2 đã bỏ.
+- **T1 "Trên lớp", W4 Dự báo, T4 Phụ huynh: đã xong, đã merge trong PR #54.** Chi tiết ở TEACH_PLAN mục 1, 2.6 và 3.6.
+  - Chỗ chính: `app/present/[id]`; `packages/classroom-lexica/forecast.ts` (ngưỡng `THRESHOLDS`); `app/lib/forecasts.ts`; `components/Forecast.tsx`; `packages/classroom/sql/classroom_parents.sql`; `app/lib/parentReport.ts`; `components/class/Report.tsx`; trang `app/p/[code]`.
+  - **Còn để sau:** thẻ khen gửi về Lexica, kiểm chứng lùi ngưỡng dự báo; email, câu con tự viết, "Nghe con đọc", `pg_cron`, phần Oratio trong báo cáo.
+- **Giao diện mới của Teach** (nền kem, tiêu đề serif, nhiều khoảng thở): commit `1bc3c15` trên nhánh, **chưa có PR**. Quy tắc ở mục 2.
+- **Buổi học và điểm danh: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 3.7):
+  - SQL mới: `packages/classroom/sql/classroom_attendance.sql` (chạy sau `classroom_parents.sql`); `classroom_parents.sql` có sửa (báo cáo giữ phần `attend`).
+  - Phần thuần: `packages/classroom/attendance.ts`, `apps/teach/app/lib/lessons.ts`; test ở `apps/teach/__tests__/attendance.test.ts` và `parentReport.test.ts`.
+  - Teach: tab "Buổi học" (`components/class/Lessons.tsx`, `components/lessons/`), điểm danh ở Trên lớp lưu lên máy chủ, trang Hôm nay (buổi dạy hôm nay, buổi chưa điểm danh, em vắng 2 buổi liền), khung "Trên lớp" ở trang một em, dòng đi học trong báo cáo phụ huynh. Dữ liệu nạp qua `lib/useAttendance.ts`.
+- **T2a Đấu trường từ vựng (chế độ Cổ điển): đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 4.8):
+  - SQL mới: `packages/classroom/sql/classroom_arena.sql`; kiểu và đồng hồ chung: `packages/classroom/arena.ts`.
+  - Teach: `components/arena/Arena.tsx`, `lib/arena.ts` (ra câu hỏi, có test `__tests__/arena.test.ts`), `lib/useArenaHost.ts`; mở từ "Trên lớp" → "Đấu trường".
+  - Lexica: `app/arena/` (trang `/arena`, `useArenaPlayer.ts`), thẻ "Vào đấu trường" ở `/class`.
+  - Màu 4 đáp án là token `arena-1..4` trong theme của cả hai app.
+- **T2b: đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN 4.9): chế độ Đội, từ sai vào bài ôn trong Lexica (`app/lib/arenaReview.ts`, `app/arena/applyResults.ts`, store `applyArena`), phân tích từng em và "Giảng lại N từ". SQL vẫn ở `classroom_arena.sql` (chạy lại file này).
+- **T3 (gợi ý giao bài, bài kiểm tra lớp) và T5 (Luyện nói trên lớp, Oratio trong báo cáo phụ huynh): đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 5). SQL mới: `packages/classroom/sql/classroom_tests.sql`.
+- **SQL cho Teach: chỉ một file.** `supabase/build-restore.sh` sinh thêm `supabase/teach_all.sql` gồm mọi file Teach cần, đúng thứ tự (core, parents, attendance, arena, tests, Lexica module, `migration_placement.sql`, Oratio module). Sau mỗi lần cập nhật Teach, người dùng chỉ chạy file này trong SQL Editor (chạy lại nhiều lần không lỗi). Thêm file SQL mới của Teach thì thêm vào mảng `TEACH` trong script.
+- **Việc tiếp theo:** thử Đấu trường với lớp thật (Realtime trên Supabase thật, wifi lớp), rồi T2c (TEACH_PLAN 4.9) hoặc T3, T5.
 
 ## 5. Việc của người dùng còn treo
 - Railway, Cortex API: thêm `SUPABASE_SERVICE_ROLE_KEY`, `STUDIO_CRON=on`, rồi Redeploy. Railway từng có sự cố tạm dừng deploy.

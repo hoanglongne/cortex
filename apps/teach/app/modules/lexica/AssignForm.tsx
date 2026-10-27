@@ -61,7 +61,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ board, onSubmit, onCancel }) => {
             </ol>
 
             {step === 1 && (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="flex gap-1 rounded-xl bg-surface-2 p-1" role="tablist" aria-label="Cách chọn từ">
                         {(
                             [
@@ -127,7 +127,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ board, onSubmit, onCancel }) => {
             )}
 
             {step === 2 && (
-                <div className="space-y-5">
+                <div className="space-y-8">
                     <Field label="Tên buổi học" hint="Ví dụ “Unit 4: Work” hoặc “Buổi 12/10”.">
                         <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} className={inputClass} autoFocus />
                     </Field>
@@ -161,7 +161,7 @@ const AssignForm: ModuleUI['AssignForm'] = ({ board, onSubmit, onCancel }) => {
             )}
 
             {step === 3 && (
-                <div className="space-y-5">
+                <div className="space-y-8">
                     <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
                         <p className="text-sm text-muted">Học viên sẽ thấy trong Lexica → Lớp học:</p>
                         <p className="mt-2 font-semibold text-ink">{title}</p>
