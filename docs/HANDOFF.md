@@ -105,6 +105,8 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
 - **SQL cho Teach: chỉ một file.** `supabase/build-restore.sh` sinh thêm `supabase/teach_all.sql` gồm mọi file Teach cần, đúng thứ tự (core, parents, attendance, arena, tests, Lexica module, `migration_placement.sql`, Oratio module). Sau mỗi lần cập nhật Teach, người dùng chỉ chạy file này trong SQL Editor (chạy lại nhiều lần không lỗi). Thêm file SQL mới của Teach thì thêm vào mảng `TEACH` trong script.
 - **Việc tiếp theo:** thử Đấu trường với lớp thật (Realtime trên Supabase thật, wifi lớp), rồi T2c (TEACH_PLAN 4.9) hoặc T3, T5.
 
+- **Chiến lược** (27/10): `docs/ECOSYSTEM_STRATEGY.md` (thu thập dữ liệu, app mới, tách chứng chỉ/giao tiếp) và `docs/MARKETING_SESSION_PROMPT.md` (prompt mở phiên marketing).
+
 ## 5. Việc của người dùng còn treo
 - Railway, Cortex API: thêm `SUPABASE_SERVICE_ROLE_KEY`, `STUDIO_CRON=on`, rồi Redeploy. Railway từng có sự cố tạm dừng deploy.
 - Vercel hết lượt deploy (100 mỗi ngày): cân nhắc Vercel Pro hoặc chuyển VPS (`docs/MIGRATION_VPS.md`).
