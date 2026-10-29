@@ -95,6 +95,13 @@ describe('intonation (6.3)', () => {
         expect(range(c)).toBeGreaterThan(5);
     });
 
+    it('reads a staircase fall as falling, even with one dip in the middle (#67)', () => {
+        // A statement whose pitch steps down, with a short dip near the third sentence stress
+        const steps = [4, 4, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, -1, -1, -1, -1, -2, -2, -2, -2, -3, -3, -3, -3, -3, -3, -4, -4, -4, -4];
+        const dip = steps.map((v, i) => (i >= 6 && i <= 8 ? v - 5 : v));
+        expect(ending(dip)).toBeLessThan(-1.5);
+    });
+
     it('notes a rising end where the model falls, and a flat voice', () => {
         const rising = contour(analyze(join(quiet(0.2), tone(1.2, 140, 220), quiet(0.2))));
         const flat = contour(analyze(join(quiet(0.2), tone(1.2, 150, 155), quiet(0.2))));

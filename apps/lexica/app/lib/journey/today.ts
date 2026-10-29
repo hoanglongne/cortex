@@ -67,6 +67,8 @@ export function planToday(input: {
     speakCount: number;
     /** Stages to run again although done (a class lesson arrived after them). */
     reopen?: readonly Stage[];
+    /** New words learned in this round of the day. */
+    learnedThisRound?: number;
 }): TodayPlan {
     const size: Record<Stage, number> = {
         review: Math.min(REVIEW_CAP, input.dueCount),
@@ -76,6 +78,9 @@ export function planToday(input: {
     };
     const done = new Set(input.log?.done ?? []);
     for (const stage of input.reopen ?? []) done.delete(stage);
+    // Learning the day's words uses them up: Học with no words left but words learned this round is
+    // done (even if the stage was never closed, say after a reload), not "empty".
+    if (!done.has('learn') && size.learn === 0 && (input.learnedThisRound ?? 0) > 0 && !(input.reopen ?? []).includes('learn')) done.add('learn');
     const stages = STAGES.map((stage) => ({
         stage,
         size: size[stage],

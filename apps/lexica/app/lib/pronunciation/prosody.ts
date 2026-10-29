@@ -369,13 +369,16 @@ export function dtw(a: readonly number[], b: readonly number[]): { cost: number;
 /** Pitch range in semitones, ignoring the outer tenths (stray frames). */
 export const range = (c: readonly number[]) => (c.length ? percentile(c, 0.9) - percentile(c, 0.1) : 0);
 
-/** How the end moves: the last fifth against the middle, in semitones (negative = falls). */
+/**
+ * How the end moves: the last fifth against the middle, in semitones
+ * (negative = falls). Medians, so a short dip or stray frames in the middle
+ * do not decide it (a staircase fall with one dip still reads as falling).
+ */
 export function ending(c: readonly number[]): number {
     if (c.length < 10) return 0;
     const tail = c.slice(Math.floor(c.length * 0.8));
     const body = c.slice(Math.floor(c.length * 0.3), Math.floor(c.length * 0.7));
-    const mean = (x: number[]) => x.reduce((a, b) => a + b, 0) / x.length;
-    return mean(tail) - mean(body);
+    return percentile(tail, 0.5) - percentile(body, 0.5);
 }
 
 /** A yes/no question: ends with "?" and starts with an auxiliary ("Do you…?", "Can I…?"). */

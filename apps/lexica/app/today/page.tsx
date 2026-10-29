@@ -109,7 +109,7 @@ export default function TodayPage() {
 
     return (
         <div className="min-h-screen bg-bg px-4 py-6">
-            <div className="max-w-2xl mx-auto">
+            <div className={`mx-auto max-w-2xl ${frozen?.stage === 'speak' ? 'lg:max-w-5xl' : ''}`}>
                 <div className="flex items-center justify-between mb-4">
                     <Link href="/" className="text-muted hover:text-accent text-sm">
                         ← {plan.complete ? 'Trang chủ' : 'Tạm dừng'}

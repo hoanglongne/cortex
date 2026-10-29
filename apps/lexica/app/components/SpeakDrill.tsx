@@ -601,6 +601,9 @@ function PitchTrace({ pitch, flags, text }: { pitch: (number | null)[]; flags: b
     const hi = Math.max(...all) + 1;
     const path = (v: number[]) => v.map((y, i) => `${i === 0 ? 'M' : 'L'}${(i / (v.length - 1)) * 300},${100 - ((y - lo) / (hi - lo)) * 100}`).join(' ');
     const match = Math.round(contourMatch(mine, model) * 100);
+    // The end of the model is read on its own line, not the one stretched to the learner's timing:
+    // stretching can squeeze its last fall into a point or two and make it look flat.
+    const modelEnding = ending(voice && voice.length >= 10 ? voice : model);
     return (
         <div data-testid="pitch-trace" className="hidden lg:block mt-4 rounded-xl border border-line p-3">
             <div className="flex items-center justify-between font-mono text-[11px] text-muted">
@@ -614,7 +617,7 @@ function PitchTrace({ pitch, flags, text }: { pitch: (number | null)[]; flags: b
                 <path d={path(mine)} fill="none" strokeWidth="2.5" className="stroke-accent" />
             </svg>
             <p className="text-xs text-muted">
-                Cuối câu: <span className="text-subtle">mẫu {arrow(ending(model))}</span> · <span className="text-accent">bạn {arrow(ending(mine))}</span>. Câu kể thường lên ở âm được nhấn rồi xuống giọng ở cuối.
+                Cuối câu: <span className="text-subtle">mẫu {arrow(modelEnding)}</span> · <span className="text-accent">bạn {arrow(ending(mine))}</span>. Câu kể thường lên ở âm được nhấn rồi xuống giọng ở cuối.
             </p>
         </div>
     );

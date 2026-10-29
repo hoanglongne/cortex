@@ -97,6 +97,7 @@ export function useTodayPlan(): TodayPicks {
             dueCount: due.length,
             reopen,
             newLeft,
+            learnedThisRound: Math.max(0, learnedToday.length - (round > 1 ? (log?.learnedAtStart ?? 0) : 0)),
             // Before the Học stage, today's words do not exist yet: a passage can be written once they do.
             canRead: Boolean(passage || generate || quoteWord || (canGenerateReading() && newLeft >= 2)),
             speakCount: speakIds.length || (newLeft > 0 ? 1 : 0),
