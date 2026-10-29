@@ -2,6 +2,10 @@
 
 Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau đó đọc file kế hoạch của việc đang làm (mục 4).
 
+## 0. Quản lý việc (đọc đầu tiên)
+- **Nguồn thật của mọi việc: GitHub Issues** (`hoanglongne/cortex`). Quy ước nhãn và cách làm với Claude ở `docs/TASKS_PLAN.md` mục 1. Đầu phiên: đọc issue mở gắn `việc-của-claude`; làm xong thì comment, tham chiếu issue trong PR, gắn `chờ-bạn-duyệt`. Việc chưa xong khi hết phiên phải có issue.
+- Dài hạn: app riêng "Cortex Tasks" có máy chủ MCP để Claude kết nối trực tiếp (`docs/TASKS_PLAN.md` mục 2, issue #65). Chưa làm.
+
 ## 1. Repo
 - Monorepo pnpm + turbo. Gói trong workspace dùng `main: ./index.ts` và phải có trong `transpilePackages` của app Next dùng nó.
 - Một Supabase cho mọi app: chung tài khoản, chung database.
