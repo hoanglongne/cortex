@@ -17,7 +17,8 @@ Nguồn thật duy nhất của mọi việc. Claude đọc và ghi trực tiế
 3. Khi làm: Claude ghi tiến độ vào comment của issue, tham chiếu issue trong commit và PR (`Closes #n`).
 4. Xong: Claude thêm `chờ-bạn-duyệt`, bạn duyệt rồi đóng.
 5. Việc cần quyết định của bạn: issue `việc-của-bạn` + `chờ-bạn-duyệt`, Claude nêu phương án và khuyến nghị trong mô tả.
-6. Mỗi phiên kết thúc, việc chưa xong phải có issue (không để việc chỉ nằm trong chat).
+6. **Không tạo việc lặt vặt cho chủ dự án.** Việc nhỏ của bạn (đặt biến, chạy SQL, bấm vài nút) gộp thành **một issue** có checklist, và chỉ tạo khi chúng thật sự chặn công việc. Không đưa vào issue những việc bạn đã nói không cần quan tâm (ví dụ tìm lớp thí điểm).
+7. Mỗi phiên kết thúc, việc chưa xong phải có issue (không để việc chỉ nằm trong chat).
 
 ### Giới hạn
 Claude chỉ làm việc trong phiên bạn mở (hoặc phiên có đăng ký theo dõi PR, hoặc lịch hẹn). Giao việc nghĩa là viết issue rồi nhắn "xem việc tồn". Bảng Project (kéo thả cột) do bạn tạo một lần trên GitHub.
