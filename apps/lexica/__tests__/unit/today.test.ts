@@ -27,6 +27,19 @@ describe('Today plan', () => {
         expect(p.stages.find((s) => s.stage === 'read')?.status).toBe('done');
     });
 
+    it('counts Học as done once the day\'s words are learned, even if the stage was never closed (#66)', () => {
+        const log = { date: '2026-10-20', done: [] as never[], start: { hieu: 0, nho: 0, gap: 0, dung: 0 } };
+        // All the pace learned (newLeft 0) but the Học stage never closed, e.g. after a reload
+        const p = planToday({ log, dueCount: 0, newLeft: 0, canRead: true, speakCount: 3, learnedThisRound: 10 });
+        expect(p.stages.map((s) => s.status)).toEqual(['empty', 'done', 'todo', 'todo']);
+        expect(p.next).toBe('read');
+        // Nothing learned and nothing left: still "empty"
+        expect(planToday({ log, dueCount: 0, newLeft: 0, canRead: true, speakCount: 3, learnedThisRound: 0 }).stages[1].status).toBe('empty');
+        // A class lesson that arrived after reopens the stage even though words were learned
+        const again = planToday({ log, dueCount: 0, newLeft: 4, canRead: true, speakCount: 3, learnedThisRound: 10, reopen: ['learn'] });
+        expect(again.stages[1].status).toBe('todo');
+    });
+
     it('runs the stages in order and skips the empty ones', () => {
         const plan = planToday({ log: null, dueCount: 0, newLeft: 10, canRead: true, speakCount: 3 });
         expect(plan.stages.map((s) => s.status)).toEqual(['empty', 'todo', 'todo', 'todo']);

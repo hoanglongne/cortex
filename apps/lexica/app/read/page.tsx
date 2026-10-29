@@ -1,5 +1,6 @@
 'use client';
 
+import BackLink from '../components/BackLink';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { BookOpen, Check, ChevronRight } from 'lucide-react';
@@ -36,9 +37,7 @@ export default function ReadPage() {
         <div className="min-h-screen bg-bg px-4 py-8">
             <div className="max-w-2xl mx-auto">
                 <div className="flex items-center justify-between mb-6">
-                    <Link href="/" className="text-muted hover:text-accent text-sm">
-                        ← Học
-                    </Link>
+                    <BackLink fallback="/practice" />
                     <p className="text-ink font-bold">Đọc</p>
                     <div className="w-12" />
                 </div>

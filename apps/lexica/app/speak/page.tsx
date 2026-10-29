@@ -1,5 +1,6 @@
 'use client';
 
+import BackLink from '../components/BackLink';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -69,11 +70,10 @@ export default function SpeakPage() {
 
     return (
         <div className="min-h-screen bg-bg px-4 py-8">
-            <div className="max-w-2xl mx-auto">
+            {/* Wide on desktop while practising: the result sits beside the panel (Panel's two-column mode needs 768px) */}
+            <div className={`mx-auto max-w-2xl ${words || practice ? 'lg:max-w-5xl' : ''}`}>
                 <div className="flex items-center justify-between mb-6">
-                    <Link href="/" className="text-muted hover:text-accent text-sm">
-                        ← Học
-                    </Link>
+                    <BackLink fallback="/practice" />
                     <p className="text-ink font-bold">Luyện nói</p>
                     <div className="w-12" />
                 </div>

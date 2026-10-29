@@ -2,6 +2,10 @@
 
 Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau đó đọc file kế hoạch của việc đang làm (mục 4).
 
+## 0. Quản lý việc (đọc đầu tiên)
+- **Nguồn thật của mọi việc: GitHub Issues** (`hoanglongne/cortex`). Quy ước nhãn và cách làm với Claude ở `docs/TASKS_PLAN.md` mục 1. Đầu phiên: đọc issue mở gắn `việc-của-claude`; làm xong thì comment, tham chiếu issue trong PR, gắn `chờ-bạn-duyệt`. Việc chưa xong khi hết phiên phải có issue.
+- Dài hạn: app riêng "Cortex Tasks" có máy chủ MCP để Claude kết nối trực tiếp (`docs/TASKS_PLAN.md` mục 2, issue #65). Chưa làm.
+
 ## 1. Repo
 - Monorepo pnpm + turbo. Gói trong workspace dùng `main: ./index.ts` và phải có trong `transpilePackages` của app Next dùng nó.
 - Một Supabase cho mọi app: chung tài khoản, chung database.
@@ -104,6 +108,8 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
 - **T3 (gợi ý giao bài, bài kiểm tra lớp) và T5 (Luyện nói trên lớp, Oratio trong báo cáo phụ huynh): đã xong** trên nhánh, **chưa có PR** (TEACH_PLAN mục 5). SQL mới: `packages/classroom/sql/classroom_tests.sql`.
 - **SQL cho Teach: chỉ một file.** `supabase/build-restore.sh` sinh thêm `supabase/teach_all.sql` gồm mọi file Teach cần, đúng thứ tự (core, parents, attendance, arena, tests, Lexica module, `migration_placement.sql`, Oratio module). Sau mỗi lần cập nhật Teach, người dùng chỉ chạy file này trong SQL Editor (chạy lại nhiều lần không lỗi). Thêm file SQL mới của Teach thì thêm vào mảng `TEACH` trong script.
 - **Việc tiếp theo:** thử Đấu trường với lớp thật (Realtime trên Supabase thật, wifi lớp), rồi T2c (TEACH_PLAN 4.9) hoặc T3, T5.
+
+- **Chiến lược** (27/10): `docs/ECOSYSTEM_STRATEGY.md` (thu thập dữ liệu, app mới, tách chứng chỉ/giao tiếp) và `docs/MARKETING_SESSION_PROMPT.md` (prompt mở phiên marketing).
 
 ## 5. Việc của người dùng còn treo
 - Railway, Cortex API: thêm `SUPABASE_SERVICE_ROLE_KEY`, `STUDIO_CRON=on`, rồi Redeploy. Railway từng có sự cố tạm dừng deploy.
