@@ -61,7 +61,7 @@ describe('adaptive vocabulary test', () => {
         expect(new Set(responses.filter((r) => r.item.kind !== 'real').map((r) => r.item.answer)).size).toBeGreaterThan(1);
     });
 
-    it('asks listening questions only when sound is on: one word, spoken, among the options', () => {
+    it('asks listening questions only when sound is on: one word, spoken, its meaning among the options', () => {
         const rand = seeded(8);
         const withSound: Response[] = [];
         for (let i = 0; i < 24; i++) withSound.push({ item: nextItem(bank, withSound, rand, 1000, true)!, answer: 'right' });
@@ -69,7 +69,11 @@ describe('adaptive vocabulary test', () => {
         expect(listen.length).toBeGreaterThan(4);
         for (const r of listen) {
             expect(r.item.prompt).not.toContain(' ');
-            expect(r.item.options[r.item.answer]).toBe(r.item.prompt);
+            // The options are meanings: the spelling of the spoken word is not among them
+            const card = bank.find((c) => c.id === r.item.cardId)!;
+            expect(r.item.options[r.item.answer]).toBe(card.translationHint);
+            expect(r.item.options).not.toContain(r.item.prompt);
+            expect(r.item.options).toHaveLength(4);
         }
         const quiet: Response[] = [];
         for (let i = 0; i < 24; i++) quiet.push({ item: nextItem(bank, quiet, rand)!, answer: 'right' });

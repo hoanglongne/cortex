@@ -2476,29 +2476,35 @@ begin
     return lexica_pl_view(it);
   end if;
 
-  -- Three wrong options from cards near the same difficulty: meanings, or words.
-  if kind = 'meaning' then
+  -- Three wrong options from cards near the same difficulty: meanings (also for "listen": hear the
+  -- word, pick its meaning, which needs the word and not only its spelling), or words (phrase).
+  if kind in ('meaning', 'listen') then
     right_option := c.meaning;
+    -- 3 of the 24 nearest (limit inside: `array_agg(...) ... limit 3` cut one row, not the options)
     select array_agg(v) into wrong from (
       select v from (
-        select distinct on (lower(b.meaning)) b.meaning as v, abs(b.elo - c.elo) as d
-          from lexica_placement_bank b
-         where b.card_id <> c.card_id and lower(b.meaning) <> lower(c.meaning)
-           and (position(' ' in b.word) > 0) = (position(' ' in c.word) > 0)
-         order by lower(b.meaning), abs(b.elo - c.elo)
-      ) x order by d limit 24
-    ) y order by random() limit 3;
+        select v from (
+          select distinct on (lower(b.meaning)) b.meaning as v, abs(b.elo - c.elo) as d
+            from lexica_placement_bank b
+           where b.card_id <> c.card_id and lower(b.meaning) <> lower(c.meaning)
+             and (position(' ' in b.word) > 0) = (position(' ' in c.word) > 0)
+           order by lower(b.meaning), abs(b.elo - c.elo)
+        ) x order by d limit 24
+      ) y order by random() limit 3
+    ) z;
   else
     right_option := c.word;
     select array_agg(v) into wrong from (
       select v from (
-        select distinct on (b.word) b.word as v, abs(b.elo - c.elo) as d
-          from lexica_placement_bank b
-         where b.card_id <> c.card_id and b.word <> c.word
-           and (position(' ' in b.word) > 0) = (position(' ' in c.word) > 0)
-         order by b.word, abs(b.elo - c.elo)
-      ) x order by d limit 24
-    ) y order by random() limit 3;
+        select v from (
+          select distinct on (b.word) b.word as v, abs(b.elo - c.elo) as d
+            from lexica_placement_bank b
+           where b.card_id <> c.card_id and b.word <> c.word
+             and (position(' ' in b.word) > 0) = (position(' ' in c.word) > 0)
+           order by b.word, abs(b.elo - c.elo)
+        ) x order by d limit 24
+      ) y order by random() limit 3
+    ) z;
   end if;
   select array_agg(o order by random()) into opts from unnest(array[right_option] || wrong) o;
 

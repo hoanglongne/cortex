@@ -15,7 +15,7 @@ const KIND_LABEL: Record<ItemKind, string> = {
     meaning: 'Chọn nghĩa đúng',
     phrase: 'Điền từ vào cụm',
     real: 'Đây có phải từ tiếng Anh?',
-    listen: 'Nghe và chọn từ bạn nghe',
+    listen: 'Nghe và chọn nghĩa đúng',
 };
 
 /** What a question shows; `answer` is known at once in a practice test, after answering in a verified one. */
@@ -162,7 +162,7 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
                     </span>
                     <div>
                         <p className="text-lg font-semibold text-ink">Bạn có nghe được tiếng không?</p>
-                        <p className="mt-1 text-sm text-muted">Có thì bài có thêm câu nghe: app đọc một từ, bạn chọn từ vừa nghe. Đang ở nơi đông người thì bỏ qua.</p>
+                        <p className="mt-1 text-sm text-muted">Có thì bài có thêm câu nghe: app đọc một từ, bạn chọn nghĩa của từ đó. Đang ở nơi đông người thì bỏ qua.</p>
                     </div>
                     <p className="flex items-start gap-2 text-xs text-muted">
                         <BadgeCheck className={`w-4 h-4 shrink-0 ${mode === 'verified' ? 'text-accent' : 'text-subtle'}`} />
