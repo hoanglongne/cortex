@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, JetBrains_Mono, Be_Vietnam_Pro, Lora } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono, Be_Vietnam_Pro, Lora, Patrick_Hand } from "next/font/google";
 import ScrollToTop from "@/components/ScrollToTop";
 import EcosystemRewardListener from "@/components/EcosystemRewardListener";
 import "./globals.css";
@@ -23,6 +23,12 @@ const lora = Lora({
   style: ["normal", "italic"],
 });
 
+const hand = Patrick_Hand({
+  variable: "--font-patrick",
+  subsets: ["latin", "vietnamese"],
+  weight: "400",
+});
+
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
@@ -43,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${beVietnam.variable} ${lora.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${beVietnam.variable} ${lora.variable} ${hand.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0f0f0f] text-white">
         <ScrollToTop />

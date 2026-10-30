@@ -1,0 +1,15 @@
+/* Cortex brand tokens: warm paper, one green, a lime and a marker yellow. Copy into an app's @theme when it adopts the brand. */
+:root {
+  --cortex-paper: #F6F1E8;
+  --cortex-paper-2: #EEE7D9;
+  --cortex-ink: #1F1D1A;
+  --cortex-ink-2: #4A463F;
+  --cortex-ink-3: #7A7468;
+  --cortex-moss: #2E7556;
+  --cortex-moss-strong: #235C43;
+  --cortex-moss-soft: #E1EDE5;
+  --cortex-lime: #C6F432;
+  --cortex-sun: #F6D76B;
+  --cortex-pen: #D9482B;
+  --cortex-rule: #DDD3C2;
+}

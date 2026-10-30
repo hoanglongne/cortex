@@ -113,6 +113,12 @@ Thứ tự khuyến nghị: **0, 1, 2** trước. Nếu chỉ làm một việc,
 | Tên | Dùng "Cortex". Phương án thay thế chưa cần (xem phản hồi trong issue) |
 | Thông điệp | Thay hoàn toàn: **"Học xong là nhớ. Dạy xong là thấy."** Mỗi nhóm một câu riêng ở trang của mình |
 
-Đã làm ở bước 2 (bản đầu, chữ tạm): landing mới tại `apps/landing/src/app/(brand)`: trang chủ, ba phân hệ, trang "Đang nghĩ tới", layout sáng dùng chung. Các trang cũ (`/apps/*`, `/auth`, `/profile`) vẫn giữ giao diện tối cũ, chưa chuyển.
+**Đã làm** (`apps/landing`, ngôn ngữ "sổ tay": giấy chấm bi, ghi chú dán, nét khoanh bút đỏ, chữ viết tay Patrick Hand cho lời bên lề, Lora cho tiêu đề, Be Vietnam Pro cho nội dung):
+- Trang chủ, `/hoc-vien`, `/giao-vien` (kèm phụ huynh), `/trung-tam`, `/chung-chi`, `/dang-nghi-toi`, `/apps/[id]` (một trang sinh từ dữ liệu, thay 8 trang tối cũ), `/auth`, `/profile` (vỏ sáng, bảng hồ sơ học bên trong vẫn kiểu tối cũ).
+- Hình sản phẩm vẽ lại bằng HTML (thẻ Lexica, danh sách "Hôm nay" của Teach, báo cáo tuần phụ huynh): tên và số là minh họa, bố cục theo app thật.
+- `packages/brand`: chữ và số dùng chung (so sánh hai hướng, câu khẩu hiệu, màu nhấn mỗi app) và `tokens.css`. Landing đã dùng; Lexica và Teach chưa nhập.
+- Đã xoá các thành phần tối cũ (Arsenal, Roadmap, Partnership...).
 
-Chưa làm: gói `packages/brand` dùng chung (bước 1: token hiện nằm trong `apps/landing/src/app/globals.css`), ảnh chụp Teach, bằng chứng thật, `/chung-chi`, thanh Cortex chung ở các app. Cấu hình cần đặt ở Vercel: `NEXT_PUBLIC_TEACH_URL`, `NEXT_PUBLIC_ORATIO_URL`, `NEXT_PUBLIC_LEXICA_URL`, `NEXT_PUBLIC_CONTACT_EMAIL` (chưa đặt thì nút tương ứng ẩn hoặc dẫn về trang đăng nhập).
+**Chưa làm:** Lexica và Teach nhập `@cortex/brand` (thay `branchInfo.ts`), thanh Cortex chung ở các app, ảnh chụp thật của Teach thay cho hình vẽ lại, bằng chứng thật, trang trung tâm có biểu mẫu liên hệ thật, đa ngôn ngữ.
+
+Cấu hình cần đặt ở Vercel: `NEXT_PUBLIC_TEACH_URL`, `NEXT_PUBLIC_ORATIO_URL`, `NEXT_PUBLIC_LEXICA_URL`, `NEXT_PUBLIC_CONTACT_EMAIL` (chưa đặt thì nút tương ứng ẩn hoặc dẫn về trang đăng nhập).

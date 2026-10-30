@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const NAV = [
   { href: "/hoc-vien", label: "Người học" },
+  { href: "/chung-chi", label: "IELTS" },
   { href: "/giao-vien", label: "Giáo viên" },
   { href: "/trung-tam", label: "Trung tâm" },
   { href: "/dang-nghi-toi", label: "Đang nghĩ tới" },
@@ -10,7 +11,7 @@ const NAV = [
 /** The light, warm shell of the public pages. The older dark pages (/apps, /auth) keep their own look. */
 export default function BrandLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen overflow-x-clip bg-paper font-body text-ink">
+    <div className="notebook min-h-screen overflow-x-clip font-body text-ink">
       <header className="sticky top-0 z-40 border-b border-rule bg-paper/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5">
           <Link href="/" className="flex items-center gap-2 font-serif text-xl font-semibold tracking-tight">
@@ -47,7 +48,7 @@ export default function BrandLayout({ children }: { children: React.ReactNode })
           </div>
           <ul className="space-y-2 text-sm text-ink-2">
             <li className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink-3">Cho ai</li>
-            {NAV.slice(0, 3).map((n) => (
+            {NAV.filter((n) => n.href !== "/dang-nghi-toi").map((n) => (
               <li key={n.href}>
                 <Link href={n.href} className="hover:text-ink">
                   {n.label}
