@@ -7,6 +7,8 @@ import { useLexicaStore } from '../store/lexicaStore';
 import { hardWords } from '../lib/engagement/hard';
 import { ARCHETYPE_OPTIONS } from '../lib/content/persona';
 import { BRANCH_LABEL } from '../lib/journey/path';
+import BranchCompare from '../components/BranchCompare';
+import { BRANCH_PROMISE } from '../lib/journey/branchInfo';
 import PaceChooser from '../components/PaceChooser';
 import StepNumbers from '../components/StepNumbers';
 
@@ -70,6 +72,8 @@ export default function MePage() {
                                 ))}
                             </div>
                         </div>
+                        <p className="text-xs text-muted">{BRANCH_PROMISE[path.branch]}</p>
+                        <BranchCompare />
                         <div className="space-y-2">
                             <span className="text-muted text-sm">Nhịp học</span>
                             <PaceChooser value={path.pace || 10} onChange={(n) => setPath({ ...path, pace: n })} compareTo={path.pace} />

@@ -6,6 +6,7 @@
  * scores. This file: the calls, and the pure parts (building the questions,
  * what to show). Unit tested.
  */
+import { detectiveRounds, liarRounds, type GameCard } from './games/rounds';
 import type { ArenaResult } from '@cortex/classroom';
 import { getSupabaseClient } from './supabase';
 import { makeItem, type BankCard } from './placement/engine';
@@ -15,7 +16,7 @@ export const DUEL_MAX = 10;
 
 export interface DuelQuestionInput {
     card_id: string;
-    kind: 'meaning' | 'phrase';
+    kind: 'meaning' | 'phrase' | 'liar' | 'clue';
     prompt: string;
     options: string[];
     answer: number;
@@ -169,3 +170,69 @@ export function sortDuels(list: readonly DuelListItem[]): DuelListItem[] {
 
 /** "Nhắn bạn": the duel as a message to send on Zalo. */
 export const duelInviteText = (name: string, origin: string) => `${name} ơi, mình vừa thách bạn một ván từ vựng trên Lexica. Vào xem nhé: ${origin}/buddy`;
+
+/** Which game a duel is played as. */
+export type DuelGame = 'words' | 'liar' | 'clue';
+
+export const DUEL_GAMES: { id: DuelGame; label: string }[] = [
+    { id: 'words', label: 'Từ vựng' },
+    { id: 'liar', label: 'Từ nói dối' },
+    { id: 'clue', label: 'Thám tử' },
+];
+
+/** What each kind of question asks, for the line above it. */
+export function duelKindLabel(kind: string): string {
+    if (kind === 'phrase') return 'Điền từ vào cụm';
+    if (kind === 'liar') return 'Cụm nào bị tráo từ?';
+    if (kind === 'clue') return 'Đoán từ qua manh mối';
+    return 'Từ này nghĩa là gì?';
+}
+
+/**
+ * Questions for a duel in the chosen game, from the words I know. The liar and
+ * clue games reuse the solo rounds (lib/games/rounds.ts): the same shape of
+ * question, so the server and the duel screen need nothing new. Clues go into
+ * the prompt, one per line, weakest first.
+ */
+export function duelGameQuestions(game: DuelGame, known: readonly string[], bank: readonly BankCard[], n: number, rand: () => number = Math.random): DuelQuestionInput[] {
+    if (game === 'words') return duelQuestions(known, bank, n, rand);
+    const byId = new Map(bank.map((c) => [c.id, c]));
+    const cards = known.map((id) => byId.get(id)).filter((c): c is BankCard => Boolean(c)) as unknown as GameCard[];
+    const rounds = game === 'liar' ? liarRounds(cards, bank as unknown as GameCard[], n, rand) : detectiveRounds(cards, bank as unknown as GameCard[], n, rand);
+    return rounds.map((r) => ({
+        card_id: r.cardId,
+        kind: game === 'liar' ? 'liar' : 'clue',
+        prompt: game === 'liar' ? 'Cụm nào bị tráo từ?' : (r.clues ?? []).join('\n'),
+        options: r.options,
+        answer: r.answer,
+    }));
+}
+
+export interface BoardRow {
+    id: string;
+    name: string;
+    wins: number;
+    losses: number;
+    draws: number;
+}
+
+const WEEK_MS = 7 * 24 * 3600 * 1000;
+
+/**
+ * Head to head this week: my finished duels of the last 7 days against each
+ * buddy, by number right (ties are draws). Most wins first. Only duels both
+ * finished count, since the other's score is hidden before that.
+ */
+export function weekBoard(list: readonly DuelListItem[], now: number): BoardRow[] {
+    const rows = new Map<string, BoardRow>();
+    for (const d of list) {
+        if (d.my_correct === null || d.their_correct === null || !d.i_finished || !d.their_finished) continue;
+        if (now - Date.parse(d.created_at) > WEEK_MS) continue;
+        const r = rows.get(d.with_id) ?? { id: d.with_id, name: d.with_name ?? 'Bạn học', wins: 0, losses: 0, draws: 0 };
+        if (d.my_correct > d.their_correct) r.wins++;
+        else if (d.my_correct < d.their_correct) r.losses++;
+        else r.draws++;
+        rows.set(d.with_id, r);
+    }
+    return [...rows.values()].sort((a, b) => b.wins - b.losses - (a.wins - a.losses) || b.wins - a.wins);
+}
