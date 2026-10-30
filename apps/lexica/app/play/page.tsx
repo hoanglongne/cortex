@@ -8,7 +8,7 @@ import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
 import { localDate } from '../lib/engagement/ghost';
 import { MIN_WORDS, usePool } from './usePool';
 
-export const GAME_LIST = [
+const GAME_LIST = [
     { id: 'blitz', name: 'Chớp', hint: '60 giây, càng đúng liền càng nhiều điểm', icon: Zap },
     { id: 'detective', name: 'Thám tử từ', hint: 'Đoán từ qua manh mối, ít manh mối nhiều điểm', icon: Search },
     { id: 'liar', name: 'Từ nói dối', hint: 'Bốn cụm từ, một cụm bị tráo từ. Bắt nó', icon: ShieldQuestion },
