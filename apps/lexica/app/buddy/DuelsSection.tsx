@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Swords } from 'lucide-react';
 import { getDeckCards, useContentVersion } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
-import { DUEL_MAX, DUEL_MIN, duelCreate, duelInbox, duelLine, duelGameQuestions, sortDuels, type DuelGame, type DuelListItem } from '../lib/duels';
+import { DUEL_MAX, DUEL_MIN, duelCreate, duelInbox, duelLine, duelGameQuestions, sortDuels, weekBoard, type DuelGame, type DuelListItem } from '../lib/duels';
 import type { BuddyInfo } from '../lib/buddy';
 
 /** Words I learned, newest first (card ids). */
@@ -75,6 +75,7 @@ export default function DuelsSection({ reloadKey, startError }: { reloadKey: num
     }, [reloadKey]);
 
     const rows = sortDuels(list ?? []);
+    const board = weekBoard(list ?? [], now);
     return (
         <section className="rounded-2xl border border-line bg-surface p-4">
             <h2 className="flex items-center gap-2 font-semibold text-ink">
@@ -105,6 +106,25 @@ export default function DuelsSection({ reloadKey, startError }: { reloadKey: num
                         );
                     })}
                 </ul>
+            )}
+            {board.length > 0 && (
+                <div data-testid="week-board" className="mt-3 border-t border-line pt-3">
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Tuần này</p>
+                    <ul className="mt-1.5 space-y-1">
+                        {board.map((r, k) => (
+                            <li key={r.id} className="flex items-center justify-between text-sm">
+                                <span className="text-ink">
+                                    <span className="font-mono text-xs text-subtle mr-2">{k + 1}</span>
+                                    {r.name}
+                                </span>
+                                <span className="font-mono text-xs text-ink-2">
+                                    thắng {r.wins} · thua {r.losses}
+                                    {r.draws ? ` · hoà ${r.draws}` : ''}
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             )}
             {(error || startError) && <p className="mt-2 text-xs text-danger">{error || startError}</p>}
         </section>

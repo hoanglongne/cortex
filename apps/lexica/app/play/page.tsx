@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { Ear, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
+import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
+import { localDate } from '../lib/engagement/ghost';
 import { MIN_WORDS, usePool } from './usePool';
 
 export const GAME_LIST = [
@@ -19,6 +22,10 @@ export const GAME_LIST = [
 export default function PlayPage() {
     const { known } = usePool();
     const learned = useLexicaStore((s) => s.learnedWords.size);
+    const log = useLexicaStore((s) => s.gameLog);
+    const [today] = useState(() => localDate());
+    const met = goalMet(log ?? {}, today);
+    const week = weekSummary(log ?? {}, today);
     const ready = known.length >= MIN_WORDS;
     return (
         <div className="min-h-screen bg-bg px-4 py-6">
@@ -27,6 +34,15 @@ export default function PlayPage() {
                     <Link href="/practice" className="text-muted hover:text-accent text-sm">← Luyện</Link>
                     <h1 className="mt-2 text-xl font-semibold text-ink">Chơi</h1>
                     <p className="text-sm text-muted">Chơi cũng là ôn: từ sai quay lại phần ôn, từ đúng được tính một lần nhớ.</p>
+                </div>
+                <div data-testid="game-goal" className={`rounded-2xl border p-4 flex items-center justify-between gap-3 ${met ? 'border-accent/50 bg-accent/5' : 'border-line bg-surface'}`}>
+                    <div>
+                        <p className="text-sm font-semibold text-ink">{met ? 'Xong mục tiêu hôm nay' : `Hôm nay chơi ${GAME_GOAL} ván`}</p>
+                        <p className="text-xs text-muted">
+                            {playsOn(log ?? {}, today)} ván hôm nay · tuần này {week.plays} ván{week.best ? `, điểm cao nhất ${week.best}` : ''}
+                        </p>
+                    </div>
+                    <span className={`w-8 h-8 rounded-full border flex items-center justify-center text-sm ${met ? 'bg-accent text-on-accent border-accent' : 'border-line text-subtle'}`}>{met ? '✓' : playsOn(log ?? {}, today)}</span>
                 </div>
                 {!ready && (
                     <p data-testid="play-locked" className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-2">

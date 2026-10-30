@@ -29,8 +29,8 @@ export function Over({ score, answers, onAgain, line }: { score: number; answers
     useEffect(() => {
         if (done.current) return;
         done.current = true;
-        if (answers.length) applyGame(answers);
-    }, [answers, applyGame]);
+        if (answers.length) applyGame(answers, score);
+    }, [answers, score, applyGame]);
     const right = answers.filter((a) => a.correct).length;
     return (
         <div data-testid="game-over" className="rounded-2xl border border-line bg-surface p-6 text-center space-y-3">

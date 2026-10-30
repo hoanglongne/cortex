@@ -207,3 +207,32 @@ export function duelGameQuestions(game: DuelGame, known: readonly string[], bank
         answer: r.answer,
     }));
 }
+
+export interface BoardRow {
+    id: string;
+    name: string;
+    wins: number;
+    losses: number;
+    draws: number;
+}
+
+const WEEK_MS = 7 * 24 * 3600 * 1000;
+
+/**
+ * Head to head this week: my finished duels of the last 7 days against each
+ * buddy, by number right (ties are draws). Most wins first. Only duels both
+ * finished count, since the other's score is hidden before that.
+ */
+export function weekBoard(list: readonly DuelListItem[], now: number): BoardRow[] {
+    const rows = new Map<string, BoardRow>();
+    for (const d of list) {
+        if (d.my_correct === null || d.their_correct === null || !d.i_finished || !d.their_finished) continue;
+        if (now - Date.parse(d.created_at) > WEEK_MS) continue;
+        const r = rows.get(d.with_id) ?? { id: d.with_id, name: d.with_name ?? 'Bạn học', wins: 0, losses: 0, draws: 0 };
+        if (d.my_correct > d.their_correct) r.wins++;
+        else if (d.my_correct < d.their_correct) r.losses++;
+        else r.draws++;
+        rows.set(d.with_id, r);
+    }
+    return [...rows.values()].sort((a, b) => b.wins - b.losses - (a.wins - a.losses) || b.wins - a.wins);
+}

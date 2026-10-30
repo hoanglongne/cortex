@@ -11,6 +11,7 @@ import { afterSave, afterSkip, DEFAULT_PROMPT, type MySentence, type MySentenceP
 import { getCard, getCardByWord, sameWordIds } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import { addAttempt, type SoundLog } from '../lib/pronunciation/soundLog';
+import { addPlay, type GameLog } from '../lib/games/daily';
 import { gameReview, type GameAnswer } from '../lib/games/rounds';
 import { addRecall, type ReviewLog } from '../lib/journey/reviewLog';
 import { APPLIED_KEEP, arenaReview } from '../lib/arenaReview';
@@ -218,7 +219,9 @@ interface LexicaStore {
     /** A class quiz's results: wrong words back into review, quick right ones as a right recall. */
     applyArena: (results: ArenaResult[]) => { again: number; recalled: number; queued: number };
     /** A finished game: wrong words come again, right ones count as a recall (lib/games/rounds.ts). */
-    applyGame: (answers: GameAnswer[]) => { again: number; recalled: number };
+    applyGame: (answers: GameAnswer[], score?: number) => { again: number; recalled: number };
+    /** Rounds played and best score per day, 14 days (lib/games/daily.ts). */
+    gameLog: GameLog;
 
     // Cortex Integration
     syncAllToCortex: () => Promise<void>;
@@ -936,7 +939,9 @@ export const useLexicaStore = create<LexicaStore>()(
                 return { again: plan.again.length, recalled: plan.recalled.length, queued };
             },
 
-            applyGame: (answers) => {
+            gameLog: {},
+            applyGame: (answers, score = 0) => {
+                set({ gameLog: addPlay(get().gameLog ?? {}, localDate(), score) });
                 const plan = gameReview(answers, (id) => Boolean(get().cardProgress[id]));
                 for (const id of plan.again) get().submitReviewAnswer(id, false);
                 for (const id of plan.recalled) get().submitReviewAnswer(id, true, 'good');
@@ -1052,6 +1057,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 dailyProgress: state.dailyProgress,
                 lastGoalSetDate: state.lastGoalSetDate,
                 paceNudgeAt: state.paceNudgeAt,
+                gameLog: state.gameLog,
                 // Personalization
                 userArchetype: state.userArchetype,
                 mySentences: state.mySentences,
