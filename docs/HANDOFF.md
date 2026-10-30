@@ -111,6 +111,8 @@ Cập nhật 26/10/2026. **Đọc hết file này trước khi làm gì.** Sau �
 
 - **Chiến lược** (27/10): `docs/ECOSYSTEM_STRATEGY.md` (thu thập dữ liệu, app mới, tách chứng chỉ/giao tiếp) và `docs/MARKETING_SESSION_PROMPT.md` (prompt mở phiên marketing).
 
+- **Buddy (issue #70):** hướng B (thách đấu từ vựng, `apps/lexica/supabase/migration_duels.sql`, `app/lib/duels.ts`, `app/buddy/duel/[id]`) và hướng A (mục tiêu nhóm tuần, cổ vũ: `migration_buddy_cheers.sql`, `app/lib/cheers.ts`, `app/buddy/TeamCard.tsx`) đã làm. Cả hai file SQL đã nằm trong `supabase/teach_all.sql`. Hướng C (cặp luyện nói) để sau, gắn với kế hoạch Oratio (#75).
+
 ## 5. Việc của người dùng còn treo
 - Railway, Cortex API: thêm `SUPABASE_SERVICE_ROLE_KEY`, `STUDIO_CRON=on`, rồi Redeploy. Railway từng có sự cố tạm dừng deploy.
 - Vercel hết lượt deploy (100 mỗi ngày): cân nhắc Vercel Pro hoặc chuyển VPS (`docs/MIGRATION_VPS.md`).
