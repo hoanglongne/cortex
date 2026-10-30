@@ -6,9 +6,9 @@ import { AudioService } from '../lib/audio/AudioService';
 import { detectivePoints, type Choice, type GameAnswer } from '../lib/games/rounds';
 import { Bar, Over } from './Shell';
 
-export type McqMode = 'blitz' | 'detective' | 'liar' | 'listen';
+export type McqMode = 'blitz' | 'detective' | 'liar' | 'listen' | 'cloze' | 'upgrade';
 
-const TITLE: Record<McqMode, string> = { blitz: 'Chớp', detective: 'Thám tử từ', liar: 'Từ nói dối', listen: 'Nghe và bắt từ' };
+const TITLE: Record<McqMode, string> = { blitz: 'Chớp', detective: 'Thám tử từ', liar: 'Từ nói dối', listen: 'Nghe và bắt từ', cloze: 'Điền đoạn', upgrade: 'Nâng cấp câu' };
 const BLITZ_SECONDS = 60;
 
 /**
@@ -77,7 +77,7 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
             {mode === 'blitz' && streak >= 2 && <p className="text-xs text-warning text-center">Chuỗi đúng {streak}</p>}
 
             <div className="rounded-2xl border border-line bg-surface p-5 space-y-3 min-h-32">
-                <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{mode === 'blitz' ? 'Từ nào có nghĩa này?' : mode === 'liar' ? 'Tìm cụm bị tráo từ' : q.prompt}</p>
+                <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{mode === 'blitz' ? 'Từ nào có nghĩa này?' : mode === 'liar' ? 'Tìm cụm bị tráo từ' : mode === 'cloze' ? 'Chọn từ điền vào chỗ trống' : mode === 'upgrade' ? 'Nâng cấp câu' : q.prompt}</p>
                 {mode === 'detective' &&
                     shown.map((c, k) => (
                         <p key={k} className="text-ink">
@@ -86,6 +86,7 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
                         </p>
                     ))}
                 {(mode === 'blitz' || mode === 'liar') && <p className="text-lg font-semibold text-ink">{q.prompt}</p>}
+                {(mode === 'cloze' || mode === 'upgrade') && <p lang="en" className="whitespace-pre-line text-lg text-ink">{q.prompt}</p>}
                 {mode === 'listen' && (
                     <button onClick={() => void AudioService.play(q.cardId, 'word')} className="h-14 w-full rounded-xl border border-line bg-surface-2/40 text-ink flex items-center justify-center gap-2">
                         <Volume2 className="w-5 h-5" /> Nghe lại

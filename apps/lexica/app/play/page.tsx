@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Ear, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap } from 'lucide-react';
+import { ArrowUpRight, Ear, FileText, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
 import { localDate } from '../lib/engagement/ghost';
@@ -13,6 +13,8 @@ const GAME_LIST = [
     { id: 'detective', name: 'Thám tử từ', hint: 'Đoán từ qua manh mối, ít manh mối nhiều điểm', icon: Search },
     { id: 'liar', name: 'Từ nói dối', hint: 'Bốn cụm từ, một cụm bị tráo từ. Bắt nó', icon: ShieldQuestion },
     { id: 'listen', name: 'Nghe và bắt từ', hint: 'Nghe một từ, chọn đúng chữ', icon: Ear },
+    { id: 'cloze', name: 'Điền đoạn', hint: 'Câu thật trong bài đọc, điền từ còn thiếu (kiểu Reading)', icon: FileText },
+    { id: 'upgrade', name: 'Nâng cấp câu', hint: 'Chọn cách nói trang trọng nhất cho một câu (kiểu Writing)', icon: ArrowUpRight },
     { id: 'match', name: 'Ghép', hint: 'Nối sáu cặp từ và nghĩa', icon: Grid2x2 },
     { id: 'spell', name: 'Gõ', hint: 'Thấy nghĩa và chữ đầu, gõ cả từ', icon: Keyboard },
     { id: 'chain', name: 'Nối chuỗi', hint: 'Từ sau bắt đầu bằng chữ cuối từ trước, đấu với máy', icon: Link2 },
