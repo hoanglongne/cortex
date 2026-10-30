@@ -42,6 +42,8 @@ FILES=(
   packages/classroom/sql/classroom_parents.sql
   packages/classroom/sql/classroom_attendance.sql
   packages/classroom/sql/classroom_arena.sql
+  apps/lexica/supabase/migration_duels.sql
+  apps/lexica/supabase/migration_buddy_cheers.sql
   packages/classroom/sql/classroom_tests.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
   apps/lexica/supabase/migration_placement.sql
@@ -79,6 +81,8 @@ TEACH=(
   packages/classroom/sql/classroom_parents.sql
   packages/classroom/sql/classroom_attendance.sql
   packages/classroom/sql/classroom_arena.sql
+  apps/lexica/supabase/migration_duels.sql
+  apps/lexica/supabase/migration_buddy_cheers.sql
   packages/classroom/sql/classroom_tests.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
   apps/lexica/supabase/migration_placement.sql

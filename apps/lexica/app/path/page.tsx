@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import { Check, Flag, Share2 } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
+import PaceNudge from '../components/PaceNudge';
 import StepNumbers from '../components/StepNumbers';
 import { BRANCH_LABEL, CHECKPOINTS, currentDay, expectedBy, pathCells, pathDays, PATH_DAYS } from '../lib/journey/path';
 import { STEP_HINT, STEP_LABEL, STEPS, type StepCounts } from '../lib/journey/steps';
@@ -57,6 +58,8 @@ export default function PathPage() {
                         {done.length} ngày đã học xong. Bỏ một ngày thì lộ trình dời theo, không mất gì.
                     </p>
                 </section>
+
+                <PaceNudge />
 
                 <ol data-testid="path-days" className="grid grid-cols-10 gap-1.5 max-w-lg" aria-label="30 ngày">
                     {cells.map((c, i) => {

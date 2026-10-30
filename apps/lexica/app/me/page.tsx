@@ -6,7 +6,8 @@ import { BarChart3, ChevronRight, Compass, Gauge, MessageSquareHeart, Route, Sch
 import { useLexicaStore } from '../store/lexicaStore';
 import { hardWords } from '../lib/engagement/hard';
 import { ARCHETYPE_OPTIONS } from '../lib/content/persona';
-import { BRANCH_LABEL, PACES } from '../lib/journey/path';
+import { BRANCH_LABEL } from '../lib/journey/path';
+import PaceChooser from '../components/PaceChooser';
 import StepNumbers from '../components/StepNumbers';
 
 const chip = (on: boolean) => `h-9 px-3 rounded-lg border text-xs font-medium ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
@@ -69,15 +70,9 @@ export default function MePage() {
                                 ))}
                             </div>
                         </div>
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="space-y-2">
                             <span className="text-muted text-sm">Nhịp học</span>
-                            <div className="flex gap-1.5">
-                                {PACES.map((n) => (
-                                    <button key={n} onClick={() => setPath({ ...path, pace: n })} aria-pressed={path.pace === n} className={chip(path.pace === n)}>
-                                        {n} từ/ngày
-                                    </button>
-                                ))}
-                            </div>
+                            <PaceChooser value={path.pace || 10} onChange={(n) => setPath({ ...path, pace: n })} compareTo={path.pace} />
                         </div>
                     </section>
                 )}

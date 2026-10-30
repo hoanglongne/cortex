@@ -10,7 +10,7 @@
  * - real: "is this an English word?", sometimes about a made-up word
  *   (those are not scored; saying yes to them is reported as overclaiming);
  * - listen (when the learner can play sound): the word is spoken, not
- *   shown; pick it among four written words.
+ *   shown; pick its meaning among four.
  * "Không biết" and running out of time count as not knowing, without the
  * guessing floor. The test stops when the estimate is tight or after 30.
  * Pure functions; the page keeps the state.
@@ -170,12 +170,13 @@ export function makeItem(kind: ItemKind, card: BankCard | null, bank: readonly B
     if (kind === 'listen') {
         // Single words only: a spoken phrase gives itself away by its length.
         if (card.word.includes(' ')) return null;
-        const wrong = distractors(card, bank, rand, 'word');
+        // Hear the word, pick its meaning: the options are meanings, so reading the spelling does not
+        // help, and picking among written words (the first design) only tested decoding.
+        const wrong = distractors(card, bank, rand, 'translationHint');
         if (wrong.length < 3) return null;
-        const right = card.word.toLowerCase();
-        const options = shuffle([right, ...wrong], rand);
+        const options = shuffle([card.translationHint, ...wrong], rand);
         // The prompt is what is spoken; the page never shows it.
-        return { kind, cardId: card.id, prompt: right, options, answer: options.indexOf(right), difficulty: card.elo + 50, guess: 0.25 };
+        return { kind, cardId: card.id, prompt: card.word.toLowerCase(), options, answer: options.indexOf(card.translationHint), difficulty: card.elo + 50, guess: 0.25 };
     }
     const phrase = blankPhrase(card);
     if (!phrase) return null;

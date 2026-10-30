@@ -31,5 +31,16 @@ export function ieltsBetween(low: number, high: number): string {
     return `${lo.toFixed(1)}–${hi.toFixed(1)}`;
 }
 
-/** "IELTS khoảng 6.0–6.5" for a score and its spread. */
-export const ieltsRange = (score: number, sd: number) => ieltsBetween(score - sd, score + sd);
+/**
+ * Uncertainty of the score-to-band mapping itself, in score points, on top of the test's own spread.
+ * The mapping is a design table, not yet calibrated against exam results; studies of vocabulary size
+ * and IELTS find a moderate link (r about 0.7 with the overall band) and a wide spread inside a band
+ * (docs/LEXICA_IELTS_MAPPING.md). Until calibration against real scores, ranges are about one band wide.
+ */
+export const MAPPING_SPREAD = 100;
+
+/** "IELTS khoảng 6.0–7.0" for a score and its spread (the test's own and the mapping's). */
+export const ieltsRange = (score: number, sd: number) => {
+    const spread = Math.sqrt(sd * sd + MAPPING_SPREAD * MAPPING_SPREAD);
+    return ieltsBetween(score - spread, score + spread);
+};

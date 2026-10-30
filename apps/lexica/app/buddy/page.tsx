@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Check, Copy, Flame, Loader2, LogOut, Pencil, Plus, Share2, Trophy, UserX, Users, Zap } from 'lucide-react';
+import { Bell, Check, Copy, Flame, Loader2, LogOut, Pencil, Plus, Share2, Swords, Trophy, UserX, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -25,6 +25,9 @@ import {
 } from '../lib/buddy';
 import { upsertProfile } from '../lib/auth';
 import { localDate } from '../lib/engagement/ghost';
+import DuelsSection, { useStartDuel } from './DuelsSection';
+import { CheerButtons, CheersBanner, TeamCard } from './TeamCard';
+import { cheersToday, teamWeek, type CheerKind, type CheersToday } from '../lib/cheers';
 
 type Week = Record<string, Record<string, DailyActivity>>;
 
@@ -80,6 +83,8 @@ function Buddy() {
     const [today] = useState(() => localDate());
 
     const goalMet = daysDone.includes(today) || dailyProgress >= dailyGoal;
+    const duel = useStartDuel();
+    const [cheers, setCheers] = useState<CheersToday | null>(null);
 
     const load = useCallback(async (userId: string) => {
         setLoading(true);
@@ -88,6 +93,7 @@ function Buddy() {
             setBuddies(list);
             setWeek(await getWeek([userId, ...list.map((b) => b.id)]));
             for (const b of list) void checkAndUpdateDuoStreak(b.pairId, userId, b.id);
+            cheersToday().then(setCheers, () => undefined);
         } finally {
             setLoading(false);
         }
@@ -138,6 +144,7 @@ function Buddy() {
     const me = { id: user.id, name: profile?.nickname ?? 'Bạn' };
     const ranking = weekRanking([me, ...buddies.map((b) => ({ id: b.id, name: b.nickname }))], week);
     const days = lastDays(7);
+    const team = teamWeek([me, ...buddies.map((b) => ({ id: b.id, name: b.nickname }))], week, days, user.id, goalMet);
 
     return (
         <div className="min-h-screen bg-bg pb-8">
@@ -191,6 +198,14 @@ function Buddy() {
                     <p className="mt-1 text-sm text-muted">{goalMet ? 'Hôm nay bạn đã đạt mục tiêu. Bạn bè sẽ thấy điều đó.' : 'Xong phiên Hôm nay là đạt mục tiêu ngày, giữ chuỗi đôi với bạn bè.'}</p>
                     <WeekDots days={days} acts={week[user.id]} today={today} forceToday={goalMet} />
                 </section>
+
+                <CheersBanner cheers={cheers} />
+
+                {/* The group's week (direction A of #70) */}
+                {buddies.length > 0 && <TeamCard team={team} me={user.id} />}
+
+                {/* Duels (direction B of #70): play with a buddy, not only look at their numbers */}
+                {buddies.length > 0 && <DuelsSection reloadKey={buddies.length} startError={duel.error} />}
 
                 {/* Weekly ranking, only with friends */}
                 {buddies.length > 0 && (
@@ -251,6 +266,10 @@ function Buddy() {
                                 week={week[b.id]}
                                 today={today}
                                 myGoalMet={goalMet}
+                                onDuel={() => void duel.start(b)}
+                                cheerSent={cheers?.sent[b.id]}
+                                onCheer={(k) => setCheers((c) => ({ received: c?.received ?? [], sent: { ...(c?.sent ?? {}), [b.id]: k } }))}
+                                duelBusy={duel.busy === b.id}
                                 onRemove={async () => {
                                     await removeBuddy(b.pairId);
                                     setBuddies((list) => list.filter((x) => x.pairId !== b.pairId));
@@ -362,7 +381,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
     );
 }
 
-function BuddyCard({ buddy, days, week, today, myGoalMet, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onRemove: () => void }) {
+function BuddyCard({ buddy, days, week, today, myGoalMet, onDuel, duelBusy, cheerSent, onCheer, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onDuel: () => void; duelBusy: boolean; cheerSent: CheerKind | undefined; onCheer: (kind: CheerKind) => void; onRemove: () => void }) {
     const [confirm, setConfirm] = useState(false);
     const [nudged, setNudged] = useState('');
     const buddyMet = Boolean(buddy.today?.goal_met);
@@ -388,6 +407,12 @@ function BuddyCard({ buddy, days, week, today, myGoalMet, onRemove }: { buddy: B
             <WeekDots days={days} acts={week} today={today} />
             {both && <p className="mt-3 text-center text-xs font-medium text-accent">Cả hai đều đạt mục tiêu hôm nay: chuỗi đôi +1</p>}
             <div className="mt-3 flex items-center justify-between gap-2">
+                <CheerButtons buddyId={buddy.id} sent={cheerSent} onSent={onCheer} />
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-2">
+                <button onClick={onDuel} disabled={duelBusy} className="h-9 px-3 rounded-lg bg-accent text-on-accent text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+                    {duelBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Swords className="w-4 h-4" />} Thách đấu
+                </button>
                 {!studied ? (
                     <button
                         onClick={async () => {

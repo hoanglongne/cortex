@@ -43,8 +43,8 @@ describe("Lexica's week", () => {
             { score: 1060, sd: 35, at: '2026-10-22T10:00:00Z' },
             { score: 1200, sd: 35, at: '2026-10-27T10:00:00Z' },
         ]);
-        expect(w.score).toEqual({ score: 1060, ielts: '6.0–6.5', delta: 60, at: '2026-10-22' });
-        expect(scoreLine(w.score!)).toBe('1060 · IELTS từ vựng khoảng 6.0–6.5 · tăng 60 so với lần trước');
+        expect(w.score).toEqual({ score: 1060, ielts: '5.5–6.5', delta: 60, at: '2026-10-22' });
+        expect(scoreLine(w.score!)).toBe('1060 · IELTS từ vựng khoảng 5.5–6.5 · tăng 60 so với lần trước');
     });
 
     it('treats the first week in class as totals, and no report as no data', () => {

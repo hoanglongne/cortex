@@ -166,6 +166,8 @@ interface LexicaStore {
     dailyGoal: number; // Target number of cards per day (5-30)
     dailyProgress: number; // Number of cards swiped today
     lastGoalSetDate: string | null; // 'YYYY-MM-DD' - for daily reset
+    paceNudgeAt: string | null; // Day the pace suggestion was answered; quiet for a week
+    answerPaceNudge: () => void;
     setDailyGoal: (num: number) => void;
     incrementDailyProgress: () => void;
     resetDailyProgress: () => void;
@@ -355,6 +357,8 @@ export const useLexicaStore = create<LexicaStore>()(
             dailyGoal: 15, // Default: 15 cards per day
             dailyProgress: 0, // Reset daily
             lastGoalSetDate: null, // Will be set on first goal setting
+            paceNudgeAt: null,
+            answerPaceNudge: () => set({ paceNudgeAt: getTodayDateString() }),
             setDailyGoal: (num) => set({
                 dailyGoal: num,
                 lastGoalSetDate: getTodayDateString()
@@ -1037,6 +1041,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 dailyGoal: state.dailyGoal,
                 dailyProgress: state.dailyProgress,
                 lastGoalSetDate: state.lastGoalSetDate,
+                paceNudgeAt: state.paceNudgeAt,
                 // Personalization
                 userArchetype: state.userArchetype,
                 mySentences: state.mySentences,
