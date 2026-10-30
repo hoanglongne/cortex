@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Space_Grotesk, JetBrains_Mono, Be_Vietnam_Pro, Lora } from "next/font/google";
 import ScrollToTop from "@/components/ScrollToTop";
 import EcosystemRewardListener from "@/components/EcosystemRewardListener";
 import "./globals.css";
@@ -10,6 +10,19 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["400", "500", "700"],
 });
 
+const beVietnam = Be_Vietnam_Pro({
+  variable: "--font-be-vietnam",
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin", "vietnamese"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
+});
+
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
@@ -17,9 +30,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CORTEX HUB — Language Tech Ecosystem",
+  title: "Cortex: học xong là nhớ, dạy xong là thấy",
   description:
-    "The Adobe of EdTech. Surgical tools for specific linguistic weaknesses. No bloated apps — just pure functions.",
+    "Cortex giúp người học nhớ từ vựng lâu hơn và giúp giáo viên, trung tâm biết em nào cần giúp trước khi em ấy bỏ cuộc.",
 };
 
 export default function RootLayout({
@@ -30,7 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
-      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${beVietnam.variable} ${lora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0f0f0f] text-white">
         <ScrollToTop />

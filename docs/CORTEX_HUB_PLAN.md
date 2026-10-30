@@ -102,3 +102,17 @@ Thứ tự khuyến nghị: **0, 1, 2** trước. Nếu chỉ làm một việc,
 3. **Dialecta, Echo, Syntaxis, Visage, Metamorph**: chuyển hết sang trang "Đang nghĩ tới", hay bỏ?
 4. **Tên "Cortex Hub"** có giữ trước người dùng không, hay chỉ "Cortex"?
 5. **Thông điệp "Ngừng nhồi nhét"**: giữ cho người học, hay thay hoàn toàn?
+
+## 8. Đã quyết (30/10/2026) và đã làm
+
+| Câu | Quyết định |
+|---|---|
+| Màu | Kem ấm + xanh rêu (đề xuất), nhìn chuyên nghiệp, không "AI slop", có chút giáo dục nhưng trẻ trung gần gũi. Thể hiện bằng: nền giấy ấm, chữ serif Lora cho tiêu đề, nét tô vàng như bút dạ, ảnh chụp màn hình thật, không có hiệu ứng phát sáng hay gradient |
+| Cửa vào | Người học, giáo viên và trung tâm mỗi nhóm một phân hệ riêng: `/hoc-vien`, `/giao-vien` (có phần phụ huynh), `/trung-tam` |
+| 5 app ý tưởng | Giữ, chuyển sang trang `/dang-nghi-toi` (Dialecta, Echo, Syntaxis, Visage, Metamorph) |
+| Tên | Dùng "Cortex". Phương án thay thế chưa cần (xem phản hồi trong issue) |
+| Thông điệp | Thay hoàn toàn: **"Học xong là nhớ. Dạy xong là thấy."** Mỗi nhóm một câu riêng ở trang của mình |
+
+Đã làm ở bước 2 (bản đầu, chữ tạm): landing mới tại `apps/landing/src/app/(brand)`: trang chủ, ba phân hệ, trang "Đang nghĩ tới", layout sáng dùng chung. Các trang cũ (`/apps/*`, `/auth`, `/profile`) vẫn giữ giao diện tối cũ, chưa chuyển.
+
+Chưa làm: gói `packages/brand` dùng chung (bước 1: token hiện nằm trong `apps/landing/src/app/globals.css`), ảnh chụp Teach, bằng chứng thật, `/chung-chi`, thanh Cortex chung ở các app. Cấu hình cần đặt ở Vercel: `NEXT_PUBLIC_TEACH_URL`, `NEXT_PUBLIC_ORATIO_URL`, `NEXT_PUBLIC_LEXICA_URL`, `NEXT_PUBLIC_CONTACT_EMAIL` (chưa đặt thì nút tương ứng ẩn hoặc dẫn về trang đăng nhập).

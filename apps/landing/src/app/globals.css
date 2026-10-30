@@ -26,6 +26,21 @@
   --color-border-06: rgba(255, 255, 255, 0.06);
   --color-border-04: rgba(255, 255, 255, 0.04);
 
+  /* Cortex brand (docs/CORTEX_HUB_PLAN.md): warm paper, one green, a lime and a marker yellow */
+  --color-paper: #F6F1E8;
+  --color-paper-2: #EEE7D9;
+  --color-ink: #1F1D1A;
+  --color-ink-2: #4A463F;
+  --color-ink-3: #7A7468;
+  --color-moss: #2E7556;
+  --color-moss-strong: #235C43;
+  --color-moss-soft: #E1EDE5;
+  --color-lime: #C6F432;
+  --color-sun: #F6D76B;
+  --color-rule: #DDD3C2;
+  --font-body: var(--font-be-vietnam), system-ui, sans-serif;
+  --font-serif: var(--font-lora), Georgia, serif;
+
   /* Aurora Animation */
   --animate-aurora: aurora 60s linear infinite;
 }
