@@ -7,6 +7,7 @@ import { useSoundEffects } from '../hooks/useSoundEffects';
 import { useLexicaStore } from '../store/lexicaStore';
 import type { UserArchetype } from '../types/vocab';
 import { BRANCH_HINT, BRANCH_LABEL, type Branch } from '../lib/journey/path';
+import BranchCompare from './BranchCompare';
 import { readBranchPick, writeBranchPick } from '../lib/journey/branchPick';
 
 interface OnboardingModalProps {
@@ -229,6 +230,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                                         <p className="text-xs mt-0.5 text-muted">{BRANCH_HINT[b]}</p>
                                     </button>
                                 ))}
+                                <BranchCompare />
                             </div>
                         )}
 

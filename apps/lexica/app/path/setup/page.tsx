@@ -10,6 +10,8 @@ import { BRANCH_HINT, BRANCH_LABEL, nextLevel, PATH_DAYS, type Branch } from '..
 import { STAGE_MINUTES } from '../../lib/journey/today';
 import { levelDef } from '../../lib/levels';
 import { localDate } from '../../lib/engagement/ghost';
+import BranchCompare from '../../components/BranchCompare';
+import { BRANCH_PROMISE } from '../../lib/journey/branchInfo';
 import PaceChooser from '../../components/PaceChooser';
 import { readBranchPick } from '../../lib/journey/branchPick';
 import type { DifficultyLevel } from '../../types/vocab';
@@ -68,6 +70,10 @@ function SetupContent() {
                             </button>
                         ))}
                     </div>
+                    <div className="mt-2">
+                        <BranchCompare />
+                    </div>
+                    <p data-testid="branch-promise" className="mt-2 text-xs text-muted">{BRANCH_PROMISE[branch]}</p>
                 </fieldset>
 
                 <fieldset>
