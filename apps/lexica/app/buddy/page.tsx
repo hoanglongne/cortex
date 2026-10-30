@@ -25,6 +25,7 @@ import {
 } from '../lib/buddy';
 import { upsertProfile } from '../lib/auth';
 import { localDate } from '../lib/engagement/ghost';
+import { DUEL_GAMES, type DuelGame } from '../lib/duels';
 import DuelsSection, { useStartDuel } from './DuelsSection';
 import { CheerButtons, CheersBanner, TeamCard } from './TeamCard';
 import { cheersToday, teamWeek, type CheerKind, type CheersToday } from '../lib/cheers';
@@ -84,6 +85,7 @@ function Buddy() {
 
     const goalMet = daysDone.includes(today) || dailyProgress >= dailyGoal;
     const duel = useStartDuel();
+    const [duelGame, setDuelGame] = useState<DuelGame>('words');
     const [cheers, setCheers] = useState<CheersToday | null>(null);
 
     const load = useCallback(async (userId: string) => {
@@ -258,6 +260,14 @@ function Buddy() {
                     </div>
                 ) : (
                     <div className="space-y-3">
+                        <div className="flex items-center gap-1.5 text-xs" role="group" aria-label="Chọn game thách đấu">
+                            <span className="text-muted mr-1">Thách đấu bằng</span>
+                            {DUEL_GAMES.map((g) => (
+                                <button key={g.id} onClick={() => setDuelGame(g.id)} aria-pressed={duelGame === g.id} className={`h-8 px-3 rounded-lg border font-medium ${duelGame === g.id ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}>
+                                    {g.label}
+                                </button>
+                            ))}
+                        </div>
                         {buddies.map((b) => (
                             <BuddyCard
                                 key={b.id}
@@ -266,7 +276,7 @@ function Buddy() {
                                 week={week[b.id]}
                                 today={today}
                                 myGoalMet={goalMet}
-                                onDuel={() => void duel.start(b)}
+                                onDuel={() => void duel.start(b, duelGame)}
                                 cheerSent={cheers?.sent[b.id]}
                                 onCheer={(k) => setCheers((c) => ({ received: c?.received ?? [], sent: { ...(c?.sent ?? {}), [b.id]: k } }))}
                                 duelBusy={duel.busy === b.id}

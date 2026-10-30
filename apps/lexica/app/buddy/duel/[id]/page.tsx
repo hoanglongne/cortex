@@ -7,7 +7,7 @@ import { ARENA_SHAPES } from '@cortex/classroom';
 import { useAuth } from '../../../context/AuthContext';
 import AuthGate from '../../../components/AuthGate';
 import { useLexicaStore } from '../../../store/lexicaStore';
-import { duelAnswer, duelFinish, duelInviteText, duelResult, duelReview, duelTake, type DuelResult, type DuelTake } from '../../../lib/duels';
+import { duelAnswer, duelFinish, duelKindLabel, duelInviteText, duelResult, duelReview, duelTake, type DuelResult, type DuelTake } from '../../../lib/duels';
 
 const TILE = ['bg-arena-1', 'bg-arena-2', 'bg-arena-3', 'bg-arena-4'];
 const SECONDS = 20;
@@ -203,11 +203,11 @@ function Duel({ id }: { id: string }) {
             </div>
             <div className="mt-5 flex items-center justify-between font-mono text-sm text-muted">
                 <span>
-                    Câu {i + 1}/{take.questions.length} · {q.kind === 'phrase' ? 'Điền từ vào cụm' : 'Từ này nghĩa là gì?'}
+                    Câu {i + 1}/{take.questions.length} · {duelKindLabel(q.kind)}
                 </span>
                 <span className={left <= 5 ? 'text-warning' : 'text-ink'}>{left}s</span>
             </div>
-            <p lang="en" className="mt-3 text-3xl font-bold text-ink">
+            <p lang="en" className={`mt-3 whitespace-pre-line font-bold text-ink ${q.kind === 'clue' ? 'text-xl' : 'text-3xl'}`}>
                 {q.prompt}
             </p>
             <div className="mt-6 grid gap-3">

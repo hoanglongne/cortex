@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Swords } from 'lucide-react';
 import { getDeckCards, useContentVersion } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
-import { DUEL_MAX, DUEL_MIN, duelCreate, duelInbox, duelLine, duelQuestions, sortDuels, type DuelListItem } from '../lib/duels';
+import { DUEL_MAX, DUEL_MIN, duelCreate, duelInbox, duelLine, duelGameQuestions, sortDuels, type DuelGame, type DuelListItem } from '../lib/duels';
 import type { BuddyInfo } from '../lib/buddy';
 
 /** Words I learned, newest first (card ids). */
@@ -29,13 +29,13 @@ export function useStartDuel() {
     const [busy, setBusy] = useState<string | null>(null);
     const [error, setError] = useState('');
     const start = useCallback(
-        async (buddy: BuddyInfo) => {
+        async (buddy: BuddyInfo, game: DuelGame = 'words') => {
             setError('');
             void version;
             const bank = getDeckCards();
-            const qs = duelQuestions(known, bank, DUEL_MAX - 2);
+            const qs = duelGameQuestions(game, known, bank, DUEL_MAX - 2);
             if (qs.length < DUEL_MIN) {
-                setError(`Cần biết ít nhất ${DUEL_MIN} từ để thách đấu. Học vài từ trong phiên Hôm nay rồi quay lại nhé.`);
+                setError(`Chưa đủ từ để ra đề ${game === 'words' ? '' : 'cho game này '}(cần ít nhất ${DUEL_MIN} câu). Học thêm vài từ rồi quay lại nhé.`);
                 return;
             }
             setBusy(buddy.id);

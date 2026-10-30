@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { duelLine, duelQuestions, duelReview, sortDuels, type DuelListItem, type DuelResult } from '../../app/lib/duels';
+import { duelGameQuestions, duelKindLabel, duelLine, duelQuestions, duelReview, sortDuels, type DuelListItem, type DuelResult } from '../../app/lib/duels';
 import type { BankCard } from '../../app/lib/placement/engine';
 
 const card = (i: number, collocations?: string[]): BankCard => ({ id: `v${i}`, word: `word${i}`, elo: 900 + i * 5, level: 'beginner', translationHint: `nghĩa ${i}`, collocations });
@@ -63,5 +63,30 @@ describe('review after a duel', () => {
         const res = duelReview(r);
         expect(res.room_id).toBe('duel:x1');
         expect(res.answers).toEqual([{ card_id: 'v1', correct: true, ms: 0 }, { card_id: 'v2', correct: false, ms: 0 }]);
+    });
+
+    it('liar and clue duels reuse the solo rounds in the duel shape', () => {
+        const words = ['abundant', 'brief', 'cautious', 'dense', 'eager', 'fragile', 'genuine', 'humble'];
+        const bank = words.map((w, i) => ({
+            id: `c${i}`,
+            word: w.toUpperCase(),
+            elo: 900,
+            level: 'beginner' as const,
+            translationHint: `nghĩa ${w}`,
+            collocations: [`${w} ${['supply', 'story', 'move', 'crowd', 'look', 'vase', 'smile', 'tone'][i]}`],
+            scenario: `Rất ${w.toUpperCase()} hôm nay.`,
+        }));
+        const known = bank.map((c) => c.id);
+        const liar = duelGameQuestions('liar', known, bank, 5);
+        expect(liar.length).toBeGreaterThan(0);
+        for (const q of liar) expect(q.kind).toBe('liar');
+        const clue = duelGameQuestions('clue', known, bank, 5);
+        expect(clue.length).toBeGreaterThan(0);
+        for (const q of clue) {
+            expect(q.kind).toBe('clue');
+            expect(q.prompt.split('\n')).toHaveLength(3);
+            expect(q.options).toHaveLength(4);
+        }
+        expect(duelKindLabel('liar')).toMatch(/tráo/);
     });
 });
