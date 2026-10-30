@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { BookOpen, ChevronRight, Compass, Mic, PenLine, Plus, RotateCcw, ScanSearch, Swords, TrendingUp } from 'lucide-react';
+import { BookOpen, ChevronRight, Compass, Gamepad2, Mic, PenLine, Plus, RotateCcw, ScanSearch, Swords, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import { hardWords } from '../lib/engagement/hard';
@@ -40,6 +40,10 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
                     <Tile href="/journal" icon={<PenLine className="w-5 h-5" />} title="Viết" hint="Câu của bạn" />
                 </div>
             </section>
+
+            <Group title="Chơi" sub="Chơi cũng là ôn từ">
+                <Row href="/play" icon={<Gamepad2 className="w-4 h-4" />} title="Trò chơi từ vựng" hint="Thám tử từ, Từ nói dối, Chớp và thêm 4 game nữa" />
+            </Group>
 
             <Group title="Thêm từ mới" sub="Khi đã xong phiên hôm nay">
                 <Row href="/today?more=1" icon={<Plus className="w-4 h-4" />} title="Học thêm" hint="10 từ mới, kèm một bài đọc và luyện nói" />
