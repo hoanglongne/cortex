@@ -43,16 +43,16 @@ export default function Home() {
         </div>
 
         {/* the desk */}
-        <div className="relative mx-auto h-[520px] w-full max-w-[560px] sm:h-[560px]" aria-label="Ba màn hình: thẻ từ, danh sách của giáo viên, báo cáo phụ huynh">
-          <div className="absolute left-0 top-6 z-10 -rotate-3 sm:left-4">
+        <div className="relative mx-auto h-[430px] w-full max-w-[560px] sm:h-[560px]" aria-label="Ba màn hình: thẻ từ, danh sách của giáo viên, báo cáo phụ huynh">
+          <div className="absolute left-1/2 top-4 z-10 -translate-x-[55%] -rotate-3 sm:left-4 sm:translate-x-0">
             <FlashCard />
           </div>
-          <div className="absolute right-0 top-0 z-20 rotate-2 lg:-right-4">
+          <div className="absolute right-0 top-0 z-20 hidden rotate-2 sm:block lg:-right-4">
             <Note tone="white" className="!p-0">
               <TodayList />
             </Note>
           </div>
-          <div className="absolute bottom-2 right-3 z-30 -rotate-2 sm:right-10">
+          <div className="absolute bottom-0 right-0 z-30 -rotate-2 sm:bottom-2 sm:right-10">
             <Note tone="sun" className="!p-3">
               <ParentSlip />
             </Note>
@@ -175,6 +175,28 @@ export default function Home() {
           ))}
         </div>
         <p className="mt-6 text-sm text-ink-3">Mức dự kiến, có thể đổi sau thí điểm.</p>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto max-w-3xl px-5 py-16">
+        <h2 className="font-serif text-3xl font-semibold md:text-5xl">Hay được hỏi</h2>
+        <div className="mt-8 divide-y divide-rule border-y border-rule">
+          {[
+            ["Cortex có hứa em đạt band IELTS nào không?", "Không. Điểm trong app là ước lượng vốn từ, kèm khoảng rộng chừng một band. Điểm thi thật còn tùy ngữ pháp, nghe, nói và cách làm bài."],
+            ["Dữ liệu của học viên dưới 18 tuổi thì sao?", "Giáo viên và trung tâm chỉ thấy con số học (ngày học, từ nhớ, điểm), không thấy nội dung các em tự viết hay tự nói. Phụ huynh xem báo cáo tuần qua một liên kết riêng."],
+            ["Học viên phải trả tiền không?", "Không để học mỗi ngày. Học viên được thầy cô giao bài thì có gói Plus khi còn trong lớp."],
+            ["Dùng được trên điện thoại không?", "Lexica là ứng dụng web chạy trên điện thoại, thêm vào màn hình chính là dùng như app. Teach dùng tốt nhất trên máy tính và máy chiếu."],
+            ["Tôi muốn thử với lớp của mình?", "Xem trang thí điểm: một lớp, 4 đến 6 tuần, miễn phí trong thời gian thí điểm."],
+          ].map(([q, a]) => (
+            <details key={q} className="group py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-lg font-semibold">
+                {q}
+                <span aria-hidden className="font-hand text-3xl leading-none text-pen transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="mt-2 leading-relaxed text-ink-2">{a}</p>
+            </details>
+          ))}
+        </div>
       </section>
     </main>
   );

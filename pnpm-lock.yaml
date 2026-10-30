@@ -238,6 +238,9 @@ importers:
 
   apps/lexica:
     dependencies:
+      '@cortex/brand':
+        specifier: workspace:*
+        version: link:../../packages/brand
       '@cortex/classroom':
         specifier: workspace:*
         version: link:../../packages/classroom
