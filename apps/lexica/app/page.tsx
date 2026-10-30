@@ -12,6 +12,7 @@ import HomeHeader from './components/HomeHeader';
 import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
 import PaceCard from './components/PaceCard';
+import PaceNudge from './components/PaceNudge';
 import LevelHintCard from './components/LevelHintCard';
 import RetakeCard from './components/RetakeCard';
 import RecentWords from './components/RecentWords';
@@ -520,6 +521,7 @@ function HomeContent() {
             <PledgeCard />
             <div className="lg:hidden flex flex-col gap-4">
               <PaceCard />
+              <PaceNudge />
               <WordSteps />
             </div>
             <RecentWords />
@@ -535,6 +537,7 @@ function HomeContent() {
         {!sessionStarted && (
           <div className="hidden lg:flex flex-col gap-4 self-start">
             <PaceCard />
+            <PaceNudge />
             <WordSteps />
             <Motivation variant="column" />
           </div>

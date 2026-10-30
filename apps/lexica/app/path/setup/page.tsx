@@ -6,10 +6,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowRight, Briefcase, GraduationCap } from 'lucide-react';
 import { useLexicaStore } from '../../store/lexicaStore';
-import { BRANCH_HINT, BRANCH_LABEL, nextLevel, PACES, PATH_DAYS, type Branch } from '../../lib/journey/path';
+import { BRANCH_HINT, BRANCH_LABEL, nextLevel, PATH_DAYS, type Branch } from '../../lib/journey/path';
 import { STAGE_MINUTES } from '../../lib/journey/today';
 import { levelDef } from '../../lib/levels';
 import { localDate } from '../../lib/engagement/ghost';
+import PaceChooser from '../../components/PaceChooser';
 import { readBranchPick } from '../../lib/journey/branchPick';
 import type { DifficultyLevel } from '../../types/vocab';
 
@@ -71,23 +72,7 @@ function SetupContent() {
 
                 <fieldset>
                     <legend className="text-sm font-semibold text-ink mb-2">Nhịp mỗi ngày</legend>
-                    <div className="grid grid-cols-2 gap-2">
-                        {PACES.map((n) => (
-                            <button
-                                key={n}
-                                type="button"
-                                onClick={() => setPace(n)}
-                                aria-pressed={pace === n}
-                                className={`rounded-2xl border p-4 text-left ${pace === n ? 'border-accent bg-accent/10' : 'border-line bg-surface hover:border-line-strong'}`}
-                            >
-                                <span className="block text-2xl font-bold text-ink">{n}</span>
-                                <span className="block text-sm text-muted">từ mới/ngày · ~{n === 10 ? 10 : 13} phút</span>
-                            </button>
-                        ))}
-                    </div>
-                    <p data-testid="path-promise" className="mt-3 text-sm text-ink-2">
-                        Sau {PATH_DAYS} ngày: khoảng <span className="font-semibold text-ink">{pace * PATH_DAYS} từ</span> ở level {levelDef(level).label} qua bước Nhớ, và bạn luôn thấy mình đã nói được bao nhiêu từ.
-                    </p>
+                    <PaceChooser value={pace} onChange={setPace} />
                 </fieldset>
 
                 <div className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
