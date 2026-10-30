@@ -76,8 +76,17 @@ export function stop() {
 // ─── Natural voices (Cortex API) ─────────────────────────────────────────
 
 export const NATURAL_VOICES = ['Kore', 'Puck', 'Aoede'] as const;
-/** Off for the session after the API fails once, so every tap does not wait for it again. */
-let cloudOff = false;
+/**
+ * After the API fails (usually the voice model's rate limit, a few clips a
+ * minute), the natural voice rests for a short while so every tap does not
+ * wait for it, then is tried again. It used to stay off for the whole visit,
+ * so one hiccup turned every later line into the stiff system voice.
+ */
+export const CLOUD_REST_MS = 60_000;
+let cloudOffUntil = 0;
+const cloudOff = () => Date.now() < cloudOffUntil;
+/** Test hook: whether the natural voice is resting. */
+export const naturalVoiceResting = cloudOff;
 
 /**
  * The voice cache, read straight from public storage: the clips made in advance
@@ -90,20 +99,34 @@ export const VOICE_CACHE_URL = (() => {
     const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim().replace(/\/+$/, '');
     return supabase ? `${supabase}/storage/v1/object/public/lexica-content/cache/tts` : null;
 })();
-/** Cache files that turned out not to exist this visit: the API is asked for those. */
-const notStored = new Set<string>();
+/**
+ * Cache files that were not there a moment ago: the API is asked for those. The
+ * entry expires (the API saves what it makes) and is dropped once the clip played,
+ * so a line heard in the natural voice is replayed from the cache, not in the system voice.
+ */
+export const NOT_STORED_MS = 45_000;
+const notStored = new Map<string, number>();
+const isNotStored = (url: string) => {
+    const at = notStored.get(url);
+    if (at === undefined) return false;
+    if (Date.now() - at > NOT_STORED_MS) {
+        notStored.delete(url);
+        return false;
+    }
+    return true;
+};
 
 /** The cached file of a clip, or null (no cache configured, too long, or known missing). */
 export function storedVoiceUrl(text: string, opts: { slow?: boolean; voice?: string } = {}): string | null {
     const t = text.trim();
     if (!VOICE_CACHE_URL || !t || t.length > 1200) return null;
     const url = `${VOICE_CACHE_URL}/${voiceFileName({ text: t, voice: opts.voice, slow: opts.slow })}`;
-    return notStored.has(url) ? null : url;
+    return isNotStored(url) ? null : url;
 }
 
 export function naturalVoiceUrl(text: string, opts: { slow?: boolean; voice?: string } = {}): string | null {
     const t = text.trim();
-    if (!CORTEX_API_URL || cloudOff || !t || t.length > 1200) return null;
+    if (!CORTEX_API_URL || cloudOff() || !t || t.length > 1200) return null;
     const q = new URLSearchParams({ text: t });
     if (opts.slow) q.set('slow', '1');
     if (opts.voice) q.set('voice', opts.voice);
@@ -137,7 +160,7 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
             if (mine !== seq) return true;
             if (e instanceof DOMException && e.name === 'NotAllowedError') return false;
             // Not made yet: the API makes it (and caches it for everyone).
-            notStored.add(stored);
+            notStored.set(stored, Date.now());
         }
     }
     const url = naturalVoiceUrl(text, opts);
@@ -163,9 +186,11 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
     } catch (e) {
         if (mine !== seq) return true;
         // Autoplay rules are not the API's fault; anything else turns it off for the session.
-        if (!(e instanceof DOMException && e.name === 'NotAllowedError')) cloudOff = true;
+        if (!(e instanceof DOMException && e.name === 'NotAllowedError')) cloudOffUntil = Date.now() + CLOUD_REST_MS;
         return false;
     }
+    // It played: the API has made the clip, so it is a stored file from now on
+    if (stored) notStored.delete(stored);
     if (opts.wait) await untilDone(el);
     return true;
 }

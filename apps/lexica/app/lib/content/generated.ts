@@ -7,11 +7,27 @@
 import { CORTEX_API_URL } from '../cortexConfig';
 import { authHeaders, getCortexAuth } from '../cortexAuth';
 import { getCard } from './repository';
-import { parsePassage, type Passage } from './passages';
+import { deckWordsIn, parsePassage, type Passage } from './passages';
 import type { DifficultyLevel } from '../../types/vocab';
 
 const KEY = 'lexica-generated-readings-v1';
 const KEEP = 30;
+
+/** Longest the learner waits for a written reading before the fallback. */
+export const READING_TIMEOUT_MS = 30_000;
+/** Share of the asked-for words a reading must contain to be called "written for you". */
+export const MIN_COVERAGE = 0.6;
+
+/** How many of these words (card ids) the passage text contains, with endings (plan, planned). */
+export function wordsIn(text: string, words: readonly { id: string; word: string }[]): string[] {
+    return deckWordsIn(text, words);
+}
+
+/** True when the text holds enough of the words it was written around. */
+export function coversWords(text: string, words: readonly { id: string; word: string }[]): boolean {
+    if (words.length === 0) return true;
+    return wordsIn(text, words).length >= Math.ceil(words.length * MIN_COVERAGE);
+}
 
 export const canGenerateReading = () => Boolean(CORTEX_API_URL);
 
@@ -58,6 +74,7 @@ export async function generatedReading(cardIds: readonly string[], level: Diffic
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(auth ? authHeaders(auth) : {}) },
         body: JSON.stringify({ level, kind, words }),
+        signal: AbortSignal.timeout(READING_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`reading ${res.status}`);
     const body = (await res.json()) as { id?: string; title?: string; text?: string; translation?: string; questions?: unknown[] };
@@ -74,6 +91,8 @@ export async function generatedReading(cardIds: readonly string[], level: Diffic
         ...(kind === 'dialogue' ? { kind } : {}),
     });
     if (!passage) throw new Error('bad reading');
+    // Never call a text "written for you" when it does not hold your words
+    if (!coversWords(passage.text, words)) throw new Error('reading misses the words');
     writeCache(key, passage);
     return passage;
 }

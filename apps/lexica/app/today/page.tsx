@@ -11,7 +11,7 @@ import { countSteps } from '../lib/journey/steps';
 import { BRANCH_LABEL, currentDay, dueCheckpoint, PATH_DAYS } from '../lib/journey/path';
 import { localDate } from '../lib/engagement/ghost';
 import { getAllCards, getCard, getCurrentDrop, getPassage, useContentVersion } from '../lib/content/repository';
-import { generatedReading } from '../lib/content/generated';
+import { generatedReading, wordsIn } from '../lib/content/generated';
 import type { Passage } from '../lib/content/passages';
 import { buildSets } from '../lib/engagement/collection';
 import { nearestSet, type LuckyReward } from '../lib/engagement/session';
@@ -205,10 +205,23 @@ function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; 
         );
     }
     if ('passage' in state) return <PassageReader passage={state.passage} onDone={() => onDone('ai')} />;
+    const asked = ids.map((id) => getCard(id)).filter((c): c is NonNullable<ReturnType<typeof getCard>> => Boolean(c));
     const fallback = fallbackId ? getPassage(fallbackId) : undefined;
-    if (fallback) return <PassageReader passage={fallback} onDone={() => onDone('ready')} />;
+    // A ready text is offered only when it really holds some of today's words, and it says what it is
+    const held = fallback ? wordsIn(fallback.text, asked) : [];
+    if (fallback && held.length > 0) {
+        const names = held.map((id) => getCard(id)?.word.toLowerCase()).filter(Boolean).join(', ');
+        return (
+            <div className="space-y-3">
+                <p data-testid="reading-fallback" className="rounded-xl border border-line bg-surface-2/40 px-4 py-3 text-sm text-ink-2">
+                    Chưa viết được đoạn riêng cho bạn, nên đây là một đoạn có sẵn có {names}.
+                </p>
+                <PassageReader passage={fallback} onDone={() => onDone('ready')} />
+            </div>
+        );
+    }
     if (quoteWord) return <QuoteMeet cardId={quoteWord} onDone={() => onDone('quote')} />;
-    return <Skip text="Chưa viết được đoạn đọc cho từ của bạn (mất kết nối). Mai thử lại nhé." onDone={() => onDone('none')} />;
+    return <Skip text="Chưa viết được đoạn đọc cho từ của bạn (mất kết nối hoặc đang quá tải). Mai thử lại nhé." onDone={() => onDone('none')} />;
 }
 
 function Skip({ text, onDone }: { text: string; onDone: () => void }) {
