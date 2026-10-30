@@ -16,17 +16,24 @@ export default function BranchCompare({ defaultOpen = false }: { defaultOpen?: b
             </button>
             {open && (
                 <div data-testid="branch-compare" className="px-3 pb-3 space-y-3">
-                    {BRANCH_ROWS.map((r) => (
-                        <div key={r.label} className="text-xs">
-                            <p className="font-mono text-[10px] uppercase tracking-wider text-subtle">{r.label}</p>
-                            <p className="mt-1 text-ink-2">
-                                <span className="font-semibold text-ink">{BRANCH_LABEL.cert}:</span> {r.cert}
-                            </p>
-                            <p className="mt-0.5 text-ink-2">
-                                <span className="font-semibold text-ink">{BRANCH_LABEL.talk}:</span> {r.talk}
-                            </p>
-                        </div>
-                    ))}
+                    <table className="w-full text-xs">
+                        <thead>
+                            <tr className="text-left text-subtle">
+                                <th className="py-1 font-normal" />
+                                <th className="py-1 font-semibold text-ink">{BRANCH_LABEL.cert}</th>
+                                <th className="py-1 font-semibold text-ink">{BRANCH_LABEL.talk}</th>
+                            </tr>
+                        </thead>
+                        <tbody className="text-ink-2 align-top">
+                            {BRANCH_ROWS.map((r) => (
+                                <tr key={r.label} className="border-t border-line">
+                                    <td className="py-1.5 pr-2 text-subtle">{r.label}</td>
+                                    <td className="py-1.5 pr-2">{r.cert}</td>
+                                    <td className="py-1.5">{r.talk}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                     <p className="text-xs text-muted">{BRANCH_SWITCH_NOTE}</p>
                 </div>
             )}

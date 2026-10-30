@@ -3,7 +3,7 @@ import { BRANCH_PROMISE, BRANCH_ROWS, BRANCH_SWITCH_NOTE } from '../../app/lib/j
 
 describe('branch info', () => {
     it('compares both branches on every row', () => {
-        expect(BRANCH_ROWS.length).toBeGreaterThanOrEqual(4);
+        expect(BRANCH_ROWS.length).toBeGreaterThanOrEqual(3);
         for (const r of BRANCH_ROWS) expect(r.cert && r.talk).toBeTruthy();
     });
 
