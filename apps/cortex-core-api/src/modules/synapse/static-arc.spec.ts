@@ -10,7 +10,15 @@ describe('static arcs (no AI)', () => {
   it('lists the school world and the first urban mission as authored', () => {
     const ids = authoredMissions().map((m) => m.missionId);
     expect(ids).toEqual(
-      expect.arrayContaining(['sc-m1', 'sc-m2', 'sc-m3', 'sc-m4', 'sc-m5', 'sc-m6', 'ur-m1']),
+      expect.arrayContaining([
+        'sc-m1',
+        'sc-m2',
+        'sc-m3',
+        'sc-m4',
+        'sc-m5',
+        'sc-m6',
+        'ur-m1',
+      ]),
     );
   });
 

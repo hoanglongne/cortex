@@ -1048,5 +1048,21 @@ export const SCHOOL_LORE: WorldLore = {
       objective: 'Tổ chức thành công sự kiện và ghi nhận công của cả nhóm.',
       scenarios: m4,
     },
+    {
+      id: 'sc-m5',
+      name: 'Chuyến Dã Ngoại',
+      briefing:
+        'Cô giao bạn lo việc di chuyển cho cả lớp trong chuyến đi cuối tuần. Mọi thứ đều có thể trục trặc: thiếu người, xe trễ, mưa, thậm chí lạc đường.',
+      objective: 'Đưa cả lớp đi và về an toàn.',
+      scenarios: m5,
+    },
+    {
+      id: 'sc-m6',
+      name: 'Bạn Cũ, Bạn Mới',
+      briefing:
+        'Bạn có nhóm bạn mới và một người bạn thân từ lớp 6 đang xa dần. Mỗi lựa chọn trong tuần này quyết định tình bạn nào còn lại.',
+      objective: 'Giữ được người bạn cũ mà không phải bỏ nhóm mới.',
+      scenarios: m6,
+    },
   ],
 };
