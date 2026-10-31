@@ -268,3 +268,24 @@ export function gameReview(answers: readonly GameAnswer[], known: (id: string) =
         recalled: [...right].filter((id) => !wrong.has(id) && known(id)),
     };
 }
+
+/** What a boss question looks like, so the screen knows how to show it. */
+export type BossMode = 'blitz' | 'detective' | 'liar' | 'cloze' | 'upgrade';
+export type BossRound = Choice & { mode: BossMode };
+
+/**
+ * Twelve questions in three phases, each harder than the last: meanings, then
+ * clues or the liar, then sentences from texts and upgrades. A phase that has
+ * no questions to give is filled with meanings.
+ */
+export function bossRounds(cards: readonly GameCard[], bank: readonly GameCard[], sentences: readonly string[], rand: Rand = Math.random): BossRound[] {
+    const tag = (rs: Choice[], mode: BossMode): BossRound[] => rs.map((r) => ({ ...r, mode }));
+    const phase1 = tag(blitzRounds(cards, bank, 4, rand), 'blitz');
+    let phase2 = tag(detectiveRounds(cards, bank, 2, rand), 'detective').concat(tag(liarRounds(cards, bank, 2, rand), 'liar'));
+    let phase3 = tag(clozeRounds(cards, bank, sentences, 2, rand), 'cloze').concat(tag(upgradeRounds(cards, 2, rand), 'upgrade'));
+    const used = new Set([...phase1, ...phase2, ...phase3].map((r) => r.cardId));
+    const spare = tag(blitzRounds(cards.filter((c) => !used.has(c.id)), bank, 8, rand), 'blitz');
+    if (phase2.length < 4) phase2 = phase2.concat(spare.splice(0, 4 - phase2.length));
+    if (phase3.length < 4) phase3 = phase3.concat(spare.splice(0, 4 - phase3.length));
+    return [...phase1, ...shuffle(phase2, rand), ...shuffle(phase3, rand)];
+}

@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { use, useMemo, useState } from 'react';
 import { notFound } from 'next/navigation';
 import { getPassages } from '../../lib/content/repository';
-import { blitzRounds, clozeRounds, detectiveRounds, liarRounds, listenRounds, sentencesOf, upgradeRounds } from '../../lib/games/rounds';
+import { bossRounds, blitzRounds, clozeRounds, detectiveRounds, liarRounds, listenRounds, sentencesOf, upgradeRounds } from '../../lib/games/rounds';
+import BossGame from '../BossGame';
 import ChainGame from '../ChainGame';
+import GridGame from '../GridGame';
 import MatchGame from '../MatchGame';
 import McqGame, { type McqMode } from '../McqGame';
 import SpellGame from '../SpellGame';
@@ -21,12 +23,17 @@ const MCQ: Record<McqMode, { make: Make; n: number }> = {
     cloze: { make: (k, b, n) => clozeRounds(k, b, sentencesOf(getPassages().filter((p) => p.kind !== 'dialogue').map((p) => p.text)), n), n: 8 },
     upgrade: { make: (k, _b, n) => upgradeRounds(k, n), n: 8 },
 };
-const IDS = ['blitz', 'detective', 'liar', 'listen', 'cloze', 'upgrade', 'match', 'spell', 'chain'];
+const IDS = ['boss', 'grid', 'blitz', 'detective', 'liar', 'listen', 'cloze', 'upgrade', 'match', 'spell', 'chain'];
 
 export default function GamePage({ params }: { params: Promise<{ game: string }> }) {
     const { game } = use(params);
     if (!IDS.includes(game)) notFound();
     return <Play game={game} />;
+}
+
+/** Twelve boss questions: meanings, then clues or the liar, then sentences and upgrades. */
+function bossFor(known: GameCard[], bank: GameCard[]) {
+    return bossRounds(known, bank, sentencesOf(getPassages().filter((p) => p.kind !== 'dialogue').map((p) => p.text)));
 }
 
 function Play({ game }: { game: string }) {
@@ -47,6 +54,10 @@ function Play({ game }: { game: string }) {
         );
     } else if (mcq) {
         body = <McqGame key={round} mode={game as McqMode} rounds={rounds} onAgain={again} />;
+    } else if (game === 'boss') {
+        body = <BossGame key={round} rounds={bossFor(known, bank)} onAgain={again} />;
+    } else if (game === 'grid') {
+        body = <GridGame key={round} cards={known} onAgain={again} />;
     } else if (game === 'match') {
         body = <MatchGame key={round} cards={known} onAgain={again} />;
     } else if (game === 'spell') {
