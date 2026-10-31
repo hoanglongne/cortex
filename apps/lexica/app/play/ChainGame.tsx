@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
-import { botReply, CHANCES, check, makeDict, MESSAGES, TURN_SECONDS, wordScore, type Dict } from '../lib/games/chain';
+import { botReply, CHANCES, check, describeLimits, limitsAt, makeDict, MESSAGES, RULE_LETTERS, TURN_SECONDS, wordScore, type Dict } from '../lib/games/chain';
 import type { GameAnswer, GameCard } from '../lib/games/rounds';
 import { Bar, Over } from './Shell';
 import { edge, GAME_COLOR, tint } from './theme';
@@ -44,6 +44,10 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
     const [end, setEnd] = useState<string | null>(null);
     const [score, setScore] = useState(0);
     const [answers, setAnswers] = useState<GameAnswer[]>([]);
+    const [letter] = useState(() => RULE_LETTERS[Math.floor(Math.random() * RULE_LETTERS.length)]);
+    const mine = chain.filter((x) => x.who === 'me').length;
+    const limits = limitsAt(mine + 1, letter);
+    const conditions = describeLimits(limits);
     const busy = useRef(false);
     const [thinking, setThinking] = useState(false);
     const reply = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -66,10 +70,10 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
     const play = () => {
         const w = typed.trim().toLowerCase();
         if (!w || busy.current || end || thinking) return;
-        const verdict = check(last, w, used, dict, extra);
+        const verdict = check(last, w, used, dict, extra, limits);
         if (verdict !== 'ok') {
             setMsg(MESSAGES[verdict]);
-            if (verdict !== 'start') {
+            if (verdict === 'used' || verdict === 'nonword') {
                 // A rejected word costs a chance; a wrong first letter is just a slip
                 const next = chances - 1;
                 setChances(next);
@@ -119,6 +123,12 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
                     <Heart key={n} className={`h-4 w-4 ${n < chances ? 'fill-danger text-danger' : 'text-subtle'}`} />
                 ))}
             </div>
+            {limits.fresh && (
+                <p className="rounded-xl border border-warning/50 bg-warning/10 px-3 py-2 text-sm font-semibold text-warning" role="status">
+                    Luật mới từ lượt này: {limits.fresh}
+                </p>
+            )}
+            {conditions.length > 0 && !limits.fresh && <p className="text-xs text-warning">Điều kiện: {conditions.join(', ')}</p>}
             <motion.div key={last} initial={{ scale: 0.96, opacity: 0.6 }} animate={{ scale: 1, opacity: 1 }} className="rounded-3xl border p-5 text-center" style={{ background: tint(c, 10), borderColor: edge(c, 36) }}>
                 <p className="text-xs text-muted">{chain.length === 1 ? "Máy ra từ đầu tiên. Nối tiếp bằng chữ cuối" : "Từ mới nhất của máy. Nối tiếp bằng chữ cuối"}</p>
                 <p className="mt-1 text-4xl font-bold tracking-tight text-ink">
@@ -163,7 +173,7 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
                 </button>
             </form>
             {msg && <p className="text-xs text-warning">{msg}</p>}
-            <p className="text-xs text-subtle">Mọi từ tiếng Anh đúng chính tả đều được. Từ bạn đã học được nhiều điểm hơn nhiều.</p>
+            <p className="text-xs text-subtle">Mọi từ tiếng Anh đúng chính tả đều được. Từ bạn đã học được nhiều điểm hơn nhiều. Từ lượt 6, luật khó dần.</p>
         </div>
     );
 }

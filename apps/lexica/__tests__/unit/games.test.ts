@@ -44,8 +44,12 @@ describe('games', () => {
                 expect(cut.length).toBeGreaterThan(0);
                 expect(cut).not.toContain(q.answer);
             }
-            // The meaning rules out all three others
-            expect(q.cuts![q.cuts!.length - 1]).toHaveLength(3);
+            // The lineup thins gradually: before the meaning, at most two of the three others are out
+            const before = new Set(q.cuts!.slice(0, -1).flat());
+            expect(before.size).toBeLessThanOrEqual(2);
+            for (const cut of q.cuts!.slice(0, -1)) expect(cut.length).toBeLessThanOrEqual(2);
+            // The meaning closes the case
+            expect(ruledOut(q.cuts, q.cuts!.length).size).toBe(3);
             for (const c of q.clues!) expect(c).not.toContain('___');
         }
         const q = r[0];

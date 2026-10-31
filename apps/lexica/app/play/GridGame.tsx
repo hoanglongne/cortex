@@ -9,16 +9,23 @@ import { Bar, Over } from './Shell';
 import { edge, GAME_COLOR, tint } from './theme';
 
 const SECONDS = 90;
-const WORDS = 5;
+const WORDS = 4;
+/** Seconds added each time a board is cleared. */
+const BONUS_SECONDS = 25;
 const HINT_COST = 15;
 
 /**
- * Bẫy chữ: a 4×4 grid with five of my words hidden as paths. The clues are
- * their meanings; tap touching letters to trace a word. Longer words score
- * far more; a hint lights the first letter of the next word for a few points.
+ * Bẫy chữ: a 4×4 grid with some of my words hidden as paths. The clues are
+ * their meanings; tap touching letters to trace a word. Clear a board and a
+ * new one (with one more word, up to six) comes with extra seconds, until time
+ * runs out. Longer words score far more; a hint lights the first letter of
+ * the next word for a few points.
  */
 export default function GridGame({ cards, onAgain }: { cards: GameCard[]; onAgain: () => void }) {
-    const board = useMemo(() => makeBoard(cards, WORDS), [cards]);
+    const [round, setRound] = useState(0);
+    const board = useMemo(() => makeBoard(cards, Math.min(WORDS + round, 6)), [cards, round]);
+    const [past, setPast] = useState<GameAnswer[]>([]);
+    const [cleared, setCleared] = useState(0);
     const [path, setPath] = useState<number[]>([]);
     const [found, setFound] = useState<string[]>([]);
     const [score, setScore] = useState(0);
@@ -28,7 +35,8 @@ export default function GridGame({ cards, onAgain }: { cards: GameCard[]; onAgai
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const c = GAME_COLOR.grid;
     const all = board.placed.length;
-    const finished = left <= 0 || found.length === all;
+    const finished = left <= 0 || (all === 0 && round > 0);
+    const done = all > 0 && found.length === all;
 
     useEffect(() => {
         if (finished) return;
@@ -36,6 +44,22 @@ export default function GridGame({ cards, onAgain }: { cards: GameCard[]; onAgai
         return () => clearInterval(t);
     }, [finished]);
     useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+
+    useEffect(() => {
+        if (!done || left <= 0) return;
+        // Board cleared: bank its words, add time, deal the next board
+        const t = setTimeout(() => {
+            setPast((a) => [...a, ...board.placed.map((p) => ({ cardId: p.cardId, correct: true }))]);
+            setCleared((n) => n + 1);
+            setLeft((l) => l + BONUS_SECONDS);
+            setScore((s) => s + 50);
+            setFound([]);
+            setPath([]);
+            setHintCell(null);
+            setRound((r) => r + 1);
+        }, 700);
+        return () => clearTimeout(t);
+    }, [done]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const spelled = path.map((i) => board.cells[i]).join('');
 
@@ -70,19 +94,22 @@ export default function GridGame({ cards, onAgain }: { cards: GameCard[]; onAgai
     };
 
     if (finished) {
-        const answers: GameAnswer[] = board.placed.map((p) => ({ cardId: p.cardId, correct: found.includes(p.word) }));
-        const timeBonus = found.length === all ? Math.max(0, left) * 2 : 0;
+        const answers: GameAnswer[] = [...past, ...board.placed.map((p) => ({ cardId: p.cardId, correct: found.includes(p.word) }))];
+        const total = past.length + all;
+        const got = past.length + found.length;
         return (
             <div className="space-y-4">
-                <Bar game="grid" title="Bẫy chữ" score={score + timeBonus} progress={found.length / Math.max(1, all)} />
-                <Over game="grid" score={score + timeBonus} answers={answers} onAgain={onAgain} line={found.length === all ? `Xong sớm, +${timeBonus} điểm thời gian` : `${found.length}/${all} từ`} />
+                <Bar game="grid" title="Bẫy chữ" score={score} progress={got / Math.max(1, total)} />
+                <Over game="grid" score={score} answers={answers} onAgain={onAgain} line={`${cleared} bảng xong · ${got} từ`} />
             </div>
         );
     }
 
     return (
         <div className="space-y-4">
-            <Bar game="grid" title="Bẫy chữ" score={score} progress={left / SECONDS} right={<span className={`mr-1 ${left <= 15 ? 'text-danger' : 'text-subtle'}`}>{left}s</span>} />
+            <Bar game="grid" title="Bẫy chữ" score={score} progress={Math.min(1, left / SECONDS)} right={<span className={`mr-1 ${left <= 15 ? 'text-danger' : 'text-subtle'}`}>{left}s</span>} />
+
+            <p className="text-center text-xs text-muted">Bảng {round + 1}{cleared > 0 ? ` · xong ${cleared} bảng` : ''} · xong bảng được +{BONUS_SECONDS}s</p>
 
             {/* Clues: one per hidden word */}
             <ul className="grid gap-1.5" aria-label="Từ cần tìm">

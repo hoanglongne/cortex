@@ -10,7 +10,7 @@ import { DUEL_MAX, DUEL_MIN, duelCreate, duelInbox, duelLine, duelGameQuestions,
 import type { BuddyInfo } from '../lib/buddy';
 
 /** Words I learned, newest first (card ids). */
-function useKnownWords(): string[] {
+export function useKnownWords(): string[] {
     const journeys = useLexicaStore((s) => s.journeys);
     return Object.entries(journeys)
         .filter(([, j]) => j.understoodAt > 0)

@@ -118,7 +118,7 @@ export async function acceptInvite(
         supabase.from('buddy_invites').update({ accepted: true }).eq('code', code.toUpperCase()),
     ]);
 
-    if (pairErr) return { success: false, error: 'Lỗi khi kết nối. Thử lại nhé.' };
+    if (pairErr) return { success: false, error: pairErr.message.includes('blocked') ? 'Không kết bạn được với người này.' : 'Lỗi khi kết nối. Thử lại nhé.' };
     return { success: true };
 }
 
