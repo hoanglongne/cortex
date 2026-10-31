@@ -289,3 +289,24 @@ export function bossRounds(cards: readonly GameCard[], bank: readonly GameCard[]
     if (phase3.length < 4) phase3 = phase3.concat(spare.splice(0, 4 - phase3.length));
     return [...phase1, ...shuffle(phase2, rand), ...shuffle(phase3, rand)];
 }
+
+/** `n` mixed questions for a room: "easy" leans on meanings and clues, "hard" on sentences and the liar. */
+export function mixedRounds(level: 'easy' | 'hard', cards: readonly GameCard[], bank: readonly GameCard[], sentences: readonly string[], n: number, rand: Rand = Math.random): BossRound[] {
+    const tag = (rs: Choice[], mode: BossMode): BossRound[] => rs.map((r) => ({ ...r, mode }));
+    const pools: BossRound[][] =
+        level === 'easy'
+            ? [tag(blitzRounds(cards, bank, n, rand), 'blitz'), tag(detectiveRounds(cards, bank, 2, rand), 'detective'), tag(liarRounds(cards, bank, 1, rand), 'liar')]
+            : [tag(clozeRounds(cards, bank, sentences, 2, rand), 'cloze'), tag(upgradeRounds(cards, 1, rand), 'upgrade'), tag(liarRounds(cards, bank, 2, rand), 'liar'), tag(detectiveRounds(cards, bank, 1, rand), 'detective')];
+    const seen = new Set<string>();
+    const picked: BossRound[] = [];
+    for (const r of shuffle(pools.flat(), rand)) {
+        if (picked.length >= n) break;
+        if (seen.has(r.cardId)) continue;
+        seen.add(r.cardId);
+        picked.push(r);
+    }
+    if (picked.length < n) {
+        for (const r of tag(blitzRounds(cards.filter((c) => !seen.has(c.id)), bank, n - picked.length, rand), 'blitz')) picked.push(r);
+    }
+    return picked.slice(0, n);
+}

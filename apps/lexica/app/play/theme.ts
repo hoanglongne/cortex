@@ -1,5 +1,5 @@
 /** Each game has one hue (app/globals.css, --color-game-*); the page and the game both read it from here. */
-export type GameId = 'boss' | 'grid' | 'blitz' | 'detective' | 'liar' | 'listen' | 'cloze' | 'upgrade' | 'match' | 'spell' | 'chain';
+export type GameId = 'boss' | 'grid' | 'rain' | 'run' | 'blitz' | 'detective' | 'liar' | 'listen' | 'cloze' | 'upgrade' | 'match' | 'spell' | 'chain';
 
 const HUE = {
     amber: 'var(--color-warning)',
@@ -12,6 +12,8 @@ const HUE = {
 
 export const GAME_COLOR: Record<GameId, string> = {
     boss: 'var(--color-danger)',
+    rain: HUE.sky,
+    run: HUE.violet,
     grid: HUE.sky,
     blitz: HUE.amber,
     detective: HUE.sky,

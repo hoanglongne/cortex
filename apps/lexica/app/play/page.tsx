@@ -3,15 +3,17 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Check, Ear, Grid3x3, Skull, FileText, Flame, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap, type LucideIcon } from 'lucide-react';
+import { ArrowUpRight, CloudRain, Check, Compass, Ear, Grid3x3, Skull, FileText, Flame, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap, type LucideIcon } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
 import { localDate } from '../lib/engagement/ghost';
 import { MIN_WORDS, usePool } from './usePool';
 import { edge, GAME_COLOR, tint, type GameId } from './theme';
 
-/** The two games built on something other than choosing an answer. */
+/** Games built on something other than picking one of four. */
 const FEATURED: { id: GameId; name: string; hint: string; icon: LucideIcon; tag: string }[] = [
+    { id: 'run', name: 'Hành trình', hint: 'Bảy tầng, mỗi tầng chọn một trong hai cánh cửa: chiến đấu, kho báu, nghỉ chân. Tim không tự hồi', icon: Compass, tag: 'Mới' },
+    { id: 'rain', name: 'Mưa từ', hint: 'Nghĩa rơi từ trên xuống, gõ từ tiếng Anh để phá trước khi chạm đất', icon: CloudRain, tag: 'Mới' },
     { id: 'boss', name: 'Trùm cuối', hint: 'Đánh bại trùm bằng cả 12 câu: đúng nhanh gây đau, đúng liền là đòn mạnh, sai mất tim', icon: Skull, tag: 'Mới' },
     { id: 'grid', name: 'Bẫy chữ', hint: 'Tìm 5 từ giấu trong lưới chữ 4×4 từ nghĩa của chúng. Từ dài, điểm cao', icon: Grid3x3, tag: 'Mới' },
 ];

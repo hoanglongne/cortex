@@ -8,6 +8,8 @@ import { bossRounds, blitzRounds, clozeRounds, detectiveRounds, liarRounds, list
 import BossGame from '../BossGame';
 import ChainGame from '../ChainGame';
 import GridGame from '../GridGame';
+import RainGame from '../RainGame';
+import RunGame from '../RunGame';
 import MatchGame from '../MatchGame';
 import McqGame, { type McqMode } from '../McqGame';
 import SpellGame from '../SpellGame';
@@ -23,7 +25,7 @@ const MCQ: Record<McqMode, { make: Make; n: number }> = {
     cloze: { make: (k, b, n) => clozeRounds(k, b, sentencesOf(getPassages().filter((p) => p.kind !== 'dialogue').map((p) => p.text)), n), n: 8 },
     upgrade: { make: (k, _b, n) => upgradeRounds(k, n), n: 8 },
 };
-const IDS = ['boss', 'grid', 'blitz', 'detective', 'liar', 'listen', 'cloze', 'upgrade', 'match', 'spell', 'chain'];
+const IDS = ['run', 'rain', 'boss', 'grid', 'blitz', 'detective', 'liar', 'listen', 'cloze', 'upgrade', 'match', 'spell', 'chain'];
 
 export default function GamePage({ params }: { params: Promise<{ game: string }> }) {
     const { game } = use(params);
@@ -54,6 +56,10 @@ function Play({ game }: { game: string }) {
         );
     } else if (mcq) {
         body = <McqGame key={round} mode={game as McqMode} rounds={rounds} onAgain={again} />;
+    } else if (game === 'run') {
+        body = <RunGame key={round} cards={known} bank={bank} sentences={sentencesOf(getPassages().filter((p) => p.kind !== 'dialogue').map((p) => p.text))} onAgain={again} />;
+    } else if (game === 'rain') {
+        body = <RainGame key={round} cards={known} onAgain={again} />;
     } else if (game === 'boss') {
         body = <BossGame key={round} rounds={bossFor(known, bank)} onAgain={again} />;
     } else if (game === 'grid') {
