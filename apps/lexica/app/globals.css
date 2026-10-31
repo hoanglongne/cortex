@@ -1,4 +1,11 @@
 @import "tailwindcss";
+@import "./fonts.css";
+
+/* Fonts are files in app/fonts (no Google Fonts at build time) */
+:root {
+  --font-space-grotesk: "Space Grotesk";
+  --font-jetbrains-mono: "JetBrains Mono";
+}
 
 /*
  * LEXICA design system ("Focus").
