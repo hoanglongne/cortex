@@ -1,4 +1,14 @@
 @import "tailwindcss";
+@import "./fonts.css";
+
+/* Fonts are files in src/app/fonts (no Google Fonts at build time) */
+:root {
+  --font-space-grotesk: "Space Grotesk";
+  --font-jetbrains-mono: "JetBrains Mono";
+  --font-be-vietnam: "Be Vietnam Pro";
+  --font-lora: "Lora";
+  --font-patrick: "Patrick Hand";
+}
 
 :root {
   --background: #0f0f0f;
