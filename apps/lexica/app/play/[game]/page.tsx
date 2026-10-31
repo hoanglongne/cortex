@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import { notFound } from 'next/navigation';
 import { getPassages } from '../../lib/content/repository';
 import { bossRounds, blitzRounds, clozeRounds, detectiveRounds, liarRounds, listenRounds, sentencesOf, upgradeRounds } from '../../lib/games/rounds';
@@ -14,6 +14,7 @@ import MatchGame from '../MatchGame';
 import McqGame, { type McqMode } from '../McqGame';
 import SpellGame from '../SpellGame';
 import { MIN_WORDS, usePool } from '../usePool';
+import { capture } from '../../lib/productAnalytics';
 import type { Choice, GameCard } from '../../lib/games/rounds';
 
 type Make = (known: GameCard[], bank: GameCard[], n: number) => Choice[];
@@ -43,6 +44,10 @@ function Play({ game }: { game: string }) {
     // A new number gives a fresh set of rounds for "Chơi lại"
     const [round, setRound] = useState(0);
     const again = () => setRound((r) => r + 1);
+    // One event for every game started (and again for "Chơi lại")
+    useEffect(() => {
+        capture('game_start', { game, round });
+    }, [game, round]);
     const mcq = game in MCQ ? MCQ[game as McqMode] : null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const rounds = useMemo(() => (mcq ? mcq.make(known, bank, mcq.n) : []), [mcq, known, bank, round]);

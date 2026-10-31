@@ -91,3 +91,13 @@ Nếu chỉ chọn một việc: **bước 2**, vì nó làm game có lý do t�
 1. Đồng ý gộp bảy game thành ba game lõi (bỏ Memory/Bingo/Scramble cũ sau khi bản mới chạy ổn) không?
 2. Chơi game có được tính vào chuỗi ngày không, hay chỉ phiên Hôm nay mới tính? (Đề xuất: chỉ tính mục tiêu ngày phụ, không thay phiên Hôm nay.)
 3. Có làm bước 1 (đo trước) không, hay đi thẳng bước 2?
+
+## 7. Tình trạng (31/10/2026)
+
+Đã làm (issue #80): 13 game ở `/play` (Chớp, Thám tử từ, Từ nói dối, Nghe và bắt từ, Ghép, Gõ, Nối chuỗi, Điền đoạn, Nâng cấp câu, Trùm cuối, Bẫy chữ, Mưa từ, Hành trình), mục tiêu ngày, bảng tuần với bạn học, thách đấu Từ vựng, Từ nói dối và Thám tử.
+
+Đã dọn: bảy game cũ (Speed Quiz, Memory Match, Type Challenge, Word Scramble, True/False Blitz, Combo Chain, Word Bingo), Game Hub và trang thách đấu bằng liên kết (`/challenge/<id>`, chuyển hướng sang `/play`). Trang "Từ của tôi" dẫn sang `/play`.
+
+Đo mức dùng: sự kiện `game_start` (game, lượt) và `game_finish` (game, điểm, số đúng, tổng) gửi qua PostHog khi có cấu hình. Sau 2 đến 3 tuần xem game nào được chơi tới cuối để quyết giữ, gộp hoặc bỏ.
+
+Chuyển sang #100 (Buddy): Nối chuỗi chơi đôi và các cách chơi cùng nhau thời gian thực.
