@@ -1,5 +1,10 @@
 /** Where each app lives. Set per deployment; a missing one hides its button. */
-const clean = (v: string | undefined) => (v ? v.replace(/\/+$/, '') : null);
+const clean = (v: string | undefined) => {
+    const t = v?.trim().replace(/\/+$/, '');
+    if (!t) return null;
+    // An address set without "https://" ("cortexedtech.vercel.app") is not a URL and broke the build
+    return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+};
 
 export const LEXICA_URL = clean(process.env.NEXT_PUBLIC_LEXICA_URL) ?? 'https://cortex-lexica.vercel.app';
 export const TEACH_URL = clean(process.env.NEXT_PUBLIC_TEACH_URL);
