@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLexicaStore } from '../store/lexicaStore';
 import { upsertDailyActivity } from '../lib/buddy';
+import { buddyWordsSet } from '../lib/buddySocial';
 import { localDate } from '../lib/engagement/ghost';
 
 /**
@@ -40,6 +41,9 @@ export function useActivitySync() {
                 goal_met: daysDone.includes(localDate()) || dailyProgress >= dailyGoal,
                 streak: currentStreak,
             });
+            // The card ids of today's words, for "Hôm nay bạn học gì" (buddies only; hidden when the learner chose so)
+            const ids = todayLearnedWords instanceof Set ? [...todayLearnedWords] : Object.keys(todayLearnedWords ?? {});
+            if (ids.length > 0) void buddyWordsSet(localDate(), ids).catch(() => undefined);
         }, 5000);
 
         return () => {

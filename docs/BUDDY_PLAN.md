@@ -101,3 +101,21 @@ Cột "SQL" ghi có cần bảng mới không (bạn chạy `teach_all.sql` mộ
 3. **Lời nhắn kèm quà:** cho gõ một dòng ngắn tự do (có lọc, chặn), hay chỉ chọn câu có sẵn (an toàn hơn, ít cá nhân hơn)? Đề xuất: dòng ngắn tự do kèm chặn và báo cáo.
 4. **Nhiệm vụ nhóm:** thua thì mất gì? Đề xuất: chỉ "con quái hồi máu" và nhóm tạm mất chuỗi nhóm một tuần, không mất gì của từng người.
 5. **Làm bước 0 trước** (đo, 2–3 ngày) hay đi thẳng vào bước 1?
+
+## 9. Đã quyết và đã làm (31/10/2026)
+
+Bạn quyết: làm hết các hướng, hướng nào không hiệu quả thì bỏ sau. Cho các câu hỏi ở mục 8, mình dùng mặc định đề xuất: lời nhắn tự do ngắn (60 chữ, không đường dẫn, có nút báo cáo), thua nhiệm vụ chỉ khiến con quái hồi thêm 15% máu tuần sau, đo bằng sự kiện thay vì làm riêng bước 0.
+
+| Hướng | Trạng thái | Ở đâu |
+|---|---|---|
+| B Hôm nay bạn học gì | Xong | `TodayWordsCard`, `buddy_words_*`, đồng bộ trong `useActivitySync` |
+| I Tặng từ | Xong | `GivePanel`, `GiftsCard`, `gift_*` |
+| C Đố nhau | Xong, dùng lại `duel_create` | `GivePanel` (chọn 5 đến 8 từ) |
+| A Nhiệm vụ nhóm | Xong, không cần bảng, tính từ `daily_activity` | `QuestCard`, `questWeek` |
+| G Khiên | Xong, mỗi người một khiên mỗi tuần | `shield_give`, `shields_team` |
+| E Giờ học chung | Bản nhẹ: hẹn giờ, cửa sổ vào học, tệp lịch .ics. **Chưa có thông báo đẩy**, chỉ thấy khi mở Buddy | `DatesCard`, `date_*` |
+| F, D, H, J | Chưa làm | |
+
+Sự kiện để đo: `buddy_view`, `buddy_learn_too`, `buddy_gift_sent`, `buddy_gift_opened`, `buddy_quiz_sent`, `buddy_shield`, `buddy_date_created`, `buddy_date_checkin`.
+
+Chưa làm trong phạm vi này: nhãn "Từ Hà tặng" trong hàng học (từ tặng chỉ vào hàng chờ như từ thường), thông báo đẩy cho giờ học chung, nút chặn riêng (xoá bạn đã gỡ mọi thứ).

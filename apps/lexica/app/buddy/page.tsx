@@ -27,8 +27,11 @@ import { upsertProfile } from '../lib/auth';
 import { localDate } from '../lib/engagement/ghost';
 import { DUEL_GAMES, type DuelGame } from '../lib/duels';
 import DuelsSection, { useStartDuel } from './DuelsSection';
-import { CheerButtons, CheersBanner, TeamCard } from './TeamCard';
-import { cheersToday, teamWeek, type CheerKind, type CheersToday } from '../lib/cheers';
+import { CheerButtons, CheersBanner } from './TeamCard';
+import { cheersToday, type CheerKind, type CheersToday } from '../lib/cheers';
+import { questWeek, shiftDate, shieldsTeam, weekDates, weekStart, type Quest, type Shield } from '../lib/buddySocial';
+import { capture } from '../lib/productAnalytics';
+import { DatesCard, GiftsCard, GivePanel, QuestCard, TodayWordsCard } from './Social';
 
 type Week = Record<string, Record<string, DailyActivity>>;
 
@@ -87,13 +90,18 @@ function Buddy() {
     const duel = useStartDuel();
     const [duelGame, setDuelGame] = useState<DuelGame>('words');
     const [cheers, setCheers] = useState<CheersToday | null>(null);
+    const [shields, setShields] = useState<Shield[]>([]);
+    const [social, setSocial] = useState(0);
 
     const load = useCallback(async (userId: string) => {
         setLoading(true);
         try {
             const list = await getMyBuddies(userId);
             setBuddies(list);
-            setWeek(await getWeek([userId, ...list.map((b) => b.id)]));
+            // Two weeks back: this week's monster and last week's result
+            setWeek(await getWeek([userId, ...list.map((b) => b.id)], 14));
+            shieldsTeam(shiftDate(weekStart(localDate()), -7)).then(setShields, () => undefined);
+            capture('buddy_view', { buddies: list.length });
             for (const b of list) void checkAndUpdateDuoStreak(b.pairId, userId, b.id);
             cheersToday().then(setCheers, () => undefined);
         } finally {
@@ -146,7 +154,10 @@ function Buddy() {
     const me = { id: user.id, name: profile?.nickname ?? 'Bạn' };
     const ranking = weekRanking([me, ...buddies.map((b) => ({ id: b.id, name: b.nickname }))], week);
     const days = lastDays(7);
-    const team = teamWeek([me, ...buddies.map((b) => ({ id: b.id, name: b.nickname }))], week, days, user.id, goalMet);
+    const people = [me, ...buddies.map((b) => ({ id: b.id, name: b.nickname }))];
+    const thisMonday = weekStart(today);
+    const lastQuest = questWeek({ people, week, dates: weekDates(shiftDate(thisMonday, -7)), shields, ended: true });
+    const quest: Quest = questWeek({ people, week, dates: weekDates(thisMonday), shields, me: user.id, forceToday: goalMet ? today : false, regrown: lastQuest.state === 'lost' && lastQuest.members.length > 1 && lastQuest.damage > 0 });
 
     return (
         <div className="min-h-screen bg-bg pb-8">
@@ -206,7 +217,10 @@ function Buddy() {
                 <CheersBanner cheers={cheers} />
 
                 {/* The group's week (direction A of #70) */}
-                {buddies.length > 0 && <TeamCard team={team} me={user.id} />}
+                <QuestCard quest={quest} last={lastQuest.members.length > 1 && lastQuest.damage > 0 ? lastQuest : null} meId={user.id} today={today} days={weekDates(thisMonday)} onShield={() => void load(user.id)} />
+                {buddies.length > 0 && <TodayWordsCard reloadKey={buddies.length + social} />}
+                {buddies.length > 0 && <GiftsCard reloadKey={buddies.length + social} />}
+                <DatesCard buddies={buddies} reloadKey={buddies.length} />
 
                 {/* Duels (direction B of #70): play with a buddy, not only look at their numbers */}
                 {buddies.length > 0 && <DuelsSection reloadKey={buddies.length} startError={duel.error} />}
@@ -282,6 +296,7 @@ function Buddy() {
                                 week={week[b.id]}
                                 today={today}
                                 myGoalMet={goalMet}
+                                onGift={() => setSocial((n) => n + 1)}
                                 onDuel={() => void duel.start(b, duelGame)}
                                 cheerSent={cheers?.sent[b.id]}
                                 onCheer={(k) => setCheers((c) => ({ received: c?.received ?? [], sent: { ...(c?.sent ?? {}), [b.id]: k } }))}
@@ -399,7 +414,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
     );
 }
 
-function BuddyCard({ buddy, days, week, today, myGoalMet, onDuel, duelBusy, cheerSent, onCheer, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onDuel: () => void; duelBusy: boolean; cheerSent: CheerKind | undefined; onCheer: (kind: CheerKind) => void; onRemove: () => void }) {
+function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBusy, cheerSent, onCheer, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onGift: () => void; onDuel: () => void; duelBusy: boolean; cheerSent: CheerKind | undefined; onCheer: (kind: CheerKind) => void; onRemove: () => void }) {
     const [confirm, setConfirm] = useState(false);
     const [nudged, setNudged] = useState('');
     const buddyMet = Boolean(buddy.today?.goal_met);
@@ -427,6 +442,7 @@ function BuddyCard({ buddy, days, week, today, myGoalMet, onDuel, duelBusy, chee
             <div className="mt-3 flex items-center justify-between gap-2">
                 <CheerButtons buddyId={buddy.id} sent={cheerSent} onSent={onCheer} />
             </div>
+            <GivePanel buddy={buddy} onDone={onGift} />
             <div className="mt-2 flex items-center justify-between gap-2">
                 <button onClick={onDuel} disabled={duelBusy} className="h-9 px-3 rounded-lg bg-accent text-on-accent text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
                     {duelBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Swords className="w-4 h-4" />} Thách đấu
