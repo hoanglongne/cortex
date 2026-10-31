@@ -4,6 +4,9 @@ import { useMemo, useState } from 'react';
 import type { GameAnswer, GameCard } from '../lib/games/rounds';
 import { matchBoard } from '../lib/games/rounds';
 import { Bar, Over } from './Shell';
+import { edge, GAME_COLOR, tint } from './theme';
+
+const PAIR_HUES = ['var(--color-game-sky)', 'var(--color-game-coral)', 'var(--color-game-mint)', 'var(--color-warning)', 'var(--color-accent)', 'var(--color-game-violet)'];
 
 const PAIRS = 6;
 
@@ -36,22 +39,30 @@ export default function MatchGame({ cards, onAgain }: { cards: GameCard[]; onAga
         }
     };
 
-    const total = new Set(board.map((t) => t.pair)).size;
+    const order = [...new Set(board.map((t) => t.pair))];
+    const total = order.length;
     const score = Math.max(0, done.length * 20 - misses * 5);
     const answers: GameAnswer[] = [...new Set(board.map((t) => t.pair))].map((id) => ({ cardId: id, correct: !wrong.includes(id) }));
 
     return (
         <div className="space-y-4">
-            <Bar title="Ghép" score={score} />
+            <Bar game="match" title="Ghép" score={score} progress={done.length / PAIRS} />
             {done.length === total ? (
-                <Over score={score} answers={answers} onAgain={onAgain} line={`${misses} lần nhầm`} />
+                <Over game="match" score={score} answers={answers} onAgain={onAgain} line={`${misses} lần nhầm`} />
             ) : (
                 <div className="grid grid-cols-2 gap-2">
                     {board.map((t) => {
                         const on = done.includes(t.pair);
-                        const state = on ? 'opacity-30' : flash.includes(t.key) ? 'border-danger bg-danger/10' : open === t.key ? 'border-accent bg-accent/10' : '';
+                        const hue = PAIR_HUES[order.indexOf(t.pair) % PAIR_HUES.length];
+                        const style = on
+                            ? { background: tint(hue, 22), borderColor: edge(hue, 60) }
+                            : open === t.key
+                              ? { background: tint(GAME_COLOR.match, 22), borderColor: GAME_COLOR.match }
+                              : flash.includes(t.key)
+                                ? { background: 'color-mix(in srgb, var(--color-danger) 16%, var(--color-surface))', borderColor: 'var(--color-danger)' }
+                                : undefined;
                         return (
-                            <button key={t.key} onClick={() => tap(t.key)} disabled={on} className={`min-h-16 px-3 py-2 rounded-xl border border-line bg-surface text-sm text-ink ${t.kind === 'word' ? 'font-semibold' : ''} ${state}`}>
+                            <button key={t.key} onClick={() => tap(t.key)} disabled={on} style={style} className={`min-h-16 px-3 py-2 rounded-2xl border border-line bg-surface text-sm text-ink transition-colors ${t.kind === 'word' ? 'font-semibold' : ''}`}>
                                 {t.text}
                             </button>
                         );

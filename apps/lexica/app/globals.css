@@ -36,6 +36,12 @@
   --color-arena-4: #9C7A17;
   --color-on-arena: #FFFFFF;
 
+  /* Games (/play): one hue per game, bright enough on the dark surfaces */
+  --color-game-sky: #62B0F0;
+  --color-game-coral: #FF8A6B;
+  --color-game-mint: #4FD6A6;
+  --color-game-violet: #AE97FF;
+
   --color-danger: #FF6B5B;
   --color-warning: #F5B83D;
   --color-on-status: #0E0F11;

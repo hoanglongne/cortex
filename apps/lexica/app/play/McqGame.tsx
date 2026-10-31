@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Volume2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Check, Flame, Volume2, X } from 'lucide-react';
 import { AudioService } from '../lib/audio/AudioService';
 import { detectivePoints, type Choice, type GameAnswer } from '../lib/games/rounds';
 import { Bar, Over } from './Shell';
+import { ANSWER_LETTER, ANSWER_TILE, edge, GAME_COLOR, tint } from './theme';
 
 export type McqMode = 'blitz' | 'detective' | 'liar' | 'listen' | 'cloze' | 'upgrade';
 
@@ -60,23 +62,31 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
     if (over) {
         return (
             <div className="space-y-4">
-                <Bar title={TITLE[mode]} score={score} />
-                <Over score={score} answers={answers} onAgain={onAgain} />
+                <Bar game={mode} title={TITLE[mode]} score={score} progress={1} />
+                <Over game={mode} score={score} answers={answers} onAgain={onAgain} />
             </div>
         );
     }
 
     return (
         <div className="space-y-4">
-            <Bar title={TITLE[mode]} score={score} right={mode === 'blitz' ? <span className="mr-2 text-subtle">{left}s</span> : undefined} />
-            {mode !== 'blitz' && (
-                <p className="text-xs text-subtle text-center">
-                    Câu {i + 1}/{rounds.length}
-                </p>
-            )}
-            {mode === 'blitz' && streak >= 2 && <p className="text-xs text-warning text-center">Chuỗi đúng {streak}</p>}
+            <Bar game={mode} title={TITLE[mode]} score={score} progress={mode === 'blitz' ? left / BLITZ_SECONDS : i / rounds.length} right={mode === 'blitz' ? <span className={`mr-1 ${left <= 10 ? 'text-danger' : 'text-subtle'}`}>{left}s</span> : undefined} />
+            <div className="flex h-6 items-center justify-center">
+                {mode !== 'blitz' ? (
+                    <p className="text-xs text-subtle">
+                        Câu {i + 1}/{rounds.length}
+                    </p>
+                ) : (
+                    streak >= 2 && (
+                        <motion.p key={streak} initial={{ scale: 1.4 }} animate={{ scale: 1 }} className="flex items-center gap-1 rounded-full px-3 py-0.5 text-xs font-semibold text-warning" style={{ background: edge('var(--color-warning)', 16) }}>
+                            <Flame className="h-3.5 w-3.5" /> Chuỗi đúng ×{streak}
+                        </motion.p>
+                    )
+                )}
+            </div>
 
-            <div className="rounded-2xl border border-line bg-surface p-5 space-y-3 min-h-32">
+            <div className="relative overflow-hidden rounded-3xl border p-5 space-y-3 min-h-32" style={{ background: tint(GAME_COLOR[mode], 9), borderColor: edge(GAME_COLOR[mode], 30) }}>
+                <span aria-hidden className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full" style={{ background: edge(GAME_COLOR[mode], 12) }} />
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{mode === 'blitz' ? 'Từ nào có nghĩa này?' : mode === 'liar' ? 'Tìm cụm bị tráo từ' : mode === 'cloze' ? 'Chọn từ điền vào chỗ trống' : mode === 'upgrade' ? 'Nâng cấp câu' : q.prompt}</p>
                 {mode === 'detective' &&
                     shown.map((c, k) => (
@@ -100,13 +110,24 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
                 </button>
             )}
 
-            <div className="grid gap-2">
+            <div className="grid gap-2.5">
                 {q.options.map((o, n) => {
-                    const state = picked === null ? '' : n === q.answer ? 'border-accent bg-accent/10' : n === picked ? 'border-danger bg-danger/10' : 'opacity-50';
+                    const isRight = picked !== null && n === q.answer;
+                    const isWrong = picked === n && n !== q.answer;
                     return (
-                        <button key={n} onClick={() => choose(n)} disabled={picked !== null} className={`min-h-12 px-4 py-2 rounded-xl border border-line bg-surface text-ink text-left ${state}`}>
-                            {o}
-                        </button>
+                        <motion.button
+                            key={`${i}-${n}`}
+                            onClick={() => choose(n)}
+                            disabled={picked !== null}
+                            animate={isWrong ? { x: [0, -8, 8, -6, 6, 0] } : isRight ? { scale: [1, 1.03, 1] } : {}}
+                            transition={{ duration: 0.4 }}
+                            className={`flex min-h-14 items-center gap-3 rounded-2xl border px-3 py-2 text-left text-ink transition-colors ${picked !== null && !isRight && !isWrong ? 'opacity-40' : ''} ${isRight ? 'border-accent bg-accent text-on-accent' : isWrong ? 'border-danger bg-danger/15' : 'border-line bg-surface hover:border-line-strong'}`}
+                        >
+                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold text-on-arena" style={{ background: isRight ? 'rgb(0 0 0 / 0.25)' : ANSWER_TILE[n % 4] }}>
+                                {isRight ? <Check className="h-4 w-4" /> : isWrong ? <X className="h-4 w-4" /> : ANSWER_LETTER[n % 4]}
+                            </span>
+                            <span className="flex-1">{o}</span>
+                        </motion.button>
                     );
                 })}
             </div>
