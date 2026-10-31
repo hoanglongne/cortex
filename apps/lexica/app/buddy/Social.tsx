@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CalendarClock, Eye, EyeOff, Gift, Loader2, Shield, Swords, Plus } from 'lucide-react';
+import { CalendarClock, Eye, EyeOff, Gift, Loader2, MessageCircleQuestion, Shield, Swords, Plus } from 'lucide-react';
 import { getCard, getDeckCards } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
 import { capture } from '../lib/productAnalytics';
@@ -24,6 +24,15 @@ import {
     giftOpen,
     giftReport,
     giftSend,
+    askAnswer,
+    askInbox,
+    askReport,
+    askSend,
+    ASK_MAX,
+    milestone,
+    rememberGift,
+    teamWords,
+    type AsksBox,
     GIFT_NOTE_MAX,
     noteProblem,
     questLine,
@@ -119,9 +128,10 @@ export function GiftsCard({ reloadKey }: { reloadKey: number }) {
         return () => clearTimeout(t);
     }, [load, reloadKey]);
     if (!box || (box.received.length === 0 && box.sent.length === 0)) return null;
-    const open = async (id: string, card: string) => {
+    const open = async (id: string, card: string, from: string | null) => {
         try {
             await giftOpen(id);
+            rememberGift(card, from ?? 'bạn học');
             const n = queueCards([card]);
             capture('buddy_gift_opened', { queued: n });
             setMsg(n > 0 ? 'Đã thêm từ vào hàng học của bạn.' : 'Từ này bạn đã có rồi.');
@@ -142,7 +152,7 @@ export function GiftsCard({ reloadKey }: { reloadKey: number }) {
                             <p className="min-w-0 text-sm text-ink">
                                 <span className="font-semibold">{g.from_name ?? 'Bạn học'}</span> tặng bạn từ <span lang="en" className="font-semibold text-accent">{wordOf(g.card_id) ?? '...'}</span>
                             </p>
-                            <button onClick={() => void open(g.id, g.card_id)} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${g.opened ? 'border border-line text-ink-2' : 'bg-accent text-on-accent'}`}>
+                            <button onClick={() => void open(g.id, g.card_id, g.from_name)} className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold ${g.opened ? 'border border-line text-ink-2' : 'bg-accent text-on-accent'}`}>
                                 {g.opened ? 'Thêm lại' : 'Nhận'}
                             </button>
                         </div>
@@ -169,14 +179,14 @@ export function GiftsCard({ reloadKey }: { reloadKey: number }) {
 export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => void }) {
     const router = useRouter();
     const known = useKnownWords();
-    const [mode, setMode] = useState<'gift' | 'quiz' | null>(null);
+    const [mode, setMode] = useState<'gift' | 'quiz' | 'ask' | null>(null);
     const [picked, setPicked] = useState<string[]>([]);
     const [note, setNote] = useState('');
     const [busy, setBusy] = useState(false);
     const [msg, setMsg] = useState('');
     const choices = useMemo(() => known.filter((id) => wordOf(id)).slice(0, 24), [known]);
-    const pick = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : mode === 'gift' ? [id] : p.length < DUEL_MAX - 2 ? [...p, id] : p));
-    const start = (m: 'gift' | 'quiz') => {
+    const pick = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : mode === 'gift' || mode === 'ask' ? [id] : p.length < DUEL_MAX - 2 ? [...p, id] : p));
+    const start = (m: 'gift' | 'quiz' | 'ask') => {
         setMode(m);
         setPicked([]);
         setMsg('');
@@ -189,6 +199,12 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
                 await giftSend(buddy.id, picked[0], note);
                 capture('buddy_gift_sent', { note: Boolean(cleanNote(note)) });
                 setMsg(`Đã tặng ${wordOf(picked[0])} cho ${buddy.nickname}.`);
+                setMode(null);
+                onDone();
+            } else if (mode === 'ask') {
+                await askSend(buddy.id, picked[0]);
+                capture('buddy_ask_sent', {});
+                setMsg(`Đã nhờ ${buddy.nickname} đặt câu với từ ${wordOf(picked[0])}.`);
                 setMode(null);
                 onDone();
             } else {
@@ -205,12 +221,15 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
         }
     };
     const problem = mode === 'gift' ? noteProblem(note) : null;
-    const ready = mode === 'gift' ? picked.length === 1 && !problem : picked.length >= DUEL_MIN;
+    const ready = mode === 'gift' || mode === 'ask' ? picked.length === 1 && !problem : picked.length >= DUEL_MIN;
     return (
         <div className="mt-2">
             <div className="flex gap-2">
                 <button onClick={() => start('gift')} aria-pressed={mode === 'gift'} className={`h-9 rounded-lg border px-3 text-sm flex items-center gap-1.5 ${mode === 'gift' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
                     <Gift className="w-4 h-4" /> Tặng từ
+                </button>
+                <button onClick={() => start('ask')} aria-pressed={mode === 'ask'} className={`h-9 rounded-lg border px-3 text-sm flex items-center gap-1.5 ${mode === 'ask' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
+                    <MessageCircleQuestion className="w-4 h-4" /> Nhờ đặt câu
                 </button>
                 <button onClick={() => start('quiz')} aria-pressed={mode === 'quiz'} className={`h-9 rounded-lg border px-3 text-sm flex items-center gap-1.5 ${mode === 'quiz' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
                     <Swords className="w-4 h-4" /> Đố bạn
@@ -218,7 +237,7 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
             </div>
             {mode && (
                 <div className="mt-2 rounded-xl border border-line bg-surface-2/40 p-3 space-y-2">
-                    <p className="text-xs text-muted">{mode === 'gift' ? 'Chọn một từ bạn đã học để tặng.' : `Chọn ${DUEL_MIN} đến ${DUEL_MAX - 2} từ để ra đề cho ${buddy.nickname}.`}</p>
+                    <p className="text-xs text-muted">{mode === 'gift' ? 'Chọn một từ bạn đã học để tặng.' : mode === 'ask' ? `Chọn một từ bạn muốn thấy ${buddy.nickname} đặt câu.` : `Chọn ${DUEL_MIN} đến ${DUEL_MAX - 2} từ để ra đề cho ${buddy.nickname}.`}</p>
                     {choices.length === 0 ? (
                         <p className="text-xs text-warning">Bạn chưa học từ nào. Học vài từ rồi quay lại nhé.</p>
                     ) : (
@@ -238,7 +257,7 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
                         </label>
                     )}
                     <button onClick={() => void send()} disabled={!ready || busy} className="h-9 w-full rounded-lg bg-accent text-sm font-bold text-on-accent disabled:opacity-40 flex items-center justify-center gap-1.5">
-                        {busy && <Loader2 className="w-4 h-4 animate-spin" />} {mode === 'gift' ? 'Tặng' : `Ra đề (${picked.length})`}
+                        {busy && <Loader2 className="w-4 h-4 animate-spin" />} {mode === 'gift' ? 'Tặng' : mode === 'ask' ? 'Nhờ bạn ấy' : `Ra đề (${picked.length})`}
                     </button>
                     {problem && <p className="text-xs text-danger">{problem}</p>}
                 </div>
@@ -251,6 +270,15 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
 /** The week's monster: the group's damage, and who can be shielded. */
 export function QuestCard({ quest, last, meId, today, days, onShield }: { quest: Quest; last: Quest | null; meId: string; today: string; days: string[]; onShield: () => void }) {
     const [msg, setMsg] = useState('');
+    const [total, setTotal] = useState<number | null>(null);
+    useEffect(() => {
+        let live = true;
+        teamWords().then((t) => live && setTotal(Number(t.total)), () => undefined);
+        return () => {
+            live = false;
+        };
+    }, [quest.members.length]);
+    const ms = total === null || quest.members.length < 2 ? null : milestone(total);
     const pct = Math.round(quest.left * 100);
     const shield = async (id: string) => {
         // The latest day so far on which this person did not reach the goal and is not shielded yet
@@ -291,6 +319,12 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
                     </li>
                 ))}
             </ul>
+            {ms && total !== null && (
+                <p className="mt-2 text-xs text-ink-2">
+                    Cùng nhau đã học <span className="font-semibold text-accent">{total}</span> từ{ms.passed ? ` (qua mốc ${ms.passed})` : ''}
+                    {ms.next ? `. Còn ${ms.next - total} từ nữa tới mốc ${ms.next}.` : '.'}
+                </p>
+            )}
             {quest.members.length > 1 && <p className="mt-2 text-[11px] text-subtle">Mỗi ngày: tối đa 10 từ mới + 15 khi đạt mục tiêu. Mỗi tuần bạn có một khiên để đỡ một ngày cho bạn học.</p>}
             {msg && <p className="mt-1 text-xs text-accent">{msg}</p>}
         </section>
@@ -420,6 +454,67 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                 </ul>
             )}
             {msg && <p className="mt-1 text-xs text-danger">{msg}</p>}
+        </section>
+    );
+}
+
+/** Words my buddies asked me to use in a sentence, and the sentences I got back for mine. */
+export function AsksCard({ reloadKey }: { reloadKey: number }) {
+    const [box, setBox] = useState<AsksBox | null>(null);
+    const [text, setText] = useState<Record<string, string>>({});
+    const [msg, setMsg] = useState('');
+    const load = useCallback(() => askInbox().then(setBox, () => setBox({ to_answer: [], answers: [], waiting: 0 })), []);
+    useEffect(() => {
+        const t = setTimeout(() => void load(), 0);
+        return () => clearTimeout(t);
+    }, [load, reloadKey]);
+    if (!box || (box.to_answer.length === 0 && box.answers.length === 0 && box.waiting === 0)) return null;
+    const answer = async (id: string) => {
+        const t = text[id] ?? '';
+        const problem = noteProblem(t);
+        if (problem) return setMsg(problem);
+        try {
+            await askAnswer(id, t);
+            capture('buddy_ask_answered', {});
+            setMsg('Đã gửi câu của bạn.');
+            void load();
+        } catch (e) {
+            setMsg(errText(e));
+        }
+    };
+    return (
+        <section className="rounded-2xl border border-line bg-surface p-4">
+            <h2 className="flex items-center gap-2 font-semibold text-ink">
+                <MessageCircleQuestion className="w-4 h-4 text-accent" /> Đặt câu cho nhau
+            </h2>
+            <ul className="mt-2 divide-y divide-line">
+                {box.to_answer.map((a) => (
+                    <li key={a.id} className="py-2.5 space-y-1.5">
+                        <p className="text-sm text-ink">
+                            <span className="font-semibold">{a.from_name ?? 'Bạn học'}</span> nhờ bạn đặt một câu với từ <span lang="en" className="font-semibold text-accent">{wordOf(a.card_id) ?? '...'}</span>
+                        </p>
+                        <div className="flex gap-2">
+                            <input value={text[a.id] ?? ''} onChange={(e) => setText({ ...text, [a.id]: e.target.value.slice(0, ASK_MAX) })} placeholder="Câu của bạn" maxLength={ASK_MAX} lang="en" aria-label="Câu của bạn" className="h-9 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-sm text-ink" />
+                            <button onClick={() => void answer(a.id)} disabled={(text[a.id] ?? '').trim().length < 3} className="h-9 rounded-lg bg-accent px-3 text-xs font-bold text-on-accent disabled:opacity-40">
+                                Gửi
+                            </button>
+                        </div>
+                    </li>
+                ))}
+                {box.answers.slice(0, 5).map((a) => (
+                    <li key={a.id} className="py-2.5">
+                        <p className="text-xs text-muted">
+                            {a.from_name ?? 'Bạn học'} đặt câu với <span lang="en">{wordOf(a.card_id) ?? '...'}</span>:
+                        </p>
+                        <p lang="en" className="mt-0.5 text-sm text-ink">“{a.answer}”</p>
+                        <button onClick={() => void askReport(a.id).then(load)} className="mt-1 text-[11px] text-subtle hover:text-danger">
+                            Báo cáo
+                        </button>
+                    </li>
+                ))}
+            </ul>
+            {box.waiting > 0 && <p className="text-xs text-muted">Đang chờ {box.waiting} câu trả lời từ bạn bè.</p>}
+            {msg && <p className="mt-1 text-xs text-accent">{msg}</p>}
         </section>
     );
 }

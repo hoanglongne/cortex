@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cleanNote, dateIcs, dateSlots, dateStatus, noteProblem, questLine, questWeek, weekDates, weekStart, HP_PER_MEMBER, type Shield } from '../../app/lib/buddySocial';
+import { milestone, cleanNote, dateIcs, dateSlots, dateStatus, noteProblem, questLine, questWeek, weekDates, weekStart, HP_PER_MEMBER, type Shield } from '../../app/lib/buddySocial';
 import type { DailyActivity } from '../../app/lib/buddy';
 
 const act = (user: string, date: string, learned: number, met: boolean): DailyActivity => ({ user_id: user, date, words_swiped: learned, words_learned_today: learned, daily_goal: 10, goal_met: met, streak: 1 });
@@ -74,5 +74,11 @@ describe('buddy social', () => {
         const slots = dateSlots(new Date(2026, 9, 31, 21, 0));
         expect(slots[0].label).toBe('Ngày mai 12:30');
         expect(slots.every((s) => s.at.getTime() > new Date(2026, 9, 31, 21, 0).getTime())).toBe(true);
+    });
+
+    it('milestones: last passed and next', () => {
+        expect(milestone(0)).toEqual({ passed: null, next: 50 });
+        expect(milestone(120)).toEqual({ passed: 100, next: 250 });
+        expect(milestone(10000)).toEqual({ passed: 10000, next: null });
     });
 });

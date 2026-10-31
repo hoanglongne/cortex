@@ -28,6 +28,10 @@ const MESSAGES: Record<string, string> = {
     'outside window': 'Chưa đến giờ hẹn, hoặc đã quá giờ.',
     'no such gift': 'Không thấy món quà này.',
     'no such date': 'Không thấy buổi hẹn này.',
+    'too many asks': 'Bạn đang chờ 5 câu trả lời rồi. Chờ bạn ấy trả lời đã nhé.',
+    'answer length': 'Câu trả lời từ 3 đến 120 chữ.',
+    'no such ask': 'Không thấy lời nhờ này.',
+    blocked: 'Không kết bạn được với người này.',
 };
 export function socialMessage(raw: string): string {
     const key = Object.keys(MESSAGES).find((k) => raw.includes(k));
@@ -208,4 +212,48 @@ export function dateSlots(now: Date): { label: string; at: Date }[] {
         }
     }
     return out;
+}
+
+// ── Gift labels: "Từ Hà tặng" on the card ───────────────────────────────
+
+const GIFT_KEY = 'lexica-gift-from';
+const readLabels = (): Record<string, string> => {
+    try {
+        return JSON.parse(localStorage.getItem(GIFT_KEY) ?? '{}') as Record<string, string>;
+    } catch {
+        return {};
+    }
+};
+/** Remember who gave a word, to show on its card. */
+export function rememberGift(cardId: string, from: string): void {
+    try {
+        localStorage.setItem(GIFT_KEY, JSON.stringify({ ...readLabels(), [cardId]: from.slice(0, 20) }));
+    } catch {
+        // storage can be blocked
+    }
+}
+export const giftFrom = (cardId: string): string | null => (typeof window === 'undefined' ? null : readLabels()[cardId] ?? null);
+
+// ── Block, ask, milestones ──────────────────────────────────────────────
+
+export const buddyBlock = (user: string) => rpc<{ ok: boolean }>('buddy_block', { p_user: user });
+
+export const ASK_MAX = 120;
+export interface AsksBox {
+    to_answer: { id: string; from_name: string | null; card_id: string; created_at: string }[];
+    answers: { id: string; from_name: string | null; card_id: string; answer: string | null; answered_at: string }[];
+    waiting: number;
+}
+export const askSend = (to: string, card: string) => rpc<{ id: string }>('ask_send', { p_to: to, p_card: card });
+export const askInbox = () => rpc<AsksBox>('ask_inbox');
+export const askAnswer = (id: string, text: string) => rpc<{ ok: boolean }>('ask_answer', { p_ask: id, p_text: text.replace(/\s+/g, ' ').trim().slice(0, ASK_MAX) });
+export const askReport = (id: string) => rpc<{ ok: boolean }>('ask_report', { p_ask: id });
+export const teamWords = () => rpc<{ total: number; members: number }>('team_words');
+
+export const MILESTONES = [50, 100, 250, 500, 1000, 2000, 5000, 10000];
+
+/** The last milestone passed and the next one, for "cùng nhau đã học N từ". */
+export function milestone(total: number): { passed: number | null; next: number | null } {
+    const passed = [...MILESTONES].reverse().find((m) => total >= m) ?? null;
+    return { passed, next: MILESTONES.find((m) => total < m) ?? null };
 }

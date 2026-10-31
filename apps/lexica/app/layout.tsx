@@ -8,6 +8,7 @@ import ContentLoader from "./components/ContentLoader";
 import HydrationGate from "./components/HydrationGate";
 import AppNav, { DesktopNav } from "./components/AppNav";
 import BuddySync from "./components/BuddySync";
+import StudyDateBanner from "./components/StudyDateBanner";
 
 // Design system fonts (docs/DESIGN_SYSTEM.md). Vietnamese subset is required:
 // without it, accented letters fall back to the system font.
@@ -57,6 +58,7 @@ export default function RootLayout({
           <CloudSync />
           <ClassSync />
           <BuddySync />
+          <StudyDateBanner />
           <EngagementSync />
           <ContentLoader />
           <HydrationGate>

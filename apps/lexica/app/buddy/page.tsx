@@ -29,9 +29,9 @@ import { DUEL_GAMES, type DuelGame } from '../lib/duels';
 import DuelsSection, { useStartDuel } from './DuelsSection';
 import { CheerButtons, CheersBanner } from './TeamCard';
 import { cheersToday, type CheerKind, type CheersToday } from '../lib/cheers';
-import { questWeek, shiftDate, shieldsTeam, weekDates, weekStart, type Quest, type Shield } from '../lib/buddySocial';
+import { buddyBlock, questWeek, shiftDate, shieldsTeam, weekDates, weekStart, type Quest, type Shield } from '../lib/buddySocial';
 import { capture } from '../lib/productAnalytics';
-import { DatesCard, GiftsCard, GivePanel, QuestCard, TodayWordsCard } from './Social';
+import { AsksCard, DatesCard, GiftsCard, GivePanel, QuestCard, TodayWordsCard } from './Social';
 
 type Week = Record<string, Record<string, DailyActivity>>;
 
@@ -220,6 +220,7 @@ function Buddy() {
                 <QuestCard quest={quest} last={lastQuest.members.length > 1 && lastQuest.damage > 0 ? lastQuest : null} meId={user.id} today={today} days={weekDates(thisMonday)} onShield={() => void load(user.id)} />
                 {buddies.length > 0 && <TodayWordsCard reloadKey={buddies.length + social} />}
                 {buddies.length > 0 && <GiftsCard reloadKey={buddies.length + social} />}
+                {buddies.length > 0 && <AsksCard reloadKey={buddies.length + social} />}
                 <DatesCard buddies={buddies} reloadKey={buddies.length} />
 
                 {/* Duels (direction B of #70): play with a buddy, not only look at their numbers */}
@@ -301,6 +302,10 @@ function Buddy() {
                                 cheerSent={cheers?.sent[b.id]}
                                 onCheer={(k) => setCheers((c) => ({ received: c?.received ?? [], sent: { ...(c?.sent ?? {}), [b.id]: k } }))}
                                 duelBusy={duel.busy === b.id}
+                                onBlock={async () => {
+                                    await buddyBlock(b.id).catch(() => undefined);
+                                    setBuddies((list) => list.filter((x) => x.pairId !== b.pairId));
+                                }}
                                 onRemove={async () => {
                                     await removeBuddy(b.pairId);
                                     setBuddies((list) => list.filter((x) => x.pairId !== b.pairId));
@@ -414,7 +419,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
     );
 }
 
-function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBusy, cheerSent, onCheer, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onGift: () => void; onDuel: () => void; duelBusy: boolean; cheerSent: CheerKind | undefined; onCheer: (kind: CheerKind) => void; onRemove: () => void }) {
+function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBusy, cheerSent, onCheer, onBlock, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onGift: () => void; onDuel: () => void; duelBusy: boolean; cheerSent: CheerKind | undefined; onCheer: (kind: CheerKind) => void; onBlock: () => void; onRemove: () => void }) {
     const [confirm, setConfirm] = useState(false);
     const [nudged, setNudged] = useState('');
     const buddyMet = Boolean(buddy.today?.goal_met);
@@ -464,6 +469,9 @@ function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBu
                     <span className="flex gap-3 text-xs">
                         <button onClick={() => setConfirm(false)} className="text-muted">
                             Huỷ
+                        </button>
+                        <button onClick={onBlock} className="text-muted" title="Gỡ bạn và không cho kết bạn lại">
+                            Chặn
                         </button>
                         <button onClick={onRemove} className="text-danger flex items-center gap-1">
                             <UserX className="w-3 h-3" /> Xoá bạn này

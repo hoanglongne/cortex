@@ -6285,6 +6285,128 @@ begin
 end;
 $$;
 
+
+-- ── Blocking ────────────────────────────────────────────────────────────
+
+create table if not exists lexica_blocks (
+  blocker uuid not null references auth.users(id) on delete cascade,
+  blocked uuid not null references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (blocker, blocked),
+  check (blocker <> blocked)
+);
+alter table lexica_blocks enable row level security;
+
+-- Nobody can pair with someone who blocked them (or whom they blocked).
+create or replace function public.lexica_buddy_pair_check()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if exists (select 1 from lexica_blocks where (blocker = new.user_a_id and blocked = new.user_b_id) or (blocker = new.user_b_id and blocked = new.user_a_id)) then
+    raise exception 'blocked';
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists lexica_buddy_pair_check on buddy_pairs;
+create trigger lexica_buddy_pair_check before insert on buddy_pairs for each row execute function public.lexica_buddy_pair_check();
+
+-- Ends the friendship and keeps them apart: gifts, asks, shields and dates between them go too.
+create or replace function public.buddy_block(p_user uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if p_user is null or p_user = me then raise exception 'bad user'; end if;
+  insert into lexica_blocks (blocker, blocked) values (me, p_user) on conflict do nothing;
+  delete from buddy_pairs where (user_a_id = me and user_b_id = p_user) or (user_a_id = p_user and user_b_id = me);
+  delete from lexica_gifts where (from_user = me and to_user = p_user) or (from_user = p_user and to_user = me);
+  delete from lexica_asks where (asker = me and helper = p_user) or (asker = p_user and helper = me);
+  delete from lexica_shields where (giver = me and receiver = p_user) or (giver = p_user and receiver = me);
+  delete from lexica_study_dates where (creator = me and buddy = p_user) or (creator = p_user and buddy = me);
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- ── Ask a buddy to explain a word with a sentence of their own ──────────
+
+create table if not exists lexica_asks (
+  id uuid primary key default gen_random_uuid(),
+  asker uuid not null references auth.users(id) on delete cascade,
+  helper uuid not null references auth.users(id) on delete cascade,
+  card_id text not null,
+  answer text,
+  created_at timestamptz not null default now(),
+  answered_at timestamptz,
+  reported_at timestamptz,
+  check (asker <> helper)
+);
+create index if not exists lexica_asks_helper_idx on lexica_asks (helper, created_at desc);
+create index if not exists lexica_asks_asker_idx on lexica_asks (asker, created_at desc);
+alter table lexica_asks enable row level security;
+
+create or replace function public.ask_send(p_to uuid, p_card text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  me uuid := auth.uid();
+  aid uuid;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if not lexica_duel_is_buddy(me, p_to) then raise exception 'not buddies'; end if;
+  if p_card is null or length(p_card) not between 1 and 80 then raise exception 'bad card'; end if;
+  if (select count(*) from lexica_asks a where a.asker = me and a.answered_at is null and a.created_at > now() - interval '7 days') >= 5 then raise exception 'too many asks'; end if;
+  insert into lexica_asks (asker, helper, card_id) values (me, p_to, p_card) returning id into aid;
+  return jsonb_build_object('id', aid);
+end;
+$$;
+
+create or replace function public.ask_answer(p_ask uuid, p_text text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  t text := btrim(coalesce(p_text, ''));
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  if char_length(t) not between 3 and 120 then raise exception 'answer length'; end if;
+  if t ~* '(https?:|www\.|\.com|\.vn|@)' then raise exception 'no links'; end if;
+  update lexica_asks set answer = t, answered_at = now() where id = p_ask and helper = auth.uid() and answered_at is null;
+  if not found then raise exception 'no such ask'; end if;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+create or replace function public.ask_report(p_ask uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+begin
+  update lexica_asks set reported_at = now() where id = p_ask and asker = auth.uid();
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- Asks waiting for my answer, and the answers to mine (last 30 days).
+create or replace function public.ask_inbox()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'to_answer', coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'from_name', (select nickname from profiles p where p.id = a.asker), 'card_id', a.card_id, 'created_at', a.created_at) order by a.created_at desc)
+      from lexica_asks a where a.helper = auth.uid() and a.answered_at is null and a.created_at > now() - interval '30 days'), '[]'::jsonb),
+    'answers', coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'from_name', (select nickname from profiles p where p.id = a.helper), 'card_id', a.card_id,
+        'answer', case when a.reported_at is null then a.answer else null end, 'answered_at', a.answered_at) order by a.answered_at desc)
+      from lexica_asks a where a.asker = auth.uid() and a.answered_at is not null and a.reported_at is null and a.created_at > now() - interval '30 days'), '[]'::jsonb),
+    'waiting', coalesce((select count(*) from lexica_asks a where a.asker = auth.uid() and a.answered_at is null and a.created_at > now() - interval '7 days'), 0)
+  );
+$$;
+
+-- ── Milestones: words learned by me and my buddies together, all time ───
+
+create or replace function public.team_words()
+returns jsonb language sql stable security definer set search_path = public as $$
+  with team as (
+    select auth.uid() as id
+    union select user_b_id from buddy_pairs where user_a_id = auth.uid()
+    union select user_a_id from buddy_pairs where user_b_id = auth.uid()
+  )
+  select jsonb_build_object('total', coalesce((select sum(words_learned_today) from daily_activity where user_id in (select id from team)), 0), 'members', (select count(*) from team));
+$$;
+
 do $$
 declare f text;
 begin
@@ -6292,7 +6414,8 @@ begin
     'buddy_words_set(date, jsonb)', 'buddy_prefs_set(boolean)', 'buddy_words_feed(date)',
     'gift_send(uuid, text, text)', 'gift_inbox()', 'gift_open(uuid)', 'gift_report(uuid)',
     'shield_give(uuid, date)', 'shields_team(date)',
-    'date_create(uuid, timestamptz)', 'date_list()', 'date_checkin(uuid)', 'date_cancel(uuid)'
+    'date_create(uuid, timestamptz)', 'date_list()', 'date_checkin(uuid)', 'date_cancel(uuid)',
+    'buddy_block(uuid)', 'ask_send(uuid, text)', 'ask_answer(uuid, text)', 'ask_report(uuid)', 'ask_inbox()', 'team_words()'
   ] loop
     execute format('revoke all on function public.%s from public, anon', f);
     execute format('grant execute on function public.%s to authenticated', f);

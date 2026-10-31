@@ -114,8 +114,12 @@ Bạn quyết: làm hết các hướng, hướng nào không hiệu quả thì 
 | A Nhiệm vụ nhóm | Xong, không cần bảng, tính từ `daily_activity` | `QuestCard`, `questWeek` |
 | G Khiên | Xong, mỗi người một khiên mỗi tuần | `shield_give`, `shields_team` |
 | E Giờ học chung | Bản nhẹ: hẹn giờ, cửa sổ vào học, tệp lịch .ics. **Chưa có thông báo đẩy**, chỉ thấy khi mở Buddy | `DatesCard`, `date_*` |
-| F, D, H, J | Chưa làm | |
+| D Dạy lại nhau | Xong, dạng "Nhờ đặt câu": bạn kia gõ một câu (3 đến 120 chữ, không đường dẫn), có nút báo cáo | `AsksCard`, `ask_*` |
+| J Cột mốc chung | Xong: tổng từ cả nhóm học, mốc 50 đến 10000 | `QuestCard`, `team_words` |
+| Nhãn "Từ Hà tặng" | Xong, hiện trên thẻ từ | `rememberGift`, `VocabCard` |
+| Chặn bạn | Xong: gỡ bạn, xoá quà, khiên, hẹn giữa hai người, không kết lại được | `buddy_block` + trigger trên `buddy_pairs` |
+| Nhắc giờ học chung | Thanh nhắc trong app khi đến giờ; **không có thông báo đẩy** (cần khoá VAPID và máy chủ cron cho Lexica) | `StudyDateBanner` |
+| F Chơi thời gian thực | **Chưa làm**, đúng như kế hoạch: chờ số liệu cho thấy bạn bè hay vào cùng lúc | |
+| H Tên nhóm | **Chưa làm**: nhóm hiện là "mình và các bạn của mình", mỗi người một nhóm khác nhau, nên chưa có thực thể nhóm chung để đặt tên | |
 
-Sự kiện để đo: `buddy_view`, `buddy_learn_too`, `buddy_gift_sent`, `buddy_gift_opened`, `buddy_quiz_sent`, `buddy_shield`, `buddy_date_created`, `buddy_date_checkin`.
-
-Chưa làm trong phạm vi này: nhãn "Từ Hà tặng" trong hàng học (từ tặng chỉ vào hàng chờ như từ thường), thông báo đẩy cho giờ học chung, nút chặn riêng (xoá bạn đã gỡ mọi thứ).
+Sự kiện để đo: `buddy_ask_sent`, `buddy_ask_answered`, `buddy_view`, `buddy_learn_too`, `buddy_gift_sent`, `buddy_gift_opened`, `buddy_quiz_sent`, `buddy_shield`, `buddy_date_created`, `buddy_date_checkin`.

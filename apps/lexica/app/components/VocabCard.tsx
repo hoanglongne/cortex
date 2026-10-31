@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, RotateCcw, TrendingUp, Flag } from 'lucide-react';
+import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, RotateCcw, TrendingUp, Flag, Gift } from 'lucide-react';
+import { giftFrom } from '../lib/buddySocial';
 import { flushCardEvents, trackCardEvent } from '../lib/content/events';
 import { useLexicaStore } from '../store/lexicaStore';
 import { AudioService } from '../lib/audio/AudioService';
@@ -47,6 +48,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
     const isBossCard = card.isBossCard || false;
     const isReviewCard = Boolean(cardProgress);
     const hard = isHard(cardProgress);
+    const [gifter] = useState(() => giftFrom(card.id));
 
     // The learner's archetype sentence (Studio variants), else the card's own
     // Deck cards are snapshots; read sentences from the live content so a
@@ -103,6 +105,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                         ) : isReviewCard && (
                             <span className="flex items-center gap-1 text-warning"><RotateCcw className="w-3 h-3" /> ÔN TẬP</span>
                         )}
+                        {gifter && <span className="flex items-center gap-1 text-accent"><Gift className="w-3 h-3" /> Từ {gifter} tặng</span>}
                         {lucky && (
                             <span className="flex items-center gap-1 text-accent" title="Nhớ thẻ này để nhận Bụi hoặc Hộp">
                                 <Sparkles className="w-3 h-3" /> MAY MẮN
