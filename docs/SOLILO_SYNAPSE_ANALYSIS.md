@@ -2,6 +2,8 @@
 
 Liên quan: issue #76. Đã đọc `apps/solilo`, `apps/synapse`, module `synapse` của `cortex-core-api`, và đối chiếu với Oratio, Lexica, Studio. Phần "ý tưởng cho Writing và Listening" ở mục 5 trả lời yêu cầu "nếu không cứu được thì đề xuất luyện viết, luyện nghe".
 
+> **Quyết định của chủ dự án (31/10/2026):** Solilo gộp vào Oratio (đúng như dưới đây). **Synapse giữ riêng** (lựa chọn B ở mục 3.3, không phải A); kế hoạch phát triển ở `docs/SYNAPSE_PLAN.md`.
+
 ## 1. Kết luận ngắn
 
 | Dự án | Đề xuất | Lý do một dòng |
