@@ -1,21 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Globe, Cpu, ShieldAlert, Zap, Skull, Database, Lock,
   ChevronRight, Terminal, Activity, Crosshair,
-  Building2, Briefcase, ChefHat, FileText, Users, Smartphone, TrendingUp,
+  Building2, GraduationCap, Briefcase, ChefHat, FileText, Users, Smartphone, TrendingUp,
   ArrowLeft,
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import type { WorldLore, ThemeUI, ThemeColors } from "../lib/themes";
 import { TerminalBoard } from "./TerminalBoard";
+import { AgentProfile } from "./LearningPanel";
+import { parseProgress, PROGRESS_KEY, type Progress } from "../lib/level";
 
 // ─── Icon Maps ────────────────────────────────────────────────────────────────
 
 const LORE_ICONS: Record<string, React.ReactNode> = {
   "cyberpunk-01": <Cpu className="w-8 h-8" />,
   "wasteland-01": <Globe className="w-8 h-8" />,
+  "school-01": <GraduationCap className="w-8 h-8" />,
   "urban-01": <Briefcase className="w-8 h-8" />,
   "urban-02": <ChefHat className="w-8 h-8" />,
 };
@@ -24,6 +27,10 @@ const MISSION_ICONS: Record<string, React.ReactNode> = {
   "cp-m1": <Lock className="w-5 h-5" />,
   "cp-m2": <Database className="w-5 h-5" />,
   "wl-m1": <Crosshair className="w-5 h-5" />,
+  "sc-m1": <Users className="w-5 h-5" />,
+  "sc-m2": <FileText className="w-5 h-5" />,
+  "sc-m3": <Lock className="w-5 h-5" />,
+  "sc-m4": <TrendingUp className="w-5 h-5" />,
   "ur-m1": <FileText className="w-5 h-5" />,
   "ur-m2": <Users className="w-5 h-5" />,
   "ur2-m1": <Smartphone className="w-5 h-5" />,
@@ -47,9 +54,25 @@ export default function LoreSelection({ onBack }: { onBack?: () => void }) {
   const [selectedLoreId, setSelectedLoreId] = useState<string | null>(null);
   const [selectedMissionId, setSelectedMissionId] = useState<string | null>(null);
   const [showGame, setShowGame] = useState(false);
+  const [reviewing, setReviewing] = useState(false);
+  // Read on the client only; it comes back each time the player returns from a mission
+  const [progress, setProgress] = useState<Progress | null>(null);
+  useEffect(() => {
+    if (showGame || reviewing) return;
+    try {
+      setProgress(parseProgress(localStorage.getItem(PROGRESS_KEY)));
+    } catch {
+      setProgress(parseProgress(null));
+    }
+  }, [showGame, reviewing]);
+  const profile = progress ? <AgentProfile progress={progress} onReview={() => setReviewing(true)} /> : null;
 
   const selectedLore = lores.find((l) => l.id === selectedLoreId);
   const selectedMission = selectedLore?.missions.find((m) => m.id === selectedMissionId);
+
+  if (reviewing) {
+    return <TerminalBoard initialLoreId="review" initialMissionId="review" review onExit={() => setReviewing(false)} />;
+  }
 
   if (showGame && selectedLoreId && selectedMissionId) {
     return (
@@ -78,6 +101,7 @@ export default function LoreSelection({ onBack }: { onBack?: () => void }) {
         onBack={onBack}
         ui={theme.ui}
         colors={theme.colors}
+        profile={profile}
       />
     );
   }
@@ -95,6 +119,7 @@ export default function LoreSelection({ onBack }: { onBack?: () => void }) {
       onBack={onBack}
       ui={theme.ui}
       colors={theme.colors}
+      profile={profile}
     />
   );
 }
@@ -102,6 +127,8 @@ export default function LoreSelection({ onBack }: { onBack?: () => void }) {
 // ─── Shared prop type ─────────────────────────────────────────────────────────
 
 interface LoreSelectionProps {
+  /** The agent profile, shown above the world list. */
+  profile?: React.ReactNode;
   lores: WorldLore[];
   selectedLoreId: string | null;
   selectedLore: WorldLore | undefined;
@@ -121,7 +148,7 @@ interface LoreSelectionProps {
 
 function SynapseLoreSelection({
   lores, selectedLoreId, selectedLore, selectedMissionId, selectedMission,
-  onSelectLore, onSelectMission, onStart, onBack, ui,
+  onSelectLore, onSelectMission, onStart, onBack, ui, profile,
 }: LoreSelectionProps) {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#3dff7a] font-mono p-4 md:p-8 flex flex-col items-center justify-center relative overflow-hidden">
@@ -141,6 +168,8 @@ function SynapseLoreSelection({
             </button>
           )}
         </div>
+
+        {!selectedLoreId && profile}
 
         {/* World Select */}
         {!selectedLoreId && (
@@ -298,7 +327,7 @@ function SynapseLoreSelection({
 
 function UrbanLoreSelection({
   lores, selectedLoreId, selectedLore, selectedMissionId, selectedMission,
-  onSelectLore, onSelectMission, onStart, onBack, ui, colors,
+  onSelectLore, onSelectMission, onStart, onBack, ui, colors, profile,
 }: LoreSelectionProps) {
   const accent = colors.accent;
   const gold = colors.accentAlt;
@@ -336,6 +365,8 @@ function UrbanLoreSelection({
             </button>
           )}
         </div>
+
+        {!selectedLoreId && profile}
 
         {/* World Select */}
         {!selectedLoreId && (

@@ -49,4 +49,27 @@ export const apiClient = {
 
     return parseJsonSafe<StoryArc>(res);
   },
+
+  /** "Ôn bằng truyện": up to three scenes for the phrases the player misses. */
+  async fetchReview(phrases: string[], seen: string[]): Promise<StoryArc> {
+    const res = await fetch("/api/review", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phrases, seen }),
+    });
+    if (!res.ok) {
+      const data = await parseJsonSafe<{ error?: string }>(res);
+      throw new ApiError(data.error || "Không dựng được bài ôn", res.status);
+    }
+    return parseJsonSafe<StoryArc>(res);
+  },
+
+  /** "Báo cảnh có vấn đề". */
+  async reportScene(missionId: string, stage: number, note: string): Promise<void> {
+    await fetch("/api/report", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ missionId, stage, note }),
+    });
+  },
 };

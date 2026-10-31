@@ -26,6 +26,7 @@ FILES=(
   apps/cortex-core-api/supabase/migration_studio_phase2.sql
   apps/cortex-core-api/supabase/migration_studio_capture.sql
   apps/cortex-core-api/supabase/migration_studio_variants.sql
+  apps/cortex-core-api/supabase/migration_synapse_reports.sql
   apps/cortex-core-api/supabase/migration_studio_quotes.sql
   apps/cortex-core-api/supabase/migration_studio_collocations_media.sql
   apps/cortex-core-api/supabase/migration_studio_corpus.sql

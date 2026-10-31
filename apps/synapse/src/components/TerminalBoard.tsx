@@ -11,8 +11,8 @@ import { TerminalOptions } from "./TerminalOptions";
 import { TerminalOutput, type TerminalMode } from "./TerminalOutput";
 import { useTheme } from "../context/ThemeContext";
 import { applyChoice, nextStage, startState } from "../lib/game";
-import { emptyProgress, levelOf, matchTyped, parseProgress, phraseKey, PROGRESS_KEY, record, type LevelSetting, type Progress } from "../lib/level";
-import { Hint, LevelPicker, PhraseBook, TypeAnswer } from "./LearningPanel";
+import { emptyProgress, levelOf, markCleared, markScene, matchTyped, parseProgress, phraseKey, PROGRESS_KEY, record, weakPhrases, type LevelSetting, type Progress } from "../lib/level";
+import { Hint, LevelPicker, PhraseBook, ReportScene, TypeAnswer } from "./LearningPanel";
 
 function makeId() {
   return Math.random().toString(36).slice(2);
@@ -40,6 +40,8 @@ function toActionLog(
 export function TerminalBoard(props: {
   initialLoreId?: string;
   initialMissionId?: string;
+  /** "Ôn bằng truyện": a short mission built from the phrases the player misses. */
+  review?: boolean;
   onExit?: () => void
 }) {
   const [sessionId, setSessionId] = useState<string>(makeId());
@@ -52,9 +54,9 @@ export function TerminalBoard(props: {
   const [missionId] = useState(props.initialMissionId);
   const [isMissionClear, setIsMissionClear] = useState(false);
   const [mode, setMode] = useState<TerminalMode>("idle");
-  const maxStages = 5;
   const [scenario, setScenario] = useState<SynapseScenario | null>(null);
   const [storyArc, setStoryArc] = useState<SynapseScenario[]>([]);
+  const maxStages = storyArc.length || 5;
   const [selected, setSelected] = useState<SynapseChoice | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sessionHistory, setSessionHistory] = useState<ActionLog[]>([]);
@@ -150,11 +152,13 @@ export function TerminalBoard(props: {
 
     try {
       setMode("loading");
-      const arc: StoryArc = await apiClient.fetchStoryArc({
-        sessionId: newSessionId,
-        loreId,
-        missionId,
-      });
+      const arc: StoryArc = props.review
+        ? await apiClient.fetchReview(weakPhrases(progress), progress.seenScenes)
+        : await apiClient.fetchStoryArc({
+            sessionId: newSessionId,
+            loreId,
+            missionId,
+          });
       storyArcRef.current = arc.stages;
       setStoryArc(arc.stages);
       setScenario(arc.stages[0] ?? null);
@@ -189,7 +193,7 @@ export function TerminalBoard(props: {
 
     setGame((g) => applyChoice(g, choice));
     const target = scenario.choices.find((c) => c.isCorrect);
-    if (target) saveProgress(record(progress, phraseKey(scenario.baseVerb, target.particle), choice.isCorrect));
+    if (target) saveProgress(markScene(record(progress, phraseKey(scenario.baseVerb, target.particle), choice.isCorrect), scenario.sceneId));
   }
 
   async function onContinue() {
@@ -202,6 +206,7 @@ export function TerminalBoard(props: {
     const following = nextStage(currentStage, maxStages);
     if (following === null) {
       setIsMissionClear(true);
+      if (!props.review) saveProgress(markCleared(progress, missionId));
       setMode("idle");
       return;
     }
@@ -298,6 +303,7 @@ export function TerminalBoard(props: {
                   </>
                 )}
                 {scenario && selected && outcomeTw.done && <PhraseBook scenario={scenario} selected={selected} />}
+                {scenario?.sceneId && selected && outcomeTw.done && <ReportScene sceneId={scenario.sceneId} />}
                 <LevelPicker setting={progress.setting} level={level} progress={progress} onPick={(setting: LevelSetting) => saveProgress({ ...progress, setting })} />
               </div>
             </div>

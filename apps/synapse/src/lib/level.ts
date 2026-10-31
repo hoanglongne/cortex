@@ -28,6 +28,21 @@ export const DEMOTE_BELOW = 0.5;
 export interface PhraseRecord {
   seen: number;
   right: number;
+  /** The last three answers, oldest first (undefined in progress saved before). */
+  last?: boolean[];
+}
+
+/** Where a phrase stands for the player. */
+export type PhraseStatus = "new" | "seen" | "missed" | "solid";
+export const STATUS_LABEL: Record<PhraseStatus, string> = { new: "Chưa gặp", seen: "Đã gặp", missed: "Sai gần đây", solid: "Vững" };
+
+/** Solid: right the last three times. Missed: wrong the last time. Seen: anything else. */
+export function phraseStatus(r: PhraseRecord | undefined): PhraseStatus {
+  if (!r || r.seen === 0) return "new";
+  const last = r.last ?? [];
+  if (last.length >= 3 && last.slice(-3).every(Boolean)) return "solid";
+  if (last.length > 0 ? !last[last.length - 1] : r.right === 0) return "missed";
+  return "seen";
 }
 
 export interface Progress {
@@ -37,9 +52,13 @@ export interface Progress {
   /** Latest answers, true for right, oldest first. */
   recent: boolean[];
   phrases: Record<string, PhraseRecord>;
+  /** Scenes played ("sc-m1:3"), so a review can give a different one. */
+  seenScenes: string[];
+  /** Missions cleared. */
+  cleared: string[];
 }
 
-export const emptyProgress = (): Progress => ({ setting: "auto", auto: "learn", recent: [], phrases: {} });
+export const emptyProgress = (): Progress => ({ setting: "auto", auto: "learn", recent: [], phrases: {}, seenScenes: [], cleared: [] });
 
 export const levelOf = (p: Progress): Level => (p.setting === "auto" ? p.auto : p.setting);
 
@@ -49,7 +68,8 @@ export const phraseKey = (baseVerb: string, particle: string) => `${baseVerb.tri
 export function record(p: Progress, key: string, correct: boolean): Progress {
   const prev = p.phrases[key] ?? { seen: 0, right: 0 };
   const recent = [...p.recent, correct].slice(-WINDOW);
-  const next: Progress = { ...p, recent, phrases: { ...p.phrases, [key]: { seen: prev.seen + 1, right: prev.right + (correct ? 1 : 0) } } };
+  const last = [...(prev.last ?? []), correct].slice(-3);
+  const next: Progress = { ...p, recent, phrases: { ...p.phrases, [key]: { seen: prev.seen + 1, right: prev.right + (correct ? 1 : 0), last } } };
   if (p.setting !== "auto" || recent.length < MIN_ANSWERS) return next;
   const acc = recent.filter(Boolean).length / recent.length;
   const i = LEVELS.indexOf(p.auto);
@@ -58,11 +78,25 @@ export function record(p: Progress, key: string, correct: boolean): Progress {
   return next;
 }
 
-/** Phrases the player keeps missing: seen at least twice, under half right. */
+/** Phrases the player keeps missing: wrong the last time, or seen at least twice with under half right. Worst first. */
 export const weakPhrases = (p: Progress): string[] =>
   Object.entries(p.phrases)
-    .filter(([, r]) => r.seen >= 2 && r.right / r.seen < 0.5)
+    .filter(([, r]) => phraseStatus(r) === "missed" || (r.seen >= 2 && r.right / r.seen < 0.5))
+    .sort(([, a], [, b]) => a.right / a.seen - b.right / b.seen || b.seen - a.seen)
     .map(([k]) => k);
+
+/** A scene was played; keeps the latest 200. */
+export const markScene = (p: Progress, sceneId: string | undefined): Progress => (sceneId && !p.seenScenes.includes(sceneId) ? { ...p, seenScenes: [...p.seenScenes, sceneId].slice(-200) } : p);
+
+/** A mission was cleared. */
+export const markCleared = (p: Progress, missionId: string | undefined): Progress => (missionId && !p.cleared.includes(missionId) ? { ...p, cleared: [...p.cleared, missionId] } : p);
+
+/** Counts by status, for the agent profile. */
+export function statusCounts(p: Progress): Record<PhraseStatus, number> {
+  const out: Record<PhraseStatus, number> = { new: 0, seen: 0, missed: 0, solid: 0 };
+  for (const r of Object.values(p.phrases)) out[phraseStatus(r)]++;
+  return out;
+}
 
 /** Number of phrases the player has right at least once. */
 export const unlocked = (p: Progress): number => Object.values(p.phrases).filter((r) => r.right > 0).length;
@@ -98,6 +132,8 @@ export function parseProgress(raw: string | null): Progress {
       auto: level(v.auto) ? v.auto : "learn",
       recent: Array.isArray(v.recent) ? v.recent.filter((x) => typeof x === "boolean").slice(-WINDOW) : [],
       phrases: v.phrases && typeof v.phrases === "object" ? (v.phrases as Record<string, PhraseRecord>) : {},
+      seenScenes: Array.isArray(v.seenScenes) ? v.seenScenes.filter((x) => typeof x === "string").slice(-200) : [],
+      cleared: Array.isArray(v.cleared) ? v.cleared.filter((x) => typeof x === "string") : [],
     };
   } catch {
     return emptyProgress();

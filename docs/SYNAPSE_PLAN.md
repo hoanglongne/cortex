@@ -157,6 +157,26 @@ Thứ tự khuyến nghị: **S0 → S1 trước**. Hai bước này tự biến
 
 Mục này thay các câu hỏi gốc dưới đây (giữ để tham khảo).
 
+### Tiến độ S2 và S3 (31/10/2026, issue #102)
+
+**Đã làm (S3, nội dung dựng sẵn):**
+- Thế giới mới **"Một Năm Ở Lớp 11"** (đời thường, hợp lớp học): 4 nhiệm vụ × 5 cảnh = 20 cảnh viết tay, mỗi cảnh một cụm đúng, ba cụm sai với hậu quả riêng, câu ví dụ cho từng cụm. Cùng nhiệm vụ Ngày Đầu Trở Lại có sẵn, là 5 nhiệm vụ chơi không cần AI.
+- `GET /synapse/missions` liệt kê nhiệm vụ dựng sẵn; `POST /synapse/story-arc` **không còn gọi AI** khi nhiệm vụ có đủ 5 cảnh (gửi `mode: "ai"` để dùng AI, chế độ thử nghiệm). Chi phí AI cho các nhiệm vụ này về 0.
+- Mọi lựa chọn đều có nghĩa tiếng Việt (`phrase-meanings.ts`), nên ở cấp "Học" đáp án không bị lộ.
+- Nút **"Báo cảnh có vấn đề"** → `POST /synapse/report` → bảng `synapse_reports` (SQL `apps/cortex-core-api/supabase/migration_synapse_reports.sql`, có trong `restore_all.sql`).
+
+**Đã làm (S2, phần không cần tài khoản):**
+- Trạng thái mỗi cụm: chưa gặp, đã gặp, sai gần đây, vững (đúng 3 lần liên tiếp); lưu cả cảnh đã chơi và nhiệm vụ đã xong trên máy.
+- **Hồ sơ** ở màn chọn thế giới: số cụm đã mở, số nhiệm vụ xong, đếm theo trạng thái, các cụm hay nhầm.
+- **"Ôn bằng truyện"** (`POST /synapse/review`): 3 cảnh cho các cụm hay nhầm; ưu tiên cảnh chưa chơi, rồi cảnh có cụm đó làm đáp án sai (đối chiếu khác), cuối cùng mới là cảnh cũ.
+
+**Chưa làm:**
+- Đăng nhập tuỳ chọn, bảng `synapse_phrase_state` và `synapse_runs` (tiến độ còn nằm trên máy), đẩy cụm sang Lexica.
+- Dựng thêm nhiệm vụ: 5 trên mục tiêu 30. Hai thế giới kịch tính (mạng ngầm, hoang mạc) và hai thế giới thương trường vẫn dùng AI.
+- Khung cảnh chuẩn thêm `level` (CEFR), `contrastSetId`, `nextOnWrong`; quy trình dựng qua Studio.
+- Chơi ngoại tuyến thật sự: cảnh nằm trong API, chưa đóng gói vào ứng dụng.
+- Cần giáo viên đọc duyệt 20 cảnh của thế giới học đường trước khi dùng trong lớp. Ôn bằng truyện hiện có ít cảnh lặp lại một cụm (mới có vài cụm xuất hiện hai lần), sẽ tốt hơn khi dựng thêm nhiệm vụ.
+
 ## 11b. Câu hỏi gốc
 
 1. **Mục đích chính A** (cụm động từ qua đối chiếu), phụ B (ngữ dụng)? Hay muốn hướng khác?

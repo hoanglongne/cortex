@@ -1,5 +1,7 @@
 import {
   Controller,
+  Get,
+  Header,
   Post,
   Body,
   HttpException,
@@ -8,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { SynapseService } from './synapse.service';
 import { ActionLog, SynapseScenario, StoryArc } from '@cortex/types';
+import { authoredMissions } from './static-arc';
 
 @Controller('synapse')
 export class SynapseController {
@@ -59,12 +62,14 @@ export class SynapseController {
     body: {
       loreId?: string;
       missionId?: string;
+      mode?: string;
     },
   ): Promise<StoryArc> {
     try {
       return await this.synapseService.generateStoryArc(
         body.loreId || 'cyberpunk-01',
         body.missionId,
+        body.mode === 'ai' ? 'ai' : undefined,
       );
     } catch (error: unknown) {
       const errorMessage =
@@ -75,5 +80,48 @@ export class SynapseController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  /** Missions that play with no AI (authored scenes). */
+  @Get('missions')
+  @Header('Cache-Control', 'public, max-age=3600')
+  listMissions() {
+    return authoredMissions();
+  }
+
+  /** "Ôn bằng truyện": up to three scenes for the phrases the player keeps missing. */
+  @Post('review')
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async review(
+    @Body() body: { phrases?: string[]; seen?: string[] },
+  ): Promise<StoryArc> {
+    const phrases = Array.isArray(body.phrases)
+      ? body.phrases.filter((p) => typeof p === 'string').slice(0, 12)
+      : [];
+    const seen = Array.isArray(body.seen)
+      ? body.seen.filter((p) => typeof p === 'string').slice(0, 200)
+      : [];
+    const arc = this.synapseService.reviewArc(phrases, seen);
+    if (!arc)
+      throw new HttpException(
+        'No scenes for these phrases',
+        HttpStatus.NOT_FOUND,
+      );
+    return arc;
+  }
+
+  /** "Báo cảnh có vấn đề". */
+  @Post('report')
+  async report(
+    @Body() body: { missionId?: string; stage?: number; note?: string },
+  ): Promise<{ ok: boolean }> {
+    if (!body.missionId)
+      throw new HttpException('Missing missionId', HttpStatus.BAD_REQUEST);
+    await this.synapseService.reportScene(
+      body.missionId,
+      Number(body.stage) || 0,
+      String(body.note ?? ''),
+    );
+    return { ok: true };
   }
 }
