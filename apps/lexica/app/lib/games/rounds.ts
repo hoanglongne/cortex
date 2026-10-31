@@ -8,7 +8,7 @@ import type { ContentCard } from '../content/pack';
 export type Rand = () => number;
 
 /** The slice of a card the games need. */
-export type GameCard = Pick<ContentCard, 'id' | 'word' | 'translationHint' | 'collocations' | 'scenario' | 'ipa'>;
+export type GameCard = Pick<ContentCard, 'id' | 'word' | 'translationHint' | 'collocations' | 'scenario' | 'ipa' | 'upgradeModule'>;
 
 export function shuffle<T>(list: readonly T[], rand: Rand = Math.random): T[] {
     const a = [...list];
@@ -142,6 +142,59 @@ export function listenRounds(cards: readonly GameCard[], bank: readonly GameCard
     return out;
 }
 
+/** Sentences of 30–180 characters from English texts, for the cloze. */
+export function sentencesOf(texts: readonly string[]): string[] {
+    return texts
+        .flatMap((t) => t.replace(/\s+/g, ' ').match(/[^.!?]+[.!?]["”']?/g) ?? [])
+        .map((x) => x.trim())
+        .filter((x) => x.length >= 30 && x.length <= 180 && !/^[A-Z]:/.test(x));
+}
+
+/**
+ * Điền đoạn: a real sentence from a text with one of my words blanked out,
+ * four words to choose from (like a Reading gap-fill). The word may appear
+ * with an ending (plans, planned). Words with no sentence are left out.
+ */
+export function clozeRounds(cards: readonly GameCard[], bank: readonly GameCard[], sentences: readonly string[], n: number, rand: Rand = Math.random): Choice[] {
+    const out: Choice[] = [];
+    for (const card of shuffle(cards, rand)) {
+        if (out.length >= n) break;
+        const w = card.word.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`\\b${w}(?:s|es|d|ed|ing)?\\b`, 'i');
+        const hits = sentences.filter((x) => re.test(x));
+        const wrong = otherWords(card, bank, 3, rand);
+        if (!hits.length || wrong.length < 3) continue;
+        const sentence = hits[Math.floor(rand() * hits.length)];
+        out.push({ cardId: card.id, prompt: sentence.replace(re, '_____'), ...withOptions(card.word, wrong, rand) });
+    }
+    return out;
+}
+
+/**
+ * Nâng cấp câu: a plain sentence and the phrase to replace; pick the most
+ * formal of the card's three academic options. Only cards whose most formal
+ * option is clear (one top score) are used.
+ */
+export function upgradeRounds(cards: readonly GameCard[], n: number, rand: Rand = Math.random): Choice[] {
+    const out: Choice[] = [];
+    for (const card of shuffle(cards, rand)) {
+        if (out.length >= n) break;
+        const m = card.upgradeModule;
+        if (!m || m.academicOptions.length < 3) continue;
+        const top = Math.max(...m.academicOptions.map((o) => o.formalityScore));
+        if (m.academicOptions.filter((o) => o.formalityScore === top).length !== 1) continue;
+        const right = m.academicOptions.find((o) => o.formalityScore === top)!.text;
+        const options = shuffle(m.academicOptions.map((o) => o.text), rand);
+        out.push({
+            cardId: card.id,
+            prompt: `${m.simpleSentence.replace(m.targetSlot, `[${m.targetSlot}]`)}\nCách nói trang trọng nhất cho "${m.targetSlot}"?`,
+            options,
+            answer: options.indexOf(right),
+        });
+    }
+    return out;
+}
+
 /** Gõ: the meaning, the letter count and the first letter; type the word. */
 export interface Spell {
     cardId: string;
@@ -214,4 +267,46 @@ export function gameReview(answers: readonly GameAnswer[], known: (id: string) =
         again: [...wrong].filter(known),
         recalled: [...right].filter((id) => !wrong.has(id) && known(id)),
     };
+}
+
+/** What a boss question looks like, so the screen knows how to show it. */
+export type BossMode = 'blitz' | 'detective' | 'liar' | 'cloze' | 'upgrade';
+export type BossRound = Choice & { mode: BossMode };
+
+/**
+ * Twelve questions in three phases, each harder than the last: meanings, then
+ * clues or the liar, then sentences from texts and upgrades. A phase that has
+ * no questions to give is filled with meanings.
+ */
+export function bossRounds(cards: readonly GameCard[], bank: readonly GameCard[], sentences: readonly string[], rand: Rand = Math.random): BossRound[] {
+    const tag = (rs: Choice[], mode: BossMode): BossRound[] => rs.map((r) => ({ ...r, mode }));
+    const phase1 = tag(blitzRounds(cards, bank, 4, rand), 'blitz');
+    let phase2 = tag(detectiveRounds(cards, bank, 2, rand), 'detective').concat(tag(liarRounds(cards, bank, 2, rand), 'liar'));
+    let phase3 = tag(clozeRounds(cards, bank, sentences, 2, rand), 'cloze').concat(tag(upgradeRounds(cards, 2, rand), 'upgrade'));
+    const used = new Set([...phase1, ...phase2, ...phase3].map((r) => r.cardId));
+    const spare = tag(blitzRounds(cards.filter((c) => !used.has(c.id)), bank, 8, rand), 'blitz');
+    if (phase2.length < 4) phase2 = phase2.concat(spare.splice(0, 4 - phase2.length));
+    if (phase3.length < 4) phase3 = phase3.concat(spare.splice(0, 4 - phase3.length));
+    return [...phase1, ...shuffle(phase2, rand), ...shuffle(phase3, rand)];
+}
+
+/** `n` mixed questions for a room: "easy" leans on meanings and clues, "hard" on sentences and the liar. */
+export function mixedRounds(level: 'easy' | 'hard', cards: readonly GameCard[], bank: readonly GameCard[], sentences: readonly string[], n: number, rand: Rand = Math.random): BossRound[] {
+    const tag = (rs: Choice[], mode: BossMode): BossRound[] => rs.map((r) => ({ ...r, mode }));
+    const pools: BossRound[][] =
+        level === 'easy'
+            ? [tag(blitzRounds(cards, bank, n, rand), 'blitz'), tag(detectiveRounds(cards, bank, 2, rand), 'detective'), tag(liarRounds(cards, bank, 1, rand), 'liar')]
+            : [tag(clozeRounds(cards, bank, sentences, 2, rand), 'cloze'), tag(upgradeRounds(cards, 1, rand), 'upgrade'), tag(liarRounds(cards, bank, 2, rand), 'liar'), tag(detectiveRounds(cards, bank, 1, rand), 'detective')];
+    const seen = new Set<string>();
+    const picked: BossRound[] = [];
+    for (const r of shuffle(pools.flat(), rand)) {
+        if (picked.length >= n) break;
+        if (seen.has(r.cardId)) continue;
+        seen.add(r.cardId);
+        picked.push(r);
+    }
+    if (picked.length < n) {
+        for (const r of tag(blitzRounds(cards.filter((c) => !seen.has(c.id)), bank, n - picked.length, rand), 'blitz')) picked.push(r);
+    }
+    return picked.slice(0, n);
 }

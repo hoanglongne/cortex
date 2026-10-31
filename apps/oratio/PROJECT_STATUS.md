@@ -1,3 +1,5 @@
+> **Lỗi thời (31/10/2026):** bản này viết trước các đợt 2 và 3 (chấm chéo bất đồng bộ, Whisper, giờ thi, lớp học đã có trong code). Xem `docs/ORATIO_PLAN.md` mục 2 để biết trạng thái thật.
+
 # Oratio: trạng thái
 
 > Cập nhật 2026-10-18. Xem `README.md` để cài đặt và `../../docs/ORATIO_TASKS.md` để biết việc đã làm và còn lại.

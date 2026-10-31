@@ -16,6 +16,7 @@
     "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
+    "@cortex/brand": "workspace:*",
     "@cortex/classroom": "workspace:*",
     "@cortex/classroom-lexica": "workspace:*",
     "@cortex/types": "workspace:*",

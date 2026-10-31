@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BookOpen, Dumbbell, Flame, LayoutGrid, RotateCcw, UserRound } from 'lucide-react';
+import { BookOpen, Dumbbell, Flame, Gamepad2, LayoutGrid, RotateCcw, UserRound, Users } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { levelDef } from '../lib/levels';
 import { BRANCH_LABEL, currentDay, PATH_DAYS } from '../lib/journey/path';
@@ -39,8 +39,10 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
                 <nav className="ml-auto flex items-center gap-1" aria-label="Điều hướng">
                     <NavLink href="/review" icon={<RotateCcw className="w-4 h-4" />} label="Ôn tập" badge={due > 0 ? due : undefined} />
                     <NavLink href="/practice" icon={<Dumbbell className="w-4 h-4" />} label="Luyện" />
+                    <NavLink href="/play" icon={<Gamepad2 className="w-4 h-4" />} label="Chơi" />
                     <NavLink href="/learned" icon={<BookOpen className="w-4 h-4" />} label="Từ của tôi" />
                     <NavLink href="/album" icon={<LayoutGrid className="w-4 h-4" />} label="Album" />
+                    <NavLink href="/buddy" icon={<Users className="w-4 h-4" />} label="Buddy" />
                     <NavLink href="/me" icon={<UserRound className="w-4 h-4" />} label="Tôi" />
                 </nav>
             </div>

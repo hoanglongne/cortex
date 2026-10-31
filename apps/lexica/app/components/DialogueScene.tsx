@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, Eye, Mic, Square, Volume2, X } from 'lucide-react';
 import { guessOptions, guessTurns, lineMatch, speakersOf, type Turn } from '../lib/content/dialogue';
-import { NATURAL_VOICES, speakNatural } from '../lib/audio/AudioService';
+import { AudioService, NATURAL_VOICES, speakNatural } from '../lib/audio/AudioService';
 import { englishVoices, listenOnce, recognitionCtor, speakWith } from '../lib/pronunciation/speech';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
 import { alignAttempt } from '../lib/pronunciation/align';
@@ -68,6 +68,12 @@ export default function DialogueScene({
         void sayAs(last.line, voiceOf(last.speaker));
         // eslint-disable-next-line react-hooks/exhaustive-deps -- play each turn once, when it appears
     }, [shown, ready]);
+
+    // The next lines' voice files start loading while this one plays, so each turn begins at once
+    useEffect(() => {
+        AudioService.preloadText(turns.slice(shown, shown + 3).map((t) => ({ text: t.line, voice: NATURAL_VOICES[voiceOf(t.speaker) % NATURAL_VOICES.length] })));
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- when the scene moves on
+    }, [shown]);
 
     useEffect(() => {
         endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });

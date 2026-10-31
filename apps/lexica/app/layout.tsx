@@ -7,7 +7,7 @@ import ClassSync from "./components/ClassSync";
 import EngagementSync from "./components/EngagementSync";
 import ContentLoader from "./components/ContentLoader";
 import HydrationGate from "./components/HydrationGate";
-import AppNav from "./components/AppNav";
+import AppNav, { DesktopNav } from "./components/AppNav";
 import BuddySync from "./components/BuddySync";
 
 // Design system fonts (docs/DESIGN_SYSTEM.md). Vietnamese subset is required:
@@ -73,6 +73,7 @@ export default function RootLayout({
           <EngagementSync />
           <ContentLoader />
           <HydrationGate>
+            <DesktopNav />
             {children}
             <AppNav />
           </HydrationGate>

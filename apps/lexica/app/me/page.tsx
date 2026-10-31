@@ -10,6 +10,7 @@ import { BRANCH_LABEL } from '../lib/journey/path';
 import BranchCompare from '../components/BranchCompare';
 import { BRANCH_PROMISE } from '../lib/journey/branchInfo';
 import PaceChooser from '../components/PaceChooser';
+import { CORTEX_HUB_URL } from '../lib/cortexConfig';
 import StepNumbers from '../components/StepNumbers';
 
 const chip = (on: boolean) => `h-9 px-3 rounded-lg border text-xs font-medium ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
@@ -56,6 +57,7 @@ export default function MePage() {
                     <Row href="/buddy" icon={<Users className="w-4 h-4" />} title="Buddy" />
                     {hardCount > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó của bạn" hint={`${hardCount} từ`} />}
                     <Row href="/guide" icon={<Compass className="w-4 h-4" />} title="Lexica có gì" />
+                    {CORTEX_HUB_URL && <Row href={CORTEX_HUB_URL} icon={<Compass className="w-4 h-4" />} title="Về Cortex" hint="Giáo viên, trung tâm và các app khác" />}
                     <Row href="/feedback?from=/me" icon={<MessageSquareHeart className="w-4 h-4" />} title="Góp ý và báo lỗi" />
                 </section>
 

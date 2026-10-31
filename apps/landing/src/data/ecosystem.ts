@@ -61,7 +61,7 @@ export const ecosystemApps: EcosystemApp[] = [
     {
         id: 'dialecta',
         name: 'Dialecta',
-        status: 'Live',
+        status: 'Idea',
         pillar: 'Cognitive',
         pureFunctionDesc:
             'Giải quyết CHÍNH XÁC một vấn đề: Huấn luyện giải mã trọng âm theo thời gian thực trên các vùng miền khác nhau.',

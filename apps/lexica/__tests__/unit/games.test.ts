@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blitzRounds, chainOk, chainReplies, detectivePoints, detectiveRounds, gameReview, liarRounds, listenRounds, maskWord, matchBoard, spellOk, spellRounds, type GameCard } from '../../app/lib/games/rounds';
+import { clozeRounds, sentencesOf, upgradeRounds, blitzRounds, chainOk, chainReplies, detectivePoints, detectiveRounds, gameReview, liarRounds, listenRounds, maskWord, matchBoard, spellOk, spellRounds, type GameCard } from '../../app/lib/games/rounds';
 
 const WORDS = ['abundant', 'brief', 'cautious', 'dense', 'eager', 'fragile', 'genuine', 'humble'];
 const bank: GameCard[] = WORDS.map((w, i) => ({
@@ -93,5 +93,28 @@ describe('games', () => {
             (id) => id !== 'x',
         );
         expect(r).toEqual({ again: ['a'], recalled: ['b'] });
+    });
+
+    it('cloze: blanks one of my words in a real sentence, endings included', () => {
+        const sentences = sentencesOf(['The weather was ABUNDANT this year and everyone enjoyed it. A: skip this line here please ok. He was cautious about every little step he took.']);
+        expect(sentences).toHaveLength(2);
+        const r = clozeRounds(bank, bank, sentences, 5, seq());
+        expect(r.length).toBe(2);
+        for (const q of r) {
+            expect(q.prompt).toContain('_____');
+            expect(q.options[q.answer]).toBe(bank.find((c) => c.id === q.cardId)!.word);
+        }
+    });
+
+    it('upgrade: the answer is the single most formal option; unclear cards are skipped', () => {
+        const mk = (id: string, scores: number[]): GameCard => ({
+            ...bank[0],
+            id,
+            upgradeModule: { simpleSentence: 'There is a very big amount of food.', targetSlot: 'very big amount', academicOptions: scores.map((f, i) => ({ text: `opt${i}`, nuance: '', formalityScore: f })) },
+        });
+        const r = upgradeRounds([mk('a', [7, 9, 8]), mk('b', [9, 9, 5])], 5, seq());
+        expect(r).toHaveLength(1);
+        expect(r[0].options[r[0].answer]).toBe('opt1');
+        expect(r[0].prompt).toContain('[very big amount]');
     });
 });

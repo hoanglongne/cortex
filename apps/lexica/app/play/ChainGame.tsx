@@ -45,15 +45,15 @@ export default function ChainGame({ known, bank, onAgain }: { known: GameCard[];
         const won = end === 'me';
         return (
             <div className="space-y-4">
-                <Bar title="Nối chuỗi" score={score} />
-                <Over score={score} answers={answers} onAgain={onAgain} line={won ? 'Máy hết từ, bạn thắng' : 'Hết từ bạn biết để nối'} />
+                <Bar game="chain" title="Nối chuỗi" score={score} />
+                <Over game="chain" score={score} answers={answers} onAgain={onAgain} line={won ? 'Máy hết từ, bạn thắng' : 'Hết từ bạn biết để nối'} />
             </div>
         );
     }
 
     return (
         <div className="space-y-4">
-            <Bar title="Nối chuỗi" score={score} />
+            <Bar game="chain" title="Nối chuỗi" score={score} />
             <div className="rounded-2xl border border-line bg-surface p-4 space-y-2">
                 <p className="text-xs text-subtle">Từ trước: bắt đầu bằng chữ cuối</p>
                 <p className="text-2xl font-semibold text-ink">

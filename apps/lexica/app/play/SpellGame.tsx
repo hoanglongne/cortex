@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import type { GameAnswer, GameCard } from '../lib/games/rounds';
 import { spellOk, spellRounds } from '../lib/games/rounds';
 import { Bar, Over } from './Shell';
+import { edge, GAME_COLOR, tint } from './theme';
 
 const ROUNDS = 8;
 
@@ -20,8 +21,8 @@ export default function SpellGame({ cards, onAgain }: { cards: GameCard[]; onAga
 
     if (!q) return (
         <div className="space-y-4">
-            <Bar title="Gõ" score={score} />
-            <Over score={score} answers={answers} onAgain={onAgain} />
+            <Bar game="spell" title="Gõ" score={score} />
+            <Over game="spell" score={score} answers={answers} onAgain={onAgain} />
         </div>
     );
 
@@ -49,13 +50,13 @@ export default function SpellGame({ cards, onAgain }: { cards: GameCard[]; onAga
 
     return (
         <div className="space-y-4">
-            <Bar title="Gõ" score={score} />
+            <Bar game="spell" title="Gõ" score={score} progress={i / rounds.length} />
             <p className="text-xs text-subtle text-center">
                 Từ {i + 1}/{rounds.length}
             </p>
-            <div className="rounded-2xl border border-line bg-surface p-5 text-center space-y-3">
+            <div className="rounded-3xl border p-6 text-center space-y-4" style={{ background: tint(GAME_COLOR.spell, 8), borderColor: edge(GAME_COLOR.spell, 30) }}>
                 <p className="text-ink">{q.meaning}</p>
-                <p data-testid="spell-mask" className="font-mono text-2xl tracking-widest text-ink">{reveal ? q.word : mask}</p>
+                <p data-testid="spell-mask" className="font-mono text-3xl tracking-[0.3em] text-accent">{reveal ? q.word : mask}</p>
                 {tries > 0 && !reveal && <p className="text-xs text-warning">Chưa đúng, thử lại (đã mở thêm một chữ)</p>}
             </div>
             <form onSubmit={(e) => { e.preventDefault(); submit(); }} className="flex gap-2">
