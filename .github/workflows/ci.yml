@@ -66,3 +66,60 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "placeholder-key"
           NEXT_PUBLIC_CORTEX_API_URL: "http://localhost:3001"
           NEXT_PUBLIC_CORTEX_HUB_URL: "http://localhost:3000"
+
+  # Deploys to Vercel only from here: one finished build per changed app, after
+  # everything above passed. Vercel's own Git builds are switched off (docs/DEPLOY.md),
+  # so a push or a merge no longer starts a build in every project.
+  plan:
+    name: Which apps changed
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.affected.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - id: affected
+        run: echo "apps=$(node scripts/affected-apps.mjs "${{ github.event.before }}" "${{ github.sha }}")" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy ${{ matrix.app }}
+    needs: plan
+    if: needs.plan.outputs.apps != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.apps) }}
+    concurrency:
+      group: deploy-${{ matrix.app }}
+      cancel-in-progress: false
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ vars[format('VERCEL_PROJECT_{0}', matrix.key)] }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check the Vercel settings are there
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Secret VERCEL_TOKEN is missing (docs/DEPLOY.md)"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Variable VERCEL_ORG_ID is missing (docs/DEPLOY.md)"; exit 1; }
+          test -n "$VERCEL_PROJECT_ID" || { echo "Variable VERCEL_PROJECT_${{ matrix.key }} is missing (docs/DEPLOY.md)"; exit 1; }
+      # Run from the repo root: each project's Root Directory setting points at its app
+      - name: Pull the project's settings and environment
+        run: npx --yes vercel@65.4.0 pull --yes --environment=production --token="$VERCEL_TOKEN"
+      - name: Build
+        run: npx --yes vercel@65.4.0 build --prod --token="$VERCEL_TOKEN"
+      - name: Deploy the finished build
+        run: npx --yes vercel@65.4.0 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
