@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { SupabaseService } from '../supabase/supabase.service';
 import { StudioLlm } from '../studio/studio-llm';
-import { DEFAULT_GEMINI_MODEL } from '../synapse/llm.provider';
+import { DEFAULT_GEMINI_MODEL } from '../shared/gemini';
 import {
   DailyLimit,
   MAX_AUDIO_BASE64,

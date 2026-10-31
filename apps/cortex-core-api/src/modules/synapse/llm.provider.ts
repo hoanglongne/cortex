@@ -3,8 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ConfigService } from '@nestjs/config';
 import { SynapseScenario } from '@cortex/types';
 
-/** Google retires Gemini versions; override with GEMINI_MODEL without a deploy. */
-export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
+import { DEFAULT_GEMINI_MODEL } from '../shared/gemini';
 
 export interface LlmProvider {
   generateScenario(prompt: string): Promise<SynapseScenario>;

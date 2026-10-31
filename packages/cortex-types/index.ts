@@ -118,6 +118,8 @@ export interface SynapseChoice {
   particle: string;
   meaning: string;
   outcome: string;
+  /** A short English sentence that uses the whole phrase (shown in the phrase book). */
+  example?: string;
   isCorrect: boolean;
   effect?: 'restore_life' | 'integrity_boost' | 'data_leak'; // Gameplay effects
 }
