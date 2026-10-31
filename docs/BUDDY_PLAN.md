@@ -111,7 +111,7 @@ Bạn quyết: làm hết các hướng, hướng nào không hiệu quả thì 
 | B Hôm nay bạn học gì | Xong | `TodayWordsCard`, `buddy_words_*`, đồng bộ trong `useActivitySync` |
 | I Tặng từ | Xong | `GivePanel`, `GiftsCard`, `gift_*` |
 | C Đố nhau | Xong, dùng lại `duel_create` | `GivePanel` (chọn 5 đến 8 từ) |
-| A Nhiệm vụ nhóm | Xong, không cần bảng, tính từ `daily_activity` | `QuestCard`, `questWeek` |
+| A Mục tiêu nhóm tuần (bỏ cách nói "con quái", thua không bị phạt) | Xong, không cần bảng, tính từ `daily_activity` | `QuestCard`, `questWeek` |
 | G Khiên | Xong, mỗi người một khiên mỗi tuần | `shield_give`, `shields_team` |
 | E Giờ học chung | Bản nhẹ: hẹn giờ, cửa sổ vào học, tệp lịch .ics. **Chưa có thông báo đẩy**, chỉ thấy khi mở Buddy | `DatesCard`, `date_*` |
 | D Dạy lại nhau | Xong, dạng "Nhờ đặt câu": bạn kia gõ một câu (3 đến 120 chữ, không đường dẫn), có nút báo cáo | `AsksCard`, `ask_*` |

@@ -21,7 +21,7 @@ const MESSAGES: Record<string, string> = {
     'note too long': 'Lời nhắn tối đa 60 chữ.',
     'no links': 'Lời nhắn không được có đường dẫn hay email.',
     'too many gifts': 'Hôm nay bạn đã tặng 5 món rồi. Mai tặng tiếp nhé.',
-    'shield used': 'Tuần này bạn đã dùng khiên rồi.',
+    'shield used': 'Tuần này bạn đã đỡ một ngày cho bạn rồi.',
     'bad day': 'Chỉ đỡ được một ngày trong 7 ngày qua.',
     'too many dates': 'Hai bạn đã hẹn 3 buổi chưa diễn ra. Xong rồi hẹn tiếp nhé.',
     'bad time': 'Chọn giờ trong 7 ngày tới.',
@@ -73,7 +73,7 @@ export const noteProblem = (s: string): string | null => (/(https?:|www\.|\.com|
 /** Damage a person does on a day: up to 10 for words learned, 15 for reaching the day's goal. */
 export const GOAL_DAMAGE = 15;
 export const WORD_DAMAGE_CAP = 10;
-/** The monster's life for each member of the group. */
+/** The week's goal, in points, for each member of the group. */
 export const HP_PER_MEMBER = 90;
 /** After a lost week the monster comes back with this much more life. */
 export const REGROW = 0.15;
@@ -156,12 +156,12 @@ export function questWeek(opts: { people: readonly { id: string; name: string }[
 
 /** One line under the monster. */
 export function questLine(q: Quest): string {
-    if (q.members.length < 2) return 'Thêm một người bạn để cùng đánh con quái. Một mình cũng đánh được.';
-    if (q.state === 'won') return 'Cả nhóm hạ gục con quái tuần này!';
-    if (q.state === 'lost') return `Con quái thắng tuần này. Tuần sau nó hồi thêm ${Math.round(REGROW * 100)}% máu.`;
+    if (q.members.length < 2) return 'Thêm một người bạn để cùng đặt mục tiêu tuần. Một mình cũng tính được.';
+    if (q.state === 'won') return 'Cả nhóm đã đạt mục tiêu tuần này!';
+    if (q.state === 'lost') return 'Tuần trước nhóm chưa đạt mục tiêu. Tuần này làm lại nhé.';
     const need = q.hp - q.damage;
-    const slackers = q.quiet.length ? ` ${q.quiet.map((m) => m.name).join(', ')} chưa góp nhiều: cổ vũ hay tặng khiên nhé.` : '';
-    return `Còn ${need} máu.${slackers}`;
+    const slackers = q.quiet.length ? ` ${q.quiet.map((m) => m.name).join(', ')} chưa góp nhiều: cổ vũ hoặc đỡ một ngày cho bạn ấy nhé.` : '';
+    return `Còn ${need} điểm.${slackers}`;
 }
 
 // ── Study dates ─────────────────────────────────────────────────────────
