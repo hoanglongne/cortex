@@ -47,13 +47,57 @@ export function isWord(word: string, dict: Dict, extra: ReadonlySet<string> = ne
     return bases.some((b) => b.length >= MIN_LEN && (dict.valid.has(b) || extra.has(b)));
 }
 
-export type Verdict = 'ok' | 'start' | 'used' | 'nonword';
+export type Verdict = 'ok' | 'start' | 'used' | 'nonword' | 'rule';
+
+/** What a word must satisfy on top of the dictionary, from a given turn on. */
+export interface Limits {
+    minLen: number;
+    maxLen: number;
+    /** A letter the word must contain. */
+    has?: string;
+    /** The rule that switched on at exactly this turn, to announce. */
+    fresh?: string;
+}
+
+/** Turns (1-based, the player's own) at which a new condition joins; each keeps the earlier ones. */
+const MILESTONES: { from: number; apply: (l: Limits, letter: string) => string }[] = [
+    { from: 6, apply: (l) => ((l.minLen = 4), 'Từ phải có ít nhất 4 chữ cái') },
+    { from: 10, apply: (l) => ((l.minLen = 5), 'Từ phải có ít nhất 5 chữ cái') },
+    { from: 14, apply: (l) => ((l.maxLen = 8), 'Từ không dài quá 8 chữ cái') },
+    { from: 18, apply: (l, letter) => ((l.has = letter), `Từ phải chứa chữ "${letter.toUpperCase()}"`) },
+    { from: 22, apply: (l) => ((l.minLen = 6), 'Từ phải có ít nhất 6 chữ cái') },
+    { from: 26, apply: (l) => ((l.maxLen = 7), 'Từ chỉ được 6 đến 7 chữ cái') },
+];
+
+export const RULE_LETTERS = 'rtnlsdp';
+
+/** The conditions in force on the player's `turn`-th word. `letter` is the one required from turn 18. */
+export function limitsAt(turn: number, letter = 'r'): Limits {
+    const l: Limits = { minLen: MIN_LEN, maxLen: MAX_LEN };
+    for (const m of MILESTONES) if (turn >= m.from) {
+        const text = m.apply(l, letter);
+        if (turn === m.from) l.fresh = text;
+    }
+    return l;
+}
+
+/** All the conditions as short lines, for the screen. */
+export function describeLimits(l: Limits): string[] {
+    const out: string[] = [];
+    if (l.minLen > MIN_LEN) out.push(`từ ${l.minLen} chữ trở lên`);
+    if (l.maxLen < MAX_LEN) out.push(`không quá ${l.maxLen} chữ`);
+    if (l.has) out.push(`có chữ "${l.has.toUpperCase()}"`);
+    return out;
+}
+
+export const breaks = (w: string, l: Limits): boolean => w.length < l.minLen || w.length > l.maxLen || (l.has !== undefined && !w.includes(l.has));
 
 /** Can the player's `word` follow `prev`? */
-export function check(prev: string, word: string, used: ReadonlySet<string>, dict: Dict, extra?: ReadonlySet<string>): Verdict {
+export function check(prev: string, word: string, used: ReadonlySet<string>, dict: Dict, extra?: ReadonlySet<string>, limits?: Limits): Verdict {
     const w = clean(word);
     if (!w || w[0] !== lastLetter(clean(prev))) return 'start';
     if (used.has(w)) return 'used';
+    if (limits && breaks(w, limits)) return 'rule';
     return isWord(w, dict, extra) ? 'ok' : 'nonword';
 }
 
@@ -76,4 +120,5 @@ export const MESSAGES: Record<Exclude<Verdict, 'ok'>, string> = {
     start: 'Từ phải bắt đầu bằng chữ cuối của từ trước',
     used: 'Từ này đã dùng rồi',
     nonword: 'Không thấy từ này trong từ điển tiếng Anh',
+    rule: 'Từ này chưa đúng điều kiện của lượt này',
 };

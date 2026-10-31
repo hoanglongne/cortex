@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { botReply, check, isWord, makeDict, wordScore } from '../../app/lib/games/chain';
+import { botReply, check, isWord, limitsAt, makeDict, wordScore } from '../../app/lib/games/chain';
 
 const dict = makeDict('apple elephant tiger rabbit tree plan happy xylophone', 'the eagle table elbow yellow wolf fish hand dog gate ear');
 
@@ -36,5 +36,17 @@ describe('Nối chuỗi', () => {
     it('scores longer words more and learnt ones much more', () => {
         expect(wordScore('elephant', false)).toBeGreaterThan(wordScore('tree', false));
         expect(wordScore('tree', true)).toBeGreaterThan(wordScore('tree', false));
+    });
+
+    it('conditions join at fixed turns and stack, and a word that breaks them is refused', () => {
+        expect(limitsAt(5).minLen).toBe(3);
+        expect(limitsAt(6)).toMatchObject({ minLen: 4, fresh: expect.any(String) });
+        expect(limitsAt(7).fresh).toBeUndefined();
+        const l = limitsAt(18, 'r');
+        expect(l).toMatchObject({ minLen: 5, maxLen: 8, has: 'r' });
+        const d = makeDict('tree tea tried', 'tree');
+        expect(check('cat', 'tea', new Set(), d, undefined, limitsAt(6))).toBe('rule');
+        expect(check('cat', 'tree', new Set(), d, undefined, limitsAt(6))).toBe('ok');
+        expect(check('cat', 'tried', new Set(), d, undefined, limitsAt(18, 'x'))).toBe('rule');
     });
 });

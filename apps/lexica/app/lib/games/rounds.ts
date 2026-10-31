@@ -143,11 +143,21 @@ export function detectiveRounds(cards: readonly GameCard[], bank: readonly GameC
         const { options, answer } = withOptions(card.word, wrong, rand);
         const others = options.map((o, i) => ({ i, card: bank.find((c) => c.word === o) })).filter((x) => x.i !== answer && x.card) as { i: number; card: GameCard }[];
         if (others.length < 3) continue;
-        const useful = traits(card)
-            .map((t) => ({ text: t.text, cut: others.filter((o) => !t.fits(o.card)).map((o) => o.i) }))
-            .filter((t) => t.cut.length > 0);
-        // The meaning closes the case; at least one clue before it
-        if (useful.length < 2) continue;
+        // Clues rule out the others gradually: each one at most two options, and together
+        // at most two of the three others, so the lineup never collapses before the meaning.
+        const all = traits(card);
+        const meaning = all[all.length - 1];
+        const useful: { text: string; cut: number[] }[] = [];
+        const gone = new Set<number>();
+        for (const t of all.slice(0, -1)) {
+            const fresh = others.filter((o) => !t.fits(o.card) && !gone.has(o.i)).map((o) => o.i);
+            if (fresh.length === 0 || fresh.length > 2 || gone.size + fresh.length > 2) continue;
+            fresh.forEach((i) => gone.add(i));
+            useful.push({ text: t.text, cut: fresh });
+            if (useful.length >= 3) break;
+        }
+        if (useful.length < 1) continue;
+        useful.push({ text: meaning.text, cut: others.filter((o) => !gone.has(o.i)).map((o) => o.i) });
         out.push({ cardId: card.id, prompt: 'Ai là thủ phạm?', clues: useful.map((t) => t.text), cuts: useful.map((t) => t.cut), options, answer });
     }
     return out;
