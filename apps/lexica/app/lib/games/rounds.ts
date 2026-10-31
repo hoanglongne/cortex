@@ -28,6 +28,8 @@ export interface Choice {
     prompt: string;
     /** Detective: clues shown one by one, weakest first. */
     clues?: string[];
+    /** Detective: the options each clue rules out (indexes into `options`), clue by clue. */
+    cuts?: number[][];
     options: string[];
     answer: number;
     /** Plays the word aloud (Nghe). */
@@ -95,32 +97,72 @@ export function blitzRounds(cards: readonly GameCard[], bank: readonly GameCard[
     return out;
 }
 
+/** One clue about a word, and whether another word fits it (the ones that do not are "ruled out"). */
+interface Trait {
+    text: string;
+    fits: (other: GameCard) => boolean;
+}
+
+const wordOf = (c: GameCard) => c.word.trim().toLowerCase();
+const hasDouble = (w: string) => /(.)\1/.test(w);
+
+/** What can be said about the card's word without naming it, weakest clue first. Every one is exact. */
+function traits(card: GameCard): Trait[] {
+    const w = wordOf(card);
+    const out: Trait[] = [
+        { text: `${w.length} chữ cái`, fits: (o) => wordOf(o).length === w.length },
+        { text: `Bắt đầu bằng chữ "${w[0].toUpperCase()}"`, fits: (o) => wordOf(o)[0] === w[0] },
+        { text: `Kết thúc bằng chữ "${w[w.length - 1].toUpperCase()}"`, fits: (o) => wordOf(o).endsWith(w[w.length - 1]) },
+    ];
+    if (hasDouble(w)) out.push({ text: 'Có hai chữ cái giống nhau đứng liền nhau', fits: (o) => hasDouble(wordOf(o)) });
+    const rare = [...'qxzjkvwy'].find((ch) => w.includes(ch));
+    if (rare) out.push({ text: `Có chữ "${rare.toUpperCase()}" trong từ`, fits: (o) => wordOf(o).includes(rare) });
+    // Hay đi với: the partner word of a collocation, never the word itself
+    const partner = (card.collocations ?? []).map((p) => p.toLowerCase().split(/\s+/).filter((x) => x && !x.startsWith(w.slice(0, Math.max(3, w.length - 3))))).find((p) => p.length > 0);
+    if (partner) out.push({ text: `Hay đi cùng "${partner.join(' ')}"`, fits: (o) => (o.collocations ?? []).some((p) => p.toLowerCase().includes(partner.join(' '))) });
+    if (card.ipa) out.push({ text: `Đọc là /${card.ipa.replace(/^\/|\/$/g, '')}/`, fits: (o) => o.ipa === card.ipa });
+    out.push({ text: `Nghĩa: ${card.translationHint}`, fits: (o) => o.translationHint === card.translationHint });
+    return out;
+}
+
 /**
- * Thám tử từ: three clues, from the vaguest to the plainest, then the choice.
- * Clue 1 the length and first letter, 2 the situation or a phrase with the word
- * hidden, 3 the meaning. Cards without a second clue are left out.
+ * Thám tử từ: a lineup of four suspects and clues about the word, one at a
+ * time, each ruling some of the others out ("Bắt đầu bằng chữ B": the ones
+ * that do not are struck). Fewer clues, more points. Only clues that rule at
+ * least one option out are kept, so none is wasted; the meaning always closes
+ * the case. No sentence with a blank (that is Điền đoạn) and no clue that fits
+ * every option.
  */
 export function detectiveRounds(cards: readonly GameCard[], bank: readonly GameCard[], n: number, rand: Rand = Math.random): Choice[] {
     const out: Choice[] = [];
     for (const card of shuffle(cards, rand)) {
         if (out.length >= n) break;
-        const middle = maskWord(card.scenario, card.word) ?? maskedPhrase(card);
-        const wrong = lookalikes(card, bank, 3, rand);
-        if (!middle || wrong.length < 3) continue;
-        const w = card.word.trim();
-        out.push({
-            cardId: card.id,
-            prompt: 'Từ nào?',
-            clues: [`${w.length} chữ cái, bắt đầu bằng "${w[0].toUpperCase()}"`, middle, card.translationHint],
-            ...withOptions(card.word, wrong, rand),
-        });
+        if (!/^[a-z]+$/i.test(card.word.trim())) continue;
+        const wrong = otherWords(card, bank, 3, rand);
+        if (wrong.length < 3) continue;
+        const { options, answer } = withOptions(card.word, wrong, rand);
+        const others = options.map((o, i) => ({ i, card: bank.find((c) => c.word === o) })).filter((x) => x.i !== answer && x.card) as { i: number; card: GameCard }[];
+        if (others.length < 3) continue;
+        const useful = traits(card)
+            .map((t) => ({ text: t.text, cut: others.filter((o) => !t.fits(o.card)).map((o) => o.i) }))
+            .filter((t) => t.cut.length > 0);
+        // The meaning closes the case; at least one clue before it
+        if (useful.length < 2) continue;
+        out.push({ cardId: card.id, prompt: 'Ai là thủ phạm?', clues: useful.map((t) => t.text), cuts: useful.map((t) => t.cut), options, answer });
     }
     return out;
 }
 
-/** Points for a detective answer: 3, 2 or 1 by clues used; 0 when wrong. */
-export function detectivePoints(cluesUsed: number, right: boolean): number {
-    return right ? Math.max(1, 4 - Math.min(3, Math.max(1, cluesUsed))) : 0;
+/** The options ruled out once `shown` clues are open. */
+export function ruledOut(cuts: readonly number[][] | undefined, shown: number): Set<number> {
+    return new Set((cuts ?? []).slice(0, shown).flat());
+}
+
+/** Points for a detective answer: 3 with the first clue, down to 1 with all of them; 0 when wrong. */
+export function detectivePoints(cluesUsed: number, right: boolean, totalClues = 3): number {
+    if (!right) return 0;
+    const f = totalClues <= 1 ? 0 : (Math.min(totalClues, Math.max(1, cluesUsed)) - 1) / (totalClues - 1);
+    return Math.max(1, Math.round(3 - 2 * f));
 }
 
 /**

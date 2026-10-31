@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lookalikes, clozeRounds, sentencesOf, upgradeRounds, blitzRounds, chainOk, chainReplies, detectivePoints, detectiveRounds, gameReview, liarRounds, listenRounds, maskWord, matchBoard, spellOk, spellRounds, type GameCard } from '../../app/lib/games/rounds';
+import { lookalikes, clozeRounds, sentencesOf, upgradeRounds, blitzRounds, chainOk, chainReplies, detectivePoints, detectiveRounds, ruledOut, gameReview, liarRounds, listenRounds, maskWord, matchBoard, spellOk, spellRounds, type GameCard } from '../../app/lib/games/rounds';
 
 const WORDS = ['abundant', 'brief', 'cautious', 'dense', 'eager', 'fragile', 'genuine', 'humble'];
 const bank: GameCard[] = WORDS.map((w, i) => ({
@@ -32,18 +32,28 @@ describe('games', () => {
         }
     });
 
-    it('detective: three clues, the last is the meaning, the word never leaks', () => {
+    it('detective: every clue rules out at least one option, the meaning closes the case, no clue is a sentence with a blank', () => {
         const r = detectiveRounds(bank, bank, 4, seq());
         expect(r.length).toBeGreaterThan(0);
         for (const q of r) {
             const card = bank.find((c) => c.id === q.cardId)!;
-            expect(q.clues).toHaveLength(3);
-            expect(q.clues![2]).toBe(card.translationHint);
-            expect(q.clues![1].toLowerCase()).not.toContain(card.word.toLowerCase());
+            expect(q.clues!.length).toBeGreaterThanOrEqual(2);
+            expect(q.clues![q.clues!.length - 1]).toBe(`Nghĩa: ${card.translationHint}`);
+            expect(q.cuts).toHaveLength(q.clues!.length);
+            for (const cut of q.cuts!) {
+                expect(cut.length).toBeGreaterThan(0);
+                expect(cut).not.toContain(q.answer);
+            }
+            // The meaning rules out all three others
+            expect(q.cuts![q.cuts!.length - 1]).toHaveLength(3);
+            for (const c of q.clues!) expect(c).not.toContain('___');
         }
-        expect(detectivePoints(1, true)).toBe(3);
-        expect(detectivePoints(3, true)).toBe(1);
-        expect(detectivePoints(2, false)).toBe(0);
+        const q = r[0];
+        expect(ruledOut(q.cuts, 0).size).toBe(0);
+        expect(ruledOut(q.cuts, q.clues!.length).size).toBe(3);
+        expect(detectivePoints(1, true, 4)).toBe(3);
+        expect(detectivePoints(4, true, 4)).toBe(1);
+        expect(detectivePoints(2, false, 4)).toBe(0);
     });
 
     it('liar: exactly one phrase is fake and it is the answer', () => {
@@ -134,19 +144,4 @@ describe('games', () => {
         expect(lookalikes(big[6], big, 3, seq())).toHaveLength(3);
     });
 
-    it('detective: the wrong options are lookalikes, so the letter clue narrows nothing down', () => {
-        const big: GameCard[] = ['ample', 'avid', 'alert', 'adept', 'acute', 'abate', 'bold', 'calm'].map((w, i) => ({
-            id: `d${i}`,
-            word: w.toUpperCase(),
-            translationHint: `nghĩa ${w}`,
-            collocations: [`${w} thing`],
-            scenario: `Rất ${w.toUpperCase()} hôm nay.`,
-        }));
-        const r = detectiveRounds(big.slice(0, 6), big, 4, seq());
-        expect(r.length).toBeGreaterThan(0);
-        for (const q of r) {
-            const right = big.find((c) => c.id === q.cardId)!.word;
-            for (const o of q.options) expect(o[0]).toBe(right[0]);
-        }
-    });
 });

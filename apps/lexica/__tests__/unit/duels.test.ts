@@ -84,7 +84,8 @@ describe('review after a duel', () => {
         expect(clue.length).toBeGreaterThan(0);
         for (const q of clue) {
             expect(q.kind).toBe('clue');
-            expect(q.prompt.split('\n')).toHaveLength(3);
+            expect(q.prompt.split('\n').length).toBeGreaterThanOrEqual(1);
+            expect(q.prompt).not.toContain('Nghĩa:');
             expect(q.options).toHaveLength(4);
         }
         expect(duelKindLabel('liar')).toMatch(/tráo/);

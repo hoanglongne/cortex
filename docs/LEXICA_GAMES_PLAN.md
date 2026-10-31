@@ -101,3 +101,11 @@ Nếu chỉ chọn một việc: **bước 2**, vì nó làm game có lý do t�
 Đo mức dùng: sự kiện `game_start` (game, lượt) và `game_finish` (game, điểm, số đúng, tổng) gửi qua PostHog khi có cấu hình. Sau 2 đến 3 tuần xem game nào được chơi tới cuối để quyết giữ, gộp hoặc bỏ.
 
 Chuyển sang #100 (Buddy): Nối chuỗi chơi đôi và các cách chơi cùng nhau thời gian thực.
+
+## 8. Làm lại sau khi chơi thử (#107)
+
+- **Nối chuỗi:** chuỗi từ hiện từng hàng "Máy → Bạn" có nhãn, máy "đang nghĩ" gần một giây trước khi trả lời (thời gian không tính vào lượt của bạn).
+- **Thám tử từ:** thành trò suy luận loại trừ. Bốn nghi phạm, manh mối mở từng cái (số chữ cái, chữ đầu, chữ cuối, chữ cái đôi, chữ hiếm, hay đi cùng từ nào, phiên âm, nghĩa), mỗi manh mối gạch tên những từ không khớp. Chỉ giữ manh mối loại được ít nhất một từ, nghĩa luôn là manh mối cuối. Không còn câu có chỗ trống (đó là Điền đoạn). Lần sửa trước (ép đáp án cùng chữ đầu) đi sai hướng và đã bỏ.
+- **Ghép:** thành trò lật thẻ (Memory): 12 thẻ úp trong một lưới, từ và nghĩa trộn lẫn; cặp đúng ở lại với màu riêng, combo, điểm thưởng tốc độ.
+- **Mưa từ:** có chọn Luyện (không mất tim) hoặc Thử thách; 5 tim; bắt đầu chậm và ít (tối đa 3 từ), từ ngắn trước; sau mỗi từ rơi chạm đất mưa chậm lại vài giây; hiện chữ đầu và số chữ; từ vàng cứ 7 từ một lần (thêm tim, làm chậm hoặc dọn sạch); nền đổi theo cấp.
+- Chưa làm: chơi đôi thời gian thực và chế độ Đấu trường cho Nối chuỗi (chuyển sang #100 và #63).
