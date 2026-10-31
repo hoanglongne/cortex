@@ -675,6 +675,322 @@ const m4: ScenarioBlueprint[] = [
   ),
 ];
 
+const m5: ScenarioBlueprint[] = [
+  scene(
+    1,
+    'MỞ ĐẦU',
+    'Lớp học, buổi họp chuẩn bị chuyến dã ngoại cuối tuần.',
+    'Cô giao bạn làm trưởng nhóm lo việc di chuyển cho 12 bạn. Danh sách chưa ai ghi tên, hạn đăng kí là thứ Năm và bạn chưa biết bắt đầu từ đâu.',
+    'Bạn ___ một bảng đăng kí và gửi vào nhóm lớp ngay chiều nay.',
+    [
+      'set up',
+      'lập ra, thiết lập',
+      'Làm ngay một bảng đăng kí rõ ràng là bước đầu tiên, cả lớp biết cần làm gì và trước hạn nào.',
+      'She set up a sign-up sheet for the trip.',
+    ],
+    [
+      [
+        'put off',
+        'Bạn nghĩ "để mai làm". Thứ Năm tới mà mới có ba người đăng kí.',
+        'He put off the task again.',
+      ],
+      [
+        'give up',
+        'Bạn nhắn cô xin đổi người khác làm. Cô thất vọng vì bạn nhận việc chưa được một ngày.',
+        'Do not give up so easily.',
+      ],
+      [
+        'hand out',
+        'Bạn phát tờ giấy trống cho mọi người rồi quên thu lại. Giấy thất lạc hết.',
+        'She handed out the forms.',
+      ],
+    ],
+    'Cô vừa đưa bạn tờ danh sách trắng, góc giấy còn thơm mùi mực in.',
+  ),
+  scene(
+    2,
+    'LEO THANG',
+    'Nhóm chat lớp, 20:00.',
+    'Mười người đã đăng kí nhưng hai bạn nói không đi vì gia đình bận. Xe chỉ thuê được khi đủ 12 người.',
+    'Bạn ___ hai bạn đó, hỏi xem có cách nào cùng đi được không.',
+    [
+      'reach out to',
+      'chủ động liên lạc',
+      'Nhắn riêng hỏi hoàn cảnh trước khi kết luận: biết đâu chỉ cần đổi giờ hay nhờ bạn đi chung.',
+      'Please reach out to me if you need help.',
+    ],
+    [
+      [
+        'write off',
+        'Bạn coi như hai bạn đó không đi. Xe thiếu người, cả lớp phải đóng thêm tiền.',
+        'They wrote off the loss.',
+      ],
+      [
+        'look down on',
+        'Bạn nhắn "sao lại không đi, tiếc quá". Hai bạn thấy bị trách và im luôn.',
+        'Never look down on others.',
+      ],
+      [
+        'brush off',
+        'Bạn bảo "thôi kệ" và đổi chủ đề. Xe vẫn thiếu hai chỗ.',
+        'She brushed off his concerns.',
+      ],
+    ],
+    'Tin nhắn "đã xem" hiện dưới dòng chữ của hai bạn.',
+  ),
+  scene(
+    3,
+    'XOẮN',
+    'Sáng thứ Bảy, điểm hẹn trước cổng trường.',
+    'Xe đến trễ 40 phút. Các bạn bắt đầu than phiền, một bạn nói "tổ chức tệ quá". Cả lớp nhìn bạn.',
+    'Bạn ___ và giải thích rõ: xe đang trên đường, và cả nhóm cần chờ thêm một chút.',
+    [
+      'calm down',
+      'bình tĩnh, làm dịu',
+      'Nói rõ tình hình bằng giọng bình tĩnh giúp cả lớp dịu lại thay vì cãi nhau.',
+      'Calm down, everything is under control.',
+    ],
+    [
+      [
+        'blow up',
+        'Bạn nổi nóng quát lại. Một nửa lớp quay đi, không khí chuyến đi hỏng ngay từ đầu.',
+        'He blew up at his friends.',
+      ],
+      [
+        'back out',
+        'Bạn nói "ai muốn thì tự đi". Cô phải ra can thiệp.',
+        'She backed out of leading the trip.',
+      ],
+      [
+        'talk back',
+        'Bạn cãi lại bạn kia từng câu. Cả lớp hết muốn nghe bạn.',
+        'Do not talk back to teachers.',
+      ],
+    ],
+    'Tiếng cười nói của lớp nhỏ dần khi bạn giơ tay ra hiệu.',
+  ),
+  scene(
+    4,
+    'KHỦNG HOẢNG',
+    'Trên đường, xe dừng vì mưa lớn.',
+    'Mưa làm đường trơn, tài xế báo phải đổi lộ trình và đến muộn một tiếng. Chương trình tham quan phải cắt bớt một điểm.',
+    'Bạn ___ phương án: bỏ điểm tham quan ít quan trọng nhất và giữ lại giờ ăn trưa.',
+    [
+      'cut down',
+      'cắt giảm',
+      'Cắt bớt đúng chỗ giúp chuyến đi vẫn trọn vẹn thay vì cố làm hết rồi vội vàng.',
+      'We need to cut down the schedule.',
+    ],
+    [
+      [
+        'call off',
+        'Bạn đề nghị huỷ cả chuyến, quay xe. Cả lớp hụt hẫng sau cả tuần chờ đợi.',
+        'They called off the trip.',
+      ],
+      [
+        'give in',
+        'Bạn để mọi người tranh cãi và quyết định. Kế hoạch không ai nhận trách nhiệm.',
+        'She gave in to the noise.',
+      ],
+      [
+        'pull over',
+        'Bạn bảo tài xế dừng lại chờ tạnh. Hai tiếng sau vẫn mưa.',
+        'The driver pulled over.',
+      ],
+    ],
+    'Mưa gõ đều trên mái xe, kính cửa mờ đi vì hơi nước.',
+  ),
+  scene(
+    5,
+    'ĐỈNH ĐIỂM',
+    'Cuối ngày, bãi đỗ xe.',
+    'Điểm danh thì thiếu một bạn: Hà đã đi lạc khỏi nhóm lúc chụp ảnh. Trời sắp tối và các bạn bắt đầu lo lắng.',
+    'Bạn ___ ngay: gọi cô, chia hai nhóm đi tìm ở hai hướng, và dặn nhóm còn lại ở yên một chỗ.',
+    [
+      'take charge',
+      'đứng ra chỉ huy',
+      'Khi có sự cố, phân công rõ ràng và bình tĩnh là cách nhanh nhất để tìm bạn an toàn.',
+      'Someone has to take charge in an emergency.',
+    ],
+    [
+      [
+        'freak out',
+        'Bạn hoảng lên và la lớn. Cả lớp chạy tán loạn, càng khó tìm.',
+        'He freaked out when he heard the news.',
+      ],
+      [
+        'hold back',
+        'Bạn chờ thêm 15 phút xem Hà có tự về không. Trời tối hơn.',
+        'She held back from calling.',
+      ],
+      [
+        'sit back',
+        'Bạn nói "chắc Hà tự về thôi" và ngồi chờ. Cô trách vì không báo ngay.',
+        'He sat back and did nothing.',
+      ],
+    ],
+    'Chiếc balo của Hà vẫn còn trên ghế xe, nằm ngay cạnh cửa.',
+  ),
+];
+
+const m6: ScenarioBlueprint[] = [
+  scene(
+    1,
+    'MỞ ĐẦU',
+    'Căn tin, giờ ra chơi.',
+    'Mai, bạn thân từ lớp 6, thấy bạn ngồi cùng nhóm bạn mới và im lặng quay đi. Bạn hiểu Mai đang buồn nhưng cả nhóm đang nhìn bạn.',
+    'Bạn ___ nhóm một lúc và qua ngồi cùng Mai để hỏi han.',
+    [
+      'step away from',
+      'rời khỏi một lúc',
+      'Quan tâm bạn cũ ngay lúc này giúp tình bạn không nguội đi chỉ vì có bạn mới.',
+      'She stepped away from the group to call her.',
+    ],
+    [
+      [
+        'carry on',
+        'Bạn vẫn ngồi nói chuyện như không thấy. Mai về lớp một mình.',
+        'He carried on talking.',
+      ],
+      [
+        'look away',
+        'Bạn nhìn đi chỗ khác cho đỡ ngại. Mai chắc chắn là bạn đã thấy.',
+        'She looked away in embarrassment.',
+      ],
+      [
+        'show off',
+        'Bạn kể to về nhóm bạn mới với Mai. Mai càng thấy lạc lõng.',
+        'He showed off his new phone.',
+      ],
+    ],
+    'Mai ôm khay cơm đi chậm về chiếc bàn trống ở góc căn tin.',
+  ),
+  scene(
+    2,
+    'LEO THANG',
+    'Sau giờ học, sân trường vắng.',
+    'Mai nói: "Dạo này cậu ít nhắn tin cho mình." Giọng cô ấy hơi run. Bạn biết mình đã bận hơn trước thật.',
+    'Bạn ___ rằng mình bận thật, và xin lỗi vì đã để cậu ấy cảm thấy bị bỏ rơi.',
+    [
+      'own up',
+      'thẳng thắn nhận',
+      'Nhận lỗi thật lòng mà không bào chữa khiến Mai thấy mình được tôn trọng.',
+      'He owned up to the mistake.',
+    ],
+    [
+      [
+        'cover up',
+        'Bạn nói "đâu có, mình vẫn nhớ cậu mà". Mai biết bạn đang nói dối.',
+        'She tried to cover up the truth.',
+      ],
+      [
+        'talk down to',
+        'Bạn bảo "cậu nghĩ nhiều quá". Mai im lặng rồi quay đi.',
+        'Do not talk down to your friends.',
+      ],
+      [
+        'back off',
+        'Bạn lùi lại bảo "mình không muốn tranh cãi". Hai người hết nói chuyện.',
+        'He backed off from the argument.',
+      ],
+    ],
+    'Chiếc điện thoại trong túi bạn rung lên, bạn không nhìn.',
+  ),
+  scene(
+    3,
+    'XOẮN',
+    'Lớp học, giờ ra chơi hôm sau.',
+    'Một bạn trong nhóm mới bắt đầu nói xấu Mai: "bạn đó kì lắm, cậu đừng chơi nữa". Cả nhóm cười theo, chờ bạn phản ứng.',
+    'Bạn ___ Mai và nói rằng bạn ấy là người bạn rất tốt của mình.',
+    [
+      'stand up for',
+      'bênh vực',
+      'Bênh vực bạn vắng mặt cho thấy bạn là người đáng tin, cả với nhóm mới.',
+      'She stood up for her friend.',
+    ],
+    [
+      [
+        'go along with',
+        'Bạn cười theo cho xong chuyện. Hôm sau Mai nghe lại, mọi chuyện nặng hơn.',
+        'He went along with the joke.',
+      ],
+      [
+        'look the other way',
+        'Bạn giả vờ lục cặp. Nhóm hiểu là bạn đồng tình.',
+        'The monitor looked the other way.',
+      ],
+      [
+        'hold off',
+        'Bạn nói "để mình nghĩ thêm". Chuyện nói xấu vẫn tiếp tục.',
+        'He held off answering.',
+      ],
+    ],
+    'Tiếng cười của nhóm nhỏ lại khi bạn bắt đầu nói.',
+  ),
+  scene(
+    4,
+    'KHỦNG HOẢNG',
+    'Nhóm chat, tối thứ Sáu.',
+    'Mai nhắn: "Mình nghe nói cậu cười khi họ nói xấu mình." Tin đồn đã đến tai Mai, và bạn biết một phần là thật.',
+    'Bạn ___ ngay: gọi điện, nói rõ chuyện gì đã xảy ra, và xin lỗi vì phần mình đã làm sai.',
+    [
+      'make up for',
+      'bù đắp',
+      'Xin lỗi và làm điều cụ thể để bù lại, thay vì chỉ nói lời xin lỗi.',
+      'He made up for his mistake.',
+    ],
+    [
+      [
+        'give up on',
+        'Bạn nghĩ "tình bạn này hết rồi". Bạn tắt máy, không trả lời.',
+        'Do not give up on her.',
+      ],
+      [
+        'talk back',
+        'Bạn nhắn lại trách Mai nghe tin đồn. Mai chặn tin nhắn.',
+        'He talked back angrily.',
+      ],
+      [
+        'blow off',
+        'Bạn nhắn "đừng để ý chuyện đó". Mai cảm thấy mình không quan trọng.',
+        'She blew off the apology.',
+      ],
+    ],
+    'Màn hình điện thoại sáng lên với dòng chữ "Đã xem" bên dưới tin của Mai.',
+  ),
+  scene(
+    5,
+    'ĐỈNH ĐIỂM',
+    'Cuối tuần, quán nước gần trường.',
+    'Mai đồng ý gặp. Cô ấy vẫn còn giận nhưng đang nghe. Bạn biết cuộc nói chuyện này có thể làm lành hoặc làm hai người xa nhau.',
+    'Bạn ___ trước, kể thật cảm xúc của mình, rồi lắng nghe Mai nói hết.',
+    [
+      'open up',
+      'cởi mở, mở lòng',
+      'Mở lòng trước giúp Mai thấy an toàn để mở lòng lại, và hai bạn nói được những điều thật.',
+      'She opened up to her best friend.',
+    ],
+    [
+      [
+        'shut down',
+        'Bạn im lặng và khoanh tay. Mai nghĩ bạn không quan tâm.',
+        'He shut down during the argument.',
+      ],
+      [
+        'speak out',
+        'Bạn nói to quan điểm của mình và không chờ Mai nói. Hai bạn cãi nhau.',
+        'She spoke out against the rumor.',
+      ],
+      [
+        'walk away',
+        'Bạn đứng dậy khi thấy căng thẳng. Cuộc gặp kết thúc sau năm phút.',
+        'He walked away from the table.',
+      ],
+    ],
+    'Hai ly trà sữa chưa ai đụng tới, đá tan dần trong ly.',
+  ),
+];
+
 export const SCHOOL_LORE: WorldLore = {
   id: 'school-01',
   name: 'Một Năm Ở Lớp 11',

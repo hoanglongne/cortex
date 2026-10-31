@@ -170,6 +170,13 @@ Mục này thay các câu hỏi gốc dưới đây (giữ để tham khảo).
 - **Hồ sơ** ở màn chọn thế giới: số cụm đã mở, số nhiệm vụ xong, đếm theo trạng thái, các cụm hay nhầm.
 - **"Ôn bằng truyện"** (`POST /synapse/review`): 3 cảnh cho các cụm hay nhầm; ưu tiên cảnh chưa chơi, rồi cảnh có cụm đó làm đáp án sai (đối chiếu khác), cuối cùng mới là cảnh cũ.
 
+**Đã làm tiếp (31/10, issue #103, S4 một phần):**
+- Thế giới học đường thêm 2 nhiệm vụ (Chuyến Dã Ngoại, Bạn Cũ Bạn Mới): 6 nhiệm vụ, 30 cảnh viết tay; cùng "Ngày Đầu Trở Lại" là 7 nhiệm vụ chơi không cần AI.
+- **Chơi cả lớp:** thêm nguồn "Truyện Synapse" vào Đấu trường của Teach. Mỗi cảnh là một câu hỏi kiểu `story` (SQL `classroom_arena.sql`: lời cảnh đến 460 chữ, kèm `outcomes` cho từng lựa chọn). Học viên chọn trên điện thoại (Lexica), máy chiếu hiện số phiếu từng lựa chọn; số đông là "lớp chọn", cả lớp xem hậu quả của lựa chọn đó, và lựa chọn tốt nhất nếu lớp chọn khác. Dùng Teach qua `GET /api/synapse` (proxy tới `GET /synapse/missions` và `GET /synapse/arc/:lore/:mission` của API, cần biến `CORTEX_CORE_API_URL` trong Teach).
+- Báo cáo cụm cả lớp hay nhầm: bảng tổng kết của Đấu trường đã có tỉ lệ đúng từng câu, mỗi câu truyện ứng với một cụm.
+
+**Chưa làm của S4:** giao nhiệm vụ Synapse về nhà kèm hạn (cần tiến độ Synapse theo tài khoản, thuộc S2); bỏ phiếu chung engine với "Sống sót" #63; điểm mỗi em vẫn tính theo đúng/sai và nhanh, chưa có luật riêng cho bỏ phiếu (ví dụ tính điểm theo lớp thắng hay thua cùng nhau).
+
 **Chưa làm:**
 - Đăng nhập tuỳ chọn, bảng `synapse_phrase_state` và `synapse_runs` (tiến độ còn nằm trên máy), đẩy cụm sang Lexica.
 - Dựng thêm nhiệm vụ: 5 trên mục tiêu 30. Hai thế giới kịch tính (mạng ngầm, hoang mạc) và hai thế giới thương trường vẫn dùng AI.

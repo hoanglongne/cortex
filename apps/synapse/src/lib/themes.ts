@@ -202,6 +202,8 @@ const urbanTheme: AppTheme = {
                 { id: 'sc-m2', name: 'Dự Án Nhóm', briefing: 'Bốn bạn một đề tài, một bạn hay vắng và một bạn muốn đi đường tắt. Bạn là người có thể giữ nhóm lại với nhau.', objective: 'Nộp bài đúng hạn mà cả nhóm vẫn còn là bạn.' },
                 { id: 'sc-m3', name: 'Tuần Thi', briefing: 'Một tuần ôn thi, những cám dỗ nhỏ và áp lực lớn. Bạn cần giữ bình tĩnh và giữ sự trung thực.', objective: 'Vượt qua kì thi mà vẫn giữ được sự trung thực.' },
                 { id: 'sc-m4', name: 'Ngày Hội Câu Lạc Bộ', briefing: 'Bạn nhận làm phần phụ trách sự kiện cuối năm với ngân sách nhỏ và nhiều việc bất ngờ.', objective: 'Tổ chức thành công sự kiện và ghi nhận công của cả nhóm.' },
+                { id: 'sc-m5', name: 'Chuyến Dã Ngoại', briefing: 'Cô giao bạn lo việc di chuyển cho cả lớp trong chuyến đi cuối tuần. Mọi thứ đều có thể trục trặc: thiếu người, xe trễ, mưa, thậm chí lạc đường.', objective: 'Đưa cả lớp đi và về an toàn.' },
+                { id: 'sc-m6', name: 'Bạn Cũ, Bạn Mới', briefing: 'Bạn có nhóm bạn mới và một người bạn thân từ lớp 6 đang xa dần. Mỗi lựa chọn trong tuần này quyết định tình bạn nào còn lại.', objective: 'Giữ được người bạn cũ mà không phải bỏ nhóm mới.' },
             ],
         },
         {

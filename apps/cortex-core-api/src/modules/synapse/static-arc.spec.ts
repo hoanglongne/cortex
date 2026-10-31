@@ -10,7 +10,7 @@ describe('static arcs (no AI)', () => {
   it('lists the school world and the first urban mission as authored', () => {
     const ids = authoredMissions().map((m) => m.missionId);
     expect(ids).toEqual(
-      expect.arrayContaining(['sc-m1', 'sc-m2', 'sc-m3', 'sc-m4', 'ur-m1']),
+      expect.arrayContaining(['sc-m1', 'sc-m2', 'sc-m3', 'sc-m4', 'sc-m5', 'sc-m6', 'ur-m1']),
     );
   });
 
@@ -30,6 +30,12 @@ describe('static arcs (no AI)', () => {
           // The meaning shows on every option at the first level; a missing one would give the answer away
           expect(s.choices.every((c) => c.meaning.length > 0)).toBe(true);
           expect(s.isFinalBoss).toBe(i === 4);
+          // The classroom projector (Teach) cuts a scene at 460 characters and an outcome at 260: the blank must survive
+          expect(s.narrative.length).toBeLessThanOrEqual(460);
+          expect(s.choices.every((c) => c.outcome.length <= 260)).toBe(true);
+          expect(
+            s.choices.every((c) => `${c.particle} · ${c.meaning}`.length <= 80),
+          ).toBe(true);
           expect(s.sceneId).toBe(`${m.id}:${i + 1}`);
           if (lore.id === 'school-01') {
             expect(s.narrative).toContain('___');

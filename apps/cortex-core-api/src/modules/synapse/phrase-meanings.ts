@@ -4,6 +4,19 @@
  * give the right one away). Written for the phrase in general, not for the scene.
  */
 export const PHRASE_MEANINGS: Record<string, string> = {
+  'set up': 'lập ra, thiết lập',
+  'hand out': 'phát ra',
+  'blow up': 'nổi nóng, nổ tung',
+  'pull over': 'dừng xe lại',
+  'cut down': 'cắt giảm',
+  'take charge': 'đứng ra chỉ huy',
+  'step away from': 'rời khỏi một lúc',
+  'carry on': 'tiếp tục',
+  'look away': 'nhìn đi chỗ khác',
+  'own up': 'thẳng thắn nhận lỗi',
+  'stand up for': 'bênh vực',
+  'make up for': 'bù đắp',
+  'blow off': 'phớt lờ, bỏ qua',
   'add up': 'cộng lại, hợp lí',
   'back away': 'lùi ra xa',
   'back down': 'nhượng bộ, lùi bước',

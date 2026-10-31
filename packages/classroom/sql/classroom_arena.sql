@@ -52,6 +52,9 @@ create table if not exists cortex_arena_questions (
   primary key (room_id, idx)
 );
 
+-- Added with the Synapse story questions (issue #103): what each option leads to, shown once locked
+alter table cortex_arena_questions add column if not exists outcomes jsonb;
+
 create table if not exists cortex_arena_players (
   room_id uuid not null references cortex_arena_rooms(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -131,6 +134,8 @@ declare
   out jsonb := '[]'::jsonb;
   q jsonb;
   opts jsonb;
+  outs jsonb;
+  is_story boolean;
   n int;
 begin
   if jsonb_typeof(p) <> 'array' or jsonb_array_length(p) < 3 or jsonb_array_length(p) > 30 then raise exception 'bad questions'; end if;
@@ -141,13 +146,21 @@ begin
     if n < 2 or n > 4 or (select count(distinct lower(x)) from jsonb_array_elements_text(opts) x where x <> '') <> n then raise exception 'bad questions'; end if;
     if (q->>'answer')::numeric <> floor((q->>'answer')::numeric) or (q->>'answer')::int not between 0 and n - 1 then raise exception 'bad questions'; end if;
     if coalesce(trim(q->>'prompt'), '') = '' then raise exception 'bad questions'; end if;
-    out := out || jsonb_build_array(jsonb_build_object(
+    -- A story question (Synapse) is a scene: a longer prompt, and what each option leads to
+    is_story := coalesce(q->>'kind', '') = 'story';
+    outs := null;
+    if is_story and jsonb_typeof(q->'outcomes') = 'array' then
+      if jsonb_array_length(q->'outcomes') <> n then raise exception 'bad questions'; end if;
+      select jsonb_agg(left(trim(o), 260)) into outs from jsonb_array_elements_text(q->'outcomes') o;
+    end if;
+    out := out || jsonb_build_array(jsonb_strip_nulls(jsonb_build_object(
       'card_id', left(q->>'card_id', 64),
       'kind', left(coalesce(q->>'kind', 'meaning'), 20),
-      'prompt', left(trim(q->>'prompt'), 200),
+      'prompt', left(trim(q->>'prompt'), case when is_story then 460 else 200 end),
       'options', opts,
-      'answer', (q->>'answer')::int
-    ));
+      'answer', (q->>'answer')::int,
+      'outcomes', outs
+    )));
   end loop;
   return out;
 end;
@@ -190,8 +203,8 @@ begin
   values (p_class, c, auth.uid(), least(greatest(coalesce(p_seconds, 20), 10), 60), coalesce(p_hide_names, true),
     coalesce(p_mode, 'classic'), case when p_mode = 'team' then p_teams else 0 end)
   returning id into rid;
-  insert into cortex_arena_questions (room_id, idx, card_id, kind, prompt, options, answer)
-  select rid, (o - 1)::int, q->>'card_id', q->>'kind', q->>'prompt', q->'options', (q->>'answer')::int
+  insert into cortex_arena_questions (room_id, idx, card_id, kind, prompt, options, answer, outcomes)
+  select rid, (o - 1)::int, q->>'card_id', q->>'kind', q->>'prompt', q->'options', (q->>'answer')::int, q->'outcomes'
   from jsonb_array_elements(qs) with ordinality as t(q, o);
   return jsonb_build_object('id', rid, 'code', c);
 end;
@@ -286,6 +299,7 @@ begin
     'question', case when q.room_id is not null and r.state in ('question', 'reveal') then jsonb_strip_nulls(jsonb_build_object(
       'idx', q.idx, 'card_id', q.card_id, 'kind', q.kind, 'prompt', q.prompt, 'options', q.options,
       'answer', case when r.state = 'reveal' then q.answer end,
+      'outcomes', case when r.state = 'reveal' then q.outcomes end,
       'answered', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.idx = q.idx),
       'counts', case when r.state = 'reveal' then (
         select jsonb_agg((select count(*) from cortex_arena_answers a where a.room_id = p_room and a.idx = q.idx and a.choice = i) order by i)

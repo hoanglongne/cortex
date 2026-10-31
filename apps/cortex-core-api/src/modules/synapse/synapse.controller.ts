@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Param,
   Header,
   Post,
   Body,
@@ -10,7 +11,8 @@ import {
 } from '@nestjs/common';
 import { SynapseService } from './synapse.service';
 import { ActionLog, SynapseScenario, StoryArc } from '@cortex/types';
-import { authoredMissions } from './static-arc';
+import { authoredMissions, buildStaticArc } from './static-arc';
+import { WORLD_BIBLES } from './world-bibles';
 
 @Controller('synapse')
 export class SynapseController {
@@ -87,6 +89,21 @@ export class SynapseController {
   @Header('Cache-Control', 'public, max-age=3600')
   listMissions() {
     return authoredMissions();
+  }
+
+  /** One authored mission, for the classroom projector (Teach): the same scenes, no AI. */
+  @Get('arc/:loreId/:missionId')
+  @Header('Cache-Control', 'public, max-age=300')
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async arc(
+    @Param('loreId') loreId: string,
+    @Param('missionId') missionId: string,
+  ): Promise<StoryArc> {
+    const lore = WORLD_BIBLES[loreId];
+    const arc = lore ? buildStaticArc(lore, missionId) : null;
+    if (!arc)
+      throw new HttpException('No such authored mission', HttpStatus.NOT_FOUND);
+    return arc;
   }
 
   /** "Ôn bằng truyện": up to three scenes for the phrases the player keeps missing. */
