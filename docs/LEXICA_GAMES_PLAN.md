@@ -91,3 +91,21 @@ Nếu chỉ chọn một việc: **bước 2**, vì nó làm game có lý do t�
 1. Đồng ý gộp bảy game thành ba game lõi (bỏ Memory/Bingo/Scramble cũ sau khi bản mới chạy ổn) không?
 2. Chơi game có được tính vào chuỗi ngày không, hay chỉ phiên Hôm nay mới tính? (Đề xuất: chỉ tính mục tiêu ngày phụ, không thay phiên Hôm nay.)
 3. Có làm bước 1 (đo trước) không, hay đi thẳng bước 2?
+
+## 7. Tình trạng (31/10/2026)
+
+Đã làm (issue #80): 13 game ở `/play` (Chớp, Thám tử từ, Từ nói dối, Nghe và bắt từ, Ghép, Gõ, Nối chuỗi, Điền đoạn, Nâng cấp câu, Trùm cuối, Bẫy chữ, Mưa từ, Hành trình), mục tiêu ngày, bảng tuần với bạn học, thách đấu Từ vựng, Từ nói dối và Thám tử.
+
+Đã dọn: bảy game cũ (Speed Quiz, Memory Match, Type Challenge, Word Scramble, True/False Blitz, Combo Chain, Word Bingo), Game Hub và trang thách đấu bằng liên kết (`/challenge/<id>`, chuyển hướng sang `/play`). Trang "Từ của tôi" dẫn sang `/play`.
+
+Đo mức dùng: sự kiện `game_start` (game, lượt) và `game_finish` (game, điểm, số đúng, tổng) gửi qua PostHog khi có cấu hình. Sau 2 đến 3 tuần xem game nào được chơi tới cuối để quyết giữ, gộp hoặc bỏ.
+
+Chuyển sang #100 (Buddy): Nối chuỗi chơi đôi và các cách chơi cùng nhau thời gian thực.
+
+## 8. Làm lại sau khi chơi thử (#107)
+
+- **Nối chuỗi:** chuỗi từ hiện từng hàng "Máy → Bạn" có nhãn, máy "đang nghĩ" gần một giây trước khi trả lời (thời gian không tính vào lượt của bạn).
+- **Thám tử từ:** thành trò suy luận loại trừ. Bốn nghi phạm, manh mối mở từng cái (số chữ cái, chữ đầu, chữ cuối, chữ cái đôi, chữ hiếm, hay đi cùng từ nào, phiên âm, nghĩa), mỗi manh mối gạch tên những từ không khớp. Chỉ giữ manh mối loại được ít nhất một từ, nghĩa luôn là manh mối cuối. Không còn câu có chỗ trống (đó là Điền đoạn). Lần sửa trước (ép đáp án cùng chữ đầu) đi sai hướng và đã bỏ.
+- **Ghép:** thành trò lật thẻ (Memory): 12 thẻ úp trong một lưới, từ và nghĩa trộn lẫn; cặp đúng ở lại với màu riêng, combo, điểm thưởng tốc độ.
+- **Mưa từ:** có chọn Luyện (không mất tim) hoặc Thử thách; 5 tim; bắt đầu chậm và ít (tối đa 3 từ), từ ngắn trước; sau mỗi từ rơi chạm đất mưa chậm lại vài giây; hiện chữ đầu và số chữ; từ vàng cứ 7 từ một lần (thêm tim, làm chậm hoặc dọn sạch); nền đổi theo cấp.
+- Chưa làm: chơi đôi thời gian thực và chế độ Đấu trường cho Nối chuỗi (chuyển sang #100 và #63).

@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, X } from 'lucide-react';
-import type { BossRound } from '../lib/games/rounds';
+import { ruledOut, type BossRound } from '../lib/games/rounds';
 import { ANSWER_LETTER, ANSWER_TILE } from './theme';
 
 /** A question of any kind and its four answer tiles (used by the boss and the run). */
@@ -10,7 +10,8 @@ export default function QuestionView({ q, picked, hidden = [], onPick }: { q: Bo
         <>
             <div className="rounded-2xl border border-line bg-surface p-4 space-y-2">
                 {q.mode === 'detective' ? (
-                    q.clues?.map((c, k) => (
+                    // All clues but the last (the meaning), which would end the case
+                    q.clues?.slice(0, -1).map((c, k) => (
                         <p key={k} className="text-ink text-sm">
                             <span className="mr-2 font-mono text-xs" style={{ color: 'var(--color-game-sky)' }}>#{k + 1}</span>
                             {c}
@@ -27,17 +28,18 @@ export default function QuestionView({ q, picked, hidden = [], onPick }: { q: Bo
                     if (hidden.includes(n)) return <div key={n} className="h-14 rounded-2xl border border-dashed border-line opacity-30" />;
                     const isRight = picked !== null && n === q.answer;
                     const isWrong = picked === n && n !== q.answer;
+                    const struck = q.mode === 'detective' && picked === null && ruledOut(q.cuts, Math.max(0, (q.clues?.length ?? 1) - 1)).has(n);
                     return (
                         <button
                             key={n}
                             onClick={() => onPick(n)}
                             disabled={picked !== null}
-                            className={`flex min-h-14 items-center gap-3 rounded-2xl border px-3 py-2 text-left text-ink transition-colors ${picked !== null && !isRight && !isWrong ? 'opacity-40' : ''} ${isRight ? 'border-accent bg-accent text-on-accent' : isWrong ? 'border-danger bg-danger/15' : 'border-line bg-surface hover:border-line-strong'}`}
+                            className={`flex min-h-14 items-center gap-3 rounded-2xl border px-3 py-2 text-left text-ink transition-colors ${picked !== null && !isRight && !isWrong ? 'opacity-40' : ''} ${struck ? 'opacity-45' : ''} ${isRight ? 'border-accent bg-accent text-on-accent' : isWrong ? 'border-danger bg-danger/15' : 'border-line bg-surface hover:border-line-strong'}`}
                         >
                             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold text-on-arena" style={{ background: isRight ? 'rgb(0 0 0 / 0.25)' : ANSWER_TILE[n % 4] }}>
                                 {isRight ? <Check className="h-4 w-4" /> : isWrong ? <X className="h-4 w-4" /> : ANSWER_LETTER[n % 4]}
                             </span>
-                            <span className="flex-1">{o}</span>
+                            <span className={`flex-1 ${struck ? 'line-through' : ''}`}>{o}</span>
                         </button>
                     );
                 })}

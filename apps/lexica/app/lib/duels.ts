@@ -202,7 +202,7 @@ export function duelGameQuestions(game: DuelGame, known: readonly string[], bank
     return rounds.map((r) => ({
         card_id: r.cardId,
         kind: game === 'liar' ? 'liar' : 'clue',
-        prompt: game === 'liar' ? 'Cụm nào bị tráo từ?' : (r.clues ?? []).join('\n'),
+        prompt: game === 'liar' ? 'Cụm nào bị tráo từ?' : (r.clues ?? []).slice(0, -1).join('\n'),
         options: r.options,
         answer: r.answer,
     }));

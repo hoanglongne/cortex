@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import { animate, motion, useMotionValue, useTransform } from 'framer-motion';
 import { ArrowLeft, RotateCcw, Trophy } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
+import { capture } from '../lib/productAnalytics';
 import type { GameAnswer } from '../lib/games/rounds';
 import { edge, GAME_COLOR, tint, type GameId } from './theme';
 
@@ -56,7 +57,9 @@ export function Over({ game, score, answers, onAgain, line }: { game: GameId; sc
         if (done.current) return;
         done.current = true;
         if (answers.length) applyGame(answers, score);
-    }, [answers, score, applyGame]);
+        // Which games are played to the end, with what result (docs/LEXICA_GAMES_PLAN.md, how to measure)
+        capture('game_finish', { game, score, right: answers.filter((a) => a.correct).length, total: answers.length });
+    }, [answers, score, applyGame, game]);
     const c = GAME_COLOR[game];
     const right = answers.filter((a) => a.correct).length;
     const pct = answers.length ? Math.round((right / answers.length) * 100) : 0;

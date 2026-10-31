@@ -6,6 +6,10 @@ import withPWA from "next-pwa";
 const nextConfig: NextConfig = {
   turbopack: {}, // Allow webpack config from next-pwa
   transpilePackages: ['@cortex/classroom', '@cortex/classroom-lexica', '@cortex/brand'],
+  // The old link challenges (/challenge/<id>) are gone; their links land on the games
+  async redirects() {
+    return [{ source: '/challenge/:id', destination: '/play', permanent: false }];
+  },
 };
 
 const withPWAConfig = withPWA({

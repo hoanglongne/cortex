@@ -3,7 +3,7 @@
 import { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { getSupabaseClient } from '../lib/supabase';
 import { getProfile, upsertProfile, signOut as authSignOut, type Profile, type User } from '../lib/auth';
-import { getSavedNickname } from '../lib/challenges';
+import { getSavedNickname } from '../lib/nickname';
 
 interface AuthContextValue {
     user: User | null;

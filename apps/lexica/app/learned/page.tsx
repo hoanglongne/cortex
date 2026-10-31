@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users, LayoutGrid, Swords } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import GameHub from '../components/GameHub';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import LearnedWordsList from '../components/LearnedWordsList';
 import KnownWordsList from '../components/KnownWordsList';
@@ -16,7 +15,6 @@ import { hardWords } from '../lib/engagement/hard';
 
 export default function LearnedPage() {
     const [showHelp, setShowHelp] = useState(false);
-    const [showGameHub, setShowGameHub] = useState(false);
     const [showLabsGuide, setShowLabsGuide] = useState(false);
     const { buttonPress, click } = useSoundEffects();
     const learnedCount = useLexicaStore(state => state.learnedWords.size);
@@ -153,12 +151,9 @@ export default function LearnedPage() {
                         Thực hành
                     </h2>
                     <div className="space-y-3">
-                        <button
+                        <Link
+                            href="/play"
                             data-tour-id="game-hub-button"
-                            onClick={() => {
-                                buttonPress();
-                                setShowGameHub(true);
-                            }}
                             className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group"
                         >
                             <div className="flex items-center gap-3">
@@ -166,16 +161,12 @@ export default function LearnedPage() {
                                     <Gamepad2 className="w-5 h-5 text-ink" />
                                 </div>
                                 <div className="text-left">
-                                    <div className="text-ink font-semibold text-sm mb-1">
-                                        Vocabulary Games
-                                    </div>
-                                    <div className="text-muted text-xs">
-                                        7 games để ôn tập từ vựng
-                                    </div>
+                                    <div className="text-ink font-semibold text-sm mb-1">Chơi</div>
+                                    <div className="text-muted text-xs">13 game, chơi cũng là ôn từ</div>
                                 </div>
                             </div>
                             <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
-                        </button>
+                        </Link>
 
                         {progressStats.dueToday > 0 && (
                             <Link href="/review" className="flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group">
@@ -315,14 +306,6 @@ export default function LearnedPage() {
                 </p>
             </div>
 
-            {/* Game Hub Modal */}
-            {showGameHub && (
-                <GameHub
-                    learnedWordIds={Array.from(learnedWords)}
-                    todayWordIds={Array.from(todayLearnedWords)}
-                    onClose={() => setShowGameHub(false)}
-                />
-            )}
 
 
 

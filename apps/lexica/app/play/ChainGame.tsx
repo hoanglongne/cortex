@@ -45,22 +45,27 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
     const [score, setScore] = useState(0);
     const [answers, setAnswers] = useState<GameAnswer[]>([]);
     const busy = useRef(false);
+    const [thinking, setThinking] = useState(false);
+    const reply = useRef<ReturnType<typeof setTimeout> | null>(null);
     const c = GAME_COLOR.chain;
     const used = new Set(chain.map((x) => x.word));
     const last = chain[chain.length - 1].word;
+    // Each row: the machine's word, then yours
+    const rows = chain.reduce<{ cpu: string; me?: string }[]>((acc, x) => (x.who === 'cpu' ? [...acc, { cpu: x.word }] : [...acc.slice(0, -1), { ...acc[acc.length - 1], me: x.word }]), []);
 
     useEffect(() => {
-        if (end) return;
+        if (end || thinking) return;
         const t = setInterval(() => setLeft((l) => l - 1), 1000);
         return () => clearInterval(t);
-    }, [end, chain.length]);
+    }, [end, thinking, chain.length]);
+    useEffect(() => () => { if (reply.current) clearTimeout(reply.current); }, []);
     useEffect(() => {
         if (left <= 0 && !end) setEnd('Hết giờ');
     }, [left, end]);
 
     const play = () => {
         const w = typed.trim().toLowerCase();
-        if (!w || busy.current || end) return;
+        if (!w || busy.current || end || thinking) return;
         const verdict = check(last, w, used, dict, extra);
         if (verdict !== 'ok') {
             setMsg(MESSAGES[verdict]);
@@ -79,17 +84,22 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
         setTyped('');
         setMsg('');
         const after = new Set(used).add(w);
-        const reply = botReply(w, after, dict);
-        if (!reply) {
-            setChain((x) => [...x, { who: 'me', word: w }]);
+        const answer = botReply(w, after, dict);
+        setChain((x) => [...x, { who: 'me', word: w }]);
+        if (!answer) {
             setScore((s) => s + 100);
             setEnd('Máy hết từ, bạn thắng');
             busy.current = false;
             return;
         }
-        setChain((x) => [...x, { who: 'me', word: w }, { who: 'cpu', word: reply }]);
-        setLeft(TURN_SECONDS);
-        busy.current = false;
+        // The computer takes a moment, so it is plain whose turn it is
+        setThinking(true);
+        reply.current = setTimeout(() => {
+            setChain((x) => [...x, { who: 'cpu', word: answer }]);
+            setLeft(TURN_SECONDS);
+            setThinking(false);
+            busy.current = false;
+        }, 750);
     };
 
     if (end) {
@@ -110,18 +120,35 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
                 ))}
             </div>
             <motion.div key={last} initial={{ scale: 0.96, opacity: 0.6 }} animate={{ scale: 1, opacity: 1 }} className="rounded-3xl border p-5 text-center" style={{ background: tint(c, 10), borderColor: edge(c, 36) }}>
-                <p className="text-xs text-muted">Từ của máy, nối tiếp bằng chữ cuối</p>
+                <p className="text-xs text-muted">{chain.length === 1 ? "Máy ra từ đầu tiên. Nối tiếp bằng chữ cuối" : "Từ mới nhất của máy. Nối tiếp bằng chữ cuối"}</p>
                 <p className="mt-1 text-4xl font-bold tracking-tight text-ink">
                     {last.slice(0, -1)}
                     <span style={{ color: c }}>{last.slice(-1)}</span>
                 </p>
             </motion.div>
-            <ol className="flex flex-wrap gap-1.5" aria-label="Chuỗi từ">
-                {chain.slice(-12).map((x, k) => (
-                    <li key={`${k}-${x.word}`} className={`px-2 py-1 rounded-lg text-xs border ${x.who === 'me' ? 'border-accent/40 text-accent' : 'border-line text-muted'}`}>
-                        {x.word}
+            <ol className="space-y-1" aria-label="Chuỗi từ">
+                {rows.slice(-4).map((r, k) => (
+                    <li key={k} className="flex items-center gap-2 text-xs">
+                        <span className="w-24 truncate rounded-lg border border-line px-2 py-1 text-muted">
+                            <span className="mr-1 text-[10px] uppercase text-subtle">Máy</span>
+                            {r.cpu}
+                        </span>
+                        <span aria-hidden className="text-subtle">→</span>
+                        {r.me ? (
+                            <span className="w-24 truncate rounded-lg border border-accent/40 px-2 py-1 text-accent">
+                                <span className="mr-1 text-[10px] uppercase opacity-70">Bạn</span>
+                                {r.me}
+                            </span>
+                        ) : (
+                            <span className="text-subtle">{thinking ? '' : 'đến lượt bạn'}</span>
+                        )}
                     </li>
                 ))}
+                {thinking && (
+                    <li className="text-xs text-muted" aria-live="polite">
+                        Máy đang nghĩ...
+                    </li>
+                )}
             </ol>
             <form
                 onSubmit={(e) => {

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Flame, Volume2, X } from 'lucide-react';
 import { AudioService } from '../lib/audio/AudioService';
-import { detectivePoints, type Choice, type GameAnswer } from '../lib/games/rounds';
+import { detectivePoints, ruledOut, type Choice, type GameAnswer } from '../lib/games/rounds';
 import { Bar, Over } from './Shell';
 import { ANSWER_LETTER, ANSWER_TILE, edge, GAME_COLOR, tint } from './theme';
 
@@ -50,7 +50,7 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
         setPicked(n);
         setAnswers((a) => [...a, { cardId: q.cardId, correct: right }]);
         setStreak(right ? streak + 1 : 0);
-        const gain = mode === 'detective' ? detectivePoints(clues, right) * 10 : right ? 10 + Math.min(streak, 5) * 2 : 0;
+        const gain = mode === 'detective' ? detectivePoints(clues, right, q.clues?.length ?? 3) * 10 : right ? 10 + Math.min(streak, 5) * 2 : 0;
         setScore((s) => s + gain);
         advance.current = setTimeout(() => {
             setPicked(null);
@@ -106,7 +106,7 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
 
             {mode === 'detective' && picked === null && clues < clueList.length && (
                 <button onClick={() => setClues(clues + 1)} className="w-full h-10 rounded-xl border border-line text-sm text-ink-2">
-                    Xem thêm manh mối (ít điểm hơn)
+                    Mở thêm một manh mối (điểm thấp hơn)
                 </button>
             )}
 
@@ -114,6 +114,7 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
                 {q.options.map((o, n) => {
                     const isRight = picked !== null && n === q.answer;
                     const isWrong = picked === n && n !== q.answer;
+                    const struck = mode === 'detective' && picked === null && ruledOut(q.cuts, clues).has(n);
                     return (
                         <motion.button
                             key={`${i}-${n}`}
@@ -121,12 +122,13 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
                             disabled={picked !== null}
                             animate={isWrong ? { x: [0, -8, 8, -6, 6, 0] } : isRight ? { scale: [1, 1.03, 1] } : {}}
                             transition={{ duration: 0.4 }}
-                            className={`flex min-h-14 items-center gap-3 rounded-2xl border px-3 py-2 text-left text-ink transition-colors ${picked !== null && !isRight && !isWrong ? 'opacity-40' : ''} ${isRight ? 'border-accent bg-accent text-on-accent' : isWrong ? 'border-danger bg-danger/15' : 'border-line bg-surface hover:border-line-strong'}`}
+                            className={`flex min-h-14 items-center gap-3 rounded-2xl border px-3 py-2 text-left text-ink transition-colors ${picked !== null && !isRight && !isWrong ? 'opacity-40' : ''} ${struck ? 'opacity-45' : ''} ${isRight ? 'border-accent bg-accent text-on-accent' : isWrong ? 'border-danger bg-danger/15' : 'border-line bg-surface hover:border-line-strong'}`}
                         >
                             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl font-mono text-sm font-bold text-on-arena" style={{ background: isRight ? 'rgb(0 0 0 / 0.25)' : ANSWER_TILE[n % 4] }}>
                                 {isRight ? <Check className="h-4 w-4" /> : isWrong ? <X className="h-4 w-4" /> : ANSWER_LETTER[n % 4]}
                             </span>
-                            <span className="flex-1">{o}</span>
+                            <span className={`flex-1 ${struck ? 'line-through' : ''}`}>{o}</span>
+                            {struck && <span className="font-mono text-[10px] uppercase text-subtle">loại</span>}
                         </motion.button>
                     );
                 })}
