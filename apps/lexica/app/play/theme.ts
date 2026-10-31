@@ -1,5 +1,5 @@
 /** Each game has one hue (app/globals.css, --color-game-*); the page and the game both read it from here. */
-export type GameId = 'boss' | 'grid' | 'rain' | 'run' | 'blitz' | 'detective' | 'liar' | 'listen' | 'cloze' | 'upgrade' | 'match' | 'spell' | 'chain';
+export type GameId = 'boss' | 'grid' | 'rain' | 'run' | 'blitz' | 'detective' | 'liar' | 'listen' | 'cloze' | 'upgrade' | 'match' | 'spell' | 'chain' | 'dictate' | 'fill' | 'linked';
 
 const HUE = {
     amber: 'var(--color-warning)',
@@ -24,6 +24,9 @@ export const GAME_COLOR: Record<GameId, string> = {
     match: HUE.violet,
     spell: HUE.lime,
     chain: HUE.mint,
+    dictate: HUE.mint,
+    fill: HUE.sky,
+    linked: HUE.violet,
 };
 
 /** A soft tint of a hue over the surface, for card backgrounds. */
