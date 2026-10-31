@@ -150,7 +150,7 @@ function Buddy() {
 
     return (
         <div className="min-h-screen bg-bg pb-8">
-            <div className="max-w-md mx-auto px-4 pt-6 space-y-4">
+            <div className="max-w-md lg:max-w-6xl mx-auto px-4 lg:px-8 pt-6 space-y-4">
                 <div className="flex items-center justify-between">
                     <Link href="/me" className="text-muted hover:text-accent text-sm">
                         ← Tôi
@@ -161,6 +161,8 @@ function Buddy() {
                     </button>
                 </div>
 
+                <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-8 lg:items-start">
+                <div className="space-y-4">
                 {/* Me: name, streak, today, this week */}
                 <section className={`rounded-2xl border p-4 ${goalMet ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
                     <div className="flex items-center justify-between gap-2">
@@ -229,6 +231,10 @@ function Buddy() {
                     </section>
                 )}
 
+                </div>
+
+                {/* Right on desktop: the buddies themselves */}
+                <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-ink font-semibold">
                         Bạn học ({buddies.length}/{MAX_BUDDIES})
@@ -288,6 +294,8 @@ function Buddy() {
                         ))}
                     </div>
                 )}
+                </div>
+                </div>
             </div>
         </div>
     );
