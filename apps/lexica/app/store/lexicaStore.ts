@@ -12,6 +12,7 @@ import { getCard, getCardByWord, sameWordIds } from '../lib/content/repository';
 import { applySpeakResult } from '../lib/pronunciation/drill';
 import { addAttempt, type SoundLog } from '../lib/pronunciation/soundLog';
 import { addPlay, type GameLog } from '../lib/games/daily';
+import { canMarkKnown, markKnown as addKnown, unmarkKnown as dropKnown, withoutKnown, type KnownWords } from '../lib/journey/known';
 import { gameReview, type GameAnswer } from '../lib/games/rounds';
 import { addRecall, type ReviewLog } from '../lib/journey/reviewLog';
 import { APPLIED_KEEP, arenaReview } from '../lib/arenaReview';
@@ -222,6 +223,12 @@ interface LexicaStore {
     applyGame: (answers: GameAnswer[], score?: number) => { again: number; recalled: number };
     /** Rounds played and best score per day, 14 days (lib/games/daily.ts). */
     gameLog: GameLog;
+    /** Words the learner said they already know at the first meeting (lib/journey/known.ts). */
+    knownWords: KnownWords;
+    /** "Đã biết, không học": the word is out of the deck for good. False when today's cap is reached. */
+    markKnown: (cardId: string) => boolean;
+    /** Puts a known word back into learning. */
+    unmarkKnown: (cardId: string) => void;
 
     // Cortex Integration
     syncAllToCortex: () => Promise<void>;
@@ -657,7 +664,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 // 2. Haven't injected review cards yet this session
                 // DISABLED: We don't inject review cards into main deck anymore
                 const shouldInjectReview = false;
-                const newDeck = generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview, get().path?.branch ?? 'cert');
+                const newDeck = withoutKnown(generateInitialDeck(userStats, cardProgress, selectedLevel, forcedCardIds, shouldInjectReview, get().path?.branch ?? 'cert'), get().knownWords ?? {});
 
                 // Mark that we've injected review cards (so it won't happen again on next loadNewDeck)
                 const dealt = new Set(newDeck.map(c => c.id));
@@ -674,6 +681,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 set({
                     userStats: INITIAL_USER_STATS,
                     cardProgress: {},
+                    knownWords: {},
                     mySentences: {},
                     learnedWords: new Set<string>(),
                     energy: 30,
@@ -922,7 +930,8 @@ export const useLexicaStore = create<LexicaStore>()(
 
             queueCards: (cardIds) => {
                 const { queuedCardIds, cardProgress, currentDeck } = get();
-                const fresh = [...new Set(cardIds)].filter(id => !cardProgress[id] && !queuedCardIds.includes(id) && !currentDeck.some(c => c.id === id) && getCard(id));
+                const known = get().knownWords ?? {};
+                const fresh = [...new Set(cardIds)].filter(id => known[id] === undefined && !cardProgress[id] && !queuedCardIds.includes(id) && !currentDeck.some(c => c.id === id) && getCard(id));
                 if (fresh.length === 0) return 0;
                 // Cards already dealt stay put; queued ones go first in the next deck.
                 set({ queuedCardIds: [...fresh, ...queuedCardIds] });
@@ -940,6 +949,14 @@ export const useLexicaStore = create<LexicaStore>()(
             },
 
             gameLog: {},
+            knownWords: {},
+            markKnown: (cardId) => {
+                const { knownWords, currentDeck, queuedCardIds } = get();
+                if (!canMarkKnown(knownWords, Date.now())) return false;
+                set({ knownWords: addKnown(knownWords, cardId, Date.now()), currentDeck: currentDeck.filter((c) => c.id !== cardId), queuedCardIds: queuedCardIds.filter((id) => id !== cardId) });
+                return true;
+            },
+            unmarkKnown: (cardId) => set({ knownWords: dropKnown(get().knownWords, cardId) }),
             applyGame: (answers, score = 0) => {
                 set({ gameLog: addPlay(get().gameLog ?? {}, localDate(), score) });
                 const plan = gameReview(answers, (id) => Boolean(get().cardProgress[id]));
@@ -1058,6 +1075,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 lastGoalSetDate: state.lastGoalSetDate,
                 paceNudgeAt: state.paceNudgeAt,
                 gameLog: state.gameLog,
+                knownWords: state.knownWords,
                 // Personalization
                 userArchetype: state.userArchetype,
                 mySentences: state.mySentences,

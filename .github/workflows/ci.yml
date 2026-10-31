@@ -73,7 +73,8 @@ jobs:
   plan:
     name: Which apps changed
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Only once the Vercel settings exist (docs/DEPLOY.md); until then deploys stay with Vercel's own Git builds
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.VERCEL_ORG_ID != ''
     runs-on: ubuntu-latest
     outputs:
       apps: ${{ steps.affected.outputs.apps }}

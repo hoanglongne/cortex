@@ -53,6 +53,26 @@ export function maskWord(text: string | undefined, word: string): string | null 
     return re.test(text) ? text.replace(re, '___') : null;
 }
 
+/**
+ * Wrong options that look like the right word: the same first letter and about
+ * the same length first, then relaxing. The "N letters, starts with X" clue
+ * rules nothing out when the options are shaped alike (it did when they were
+ * drawn from the whole bank).
+ */
+export function lookalikes(card: GameCard, bank: readonly GameCard[], n: number, rand: Rand = Math.random): string[] {
+    const word = card.word.trim();
+    const first = word[0]?.toLowerCase();
+    const tiers: string[][] = [[], [], [], []];
+    for (const c of bank) {
+        const w = c.word.trim();
+        if (c.id === card.id || lower(w) === lower(word) || !/^[a-z' -]+$/i.test(w)) continue;
+        const sameFirst = w[0]?.toLowerCase() === first;
+        const closeLen = Math.abs(w.length - word.length) <= 1;
+        tiers[(sameFirst ? 0 : 2) + (closeLen ? 0 : 1)].push(c.word);
+    }
+    return tiers.flatMap((t) => shuffle(t, rand)).slice(0, n);
+}
+
 /** A collocation with the word hidden, or null. */
 function maskedPhrase(card: GameCard): string | null {
     for (const c of card.collocations ?? []) {
@@ -85,7 +105,7 @@ export function detectiveRounds(cards: readonly GameCard[], bank: readonly GameC
     for (const card of shuffle(cards, rand)) {
         if (out.length >= n) break;
         const middle = maskWord(card.scenario, card.word) ?? maskedPhrase(card);
-        const wrong = otherWords(card, bank, 3, rand);
+        const wrong = lookalikes(card, bank, 3, rand);
         if (!middle || wrong.length < 3) continue;
         const w = card.word.trim();
         out.push({

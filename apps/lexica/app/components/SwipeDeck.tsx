@@ -49,6 +49,8 @@ export default function SwipeDeck({
     const swipeCard = useLexicaStore(state => state.swipeCard);
     const deferCard = useLexicaStore(state => state.deferCard);
     const markAsMastered = useLexicaStore(state => state.markAsMastered);
+    const markKnown = useLexicaStore(state => state.markKnown);
+    const [knownFull, setKnownFull] = useState(false);
 
     const { swipeRight, swipeLeft, buttonPress, comboTick, sparkle, soundEnabled } = useSoundEffects();
     const cardProgress = useLexicaStore(state => state.cardProgress);
@@ -484,6 +486,21 @@ export default function SwipeDeck({
                         Đã nhớ
                         <Check className="w-4 h-4" />
                     </button>
+                    {/* First meeting only: a word already known never comes back (unlike "Đã nhớ", which keeps it in review) */}
+                    {!cardProgress[topCardId] && (
+                        <div className="col-span-2 text-center">
+                            <button
+                                data-testid="known-skip"
+                                onClick={() => {
+                                    setKnownFull(!markKnown(topCardId));
+                                }}
+                                className="text-sm text-muted underline underline-offset-4 hover:text-ink"
+                            >
+                                Đã biết từ này, không học
+                            </button>
+                            {knownFull && <p className="mt-1 text-xs text-warning">Hôm nay bạn đã bỏ qua nhiều từ rồi. Mai bỏ qua tiếp nhé.</p>}
+                        </div>
+                    )}
                 </div>
             )}
         </div>

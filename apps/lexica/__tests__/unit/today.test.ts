@@ -147,4 +147,13 @@ describe('30-day path', () => {
         expect(finalTestWords(journeys, 500, 30, 7)).toEqual(a);
         expect(mostMissed({ a: { wrongCount: 1 }, b: { wrongCount: 3 }, c: { wrongCount: 0 } })).toEqual(['b', 'a']);
     });
+
+    it('an extra round ("Học thêm") skips Ôn: it is for more words, review was in round 1', () => {
+        const log = { date: '2026-05-01', done: [], start: { hieu: 0, nho: 0, gap: 0, dung: 0 }, round: 2, learnedAtStart: 10 };
+        const plan = planToday({ log, dueCount: 12, newLeft: 10, canRead: true, speakCount: 3 });
+        expect(plan.stages.find((x) => x.stage === 'review')?.status).toBe('done');
+        expect(plan.next).toBe('learn');
+        // round 1 still starts with review
+        expect(planToday({ log: { ...log, round: 1 }, dueCount: 12, newLeft: 10, canRead: true, speakCount: 3 }).next).toBe('review');
+    });
 });

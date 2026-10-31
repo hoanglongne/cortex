@@ -6,6 +6,7 @@ import { useLexicaStore } from '../store/lexicaStore';
 import GameHub from '../components/GameHub';
 import { getProgressStats } from '../lib/eloAlgorithm';
 import LearnedWordsList from '../components/LearnedWordsList';
+import KnownWordsList from '../components/KnownWordsList';
 import SRSCalendar from '../components/SRSCalendar';
 import OnboardingModal from '../components/OnboardingModal';
 import { useState, useMemo, useEffect } from 'react';
@@ -299,6 +300,7 @@ export default function LearnedPage() {
 
                 {/* Learned Words List */}
                 <LearnedWordsList />
+                <KnownWordsList />
             </div>
 
             {/* Footer Info */}

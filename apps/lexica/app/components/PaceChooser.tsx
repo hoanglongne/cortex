@@ -2,19 +2,24 @@
 
 import { clampPace, PACE_MAX, PACE_MIN, PACE_PRESETS, projection, sessionMinutes } from '../lib/journey/pace';
 
-const W = 300;
-const H = 90;
+const W = 320;
+const H = 130;
+const PAD = { l: 34, r: 12, t: 10, b: 18 };
+/** The vertical axis never moves, so 5 words a day looks low and 40 looks high. */
+const AXIS_MAX = PACE_MAX * 30;
+const TICKS = [0, 300, 600, 900, 1200];
+const MILESTONES = [7, 14, 30];
+
+const x = (day: number) => PAD.l + ((day - 1) / 29) * (W - PAD.l - PAD.r);
+const y = (words: number) => H - PAD.b - (words / AXIS_MAX) * (H - PAD.t - PAD.b);
+const line = (pace: number) => projection(pace).map((v, i) => `${i ? 'L' : 'M'}${x(i + 1)},${y(v)}`).join(' ');
 
 /**
  * Pick any number of new words per day and see the next 30 days: the line is
  * the words learned so far, the dashed one is where the current pace would be.
  */
 export default function PaceChooser({ value, onChange, compareTo }: { value: number; onChange: (n: number) => void; compareTo?: number }) {
-    const pts = projection(value);
-    const max = Math.max(PACE_PRESETS[2] * 30, value * 30, (compareTo ?? 0) * 30);
-    const path = (series: number[]) =>
-        series.map((v, i) => `${i ? 'L' : 'M'}${((i + 1) / series.length) * W},${H - (v / max) * (H - 6) - 2}`).join(' ');
-    const total = pts[pts.length - 1];
+    const total = value * 30;
 
     return (
         <div className="space-y-3" data-testid="pace-chooser">
@@ -55,18 +60,38 @@ export default function PaceChooser({ value, onChange, compareTo }: { value: num
                 ))}
             </div>
             <div className="rounded-xl border border-line bg-surface-2/40 p-3">
-                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-24" role="img" aria-label={`Sau 30 ngày khoảng ${total} từ`}>
-                    {compareTo !== undefined && compareTo !== value && <path d={path(projection(compareTo))} fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3" className="text-subtle" />}
-                    <path d={path(pts)} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-accent" />
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Sau 30 ngày khoảng ${total} từ`}>
+                    {TICKS.map((t) => (
+                        <g key={t}>
+                            <line x1={PAD.l} x2={W - PAD.r} y1={y(t)} y2={y(t)} stroke="currentColor" className="text-line" strokeWidth="1" />
+                            <text x={PAD.l - 4} y={y(t) + 3} textAnchor="end" className="fill-subtle" fontSize="8">
+                                {t}
+                            </text>
+                        </g>
+                    ))}
+                    {/* The other common choices, faint, to see where this one stands */}
+                    {PACE_PRESETS.filter((n) => n !== value).map((n) => (
+                        <path key={n} d={line(n)} fill="none" stroke="currentColor" strokeWidth="1" className="text-subtle" opacity="0.35" />
+                    ))}
+                    {compareTo !== undefined && compareTo !== value && <path d={line(compareTo)} fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3" className="text-warning" />}
+                    <path d={line(value)} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-accent" />
+                    {MILESTONES.map((d) => (
+                        <g key={d}>
+                            <circle cx={x(d)} cy={y(value * d)} r="3.5" className="fill-accent" />
+                            <text x={d === 30 ? x(d) - 4 : x(d)} y={y(value * d) - 7} textAnchor={d === 30 ? 'end' : 'middle'} fontSize="9" fontWeight="bold" className="fill-ink">
+                                {value * d}
+                            </text>
+                            <text x={x(d)} y={H - 5} textAnchor="middle" fontSize="8" className="fill-subtle">
+                                ngày {d}
+                            </text>
+                        </g>
+                    ))}
                 </svg>
-                <div className="flex justify-between text-[11px] text-subtle">
-                    <span>Hôm nay</span>
-                    <span>Ngày 15: {pts[14]} từ</span>
-                    <span>Ngày 30</span>
-                </div>
                 <p data-testid="path-promise" className="mt-1 text-sm text-ink-2">
-                    Sau 30 ngày: khoảng <span className="font-semibold text-ink">{total} từ</span> mới.
+                    Sau 30 ngày: khoảng <span className="font-semibold text-ink">{total} từ</span> mới ({value} từ × 30 ngày), mỗi ngày chừng {sessionMinutes(value)} phút.
                 </p>
+                {value >= 25 && <p className="mt-1 text-xs text-warning">Nhịp cao: nếu hay không học hết, app sẽ gợi ý hạ xuống.</p>}
+                {value <= 7 && <p className="mt-1 text-xs text-muted">Nhịp nhẹ: dễ giữ đều, từ nhớ chắc nhưng cần hơn một tháng để đủ vốn từ.</p>}
             </div>
         </div>
     );

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clozeRounds, sentencesOf, upgradeRounds, blitzRounds, chainOk, chainReplies, detectivePoints, detectiveRounds, gameReview, liarRounds, listenRounds, maskWord, matchBoard, spellOk, spellRounds, type GameCard } from '../../app/lib/games/rounds';
+import { lookalikes, clozeRounds, sentencesOf, upgradeRounds, blitzRounds, chainOk, chainReplies, detectivePoints, detectiveRounds, gameReview, liarRounds, listenRounds, maskWord, matchBoard, spellOk, spellRounds, type GameCard } from '../../app/lib/games/rounds';
 
 const WORDS = ['abundant', 'brief', 'cautious', 'dense', 'eager', 'fragile', 'genuine', 'humble'];
 const bank: GameCard[] = WORDS.map((w, i) => ({
@@ -116,5 +116,37 @@ describe('games', () => {
         expect(r).toHaveLength(1);
         expect(r[0].options[r[0].answer]).toBe('opt1');
         expect(r[0].prompt).toContain('[very big amount]');
+    });
+
+    it('lookalikes: wrong options share the first letter and about the length of the right word', () => {
+        const big: GameCard[] = [
+            'ample', 'avid', 'alert', 'adept', 'acute', 'apt', 'bold', 'brisk', 'calm', 'dense', 'eager', 'fair', 'grim', 'hardy', 'ideal', 'jolly',
+        ].map((w, i) => ({ id: `b${i}`, word: w.toUpperCase(), translationHint: `nghĩa ${w}` }));
+        const right = big[2]; // ALERT
+        const wrong = lookalikes(right, big, 3, seq());
+        expect(wrong).toHaveLength(3);
+        for (const w of wrong) {
+            expect(w[0]).toBe('A');
+            expect(Math.abs(w.length - right.word.length)).toBeLessThanOrEqual(1);
+        }
+        expect(wrong).not.toContain('ALERT');
+        // when too few look alike, the rest still come from the bank
+        expect(lookalikes(big[6], big, 3, seq())).toHaveLength(3);
+    });
+
+    it('detective: the wrong options are lookalikes, so the letter clue narrows nothing down', () => {
+        const big: GameCard[] = ['ample', 'avid', 'alert', 'adept', 'acute', 'abate', 'bold', 'calm'].map((w, i) => ({
+            id: `d${i}`,
+            word: w.toUpperCase(),
+            translationHint: `nghĩa ${w}`,
+            collocations: [`${w} thing`],
+            scenario: `Rất ${w.toUpperCase()} hôm nay.`,
+        }));
+        const r = detectiveRounds(big.slice(0, 6), big, 4, seq());
+        expect(r.length).toBeGreaterThan(0);
+        for (const q of r) {
+            const right = big.find((c) => c.id === q.cardId)!.word;
+            for (const o of q.options) expect(o[0]).toBe(right[0]);
+        }
     });
 });
