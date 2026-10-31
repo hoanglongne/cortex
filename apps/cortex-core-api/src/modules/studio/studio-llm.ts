@@ -1,7 +1,7 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { DEFAULT_GEMINI_MODEL } from '../synapse/llm.provider';
+import { DEFAULT_GEMINI_MODEL } from '../shared/gemini';
 
 export interface LlmResult {
   json: unknown;

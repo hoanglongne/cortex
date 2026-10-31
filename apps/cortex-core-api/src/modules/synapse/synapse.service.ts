@@ -209,7 +209,7 @@ OUTPUT — JSON only, no prose, no markdown:
   "missionCode": "${lore.codePrefix}-${stage}-${Math.floor(Math.random() * 1000)}",
   "baseVerb": "___",
   "narrative": "string",
-  "choices": [{"particle": "string", "meaning": "string", "outcome": "string", "isCorrect": boolean, "effect": "string"}],
+  "choices": [{"particle": "string", "meaning": "string", "outcome": "string", "example": "short English sentence using the whole phrase", "isCorrect": boolean, "effect": "string"}],
   "technicalHint": "",
   "isFinalBoss": ${stage === 5}
 }
@@ -330,6 +330,8 @@ Each wrong outcome must be specific to THAT wrong expression's consequence (from
 RULE 5 — SENSORY DETAIL: Embed the keyDetail from the blueprint into the narrative naturally.
 
 RULE 6 — CONTINUITY: From Stage 2 onward, reference specific events from the previous stage by name.
+
+RULE 7 — EXAMPLES: every choice, right or wrong, also has an "example": one short, natural English sentence (12 words at most) that uses the whole phrase (baseVerb + that particle) correctly, in an everyday situation. It is shown to the learner afterwards so they can compare the four phrases.
 
 ══════════════════════════════════════════
 THE 5 SCENES
@@ -560,6 +562,8 @@ RULE 5 — CONTINUITY: Each stage must reference specific events from the previo
 ✓ GOOD stage 2: "Sau khi bạn phản bác số liệu của [tên đối thủ] trước mặt [tên cấp trên]..."
 
 RULE 6 — USE THE WORLD'S DRAMATIC IRONY: The player knows this world — "${lore.context.slice(0, 80)}..." — write the tension of someone navigating danger they already see coming.
+
+RULE 7 — EXAMPLES: every choice, right or wrong, also has an "example": one short, natural English sentence (12 words at most) that uses the whole phrase (baseVerb + that particle) correctly, in an everyday situation. It is shown to the learner afterwards so they can compare the four phrases.
 
 ═══ THE 5-STAGE ARC ═══
 Stage 1 [HOOK]: First concrete collision with the mission. Something specific goes wrong immediately.

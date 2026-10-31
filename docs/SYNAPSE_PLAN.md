@@ -147,7 +147,17 @@ Thứ tự khuyến nghị: **S0 → S1 trước**. Hai bước này tự biến
 | Nội dung kịch tính không hợp lớp | Dùng thế giới đời thường cho lớp, rà độ phù hợp |
 | AI viết sai tiếng Anh hoặc nghĩa | Duyệt trước khi phát hành; nút báo lỗi |
 
-## 11. Cần bạn quyết
+## 11. Đã quyết (31/10/2026)
+
+1. **Mục đích:** A (cụm động từ qua đối chiếu) là chính, B (ngữ dụng) là phụ.
+2. **Bỏ AI mỗi lượt ở chế độ thường** (tạm thời). AI chỉ dùng lúc dựng nội dung; chế độ AI vô hạn giữ làm thử nghiệm.
+3. **Chơi cả lớp: có cơ chế bỏ phiếu theo số đông** khi đưa ra lựa chọn.
+4. **Thế giới:** ưu tiên đời thường cho học sinh, giả tưởng cho người dùng thường, và người chơi có thể chuyển qua lại.
+5. **Duyệt cả kế hoạch, bắt tay vào làm.** Đã làm S0 và S1 (issue #101); S2 và S3 ở #102; S4 và S5 ở #103.
+
+Mục này thay các câu hỏi gốc dưới đây (giữ để tham khảo).
+
+## 11b. Câu hỏi gốc
 
 1. **Mục đích chính A** (cụm động từ qua đối chiếu), phụ B (ngữ dụng)? Hay muốn hướng khác?
 2. **Bỏ AI mỗi lượt** ở chế độ thường, chuyển sang nội dung dựng sẵn có duyệt (chế độ AI vô hạn chỉ là thử nghiệm)?

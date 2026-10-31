@@ -10,6 +10,9 @@ import { TerminalHeader } from "./TerminalHeader";
 import { TerminalOptions } from "./TerminalOptions";
 import { TerminalOutput, type TerminalMode } from "./TerminalOutput";
 import { useTheme } from "../context/ThemeContext";
+import { applyChoice, nextStage, startState } from "../lib/game";
+import { emptyProgress, levelOf, matchTyped, parseProgress, phraseKey, PROGRESS_KEY, record, type LevelSetting, type Progress } from "../lib/level";
+import { Hint, LevelPicker, PhraseBook, TypeAnswer } from "./LearningPanel";
 
 function makeId() {
   return Math.random().toString(36).slice(2);
@@ -41,12 +44,12 @@ export function TerminalBoard(props: {
 }) {
   const [sessionId, setSessionId] = useState<string>(makeId());
   const [currentStage, setCurrentStage] = useState(1);
-  const [score, setScore] = useState(0);
-  const [lives, setLives] = useState(3);
-  const [integrity, setIntegrity] = useState(100);
+  const [game, setGame] = useState(startState);
+  const { score, lives, integrity } = game;
+  const [progress, setProgress] = useState<Progress>(emptyProgress);
+  const level = levelOf(progress);
   const [loreId] = useState(props.initialLoreId || "cyberpunk-01");
   const [missionId] = useState(props.initialMissionId);
-  const [isGameOver, setIsGameOver] = useState(false);
   const [isMissionClear, setIsMissionClear] = useState(false);
   const [mode, setMode] = useState<TerminalMode>("idle");
   const maxStages = 5;
@@ -60,6 +63,25 @@ export function TerminalBoard(props: {
   >([]);
   const [accent, setAccent] = useState<"green" | "amber">("green");
   const { themeId, theme } = useTheme();
+
+  const isGameOver = game.over;
+
+  // Progress lives on this device for now (the account version is planned in docs/SYNAPSE_PLAN.md, S2)
+  useEffect(() => {
+    try {
+      setProgress(parseProgress(localStorage.getItem(PROGRESS_KEY)));
+    } catch {
+      // Private mode: it starts again next time.
+    }
+  }, []);
+  const saveProgress = (next: Progress) => {
+    setProgress(next);
+    try {
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(next));
+    } catch {
+      // Private mode.
+    }
+  };
 
   const historyRef = useRef<ActionLog[]>([]);
   const storyArcRef = useRef<SynapseScenario[]>([]);
@@ -108,10 +130,7 @@ export function TerminalBoard(props: {
     const newSessionId = makeId();
     setSessionId(newSessionId);
     setCurrentStage(1);
-    setScore(0);
-    setLives(3);
-    setIntegrity(100);
-    setIsGameOver(false);
+    setGame(startState());
     setIsMissionClear(false);
     setScenario(null);
     setStoryArc([]);
@@ -168,25 +187,9 @@ export function TerminalBoard(props: {
       ),
     );
 
-    if (choice.isCorrect) {
-      setScore((s) => s + 10);
-
-      // Apply gameplay effects from correct choices
-      if (choice.effect === 'restore_life') {
-        setLives((l) => Math.min(3, l + 1));
-      } else if (choice.effect === 'integrity_boost') {
-        setIntegrity((i) => Math.min(100, i + 20));
-      }
-    } else {
-      setScore((s) => Math.max(0, s - 10));
-      setIntegrity((i) => Math.max(0, i - 25)); // Mistake reduces system integrity
-
-      const nextLives = lives - 1;
-      setLives(nextLives);
-      if (nextLives <= 0) {
-        setIsGameOver(true);
-      }
-    }
+    setGame((g) => applyChoice(g, choice));
+    const target = scenario.choices.find((c) => c.isCorrect);
+    if (target) saveProgress(record(progress, phraseKey(scenario.baseVerb, target.particle), choice.isCorrect));
   }
 
   async function onContinue() {
@@ -196,15 +199,15 @@ export function TerminalBoard(props: {
 
     setPastStages((prev) => [...prev, { scenario, selected }]);
 
-    if (currentStage >= maxStages) {
+    const following = nextStage(currentStage, maxStages);
+    if (following === null) {
       setIsMissionClear(true);
       setMode("idle");
       return;
     }
 
-    const nextStage = currentStage + 1;
-    setCurrentStage(nextStage);
-    loadStageFromArc(nextStage);
+    setCurrentStage(following);
+    loadStageFromArc(following);
   }
 
   function onRetry() {
@@ -280,11 +283,22 @@ export function TerminalBoard(props: {
                   selected={selected}
                   isGameOver={isGameOver}
                   outcomeDone={outcomeTw.done}
+                  hideChoices={level === "use"}
+                  hideMeaning={level !== "learn"}
                   onChoose={onChoose}
                   onContinue={onContinue}
                   onRetry={onRetry}
                   onRestart={onRestart}
                 />
+
+                {scenario && narrativeTw.done && !selected && !isGameOver && (
+                  <>
+                    {level === "use" && <TypeAnswer baseVerb={scenario.baseVerb} onSubmit={(typed) => onChoose(matchTyped(typed, scenario.baseVerb, scenario.choices))} />}
+                    {level !== "use" && <Hint scenario={scenario} />}
+                  </>
+                )}
+                {scenario && selected && outcomeTw.done && <PhraseBook scenario={scenario} selected={selected} />}
+                <LevelPicker setting={progress.setting} level={level} progress={progress} onPick={(setting: LevelSetting) => saveProgress({ ...progress, setting })} />
               </div>
             </div>
           </div>

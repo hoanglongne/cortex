@@ -14,6 +14,10 @@ export function TerminalOptions(props: {
   selected: SynapseChoice | null;
   isGameOver: boolean;
   outcomeDone: boolean;
+  /** "Use" level: no options, the player types. */
+  hideChoices?: boolean;
+  /** "Recall" and "use": the Vietnamese meaning waits until after the choice. */
+  hideMeaning?: boolean;
   onChoose: (choice: SynapseChoice) => void;
   onContinue: () => void;
   onRetry: () => void;
@@ -36,7 +40,7 @@ export function TerminalOptions(props: {
         </div>
 
         <div className="space-y-2">
-          {props.scenario && props.narrativeDone && !props.selected ? (
+          {props.scenario && props.narrativeDone && !props.selected && !props.hideChoices ? (
             props.scenario.choices.map((c: SynapseChoice) => (
               <button
                 key={c.particle}
@@ -47,13 +51,13 @@ export function TerminalOptions(props: {
               >
                 <div className="flex items-start gap-3">
                   <span className="text-[#e8473f] font-bold text-[15px] shrink-0 pt-0.5">{c.particle}</span>
-                  <span className="text-gray-500 text-[12px] leading-relaxed group-hover:text-gray-700 transition-colors">{c.meaning}</span>
+                  <span className="text-gray-500 text-[12px] leading-relaxed group-hover:text-gray-700 transition-colors">{props.hideMeaning ? null : c.meaning}</span>
                 </div>
               </button>
             ))
           ) : (
             <div className="text-[12px] text-gray-400 p-4 border border-dashed border-gray-200 rounded-xl text-center">
-              {props.scenario ? "Đang xử lý..." : "Nhấn Bắt đầu để chơi."}
+              {props.scenario ? (props.hideChoices && props.narrativeDone && !props.selected ? "Cấp Dùng: gõ tiểu từ vào ô bên dưới." : "Đang xử lý...") : "Nhấn Bắt đầu để chơi."}
             </div>
           )}
         </div>
@@ -104,7 +108,7 @@ export function TerminalOptions(props: {
       </div>
 
       <div className="space-y-3">
-        {props.scenario && props.narrativeDone && !props.selected ? (
+        {props.scenario && props.narrativeDone && !props.selected && !props.hideChoices ? (
           props.scenario.choices.map((c: SynapseChoice) => (
             <button
               key={c.particle}
@@ -122,7 +126,7 @@ export function TerminalOptions(props: {
                   </span>
                 </div>
                 <div className="pl-6 text-[11px] font-medium text-white/50 group-hover:text-white/70 transition-colors italic">
-                  {c.meaning}
+                  {props.hideMeaning ? null : c.meaning}
                 </div>
               </div>
             </button>
@@ -130,7 +134,7 @@ export function TerminalOptions(props: {
         ) : (
           <div className="text-[12px] text-white/30 italic p-4 border border-dashed border-white/10 text-center">
             {props.scenario
-              ? "Awaiting neural synchronization..."
+              ? (props.hideChoices && props.narrativeDone && !props.selected ? "Cấp Dùng: gõ tiểu từ vào ô bên dưới." : "Awaiting neural synchronization...")
               : "Execute INITIATE_DEPLOYMENT to begin."}
           </div>
         )}
