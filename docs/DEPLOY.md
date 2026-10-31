@@ -37,6 +37,21 @@ Làm đúng thứ tự, vì tắt Git của Vercel trước khi Actions chạy �
    - Nếu chưa muốn ngắt hẳn: thay vào đó đặt Settings → Git → "Ignored Build Step" thành `exit 0`... nhưng cách này vẫn tạo lượt bị huỷ nên không giải được vấn đề. Ngắt Git mới là cách chắc.
 5. **Mỗi dự án** cần Root Directory đúng (đã đặt sẵn, ví dụ `apps/lexica`) và Build Command mặc định; `vercel pull` lấy cấu hình và biến môi trường production từ chính dự án.
 
+## Xem thử trước khi deploy (giao diện và tính năng thật)
+
+Có ba cách, từ rẻ đến sát thật nhất. Không cách nào tốn lượt Vercel mỗi lần đẩy code.
+
+1. **Chạy trên máy bạn (không tốn lượt nào):**
+   ```
+   pnpm install
+   pnpm --filter @cortex/lexica dev        # đổi lexica thành landing, teach, oratio...
+   ```
+   Cần biến môi trường (Supabase, API): lấy từ Vercel bằng `npx vercel env pull .env.local` chạy trong thư mục app (cần đăng nhập Vercel một lần). Muốn thử trên điện thoại cùng wifi: `pnpm --filter @cortex/lexica dev -- --hostname 0.0.0.0` rồi mở `http://<IP máy>:3000`.
+2. **Xem thử trên Vercel khi bạn muốn (1 lượt mỗi lần bấm):** workflow `Preview`. Vào Actions → Preview → Run workflow → chọn app (và nhánh ở ô bên cạnh), hoặc gắn nhãn `preview:lexica` lên PR. Actions build rồi đẩy bản xem thử lên Vercel, đường dẫn hiện ở phần Summary của lần chạy (và trong bình luận PR nếu dùng nhãn). Muốn bản mới sau khi đẩy thêm code, gỡ nhãn rồi gắn lại. Bản xem thử dùng biến môi trường *Preview* của dự án Vercel (đặt riêng với Production, có thể trỏ Supabase thử).
+3. **Xem trực tiếp bản đang chạy production** sau khi merge, như hiện nay.
+
+Quy trình đề xuất: làm xong một việc, chạy cách 1 hoặc 2, bạn thử, rồi mới merge.
+
 ## Hằng ngày
 
 - Đẩy nhánh, mở PR: chỉ chạy CI.

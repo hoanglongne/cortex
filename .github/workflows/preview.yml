@@ -1,0 +1,81 @@
+name: Preview
+
+# A preview of one app on Vercel, only when someone asks for it: run this workflow
+# from the Actions tab, or put the label "preview:<app>" (for example preview:lexica)
+# on a pull request. Built here and sent to Vercel prebuilt, so it costs one
+# Vercel deployment per request, not one per push (docs/DEPLOY.md).
+# To get a fresh preview after more pushes, remove the label and add it again.
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: App to preview
+        type: choice
+        options: [landing, lexica, teach, oratio, studio, solilo, synapse]
+        required: true
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  preview:
+    name: Preview ${{ github.event.inputs.app || github.event.label.name }}
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.label.name, 'preview:')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: preview-${{ github.event.inputs.app || github.event.label.name }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Which app
+        id: which
+        env:
+          INPUT_APP: ${{ github.event.inputs.app }}
+          LABEL: ${{ github.event.label.name }}
+        run: |
+          app="${INPUT_APP:-${LABEL#preview:}}"
+          case "$app" in landing|lexica|teach|oratio|studio|solilo|synapse) ;; *) echo "Unknown app: $app"; exit 1 ;; esac
+          echo "app=$app" >> "$GITHUB_OUTPUT"
+          echo "key=$(echo "$app" | tr '[:lower:]' '[:upper:]')" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check the Vercel settings are there
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars[format('VERCEL_PROJECT_{0}', steps.which.outputs.key)] }}
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo "Secret VERCEL_TOKEN is missing (docs/DEPLOY.md)"; exit 1; }
+          test -n "$VERCEL_ORG_ID" || { echo "Variable VERCEL_ORG_ID is missing (docs/DEPLOY.md)"; exit 1; }
+          test -n "$VERCEL_PROJECT_ID" || { echo "Variable VERCEL_PROJECT_${{ steps.which.outputs.key }} is missing (docs/DEPLOY.md)"; exit 1; }
+      - name: Pull, build and deploy a preview
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars[format('VERCEL_PROJECT_{0}', steps.which.outputs.key)] }}
+        run: |
+          npx --yes vercel@65.4.0 pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          npx --yes vercel@65.4.0 build --token="$VERCEL_TOKEN"
+          url=$(npx --yes vercel@65.4.0 deploy --prebuilt --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### Preview of ${{ steps.which.outputs.app }}: $url" >> "$GITHUB_STEP_SUMMARY"
+      - name: Tell the pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Preview of **${{ steps.which.outputs.app }}** at commit ${context.sha.slice(0, 7)}: ${{ steps.deploy.outputs.url }}\n\nTo get a new one after more pushes, remove the label and add it again.`,
+            });
