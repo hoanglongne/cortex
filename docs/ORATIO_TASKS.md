@@ -1,3 +1,5 @@
+> **Đã gộp (31/10/2026):** phần "Đã sửa" vẫn đúng; phần "Còn lại" đã được thay bằng `docs/ORATIO_PLAN.md`.
+
 # Oratio: rà soát và việc cần làm
 
 Rà soát ngày 2026-10-18. Đã sửa trong cùng ngày, trên nhánh `long/serene-turing-6gfppj`. Phần "Còn lại" là việc chưa làm, có thể giao cho AI khác.
