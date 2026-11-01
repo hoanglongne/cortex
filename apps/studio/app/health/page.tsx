@@ -39,7 +39,7 @@ export default function HealthPage() {
         <div className="flex flex-col gap-4">
             <Card>
                 <p className="text-sm text-ink-2">
-                    Các thẻ cần xem lại nhất tuần này. Số liệu cập nhật mỗi đêm từ Đấu trường, bài kiểm tra lớp, thách đấu và nút "Báo thẻ này có vấn đề" trong Lexica. Một thẻ chỉ có tỉ lệ đúng khi đã có ít nhất 8 lượt trả lời.
+                    Các thẻ cần xem lại nhất tuần này. Số liệu cập nhật mỗi đêm từ Đấu trường, bài kiểm tra lớp, thách đấu và nút “Báo thẻ này có vấn đề” trong Lexica. Một thẻ chỉ có tỉ lệ đúng khi đã có ít nhất 8 lượt trả lời.
                 </p>
             </Card>
             <ErrorNote error={error} />
