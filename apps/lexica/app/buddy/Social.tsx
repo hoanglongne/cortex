@@ -19,6 +19,8 @@ import {
     dateIcs,
     dateList,
     dateSlots,
+    examSlots,
+    type DateKind,
     dateStatus,
     giftInbox,
     giftOpen,
@@ -43,6 +45,7 @@ import {
     type WordsFeed,
 } from '../lib/buddySocial';
 import { useKnownWords } from './DuelsSection';
+import { ORATIO_URL } from '../lib/cortexConfig';
 import { disablePush, enablePush, pushEnabled, pushSupport } from '../lib/push';
 
 const wordOf = (id: string) => getCard(id)?.word ?? null;
@@ -339,7 +342,7 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
 export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reloadKey: number }) {
     const router = useRouter();
     const [list, setList] = useState<StudyDate[] | null>(null);
-    const [adding, setAdding] = useState(false);
+    const [adding, setAdding] = useState<DateKind | null>(null);
     const [who, setWho] = useState('');
     const [msg, setMsg] = useState('');
     const [now, setNow] = useState(() => Date.now());
@@ -353,14 +356,14 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
         };
     }, [load, reloadKey]);
     if (!list) return null;
-    const slots = dateSlots(new Date(now));
+    const slots = adding === 'speaking' ? examSlots(new Date(now)) : dateSlots(new Date(now));
     const book = async (at: Date) => {
         const buddy = who || buddies[0]?.id;
         if (!buddy) return;
         try {
-            await dateCreate(buddy, at);
-            capture('buddy_date_created', {});
-            setAdding(false);
+            await dateCreate(buddy, at, adding ?? 'study');
+            capture('buddy_date_created', { kind: adding ?? 'study' });
+            setAdding(null);
             setMsg('');
             void load();
         } catch (e) {
@@ -383,13 +386,21 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                     <CalendarClock className="w-4 h-4 text-accent" /> Giờ học chung
                 </h2>
                 {buddies.length > 0 && (
-                    <button onClick={() => setAdding((v) => !v)} className="flex items-center gap-1 text-sm text-accent">
-                        <Plus className="w-4 h-4" /> Hẹn giờ
-                    </button>
+                    <span className="flex items-center gap-3 text-sm">
+                        <button onClick={() => setAdding((v) => (v === 'study' ? null : 'study'))} className="flex items-center gap-1 text-accent">
+                            <Plus className="w-4 h-4" /> Hẹn giờ
+                        </button>
+                        {ORATIO_URL && (
+                            <button onClick={() => setAdding((v) => (v === 'speaking' ? null : 'speaking'))} className="flex items-center gap-1 text-accent">
+                                <Plus className="w-4 h-4" /> Thi thử Speaking
+                            </button>
+                        )}
+                    </span>
                 )}
             </div>
             {adding && (
                 <div className="mt-2 space-y-2 rounded-xl border border-line bg-surface-2/40 p-3">
+                    {adding === 'speaking' && <p className="text-xs text-muted">Cả hai vào Giờ thi của Oratio đúng giờ này, nói với người thật, rồi chấm cho nhau.</p>}
                     {buddies.length > 1 && (
                         <select value={who || buddies[0].id} onChange={(e) => setWho(e.target.value)} aria-label="Hẹn với" className="h-9 w-full rounded-lg border border-line bg-surface px-2 text-sm text-ink">
                             {buddies.map((b) => (
@@ -421,7 +432,7 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                                     <p className="min-w-0 text-sm text-ink">
                                         <span className="font-semibold">{d.with_name ?? 'Bạn học'}</span>
                                         <span className="block text-xs text-muted">
-                                            {when.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' })} {when.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} ·{' '}
+                                            {d.kind === 'speaking' ? 'Thi thử Speaking · ' : ''}{when.toLocaleDateString('vi-VN', { weekday: 'short', day: 'numeric', month: 'numeric' })} {when.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} ·{' '}
                                             {st === 'together' ? 'Đã học cùng nhau' : st === 'missed' ? 'Không kịp học cùng' : st === 'open' ? (d.their_in ? `${d.with_name ?? 'Bạn ấy'} đang học` : 'Đến giờ rồi') : 'Sắp tới'}
                                         </span>
                                     </p>
@@ -430,15 +441,16 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                                             onClick={async () => {
                                                 try {
                                                     await dateCheckin(d.id);
-                                                    capture('buddy_date_checkin', { both: Boolean(d.their_in) });
-                                                    router.push('/today');
+                                                    capture('buddy_date_checkin', { both: Boolean(d.their_in), kind: d.kind ?? 'study' });
+                                                    if (d.kind === 'speaking' && ORATIO_URL) window.location.href = ORATIO_URL;
+                                                    else router.push('/today');
                                                 } catch (e) {
                                                     setMsg(errText(e));
                                                 }
                                             }}
                                             className="shrink-0 rounded-lg bg-accent px-3 py-1.5 text-xs font-bold text-on-accent"
                                         >
-                                            Vào học
+                                            {d.kind === 'speaking' ? 'Vào thi' : 'Vào học'}
                                         </button>
                                     )}
                                     {st === 'soon' && (

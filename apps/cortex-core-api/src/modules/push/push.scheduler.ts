@@ -94,7 +94,7 @@ export class PushScheduler implements OnModuleInit, OnModuleDestroy {
   private async dates(db: SupabaseClient<any, any, any>, now: number) {
     const { data } = await db
       .from('lexica_study_dates')
-      .select('id, creator, buddy, at')
+      .select('id, creator, buddy, at, kind')
       .eq('canceled', false)
       .is('notified_at', null)
       .lte('at', new Date(now + DATE_AHEAD_MS).toISOString())
@@ -102,6 +102,7 @@ export class PushScheduler implements OnModuleInit, OnModuleDestroy {
     for (const d of (data ?? []) as {
       id: string;
       creator: string;
+      kind: string;
       buddy: string;
       at: string;
     }[]) {
@@ -117,12 +118,12 @@ export class PushScheduler implements OnModuleInit, OnModuleDestroy {
       await this.push.sendTo(
         db,
         d.creator,
-        datePayload(d.id, names.get(d.buddy) ?? null, d.at),
+        datePayload(d.id, names.get(d.buddy) ?? null, d.at, d.kind),
       );
       await this.push.sendTo(
         db,
         d.buddy,
-        datePayload(d.id, names.get(d.creator) ?? null, d.at),
+        datePayload(d.id, names.get(d.creator) ?? null, d.at, d.kind),
       );
     }
   }

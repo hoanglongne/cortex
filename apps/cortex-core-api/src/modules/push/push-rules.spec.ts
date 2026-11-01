@@ -30,6 +30,10 @@ describe('push rules', () => {
     expect(
       datePayload('d1', 'Hà', new Date(vn(20, 30)).toISOString()).body,
     ).toBe('Hà hẹn học cùng lúc 20:30. Vào học nhé.');
+    expect(
+      datePayload('d2', 'Hà', new Date(vn(20, 30)).toISOString(), 'speaking')
+        .body,
+    ).toBe('Hà hẹn thi thử Speaking lúc 20:30. Vào Giờ thi của Oratio nhé.');
     expect(giftsPayload(['Hà']).body).toBe(
       'Hà tặng bạn một từ. Mở ra xem nhé.',
     );

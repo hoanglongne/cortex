@@ -28,10 +28,14 @@ export function datePayload(
   id: string,
   other: string | null,
   at: string,
+  kind: string = 'study',
 ): PushPayload {
+  const exam = kind === 'speaking';
   return {
-    title: 'Sắp đến giờ học chung',
-    body: `${other ?? 'Bạn học'} hẹn học cùng lúc ${clockVn(at)}. Vào học nhé.`,
+    title: exam ? 'Sắp đến giờ thi thử Speaking' : 'Sắp đến giờ học chung',
+    body: exam
+      ? `${other ?? 'Bạn học'} hẹn thi thử Speaking lúc ${clockVn(at)}. Vào Giờ thi của Oratio nhé.`
+      : `${other ?? 'Bạn học'} hẹn học cùng lúc ${clockVn(at)}. Vào học nhé.`,
     url: '/buddy',
     tag: `date-${id}`,
   };

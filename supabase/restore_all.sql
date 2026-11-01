@@ -6290,6 +6290,10 @@ create table if not exists lexica_study_dates (
   canceled boolean not null default false,
   check (creator <> buddy)
 );
+-- What the date is for: studying together, or a Speaking mock exam in Oratio's Giờ thi (issue #90)
+alter table lexica_study_dates add column if not exists kind text not null default 'study';
+alter table lexica_study_dates drop constraint if exists lexica_study_dates_kind_check;
+alter table lexica_study_dates add constraint lexica_study_dates_kind_check check (kind in ('study', 'speaking'));
 create index if not exists lexica_study_dates_idx on lexica_study_dates (creator, at);
 create index if not exists lexica_study_dates_buddy_idx on lexica_study_dates (buddy, at);
 
@@ -6428,7 +6432,9 @@ $$;
 
 -- ── Study dates ─────────────────────────────────────────────────────────
 
-create or replace function public.date_create(p_buddy uuid, p_at timestamptz)
+-- The two-argument version is replaced by one with a kind (a second version would make the call ambiguous)
+drop function if exists public.date_create(uuid, timestamptz);
+create or replace function public.date_create(p_buddy uuid, p_at timestamptz, p_kind text default 'study')
 returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
   me uuid := auth.uid();
@@ -6439,7 +6445,8 @@ begin
   if p_at < now() or p_at > now() + interval '7 days' then raise exception 'bad time'; end if;
   if (select count(*) from lexica_study_dates d where not d.canceled and d.at > now() - interval '2 hours'
         and ((d.creator = me and d.buddy = p_buddy) or (d.creator = p_buddy and d.buddy = me))) >= 3 then raise exception 'too many dates'; end if;
-  insert into lexica_study_dates (creator, buddy, at) values (me, p_buddy, p_at) returning id into did;
+  if p_kind not in ('study', 'speaking') then raise exception 'bad kind'; end if;
+  insert into lexica_study_dates (creator, buddy, at, kind) values (me, p_buddy, p_at, p_kind) returning id into did;
   return jsonb_build_object('id', did);
 end;
 $$;
@@ -6447,7 +6454,7 @@ $$;
 create or replace function public.date_list()
 returns jsonb language sql stable security definer set search_path = public as $$
   select coalesce(jsonb_agg(jsonb_build_object(
-      'id', d.id, 'at', d.at, 'mine', d.creator = auth.uid(),
+      'id', d.id, 'at', d.at, 'kind', d.kind, 'mine', d.creator = auth.uid(),
       'with_id', case when d.creator = auth.uid() then d.buddy else d.creator end,
       'with_name', (select nickname from profiles p where p.id = case when d.creator = auth.uid() then d.buddy else d.creator end),
       'my_in', case when d.creator = auth.uid() then d.creator_in else d.buddy_in end,
@@ -6609,7 +6616,7 @@ begin
     'buddy_words_set(date, jsonb)', 'buddy_prefs_set(boolean)', 'buddy_words_feed(date)',
     'gift_send(uuid, text, text)', 'gift_inbox()', 'gift_open(uuid)', 'gift_report(uuid)',
     'shield_give(uuid, date)', 'shields_team(date)',
-    'date_create(uuid, timestamptz)', 'date_list()', 'date_checkin(uuid)', 'date_cancel(uuid)',
+    'date_create(uuid, timestamptz, text)', 'date_list()', 'date_checkin(uuid)', 'date_cancel(uuid)',
     'buddy_block(uuid)', 'ask_send(uuid, text)', 'ask_answer(uuid, text)', 'ask_report(uuid)', 'ask_inbox()', 'team_words()'
   ] loop
     execute format('revoke all on function public.%s from public, anon', f);
@@ -8919,4 +8926,22 @@ CREATE INDEX IF NOT EXISTS push_subscriptions_user_idx ON public.push_subscripti
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 -- No policies: written and read by the server only
 REVOKE ALL ON public.push_subscriptions FROM anon, authenticated;
+
+
+-- ============================================================
+-- apps/oratio/supabase/seed_part2_solilo.sql
+-- ============================================================
+
+-- Part 2 topics from Solilo that Oratio did not have (issue #89). Non-destructive:
+-- only rows not in ielts_questions yet (same part and text) are added. Safe to re-run.
+-- The other ten of Solilo's twelve cue cards already have a close match in
+-- seed_questions_v2.sql (a book, a teacher, an event, a decision, clothing, a
+-- building, a surprise, a skill, a piece of technology, helping someone).
+INSERT INTO public.ielts_questions (part, category, question_text, difficulty)
+SELECT v.part, v.category, v.question_text, v.difficulty
+FROM (VALUES
+  (2, 'Experience', 'Describe an ambition you have not yet achieved. You should say: what the ambition is, why you have this ambition, what you have done to try to achieve it, and explain how you would feel if you achieved it.', 'medium'),
+  (2, 'Place', 'Describe a place you visited that you found very beautiful. You should say: where the place was, when you went there, what you did there, and explain why you thought it was beautiful.', 'medium')
+) AS v(part, category, question_text, difficulty)
+WHERE NOT EXISTS (SELECT 1 FROM public.ielts_questions q WHERE q.part = v.part AND q.question_text = v.question_text);
 

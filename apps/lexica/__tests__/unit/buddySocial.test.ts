@@ -83,3 +83,17 @@ describe('buddy social', () => {
         expect(milestone(10000)).toEqual({ passed: 10000, next: null });
     });
 });
+
+describe('speaking mock exam dates', () => {
+    it('slots follow the Giờ thi hours: 20:30 every evening, 12:00 added at the weekend, never in the next 30 minutes', async () => {
+        const { examSlots } = await import('../../app/lib/buddySocial');
+        const mon = new Date(2026, 10, 2, 10, 0); // a Monday
+        const slots = examSlots(mon);
+        expect(slots[0].label).toBe('Hôm nay 20:30');
+        expect(slots.filter((s) => s.at.getHours() === 12).every((s) => [0, 6].includes(s.at.getDay()))).toBe(true);
+        expect(slots.some((s) => s.at.getHours() === 12 && s.at.getDay() === 6)).toBe(true);
+        expect(slots.every((s) => s.at.getTime() > mon.getTime() + 30 * 60_000)).toBe(true);
+        expect(examSlots(new Date(2026, 10, 2, 20, 10))[0].label).toBe('Ngày mai 20:30');
+        expect(slots.length).toBeLessThanOrEqual(7 + 2);
+    });
+});

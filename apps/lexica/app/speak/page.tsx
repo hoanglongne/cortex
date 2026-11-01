@@ -16,6 +16,7 @@ import { SOUND_KINDS } from '@cortex/classroom-lexica';
 import type { ErrorKind } from '../lib/pronunciation/pairs';
 import { setPronBeta } from '../lib/pronunciation/model/client';
 import { loadDict } from '../lib/pronunciation/phones';
+import { ORATIO_URL } from '../lib/cortexConfig';
 
 /**
  * "Luyện nói 2 phút" (docs/LEXICA_FEEDBACK_TASKS.md T8): five words, three
@@ -23,6 +24,39 @@ import { loadDict } from '../lib/pronunciation/phones';
  * what the machine heard, then a tip and the word in a phrase. A practice of
  * its own; it never blocks swiping.
  */
+
+/** "Thang nói" (issue #90): from a word to a mock exam, one step after another, across Lexica and Oratio. */
+function SpeakingLadder() {
+    const steps: { label: string; hint: string; href: string | null; here?: boolean }[] = [
+        { label: 'Nói từng từ', hint: 'Ngay bên dưới, trong Lexica', href: null, here: true },
+        { label: 'Tập một mình', hint: 'Oratio: câu hỏi IELTS thật, ghi âm, xem chỉ số của mình', href: ORATIO_URL },
+        { label: 'Nói lại', hint: 'Nghe bản ghi, nói lần hai cho trôi chảy hơn', href: ORATIO_URL },
+        { label: 'Chấm chéo', hint: 'Gửi bài, bạn luyện chấm cho bạn, bạn chấm lại cho người khác', href: ORATIO_URL },
+        { label: 'Phòng thi', hint: 'Giờ thi chung, nói với người thật. Hẹn một bạn trong Buddy', href: '/buddy' },
+    ];
+    return (
+        <details className="rounded-2xl border border-line bg-surface p-4">
+            <summary className="cursor-pointer text-sm font-semibold text-ink">Thang nói: từ một từ đến phòng thi</summary>
+            <ol className="mt-3 space-y-2">
+                {steps.map((s, i) => (
+                    <li key={s.label} className="flex items-start gap-3 text-sm">
+                        <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${s.here ? 'bg-accent text-on-accent' : 'bg-surface-2 text-ink-2'}`}>{i + 1}</span>
+                        <span className="min-w-0">
+                            {s.href ? (
+                                <a href={s.href} className="font-semibold text-accent underline-offset-2 hover:underline">
+                                    {s.label}
+                                </a>
+                            ) : (
+                                <span className="font-semibold text-ink">{s.label}</span>
+                            )}
+                            <span className="block text-xs text-muted">{s.hint}</span>
+                        </span>
+                    </li>
+                ))}
+            </ol>
+        </details>
+    );
+}
 
 export default function SpeakPage() {
     useContentVersion();
@@ -100,6 +134,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
     const supported = typeof window !== 'undefined' && (!!recognitionCtor() || Boolean(CORTEX_API_URL));
     return (
         <div className="space-y-4">
+            <SpeakingLadder />
             <div className="rounded-2xl border border-line bg-surface p-5">
                 <h1 className="text-xl font-semibold text-ink">Luyện nói 2 phút</h1>
                 <p className="mt-2 text-sm text-muted">
