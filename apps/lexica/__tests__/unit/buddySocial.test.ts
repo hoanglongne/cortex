@@ -53,6 +53,7 @@ describe('buddy social', () => {
     it('quest line mentions who to cheer', () => {
         expect(questLine(questWeek({ people, week: {}, dates, me: 'a' }))).toContain('Bình');
         expect(questLine(questWeek({ people: [people[0]], week: {}, dates }))).toContain('Một mình');
+        expect(questLine(questWeek({ people, week: {}, dates, ended: true }))).not.toMatch(/quái|máu/);
     });
 
     it('study dates: soon, open from 15 minutes before to 90 after, together, missed', () => {

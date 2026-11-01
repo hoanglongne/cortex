@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, CloudRain, Check, Compass, Ear, Grid3x3, Skull, FileText, Flame, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap, type LucideIcon } from 'lucide-react';
+import { ArrowUpRight, CloudRain, Check, Compass, Ear, Headphones, Mic, PencilLine, Grid3x3, Skull, FileText, Flame, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap, type LucideIcon } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
 import { localDate } from '../lib/engagement/ghost';
@@ -36,6 +36,15 @@ const GROUPS: { title: string; hint: string; games: { id: GameId; name: string; 
             { id: 'liar', name: 'Từ nói dối', hint: 'Bốn cụm, một cụm bị tráo từ. Bắt nó', icon: ShieldQuestion },
             { id: 'match', name: 'Ghép', hint: 'Nối sáu cặp từ và nghĩa', icon: Grid2x2 },
             { id: 'chain', name: 'Nối chuỗi', hint: 'Từ sau bắt đầu bằng chữ cuối từ trước, đấu với máy', icon: Link2 },
+        ],
+    },
+    {
+        title: 'Luyện nghe',
+        hint: 'Giọng tổng hợp, không thay bài thi thật',
+        games: [
+            { id: 'dictate', name: 'Nghe chép', hint: 'Nghe một câu, gõ lại, thấy chỗ nghe sai. Nhanh thì điểm cao', icon: PencilLine, tag: 'Listening' },
+            { id: 'fill', name: 'Nghe và điền', hint: 'Nghe một đoạn ngắn, điền các chỗ trống như bài note completion', icon: Headphones, tag: 'Listening' },
+            { id: 'linked', name: 'Âm nối, âm rút', hint: 'Gonna, wanna, a nice day: nghe rồi chọn câu đầy đủ', icon: Mic },
         ],
     },
     {

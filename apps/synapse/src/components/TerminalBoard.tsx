@@ -11,8 +11,9 @@ import { TerminalOptions } from "./TerminalOptions";
 import { TerminalOutput, type TerminalMode } from "./TerminalOutput";
 import { useTheme } from "../context/ThemeContext";
 import { applyChoice, nextStage, startState } from "../lib/game";
-import { emptyProgress, levelOf, matchTyped, parseProgress, phraseKey, PROGRESS_KEY, record, type LevelSetting, type Progress } from "../lib/level";
-import { Hint, LevelPicker, PhraseBook, TypeAnswer } from "./LearningPanel";
+import { emptyProgress, levelOf, markCleared, markScene, matchTyped, parseProgress, phraseKey, PROGRESS_KEY, record, weakPhrases, type LevelSetting, type Progress } from "../lib/level";
+import { EndingCard, Hint, LevelPicker, PhraseBook, ReportScene, TypeAnswer } from "./LearningPanel";
+import { endingText, markEnding, tierOf, type EndingTier } from "../lib/endings";
 
 function makeId() {
   return Math.random().toString(36).slice(2);
@@ -40,6 +41,8 @@ function toActionLog(
 export function TerminalBoard(props: {
   initialLoreId?: string;
   initialMissionId?: string;
+  /** "Ôn bằng truyện": a short mission built from the phrases the player misses. */
+  review?: boolean;
   onExit?: () => void
 }) {
   const [sessionId, setSessionId] = useState<string>(makeId());
@@ -51,10 +54,11 @@ export function TerminalBoard(props: {
   const [loreId] = useState(props.initialLoreId || "cyberpunk-01");
   const [missionId] = useState(props.initialMissionId);
   const [isMissionClear, setIsMissionClear] = useState(false);
+  const [ending, setEnding] = useState<EndingTier | null>(null);
   const [mode, setMode] = useState<TerminalMode>("idle");
-  const maxStages = 5;
   const [scenario, setScenario] = useState<SynapseScenario | null>(null);
   const [storyArc, setStoryArc] = useState<SynapseScenario[]>([]);
+  const maxStages = storyArc.length || 5;
   const [selected, setSelected] = useState<SynapseChoice | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sessionHistory, setSessionHistory] = useState<ActionLog[]>([]);
@@ -65,6 +69,7 @@ export function TerminalBoard(props: {
   const { themeId, theme } = useTheme();
 
   const isGameOver = game.over;
+
 
   // Progress lives on this device for now (the account version is planned in docs/SYNAPSE_PLAN.md, S2)
   useEffect(() => {
@@ -132,6 +137,7 @@ export function TerminalBoard(props: {
     setCurrentStage(1);
     setGame(startState());
     setIsMissionClear(false);
+    setEnding(null);
     setScenario(null);
     setStoryArc([]);
     setSelected(null);
@@ -150,11 +156,13 @@ export function TerminalBoard(props: {
 
     try {
       setMode("loading");
-      const arc: StoryArc = await apiClient.fetchStoryArc({
-        sessionId: newSessionId,
-        loreId,
-        missionId,
-      });
+      const arc: StoryArc = props.review
+        ? await apiClient.fetchReview(weakPhrases(progress), progress.seenScenes)
+        : await apiClient.fetchStoryArc({
+            sessionId: newSessionId,
+            loreId,
+            missionId,
+          });
       storyArcRef.current = arc.stages;
       setStoryArc(arc.stages);
       setScenario(arc.stages[0] ?? null);
@@ -189,7 +197,13 @@ export function TerminalBoard(props: {
 
     setGame((g) => applyChoice(g, choice));
     const target = scenario.choices.find((c) => c.isCorrect);
-    if (target) saveProgress(record(progress, phraseKey(scenario.baseVerb, target.particle), choice.isCorrect));
+    let updated = target ? markScene(record(progress, phraseKey(scenario.baseVerb, target.particle), choice.isCorrect), scenario.sceneId) : progress;
+    // Out of lives: the unfinished ending (a review mission has none)
+    if (!choice.isCorrect && game.lives <= 1 && !props.review) {
+      setEnding("fail");
+      updated = markEnding(updated, missionId, "fail");
+    }
+    if (updated !== progress) saveProgress(updated);
   }
 
   async function onContinue() {
@@ -202,6 +216,11 @@ export function TerminalBoard(props: {
     const following = nextStage(currentStage, maxStages);
     if (following === null) {
       setIsMissionClear(true);
+      if (!props.review) {
+        const tier = tierOf(game.lives, true);
+        setEnding(tier);
+        saveProgress(markEnding(markCleared(progress, missionId), missionId, tier));
+      }
       setMode("idle");
       return;
     }
@@ -298,6 +317,8 @@ export function TerminalBoard(props: {
                   </>
                 )}
                 {scenario && selected && outcomeTw.done && <PhraseBook scenario={scenario} selected={selected} />}
+                {scenario?.sceneId && selected && outcomeTw.done && <ReportScene sceneId={scenario.sceneId} />}
+                {ending && !props.review && <EndingCard tier={ending} text={endingText(missionId, ending)} seen={progress} missionId={missionId} />}
                 <LevelPicker setting={progress.setting} level={level} progress={progress} onPick={(setting: LevelSetting) => saveProgress({ ...progress, setting })} />
               </div>
             </div>

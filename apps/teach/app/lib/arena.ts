@@ -131,3 +131,42 @@ export function fillTeams(split: Record<string, number>, ids: readonly string[],
 export function guessers<S extends { answered: number; fast_wrong: number }>(stats: readonly S[]): S[] {
     return stats.filter((s) => s.fast_wrong >= 2 && s.fast_wrong * 3 >= s.answered);
 }
+
+// ── Synapse story rounds (issue #103) ───────────────────────────────────
+
+/** The part of a Synapse arc the room needs (what the Cortex API returns). */
+export interface StoryArcLike {
+    stages: { narrative: string; choices: { particle: string; meaning: string; outcome: string; isCorrect: boolean }[] }[];
+}
+
+export interface StoryMission {
+    loreId: string;
+    missionId: string;
+    name: string;
+    scenes: number;
+    /** CEFR level of the language, when set. */
+    level?: string;
+}
+
+/**
+ * A mission as arena questions: each scene is a question, the phrases are the
+ * options, and what each option leads to is kept for the reveal. The class
+ * votes on their phones; the room counts the votes (the projector's `counts`).
+ */
+export function storyQuestions(arc: StoryArcLike): ArenaQuestionInput[] {
+    return arc.stages
+        .filter((s) => s.choices.length >= 2 && s.choices.length <= 4 && s.choices.filter((c) => c.isCorrect).length === 1)
+        .map((s) => ({
+            kind: 'story' as const,
+            prompt: s.narrative.replace(/_{3,}/g, '_____'),
+            options: s.choices.map((c) => `${c.particle} · ${c.meaning}`.slice(0, 80)),
+            answer: s.choices.findIndex((c) => c.isCorrect),
+            outcomes: s.choices.map((c) => c.outcome),
+        }));
+}
+
+/** The option most of the class chose (the first on a tie), or null when no one answered. */
+export function majority(counts: readonly number[] | undefined): number | null {
+    if (!counts || counts.every((c) => c === 0)) return null;
+    return counts.indexOf(Math.max(...counts));
+}

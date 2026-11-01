@@ -157,6 +157,41 @@ Thứ tự khuyến nghị: **S0 → S1 trước**. Hai bước này tự biến
 
 Mục này thay các câu hỏi gốc dưới đây (giữ để tham khảo).
 
+### Tiến độ S2 và S3 (31/10/2026, issue #102)
+
+**Đã làm (S3, nội dung dựng sẵn):**
+- Thế giới mới **"Một Năm Ở Lớp 11"** (đời thường, hợp lớp học): 4 nhiệm vụ × 5 cảnh = 20 cảnh viết tay, mỗi cảnh một cụm đúng, ba cụm sai với hậu quả riêng, câu ví dụ cho từng cụm. Cùng nhiệm vụ Ngày Đầu Trở Lại có sẵn, là 5 nhiệm vụ chơi không cần AI.
+- `GET /synapse/missions` liệt kê nhiệm vụ dựng sẵn; `POST /synapse/story-arc` **không còn gọi AI** khi nhiệm vụ có đủ 5 cảnh (gửi `mode: "ai"` để dùng AI, chế độ thử nghiệm). Chi phí AI cho các nhiệm vụ này về 0.
+- Mọi lựa chọn đều có nghĩa tiếng Việt (`phrase-meanings.ts`), nên ở cấp "Học" đáp án không bị lộ.
+- Nút **"Báo cảnh có vấn đề"** → `POST /synapse/report` → bảng `synapse_reports` (SQL `apps/cortex-core-api/supabase/migration_synapse_reports.sql`, có trong `restore_all.sql`).
+
+**Đã làm (S2, phần không cần tài khoản):**
+- Trạng thái mỗi cụm: chưa gặp, đã gặp, sai gần đây, vững (đúng 3 lần liên tiếp); lưu cả cảnh đã chơi và nhiệm vụ đã xong trên máy.
+- **Hồ sơ** ở màn chọn thế giới: số cụm đã mở, số nhiệm vụ xong, đếm theo trạng thái, các cụm hay nhầm.
+- **"Ôn bằng truyện"** (`POST /synapse/review`): 3 cảnh cho các cụm hay nhầm; ưu tiên cảnh chưa chơi, rồi cảnh có cụm đó làm đáp án sai (đối chiếu khác), cuối cùng mới là cảnh cũ.
+
+**Đã làm tiếp (31/10, issue #103, S4 một phần):**
+- Thế giới học đường thêm 2 nhiệm vụ (Chuyến Dã Ngoại, Bạn Cũ Bạn Mới): 6 nhiệm vụ, 30 cảnh viết tay; cùng "Ngày Đầu Trở Lại" là 7 nhiệm vụ chơi không cần AI.
+- **Chơi cả lớp:** thêm nguồn "Truyện Synapse" vào Đấu trường của Teach. Mỗi cảnh là một câu hỏi kiểu `story` (SQL `classroom_arena.sql`: lời cảnh đến 460 chữ, kèm `outcomes` cho từng lựa chọn). Học viên chọn trên điện thoại (Lexica), máy chiếu hiện số phiếu từng lựa chọn; số đông là "lớp chọn", cả lớp xem hậu quả của lựa chọn đó, và lựa chọn tốt nhất nếu lớp chọn khác. Dùng Teach qua `GET /api/synapse` (proxy tới `GET /synapse/missions` và `GET /synapse/arc/:lore/:mission` của API, cần biến `CORTEX_CORE_API_URL` trong Teach).
+- Báo cáo cụm cả lớp hay nhầm: bảng tổng kết của Đấu trường đã có tỉ lệ đúng từng câu, mỗi câu truyện ứng với một cụm.
+
+**Đã làm tiếp (1/11, S5 một phần, S3 bổ sung):**
+- **Cái kết:** mỗi nhiệm vụ học đường có 4 cái kết (Trọn vẹn, Vượt qua, Sát nút, Dở dang) theo số tim còn lại hoặc hết tim; người chơi giữ các cái kết đã thấy, hồ sơ hiện "Cái kết x/y" (`apps/synapse/src/lib/endings.ts`).
+- **Chương tuần này:** mỗi thứ Hai đổi sang một nhiệm vụ học đường khác (nhiệm vụ đã xong xếp sau). Đây là xoay vòng nhiệm vụ có sẵn, **không phải nội dung mới ra mỗi tuần**: nội dung mới vẫn phải do người dựng.
+- **Chơi lại không cần mạng:** nhiệm vụ viết tay đã tải một lần được giữ trên máy và chơi lại được khi mất mạng (chưa phải ứng dụng cài đặt; lần đầu vẫn cần mạng).
+- Mỗi nhiệm vụ học đường có mức CEFR (`level`: A2, B1, B2), hiện trong danh sách chọn truyện của Teach.
+
+**Chưa làm của S4:** giao nhiệm vụ Synapse về nhà kèm hạn (cần tiến độ Synapse theo tài khoản, thuộc S2); bỏ phiếu chung engine với "Sống sót" #63; điểm mỗi em vẫn tính theo đúng/sai và nhanh, chưa có luật riêng cho bỏ phiếu (ví dụ tính điểm theo lớp thắng hay thua cùng nhau).
+
+**Chưa làm (cần quyết định hoặc phần lớn hơn):**
+- **Mùa đầu tiên** (một thế giới mới, chuỗi nhiệm vụ nối nhau, phần thưởng nhận diện), **đo tỉ lệ quay lại sau 7 ngày**: cần có người dùng thật và nội dung mới.
+- `contrastSetId`, `nextOnWrong` trong khung cảnh; quy trình dựng qua Studio.
+- Đăng nhập tuỳ chọn, bảng `synapse_phrase_state` và `synapse_runs` (tiến độ còn nằm trên máy), đẩy cụm sang Lexica.
+- Dựng thêm nhiệm vụ: 5 trên mục tiêu 30. Hai thế giới kịch tính (mạng ngầm, hoang mạc) và hai thế giới thương trường vẫn dùng AI.
+- Khung cảnh chuẩn thêm `level` (CEFR), `contrastSetId`, `nextOnWrong`; quy trình dựng qua Studio.
+- Chơi ngoại tuyến thật sự: cảnh nằm trong API, chưa đóng gói vào ứng dụng.
+- Cần giáo viên đọc duyệt 20 cảnh của thế giới học đường trước khi dùng trong lớp. Ôn bằng truyện hiện có ít cảnh lặp lại một cụm (mới có vài cụm xuất hiện hai lần), sẽ tốt hơn khi dựng thêm nhiệm vụ.
+
 ## 11b. Câu hỏi gốc
 
 1. **Mục đích chính A** (cụm động từ qua đối chiếu), phụ B (ngữ dụng)? Hay muốn hướng khác?

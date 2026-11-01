@@ -9,11 +9,13 @@ export type ArenaState = 'lobby' | 'question' | 'reveal' | 'finished';
 /** What a teacher sends: a prompt, 2–4 options, the right one. */
 export interface ArenaQuestionInput {
     card_id?: string;
-    /** meaning: a word, pick its meaning; word: a meaning, pick the word. */
-    kind: 'meaning' | 'word';
+    /** meaning: a word, pick its meaning; word: a meaning, pick the word; story: a Synapse scene, pick what to do. */
+    kind: 'meaning' | 'word' | 'story';
     prompt: string;
     options: string[];
     answer: number;
+    /** Story only: what each option leads to, shown once the question is locked. */
+    outcomes?: string[];
 }
 
 export type ArenaMode = 'classic' | 'team';
@@ -86,6 +88,8 @@ export interface ArenaHost {
         answered: number;
         /** How many chose each option, once locked. */
         counts?: number[];
+        /** Story questions: what each option leads to, once locked. */
+        outcomes?: string[];
     };
     /** At the end: each question's share of right answers. */
     summary?: { idx: number; card_id?: string; prompt: string; right: string; answered: number; correct: number }[];

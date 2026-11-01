@@ -131,6 +131,8 @@ export interface SynapseScenario {
   choices: SynapseChoice[];
   technicalHint: string;
   isFinalBoss?: boolean; // Indicate last stage
+  /** Authored scenes carry an id ("sc-m1:3"), so the player can be given a different scene next time. */
+  sceneId?: string;
 }
 
 export interface StoryArc {

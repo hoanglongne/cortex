@@ -56,7 +56,7 @@ export function Over({ game, score, answers, onAgain, line }: { game: GameId; sc
     useEffect(() => {
         if (done.current) return;
         done.current = true;
-        if (answers.length) applyGame(answers, score);
+        if (answers.length || score > 0) applyGame(answers, score);
         // Which games are played to the end, with what result (docs/LEXICA_GAMES_PLAN.md, how to measure)
         capture('game_finish', { game, score, right: answers.filter((a) => a.correct).length, total: answers.length });
     }, [answers, score, applyGame, game]);
@@ -85,12 +85,14 @@ export function Over({ game, score, answers, onAgain, line }: { game: GameId; sc
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-                    <span className="rounded-full px-3 py-1.5 font-medium text-on-status" style={{ background: c }}>
-                        {right}/{answers.length} đúng · {pct}%
-                    </span>
+                    {answers.length > 0 && (
+                        <span className="rounded-full px-3 py-1.5 font-medium text-on-status" style={{ background: c }}>
+                            {right}/{answers.length} đúng · {pct}%
+                        </span>
+                    )}
                     {line && <span className="rounded-full border border-line bg-surface px-3 py-1.5 text-ink-2">{line}</span>}
                 </div>
-                <p className="mx-auto max-w-xs text-sm text-muted">{wrong > 0 ? `${wrong} từ sai sẽ quay lại phần ôn của bạn.` : 'Không từ nào sai. Những từ đúng được tính một lần nhớ.'}</p>
+                <p className="mx-auto max-w-xs text-sm text-muted">{answers.length === 0 ? 'Ván này không ôn từ nào, nhưng được tính vào mục tiêu hôm nay.' : wrong > 0 ? `${wrong} từ sai sẽ quay lại phần ôn của bạn.` : 'Không từ nào sai. Những từ đúng được tính một lần nhớ.'}</p>
                 <div className="grid grid-cols-2 gap-2 pt-1">
                     <button onClick={onAgain} className="h-12 rounded-2xl font-bold text-on-status flex items-center justify-center gap-2" style={{ background: c }}>
                         <RotateCcw className="w-4 h-4" /> Chơi lại

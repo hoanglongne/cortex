@@ -109,3 +109,17 @@ Chuyển sang #100 (Buddy): Nối chuỗi chơi đôi và các cách chơi cùng
 - **Ghép:** thành trò lật thẻ (Memory): 12 thẻ úp trong một lưới, từ và nghĩa trộn lẫn; cặp đúng ở lại với màu riêng, combo, điểm thưởng tốc độ.
 - **Mưa từ:** có chọn Luyện (không mất tim) hoặc Thử thách; 5 tim; bắt đầu chậm và ít (tối đa 3 từ), từ ngắn trước; sau mỗi từ rơi chạm đất mưa chậm lại vài giây; hiện chữ đầu và số chữ; từ vàng cứ 7 từ một lần (thêm tim, làm chậm hoặc dọn sạch); nền đổi theo cấp.
 - Chưa làm: chơi đôi thời gian thực và chế độ Đấu trường cho Nối chuỗi (chuyển sang #100 và #63).
+
+## 9. Luyện nghe (issue #104, 31/10/2026)
+
+Ba game mới trong nhóm "Luyện nghe" của trang Chơi, ghi vào ôn tập như các game khác (`applyGame`). Logic thuần ở `app/lib/games/listen.ts`, màn hình ở `app/play/ListenGames.tsx`.
+
+| Game | Cách chơi | Từ vựng vào ôn tập |
+|---|---|---|
+| **Nghe chép** (L1 + L4) | Nghe một câu từ bài đọc có từ đã học, gõ lại, thấy từng từ nghe sai. Chọn tốc độ 0,8× / 1× / 1,2×, nhanh thì điểm nhân 1,0 / 1,25 / 1,5; nghe quá 2 lần bị trừ | Đúng nếu gõ đúng từ của mình trong câu |
+| **Nghe và điền** (L2) | Nghe đoạn 2 đến 3 câu, điền 3 đến 4 chỗ trống trong bản chép (từ của mình trước, rồi các từ dài), có nút nghe chậm | Chỗ trống là từ của mình thì tính vào ôn |
+| **Âm nối, âm rút** (L3) | Nghe "gonna", "lemme", "a nice day", chọn câu đầy đủ hoặc câu đúng trong hai câu nghe giống nhau. 15 mẫu có sẵn | Không ôn từ nào, chỉ tính vào mục tiêu ngày |
+
+**Khác với issue:** L4 "nghe nhanh dần" làm thành bộ chọn tốc độ ngay trong Nghe chép (cùng một câu, đổi tốc độ, nghe lại), không làm game riêng ba lượt. Âm nối chưa nối với Sổ âm (SoundBook), chỉ có liên kết tới trang Nói.
+
+**Giới hạn, có ghi dưới mỗi game:** giọng tổng hợp, chỉ vài giọng Mỹ. Đây là luyện nghe hiểu và nghe chép, không thay cho bài thi Listening thật. Câu có tiếng Việt hoặc nhãn người nói ("Cô Ngọc:") bị loại vì giọng đọc không đọc được.

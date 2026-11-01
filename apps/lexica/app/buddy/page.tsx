@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Check, Copy, Flame, Loader2, LogOut, Pencil, Plus, Share2, Swords, Trophy, UserX, Users, Zap } from 'lucide-react';
+import { Bell, Check, ChevronDown, Copy, Flame, Loader2, LogOut, Pencil, Plus, Share2, Swords, Trophy, UserX, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../context/AuthContext';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -25,11 +25,11 @@ import {
 } from '../lib/buddy';
 import { upsertProfile } from '../lib/auth';
 import { localDate } from '../lib/engagement/ghost';
-import { DUEL_GAMES, type DuelGame } from '../lib/duels';
+import { DUEL_GAMES, duelInbox, type DuelGame } from '../lib/duels';
 import DuelsSection, { useStartDuel } from './DuelsSection';
 import { CheerButtons, CheersBanner } from './TeamCard';
 import { cheersToday, type CheerKind, type CheersToday } from '../lib/cheers';
-import { buddyBlock, questWeek, shiftDate, shieldsTeam, weekDates, weekStart, type Quest, type Shield } from '../lib/buddySocial';
+import { askInbox, buddyBlock, dateList, dateStatus, giftInbox, questWeek, shiftDate, shieldsTeam, weekDates, weekStart, type Quest, type Shield } from '../lib/buddySocial';
 import { capture } from '../lib/productAnalytics';
 import { AsksCard, DatesCard, GiftsCard, GivePanel, QuestCard, TodayWordsCard } from './Social';
 
@@ -92,6 +92,8 @@ function Buddy() {
     const [cheers, setCheers] = useState<CheersToday | null>(null);
     const [shields, setShields] = useState<Shield[]>([]);
     const [social, setSocial] = useState(0);
+    const [tab, setTab] = useState<'friends' | 'inbox' | 'week'>('friends');
+    const [waiting, setWaiting] = useState(0);
 
     const load = useCallback(async (userId: string) => {
         setLoading(true);
@@ -114,6 +116,23 @@ function Buddy() {
         const t = setTimeout(() => void load(user.id), 0);
         return () => clearTimeout(t);
     }, [user, load]);
+
+    // What waits for me in the inbox: gifts to take, sentences to write, duels to play, a date that is on
+    useEffect(() => {
+        if (!user || buddies.length === 0) return;
+        let live = true;
+        Promise.allSettled([giftInbox(), askInbox(), duelInbox(), dateList()]).then(([g, a, d, t]) => {
+            if (!live) return;
+            const gifts = g.status === 'fulfilled' ? g.value.received.filter((x) => !x.opened).length : 0;
+            const asks = a.status === 'fulfilled' ? a.value.to_answer.length : 0;
+            const duels = d.status === 'fulfilled' ? d.value.filter((x) => x.state === 'open' && !x.i_finished && !x.mine).length : 0;
+            const dates = t.status === 'fulfilled' ? t.value.filter((x) => dateStatus(x, Date.now()) === 'open' && !x.my_in).length : 0;
+            setWaiting(gifts + asks + duels + dates);
+        });
+        return () => {
+            live = false;
+        };
+    }, [user, buddies.length, social]);
 
     const saveName = async () => {
         if (!user || !nameInput.trim()) return;
@@ -157,11 +176,11 @@ function Buddy() {
     const people = [me, ...buddies.map((b) => ({ id: b.id, name: b.nickname }))];
     const thisMonday = weekStart(today);
     const lastQuest = questWeek({ people, week, dates: weekDates(shiftDate(thisMonday, -7)), shields, ended: true });
-    const quest: Quest = questWeek({ people, week, dates: weekDates(thisMonday), shields, me: user.id, forceToday: goalMet ? today : false, regrown: lastQuest.state === 'lost' && lastQuest.members.length > 1 && lastQuest.damage > 0 });
+    const quest: Quest = questWeek({ people, week, dates: weekDates(thisMonday), shields, me: user.id, forceToday: goalMet ? today : false, });
 
     return (
         <div className="min-h-screen bg-bg pb-8">
-            <div className="max-w-md lg:max-w-6xl mx-auto px-4 lg:px-8 pt-6 space-y-4">
+            <div className="max-w-md lg:max-w-2xl mx-auto px-4 lg:px-8 pt-6 space-y-4">
                 <div className="flex items-center justify-between">
                     <Link href="/me" className="text-muted hover:text-accent text-sm">
                         ← Tôi
@@ -172,8 +191,6 @@ function Buddy() {
                     </button>
                 </div>
 
-                <div className="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-8 lg:items-start">
-                <div className="space-y-4">
                 {/* Me: name, streak, today, this week */}
                 <section className={`rounded-2xl border p-4 ${goalMet ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
                     <div className="flex items-center justify-between gap-2">
@@ -214,18 +231,30 @@ function Buddy() {
                     <WeekDots days={days} acts={week[user.id]} today={today} forceToday={goalMet} />
                 </section>
 
-                <CheersBanner cheers={cheers} />
+                {/* One thing at a time: the friends, what waits in the inbox, the week */}
+                <nav className="flex gap-1 rounded-xl border border-line bg-surface p-1" role="tablist" aria-label="Buddy">
+                    {([['friends', 'Bạn học'], ['inbox', 'Hộp thư'], ['week', 'Tuần này']] as const).map(([id, label]) => (
+                        <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`h-9 flex-1 rounded-lg text-sm font-semibold ${tab === id ? 'bg-accent/12 text-accent' : 'text-ink-2'}`}>
+                            {label}
+                            {id === 'inbox' && waiting > 0 && <span className="ml-1.5 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-on-accent">{waiting}</span>}
+                        </button>
+                    ))}
+                </nav>
 
-                {/* The group's week (direction A of #70) */}
-                <QuestCard quest={quest} last={lastQuest.members.length > 1 && lastQuest.damage > 0 ? lastQuest : null} meId={user.id} today={today} days={weekDates(thisMonday)} onShield={() => void load(user.id)} />
-                {buddies.length > 0 && <TodayWordsCard reloadKey={buddies.length + social} />}
-                {buddies.length > 0 && <GiftsCard reloadKey={buddies.length + social} />}
-                {buddies.length > 0 && <AsksCard reloadKey={buddies.length + social} />}
-                <DatesCard buddies={buddies} reloadKey={buddies.length} />
+                {tab === 'inbox' && (
+                    <div className="space-y-4">
+                        <CheersBanner cheers={cheers} />
+                        {buddies.length > 0 && <DuelsSection reloadKey={buddies.length + social} startError={duel.error} />}
+                        {buddies.length > 0 && <GiftsCard reloadKey={buddies.length + social} />}
+                        {buddies.length > 0 && <AsksCard reloadKey={buddies.length + social} />}
+                        <DatesCard buddies={buddies} reloadKey={buddies.length} />
+                        {buddies.length > 0 && <TodayWordsCard reloadKey={buddies.length + social} />}
+                    </div>
+                )}
 
-                {/* Duels (direction B of #70): play with a buddy, not only look at their numbers */}
-                {buddies.length > 0 && <DuelsSection reloadKey={buddies.length} startError={duel.error} />}
-
+                {tab === 'week' && (
+                    <div className="space-y-4">
+                        <QuestCard quest={quest} last={lastQuest.members.length > 1 && lastQuest.damage > 0 ? lastQuest : null} meId={user.id} today={today} days={weekDates(thisMonday)} onShield={() => void load(user.id)} />
                 {/* Weekly ranking, only with friends */}
                 {buddies.length > 0 && (
                     <section className="rounded-2xl border border-line bg-surface p-4">
@@ -246,10 +275,11 @@ function Buddy() {
                     </section>
                 )}
 
-                </div>
+                    </div>
+                )}
 
-                {/* Right on desktop: the buddies themselves */}
-                <div className="space-y-4">
+                {tab === 'friends' && (
+                    <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-ink font-semibold">
                         Bạn học ({buddies.length}/{MAX_BUDDIES})
@@ -314,8 +344,8 @@ function Buddy() {
                         ))}
                     </div>
                 )}
-                </div>
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -421,6 +451,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
 
 function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBusy, cheerSent, onCheer, onBlock, onRemove }: { buddy: BuddyInfo; days: string[]; week: Record<string, DailyActivity> | undefined; today: string; myGoalMet: boolean; onGift: () => void; onDuel: () => void; duelBusy: boolean; cheerSent: CheerKind | undefined; onCheer: (kind: CheerKind) => void; onBlock: () => void; onRemove: () => void }) {
     const [confirm, setConfirm] = useState(false);
+    const [more, setMore] = useState(false);
     const [nudged, setNudged] = useState('');
     const buddyMet = Boolean(buddy.today?.goal_met);
     const studied = Boolean(buddy.today && (buddy.today.words_swiped > 0 || buddy.today.goal_met));
@@ -445,44 +476,51 @@ function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBu
             <WeekDots days={days} acts={week} today={today} />
             {both && <p className="mt-3 text-center text-xs font-medium text-accent">Cả hai đều đạt mục tiêu hôm nay: chuỗi đôi +1</p>}
             <div className="mt-3 flex items-center justify-between gap-2">
-                <CheerButtons buddyId={buddy.id} sent={cheerSent} onSent={onCheer} />
-            </div>
-            <GivePanel buddy={buddy} onDone={onGift} />
-            <div className="mt-2 flex items-center justify-between gap-2">
                 <button onClick={onDuel} disabled={duelBusy} className="h-9 px-3 rounded-lg bg-accent text-on-accent text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
                     {duelBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Swords className="w-4 h-4" />} Thách đấu
                 </button>
-                {!studied ? (
-                    <button
-                        onClick={async () => {
-                            const r = await share(nudgeText(buddy.nickname, window.location.origin));
-                            setNudged(r === 'copied' ? 'Đã chép lời nhắc' : r === 'shared' ? 'Đã nhắc' : '');
-                        }}
-                        className="h-9 px-3 rounded-lg border border-line text-sm text-ink flex items-center gap-1.5 hover:border-line-strong"
-                    >
-                        <Bell className="w-4 h-4" /> {nudged || 'Nhắc bạn học'}
-                    </button>
-                ) : (
-                    <span />
-                )}
-                {confirm ? (
-                    <span className="flex gap-3 text-xs">
-                        <button onClick={() => setConfirm(false)} className="text-muted">
-                            Huỷ
-                        </button>
-                        <button onClick={onBlock} className="text-muted" title="Gỡ bạn và không cho kết bạn lại">
-                            Chặn
-                        </button>
-                        <button onClick={onRemove} className="text-danger flex items-center gap-1">
-                            <UserX className="w-3 h-3" /> Xoá bạn này
-                        </button>
-                    </span>
-                ) : (
-                    <button onClick={() => setConfirm(true)} className="text-xs text-subtle hover:text-muted">
-                        Xoá
-                    </button>
-                )}
+                <CheerButtons buddyId={buddy.id} sent={cheerSent} onSent={onCheer} />
             </div>
+            <button onClick={() => setMore((v) => !v)} aria-expanded={more} className="mt-2 flex items-center gap-1 text-xs text-muted hover:text-ink">
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${more ? 'rotate-180' : ''}`} /> {more ? 'Thu gọn' : 'Tặng từ, đố bạn, nhắc, xoá'}
+            </button>
+            {more && (
+                <div className="mt-1">
+                    <GivePanel buddy={buddy} onDone={onGift} />
+                    <div className="mt-3 flex items-center justify-between gap-2">
+                        {!studied ? (
+                            <button
+                                onClick={async () => {
+                                    const r = await share(nudgeText(buddy.nickname, window.location.origin));
+                                    setNudged(r === 'copied' ? 'Đã chép lời nhắc' : r === 'shared' ? 'Đã nhắc' : '');
+                                }}
+                                className="h-9 px-3 rounded-lg border border-line text-sm text-ink flex items-center gap-1.5 hover:border-line-strong"
+                            >
+                                <Bell className="w-4 h-4" /> {nudged || 'Nhắc bạn học'}
+                            </button>
+                        ) : (
+                            <span />
+                        )}
+                        {confirm ? (
+                            <span className="flex gap-3 text-xs">
+                                <button onClick={() => setConfirm(false)} className="text-muted">
+                                    Huỷ
+                                </button>
+                                <button onClick={onBlock} className="text-muted" title="Gỡ bạn và không cho kết bạn lại">
+                                    Chặn
+                                </button>
+                                <button onClick={onRemove} className="text-danger flex items-center gap-1">
+                                    <UserX className="w-3 h-3" /> Xoá bạn này
+                                </button>
+                            </span>
+                        ) : (
+                            <button onClick={() => setConfirm(true)} className="text-xs text-subtle hover:text-muted">
+                                Xoá hoặc chặn
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 }

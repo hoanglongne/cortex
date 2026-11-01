@@ -76,6 +76,8 @@ export default function DuelsSection({ reloadKey, startError }: { reloadKey: num
 
     const rows = sortDuels(list ?? []);
     const board = weekBoard(list ?? [], now);
+    // Nothing to play, nothing to show: the card appears when there is a duel
+    if (list !== null && rows.length === 0 && !error && !startError) return null;
     return (
         <section className="rounded-2xl border border-line bg-surface p-4">
             <h2 className="flex items-center gap-2 font-semibold text-ink">

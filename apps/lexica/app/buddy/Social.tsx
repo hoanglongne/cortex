@@ -71,13 +71,17 @@ export function TodayWordsCard({ reloadKey }: { reloadKey: number }) {
             setMsg(errText(e));
         }
     };
-    return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+    const hideSwitch = (
+        <button onClick={() => void toggle()} className="flex items-center gap-1 text-xs text-muted hover:text-ink" aria-pressed={feed.hidden}>
+            {feed.hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />} {feed.hidden ? 'Đang ẩn từ của bạn' : 'Bạn bè thấy từ của bạn'}
+        </button>
+    );
+    // No buddy learned anything yet: just the switch, no empty card
+    if (items.length === 0) return <div className="flex justify-end px-1">{hideSwitch}</div>;
+    return (        <section className="rounded-2xl border border-line bg-surface p-4">
             <div className="flex items-center justify-between gap-2">
                 <h2 className="font-semibold text-ink">Hôm nay bạn học gì</h2>
-                <button onClick={() => void toggle()} className="flex items-center gap-1 text-xs text-muted hover:text-ink" aria-pressed={feed.hidden}>
-                    {feed.hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />} {feed.hidden ? 'Đang ẩn từ của bạn' : 'Bạn bè thấy từ của bạn'}
-                </button>
+                {hideSwitch}
             </div>
             {items.length === 0 ? (
                 <p className="mt-2 text-sm text-muted">Chưa bạn nào học từ mới hôm nay. Khi họ học, các từ hiện ở đây và bạn học theo được.</p>
@@ -225,13 +229,13 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
     return (
         <div className="mt-2">
             <div className="flex gap-2">
-                <button onClick={() => start('gift')} aria-pressed={mode === 'gift'} className={`h-9 rounded-lg border px-3 text-sm flex items-center gap-1.5 ${mode === 'gift' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('gift')} aria-pressed={mode === 'gift'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'gift' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
                     <Gift className="w-4 h-4" /> Tặng từ
                 </button>
-                <button onClick={() => start('ask')} aria-pressed={mode === 'ask'} className={`h-9 rounded-lg border px-3 text-sm flex items-center gap-1.5 ${mode === 'ask' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('ask')} aria-pressed={mode === 'ask'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'ask' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
                     <MessageCircleQuestion className="w-4 h-4" /> Nhờ đặt câu
                 </button>
-                <button onClick={() => start('quiz')} aria-pressed={mode === 'quiz'} className={`h-9 rounded-lg border px-3 text-sm flex items-center gap-1.5 ${mode === 'quiz' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('quiz')} aria-pressed={mode === 'quiz'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'quiz' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
                     <Swords className="w-4 h-4" /> Đố bạn
                 </button>
             </div>
@@ -279,9 +283,9 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
         };
     }, [quest.members.length]);
     const ms = total === null || quest.members.length < 2 ? null : milestone(total);
-    const pct = Math.round(quest.left * 100);
+    const pct = Math.round((1 - quest.left) * 100);
     const shield = async (id: string) => {
-        // The latest day so far on which this person did not reach the goal and is not shielded yet
+        // The latest day so far not yet covered for this person and is not shielded yet
         const m = quest.members.find((x) => x.id === id);
         const day = [...days].filter((d) => d <= today).reverse().find((d) => !m?.shielded.includes(d));
         if (!day) return;
@@ -297,22 +301,21 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
     return (
         <section className={`rounded-2xl border p-4 ${quest.state === 'won' ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
             <div className="flex items-center justify-between gap-2">
-                <h2 className="font-semibold text-ink">Con quái tuần này</h2>
-                <span className="font-mono text-xs text-muted">{Math.max(0, quest.hp - quest.damage)}/{quest.hp} máu</span>
+                <h2 className="font-semibold text-ink">Mục tiêu cả nhóm tuần này</h2>
+                <span className="font-mono text-xs text-muted">{Math.min(quest.damage, quest.hp)}/{quest.hp} điểm</span>
             </div>
-            <div className="mt-2 h-3 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Máu con quái">
-                <div className="h-full rounded-full bg-danger transition-all" style={{ width: `${pct}%` }} />
+            <div className="mt-2 h-3 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label="Tiến độ của nhóm">
+                <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} />
             </div>
             <p className="mt-2 text-sm text-ink-2">{questLine(quest)}</p>
-            {quest.regrown && <p className="mt-1 text-xs text-warning">Tuần trước nó thắng nên đã hồi thêm máu.</p>}
-            {last?.state === 'won' && <p className="mt-1 text-xs text-accent">Tuần trước cả nhóm đã hạ gục nó.</p>}
+            {last?.state === 'won' && <p className="mt-1 text-xs text-accent">Tuần trước cả nhóm đã đạt mục tiêu.</p>}
             <ul className="mt-3 space-y-1.5">
                 {quest.members.map((m) => (
                     <li key={m.id} className="flex items-center gap-3 text-sm">
                         <span className="flex-1 truncate text-ink">{m.id === meId ? `${m.name} (bạn)` : m.name}</span>
-                        <span className="font-mono text-xs text-muted">{m.damage} sát thương{m.shielded.length ? ` · ${m.shielded.length} khiên` : ''}</span>
+                        <span className="font-mono text-xs text-muted">{m.damage} điểm{m.shielded.length ? ` · được đỡ ${m.shielded.length} ngày` : ''}</span>
                         {m.id !== meId && quest.state === 'fighting' && (
-                            <button onClick={() => void shield(m.id)} aria-label={`Đỡ một ngày cho ${m.name}`} title="Mỗi tuần một khiên: đỡ một ngày bạn ấy bỏ lỡ" className="h-7 w-7 rounded-lg border border-line text-ink-2 hover:border-accent/50 flex items-center justify-center">
+                            <button onClick={() => void shield(m.id)} aria-label={`Đỡ một ngày cho ${m.name}`} title="Mỗi tuần bạn đỡ được một ngày cho một bạn" className="h-7 w-7 rounded-lg border border-line text-ink-2 hover:border-accent/50 flex items-center justify-center">
                                 <Shield className="w-3.5 h-3.5" />
                             </button>
                         )}
@@ -325,7 +328,7 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
                     {ms.next ? `. Còn ${ms.next - total} từ nữa tới mốc ${ms.next}.` : '.'}
                 </p>
             )}
-            {quest.members.length > 1 && <p className="mt-2 text-[11px] text-subtle">Mỗi ngày: tối đa 10 từ mới + 15 khi đạt mục tiêu. Mỗi tuần bạn có một khiên để đỡ một ngày cho bạn học.</p>}
+            {quest.members.length > 1 && <p className="mt-2 text-[11px] text-subtle">Mỗi ngày: tối đa 10 điểm cho từ mới, 15 điểm khi đạt mục tiêu ngày. Mỗi tuần bạn đỡ được một ngày cho một bạn (tính như ngày đó đã đạt).</p>}
             {msg && <p className="mt-1 text-xs text-accent">{msg}</p>}
         </section>
     );

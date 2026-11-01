@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyChoice, nextStage, startState } from "../src/lib/game";
-import { emptyProgress, levelOf, type Progress, matchTyped, parseProgress, phraseKey, record, unlocked, weakPhrases } from "../src/lib/level";
+import { emptyProgress, levelOf, type Progress, matchTyped, parseProgress, phraseKey, record, unlocked, weakPhrases, phraseStatus, statusCounts, markScene, markCleared } from "../src/lib/level";
 import type { SynapseChoice } from "../src/lib/synapseTypes";
 
 const choices: SynapseChoice[] = [
@@ -91,5 +91,29 @@ describe("levels", () => {
     expect(p.setting).toBe("use");
     expect(p.auto).toBe("learn");
     expect(p.recent).toEqual([true, false]);
+  });
+
+  it("a phrase is solid after three right in a row, missed after a wrong one", () => {
+    let p = emptyProgress();
+    expect(phraseStatus(p.phrases["___ speak up"])).toBe("new");
+    p = record(p, "___ speak up", true);
+    expect(phraseStatus(p.phrases["___ speak up"])).toBe("seen");
+    p = record(record(p, "___ speak up", true), "___ speak up", true);
+    expect(phraseStatus(p.phrases["___ speak up"])).toBe("solid");
+    p = record(p, "___ speak up", false);
+    expect(phraseStatus(p.phrases["___ speak up"])).toBe("missed");
+    expect(weakPhrases(p)).toEqual(["___ speak up"]);
+    expect(statusCounts(p)).toEqual({ new: 0, seen: 0, missed: 1, solid: 0 });
+  });
+
+  it("progress remembers scenes and cleared missions, and old saves still load", () => {
+    let p = markScene(emptyProgress(), "sc-m1:1");
+    p = markScene(p, "sc-m1:1");
+    expect(p.seenScenes).toEqual(["sc-m1:1"]);
+    expect(markScene(p, undefined)).toBe(p);
+    expect(markCleared(p, "sc-m1").cleared).toEqual(["sc-m1"]);
+    const old = parseProgress(JSON.stringify({ setting: "auto", auto: "recall", recent: [true], phrases: { "___ a b": { seen: 2, right: 1 } } }));
+    expect(old.seenScenes).toEqual([]);
+    expect(phraseStatus(old.phrases["___ a b"])).toBe("seen");
   });
 });

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { BookOpen, Check, Lightbulb, X } from "lucide-react";
+import { BookOpen, Check, Flag, Lightbulb, X } from "lucide-react";
+import { apiClient } from "../lib/apiClient";
+import { endingsSeen, TIERS, TIER_LABEL, endingKey, type EndingTier } from "../lib/endings";
 import type { SynapseChoice, SynapseScenario } from "../lib/synapseTypes";
-import { LEVELS, LEVEL_HINT, LEVEL_LABEL, type Level, type LevelSetting, type Progress, unlocked } from "../lib/level";
+import { LEVELS, LEVEL_HINT, LEVEL_LABEL, STATUS_LABEL, phraseStatus, statusCounts, weakPhrases, type Level, type LevelSetting, type Progress, unlocked } from "../lib/level";
 import { useTheme } from "../context/ThemeContext";
 
 /** The player's level: automatic, or fixed by hand. */
@@ -125,6 +127,109 @@ export function PhraseBook({ scenario, selected }: { scenario: SynapseScenario; 
           );
         })}
       </ul>
+    </section>
+  );
+}
+
+/** "Báo cảnh có vấn đề": tells the people who review the scenes, nothing else changes for the player. */
+export function ReportScene(props: { sceneId: string }) {
+  const { theme } = useTheme();
+  const [sent, setSent] = useState(false);
+  const [mission, stage] = props.sceneId.split(":");
+  return (
+    <button
+      type="button"
+      disabled={sent}
+      onClick={() => {
+        setSent(true);
+        void apiClient.reportScene(mission, Number(stage) || 0, "").catch(() => undefined);
+      }}
+      className="flex items-center gap-1.5 text-[11px] underline-offset-2 hover:underline disabled:no-underline"
+      style={{ color: theme.colors.textMuted }}
+    >
+      <Flag className="w-3 h-3" /> {sent ? "Đã gửi, cảm ơn bạn" : "Báo cảnh có vấn đề"}
+    </button>
+  );
+}
+
+/** The agent profile: what is unlocked, what is solid, what keeps going wrong, and the review mission. */
+export function AgentProfile(props: { progress: Progress; onReview: () => void }) {
+  const { theme } = useTheme();
+  const p = props.progress;
+  const counts = statusCounts(p);
+  const weak = weakPhrases(p).slice(0, 5);
+  const shown = (key: string) => key.replace(/^_{3}\s*/, "");
+  return (
+    <section aria-label="Hồ sơ" className="border rounded-xl p-4 mb-5 space-y-3 text-xs" style={{ borderColor: theme.colors.border, background: theme.colors.surface }}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="font-semibold" style={{ color: theme.colors.text }}>
+          Hồ sơ của bạn: {unlocked(p)} cụm đã mở, {p.cleared.length} nhiệm vụ xong
+        </p>
+        <button
+          type="button"
+          onClick={props.onReview}
+          disabled={weak.length === 0}
+          className="h-8 px-3 font-semibold border disabled:opacity-40"
+          style={{ borderColor: theme.colors.accent, color: theme.colors.accent, background: theme.colors.accentMuted }}
+        >
+          Ôn bằng truyện
+        </button>
+      </div>
+      <p style={{ color: theme.colors.textMuted }}>
+        {(["solid", "seen", "missed"] as const).map((k) => `${STATUS_LABEL[k]} ${counts[k]}`).join(" · ")} · Cái kết {endingsSeen(p).seen}/{endingsSeen(p).total}
+      </p>
+      {weak.length > 0 ? (
+        <p style={{ color: theme.colors.textMuted }}>
+          Hay nhầm:{" "}
+          {weak.map((k, i) => (
+            <span key={k}>
+              {i > 0 ? ", " : ""}
+              <b style={{ color: theme.colors.text }}>{shown(k)}</b> ({STATUS_LABEL[phraseStatus(p.phrases[k])].toLowerCase()})
+            </span>
+          ))}
+          . Ôn bằng truyện sẽ cho 3 cảnh mới về những cụm này.
+        </p>
+      ) : (
+        <p style={{ color: theme.colors.textMuted }}>Chưa có cụm nào hay nhầm. Chơi vài nhiệm vụ rồi quay lại đây.</p>
+      )}
+    </section>
+  );
+}
+
+/** How the mission ended, and which of its endings are still to be seen. */
+export function EndingCard(props: { tier: EndingTier; text: string; seen: Progress; missionId: string | undefined }) {
+  const { theme } = useTheme();
+  const has = (t: EndingTier) => props.missionId !== undefined && props.seen.endings.includes(endingKey(props.missionId, t));
+  return (
+    <section aria-label="Cái kết" className="border p-3 space-y-2 text-xs" style={{ borderColor: theme.colors.accent, background: theme.colors.accentMuted }}>
+      <p className="font-semibold" style={{ color: theme.colors.accent }}>
+        Cái kết: {TIER_LABEL[props.tier]}
+      </p>
+      <p style={{ color: theme.colors.text }}>{props.text}</p>
+      <p style={{ color: theme.colors.textMuted }}>
+        {TIERS.map((t) => `${has(t) || t === props.tier ? "●" : "○"} ${TIER_LABEL[t]}`).join("  ")}. Chơi lại để thấy cái kết khác.
+      </p>
+    </section>
+  );
+}
+
+/** The chapter of the week and the endings library line, above the profile. */
+export function WeeklyChapter(props: { name: string; done: boolean; onPlay: () => void; progress: Progress }) {
+  const { theme } = useTheme();
+  const e = endingsSeen(props.progress);
+  return (
+    <section aria-label="Chương tuần này" className="border rounded-xl p-4 mb-3 flex flex-wrap items-center justify-between gap-3 text-xs" style={{ borderColor: theme.colors.border, background: theme.colors.surface }}>
+      <div>
+        <p className="font-semibold" style={{ color: theme.colors.text }}>
+          Chương tuần này: {props.name}
+        </p>
+        <p style={{ color: theme.colors.textMuted }}>
+          {props.done ? "Bạn đã xong, chơi lại để thấy cái kết khác. " : "Mỗi tuần một nhiệm vụ mới được nêu lên. "}Thư viện cái kết: {e.seen}/{e.total}
+        </p>
+      </div>
+      <button type="button" onClick={props.onPlay} className="h-8 px-3 font-semibold border" style={{ borderColor: theme.colors.accent, color: theme.colors.accent, background: theme.colors.accentMuted }}>
+        {props.done ? "Chơi lại" : "Chơi chương này"}
+      </button>
     </section>
   );
 }

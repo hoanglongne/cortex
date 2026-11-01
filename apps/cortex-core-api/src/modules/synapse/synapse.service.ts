@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { ActionLog, SynapseScenario, StoryArc } from '@cortex/types';
+import { buildStaticArc, reviewArc } from './static-arc';
 import { WORLD_BIBLES } from './world-bibles';
 import { GeminiProvider, GemmaProvider, GroqProvider } from './llm.provider';
 
@@ -235,13 +236,24 @@ OUTPUT — JSON only, no prose, no markdown:
     }
   }
 
+  /** "Ôn bằng truyện": a short mission for the phrases the player misses, no AI. */
+  reviewArc(phrases: string[], seen: string[]): StoryArc | null {
+    return reviewArc(phrases, seen);
+  }
+
+  /** A mission with all five authored scenes plays with no AI; `ai` forces the AI path (the experimental mode). */
   async generateStoryArc(
     loreId: string,
     missionId?: string,
+    mode?: 'ai',
   ): Promise<StoryArc> {
     const lore = WORLD_BIBLES[loreId] || WORLD_BIBLES['cyberpunk-01'];
     const mission =
       lore.missions.find((m) => m.id === missionId) || lore.missions[0];
+    if (mode !== 'ai') {
+      const authored = buildStaticArc(lore, mission.id);
+      if (authored) return authored;
+    }
 
     const factionsText = lore.factions
       .map((f) => `• ${f.name}: ${f.description}`)
@@ -634,6 +646,22 @@ More valid formats:
       this.logger.warn(`Groq arc failed: ${groqMsg}`);
       throw new Error(`Story arc generation failed: ${groqMsg}`);
     }
+  }
+
+  /** "Báo cảnh có vấn đề": kept in synapse_reports for a reviewer. */
+  async reportScene(
+    missionId: string,
+    stage: number,
+    note: string,
+  ): Promise<void> {
+    const client = this.supabaseService.getClient();
+    if (!client) return;
+    const { error } = await client.rpc('synapse_report', {
+      p_mission: missionId.slice(0, 40),
+      p_stage: Math.max(0, Math.min(9, Math.floor(stage) || 0)),
+      p_note: note.slice(0, 300),
+    });
+    if (error) this.logger.warn(`synapse_report failed: ${error.message}`);
   }
 
   private getHardcodedFallback(stage: number): SynapseScenario {

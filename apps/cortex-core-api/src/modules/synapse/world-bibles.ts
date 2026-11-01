@@ -1,5 +1,8 @@
+import { SCHOOL_LORE } from './school-world';
+
 export interface WrongOption {
   expression: string;
+  example?: string;
   consequence: string; // what specifically happens if player picks this
 }
 
@@ -13,11 +16,17 @@ export interface ScenarioBlueprint {
   correctRationale: string; // why this is the right strategic move
   wrongOptions: WrongOption[];
   keyDetail: string; // one concrete sensory detail to weave into the narrative
+  /** Authored closing line with the blank ("Bạn quyết định ___ ..."); lets the scene play with no AI. */
+  prompt?: string;
+  /** English sentences that use each phrase, for the phrase book. */
+  correctExample?: string;
 }
 
 export interface Mission {
   id: string;
   name: string;
+  /** CEFR level of the language in the scenes (written missions). */
+  level?: 'A2' | 'B1' | 'B2';
   briefing: string;
   objective: string;
   keyCharacters?: string; // who's in the room and their hidden motives
@@ -197,6 +206,7 @@ export const WASTELAND_LORE: WorldLore = {
 };
 
 export const WORLD_BIBLES: Record<string, WorldLore> = {
+  'school-01': SCHOOL_LORE,
   'cyberpunk-01': CYBERPUNK_LORE,
   'wasteland-01': WASTELAND_LORE,
   'urban-01': {

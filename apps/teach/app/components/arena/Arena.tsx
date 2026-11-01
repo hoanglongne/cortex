@@ -6,7 +6,7 @@ import { ARENA_SHAPES, ARENA_TEAMS, timeLeft, type ArenaHost, type ArenaMode, ty
 import { LEXICA } from '@cortex/classroom-lexica';
 import { api } from '../../lib/supabase';
 import { LEXICA_URL } from '../../lib/config';
-import { arenaQuestions, arenaTeams, fillTeams, forgettingWords, guessers, hardWords, shortMeaning, sourceWords, type ArenaSource } from '../../lib/arena';
+import { arenaQuestions, arenaTeams, fillTeams, forgettingWords, guessers, hardWords, majority, shortMeaning, sourceWords, storyQuestions, type ArenaSource, type StoryMission } from '../../lib/arena';
 import type { Person } from '../../lib/classroom/tools';
 import { useArenaHost } from '../../lib/useArenaHost';
 import type { IndexCard, WordIndex } from '../../modules/lexica/words';
@@ -67,6 +67,24 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
     const [teams, setTeams] = useState(2);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
+    // Synapse story: the class votes on what to do in each scene (issue #103)
+    const [storyOn, setStoryOn] = useState(false);
+    const [stories, setStories] = useState<StoryMission[] | null>(null);
+    const [storyKey, setStoryKey] = useState('');
+    const loadStories = () => {
+        setStoryOn(true);
+        if (stories) return;
+        fetch('/api/synapse?missions=1')
+            .then((r) => (r.ok ? (r.json() as Promise<StoryMission[]>) : Promise.reject(new Error('Không lấy được danh sách truyện'))))
+            .then((list) => {
+                setStories(list);
+                setStoryKey((k) => k || (list[0] ? `${list[0].loreId}/${list[0].missionId}` : ''));
+            })
+            .catch((e: unknown) => {
+                setStories([]);
+                setError(errorText(e));
+            });
+    };
     const cards = useMemo<IndexCard[]>(() => (words ? sourceWords(board, source).map((id) => words.byId.get(id)).filter((c): c is IndexCard => Boolean(c)) : []), [board, source, words]);
     const usable = Math.min(count, cards.length);
 
@@ -82,23 +100,42 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                     <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">Hỏi từ nào</p>
                     <div className="flex flex-wrap gap-2">
                         {retry && retry.length >= 3 && (
-                            <button className={chip(source.kind === 'cards')} onClick={() => setSource({ kind: 'cards', ids: retry })}>
+                            <button className={chip(!storyOn && source.kind === 'cards')} onClick={() => { setStoryOn(false); setSource({ kind: 'cards', ids: retry }); }}>
                                 {retry.length} từ khó ván trước
                             </button>
                         )}
                         {lessons.length > 0 && (
-                            <button className={chip(source.kind === 'lesson')} onClick={() => setSource({ kind: 'lesson', assignmentId: lessons[0].id })}>
+                            <button className={chip(!storyOn && source.kind === 'lesson')} onClick={() => { setStoryOn(false); setSource({ kind: 'lesson', assignmentId: lessons[0].id }); }}>
                                 Một bài giao
                             </button>
                         )}
-                        <button className={chip(source.kind === 'forgetting')} disabled={forgetting.length < 3} onClick={() => setSource({ kind: 'forgetting' })} title={forgetting.length < 3 ? 'Chưa đủ từ: cần số liệu ôn từ Lexica' : undefined}>
+                        <button className={chip(!storyOn && source.kind === 'forgetting')} disabled={forgetting.length < 3} onClick={() => { setStoryOn(false); setSource({ kind: 'forgetting' }); }} title={forgetting.length < 3 ? 'Chưa đủ từ: cần số liệu ôn từ Lexica' : undefined}>
                             Từ cả lớp sắp quên{forgetting.length >= 3 ? ` (${forgetting.length})` : ''}
                         </button>
-                        <button className={chip(source.kind === 'all')} onClick={() => setSource({ kind: 'all' })}>
+                        <button className={chip(!storyOn && source.kind === 'all')} onClick={() => { setStoryOn(false); setSource({ kind: 'all' }); }}>
                             Mọi bài của lớp
                         </button>
+                        <button className={chip(storyOn)} onClick={loadStories} title="Cả lớp bỏ phiếu chọn đường trong một câu chuyện cụm động từ">
+                            Truyện Synapse
+                        </button>
                     </div>
-                    {source.kind === 'lesson' && (
+                    {storyOn && (
+                        <div className="mt-3">
+                            {stories === null ? <p className="text-muted">Đang tải truyện…</p> : stories.length === 0 ? <p className="text-muted">Chưa có truyện dựng sẵn.</p> : (
+                                <>
+                                    <select value={storyKey} onChange={(e) => setStoryKey(e.target.value)} aria-label="Truyện" className="h-11 w-full max-w-md rounded-[10px] border border-line-strong bg-surface px-3 text-ink">
+                                        {stories.map((m) => (
+                                            <option key={`${m.loreId}/${m.missionId}`} value={`${m.loreId}/${m.missionId}`}>
+                                                {m.name} ({m.scenes} cảnh{m.level ? `, ${m.level}` : ''})
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <p className="mt-2 max-w-xl text-[15px] text-muted">Mỗi cảnh là một câu hỏi: cả lớp chọn trên điện thoại, số đông cho biết lớp chọn đường nào, rồi cả lớp xem hậu quả của lựa chọn đó. Hỏi lớp: vì sao nhóm kia chọn khác?</p>
+                                </>
+                            )}
+                        </div>
+                    )}
+                    {!storyOn && source.kind === 'lesson' && (
                         <select
                             value={source.assignmentId}
                             onChange={(e) => setSource({ kind: 'lesson', assignmentId: e.target.value })}
@@ -169,10 +206,25 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
 
                 <div className="mt-10 flex flex-wrap items-center gap-4">
                     <button
-                        disabled={busy || !words || usable < 3}
+                        disabled={busy || (storyOn ? !storyKey : !words || usable < 3)}
                         onClick={async () => {
-                            if (!words) return;
-                            const qs = arenaQuestions(cards, words.cards, count);
+                            if (!storyOn && !words) return;
+                            let qs;
+                            if (storyOn) {
+                                setBusy(true);
+                                setError('');
+                                try {
+                                    const [lore, mission] = storyKey.split('/');
+                                    const r = await fetch(`/api/synapse?lore=${encodeURIComponent(lore)}&mission=${encodeURIComponent(mission)}`);
+                                    if (!r.ok) throw new Error('Không lấy được truyện');
+                                    qs = storyQuestions((await r.json()) as Parameters<typeof storyQuestions>[0]);
+                                } catch (e) {
+                                    setError(errorText(e));
+                                    setBusy(false);
+                                    return;
+                                }
+                                setBusy(false);
+                            } else qs = arenaQuestions(cards, words!.cards, count);
                             if (qs.length < 3) {
                                 setError('Chưa đủ từ có nghĩa để ra 3 câu. Chọn bài khác hoặc "Mọi bài của lớp".');
                                 return;
@@ -193,7 +245,7 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                         {busy ? 'Đang mở…' : 'Mở phòng'}
                     </button>
                     <p className="text-[15px] text-muted">
-                        {!words ? 'Đang tải danh sách từ…' : words.error ? words.error : usable < 3 ? 'Nguồn này chưa đủ 3 từ.' : `${usable} câu từ ${cards.length} từ`}
+                        {storyOn ? 'Truyện dựng sẵn: 5 cảnh, mỗi cảnh một lượt bỏ phiếu' : !words ? 'Đang tải danh sách từ…' : words.error ? words.error : usable < 3 ? 'Nguồn này chưa đủ 3 từ.' : `${usable} câu từ ${cards.length} từ`}
                     </p>
                 </div>
                 <div className="mt-4">
@@ -355,8 +407,8 @@ function Question({ host, left, onLock, onNext, isLast }: { host: ArenaHost; lef
                     <div className="h-full rounded-full bg-accent transition-[width] duration-200" style={{ width: `${(left / (host.seconds * 1000)) * 100}%` }} />
                 </div>
             )}
-            <p className="mt-8 text-center text-[17px] text-muted">{q.kind === 'word' ? 'Từ nào có nghĩa này?' : 'Từ này nghĩa là gì?'}</p>
-            <p lang={q.kind === 'word' ? 'vi' : 'en'} className="mt-2 text-center font-serif text-[44px] font-semibold leading-tight text-ink sm:text-[64px]">
+            <p className="mt-8 text-center text-[17px] text-muted">{q.kind === 'story' ? 'Cả lớp chọn gì?' : q.kind === 'word' ? 'Từ nào có nghĩa này?' : 'Từ này nghĩa là gì?'}</p>
+            <p lang={q.kind === 'word' || q.kind === 'story' ? 'vi' : 'en'} className={`mt-2 text-center font-serif font-semibold leading-tight text-ink ${q.kind === 'story' ? 'mx-auto max-w-4xl text-[28px] sm:text-[36px]' : 'text-[44px] sm:text-[64px]'}`}>
                 {q.prompt}
             </p>
             <div className={`mt-10 grid gap-4 ${reveal && (top.length || host.team_scores?.length) ? 'lg:grid-cols-[minmax(0,1fr)_300px]' : ''}`}>
@@ -369,7 +421,7 @@ function Question({ host, left, onLock, onNext, isLast }: { host: ArenaHost; lef
                                 <span aria-hidden className="text-[26px]">
                                     {ARENA_SHAPES[i]}
                                 </span>
-                                <span lang={q.kind === 'word' ? 'en' : 'vi'} className="min-w-0 flex-1 text-[24px] font-semibold leading-snug sm:text-[28px]">
+                                <span lang={q.kind === 'word' || q.kind === 'story' ? 'en' : 'vi'} className="min-w-0 flex-1 text-[24px] font-semibold leading-snug sm:text-[28px]">
                                     {o}
                                 </span>
                                 {right && <Check className="h-8 w-8 shrink-0" aria-label="Đáp án đúng" />}
@@ -383,6 +435,7 @@ function Question({ host, left, onLock, onNext, isLast }: { host: ArenaHost; lef
                         );
                     })}
                 </ul>
+                {reveal && q.kind === 'story' && q.outcomes && <StoryReveal q={q} />}
                 {reveal && host.team_scores && host.team_scores.length > 0 ? (
                     <aside className="rounded-[var(--radius-card)] bg-surface p-5 shadow-[var(--shadow-card)]">
                         <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">Các đội</p>
@@ -555,5 +608,29 @@ function Stats({ stats }: { stats: NonNullable<ArenaHost['stats']> }) {
                 ))}
             </ul>
         </div>
+    );
+}
+
+/** After the vote: what the class chose and where it leads, and the better move when they chose otherwise. */
+function StoryReveal({ q }: { q: NonNullable<ArenaHost['question']> }) {
+    const voted = majority(q.counts);
+    const outcomes = q.outcomes ?? [];
+    const right = q.answer ?? -1;
+    if (voted === null) return null;
+    const agreed = voted === right;
+    return (
+        <section className="sm:col-span-2 mt-2 rounded-[var(--radius-card)] bg-surface p-5 shadow-[var(--shadow-card)] lg:col-span-2">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">Lớp chọn nhiều nhất</p>
+            <p className="mt-1 text-[22px] font-semibold text-ink">
+                <span lang="en">{q.options[voted]?.split(' · ')[0]}</span>
+                <span className={`ml-3 text-[16px] ${agreed ? 'text-accent-strong' : 'text-warm'}`}>{agreed ? 'Đúng hướng' : 'Chưa phải lựa chọn tốt nhất'}</span>
+            </p>
+            <p className="mt-2 text-[20px] leading-snug text-ink-2">{outcomes[voted]}</p>
+            {!agreed && right >= 0 && (
+                <p className="mt-4 border-t border-line pt-3 text-[18px] leading-snug text-ink-2">
+                    <b lang="en" className="text-ink">{q.options[right]?.split(' · ')[0]}</b>: {outcomes[right]}
+                </p>
+            )}
+        </section>
     );
 }

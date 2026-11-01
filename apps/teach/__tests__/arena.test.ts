@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { timeLeft, type Board } from '@cortex/classroom';
-import { arenaQuestions, arenaTeams, fillTeams, forgettingWords, guessers, hardWords, shortMeaning, sourceWords } from '../app/lib/arena';
+import { majority, storyQuestions, arenaQuestions, arenaTeams, fillTeams, forgettingWords, guessers, hardWords, shortMeaning, sourceWords } from '../app/lib/arena';
 import type { IndexCard } from '../app/modules/lexica/words';
 
 const card = (id: string, word: string, meaning: string, level = 'intermediate', branch: 'cert' | 'talk' = 'cert'): IndexCard => ({ id, word, meaning, level, branch });
@@ -129,5 +129,36 @@ describe('guessing', () => {
     it('flags several quick wrong answers, not one slip', () => {
         const s = (fast_wrong: number, answered: number) => ({ name: `${fast_wrong}/${answered}`, fast_wrong, answered });
         expect(guessers([s(1, 10), s(2, 10), s(3, 9), s(4, 10), s(2, 4)]).map((x) => x.name)).toEqual(['3/9', '4/10', '2/4']);
+    });
+});
+
+describe('story rounds', () => {
+    const arc = {
+        stages: [
+            { narrative: 'Scene one. Bạn quyết định ___ ngay.', choices: [
+                { particle: 'hold back', meaning: 'kìm lại', outcome: 'Bad.', isCorrect: false },
+                { particle: 'speak up', meaning: 'lên tiếng', outcome: 'Good.', isCorrect: true },
+                { particle: 'back out', meaning: 'rút lui', outcome: 'Worse.', isCorrect: false },
+                { particle: 'step aside', meaning: 'nhường', outcome: 'Meh.', isCorrect: false },
+            ] },
+            { narrative: 'No right answer here.', choices: [
+                { particle: 'a', meaning: 'x', outcome: 'o', isCorrect: false },
+                { particle: 'b', meaning: 'y', outcome: 'o', isCorrect: false },
+            ] },
+        ],
+    };
+    it('a scene becomes a question with what each option leads to; scenes with no single right option are left out', () => {
+        const qs = storyQuestions(arc);
+        expect(qs).toHaveLength(1);
+        expect(qs[0].kind).toBe('story');
+        expect(qs[0].prompt).toContain('_____');
+        expect(qs[0].options[qs[0].answer]).toBe('speak up · lên tiếng');
+        expect(qs[0].outcomes).toEqual(['Bad.', 'Good.', 'Worse.', 'Meh.']);
+    });
+    it('the class choice is the option most voted for', () => {
+        expect(majority([2, 7, 1, 0])).toBe(1);
+        expect(majority([3, 3, 0, 0])).toBe(0);
+        expect(majority([0, 0, 0, 0])).toBeNull();
+        expect(majority(undefined)).toBeNull();
     });
 });

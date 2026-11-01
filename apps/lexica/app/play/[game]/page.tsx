@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { use, useEffect, useMemo, useState } from 'react';
 import { notFound } from 'next/navigation';
 import { getPassages } from '../../lib/content/repository';
+import { dictationRounds, fillRounds, linkedRounds } from '../../lib/games/listen';
+import { DictateGame, FillGame, LinkedGame } from '../ListenGames';
 import { bossRounds, blitzRounds, clozeRounds, detectiveRounds, liarRounds, listenRounds, sentencesOf, upgradeRounds } from '../../lib/games/rounds';
 import BossGame from '../BossGame';
 import ChainGame from '../ChainGame';
@@ -26,7 +28,7 @@ const MCQ: Record<McqMode, { make: Make; n: number }> = {
     cloze: { make: (k, b, n) => clozeRounds(k, b, sentencesOf(getPassages().filter((p) => p.kind !== 'dialogue').map((p) => p.text)), n), n: 8 },
     upgrade: { make: (k, _b, n) => upgradeRounds(k, n), n: 8 },
 };
-const IDS = ['run', 'rain', 'boss', 'grid', 'blitz', 'detective', 'liar', 'listen', 'cloze', 'upgrade', 'match', 'spell', 'chain'];
+const IDS = ['run', 'rain', 'boss', 'grid', 'blitz', 'detective', 'liar', 'listen', 'cloze', 'upgrade', 'match', 'spell', 'chain', 'dictate', 'fill', 'linked'];
 
 export default function GamePage({ params }: { params: Promise<{ game: string }> }) {
     const { game } = use(params);
@@ -52,8 +54,13 @@ function Play({ game }: { game: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const rounds = useMemo(() => (mcq ? mcq.make(known, bank, mcq.n) : []), [mcq, known, bank, round]);
 
+    // Listening: sentences and texts that contain my words (passages and dialogues)
+    const dictation = useMemo(() => (game === 'dictate' ? dictationRounds(known, sentencesOf(getPassages().map((p) => p.text)), 6) : []), [game, known, round]); // eslint-disable-line react-hooks/exhaustive-deps
+    const fills = useMemo(() => (game === 'fill' ? fillRounds(known, getPassages().map((p) => p.text), 3) : []), [game, known, round]); // eslint-disable-line react-hooks/exhaustive-deps
+    const linked = useMemo(() => (game === 'linked' ? linkedRounds(8) : []), [game, round]);
+
     let body: React.ReactNode;
-    if (known.length < MIN_WORDS || (mcq && rounds.length === 0)) {
+    if (known.length < MIN_WORDS || (mcq && rounds.length === 0) || (game === 'dictate' && dictation.length === 0) || (game === 'fill' && fills.length === 0)) {
         body = (
             <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-2">
                 Chưa đủ từ để chơi game này. <Link href="/play" className="text-accent underline">Chọn game khác</Link>
@@ -61,6 +68,12 @@ function Play({ game }: { game: string }) {
         );
     } else if (mcq) {
         body = <McqGame key={round} mode={game as McqMode} rounds={rounds} onAgain={again} />;
+    } else if (game === 'dictate') {
+        body = <DictateGame key={round} rounds={dictation} onAgain={again} />;
+    } else if (game === 'fill') {
+        body = <FillGame key={round} rounds={fills} onAgain={again} />;
+    } else if (game === 'linked') {
+        body = <LinkedGame key={round} rounds={linked} onAgain={again} />;
     } else if (game === 'run') {
         body = <RunGame key={round} cards={known} bank={bank} sentences={sentencesOf(getPassages().filter((p) => p.kind !== 'dialogue').map((p) => p.text))} onAgain={again} />;
     } else if (game === 'rain') {
