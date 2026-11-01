@@ -15,6 +15,7 @@ import { emptyProgress, levelOf, markCleared, markScene, matchTyped, parseProgre
 import { EndingCard, Hint, LevelPicker, PhraseBook, ReportScene, TypeAnswer } from "./LearningPanel";
 import { accountsOn } from "../lib/supabase";
 import { addRun, pushLater } from "../lib/account";
+import { readCachedClasses, reportNow, settleRun, synapseWork } from "../lib/classes";
 import { endingText, markEnding, tierOf, type EndingTier } from "../lib/endings";
 
 function makeId() {
@@ -71,6 +72,15 @@ export function TerminalBoard(props: {
   const { themeId, theme } = useTheme();
 
   const isGameOver = game.over;
+
+  /** The mission just finished, for the class's work: counts for assignments given before it, and goes to the teacher. */
+  const settled = (p: Progress, ending: "gold" | "silver" | "bronze" | "fail") =>
+    settleRun(p, synapseWork(readCachedClasses()), { mission_id: props.review ? "review" : (missionId ?? ""), review: Boolean(props.review), ending, at: nowIso() });
+  const finishRun = (p: Progress, ending: "gold" | "silver" | "bronze" | "fail") => {
+    const next = settled(p, ending);
+    saveProgress(next);
+    void reportNow(next);
+  };
 
 
   // Progress lives on this device for now (the account version is planned in docs/SYNAPSE_PLAN.md, S2)
@@ -202,12 +212,18 @@ export function TerminalBoard(props: {
     const target = scenario.choices.find((c) => c.isCorrect);
     let updated = target ? markScene(record(progress, phraseKey(scenario.baseVerb, target.particle), choice.isCorrect), scenario.sceneId) : progress;
     // Out of lives: the unfinished ending (a review mission has none)
-    if (!choice.isCorrect && game.lives <= 1 && !props.review) {
-      setEnding("fail");
-      updated = markEnding(updated, missionId, "fail");
-      if (accountsOn() && missionId) void addRun(missionId, "fail", score, 0).catch(() => undefined);
+    if (!choice.isCorrect && game.lives <= 1) {
+      if (!props.review) {
+        setEnding("fail");
+        updated = markEnding(updated, missionId, "fail");
+        if (accountsOn() && missionId) void addRun(missionId, "fail", score, 0).catch(() => undefined);
+      }
+      updated = settled(updated, "fail");
     }
-    if (updated !== progress) saveProgress(updated);
+    if (updated !== progress) {
+      saveProgress(updated);
+      if (!choice.isCorrect && game.lives <= 1) void reportNow(updated);
+    }
   }
 
   async function onContinue() {
@@ -220,11 +236,13 @@ export function TerminalBoard(props: {
     const following = nextStage(currentStage, maxStages);
     if (following === null) {
       setIsMissionClear(true);
+      const tier = tierOf(game.lives, true);
       if (!props.review) {
-        const tier = tierOf(game.lives, true);
         setEnding(tier);
-        saveProgress(markEnding(markCleared(progress, missionId), missionId, tier));
+        finishRun(markEnding(markCleared(progress, missionId), missionId, tier), tier);
         if (accountsOn() && missionId) void addRun(missionId, tier, score, game.lives).catch(() => undefined);
+      } else {
+        finishRun(progress, tier);
       }
       setMode("idle");
       return;

@@ -16,6 +16,8 @@ create table if not exists synapse_profile (
   endings jsonb not null default '[]'::jsonb,
   updated_at timestamptz not null default now()
 );
+-- Missions played and how the class's assignments stand (numbers only)
+alter table synapse_profile add column if not exists extra jsonb not null default '{}'::jsonb;
 
 create table if not exists synapse_phrase_state (
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -67,7 +69,7 @@ begin
   select * into pr from synapse_profile where user_id = me;
   return jsonb_build_object(
     'profile', case when pr.user_id is null then null else jsonb_build_object(
-      'setting', pr.setting, 'auto', pr.auto_level, 'recent', pr.recent, 'seenScenes', pr.seen_scenes, 'cleared', pr.cleared, 'endings', pr.endings) end,
+      'setting', pr.setting, 'auto', pr.auto_level, 'recent', pr.recent, 'seenScenes', pr.seen_scenes, 'cleared', pr.cleared, 'endings', pr.endings, 'extra', pr.extra) end,
     'phrases', coalesce((select jsonb_object_agg(phrase, jsonb_build_object('seen', seen, 'right', "right", 'last', last)) from synapse_phrase_state where user_id = me), '{}'::jsonb)
   );
 end;
@@ -84,15 +86,16 @@ declare
 begin
   if me is null then raise exception 'not signed in'; end if;
   if jsonb_typeof(p_profile) <> 'object' or jsonb_typeof(p_phrases) <> 'object' then raise exception 'bad progress'; end if;
-  insert into synapse_profile (user_id, setting, auto_level, recent, seen_scenes, cleared, endings)
+  insert into synapse_profile (user_id, setting, auto_level, recent, seen_scenes, cleared, endings, extra)
   values (
     me,
     case when p_profile->>'setting' in ('auto', 'learn', 'recall', 'use') then p_profile->>'setting' else 'auto' end,
     case when p_profile->>'auto' in ('learn', 'recall', 'use') then p_profile->>'auto' else 'learn' end,
     synapse_clean_bools(p_profile->'recent', 10), synapse_clean_list(p_profile->'seenScenes', 200),
-    synapse_clean_list(p_profile->'cleared', 60), synapse_clean_list(p_profile->'endings', 400))
+    synapse_clean_list(p_profile->'cleared', 60), synapse_clean_list(p_profile->'endings', 400),
+    case when jsonb_typeof(p_profile->'extra') = 'object' and length(p_profile->>'extra') < 8000 then p_profile->'extra' else '{}'::jsonb end)
   on conflict (user_id) do update set setting = excluded.setting, auto_level = excluded.auto_level, recent = excluded.recent,
-    seen_scenes = excluded.seen_scenes, cleared = excluded.cleared, endings = excluded.endings, updated_at = now();
+    seen_scenes = excluded.seen_scenes, cleared = excluded.cleared, endings = excluded.endings, extra = excluded.extra, updated_at = now();
   for k, v in select * from jsonb_each(p_phrases) loop
     n := n + 1;
     if n > 600 then raise exception 'too many phrases'; end if;

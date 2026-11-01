@@ -7,10 +7,11 @@
 import { emptyProgress, LEVELS, type PhraseRecord, type Progress } from "./level";
 import { getSupabaseClient } from "./supabase";
 import type { EndingTier } from "./endings";
+import { betterTier, synapseModule, type AssignmentDone } from "@cortex/classroom-synapse";
 
 /** What `synapse_load` returns. */
 export interface RemoteProgress {
-  profile: { setting: string; auto: string; recent: boolean[]; seenScenes: string[]; cleared: string[]; endings: string[] } | null;
+  profile: { setting: string; auto: string; recent: boolean[]; seenScenes: string[]; cleared: string[]; endings: string[]; extra?: { runs?: number; homework?: Record<string, AssignmentDone> } } | null;
   phrases: Record<string, PhraseRecord>;
 }
 
@@ -45,7 +46,20 @@ export function mergeProgress(local: Progress, remote: RemoteProgress): Progress
     seenScenes: union(r?.seenScenes ?? [], local.seenScenes, 200),
     cleared: union(r?.cleared ?? [], local.cleared, 60),
     endings: union(r?.endings ?? [], local.endings, 400),
+    runs: Math.max(local.runs, typeof r?.extra?.runs === "number" ? r.extra.runs : 0),
+    homework: mergeHomework(local.homework, synapseModule.parseMetrics({ progress: r?.extra?.homework }).progress),
   };
+}
+
+/** Per assignment: done if either says so, the better ending, the more tries. */
+function mergeHomework(a: Record<string, AssignmentDone>, b: Record<string, AssignmentDone>): Record<string, AssignmentDone> {
+  const out: Record<string, AssignmentDone> = {};
+  for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
+    const x = a[k];
+    const y = b[k];
+    out[k] = { done: Boolean(x?.done || y?.done), best: betterTier(x?.best ?? null, y?.best ?? null), tries: Math.max(x?.tries ?? 0, y?.tries ?? 0) };
+  }
+  return out;
 }
 
 /** True when two progress values say the same (so an unchanged merge is not pushed). */
@@ -63,7 +77,7 @@ export async function saveRemote(p: Progress): Promise<void> {
   const supabase = getSupabaseClient();
   if (!supabase) return;
   const { error } = await supabase.rpc("synapse_save", {
-    p_profile: { setting: p.setting, auto: p.auto, recent: p.recent, seenScenes: p.seenScenes, cleared: p.cleared, endings: p.endings },
+    p_profile: { setting: p.setting, auto: p.auto, recent: p.recent, seenScenes: p.seenScenes, cleared: p.cleared, endings: p.endings, extra: { runs: p.runs, homework: p.homework } },
     p_phrases: p.phrases,
   });
   if (error) throw new Error(error.message);

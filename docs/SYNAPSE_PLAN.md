@@ -181,6 +181,12 @@ Mục này thay các câu hỏi gốc dưới đây (giữ để tham khảo).
 - **Chơi lại không cần mạng:** nhiệm vụ viết tay đã tải một lần được giữ trên máy và chơi lại được khi mất mạng (chưa phải ứng dụng cài đặt; lần đầu vẫn cần mạng).
 - Mỗi nhiệm vụ học đường có mức CEFR (`level`: A2, B1, B2), hiện trong danh sách chọn truyện của Teach.
 
+**Đã làm tiếp (1/11, theo quyết định của bạn):**
+- **Đăng nhập từ đầu bằng tài khoản Cortex** (cùng email và mật khẩu của Lexica). Tiến độ, cụm, nhiệm vụ đã qua, cái kết và các lượt chơi lưu trên tài khoản (`synapse_profile`, `synapse_phrase_state`, `synapse_runs`, trong `teach_all.sql`); lúc đăng nhập, tiến độ trên máy được gộp với của tài khoản.
+- **Giao nhiệm vụ về nhà (S4):** module lớp học `@cortex/classroom-synapse` (SQL `classroom_synapse.sql`, trong `teach_all.sql`). Giáo viên giao một nhiệm vụ truyện hoặc "Ôn bằng truyện" kèm hạn; học viên vào lớp bằng mã ngay trong Synapse, thấy bài, bấm Chơi; xong khi qua nhiệm vụ. Giáo viên thấy số nhiệm vụ, số cụm vững, **cụm cả lớp hay nhầm (chỉ tên cụm và số em)**, tiến độ từng bài.
+- **Đẩy cụm sang Lexica:** cụm đã đúng ít nhất một lần thành thẻ trong hàng học hôm nay của Lexica, mỗi ngày một lần, **chỉ với cụm Lexica đã có trong bộ thẻ** (cụm Synapse không có thẻ tương ứng thì ở lại Synapse).
+- **Thông báo đẩy** (cho Lexica, `docs/PUSH_SETUP.md`): giờ học chung, quà, câu nhờ đặt.
+
 **Chưa làm của S4:** giao nhiệm vụ Synapse về nhà kèm hạn (cần tiến độ Synapse theo tài khoản, thuộc S2); bỏ phiếu chung engine với "Sống sót" #63; điểm mỗi em vẫn tính theo đúng/sai và nhanh, chưa có luật riêng cho bỏ phiếu (ví dụ tính điểm theo lớp thắng hay thua cùng nhau).
 
 **Chưa làm (cần quyết định hoặc phần lớn hơn):**

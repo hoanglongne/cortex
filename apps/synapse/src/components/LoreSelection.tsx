@@ -10,7 +10,7 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import type { WorldLore, ThemeUI, ThemeColors } from "../lib/themes";
 import { TerminalBoard } from "./TerminalBoard";
-import { AgentProfile, WeeklyChapter } from "./LearningPanel";
+import { AgentProfile, ClassPanel, WeeklyChapter } from "./LearningPanel";
 import { chapterOfWeek } from "../lib/endings";
 import { parseProgress, PROGRESS_KEY, type Progress } from "../lib/level";
 
@@ -85,6 +85,15 @@ export default function LoreSelection({ onBack }: { onBack?: () => void }) {
           }}
         />
       )}
+      <ClassPanel
+        progress={progress}
+        onPlayMission={(loreId, missionId) => {
+          setSelectedLoreId(loreId);
+          setSelectedMissionId(missionId);
+          setShowGame(true);
+        }}
+        onPlayReview={() => setReviewing(true)}
+      />
       <AgentProfile progress={progress} onReview={() => setReviewing(true)} />
     </>
   ) : null;

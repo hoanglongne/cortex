@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLexicaStore } from '../store/lexicaStore';
 import { upsertDailyActivity } from '../lib/buddy';
 import { buddyWordsSet } from '../lib/buddySocial';
+import { syncSynapsePhrases } from '../lib/synapseSync';
 import { localDate } from '../lib/engagement/ghost';
 
 /**
@@ -22,6 +23,14 @@ export function useActivitySync() {
     const daysDone = useLexicaStore(s => s.daysDone);
 
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const queueCards = useLexicaStore(s => s.queueCards);
+
+    // Phrases unlocked in Synapse join the Today queue, once a day
+    useEffect(() => {
+        if (!user) return;
+        const t = setTimeout(() => void syncSynapsePhrases(queueCards), 4000);
+        return () => clearTimeout(t);
+    }, [user, queueCards]);
 
     useEffect(() => {
         if (!user) return;

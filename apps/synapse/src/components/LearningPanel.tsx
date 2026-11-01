@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { BookOpen, Check, Flag, Lightbulb, X } from "lucide-react";
 import { apiClient } from "../lib/apiClient";
+import { cacheClasses, joinClass, readCachedClasses, refreshClasses, synapseModule, synapseWork, workLine, type Assignment, type ClassInfo } from "../lib/classes";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 import { endingsSeen, TIERS, TIER_LABEL, endingKey, type EndingTier } from "../lib/endings";
 import type { SynapseChoice, SynapseScenario } from "../lib/synapseTypes";
 import { LEVELS, LEVEL_HINT, LEVEL_LABEL, STATUS_LABEL, phraseStatus, statusCounts, weakPhrases, type Level, type LevelSetting, type Progress, unlocked } from "../lib/level";
@@ -230,6 +233,98 @@ export function WeeklyChapter(props: { name: string; done: boolean; onPlay: () =
       <button type="button" onClick={props.onPlay} className="h-8 px-3 font-semibold border" style={{ borderColor: theme.colors.accent, color: theme.colors.accent, background: theme.colors.accentMuted }}>
         {props.done ? "Chơi lại" : "Chơi chương này"}
       </button>
+    </section>
+  );
+}
+
+/** The student's classes: the work the teacher gave, and joining with a code. */
+export function ClassPanel(props: { progress: Progress; onPlayMission: (loreId: string, missionId: string) => void; onPlayReview: () => void }) {
+  const { theme } = useTheme();
+  const { user } = useAuth();
+  const [classes, setClasses] = useState<ClassInfo[]>([]);
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setClasses(readCachedClasses());
+    let live = true;
+    void refreshClasses().then((list) => live && setClasses(list));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  if (!user) return null;
+  const mine = classes.filter((c) => c.role === "student");
+  const work = synapseWork(mine);
+
+  async function join() {
+    if (code.trim().length < 4 || busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await joinClass(code.trim(), (name.trim() || user?.email?.split("@")[0] || "Học viên").slice(0, 40));
+      const list = await refreshClasses();
+      cacheClasses(list);
+      setClasses(list);
+      setCode("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+    setBusy(false);
+  }
+
+  const box = { borderColor: theme.colors.border, background: theme.colors.surface, color: theme.colors.text };
+  return (
+    <section aria-label="Lớp học" className="border rounded-xl p-4 mb-3 space-y-2 text-xs" style={box}>
+      <p className="font-semibold">{mine.length ? `Lớp của bạn: ${mine.map((c) => c.name).join(", ")}` : "Vào lớp của thầy cô"}</p>
+      {work.length > 0 ? (
+        <ul className="space-y-1.5">
+          {work.map((a: Assignment) => {
+            const p = synapseModule.parsePayload(a.kind, a.payload);
+            const st = workLine(a, props.progress);
+            return (
+              <li key={a.id} className="flex items-center justify-between gap-2">
+                <span>
+                  {a.title}
+                  {a.due_on ? <span style={{ color: theme.colors.textMuted }}> · hạn {a.due_on}</span> : null}
+                </span>
+                <span className="flex items-center gap-2">
+                  <span style={{ color: st.done ? theme.colors.accent : theme.colors.textMuted }}>{st.text}</span>
+                  <button
+                    type="button"
+                    onClick={() => (p.kind === "review" ? props.onPlayReview() : props.onPlayMission(p.lore_id, p.mission_id))}
+                    className="h-7 px-2 border font-semibold"
+                    style={{ borderColor: theme.colors.accent, color: theme.colors.accent }}
+                  >
+                    {st.done ? "Chơi lại" : "Chơi"}
+                  </button>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      ) : mine.length > 0 ? (
+        <p style={{ color: theme.colors.textMuted }}>Thầy cô chưa giao bài Synapse nào.</p>
+      ) : null}
+      {mine.length === 0 && (
+        <form
+          className="flex flex-wrap items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void join();
+          }}
+        >
+          <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Mã lớp" aria-label="Mã lớp" maxLength={12} className="h-8 w-28 border px-2" style={{ borderColor: theme.colors.border, background: "transparent" }} />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên của bạn" aria-label="Tên của bạn" maxLength={40} className="h-8 w-36 border px-2" style={{ borderColor: theme.colors.border, background: "transparent" }} />
+          <button type="submit" disabled={busy || code.trim().length < 4} className="h-8 px-3 font-semibold border disabled:opacity-40" style={{ borderColor: theme.colors.accent, color: theme.colors.accent }}>
+            Vào lớp
+          </button>
+        </form>
+      )}
+      {error && <p className="text-red-500">{error}</p>}
     </section>
   );
 }

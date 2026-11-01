@@ -53,6 +53,7 @@ FILES=(
   apps/lexica/supabase/migration_placement.sql
   apps/lexica/supabase/placement_bank.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
+  packages/classroom-synapse/sql/classroom_synapse.sql
   apps/oratio/supabase/migration_2026_10_answers.sql
   # Last: tightens public.profiles for every app (drops Lexica's read-all policy)
   apps/oratio/supabase/migration_2026_10_security.sql
@@ -93,6 +94,7 @@ TEACH=(
   packages/classroom-lexica/sql/classroom_lexica.sql
   apps/lexica/supabase/migration_placement.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
+  packages/classroom-synapse/sql/classroom_synapse.sql
   # Synapse: the story rounds of the Arena read it, and the player's progress and reports
   apps/cortex-core-api/supabase/migration_synapse_reports.sql
   apps/cortex-core-api/supabase/migration_synapse_progress.sql

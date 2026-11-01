@@ -542,6 +542,12 @@ importers:
 
   apps/synapse:
     dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../../packages/classroom
+      '@cortex/classroom-synapse':
+        specifier: workspace:*
+        version: link:../../packages/classroom-synapse
       '@cortex/types':
         specifier: workspace:*
         version: link:../../packages/cortex-types
@@ -600,6 +606,9 @@ importers:
       '@cortex/classroom-oratio':
         specifier: workspace:*
         version: link:../../packages/classroom-oratio
+      '@cortex/classroom-synapse':
+        specifier: workspace:*
+        version: link:../../packages/classroom-synapse
       '@supabase/supabase-js':
         specifier: ^2.90.1
         version: 2.90.1
@@ -659,6 +668,12 @@ importers:
         version: link:../classroom
 
   packages/classroom-oratio:
+    dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../classroom
+
+  packages/classroom-synapse:
     dependencies:
       '@cortex/classroom':
         specifier: workspace:*
