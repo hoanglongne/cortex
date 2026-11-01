@@ -14,6 +14,7 @@ import { SyncModule } from './modules/sync/sync.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { StudioModule } from './modules/studio/studio.module';
 import { PushModule } from './modules/push/push.module';
+import { StatsModule } from './modules/stats/stats.module';
 import { LexicaModule } from './modules/lexica/lexica.module';
 
 @Module({
@@ -33,6 +34,7 @@ import { LexicaModule } from './modules/lexica/lexica.module';
     SyncModule,
     StudioModule,
     PushModule,
+    StatsModule,
     LexicaModule,
   ],
   controllers: [AppController],
