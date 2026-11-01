@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>TTS lab: giọng đọc trên máy</title>
+<style>
+  :root { color-scheme: light dark; --bg:#fff; --ink:#111; --muted:#666; --line:#ddd; --accent:#0a7; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111; --ink:#eee; --muted:#999; --line:#333; --accent:#3dd9a4; } }
+  body { font: 15px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--ink); margin: 0; padding: 16px; max-width: 720px; margin-inline: auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; } p { margin: 6px 0; color: var(--muted); }
+  fieldset { border: 1px solid var(--line); border-radius: 12px; margin: 14px 0; padding: 12px; }
+  legend { padding: 0 6px; font-weight: 600; }
+  label { display: inline-flex; align-items: center; gap: 6px; margin: 4px 12px 4px 0; }
+  select, button { font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--line); background: transparent; color: var(--ink); }
+  button.primary { background: var(--accent); color: #000; border: 0; font-weight: 700; }
+  button:disabled { opacity: .5; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; } td, th { border-bottom: 1px solid var(--line); padding: 6px 4px; text-align: left; vertical-align: top; }
+  .row audio { width: 100%; height: 34px; }
+  #log { white-space: pre-wrap; font: 12px/1.4 ui-monospace, monospace; color: var(--muted); }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin: 6px 0; } .bar i { display:block; height:100%; width:0; background: var(--accent); }
+</style>
+</head>
+<body>
+<h1>TTS lab: giọng đọc chạy trên máy bạn</h1>
+<p>Trang đo cho issue #114. Chạy trên điện thoại và máy tính của bạn, rồi bấm "Chép kết quả" và gửi cho Claude. Lần đầu phải tải mô hình (khoảng 90 MB cho bản q8), nên dùng Wi-Fi.</p>
+
+<fieldset>
+  <legend>Thiết lập</legend>
+  <label>Mô hình
+    <select id="engine">
+      <option value="kokoro">Kokoro 82M (kokoro-js)</option>
+      <option value="piper">Piper (piper-tts-web), chưa kiểm chứng API</option>
+    </select>
+  </label>
+  <label>Chạy bằng
+    <select id="device"><option value="wasm">WASM (CPU, bản q8 nhỏ)</option><option value="webgpu">WebGPU (bản fp32 lớn)</option></select>
+  </label>
+  <label>Giọng Kokoro
+    <select id="voice"><option value="af_heart">af_heart (Mỹ, nữ)</option><option value="am_michael">am_michael (Mỹ, nam)</option><option value="bf_emma">bf_emma (Anh, nữ)</option><option value="bm_george">bm_george (Anh, nam)</option></select>
+  </label>
+  <p id="env"></p>
+  <button class="primary" id="run">Tải mô hình và chạy 8 câu</button>
+  <div class="bar"><i id="prog"></i></div>
+  <p id="status"></p>
+</fieldset>
+
+<fieldset>
+  <legend>Kết quả</legend>
+  <table id="table"><thead><tr><th>Câu</th><th>Tạo (ms)</th><th>Dài (s)</th><th>RTF</th><th>Nghe</th></tr></thead><tbody></tbody></table>
+  <p>RTF = thời gian tạo / độ dài âm thanh. Dưới 1 là nhanh hơn thời gian thực; dưới 0,5 là thoải mái.</p>
+  <button id="copy" disabled>Chép kết quả</button> <button id="system">Nghe giọng hệ thống để so</button>
+</fieldset>
+<div id="log"></div>
+
+<script type="module">
+const SENTENCES = [
+  ['Từ đơn', 'resilient'],
+  ['Cụm từ', 'take something for granted'],
+  ['Câu ví dụ', "I'm gonna call her tonight, but I don't wanna wake the baby."],
+  ['Câu hỏi giám khảo', 'Could you tell me about a time when you helped someone, and explain how you felt about it?'],
+  ['Thẻ đề Part 2', 'Describe a book that had a major influence on you. You should say: what the book was, when you read it, and explain why it had such a big influence on you.'],
+  ['Số và tên', 'On the 3rd of March, 2026, Dr. Nguyen paid 1,250 dollars for a flight to Edinburgh.'],
+  ['Đoạn dài', 'Last summer, my family drove across the country to visit my grandparents. The road was long and the weather kept changing, but we stopped in small towns, tried local food, and listened to old songs. By the time we arrived, nobody wanted the trip to end.'],
+  ['Từ khó đọc', 'The thorough knight bought a rough wooden bough, though he could not read the sign at the bureau.'],
+];
+const $ = (id) => document.getElementById(id);
+const log = (m) => { $('log').textContent += m + '\n'; };
+const results = { startedAt: new Date().toISOString(), ua: navigator.userAgent, cores: navigator.hardwareConcurrency, deviceMemoryGB: navigator.deviceMemory ?? null, webgpu: Boolean(navigator.gpu), rows: [] };
+$('env').textContent = `Máy: ${navigator.hardwareConcurrency ?? '?'} nhân, RAM khoảng ${navigator.deviceMemory ?? '?'} GB, WebGPU: ${navigator.gpu ? 'có' : 'không'}`;
+if (!navigator.gpu) $('device').querySelector('[value=webgpu]').disabled = true;
+
+function wav(float32, rate) {
+  const n = float32.length, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+  const w = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, float32[i])) * 0x7fff, true);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+
+async function loadKokoro(device) {
+  const t0 = performance.now();
+  const { KokoroTTS } = await import('https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm');
+  const dtype = device === 'webgpu' ? 'fp32' : 'q8';
+  const tts = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
+    dtype, device,
+    progress_callback: (p) => { if (p.status === 'progress' && p.progress) { $('prog').style.width = p.progress + '%'; $('status').textContent = `Đang tải ${p.file ?? ''} ${Math.round(p.progress)}%`; } },
+  });
+  results.loadMs = Math.round(performance.now() - t0); results.engine = 'kokoro-js 1.2.1'; results.dtype = dtype; results.device = device;
+  return async (text) => { const a = await tts.generate(text, { voice: $('voice').value }); return { samples: a.audio, rate: a.sampling_rate }; };
+}
+
+async function loadPiper() {
+  const t0 = performance.now();
+  const piper = await import('https://cdn.jsdelivr.net/npm/@mintplex-labs/piper-tts-web@1.0.5/+esm');
+  const voiceId = 'en_US-hfc_female-medium';
+  await piper.download(voiceId, (p) => { if (p.total) { $('prog').style.width = (100 * p.loaded / p.total) + '%'; $('status').textContent = 'Đang tải giọng Piper'; } });
+  results.loadMs = Math.round(performance.now() - t0); results.engine = 'piper-tts-web 1.0.5'; results.voice = voiceId; results.device = 'wasm';
+  return async (text) => { const blob = await piper.predict({ text, voiceId }); const ab = await blob.arrayBuffer(); const ctx = new AudioContext(); const dec = await ctx.decodeAudioData(ab); return { samples: dec.getChannelData(0), rate: dec.sampleRate }; };
+}
+
+$('run').onclick = async () => {
+  $('run').disabled = true; $('copy').disabled = true; $('table').tBodies[0].innerHTML = ''; results.rows = []; $('log').textContent = '';
+  try {
+    $('status').textContent = 'Đang chuẩn bị…';
+    const gen = $('engine').value === 'kokoro' ? await loadKokoro($('device').value) : await loadPiper();
+    log(`Tải xong trong ${results.loadMs} ms`);
+    $('status').textContent = 'Khởi động mô hình (câu làm nóng, không tính)…';
+    const t = performance.now(); await gen('Hello.'); results.warmupMs = Math.round(performance.now() - t);
+    for (const [label, text] of SENTENCES) {
+      $('status').textContent = `Đang tạo: ${label}`;
+      const t1 = performance.now(); const { samples, rate } = await gen(text); const ms = Math.round(performance.now() - t1);
+      const sec = samples.length / rate, rtf = +(ms / 1000 / sec).toFixed(2);
+      results.rows.push({ label, chars: text.length, ms, sec: +sec.toFixed(2), rtf });
+      const tr = document.createElement('tr'); tr.className = 'row';
+      tr.innerHTML = `<td>${label}</td><td>${ms}</td><td>${sec.toFixed(1)}</td><td>${rtf}</td><td><audio controls src="${URL.createObjectURL(wav(samples, rate))}"></audio></td>`;
+      $('table').tBodies[0].appendChild(tr);
+    }
+    if (performance.memory) results.jsHeapMB = Math.round(performance.memory.usedJSHeapSize / 1048576);
+    const rtfs = results.rows.map((r) => r.rtf); results.rtfMedian = rtfs.sort((a, b) => a - b)[Math.floor(rtfs.length / 2)];
+    $('status').textContent = `Xong. Trung vị RTF ${results.rtfMedian}. Nghe từng câu rồi cho điểm tự nhiên (1-5) khi gửi kết quả.`; $('copy').disabled = false;
+  } catch (e) { $('status').textContent = 'Lỗi: ' + (e && e.message ? e.message : e); log(String(e && e.stack || e)); results.error = String(e); $('copy').disabled = false; }
+  $('run').disabled = false;
+};
+$('copy').onclick = async () => { const s = JSON.stringify(results, null, 1); try { await navigator.clipboard.writeText(s); $('status').textContent = 'Đã chép. Dán cho Claude.'; } catch { $('log').textContent = s; } };
+$('system').onclick = () => { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(SENTENCES[4][1]); u.lang = 'en-US'; speechSynthesis.speak(u); };
+</script>
+</body>
+</html>
