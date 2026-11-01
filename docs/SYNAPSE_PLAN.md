@@ -187,15 +187,14 @@ Mục này thay các câu hỏi gốc dưới đây (giữ để tham khảo).
 - **Đẩy cụm sang Lexica:** cụm đã đúng ít nhất một lần thành thẻ trong hàng học hôm nay của Lexica, mỗi ngày một lần, **chỉ với cụm Lexica đã có trong bộ thẻ** (cụm Synapse không có thẻ tương ứng thì ở lại Synapse).
 - **Thông báo đẩy** (cho Lexica, `docs/PUSH_SETUP.md`): giờ học chung, quà, câu nhờ đặt.
 
-**Chưa làm của S4:** giao nhiệm vụ Synapse về nhà kèm hạn (cần tiến độ Synapse theo tài khoản, thuộc S2); bỏ phiếu chung engine với "Sống sót" #63; điểm mỗi em vẫn tính theo đúng/sai và nhanh, chưa có luật riêng cho bỏ phiếu (ví dụ tính điểm theo lớp thắng hay thua cùng nhau).
+**Chưa làm của S4:** bỏ phiếu chung engine với "Sống sót" #63; điểm mỗi em vẫn tính theo đúng/sai và nhanh, chưa có luật riêng cho bỏ phiếu (ví dụ tính điểm theo lớp thắng hay thua cùng nhau).
 
 **Chưa làm (cần quyết định hoặc phần lớn hơn):**
 - **Mùa đầu tiên** (một thế giới mới, chuỗi nhiệm vụ nối nhau, phần thưởng nhận diện), **đo tỉ lệ quay lại sau 7 ngày**: cần có người dùng thật và nội dung mới.
 - `contrastSetId`, `nextOnWrong` trong khung cảnh; quy trình dựng qua Studio.
 - Dựng thêm nhiệm vụ: 5 trên mục tiêu 30. Hai thế giới kịch tính (mạng ngầm, hoang mạc) và hai thế giới thương trường vẫn dùng AI.
-- Khung cảnh chuẩn thêm `level` (CEFR), `contrastSetId`, `nextOnWrong`; quy trình dựng qua Studio.
 - Chơi ngoại tuyến thật sự: cảnh nằm trong API, chưa đóng gói vào ứng dụng.
-- Cần giáo viên đọc duyệt 20 cảnh của thế giới học đường trước khi dùng trong lớp. Ôn bằng truyện hiện có ít cảnh lặp lại một cụm (mới có vài cụm xuất hiện hai lần), sẽ tốt hơn khi dựng thêm nhiệm vụ.
+- Cần giáo viên đọc duyệt 30 cảnh của thế giới học đường trước khi dùng trong lớp. Ôn bằng truyện hiện có ít cảnh lặp lại một cụm (mới có vài cụm xuất hiện hai lần), sẽ tốt hơn khi dựng thêm nhiệm vụ.
 
 ## 11b. Câu hỏi gốc
 
