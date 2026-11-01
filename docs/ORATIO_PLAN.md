@@ -147,11 +147,22 @@ Mỗi bước có tiêu chí xong. Đứng trước mọi thứ là bước 0, c
 - **Thang nói:** thẻ "Thang nói" ở trang Luyện nói của Lexica: Nói từng từ, Tập một mình, Nói lại, Chấm chéo, Phòng thi, mỗi bước có liên kết.
 - **Giám khảo đọc câu hỏi (Tập một mình):** nút "Giám khảo đọc câu hỏi" và tuỳ chọn "Tự đọc mỗi câu": đọc bằng tiếng Anh như giám khảo (Part 2 đọc cả thẻ đề và nhắc một phút chuẩn bị), dùng giọng của trình duyệt (ưu tiên giọng Anh). Đồng hồ Part 2, ghi âm, Whisper và chỉ số vốn đã có trong màn này. **Chưa làm:** giọng tự nhiên từ bộ nhớ đệm giọng của Lexica (hiện dùng giọng hệ thống) và một luồng thi trọn Part 1, 2, 3 liền nhau.
 
-**#89 (một phần)**
+**#89 (xong, trừ việc xoá thư mục)**
 - **Tự chấm có lời dẫn:** sau mỗi lần nói trong Tập một mình, thẻ "Tự chấm 4 tiêu chí": thanh chọn band 1 đến 9, lời mô tả của band đang chọn ngay bên cạnh (dùng bộ mô tả band của Oratio). Lưu trên máy. Khi bạn luyện chấm cho câu đó, mục "Câu bạn đã gửi" (Chấm chéo) hiện thêm "Bạn tự chấm band X", chênh bao nhiêu so với bạn luyện, và các tiêu chí lệch từ 1 band trở lên (chỉ trên máy đã tự chấm).
 - **Đề Part 2:** 12 đề của Solilo, 10 đã có đề tương đương trong Oratio; thêm 2 đề thiếu (tham vọng chưa đạt, nơi đẹp đã đến) vào `seed_part2_solilo.sql` (trong `oratio_2026_10.sql`).
 - **Chuyển hướng:** Solilo chuyển mọi địa chỉ sang Oratio khi đặt `NEXT_PUBLIC_ORATIO_URL` cho dự án Solilo trên Vercel; landing bỏ Solilo và `/apps/solilo` chuyển sang `/apps/oratio`. Mã Solilo vẫn nằm trong repo.
 - **Từ đệm:** Oratio đã đếm từ đệm từ bản chép sau khi ghi (chỉ số "fillers"), nên không cần bản đếm thời gian thực của Solilo; **không chuyển** phần đếm thời gian thực (cần nhận dạng giọng liên tục, không hợp với Whisper chạy sau khi ghi).
 - **Chưa làm:** xem lại giao diện hai ngôn ngữ; xoá hẳn app Solilo.
 
-**#88: chưa làm.** Bài nói nộp vào lớp, quyền cho bạn cùng lớp nghe, chấm chéo trong lớp, câu neo của giáo viên cần gắn bảng câu trả lời (`answers`) với lớp (hiện không có `class_id`) và sửa các hàm chấm chéo của Oratio. Việc này chạm vào quyền riêng tư của học sinh dưới 18 tuổi nên cần thiết kế và thử cẩn thận trên hạ tầng Oratio thật.
+**#88 (đã làm, chưa thử trên hạ tầng thật):**
+- **Nộp bài nói vào lớp:** sau mỗi lần nói trong Tập một mình, học viên đang ở một lớp dùng Oratio thấy mục "Nộp vào lớp" (chọn lớp và bài được giao, hoặc không thuộc bài nào). Bài nộp vào lớp **không vào hàng chấm chéo mở** và **không tốn lượt chấm đổi lượt gửi**. Âm thanh tự xoá sau 30 ngày như mọi bài.
+- **Giáo viên:** trong Teach, tổng quan lớp (phần Oratio) có "Bài nói đã nộp vào lớp": nghe, xem số liệu và bản chép, **chấm bốn tiêu chí** (band 1 đến 9, bước nửa band). Học viên thấy "Thầy cô chấm: band X" ở mục câu đã gửi. Quyền nghe cho giáo viên đặt bằng chính sách trên kho âm thanh (`migration_2026_11_class.sql`).
+- **Quyền cho bạn cùng lớp nghe và chấm:** cài đặt Oratio của lớp, ô "Cho bạn cùng lớp nghe và chấm bài nói của nhau", **mặc định tắt**. Khi bật, bài nộp vào lớp vào hàng chấm chéo của các bạn trong cùng lớp (ẩn danh); lớp khác và người ngoài không thấy.
+- **Câu neo của lớp:** câu giáo viên chấm lưu điểm giáo viên; từ **10 câu đã chấm** trở lên, Teach hiện độ lệch trung bình giữa điểm bạn chấm và điểm giáo viên trên các câu có cả hai.
+- **Báo cáo cho phụ huynh:** đã có số liệu nói (số buổi, số phút) từ trước; không thêm nội dung giọng.
+- **Chưa làm:** dùng chung bộ câu trả lời với công cụ "Luyện nói trên lớp" của Teach; đo thời gian chờ có điểm; thông báo cho học viên khi giáo viên chấm xong. Cần chạy lại `supabase/oratio_2026_10.sql` (đã gồm migration mới) và thử với một lớp thật.
+
+
+**#89, các việc cuối:**
+- **Giao diện hai ngôn ngữ của Solilo:** không chuyển. Oratio dành cho người học tiếng Việt và giao diện đã là tiếng Việt; thêm công tắc Anh/Việt không có người dùng rõ ràng, nên bỏ.
+- **Xoá app Solilo:** chưa xoá thư mục `apps/solilo`. Xoá thư mục làm đổi cây dự án và khiến cả 7 dự án Vercel build lại, và dự án Vercel `cortex-solilo` sẽ báo lỗi build. Cách làm: xoá dự án `cortex-solilo` trên Vercel trước (Settings → Delete Project), rồi xoá `apps/solilo` trong một lần gộp với thay đổi khác.

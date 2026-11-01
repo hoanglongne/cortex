@@ -7,6 +7,7 @@ import { Badge, Field, inputClass } from '../../components/ui';
 import { ORATIO_URL } from '../../lib/config';
 import type { ModuleUI } from '../types';
 import AssignForm from './AssignForm';
+import ClassAnswers from './ClassAnswers';
 import { firstLine, questionBank, type QuestionBank } from './questions';
 
 const BANDS = [4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9];
@@ -50,6 +51,14 @@ export const oratioUI: ModuleUI = {
     SettingsFields({ value, onChange }) {
         const s = oratioModule.parseSettings(value);
         return (
+            <div className="space-y-5">
+            <label className="flex items-start gap-3 text-ink-2">
+                <input type="checkbox" checked={s.peers_listen} onChange={(e) => onChange({ ...s, peers_listen: e.target.checked })} className="mt-1 h-4 w-4 accent-[var(--color-accent)]" />
+                <span>
+                    Cho bạn cùng lớp nghe và chấm bài nói của nhau
+                    <span className="block text-sm text-muted">Mặc định tắt: chỉ thầy cô nghe. Khi bật, bài nộp vào lớp vào hàng chấm chéo của các bạn trong lớp (ẩn danh), không ra ngoài lớp.</span>
+                </span>
+            </label>
             <Field label="Band mục tiêu của lớp (không bắt buộc)" hint="Hiện như một vạch trên điểm của từng em.">
                 <select value={s.target_band ?? ''} onChange={(e) => onChange({ ...s, target_band: e.target.value ? Number(e.target.value) : null })} className={inputClass}>
                     <option value="">Không đặt</option>
@@ -60,6 +69,7 @@ export const oratioUI: ModuleUI = {
                     ))}
                 </select>
             </Field>
+            </div>
         );
     },
 
@@ -82,6 +92,7 @@ export const oratioUI: ModuleUI = {
         const bands = apps.map((a) => a.metrics.band?.overall).filter((b): b is number => b != null);
         const avg = bands.length ? Math.round((bands.reduce((n, b) => n + b, 0) / bands.length) * 2) / 2 : null;
         return (
+            <div className="space-y-4">
             <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-2">
                 <span>
                     <b className="tabular text-ink">{minutes}</b> phút nói tuần này
@@ -95,6 +106,11 @@ export const oratioUI: ModuleUI = {
                     </span>
                 )}
             </p>
+            <div>
+                <p className="mb-2 text-sm font-medium text-ink">Bài nói đã nộp vào lớp</p>
+                <ClassAnswers board={board} />
+            </div>
+            </div>
         );
     },
 

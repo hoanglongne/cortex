@@ -72,10 +72,26 @@ async function queueFor(admin: any, userId: string): Promise<QueueCandidate[]> {
     .select("id, user_id, mode, submitted_at")
     .not("submitted_at", "is", null)
     .not("audio_path", "is", null)
+    // Answers handed in to a class stay out of the open pool
+    .is("class_id", null)
     .or(`audio_expires_at.gt.${now},mode.eq.anchor`)
     .order("submitted_at", { ascending: true })
     .limit(300);
-  const answers = ((rows ?? []) as { id: string; user_id: string | null; mode: string; submitted_at: string }[]).filter(
+  // Classmates' answers, only for classes where the teacher let classmates hear and rate each other
+  const { data: mine } = await admin.rpc("oratio_my_classes", { p_user: userId });
+  const peerClasses = ((mine ?? []) as { class_id: string; peers: boolean }[]).filter((c) => c.peers).map((c) => c.class_id);
+  const { data: classRows } = peerClasses.length
+    ? await admin
+        .from("answers")
+        .select("id, user_id, mode, submitted_at")
+        .in("class_id", peerClasses)
+        .not("submitted_at", "is", null)
+        .not("audio_path", "is", null)
+        .gt("audio_expires_at", now)
+        .order("submitted_at", { ascending: true })
+        .limit(300)
+    : { data: [] };
+  const answers = ([...(rows ?? []), ...(classRows ?? [])] as { id: string; user_id: string | null; mode: string; submitted_at: string }[]).filter(
     (a) => a.user_id !== userId
   );
   if (answers.length === 0) return [];

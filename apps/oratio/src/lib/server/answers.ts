@@ -124,6 +124,8 @@ export async function exchangeCounts(admin: AdminClient, userId: string): Promis
       .from("answers")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
+      // Answers handed in to a class do not use up the exchange: only the open pool does
+      .is("class_id", null)
       .not("submitted_at", "is", null),
   ]);
   return { given: given ?? 0, submitted: submitted ?? 0 };

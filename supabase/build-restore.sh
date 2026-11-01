@@ -61,6 +61,7 @@ FILES=(
   # After security: replaces its band trigger
   apps/oratio/supabase/migration_2026_10_live.sql
   apps/oratio/supabase/seed_part2_solilo.sql
+  apps/oratio/supabase/migration_2026_11_class.sql
 )
 
 OUT=supabase/restore_all.sql
@@ -124,6 +125,7 @@ ORATIO=(
   apps/oratio/supabase/migration_2026_10_security.sql
   apps/oratio/supabase/migration_2026_10_live.sql
   apps/oratio/supabase/seed_part2_solilo.sql
+  apps/oratio/supabase/migration_2026_11_class.sql
 )
 ORATIO_OUT=supabase/oratio_2026_10.sql
 {
