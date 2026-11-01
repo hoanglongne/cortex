@@ -539,6 +539,9 @@ importers:
       '@cortex/types':
         specifier: workspace:*
         version: link:../../packages/cortex-types
+      '@supabase/supabase-js':
+        specifier: 2.90.1
+        version: 2.90.1
       lucide-react:
         specifier: ^1.7.0
         version: 1.8.0(react@19.2.4)

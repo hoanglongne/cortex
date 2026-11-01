@@ -13,6 +13,8 @@ import { useTheme } from "../context/ThemeContext";
 import { applyChoice, nextStage, startState } from "../lib/game";
 import { emptyProgress, levelOf, markCleared, markScene, matchTyped, parseProgress, phraseKey, PROGRESS_KEY, record, weakPhrases, type LevelSetting, type Progress } from "../lib/level";
 import { EndingCard, Hint, LevelPicker, PhraseBook, ReportScene, TypeAnswer } from "./LearningPanel";
+import { accountsOn } from "../lib/supabase";
+import { addRun, pushLater } from "../lib/account";
 import { endingText, markEnding, tierOf, type EndingTier } from "../lib/endings";
 
 function makeId() {
@@ -81,6 +83,7 @@ export function TerminalBoard(props: {
   }, []);
   const saveProgress = (next: Progress) => {
     setProgress(next);
+    if (accountsOn()) pushLater(next);
     try {
       localStorage.setItem(PROGRESS_KEY, JSON.stringify(next));
     } catch {
@@ -202,6 +205,7 @@ export function TerminalBoard(props: {
     if (!choice.isCorrect && game.lives <= 1 && !props.review) {
       setEnding("fail");
       updated = markEnding(updated, missionId, "fail");
+      if (accountsOn() && missionId) void addRun(missionId, "fail", score, 0).catch(() => undefined);
     }
     if (updated !== progress) saveProgress(updated);
   }
@@ -220,6 +224,7 @@ export function TerminalBoard(props: {
         const tier = tierOf(game.lives, true);
         setEnding(tier);
         saveProgress(markEnding(markCleared(progress, missionId), missionId, tier));
+        if (accountsOn() && missionId) void addRun(missionId, tier, score, game.lives).catch(() => undefined);
       }
       setMode("idle");
       return;

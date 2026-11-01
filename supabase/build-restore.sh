@@ -27,6 +27,7 @@ FILES=(
   apps/cortex-core-api/supabase/migration_studio_capture.sql
   apps/cortex-core-api/supabase/migration_studio_variants.sql
   apps/cortex-core-api/supabase/migration_synapse_reports.sql
+  apps/cortex-core-api/supabase/migration_synapse_progress.sql
   apps/cortex-core-api/supabase/migration_studio_quotes.sql
   apps/cortex-core-api/supabase/migration_studio_collocations_media.sql
   apps/cortex-core-api/supabase/migration_studio_corpus.sql
@@ -90,6 +91,9 @@ TEACH=(
   packages/classroom-lexica/sql/classroom_lexica.sql
   apps/lexica/supabase/migration_placement.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
+  # Synapse: the story rounds of the Arena read it, and the player's progress and reports
+  apps/cortex-core-api/supabase/migration_synapse_reports.sql
+  apps/cortex-core-api/supabase/migration_synapse_progress.sql
 )
 TEACH_OUT=supabase/teach_all.sql
 {

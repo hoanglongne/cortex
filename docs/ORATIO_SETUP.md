@@ -78,4 +78,4 @@ Gói Vercel miễn phí (Hobby) chỉ cho cron chạy tối đa một lần mỗ
 
 - Bảng ở bước 1 có đủ.
 - Cron Jobs hiện hai dòng và chạy thử không lỗi.
-- Vào Oratio trên điện thoại, bật "Nhắc giờ thi" trong cài đặt, thấy hỏi quyền thông báo.
+- Vào Oratio trên điện thoại, bật "Nhắc giờ thi" (ở phần Giờ thi), thấy hỏi quyền thông báo.
