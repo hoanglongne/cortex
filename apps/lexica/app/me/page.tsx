@@ -12,6 +12,7 @@ import { BRANCH_PROMISE } from '../lib/journey/branchInfo';
 import PaceChooser from '../components/PaceChooser';
 import { CORTEX_HUB_URL } from '../lib/cortexConfig';
 import StepNumbers from '../components/StepNumbers';
+import DeviceVoiceCard from '../components/DeviceVoiceCard';
 
 const chip = (on: boolean) => `h-9 px-3 rounded-lg border text-xs font-medium ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
 
@@ -60,6 +61,8 @@ export default function MePage() {
                     {CORTEX_HUB_URL && <Row href={CORTEX_HUB_URL} icon={<Compass className="w-4 h-4" />} title="Về Cortex" hint="Giáo viên, trung tâm và các app khác" />}
                     <Row href="/feedback?from=/me" icon={<MessageSquareHeart className="w-4 h-4" />} title="Góp ý và báo lỗi" />
                 </section>
+
+                <DeviceVoiceCard />
 
                 {path && (
                     <section className="rounded-2xl border border-line bg-surface p-4 space-y-3">

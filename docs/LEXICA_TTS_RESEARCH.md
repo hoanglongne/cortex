@@ -115,3 +115,35 @@ Tải và khởi tạo 4,4 giây, làm nóng 3,2 giây, bộ nhớ JS khoảng 1
 - Dù WebGPU nhanh, đó chỉ giúp máy tính. **Cho điện thoại, hướng thực tế hơn là tạo sẵn giọng** (đã làm với bộ nhớ đệm Kokoro trên máy chủ) và **mở rộng phạm vi tạo sẵn**: mọi câu giám khảo, mọi đoạn Đọc, tạo trước khi nội dung được xuất bản, thay vì tạo lúc người dùng cần.
 
 **Việc tiếp:** chạy lại trang đo (a) WebGPU fp32, (b) WASM với đa luồng bật, (c) thử q4 cho WASM; gửi lại kết quả. Nếu không cái nào đạt, đề xuất cuối là **không làm giọng trên máy**, mà tạo sẵn toàn bộ nội dung và dùng Gemini/giọng hệ thống làm phương án cuối.
+
+
+### Số đo thật, lượt hai (1/11/2026, cùng Mac 11 nhân, Chrome 153)
+| Cấu hình | Tải + khởi tạo | RTF trung vị | Câu hỏi giám khảo (5 s âm thanh) | Thẻ đề Part 2 (9,6 s) |
+|---|---|---|---|---|
+| WASM q8, một luồng (lượt một) | 4,4 s | 1,67 | 8,3 s | 16,6 s |
+| **WASM q8, đa luồng** | 0,6 s (đã lưu đệm) | **0,82** | 4,1 s | 7,8 s |
+| **WASM q4, đa luồng** | 9,0 s (lần đầu tải) | **0,45** | 2,4 s | 4,2 s |
+| **WebGPU fp32** | 10,0 s (lần đầu tải, ~300 MB) | **0,18** | 0,8 s | 1,3 s |
+
+**Đọc kết quả:**
+- Đa luồng nhân đôi tốc độ (1,67 xuống 0,82), q4 gần nhân đôi lần nữa (0,45), WebGPU nhanh nhất (0,18: tạo xong câu giám khảo dưới 1 giây).
+- **Trên máy tính mạnh**, q4 đa luồng và WebGPU đều đạt tiêu chí RTF dưới 0,6; q8 chưa đạt.
+- **Điện thoại chưa đo.** CPU điện thoại thường chậm hơn một chip Mac cỡ 2 đến 4 lần; nếu đúng, q4 sẽ ở khoảng RTF 0,9 đến 1,8 (không đạt), và chỉ WebGPU (nếu điện thoại chạy được) mới có hy vọng. Đây là phỏng đoán, cần đo.
+- **Chất lượng của q4 so với q8 và fp32 chưa nghe so sánh.** Lượng tử hoá mạnh có thể làm giọng kém tự nhiên; phải nghe trước khi chọn q4.
+
+**Cái giá của đa luồng:** cần `Cross-Origin-Opener-Policy: same-origin` và `Cross-Origin-Embedder-Policy: require-corp` trên trang dùng nó. Trang đo chỉ đặt cho `/tts-lab.html`. Nếu làm vào app thật thì mọi nội dung nhúng khác nguồn trên cùng trang (ví dụ **video YouTube nhúng của "câu ngoài đời"**, ảnh, font từ nguồn khác) có thể hỏng. Hướng giảm thiểu: chạy giọng ở một trang riêng nhúng bằng iframe (cũng phải cô lập), hoặc `COEP: credentialless` (Chrome và Firefox có, **Safari chưa có**, nên iPhone không hưởng). Nghĩa là **WASM đa luồng hầu như không dùng được trên iPhone**, nơi WebGPU mới có chỗ (Safari 26).
+
+**Đề xuất cập nhật (tạm, chờ số đo điện thoại và nghe chất lượng):**
+1. Giọng trên máy là **tuỳ chọn nâng cao, bật khi máy có WebGPU hoặc (đa luồng và từ 6 nhân)**, mặc định tắt; máy không đủ thì dùng giọng tạo sẵn, rồi Gemini, rồi giọng hệ thống như hiện nay.
+2. Dùng để **đọc trước**: giám khảo đọc câu kế tiếp lúc bạn đang nói câu này (đỡ chờ), `tts.stream()` của kokoro-js cho âm thanh đầu tiên sớm hơn.
+3. Giọng tạo sẵn trên máy chủ vẫn là đường chính cho nội dung cố định.
+4. Việc cần làm để chốt: **(a)** đo trên 2 điện thoại (một Android tầm trung, một iPhone từ Safari 26), **(b)** nghe so sánh q4, q8, fp32 và cho điểm, **(c)** thử `COEP: credentialless` và xem video YouTube nhúng có hỏng không, **(d)** xem pháp lý eSpeak NG.
+
+
+### Đã làm: giọng tự nhiên trên máy, tuỳ chọn (1/11/2026)
+Bạn nghe cả q4, q8 và fp32 đều thấy tự nhiên, nên chất lượng không còn là rào cản; rào cản còn lại là tốc độ trên điện thoại, mà chưa đo. Thay vì chờ, app **tự đo ngay trên máy người dùng**:
+- Tuỳ chọn ở **Tôi → "Giọng tự nhiên trên máy"**, mặc định tắt. Bật thì tải mô hình một lần (WebGPU fp32 khoảng 300 MB; chỉ chạy khi máy có WebGPU, hoặc WASM q4 đa luồng khi trang đã cô lập nguồn gốc chéo và có từ 6 nhân; WASM một luồng không được mời vì quá chậm).
+- Ngay sau khi tải, **thử tốc độ** (một câu mẫu). Nhanh hơn thời gian nghe (RTF không quá 0,8) thì bật; không thì tự để tắt và báo "máy này chưa đủ nhanh".
+- Khi bật, `AudioService` dùng giọng này cho **câu chưa có file tạo sẵn** (ngắn hơn 300 ký tự), trước khi gọi API Gemini; chạy trong Web Worker (`public/device-voice-worker.js`), nhớ 40 câu gần nhất. Cùng giọng (af_heart, am_michael, bf_emma) với các file tạo sẵn.
+- Lần sau mở app, giọng tự nạp lại nền nếu đã bật.
+- Sự kiện `device_voice` ghi kết quả (ready, unfit, error) và loại thiết bị, để biết bao nhiêu máy thật sự chạy được.
