@@ -65,3 +65,16 @@ Quy trình đề xuất: làm xong một việc, chạy cách 1 hoặc 2, bạn 
 - Mình **chưa thử được** quy trình này vì cần token Vercel (không đưa vào chat). Workflow đã kiểm cú pháp và `affected-apps.mjs` đã chạy thử với các commit thật (đổi font → landing và lexica; chỉ đổi tài liệu → không app nào); phần `vercel pull/build/deploy` chạy lần đầu trên GitHub sẽ cho biết thật.
 - `vercel build` chạy trong Actions cần cùng biến môi trường như Vercel (`vercel pull` lấy về), nên các biến `NEXT_PUBLIC_*` trên Vercel phải đúng.
 - Mất phần bình luận xem trước trên PR của Vercel (không còn bản xem trước theo nhánh). Muốn xem một nhánh, chạy `pnpm dev` hoặc tạm tạo bản xem trước bằng `vercel deploy` thủ công.
+
+
+## Vì sao Vercel vẫn chặn vì quá 100 lần triển khai (nghiên cứu 1/11/2026)
+
+**Số liệu** (GitHub Deployments API của repo): ngày 30/10 có 71 lượt triển khai, 31/10 có 59, 1/11 có 29. Gần như tất cả là **Preview**, mỗi lần đẩy một commit lên nhánh làm việc sinh tới 6 lượt, mỗi dự án một lượt. Tức là cấu hình "chỉ triển khai nhánh main" **không có tác dụng**.
+
+**Nguyên nhân:** cấu hình cũ là `"git": {"deploymentEnabled": {"main": true, "*": false}}`. Theo [tài liệu Vercel](https://vercel.com/docs/projects/project-configuration/git-configuration) mẫu nhánh dùng cú pháp minimatch, trong đó `*` **không khớp dấu `/`**. Mọi nhánh làm việc của dự án đều có dạng `long/...`, nên không khớp luật nào, và nhánh không khớp luật nào thì **mặc định được triển khai**. Đã đổi `"*"` thành `"**"` (khớp cả dấu `/`) ở cả 7 `vercel.json`. Nhánh `main` vẫn khớp luật `true` nên vẫn triển khai (có nhiều luật khớp thì chỉ cần một luật `true`).
+
+**Còn lại sau khi sửa:**
+- Mỗi lần gộp vào main vẫn sinh lượt Production cho từng dự án có file đổi (`scripts/vercel-ignore.mjs` bỏ qua dự án không đổi). Đổi `pnpm-lock.yaml` hoặc file gốc của workspace sẽ làm **cả 7 dự án** build lại.
+- Chưa có xác nhận chính thức rằng build bị bỏ qua bởi Ignored Build Step có tính vào 100 lượt mỗi ngày hay không ([cộng đồng Vercel hỏi chưa có trả lời](https://community.vercel.com/t/do-skipped-monorepo-projects-count-toward-the-hobby-deployment-limit/46295)). Nếu có, 1 lần đẩy lên main = 7 lượt dù chỉ build 1 dự án.
+- Cách đo: sau khi sửa, đẩy vài commit lên một nhánh và xem **Vercel → Settings → Usage** có tăng không, và `curl https://api.github.com/repos/hoanglongne/cortex/deployments` có còn dòng "Preview".
+- Các biện pháp nếu vẫn chạm giới hạn: gom nhiều commit thành ít lần đẩy lên main; không đổi `pnpm-lock.yaml` nếu không cần; hoặc dùng phương án GitHub Actions ở trên (triển khai bằng CLI, kiểm soát được số lần).

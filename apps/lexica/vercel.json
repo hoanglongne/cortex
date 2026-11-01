@@ -1,5 +1,5 @@
 {
-    "git": { "deploymentEnabled": { "main": true, "*": false } },
+    "git": { "deploymentEnabled": { "main": true, "**": false } },
     "ignoreCommand": "node ../../scripts/vercel-ignore.mjs",
     "headers": [
         {

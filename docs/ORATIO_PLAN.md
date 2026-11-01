@@ -145,7 +145,7 @@ Mỗi bước có tiêu chí xong. Đứng trước mọi thứ là bước 0, c
 **#90 (một phần)**
 - **Hẹn thi thử Speaking từ Lexica Buddy:** Buddy → Hộp thư → Giờ học chung → "Thi thử Speaking": chọn giờ đúng giờ Giờ thi (20:30 mỗi ngày, thêm 12:00 cuối tuần). Cả hai bấm "Vào thi" trong khung giờ thì mở Oratio. Thông báo đẩy nhắc nói rõ "thi thử Speaking". Cần `NEXT_PUBLIC_ORATIO_URL` trong Lexica.
 - **Thang nói:** thẻ "Thang nói" ở trang Luyện nói của Lexica: Nói từng từ, Tập một mình, Nói lại, Chấm chéo, Phòng thi, mỗi bước có liên kết.
-- **Chưa làm:** thi thử một mình có giọng giám khảo đọc câu hỏi, đồng hồ đúng format, ghi âm và chỉ số (cần giọng đọc dùng chung giữa Lexica và Oratio, và sửa màn Tập một mình).
+- **Giám khảo đọc câu hỏi (Tập một mình):** nút "Giám khảo đọc câu hỏi" và tuỳ chọn "Tự đọc mỗi câu": đọc bằng tiếng Anh như giám khảo (Part 2 đọc cả thẻ đề và nhắc một phút chuẩn bị), dùng giọng của trình duyệt (ưu tiên giọng Anh). Đồng hồ Part 2, ghi âm, Whisper và chỉ số vốn đã có trong màn này. **Chưa làm:** giọng tự nhiên từ bộ nhớ đệm giọng của Lexica (hiện dùng giọng hệ thống) và một luồng thi trọn Part 1, 2, 3 liền nhau.
 
 **#89 (một phần)**
 - **Tự chấm có lời dẫn:** sau mỗi lần nói trong Tập một mình, thẻ "Tự chấm 4 tiêu chí": thanh chọn band 1 đến 9, lời mô tả của band đang chọn ngay bên cạnh (dùng bộ mô tả band của Oratio). Lưu trên máy. `gap` và `gapLine` sẵn để so với điểm bạn luyện chấm, nhưng **chưa nối vào màn Bài của tôi**.
