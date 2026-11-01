@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { chooseConfig, FIT_RTF, isFit, KOKORO_VOICE, Lru, rtfOf, wavBlob } from '../../app/lib/audio/deviceVoice';
 
 describe('on-device voice', () => {
-    it('offers WebGPU first, threaded WASM only when isolated with enough cores, else nothing', () => {
+    it('offers WebGPU first, else WASM q4 (the speed test judges it), and nothing on a very small device', () => {
         expect(chooseConfig({ webgpu: true, isolated: false, cores: 4 })).toMatchObject({ device: 'webgpu', dtype: 'fp32' });
         expect(chooseConfig({ webgpu: false, isolated: true, cores: 8 })).toMatchObject({ device: 'wasm', dtype: 'q4' });
-        expect(chooseConfig({ webgpu: false, isolated: true, cores: 4 })).toBeNull();
-        expect(chooseConfig({ webgpu: false, isolated: false, cores: 12 })).toBeNull();
+        expect(chooseConfig({ webgpu: false, isolated: false, cores: 6 })).toMatchObject({ device: 'wasm', dtype: 'q4' });
+        expect(chooseConfig({ webgpu: false, isolated: false, cores: 2 })).toBeNull();
     });
 
     it('a device is fit when it makes speech faster than the time it takes to hear it', () => {

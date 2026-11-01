@@ -27,13 +27,15 @@ export interface DeviceConfig {
 }
 
 /**
- * What this device could run, or null. WebGPU first (the only route measured
- * fast enough); multi-threaded WASM only when the page is cross-origin isolated
- * and the device has the cores. Single-threaded WASM is too slow to offer.
+ * What this device could run. WebGPU first (the fast route: five times faster
+ * than listening on a Mac); else WASM q4, which the speed test then judges
+ * (multi-threaded when the page is cross-origin isolated; single-threaded on an
+ * iPhone before iOS 26 has no WebGPU, so it may well be too slow, and the test
+ * says so after about 90 MB). Only a device with no Web Worker gets null.
  */
 export function chooseConfig(env: { webgpu: boolean; isolated: boolean; cores: number }): DeviceConfig | null {
     if (env.webgpu) return { device: 'webgpu', dtype: 'fp32', downloadMB: 300 };
-    if (env.isolated && env.cores >= 6) return { device: 'wasm', dtype: 'q4', downloadMB: 90 };
+    if (env.cores >= 4 || env.isolated) return { device: 'wasm', dtype: 'q4', downloadMB: 90 };
     return null;
 }
 
