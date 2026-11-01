@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Cpu } from 'lucide-react';
-import { deviceVoiceStatus, disableDeviceVoice, enableDeviceVoice, environment, onDeviceVoiceChange, resumeDeviceVoice } from '../lib/audio/deviceVoice';
+import { deviceVoiceStatus, disableDeviceVoice, enableDeviceVoice, environment, onDeviceVoiceChange, resumeDeviceVoice, synthOnDevice } from '../lib/audio/deviceVoice';
 import { capture } from '../lib/productAnalytics';
 
 /** Loads the voice quietly on a later visit, when the learner turned it on before. */
@@ -17,6 +17,7 @@ export function DeviceVoiceBoot() {
 /** "Giọng tự nhiên trên máy": off by default; a speed test on first use keeps it off on a device that cannot keep up. */
 export default function DeviceVoiceCard() {
     const [, bump] = useState(0);
+    const [tried, setTried] = useState('');
     const [config] = useState(() => (typeof window === 'undefined' ? null : environment()));
     useEffect(() => onDeviceVoiceChange(() => bump((n) => n + 1)), []);
     const { state, progress, rtf } = deviceVoiceStatus();
@@ -44,6 +45,24 @@ export default function DeviceVoiceCard() {
                     <Cpu className="w-4 h-4 text-accent" /> Giọng tự nhiên trên máy
                 </span>
                 <span className="mt-1 block text-xs text-muted">{line}</span>
+                {state === 'ready' && (
+                    <button
+                        onClick={async () => {
+                            setTried('Đang tạo…');
+                            const text = `This sentence is made right here on your device, number ${Math.floor(Math.random() * 90 + 10)}.`;
+                            const t = performance.now();
+                            const blob = await synthOnDevice(text);
+                            if (!blob) return setTried('Chưa tạo được, thử lại.');
+                            setTried(`Tạo trong ${((performance.now() - t) / 1000).toFixed(1)} giây`);
+                            const a = new Audio(URL.createObjectURL(blob));
+                            void a.play().catch(() => undefined);
+                        }}
+                        className="mt-2 h-8 rounded-lg border border-line px-3 text-xs font-semibold text-ink-2"
+                    >
+                        Nghe thử
+                    </button>
+                )}
+                {tried && state === 'ready' && <span className="ml-2 text-xs text-muted">{tried}</span>}
             </p>
             {config && state !== 'unavailable' && (
                 <button
