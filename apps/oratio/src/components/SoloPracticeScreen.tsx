@@ -16,6 +16,7 @@ import { Character, CharacterSays } from "@/components/ui/character";
 import { CueCard } from "@/components/ui/cue-card";
 import { LiveWaveform, SpeakingPill } from "@/components/ui/on-air";
 import { FlowShell } from "@/components/ui/shell";
+import { ExaminerVoice } from "@/components/solo/ExaminerVoice";
 import { formatClock, Part2Timer } from "@/components/ui/timer";
 import { TranscribeAsk, WhisperStatus, useWhisperLoader } from "./solo/TranscribeCard";
 import { DrillSummary, TakeResult } from "./solo/TakeResult";
@@ -446,6 +447,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
             <CueCard key={question.id} question={question}>
               {question.part === 2 && !showResult && !drillOn && <Part2Timer key={`${question.id}-${list.length}`} />}
             </CueCard>
+            <ExaminerVoice questionId={question.id} part={question.part} text={question.question_text} />
             <p className="mt-4 text-sm text-muted">{TIPS[question.part]}</p>
             {hintWords.length > 0 && (
               <div className="mt-4">
