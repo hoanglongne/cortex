@@ -1,6 +1,7 @@
 import { getCard } from '../content/repository';
 import { CORTEX_API_URL } from '../cortexConfig';
 import { voiceFileName } from './voiceKey';
+import { synthOnDevice } from './deviceVoice';
 
 /**
  * One place for every sound Lexica speaks (docs/LEXICA_AUDIO_SPEC.md).
@@ -161,6 +162,26 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
             if (e instanceof DOMException && e.name === 'NotAllowedError') return false;
             // Not made yet: the API makes it (and caches it for everyone).
             notStored.set(stored, Date.now());
+        }
+    }
+    // The voice made on this device, when the learner turned it on and it passed the speed test
+    const made = await synthOnDevice(text, opts);
+    if (made) {
+        stop();
+        const mine = seq;
+        const local = URL.createObjectURL(made);
+        el.src = local;
+        el.playbackRate = opts.rate ? Math.min(1.3, Math.max(0.6, opts.rate / 0.9)) : 1;
+        try {
+            await el.play();
+            if (mine !== seq) return true;
+            if (opts.wait) await untilDone(el);
+            return true;
+        } catch (e) {
+            if (mine !== seq) return true;
+            if (e instanceof DOMException && e.name === 'NotAllowedError') return false;
+        } finally {
+            setTimeout(() => URL.revokeObjectURL(local), 60_000);
         }
     }
     const url = naturalVoiceUrl(text, opts);

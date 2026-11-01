@@ -138,3 +138,12 @@ Tải và khởi tạo 4,4 giây, làm nóng 3,2 giây, bộ nhớ JS khoảng 1
 2. Dùng để **đọc trước**: giám khảo đọc câu kế tiếp lúc bạn đang nói câu này (đỡ chờ), `tts.stream()` của kokoro-js cho âm thanh đầu tiên sớm hơn.
 3. Giọng tạo sẵn trên máy chủ vẫn là đường chính cho nội dung cố định.
 4. Việc cần làm để chốt: **(a)** đo trên 2 điện thoại (một Android tầm trung, một iPhone từ Safari 26), **(b)** nghe so sánh q4, q8, fp32 và cho điểm, **(c)** thử `COEP: credentialless` và xem video YouTube nhúng có hỏng không, **(d)** xem pháp lý eSpeak NG.
+
+
+### Đã làm: giọng tự nhiên trên máy, tuỳ chọn (1/11/2026)
+Bạn nghe cả q4, q8 và fp32 đều thấy tự nhiên, nên chất lượng không còn là rào cản; rào cản còn lại là tốc độ trên điện thoại, mà chưa đo. Thay vì chờ, app **tự đo ngay trên máy người dùng**:
+- Tuỳ chọn ở **Tôi → "Giọng tự nhiên trên máy"**, mặc định tắt. Bật thì tải mô hình một lần (WebGPU fp32 khoảng 300 MB; chỉ chạy khi máy có WebGPU, hoặc WASM q4 đa luồng khi trang đã cô lập nguồn gốc chéo và có từ 6 nhân; WASM một luồng không được mời vì quá chậm).
+- Ngay sau khi tải, **thử tốc độ** (một câu mẫu). Nhanh hơn thời gian nghe (RTF không quá 0,8) thì bật; không thì tự để tắt và báo "máy này chưa đủ nhanh".
+- Khi bật, `AudioService` dùng giọng này cho **câu chưa có file tạo sẵn** (ngắn hơn 300 ký tự), trước khi gọi API Gemini; chạy trong Web Worker (`public/device-voice-worker.js`), nhớ 40 câu gần nhất. Cùng giọng (af_heart, am_michael, bf_emma) với các file tạo sẵn.
+- Lần sau mở app, giọng tự nạp lại nền nếu đã bật.
+- Sự kiện `device_voice` ghi kết quả (ready, unfit, error) và loại thiết bị, để biết bao nhiêu máy thật sự chạy được.

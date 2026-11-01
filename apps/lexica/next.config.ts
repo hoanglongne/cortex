@@ -24,7 +24,7 @@ const withPWAConfig = withPWA({
   // The pronouncing dictionary loads when the speaking drill opens, and the
   // on-device scorer (onnxruntime) only when a tester downloads its pack:
   // neither belongs in the install-time precache.
-  publicExcludes: ["!noprecache/**/*", "!pron/**/*", "!tts-lab.html"],
+  publicExcludes: ["!noprecache/**/*", "!pron/**/*", "!tts-lab.html", "!device-voice-worker.js"],
   buildExcludes: [/middleware-manifest\.json$/, /\.wasm$/, /ort\.wasm/],
   // Push notifications: the handlers for "push" and "notificationclick" (docs/LEXICA_PUSH_SPEC.md)
   importScripts: ["/push-sw.js"],
