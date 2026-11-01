@@ -10,5 +10,7 @@ function base(value: string | undefined): string | null {
 export const LEXICA_URL = base(process.env.NEXT_PUBLIC_LEXICA_URL) ?? (isDev ? 'http://localhost:3001' : '');
 /** Oratio (speaking): class links. */
 export const ORATIO_URL = base(process.env.NEXT_PUBLIC_ORATIO_URL) ?? (isDev ? 'http://localhost:3000' : '');
+/** Synapse (story missions): class links. */
+export const SYNAPSE_URL = base(process.env.NEXT_PUBLIC_SYNAPSE_URL) ?? (isDev ? 'http://localhost:3003' : '');
 /** This app, for invitation links. */
 export const TEACH_URL = base(process.env.NEXT_PUBLIC_TEACH_URL) ?? (typeof window !== 'undefined' ? window.location.origin : '');

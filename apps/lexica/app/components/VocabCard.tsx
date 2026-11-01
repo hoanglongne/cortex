@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, RotateCcw, TrendingUp, Flag, Gift } from 'lucide-react';
 import { giftFrom } from '../lib/buddySocial';
-import { flushCardEvents, trackCardEvent } from '../lib/content/events';
+import { REPORT_REASONS, reportCard } from '../lib/cardReport';
 import { useLexicaStore } from '../store/lexicaStore';
 import { AudioService } from '../lib/audio/AudioService';
 import RecallPanel from './RecallPanel';
@@ -39,6 +39,7 @@ interface VocabCardProps {
 export default function VocabCard({ card, index, onSwipe, revealed: controlledRevealed, onReveal, lucky, hint, sessionCount, check, onCheckAnswer }: VocabCardProps) {
     const [internalRevealed, setInternalRevealed] = useState(false);
     const [reported, setReported] = useState(false);
+    const [reportOpen, setReportOpen] = useState(false);
     const cardProgress = useLexicaStore(state => state.cardProgress[card.id]);
     const userArchetype = useLexicaStore(state => state.userArchetype);
 
@@ -116,24 +117,44 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                                 <TrendingUp className="w-3 h-3 shrink-0" /> TREND
                             </span>
                         )}
-                        {card.trend && index === 0 && (
-                            <button
-                                type="button"
-                                onPointerDown={e => e.stopPropagation()}
-                                onClick={e => {
-                                    e.stopPropagation();
-                                    if (reported) return;
-                                    if (!window.confirm('Báo cáo câu này là không phù hợp hoặc sai?')) return;
-                                    trackCardEvent(card.id, 'report');
-                                    flushCardEvents();
-                                    setReported(true);
-                                }}
-                                className={`-m-2 p-2 flex items-center gap-1 ${reported ? 'text-danger' : 'hover:text-danger'}`}
-                                aria-label={reported ? 'Đã báo cáo' : 'Báo cáo câu này'}
-                                title={reported ? 'Đã báo cáo' : 'Báo cáo câu này'}
-                            >
-                                <Flag className="w-3 h-3" />
-                            </button>
+                        {index === 0 && (
+                            <span className="relative">
+                                <button
+                                    type="button"
+                                    onPointerDown={e => e.stopPropagation()}
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        setReportOpen(o => !o);
+                                    }}
+                                    className={`-m-2 p-2 flex items-center gap-1 ${reported ? 'text-danger' : 'hover:text-danger'}`}
+                                    aria-label={reported ? 'Đã báo thẻ này' : 'Báo thẻ này có vấn đề'}
+                                    aria-expanded={reportOpen}
+                                    title={reported ? 'Đã báo thẻ này' : 'Báo thẻ này có vấn đề'}
+                                >
+                                    <Flag className="w-3 h-3" />
+                                </button>
+                                {reportOpen && (
+                                    <span role="menu" className="absolute left-0 top-6 z-20 w-52 rounded-xl border border-line bg-surface p-1.5 shadow-lg font-sans text-xs text-ink">
+                                        <span className="block px-2 py-1 text-muted">Thẻ này có vấn đề gì?</span>
+                                        {REPORT_REASONS.map(r => (
+                                            <button
+                                                key={r.id}
+                                                role="menuitem"
+                                                type="button"
+                                                onPointerDown={e => e.stopPropagation()}
+                                                onClick={async e => {
+                                                    e.stopPropagation();
+                                                    setReportOpen(false);
+                                                    if (await reportCard(card.id, r.id)) setReported(true);
+                                                }}
+                                                className="block w-full rounded-lg px-2 py-1.5 text-left hover:bg-surface-2"
+                                            >
+                                                {r.label}
+                                            </button>
+                                        ))}
+                                    </span>
+                                )}
+                            </span>
                         )}
                         <span className="ml-auto flex items-center gap-1" aria-label={`Trạng thái: ${card.state}`}>
                             {card.state === 'seed' && <Sprout className="w-3.5 h-3.5" />}

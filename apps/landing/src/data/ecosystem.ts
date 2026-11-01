@@ -37,17 +37,6 @@ export interface EcosystemApp {
 export const ecosystemApps: EcosystemApp[] = [
     // ── Live Apps ──────────────────────────────────────────────
     {
-        id: 'solilo',
-        name: 'Solilo',
-        status: 'Live',
-        pillar: 'Psychological',
-        pureFunctionDesc:
-            'Giải quyết CHÍNH XÁC một vấn đề: Loại bỏ nỗi sợ nói tiếng Anh thông qua các bài tập lặp lại cưỡng bức.',
-        colorAccent: '#0089ff',
-        language: 'English',
-        href: '/apps/solilo',
-    },
-    {
         id: 'lexica',
         name: 'Lexica',
         status: 'Live',

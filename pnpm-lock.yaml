@@ -92,6 +92,9 @@ importers:
       socket.io:
         specifier: ^4.8.3
         version: 4.8.3
+      web-push:
+        specifier: 3.6.7
+        version: 3.6.7
       wordnet-db:
         specifier: ^3.1.14
         version: 3.1.14
@@ -126,6 +129,9 @@ importers:
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.2
+      '@types/web-push':
+        specifier: 3.6.4
+        version: 3.6.4
       eslint:
         specifier: ^9.18.0
         version: 9.39.1(jiti@2.6.1)
@@ -536,9 +542,18 @@ importers:
 
   apps/synapse:
     dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../../packages/classroom
+      '@cortex/classroom-synapse':
+        specifier: workspace:*
+        version: link:../../packages/classroom-synapse
       '@cortex/types':
         specifier: workspace:*
         version: link:../../packages/cortex-types
+      '@supabase/supabase-js':
+        specifier: 2.90.1
+        version: 2.90.1
       lucide-react:
         specifier: ^1.7.0
         version: 1.8.0(react@19.2.4)
@@ -591,6 +606,9 @@ importers:
       '@cortex/classroom-oratio':
         specifier: workspace:*
         version: link:../../packages/classroom-oratio
+      '@cortex/classroom-synapse':
+        specifier: workspace:*
+        version: link:../../packages/classroom-synapse
       '@supabase/supabase-js':
         specifier: ^2.90.1
         version: 2.90.1
@@ -650,6 +668,12 @@ importers:
         version: link:../classroom
 
   packages/classroom-oratio:
+    dependencies:
+      '@cortex/classroom':
+        specifier: workspace:*
+        version: link:../classroom
+
+  packages/classroom-synapse:
     dependencies:
       '@cortex/classroom':
         specifier: workspace:*

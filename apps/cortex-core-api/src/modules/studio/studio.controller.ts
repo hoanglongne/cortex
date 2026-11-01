@@ -30,6 +30,7 @@ import { CaptureService } from './capture.service';
 import { JOBS, PipelineService } from './pipeline.service';
 import { StudioService } from './studio.service';
 import { VARIANT_ARCHETYPES } from './variants';
+import { worstCards, type CardStatsRow } from './card-health';
 import { VariantsService, type VariantStatus } from './variants.service';
 import { QuotesService } from './quotes.service';
 import { PassagesService, type PassageStatus } from './passages.service';
@@ -422,6 +423,48 @@ export class StudioController {
       throw new BadRequestException('feeds must be http(s) URLs');
     }
     return this.studio.updateSource(db, id, { enabled, weight, feeds });
+  }
+
+  // ---------------------------------------------- content health (issue #62)
+
+  /** The worst cards this week, from the nightly numbers, with their words. */
+  @Get('card-health')
+  async cardHealth(@StudioDb() db: Db) {
+    const res = await db.from('cortex_card_stats').select('*').limit(5000);
+    if (res.error) throw new BadRequestException(res.error.message);
+    const worst = worstCards((res.data ?? []) as CardStatsRow[], 50);
+    const ids = worst.map((w) => w.card_id);
+    const [core, studio] = ids.length
+      ? await Promise.all([
+          db
+            .from('studio_core_cards')
+            .select('id, word, translation_hint')
+            .in('id', ids),
+          db
+            .from('studio_cards')
+            .select('id, word, translation_hint')
+            .in('id', ids),
+        ])
+      : [{ data: [] }, { data: [] }];
+    const words = new Map(
+      [
+        ...((core.data ?? []) as {
+          id: string;
+          word: string;
+          translation_hint: string;
+        }[]),
+        ...((studio.data ?? []) as {
+          id: string;
+          word: string;
+          translation_hint: string;
+        }[]),
+      ].map((c) => [c.id, c]),
+    );
+    return worst.map((w) => ({
+      ...w,
+      word: words.get(w.card_id)?.word ?? null,
+      meaning: words.get(w.card_id)?.translation_hint ?? null,
+    }));
   }
 
   // ---------------------------------------------- archetype variants

@@ -25,6 +25,7 @@ const MESSAGES: Record<string, string> = {
     'bad day': 'Chỉ đỡ được một ngày trong 7 ngày qua.',
     'too many dates': 'Hai bạn đã hẹn 3 buổi chưa diễn ra. Xong rồi hẹn tiếp nhé.',
     'bad time': 'Chọn giờ trong 7 ngày tới.',
+    'bad kind': 'Loại hẹn không đúng.',
     'outside window': 'Chưa đến giờ hẹn, hoặc đã quá giờ.',
     'no such gift': 'Không thấy món quà này.',
     'no such date': 'Không thấy buổi hẹn này.',
@@ -166,16 +167,20 @@ export function questLine(q: Quest): string {
 
 // ── Study dates ─────────────────────────────────────────────────────────
 
+export type DateKind = 'study' | 'speaking';
+
 export interface StudyDate {
     id: string;
     at: string;
+    /** Studying together, or a Speaking mock exam in Oratio's Giờ thi. */
+    kind?: DateKind;
     mine: boolean;
     with_id: string;
     with_name: string | null;
     my_in: string | null;
     their_in: string | null;
 }
-export const dateCreate = (buddy: string, at: Date) => rpc<{ id: string }>('date_create', { p_buddy: buddy, p_at: at.toISOString() });
+export const dateCreate = (buddy: string, at: Date, kind: DateKind = 'study') => rpc<{ id: string }>('date_create', { p_buddy: buddy, p_at: at.toISOString(), p_kind: kind });
 export const dateList = () => rpc<StudyDate[]>('date_list');
 export const dateCheckin = (id: string) => rpc<{ ok: boolean }>('date_checkin', { p_date: id });
 export const dateCancel = (id: string) => rpc<{ ok: boolean }>('date_cancel', { p_date: id });
@@ -195,10 +200,11 @@ export function dateStatus(d: Pick<StudyDate, 'at' | 'my_in' | 'their_in'>, now:
 }
 
 /** A calendar file (.ics) for the date, so the phone reminds both of them. */
-export function dateIcs(d: Pick<StudyDate, 'id' | 'at'>, withName: string): string {
+export function dateIcs(d: Pick<StudyDate, 'id' | 'at' | 'kind'>, withName: string): string {
+    const kind = d.kind ?? 'study';
     const stamp = (t: number) => new Date(t).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     const start = Date.parse(d.at);
-    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lexica//Buddy//VI', 'BEGIN:VEVENT', `UID:${d.id}@lexica`, `DTSTAMP:${stamp(Date.now())}`, `DTSTART:${stamp(start)}`, `DTEND:${stamp(start + 30 * MIN)}`, `SUMMARY:Học Lexica cùng ${withName.replace(/[,;\n]/g, ' ')}`, 'BEGIN:VALARM', 'TRIGGER:-PT10M', 'ACTION:DISPLAY', 'DESCRIPTION:Sắp đến giờ học chung', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lexica//Buddy//VI', 'BEGIN:VEVENT', `UID:${d.id}@lexica`, `DTSTAMP:${stamp(Date.now())}`, `DTSTART:${stamp(start)}`, `DTEND:${stamp(start + 30 * MIN)}`, `SUMMARY:${kind === 'speaking' ? 'Thi thử Speaking' : 'Học Lexica'} cùng ${withName.replace(/[,;\n]/g, ' ')}`, 'BEGIN:VALARM', 'TRIGGER:-PT10M', 'ACTION:DISPLAY', 'DESCRIPTION:Sắp đến giờ học chung', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
 }
 
 /** Evening choices for the next days, as start times (local): tonight if still ahead, and the 3 days after. */
@@ -256,4 +262,22 @@ export const MILESTONES = [50, 100, 250, 500, 1000, 2000, 5000, 10000];
 export function milestone(total: number): { passed: number | null; next: number | null } {
     const passed = [...MILESTONES].reverse().find((m) => total >= m) ?? null;
     return { passed, next: MILESTONES.find((m) => total < m) ?? null };
+}
+
+/**
+ * Slots for a Speaking mock exam, the hours Oratio's Giờ thi is open (20:30 to
+ * 22:00 every day, and 12:00 to 13:00 at the weekend), for the next 7 days.
+ */
+export function examSlots(now: Date): { label: string; at: Date }[] {
+    const out: { label: string; at: Date }[] = [];
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+        const weekend = day.getDay() === 0 || day.getDay() === 6;
+        for (const [h, m] of weekend ? [[12, 0], [20, 30]] : [[20, 30]]) {
+            const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m);
+            if (at.getTime() < now.getTime() + 30 * MIN) continue;
+            out.push({ label: `${i === 0 ? 'Hôm nay' : i === 1 ? 'Ngày mai' : `${at.getDate()}/${at.getMonth() + 1}`} ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`, at });
+        }
+    }
+    return out;
 }

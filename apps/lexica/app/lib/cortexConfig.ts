@@ -23,3 +23,6 @@ export const CORTEX_HUB_URL: string | null =
 
 /** The teacher app (apps/teach), on its own subdomain. */
 export const TEACH_URL: string | null = normalizeBaseUrl(process.env.NEXT_PUBLIC_TEACH_URL) ?? (isDev ? 'http://localhost:3010' : null);
+
+/** Oratio (speaking): the Giờ thi mock exam and the speaking ladder link there. */
+export const ORATIO_URL: string | null = normalizeBaseUrl(process.env.NEXT_PUBLIC_ORATIO_URL) ?? (isDev ? 'http://localhost:3002' : null);

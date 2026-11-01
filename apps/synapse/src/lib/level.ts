@@ -5,6 +5,7 @@
  *   use    no options at all: type the particle.
  * "auto" moves between them by how the last answers went. Pure, unit tested.
  */
+import { synapseModule, type AssignmentDone } from "@cortex/classroom-synapse";
 import type { SynapseChoice } from "./synapseTypes";
 
 export type Level = "learn" | "recall" | "use";
@@ -58,9 +59,13 @@ export interface Progress {
   cleared: string[];
   /** Endings seen ("sc-m1:gold"). */
   endings: string[];
+  /** Missions finished. */
+  runs: number;
+  /** How the class's assignments stand (by assignment id). */
+  homework: Record<string, AssignmentDone>;
 }
 
-export const emptyProgress = (): Progress => ({ setting: "auto", auto: "learn", recent: [], phrases: {}, seenScenes: [], cleared: [], endings: [] });
+export const emptyProgress = (): Progress => ({ setting: "auto", auto: "learn", recent: [], phrases: {}, seenScenes: [], cleared: [], endings: [], runs: 0, homework: {} });
 
 export const levelOf = (p: Progress): Level => (p.setting === "auto" ? p.auto : p.setting);
 
@@ -137,6 +142,8 @@ export function parseProgress(raw: string | null): Progress {
       seenScenes: Array.isArray(v.seenScenes) ? v.seenScenes.filter((x) => typeof x === "string").slice(-200) : [],
       cleared: Array.isArray(v.cleared) ? v.cleared.filter((x) => typeof x === "string") : [],
       endings: Array.isArray(v.endings) ? v.endings.filter((x) => typeof x === "string") : [],
+      runs: typeof v.runs === "number" && v.runs > 0 ? Math.min(1_000_000, Math.round(v.runs)) : 0,
+      homework: v.homework && typeof v.homework === "object" ? (synapseModule.parseMetrics({ progress: v.homework }).progress) : {},
     };
   } catch {
     return emptyProgress();

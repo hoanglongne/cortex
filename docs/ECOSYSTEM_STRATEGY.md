@@ -115,3 +115,11 @@ Cụ thể về mặt kỹ thuật:
 - Đội nhỏ mà tách thành hai sản phẩm sẽ dàn mỏng sức. Vì thế khuyến nghị tách thông điệp trước, tách sản phẩm sau.
 - Người dùng giao tiếp hiện có (nếu có) có thể cảm thấy bị bỏ rơi: thông báo rõ, giữ nội dung cũ chạy.
 - "Dừng giao tiếp" là quyết định không đảo ngược dễ: chỉ làm khi có số liệu ở giai đoạn 2.
+
+
+## Đã làm cho #62 (1/11/2026)
+
+- **`cortex_card_stats`** (`apps/lexica/supabase/migration_card_stats.sql`, trong `teach_all.sql`): mỗi đêm từ 03:00 giờ Việt Nam, API (`CardStatsScheduler`, bật bằng `CARD_STATS_CRON=on` cùng khoá service-role) tính cho từng thẻ số lượt và số lượt đúng trong Đấu trường, bài kiểm tra lớp và thách đấu, thời gian trả lời trung vị của Đấu trường, và số lần bị báo lỗi theo lý do. Chỉ con số gộp, không có dòng nào nói ai đã trả lời. Câu truyện Synapse không tính.
+- **Nút "Báo thẻ này có vấn đề"** trên mọi thẻ của Lexica (không chỉ thẻ Studio): bốn lý do (sai nghĩa, ví dụ lạ, giọng đọc sai, quá khó), mỗi người một lý do một lần cho mỗi thẻ.
+- **"Sức khoẻ nội dung" trong Studio** (`/health`): các thẻ có báo lỗi hoặc đúng dưới 50% (cần ít nhất 8 lượt), kèm từ và nghĩa. Chưa có nút "viết lại" và "tạm ẩn".
+- **Chưa có:** tỉ lệ đúng khi **ôn** từng thẻ. Lexica không gửi từng lượt ôn lên máy chủ (chỉ số tổng của lớp), nên chưa có số này. Muốn có phải gửi sự kiện ôn cho cả thẻ gốc, cần quyết định riêng về quyền riêng tư.

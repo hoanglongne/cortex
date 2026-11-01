@@ -11,7 +11,10 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@cortex/classroom": "workspace:*",
+    "@cortex/classroom-synapse": "workspace:*",
     "@cortex/types": "workspace:*",
+    "@supabase/supabase-js": "2.90.1",
     "lucide-react": "^1.7.0",
     "next": "16.2.4",
     "react": "19.2.4",

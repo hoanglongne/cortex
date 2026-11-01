@@ -138,3 +138,19 @@ Mỗi bước có tiêu chí xong. Đứng trước mọi thứ là bước 0, c
 3. **Câu neo:** dùng cách B (neo từ giáo viên của lớp) thay cho 60 câu nhờ giáo viên ngoài? Hay vẫn nhờ giáo viên quen chấm 60 câu để có chuẩn chung?
 4. **Bước 0:** bạn làm khi nào? Nó chặn mọi thứ phía sau.
 5. **Solilo gộp vào Oratio:** đồng ý không? (xem tài liệu Solilo và Synapse)
+
+
+## Đã làm (1/11/2026)
+
+**#90 (một phần)**
+- **Hẹn thi thử Speaking từ Lexica Buddy:** Buddy → Hộp thư → Giờ học chung → "Thi thử Speaking": chọn giờ đúng giờ Giờ thi (20:30 mỗi ngày, thêm 12:00 cuối tuần). Cả hai bấm "Vào thi" trong khung giờ thì mở Oratio. Thông báo đẩy nhắc nói rõ "thi thử Speaking". Cần `NEXT_PUBLIC_ORATIO_URL` trong Lexica.
+- **Thang nói:** thẻ "Thang nói" ở trang Luyện nói của Lexica: Nói từng từ, Tập một mình, Nói lại, Chấm chéo, Phòng thi, mỗi bước có liên kết.
+- **Chưa làm:** thi thử một mình có giọng giám khảo đọc câu hỏi, đồng hồ đúng format, ghi âm và chỉ số (cần giọng đọc dùng chung giữa Lexica và Oratio, và sửa màn Tập một mình).
+
+**#89 (một phần)**
+- **Tự chấm có lời dẫn:** sau mỗi lần nói trong Tập một mình, thẻ "Tự chấm 4 tiêu chí": thanh chọn band 1 đến 9, lời mô tả của band đang chọn ngay bên cạnh (dùng bộ mô tả band của Oratio). Lưu trên máy. `gap` và `gapLine` sẵn để so với điểm bạn luyện chấm, nhưng **chưa nối vào màn Bài của tôi**.
+- **Đề Part 2:** 12 đề của Solilo, 10 đã có đề tương đương trong Oratio; thêm 2 đề thiếu (tham vọng chưa đạt, nơi đẹp đã đến) vào `seed_part2_solilo.sql` (trong `oratio_2026_10.sql`).
+- **Chuyển hướng:** Solilo chuyển mọi địa chỉ sang Oratio khi đặt `NEXT_PUBLIC_ORATIO_URL` cho dự án Solilo trên Vercel; landing bỏ Solilo và `/apps/solilo` chuyển sang `/apps/oratio`. Mã Solilo vẫn nằm trong repo.
+- **Chưa làm:** đếm từ đệm thời gian thực (Solilo dùng nhận dạng giọng của trình duyệt, còn Oratio dùng Whisper chạy sau khi ghi, nên cần thiết kế lại); xem lại giao diện hai ngôn ngữ; xoá hẳn app Solilo.
+
+**#88: chưa làm.** Bài nói nộp vào lớp, quyền cho bạn cùng lớp nghe, chấm chéo trong lớp, câu neo của giáo viên cần gắn bảng câu trả lời (`answers`) với lớp (hiện không có `class_id`) và sửa các hàm chấm chéo của Oratio. Việc này chạm vào quyền riêng tư của học sinh dưới 18 tuổi nên cần thiết kế và thử cẩn thận trên hạ tầng Oratio thật.

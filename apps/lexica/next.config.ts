@@ -22,6 +22,8 @@ const withPWAConfig = withPWA({
   // neither belongs in the install-time precache.
   publicExcludes: ["!noprecache/**/*", "!pron/**/*"],
   buildExcludes: [/middleware-manifest\.json$/, /\.wasm$/, /ort\.wasm/],
+  // Push notifications: the handlers for "push" and "notificationclick" (docs/LEXICA_PUSH_SPEC.md)
+  importScripts: ["/push-sw.js"],
 });
 
 export default withPWAConfig(nextConfig as Parameters<typeof withPWAConfig>[0]);

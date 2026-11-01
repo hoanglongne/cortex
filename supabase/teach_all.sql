@@ -2231,6 +2231,10 @@ create table if not exists lexica_study_dates (
   canceled boolean not null default false,
   check (creator <> buddy)
 );
+-- What the date is for: studying together, or a Speaking mock exam in Oratio's Giờ thi (issue #90)
+alter table lexica_study_dates add column if not exists kind text not null default 'study';
+alter table lexica_study_dates drop constraint if exists lexica_study_dates_kind_check;
+alter table lexica_study_dates add constraint lexica_study_dates_kind_check check (kind in ('study', 'speaking'));
 create index if not exists lexica_study_dates_idx on lexica_study_dates (creator, at);
 create index if not exists lexica_study_dates_buddy_idx on lexica_study_dates (buddy, at);
 
@@ -2369,7 +2373,9 @@ $$;
 
 -- ── Study dates ─────────────────────────────────────────────────────────
 
-create or replace function public.date_create(p_buddy uuid, p_at timestamptz)
+-- The two-argument version is replaced by one with a kind (a second version would make the call ambiguous)
+drop function if exists public.date_create(uuid, timestamptz);
+create or replace function public.date_create(p_buddy uuid, p_at timestamptz, p_kind text default 'study')
 returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
   me uuid := auth.uid();
@@ -2380,7 +2386,8 @@ begin
   if p_at < now() or p_at > now() + interval '7 days' then raise exception 'bad time'; end if;
   if (select count(*) from lexica_study_dates d where not d.canceled and d.at > now() - interval '2 hours'
         and ((d.creator = me and d.buddy = p_buddy) or (d.creator = p_buddy and d.buddy = me))) >= 3 then raise exception 'too many dates'; end if;
-  insert into lexica_study_dates (creator, buddy, at) values (me, p_buddy, p_at) returning id into did;
+  if p_kind not in ('study', 'speaking') then raise exception 'bad kind'; end if;
+  insert into lexica_study_dates (creator, buddy, at, kind) values (me, p_buddy, p_at, p_kind) returning id into did;
   return jsonb_build_object('id', did);
 end;
 $$;
@@ -2388,7 +2395,7 @@ $$;
 create or replace function public.date_list()
 returns jsonb language sql stable security definer set search_path = public as $$
   select coalesce(jsonb_agg(jsonb_build_object(
-      'id', d.id, 'at', d.at, 'mine', d.creator = auth.uid(),
+      'id', d.id, 'at', d.at, 'kind', d.kind, 'mine', d.creator = auth.uid(),
       'with_id', case when d.creator = auth.uid() then d.buddy else d.creator end,
       'with_name', (select nickname from profiles p where p.id = case when d.creator = auth.uid() then d.buddy else d.creator end),
       'my_in', case when d.creator = auth.uid() then d.creator_in else d.buddy_in end,
@@ -2550,9 +2557,80 @@ begin
     'buddy_words_set(date, jsonb)', 'buddy_prefs_set(boolean)', 'buddy_words_feed(date)',
     'gift_send(uuid, text, text)', 'gift_inbox()', 'gift_open(uuid)', 'gift_report(uuid)',
     'shield_give(uuid, date)', 'shields_team(date)',
-    'date_create(uuid, timestamptz)', 'date_list()', 'date_checkin(uuid)', 'date_cancel(uuid)',
+    'date_create(uuid, timestamptz, text)', 'date_list()', 'date_checkin(uuid)', 'date_cancel(uuid)',
     'buddy_block(uuid)', 'ask_send(uuid, text)', 'ask_answer(uuid, text)', 'ask_report(uuid)', 'ask_inbox()', 'team_words()'
   ] loop
+    execute format('revoke all on function public.%s from public, anon', f);
+    execute format('grant execute on function public.%s to authenticated', f);
+  end loop;
+end $$;
+
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- apps/lexica/supabase/migration_push.sql
+-- ============================================================
+
+-- Web push for Lexica (docs/LEXICA_PUSH_SPEC.md, the first part). Safe to re-run.
+-- Runs after migration_buddy_social.sql (it adds a column to its tables).
+--
+-- A device that agreed to notifications saves its subscription here (through
+-- push_subscribe, as the signed-in player). The Cortex API reads them with the
+-- service role and sends: a study date about to start, a gift or a question
+-- from a buddy. The table has RLS on and no policies.
+
+create table if not exists lexica_push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  user_agent text,
+  created_at timestamptz not null default now(),
+  fail_count int not null default 0
+);
+create index if not exists lexica_push_subscriptions_user_idx on lexica_push_subscriptions (user_id);
+alter table lexica_push_subscriptions enable row level security;
+
+-- What the scheduler has already sent
+alter table lexica_study_dates add column if not exists notified_at timestamptz;
+alter table lexica_gifts add column if not exists pushed_at timestamptz;
+alter table lexica_asks add column if not exists pushed_at timestamptz;
+
+create or replace function public.push_subscribe(p_endpoint text, p_p256dh text, p_auth text, p_ua text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if p_endpoint is null or p_endpoint !~ '^https://' or char_length(p_endpoint) > 700 or coalesce(char_length(p_p256dh), 0) not between 10 and 200 or coalesce(char_length(p_auth), 0) not between 10 and 100 then
+    raise exception 'bad subscription';
+  end if;
+  -- the same browser signing in as someone else takes the subscription over
+  insert into lexica_push_subscriptions (user_id, endpoint, p256dh, auth, user_agent)
+  values (me, p_endpoint, p_p256dh, p_auth, left(coalesce(p_ua, ''), 200))
+  on conflict (endpoint) do update set user_id = excluded.user_id, p256dh = excluded.p256dh, auth = excluded.auth, fail_count = 0;
+  -- keep the 5 newest per person
+  delete from lexica_push_subscriptions where user_id = me and id not in (
+    select id from lexica_push_subscriptions where user_id = me order by created_at desc limit 5);
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+create or replace function public.push_unsubscribe(p_endpoint text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  delete from lexica_push_subscriptions where endpoint = p_endpoint and user_id = auth.uid();
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['push_subscribe(text, text, text, text)', 'push_unsubscribe(text)'] loop
     execute format('revoke all on function public.%s from public, anon', f);
     execute format('grant execute on function public.%s to authenticated', f);
   end loop;
@@ -2836,6 +2914,117 @@ begin
   foreach f in array array['cortex_test_teach(uuid)', 'cortex_test_student(uuid)'] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
   end loop;
+end $$;
+
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- apps/lexica/supabase/migration_card_stats.sql
+-- ============================================================
+
+-- Card statistics and "Báo thẻ này có vấn đề" (issue #62, docs/ECOSYSTEM_STRATEGY.md 2.2).
+-- Runs after classroom_arena.sql, classroom_tests.sql and migration_duels.sql
+-- (it reads their answers). Safe to re-run.
+--
+-- cortex_card_stats: one row per card, refreshed every night: how many answers
+-- the Đấu trường, the class tests and the duels got for it, how many were
+-- right, the median time of an Arena answer, and how many reports it has.
+-- Counts only, put together from many students: no row says who answered.
+-- Studio editors read it (the "sức khoẻ nội dung" page); nobody else does.
+
+create table if not exists cortex_card_reports (
+  id uuid primary key default gen_random_uuid(),
+  card_id text not null check (char_length(card_id) between 1 and 64),
+  reason text not null check (reason in ('wrong_meaning', 'odd_example', 'wrong_audio', 'too_hard')),
+  user_id uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+create index if not exists cortex_card_reports_card_idx on cortex_card_reports (card_id);
+-- One report of a kind per person per card
+create unique index if not exists cortex_card_reports_once_idx on cortex_card_reports (user_id, card_id, reason) where user_id is not null;
+alter table cortex_card_reports enable row level security;
+
+create table if not exists cortex_card_stats (
+  card_id text primary key,
+  quiz_answers int not null default 0,
+  quiz_correct int not null default 0,
+  quiz_median_ms int,
+  test_answers int not null default 0,
+  test_correct int not null default 0,
+  duel_answers int not null default 0,
+  duel_correct int not null default 0,
+  reports int not null default 0,
+  reasons jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table cortex_card_stats enable row level security;
+
+-- A player (signed in or not) reports a card. A report from the same person of
+-- the same kind counts once; a ceiling an hour keeps a script from filling the table.
+create or replace function public.card_report(p_card text, p_reason text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+begin
+  if p_card is null or char_length(p_card) not between 1 and 64 then raise exception 'bad card'; end if;
+  if p_reason not in ('wrong_meaning', 'odd_example', 'wrong_audio', 'too_hard') then raise exception 'bad reason'; end if;
+  if (select count(*) from cortex_card_reports where created_at > now() - interval '1 hour') >= 3000 then raise exception 'too many reports'; end if;
+  insert into cortex_card_reports (card_id, reason, user_id) values (p_card, p_reason, auth.uid()) on conflict do nothing;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- The nightly numbers. Run by the Cortex API with the service role.
+create or replace function public.cortex_card_stats_refresh()
+returns int language plpgsql volatile security definer set search_path = public as $$
+declare
+  n int;
+begin
+  with quiz as (
+    select q.card_id, count(*)::int as answers, (count(*) filter (where a.correct))::int as correct, (percentile_cont(0.5) within group (order by a.ms))::int as med
+    from cortex_arena_answers a join cortex_arena_questions q on q.room_id = a.room_id and q.idx = a.idx
+    where q.card_id is not null and q.kind <> 'story' group by q.card_id),
+  tst as (
+    select q.card_id, count(*)::int as answers, (count(*) filter (where a.choice = q.answer))::int as correct
+    from cortex_class_test_answers a join cortex_class_test_questions q on q.test_id = a.test_id and q.idx = a.idx
+    where q.card_id is not null group by q.card_id),
+  dl as (
+    select q.card_id, count(*)::int as answers, (count(*) filter (where a.correct))::int as correct
+    from lexica_duel_answers a join lexica_duel_questions q on q.duel_id = a.duel_id and q.idx = a.idx
+    where q.card_id is not null group by q.card_id),
+  rp as (
+    select card_id, sum(c)::int as n, jsonb_object_agg(reason, c) as reasons
+    from (select card_id, reason, count(*)::int as c from cortex_card_reports group by card_id, reason) x group by card_id),
+  ids as (select card_id from quiz union select card_id from tst union select card_id from dl union select card_id from rp)
+  insert into cortex_card_stats (card_id, quiz_answers, quiz_correct, quiz_median_ms, test_answers, test_correct, duel_answers, duel_correct, reports, reasons, updated_at)
+  select i.card_id, coalesce(quiz.answers, 0), coalesce(quiz.correct, 0), quiz.med, coalesce(tst.answers, 0), coalesce(tst.correct, 0),
+         coalesce(dl.answers, 0), coalesce(dl.correct, 0), coalesce(rp.n, 0), coalesce(rp.reasons, '{}'::jsonb), now()
+  from ids i left join quiz using (card_id) left join tst using (card_id) left join dl using (card_id) left join rp using (card_id)
+  on conflict (card_id) do update set quiz_answers = excluded.quiz_answers, quiz_correct = excluded.quiz_correct, quiz_median_ms = excluded.quiz_median_ms,
+    test_answers = excluded.test_answers, test_correct = excluded.test_correct, duel_answers = excluded.duel_answers, duel_correct = excluded.duel_correct,
+    reports = excluded.reports, reasons = excluded.reasons, updated_at = now();
+  get diagnostics n = row_count;
+  return n;
+end;
+$$;
+
+-- Studio editors read the numbers and the reports (when Studio's SQL is there).
+do $$
+begin
+  if to_regprocedure('public.is_studio_editor()') is not null then
+    drop policy if exists "studio editors read card stats" on cortex_card_stats;
+    create policy "studio editors read card stats" on cortex_card_stats for select using (public.is_studio_editor());
+    drop policy if exists "studio editors read card reports" on cortex_card_reports;
+    create policy "studio editors read card reports" on cortex_card_reports for select using (public.is_studio_editor());
+  end if;
+end $$;
+
+revoke all on function public.card_report(text, text) from public;
+grant execute on function public.card_report(text, text) to anon, authenticated;
+revoke all on function public.cortex_card_stats_refresh() from public, anon, authenticated;
+do $$ begin
+  if exists (select 1 from pg_roles where rolname = 'service_role') then
+    grant execute on function public.cortex_card_stats_refresh() to service_role;
+  end if;
 end $$;
 
 notify pgrst, 'reload schema';
@@ -3513,6 +3702,258 @@ begin
     'classroom_oratio_clean_metrics(uuid, jsonb)', 'classroom_oratio_rank(jsonb)'] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
   end loop;
+end $$;
+
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- packages/classroom-synapse/sql/classroom_synapse.sql
+-- ============================================================
+
+-- Classroom module: Synapse (docs/CLASSROOM.md, docs/SYNAPSE_PLAN.md S4). What a
+-- Synapse lesson is, what a Synapse student reports, how the class ranks them.
+-- Runs after packages/classroom/sql/classroom_core.sql. Safe to re-run.
+--
+-- Assignment kinds:
+--   mission  {lore_id: text, mission_id: text, name: text}   a written mission to clear
+--   review   {}                                               "Ôn bằng truyện"
+-- Metrics (per class): {runs, cleared, solid, weak: text[<=5], progress: {assignmentId: {done, best, tries}}}
+-- Settings: none. Numbers and phrase names only; nothing a student wrote.
+
+insert into cortex_apps (id, name) values ('synapse', 'Synapse') on conflict (id) do update set name = excluded.name;
+
+create or replace function public.classroom_synapse_clean_settings(p jsonb)
+returns jsonb language sql immutable as $$ select '{}'::jsonb; $$;
+
+create or replace function public.classroom_synapse_clean_payload(p_kind text, p jsonb)
+returns jsonb language plpgsql immutable as $$
+begin
+  if p_kind = 'review' then return '{}'::jsonb; end if;
+  if p_kind = 'mission' then
+    if coalesce(p->>'lore_id', '') !~ '^[a-z0-9-]{2,40}$' or coalesce(p->>'mission_id', '') !~ '^[a-z0-9-]{2,40}$' then raise exception 'bad payload'; end if;
+    return jsonb_build_object('lore_id', p->>'lore_id', 'mission_id', p->>'mission_id', 'name', left(trim(coalesce(p->>'name', '')), 80));
+  end if;
+  raise exception 'bad payload';
+end;
+$$;
+
+-- Numbers; progress only for this class's own Synapse assignments.
+create or replace function public.classroom_synapse_clean_metrics(p_class uuid, p jsonb)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare
+  progress jsonb;
+  weak jsonb;
+begin
+  select coalesce(jsonb_object_agg(k, jsonb_build_object(
+      'done', coalesce((v->>'done')::boolean, false),
+      'best', case when v->>'best' in ('gold', 'silver', 'bronze', 'fail') then v->>'best' end,
+      'tries', least(greatest(coalesce((v->>'tries')::int, 0), 0), 1000))), '{}') into progress
+  from jsonb_each(coalesce(p->'progress', '{}')) e(k, v)
+  where jsonb_typeof(v) = 'object'
+    and exists (select 1 from cortex_class_assignments a where a.class_id = p_class and a.app = 'synapse' and a.id::text = k);
+  select coalesce(jsonb_agg(left(x, 80)), '[]'::jsonb) into weak
+  from (select x from jsonb_array_elements_text(case when jsonb_typeof(p->'weak') = 'array' then p->'weak' else '[]'::jsonb end) with ordinality t(x, o) order by o limit 5) s;
+  return jsonb_build_object(
+    'runs', least(greatest(coalesce((p->>'runs')::int, 0), 0), 1000000),
+    'cleared', least(greatest(coalesce((p->>'cleared')::int, 0), 0), 1000),
+    'solid', least(greatest(coalesce((p->>'solid')::int, 0), 0), 5000),
+    'weak', weak,
+    'progress', progress);
+end;
+$$;
+
+-- Ranked by missions played: effort, never the ending.
+create or replace function public.classroom_synapse_rank(p jsonb)
+returns numeric language sql immutable as $$ select coalesce((p->>'runs')::numeric, 0); $$;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['classroom_synapse_clean_settings(jsonb)', 'classroom_synapse_clean_payload(text, jsonb)', 'classroom_synapse_clean_metrics(uuid, jsonb)', 'classroom_synapse_rank(jsonb)'] loop
+    execute format('revoke all on function public.%s from public, anon, authenticated', f);
+  end loop;
+end $$;
+
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- apps/cortex-core-api/supabase/migration_synapse_reports.sql
+-- ============================================================
+
+-- "Báo cảnh có vấn đề" in Synapse (docs/SYNAPSE_PLAN.md S3). Safe to re-run.
+-- A player flags an authored scene; a reviewer reads the rows in the dashboard.
+-- RLS on, no policies: the only way in is the function below (insert only).
+
+create table if not exists synapse_reports (
+  id uuid primary key default gen_random_uuid(),
+  mission_id text not null,
+  stage int not null check (stage between 0 and 9),
+  note text not null default '',
+  created_at timestamptz not null default now()
+);
+alter table synapse_reports enable row level security;
+
+create or replace function public.synapse_report(p_mission text, p_stage int, p_note text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+begin
+  if p_mission is null or length(p_mission) not between 1 and 40 then raise exception 'bad mission'; end if;
+  -- a ceiling on reports an hour, so a script cannot fill the table
+  if (select count(*) from synapse_reports where created_at > now() - interval '1 hour') >= 1000 then raise exception 'too many'; end if;
+  insert into synapse_reports (mission_id, stage, note) values (p_mission, greatest(0, least(9, coalesce(p_stage, 0))), left(coalesce(p_note, ''), 300));
+  return jsonb_build_object('ok', true);
+end;
+$$;
+revoke all on function public.synapse_report(text, int, text) from public;
+grant execute on function public.synapse_report(text, int, text) to anon, authenticated;
+notify pgrst, 'reload schema';
+
+
+-- ============================================================
+-- apps/cortex-core-api/supabase/migration_synapse_progress.sql
+-- ============================================================
+
+-- Synapse progress on the Cortex account (docs/SYNAPSE_PLAN.md S2). Safe to re-run.
+--
+-- The player signs in with their Cortex account (the same Supabase user as
+-- Lexica). Their phrases, the missions they cleared, the endings they saw and
+-- each finished run live here, so a phrase missed today can come back in the
+-- next play on any device. RLS is on with no policies: every read and write
+-- goes through the functions below and only touches the caller's own rows.
+
+create table if not exists synapse_profile (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  setting text not null default 'auto' check (setting in ('auto', 'learn', 'recall', 'use')),
+  auto_level text not null default 'learn' check (auto_level in ('learn', 'recall', 'use')),
+  recent jsonb not null default '[]'::jsonb,
+  seen_scenes jsonb not null default '[]'::jsonb,
+  cleared jsonb not null default '[]'::jsonb,
+  endings jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
+);
+-- Missions played and how the class's assignments stand (numbers only)
+alter table synapse_profile add column if not exists extra jsonb not null default '{}'::jsonb;
+
+create table if not exists synapse_phrase_state (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  phrase text not null check (char_length(phrase) between 1 and 80),
+  seen int not null default 0 check (seen >= 0),
+  "right" int not null default 0 check ("right" >= 0),
+  last jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, phrase)
+);
+
+create table if not exists synapse_runs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  mission_id text not null check (char_length(mission_id) between 1 and 40),
+  tier text not null check (tier in ('gold', 'silver', 'bronze', 'fail')),
+  score int not null default 0,
+  lives int not null default 0 check (lives between 0 and 3),
+  at timestamptz not null default now()
+);
+create index if not exists synapse_runs_user_idx on synapse_runs (user_id, at desc);
+
+alter table synapse_profile enable row level security;
+alter table synapse_phrase_state enable row level security;
+alter table synapse_runs enable row level security;
+
+-- A short list of short strings, or nothing: what the profile columns may hold.
+create or replace function public.synapse_clean_list(p jsonb, p_max int)
+returns jsonb language sql immutable as $$
+  select coalesce(jsonb_agg(left(x, 60)) filter (where x <> ''), '[]'::jsonb)
+  from (select x from jsonb_array_elements_text(case when jsonb_typeof(p) = 'array' then p else '[]'::jsonb end) with ordinality t(x, o) order by o limit p_max) s;
+$$;
+
+-- The same for a list of true/false (the latest answers).
+create or replace function public.synapse_clean_bools(p jsonb, p_max int)
+returns jsonb language sql immutable as $$
+  select coalesce(jsonb_agg(x::boolean), '[]'::jsonb)
+  from (select x from jsonb_array_elements_text(case when jsonb_typeof(p) = 'array' then p else '[]'::jsonb end) with ordinality t(x, o) where x in ('true', 'false') order by o limit p_max) s;
+$$;
+
+-- Everything of mine: the profile and the phrase records.
+create or replace function public.synapse_load()
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+declare
+  me uuid := auth.uid();
+  pr synapse_profile;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  select * into pr from synapse_profile where user_id = me;
+  return jsonb_build_object(
+    'profile', case when pr.user_id is null then null else jsonb_build_object(
+      'setting', pr.setting, 'auto', pr.auto_level, 'recent', pr.recent, 'seenScenes', pr.seen_scenes, 'cleared', pr.cleared, 'endings', pr.endings, 'extra', pr.extra) end,
+    'phrases', coalesce((select jsonb_object_agg(phrase, jsonb_build_object('seen', seen, 'right', "right", 'last', last)) from synapse_phrase_state where user_id = me), '{}'::jsonb)
+  );
+end;
+$$;
+
+-- Saves the profile and the phrase records the device holds (the device merged them with what it loaded first).
+create or replace function public.synapse_save(p_profile jsonb, p_phrases jsonb)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  me uuid := auth.uid();
+  k text;
+  v jsonb;
+  n int := 0;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if jsonb_typeof(p_profile) <> 'object' or jsonb_typeof(p_phrases) <> 'object' then raise exception 'bad progress'; end if;
+  insert into synapse_profile (user_id, setting, auto_level, recent, seen_scenes, cleared, endings, extra)
+  values (
+    me,
+    case when p_profile->>'setting' in ('auto', 'learn', 'recall', 'use') then p_profile->>'setting' else 'auto' end,
+    case when p_profile->>'auto' in ('learn', 'recall', 'use') then p_profile->>'auto' else 'learn' end,
+    synapse_clean_bools(p_profile->'recent', 10), synapse_clean_list(p_profile->'seenScenes', 200),
+    synapse_clean_list(p_profile->'cleared', 60), synapse_clean_list(p_profile->'endings', 400),
+    case when jsonb_typeof(p_profile->'extra') = 'object' and length(p_profile->>'extra') < 8000 then p_profile->'extra' else '{}'::jsonb end)
+  on conflict (user_id) do update set setting = excluded.setting, auto_level = excluded.auto_level, recent = excluded.recent,
+    seen_scenes = excluded.seen_scenes, cleared = excluded.cleared, endings = excluded.endings, extra = excluded.extra, updated_at = now();
+  for k, v in select * from jsonb_each(p_phrases) loop
+    n := n + 1;
+    if n > 600 then raise exception 'too many phrases'; end if;
+    if char_length(k) not between 1 and 80 or jsonb_typeof(v) <> 'object' then continue; end if;
+    insert into synapse_phrase_state (user_id, phrase, seen, "right", last)
+    values (me, k, greatest(0, least(coalesce((v->>'seen')::int, 0), 100000)), greatest(0, least(coalesce((v->>'right')::int, 0), 100000)),
+      synapse_clean_bools(v->'last', 3))
+    on conflict (user_id, phrase) do update set seen = excluded.seen, "right" = excluded."right", last = excluded.last, updated_at = now();
+  end loop;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- A finished run (mission cleared or out of lives). At most 300 a day: a ceiling, not a limit anyone meets.
+create or replace function public.synapse_run_add(p_mission text, p_tier text, p_score int, p_lives int)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  me uuid := auth.uid();
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if (select count(*) from synapse_runs where user_id = me and at > now() - interval '24 hours') >= 300 then raise exception 'too many runs'; end if;
+  insert into synapse_runs (user_id, mission_id, tier, score, lives)
+  values (me, left(coalesce(p_mission, ''), 40), p_tier, greatest(least(coalesce(p_score, 0), 100000), -100000), greatest(0, least(coalesce(p_lives, 0), 3)));
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- The phrases I have got right at least once, for Lexica to offer as review cards.
+create or replace function public.synapse_unlocked()
+returns jsonb language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(phrase order by updated_at desc), '[]'::jsonb) from synapse_phrase_state where user_id = auth.uid() and "right" > 0;
+$$;
+
+do $$
+declare f text;
+begin
+  foreach f in array array['synapse_load()', 'synapse_save(jsonb, jsonb)', 'synapse_run_add(text, text, int, int)', 'synapse_unlocked()'] loop
+    execute format('revoke all on function public.%s from public, anon', f);
+    execute format('grant execute on function public.%s to authenticated', f);
+  end loop;
+  revoke all on function public.synapse_clean_list(jsonb, int) from public, anon, authenticated;
+  revoke all on function public.synapse_clean_bools(jsonb, int) from public, anon, authenticated;
 end $$;
 
 notify pgrst, 'reload schema';

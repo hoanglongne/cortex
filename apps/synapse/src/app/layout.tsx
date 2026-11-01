@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "../context/ThemeContext";
+import { AuthProvider } from "../context/AuthContext";
 import "./globals.css";
 
 const sansFont = Inter({
@@ -31,7 +32,9 @@ export default function RootLayout({
       className={`${sansFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#0a0a0a]">
-        <ThemeProvider>{children}</ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
