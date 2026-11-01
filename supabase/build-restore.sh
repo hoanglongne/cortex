@@ -47,6 +47,7 @@ FILES=(
   apps/lexica/supabase/migration_duels.sql
   apps/lexica/supabase/migration_buddy_cheers.sql
   apps/lexica/supabase/migration_buddy_social.sql
+  apps/lexica/supabase/migration_push.sql
   packages/classroom/sql/classroom_tests.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
   apps/lexica/supabase/migration_placement.sql
@@ -87,6 +88,7 @@ TEACH=(
   apps/lexica/supabase/migration_duels.sql
   apps/lexica/supabase/migration_buddy_cheers.sql
   apps/lexica/supabase/migration_buddy_social.sql
+  apps/lexica/supabase/migration_push.sql
   packages/classroom/sql/classroom_tests.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
   apps/lexica/supabase/migration_placement.sql

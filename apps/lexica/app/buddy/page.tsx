@@ -31,7 +31,7 @@ import { CheerButtons, CheersBanner } from './TeamCard';
 import { cheersToday, type CheerKind, type CheersToday } from '../lib/cheers';
 import { askInbox, buddyBlock, dateList, dateStatus, giftInbox, questWeek, shiftDate, shieldsTeam, weekDates, weekStart, type Quest, type Shield } from '../lib/buddySocial';
 import { capture } from '../lib/productAnalytics';
-import { AsksCard, DatesCard, GiftsCard, GivePanel, QuestCard, TodayWordsCard } from './Social';
+import { AsksCard, DatesCard, GiftsCard, GivePanel, PushCard, QuestCard, TodayWordsCard } from './Social';
 
 type Week = Record<string, Record<string, DailyActivity>>;
 
@@ -244,6 +244,7 @@ function Buddy() {
                 {tab === 'inbox' && (
                     <div className="space-y-4">
                         <CheersBanner cheers={cheers} />
+                        <PushCard />
                         {buddies.length > 0 && <DuelsSection reloadKey={buddies.length + social} startError={duel.error} />}
                         {buddies.length > 0 && <GiftsCard reloadKey={buddies.length + social} />}
                         {buddies.length > 0 && <AsksCard reloadKey={buddies.length + social} />}

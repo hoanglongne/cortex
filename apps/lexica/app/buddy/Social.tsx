@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CalendarClock, Eye, EyeOff, Gift, Loader2, MessageCircleQuestion, Shield, Swords, Plus } from 'lucide-react';
+import { Bell, BellOff, CalendarClock, Eye, EyeOff, Gift, Loader2, MessageCircleQuestion, Shield, Swords, Plus } from 'lucide-react';
 import { getCard, getDeckCards } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
 import { capture } from '../lib/productAnalytics';
@@ -43,6 +43,7 @@ import {
     type WordsFeed,
 } from '../lib/buddySocial';
 import { useKnownWords } from './DuelsSection';
+import { disablePush, enablePush, pushEnabled, pushSupport } from '../lib/push';
 
 const wordOf = (id: string) => getCard(id)?.word ?? null;
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e));
@@ -518,6 +519,53 @@ export function AsksCard({ reloadKey }: { reloadKey: number }) {
             </ul>
             {box.waiting > 0 && <p className="text-xs text-muted">Đang chờ {box.waiting} câu trả lời từ bạn bè.</p>}
             {msg && <p className="mt-1 text-xs text-accent">{msg}</p>}
+        </section>
+    );
+}
+
+/** "Nhắc mình": notifications for a study date, a gift or a question. Hidden when the server has no keys. */
+export function PushCard() {
+    const [support] = useState(() => pushSupport());
+    const [on, setOn] = useState<boolean | null>(null);
+    const [msg, setMsg] = useState('');
+    useEffect(() => {
+        let live = true;
+        pushEnabled().then((v) => live && setOn(v));
+        return () => {
+            live = false;
+        };
+    }, []);
+    if (support === 'unsupported' || on === null) return null;
+    if (support === 'ios-install') {
+        return <p className="rounded-2xl border border-line bg-surface p-4 text-xs text-muted">Muốn nhận nhắc trên iPhone: bấm Chia sẻ, chọn “Thêm vào Màn hình chính”, rồi mở Lexica từ biểu tượng đó (iOS 16.4 trở lên).</p>;
+    }
+    return (
+        <section className="rounded-2xl border border-line bg-surface p-4 flex items-center justify-between gap-3">
+            <p className="min-w-0 text-sm text-ink-2">
+                <span className="flex items-center gap-1.5 font-semibold text-ink">
+                    {on ? <Bell className="w-4 h-4 text-accent" /> : <BellOff className="w-4 h-4 text-muted" />} {on ? 'Đang bật nhắc' : 'Nhắc mình'}
+                </span>
+                <span className="block text-xs text-muted">{on ? 'Có quà, câu hỏi từ bạn, hay sắp đến giờ học chung là máy báo.' : 'Báo khi bạn tặng từ, nhờ đặt câu, hoặc sắp đến giờ học chung. Tối đa vài lần mỗi ngày, im lặng từ 22 giờ đến 8 giờ.'}</span>
+                {msg && <span className="mt-1 block text-xs text-warning">{msg}</span>}
+            </p>
+            <button
+                onClick={async () => {
+                    setMsg('');
+                    if (on) {
+                        await disablePush();
+                        setOn(false);
+                        return;
+                    }
+                    const r = await enablePush();
+                    if (r === 'ok') {
+                        capture('push_enabled', {});
+                        setOn(true);
+                    } else setMsg(r === 'denied' ? 'Bạn đã từ chối. Bật lại trong cài đặt thông báo của trình duyệt.' : 'Chưa bật được, thử lại sau.');
+                }}
+                className={`shrink-0 h-9 rounded-lg px-3 text-sm font-semibold ${on ? 'border border-line text-ink-2' : 'bg-accent text-on-accent'}`}
+            >
+                {on ? 'Tắt' : 'Bật nhắc'}
+            </button>
         </section>
     );
 }

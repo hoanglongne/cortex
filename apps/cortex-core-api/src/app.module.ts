@@ -13,6 +13,7 @@ import { HealthModule } from './modules/health/health.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { StudioModule } from './modules/studio/studio.module';
+import { PushModule } from './modules/push/push.module';
 import { LexicaModule } from './modules/lexica/lexica.module';
 
 @Module({
@@ -31,6 +32,7 @@ import { LexicaModule } from './modules/lexica/lexica.module';
     HealthModule,
     SyncModule,
     StudioModule,
+    PushModule,
     LexicaModule,
   ],
   controllers: [AppController],
