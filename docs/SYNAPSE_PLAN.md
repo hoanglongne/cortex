@@ -192,7 +192,6 @@ Mục này thay các câu hỏi gốc dưới đây (giữ để tham khảo).
 **Chưa làm (cần quyết định hoặc phần lớn hơn):**
 - **Mùa đầu tiên** (một thế giới mới, chuỗi nhiệm vụ nối nhau, phần thưởng nhận diện), **đo tỉ lệ quay lại sau 7 ngày**: cần có người dùng thật và nội dung mới.
 - `contrastSetId`, `nextOnWrong` trong khung cảnh; quy trình dựng qua Studio.
-- Đăng nhập tuỳ chọn, bảng `synapse_phrase_state` và `synapse_runs` (tiến độ còn nằm trên máy), đẩy cụm sang Lexica.
 - Dựng thêm nhiệm vụ: 5 trên mục tiêu 30. Hai thế giới kịch tính (mạng ngầm, hoang mạc) và hai thế giới thương trường vẫn dùng AI.
 - Khung cảnh chuẩn thêm `level` (CEFR), `contrastSetId`, `nextOnWrong`; quy trình dựng qua Studio.
 - Chơi ngoại tuyến thật sự: cảnh nằm trong API, chưa đóng gói vào ứng dụng.
