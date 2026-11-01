@@ -144,6 +144,8 @@ export interface StoryMission {
     missionId: string;
     name: string;
     scenes: number;
+    /** CEFR level of the language, when set. */
+    level?: string;
 }
 
 /**

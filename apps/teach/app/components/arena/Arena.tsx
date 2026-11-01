@@ -126,7 +126,7 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                                     <select value={storyKey} onChange={(e) => setStoryKey(e.target.value)} aria-label="Truyện" className="h-11 w-full max-w-md rounded-[10px] border border-line-strong bg-surface px-3 text-ink">
                                         {stories.map((m) => (
                                             <option key={`${m.loreId}/${m.missionId}`} value={`${m.loreId}/${m.missionId}`}>
-                                                {m.name} ({m.scenes} cảnh)
+                                                {m.name} ({m.scenes} cảnh{m.level ? `, ${m.level}` : ''})
                                             </option>
                                         ))}
                                     </select>

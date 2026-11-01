@@ -97,6 +97,7 @@ export function authoredMissions(): {
   missionId: string;
   name: string;
   scenes: number;
+  level?: string;
 }[] {
   return Object.values(WORLD_BIBLES).flatMap((lore) =>
     lore.missions
@@ -105,6 +106,7 @@ export function authoredMissions(): {
         loreId: lore.id,
         missionId: m.id,
         name: m.name,
+        level: m.level,
         scenes: m.scenarios!.length,
       })),
   );

@@ -25,6 +25,8 @@ export interface ScenarioBlueprint {
 export interface Mission {
   id: string;
   name: string;
+  /** CEFR level of the language in the scenes (written missions). */
+  level?: 'A2' | 'B1' | 'B2';
   briefing: string;
   objective: string;
   keyCharacters?: string; // who's in the room and their hidden motives

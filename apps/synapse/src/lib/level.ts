@@ -56,9 +56,11 @@ export interface Progress {
   seenScenes: string[];
   /** Missions cleared. */
   cleared: string[];
+  /** Endings seen ("sc-m1:gold"). */
+  endings: string[];
 }
 
-export const emptyProgress = (): Progress => ({ setting: "auto", auto: "learn", recent: [], phrases: {}, seenScenes: [], cleared: [] });
+export const emptyProgress = (): Progress => ({ setting: "auto", auto: "learn", recent: [], phrases: {}, seenScenes: [], cleared: [], endings: [] });
 
 export const levelOf = (p: Progress): Level => (p.setting === "auto" ? p.auto : p.setting);
 
@@ -134,6 +136,7 @@ export function parseProgress(raw: string | null): Progress {
       phrases: v.phrases && typeof v.phrases === "object" ? (v.phrases as Record<string, PhraseRecord>) : {},
       seenScenes: Array.isArray(v.seenScenes) ? v.seenScenes.filter((x) => typeof x === "string").slice(-200) : [],
       cleared: Array.isArray(v.cleared) ? v.cleared.filter((x) => typeof x === "string") : [],
+      endings: Array.isArray(v.endings) ? v.endings.filter((x) => typeof x === "string") : [],
     };
   } catch {
     return emptyProgress();

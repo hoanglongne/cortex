@@ -60,6 +60,14 @@ describe('static arcs (no AI)', () => {
     }
   });
 
+  it('the school missions say which CEFR level they are written at', () => {
+    const school = authoredMissions().filter((m) => m.loreId === 'school-01');
+    expect(school.length).toBeGreaterThanOrEqual(6);
+    expect(
+      school.every((m) => ['A2', 'B1', 'B2'].includes(m.level ?? '')),
+    ).toBe(true);
+  });
+
   it('a mission without authored scenes is left to the AI path', () => {
     expect(buildStaticArc(WORLD_BIBLES['cyberpunk-01'], 'cp-m1')).toBeNull();
   });

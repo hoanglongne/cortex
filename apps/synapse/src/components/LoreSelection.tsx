@@ -10,7 +10,8 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import type { WorldLore, ThemeUI, ThemeColors } from "../lib/themes";
 import { TerminalBoard } from "./TerminalBoard";
-import { AgentProfile } from "./LearningPanel";
+import { AgentProfile, WeeklyChapter } from "./LearningPanel";
+import { chapterOfWeek } from "../lib/endings";
 import { parseProgress, PROGRESS_KEY, type Progress } from "../lib/level";
 
 // ─── Icon Maps ────────────────────────────────────────────────────────────────
@@ -67,7 +68,26 @@ export default function LoreSelection({ onBack }: { onBack?: () => void }) {
       setProgress(parseProgress(null));
     }
   }, [showGame, reviewing]);
-  const profile = progress ? <AgentProfile progress={progress} onReview={() => setReviewing(true)} /> : null;
+  const school = lores.find((l) => l.id === "school-01");
+  const chapterId = progress && school ? chapterOfWeek(new Date(), school.missions.map((m) => m.id), progress.cleared) : null;
+  const chapter = school?.missions.find((m) => m.id === chapterId);
+  const profile = progress ? (
+    <>
+      {chapter && school && (
+        <WeeklyChapter
+          name={chapter.name}
+          done={progress.cleared.includes(chapter.id)}
+          progress={progress}
+          onPlay={() => {
+            setSelectedLoreId(school.id);
+            setSelectedMissionId(chapter.id);
+            setShowGame(true);
+          }}
+        />
+      )}
+      <AgentProfile progress={progress} onReview={() => setReviewing(true)} />
+    </>
+  ) : null;
 
   const selectedLore = lores.find((l) => l.id === selectedLoreId);
   const selectedMission = selectedLore?.missions.find((m) => m.id === selectedMissionId);
