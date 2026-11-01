@@ -37,6 +37,9 @@
   <label>Chạy bằng
     <select id="device"><option value="wasm">WASM (CPU, bản q8 nhỏ)</option><option value="webgpu">WebGPU (bản fp32 lớn)</option></select>
   </label>
+  <label>Độ chính xác
+    <select id="dtype"><option value="">Mặc định (q8 cho WASM, fp32 cho WebGPU)</option><option value="q8">q8 (nhỏ nhất ổn định)</option><option value="q4">q4 (nhỏ, nhanh hơn?)</option><option value="q4f16">q4f16</option><option value="fp16">fp16 (WebGPU)</option><option value="fp32">fp32 (lớn)</option></select>
+  </label>
   <label>Giọng Kokoro
     <select id="voice"><option value="af_heart">af_heart (Mỹ, nữ)</option><option value="am_michael">am_michael (Mỹ, nam)</option><option value="bf_emma">bf_emma (Anh, nữ)</option><option value="bm_george">bm_george (Anh, nam)</option></select>
   </label>
@@ -67,8 +70,8 @@ const SENTENCES = [
 ];
 const $ = (id) => document.getElementById(id);
 const log = (m) => { $('log').textContent += m + '\n'; };
-const results = { startedAt: new Date().toISOString(), ua: navigator.userAgent, cores: navigator.hardwareConcurrency, deviceMemoryGB: navigator.deviceMemory ?? null, webgpu: Boolean(navigator.gpu), rows: [] };
-$('env').textContent = `Máy: ${navigator.hardwareConcurrency ?? '?'} nhân, RAM khoảng ${navigator.deviceMemory ?? '?'} GB, WebGPU: ${navigator.gpu ? 'có' : 'không'}`;
+const results = { startedAt: new Date().toISOString(), ua: navigator.userAgent, cores: navigator.hardwareConcurrency, deviceMemoryGB: navigator.deviceMemory ?? null, webgpu: Boolean(navigator.gpu), isolated: self.crossOriginIsolated === true, rows: [] };
+$('env').textContent = `Máy: ${navigator.hardwareConcurrency ?? '?'} nhân, RAM khoảng ${navigator.deviceMemory ?? '?'} GB, WebGPU: ${navigator.gpu ? 'có' : 'không'}, đa luồng WASM: ${self.crossOriginIsolated ? 'bật' : 'tắt'}`;
 if (!navigator.gpu) $('device').querySelector('[value=webgpu]').disabled = true;
 
 function wav(float32, rate) {
@@ -89,7 +92,7 @@ self.onmessage = async (e) => {
     if (m.type === 'load') {
       if (m.engine === 'kokoro') {
         const { KokoroTTS } = await import('https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/+esm');
-        const dtype = m.device === 'webgpu' ? 'fp32' : 'q8';
+        const dtype = m.dtype || (m.device === 'webgpu' ? 'fp32' : 'q8');
         const tts = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
           dtype, device: m.device,
           progress_callback: (p) => self.postMessage({ type: 'progress', file: p.file, progress: p.progress, status: p.status }),
@@ -126,7 +129,7 @@ function startWorker() {
   worker.onerror = (e) => { const err = new Error(e.message || 'worker error'); onLoaded?.reject(err); pending.forEach((p) => p.reject(err)); };
 }
 const ask = (msg) => new Promise((resolve, reject) => { const id = nextId++; pending.set(id, { resolve, reject }); worker.postMessage({ ...msg, id }); });
-const load = (engine, device) => new Promise((resolve, reject) => { onLoaded = { resolve, reject }; worker.postMessage({ type: 'load', engine, device }); });
+const load = (engine, device) => new Promise((resolve, reject) => { onLoaded = { resolve, reject }; worker.postMessage({ type: 'load', engine, device, dtype: $('dtype').value }); });
 async function generate(text) {
   const m = await ask({ type: 'gen', text, voice: $('voice').value });
   if (m.wav) { const ctx = new AudioContext(); const d = await ctx.decodeAudioData(m.wav.slice(0)); return { samples: d.getChannelData(0), rate: d.sampleRate, ms: m.ms }; }

@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   turbopack: {}, // Allow webpack config from next-pwa
   transpilePackages: ['@cortex/classroom', '@cortex/classroom-lexica', '@cortex/brand'],
   // The old link challenges (/challenge/<id>) are gone; their links land on the games
+  // The speed lab needs cross-origin isolation (multi-threaded WASM); nothing else in the app does
+  async headers() {
+    return [{ source: '/tts-lab.html', headers: [{ key: 'Cross-Origin-Opener-Policy', value: 'same-origin' }, { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' }] }];
+  },
   async redirects() {
     return [{ source: '/challenge/:id', destination: '/play', permanent: false }];
   },
