@@ -29,9 +29,9 @@ export default function DeviceVoiceCard() {
             : state === 'loading'
               ? `Đang tải giọng${progress ? ` ${Math.round(progress)}%` : ''}…`
               : state === 'testing'
-                ? 'Đang thử tốc độ trên máy bạn…'
+                ? 'Đang thử tốc độ trên máy bạn (tối đa khoảng 80 giây, có thể huỷ)…'
                 : state === 'unfit'
-                  ? `Máy này chưa đủ nhanh (cần tạo nhanh hơn thời gian nghe, máy bạn ${rtf?.toFixed(1)} lần). Lexica vẫn dùng giọng tạo sẵn và giọng máy chủ.`
+                  ? `Máy này chưa đủ nhanh (${rtf === null ? 'quá chậm, không tạo nổi một câu ngắn trong 40 giây' : `cần tạo nhanh hơn thời gian nghe, máy bạn ${rtf.toFixed(1)} lần`}). Lexica vẫn dùng giọng tạo sẵn và giọng máy chủ.`
                   : state === 'error'
                     ? 'Chưa bật được, thử lại sau.'
                     : !config
@@ -66,18 +66,17 @@ export default function DeviceVoiceCard() {
             </p>
             {config && state !== 'unavailable' && (
                 <button
-                    disabled={busy}
                     onClick={async () => {
-                        if (state === 'ready') {
+                        if (state === 'ready' || busy) {
                             disableDeviceVoice();
                             return;
                         }
                         const r = await enableDeviceVoice();
                         capture('device_voice', { result: r, device: config.device });
                     }}
-                    className={`shrink-0 h-9 rounded-lg px-3 text-sm font-semibold disabled:opacity-50 ${state === 'ready' ? 'border border-line text-ink-2' : 'bg-accent text-on-accent'}`}
+                    className={`shrink-0 h-9 rounded-lg px-3 text-sm font-semibold ${state === 'ready' || busy ? 'border border-line text-ink-2' : 'bg-accent text-on-accent'}`}
                 >
-                    {state === 'ready' ? 'Tắt' : busy ? 'Đang xử lý' : 'Bật'}
+                    {state === 'ready' ? 'Tắt' : busy ? 'Huỷ' : 'Bật'}
                 </button>
             )}
         </section>

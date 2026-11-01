@@ -39,6 +39,26 @@ export function chooseConfig(env: { webgpu: boolean; isolated: boolean; cores: n
     return null;
 }
 
+/** Rejects when `p` takes longer than `ms` (a worker the system killed never answers). */
+export function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const t = setTimeout(() => reject(new Error('timeout')), ms);
+        p.then(
+            (v) => {
+                clearTimeout(t);
+                resolve(v);
+            },
+            (e) => {
+                clearTimeout(t);
+                reject(e);
+            },
+        );
+    });
+}
+
+/** Longest the warm-up and the speed test may each take before the device counts as too slow. */
+export const TEST_TIMEOUT_MS = 40_000;
+
 /** Time per second of speech: under FIT_RTF the device keeps up. */
 export const rtfOf = (ms: number, seconds: number) => (seconds > 0 ? ms / 1000 / seconds : Infinity);
 export const isFit = (rtf: number) => rtf <= FIT_RTF;
@@ -200,11 +220,16 @@ export async function enableDeviceVoice(): Promise<DeviceVoiceState> {
             w.postMessage({ type: 'load', device: config.device, dtype: config.dtype });
         });
         set('testing');
-        await generate('Hello.', KOKORO_VOICE.Kore, 1); // warm-up, not counted
-        const sentence = 'This is a quick test of the voice on your device.';
-        const r = await generate(sentence, KOKORO_VOICE.Kore, 1);
-        lastRtf = rtfOf(r.ms, r.samples.length / r.rate);
-        if (!isFit(lastRtf)) {
+        // A device that cannot even say "Hello." in time (or whose worker the system killed) is too slow
+        try {
+            await withTimeout(generate('Hello.', KOKORO_VOICE.Kore, 1), TEST_TIMEOUT_MS); // warm-up, not counted
+            const r = await withTimeout(generate('This is a quick test of the voice on your device.', KOKORO_VOICE.Kore, 1), TEST_TIMEOUT_MS);
+            lastRtf = rtfOf(r.ms, r.samples.length / r.rate);
+        } catch (e) {
+            if (!(e instanceof Error) || e.message !== 'timeout') throw e;
+            lastRtf = null;
+        }
+        if (lastRtf === null || !isFit(lastRtf)) {
             worker?.terminate();
             worker = null;
             writePref('unfit');
@@ -221,7 +246,12 @@ export async function enableDeviceVoice(): Promise<DeviceVoiceState> {
     return state;
 }
 
+/** Stops loading or testing (or turns the voice off). */
 export function disableDeviceVoice(): void {
+    pending.forEach((p) => p.reject(new Error('cancelled')));
+    pending.clear();
+    loading?.reject(new Error('cancelled'));
+    loading = null;
     worker?.terminate();
     worker = null;
     cache.clear();

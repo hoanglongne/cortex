@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { chooseConfig, FIT_RTF, isFit, KOKORO_VOICE, Lru, rtfOf, wavBlob } from '../../app/lib/audio/deviceVoice';
+import { describe, expect, it, vi } from 'vitest';
+import { withTimeout, chooseConfig, FIT_RTF, isFit, KOKORO_VOICE, Lru, rtfOf, wavBlob } from '../../app/lib/audio/deviceVoice';
 
 describe('on-device voice', () => {
     it('offers WebGPU first, else WASM q4 (the speed test judges it), and nothing on a very small device', () => {
@@ -43,5 +43,16 @@ describe('on-device voice', () => {
         expect(c.size).toBe(2);
         c.clear();
         expect(c.size).toBe(0);
+    });
+
+    it('a promise that never answers is cut off, one that does passes through', async () => {
+        vi.useFakeTimers();
+        const stuck = withTimeout(new Promise<number>(() => undefined), 1000);
+        const caught = stuck.catch((e: Error) => e.message);
+        await vi.advanceTimersByTimeAsync(1001);
+        expect(await caught).toBe('timeout');
+        vi.useRealTimers();
+        await expect(withTimeout(Promise.resolve(7), 1000)).resolves.toBe(7);
+        await expect(withTimeout(Promise.reject(new Error('x')), 1000)).rejects.toThrow('x');
     });
 });
