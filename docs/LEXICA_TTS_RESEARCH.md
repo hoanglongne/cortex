@@ -60,3 +60,33 @@
 - https://github.com/k2-fsa/sherpa-onnx
 - https://dev.to/soasme/running-kittentts-in-the-browser-a-deep-dive-into-wasm-and-onnx-18hk
 - https://huggingface.co/Supertone/supertonic/blob/main/README.md
+
+## Nghiên cứu tiếp, 1/11/2026 (issue #114)
+
+**Giới hạn của lần này:** máy tôi chạy không tải được mô hình (Hugging Face bị chặn), nên **chưa có số đo tốc độ và chất lượng thật**. Phần dưới là sự kiện đã kiểm chứng (giấy phép, kích thước, phiên bản) và một **công cụ đo** để bạn chạy trên máy của bạn.
+
+### Đã kiểm chứng
+| Thứ | Kết quả |
+|---|---|
+| `kokoro-js` 1.2.1 | Apache-2.0, phụ thuộc `@huggingface/transformers` và `phonemizer`; bản q8 khoảng 86 MB (WASM), WebGPU dùng fp32 lớn hơn nhiều |
+| `phonemizer` 1.2.1 (chuyển chữ thành âm cho Kokoro) | Mô tả của gói: "eSpeak NG" biên dịch sang WASM; trường giấy phép của gói ghi Apache-2.0, **nhưng eSpeak NG gốc là GPL-3.0**. Cần người có chuyên môn pháp lý xem: phát hành eSpeak NG cho người dùng tải về có thể kéo theo nghĩa vụ GPL cho riêng thành phần đó (kèm thông báo và mã nguồn). Tôi không phải luật sư |
+| `@mintplex-labs/piper-tts-web` 1.0.5 | MIT; các giọng Piper phát hành MIT theo nhà phát triển, **nhưng từng giọng có tập dữ liệu riêng, phải đọc thẻ giọng trước khi dùng thương mại**; cũng phụ thuộc bộ chuyển chữ thành âm kiểu eSpeak |
+| `@diffusionstudio/vits-web` 1.0.3 | MIT, bản Piper cho trình duyệt, cũ (2024) |
+| `sherpa-onnx` 2.0.1 | Apache-2.0, có bản WASM; kèm dữ liệu eSpeak NG (GPL) cho các mô hình dùng nó |
+| KittenTTS nano 15M | Apache-2.0 theo README; 25 MB (int8) hoặc 56 MB tuỳ nguồn; **bản xem trước cho nhà phát triển**, có báo lỗi ở bản int8, chưa thấy bản trình duyệt |
+| WebGPU trên iPhone | Có từ Safari 26 (9/2025); có báo cáo thiết bị bị mất ở một số ca. **Không nên dựa vào WebGPU trên iPhone**, coi WASM là đường chính |
+
+### Đề xuất (chưa đo, sẽ chốt sau khi có số)
+1. **Giữ cách đang làm cho nội dung cố định:** giọng tạo sẵn bằng Kokoro phía máy chủ (không dính GPL ở máy người dùng, nghe đã kiểm).
+2. **Chỉ thêm giọng trên máy cho câu chưa có sẵn** (câu giám khảo đề mới, câu người học tự viết, bài đọc mới): Kokoro q8 trên WASM, **tuỳ chọn, tải khi người dùng bật** ("Giọng tự nhiên, tải khoảng 90 MB"), chạy trong Web Worker, lưu trong Cache Storage, lưu lại kết quả từng câu để không tạo lại.
+3. **Thứ tự phát giọng:** file có sẵn → bộ nhớ đệm giọng → **giọng trên máy (nếu đã bật và đủ nhanh)** → API Gemini → giọng hệ thống.
+4. **Chọn Kokoro trước Piper** vì cùng giọng với bộ nhớ đệm hiện có và chất lượng cao hơn; Piper là phương án nhẹ hơn cho máy yếu nếu có giọng đủ tốt và giấy phép sạch.
+
+### Tiêu chí quyết định (đo bằng công cụ bên dưới)
+- Trung vị RTF (thời gian tạo / độ dài âm thanh) **dưới 0,6 trên điện thoại tầm trung** thì bật mặc định cho người dùng chọn; từ 0,6 đến 1,5 chỉ dùng khi tạo trước ở nền; trên 1,5 thì bỏ cho máy đó.
+- Tải lần đầu: dưới 120 MB và chỉ khi người dùng bật.
+- Nghe 8 câu mẫu: ít nhất 4 trên 5 người thấy tự nhiên hơn giọng hệ thống và không kém Gemini rõ rệt.
+- Giấy phép: luật sư hoặc người có chuyên môn đã đọc phần eSpeak NG.
+
+### Công cụ đo: `/tts-lab.html` (trong Lexica)
+Mở `https://<tên-miền-lexica>/tts-lab.html` trên điện thoại và máy tính, chọn Kokoro (WASM, rồi WebGPU nếu có), bấm "Tải mô hình và chạy 8 câu". Trang đo thời gian tải, khởi động, thời gian tạo từng câu, độ dài, RTF, bộ nhớ (Chrome), cho nghe từng câu và có nút "Nghe giọng hệ thống để so". Bấm "Chép kết quả" rồi dán cho tôi, kèm điểm tự nhiên 1 đến 5 bạn nghe được. Lưu ý: trang tải mô hình từ Hugging Face và thư viện từ jsDelivr nên cần mạng; phần Piper trong trang **chưa kiểm chứng** (tôi viết theo README, chưa chạy được ở đây), phần Kokoro theo README chính thức.

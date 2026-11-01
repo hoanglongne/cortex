@@ -5,6 +5,8 @@ import { ChevronDown, Headphones } from "lucide-react";
 import { listMyAnswers, type MyAnswer } from "@/actions/answers";
 import { claimNextReview, getReviewStatus, skipReview, submitReview, type ReviewStatus, type ReviewTask } from "@/actions/reviews";
 import { CRITERIA, MAX_COMMENT_LENGTH, type CriterionScores } from "@/lib/feedback";
+import { CRITERION_LABEL, type Criterion } from "@cortex/classroom-oratio";
+import { gap, gapLine, overall, readSelf } from "@/lib/self-rating";
 import { useCharacterEnabled } from "@/lib/client/theme";
 import type { Profile } from "@/lib/types/database";
 import { Button } from "@/components/ui/button";
@@ -222,6 +224,25 @@ export default function ReviewScreen({ onTab }: ReviewScreenProps) {
   );
 }
 
+/** How your own rating (Tự chấm) compares with the partners', when you rated this answer on this device. */
+function SelfGap({ answerId, criteria }: { answerId: string; criteria: Record<Criterion, number> }) {
+  const self = readSelf()[answerId];
+  if (!self) return null;
+  const overallPartners = Math.round((CRITERIA.reduce((n, c) => n + criteria[c], 0) / CRITERIA.length) * 2) / 2;
+  const g = gap(self, { ...criteria, overall: overallPartners });
+  return (
+    <div className="rounded-[12px] bg-surface-2 p-3 text-sm text-ink-2">
+      <p className="font-semibold text-ink">Bạn tự chấm band {overall(self).toFixed(1)}</p>
+      <p>{gapLine(g.overall)}.</p>
+      <p className="mt-1 text-xs text-subtle">
+        {CRITERIA.filter((c) => g[c] !== undefined && Math.abs(g[c]!) >= 1)
+          .map((c) => `${CRITERION_LABEL[c]}: ${g[c]! > 0 ? "cao hơn" : "thấp hơn"} ${Math.abs(g[c]!)}`)
+          .join(" · ") || "Từng tiêu chí đều gần với bạn luyện."}
+      </p>
+    </div>
+  );
+}
+
 function SentAnswer({ answer }: { answer: MyAnswer }) {
   const [open, setOpen] = useState(false);
   const band = answer.band;
@@ -253,6 +274,7 @@ function SentAnswer({ answer }: { answer: MyAnswer }) {
                 ))}
               </div>
               <p className="text-[13px] text-subtle">{band.raters} lượt chấm</p>
+              <SelfGap answerId={answer.id} criteria={band.criteria} />
             </>
           ) : (
             <p className="text-sm text-muted">Câu này chưa có ai chấm. Thường có điểm trong vài giờ.</p>

@@ -148,9 +148,10 @@ Mỗi bước có tiêu chí xong. Đứng trước mọi thứ là bước 0, c
 - **Giám khảo đọc câu hỏi (Tập một mình):** nút "Giám khảo đọc câu hỏi" và tuỳ chọn "Tự đọc mỗi câu": đọc bằng tiếng Anh như giám khảo (Part 2 đọc cả thẻ đề và nhắc một phút chuẩn bị), dùng giọng của trình duyệt (ưu tiên giọng Anh). Đồng hồ Part 2, ghi âm, Whisper và chỉ số vốn đã có trong màn này. **Chưa làm:** giọng tự nhiên từ bộ nhớ đệm giọng của Lexica (hiện dùng giọng hệ thống) và một luồng thi trọn Part 1, 2, 3 liền nhau.
 
 **#89 (một phần)**
-- **Tự chấm có lời dẫn:** sau mỗi lần nói trong Tập một mình, thẻ "Tự chấm 4 tiêu chí": thanh chọn band 1 đến 9, lời mô tả của band đang chọn ngay bên cạnh (dùng bộ mô tả band của Oratio). Lưu trên máy. `gap` và `gapLine` sẵn để so với điểm bạn luyện chấm, nhưng **chưa nối vào màn Bài của tôi**.
+- **Tự chấm có lời dẫn:** sau mỗi lần nói trong Tập một mình, thẻ "Tự chấm 4 tiêu chí": thanh chọn band 1 đến 9, lời mô tả của band đang chọn ngay bên cạnh (dùng bộ mô tả band của Oratio). Lưu trên máy. Khi bạn luyện chấm cho câu đó, mục "Câu bạn đã gửi" (Chấm chéo) hiện thêm "Bạn tự chấm band X", chênh bao nhiêu so với bạn luyện, và các tiêu chí lệch từ 1 band trở lên (chỉ trên máy đã tự chấm).
 - **Đề Part 2:** 12 đề của Solilo, 10 đã có đề tương đương trong Oratio; thêm 2 đề thiếu (tham vọng chưa đạt, nơi đẹp đã đến) vào `seed_part2_solilo.sql` (trong `oratio_2026_10.sql`).
 - **Chuyển hướng:** Solilo chuyển mọi địa chỉ sang Oratio khi đặt `NEXT_PUBLIC_ORATIO_URL` cho dự án Solilo trên Vercel; landing bỏ Solilo và `/apps/solilo` chuyển sang `/apps/oratio`. Mã Solilo vẫn nằm trong repo.
-- **Chưa làm:** đếm từ đệm thời gian thực (Solilo dùng nhận dạng giọng của trình duyệt, còn Oratio dùng Whisper chạy sau khi ghi, nên cần thiết kế lại); xem lại giao diện hai ngôn ngữ; xoá hẳn app Solilo.
+- **Từ đệm:** Oratio đã đếm từ đệm từ bản chép sau khi ghi (chỉ số "fillers"), nên không cần bản đếm thời gian thực của Solilo; **không chuyển** phần đếm thời gian thực (cần nhận dạng giọng liên tục, không hợp với Whisper chạy sau khi ghi).
+- **Chưa làm:** xem lại giao diện hai ngôn ngữ; xoá hẳn app Solilo.
 
 **#88: chưa làm.** Bài nói nộp vào lớp, quyền cho bạn cùng lớp nghe, chấm chéo trong lớp, câu neo của giáo viên cần gắn bảng câu trả lời (`answers`) với lớp (hiện không có `class_id`) và sửa các hàm chấm chéo của Oratio. Việc này chạm vào quyền riêng tư của học sinh dưới 18 tuổi nên cần thiết kế và thử cẩn thận trên hạ tầng Oratio thật.
