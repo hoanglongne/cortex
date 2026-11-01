@@ -34,8 +34,8 @@ export default function DeviceVoiceCard() {
                   : state === 'error'
                     ? 'Chưa bật được, thử lại sau.'
                     : !config
-                      ? 'Máy hoặc trình duyệt này chưa hỗ trợ (cần WebGPU, có trên Chrome và Edge mới, Safari 26).'
-                      : `Tạo giọng tự nhiên ngay trên máy: không phụ thuộc mạng và máy chủ. Tải một lần khoảng ${config.downloadMB} MB. Máy sẽ thử tốc độ trước, không đủ nhanh thì tự để tắt.`;
+                      ? 'Máy này chưa đủ mạnh để tạo giọng tại chỗ.'
+                      : `Tạo giọng tự nhiên ngay trên máy: không phụ thuộc mạng và máy chủ. Tải một lần khoảng ${config.downloadMB} MB. Máy sẽ thử tốc độ ngay sau khi tải, không đủ nhanh thì tự để tắt.`;
 
     return (
         <section className="rounded-2xl border border-line bg-surface p-4 flex items-start justify-between gap-3">
