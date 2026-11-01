@@ -90,3 +90,28 @@
 
 ### Công cụ đo: `/tts-lab.html` (trong Lexica)
 Mở `https://<tên-miền-lexica>/tts-lab.html` trên điện thoại và máy tính, chọn Kokoro (WASM, rồi WebGPU nếu có), bấm "Tải mô hình và chạy 8 câu". Trang đo thời gian tải, khởi động, thời gian tạo từng câu, độ dài, RTF, bộ nhớ (Chrome), cho nghe từng câu và có nút "Nghe giọng hệ thống để so". Bấm "Chép kết quả" rồi dán cho tôi, kèm điểm tự nhiên 1 đến 5 bạn nghe được. Lưu ý: trang tải mô hình từ Hugging Face và thư viện từ jsDelivr nên cần mạng; phần Piper trong trang **chưa kiểm chứng** (tôi viết theo README, chưa chạy được ở đây), phần Kokoro theo README chính thức.
+
+
+### Số đo thật đầu tiên (1/11/2026, bạn chạy)
+Máy: Mac 11 nhân, RAM 16 GB, Chrome 153, WebGPU có. Kokoro q8, WASM, **một luồng** (trang chưa bật đa luồng), 8 câu mẫu.
+
+| Câu | Dài (ký tự) | Âm thanh (s) | Thời gian tạo (ms) | RTF |
+|---|---|---|---|---|
+| Từ đơn | 9 | 1,5 | 2497 | 1,66 |
+| Cụm từ | 26 | 2,1 | 3429 | 1,65 |
+| Câu ví dụ | 60 | 3,5 | 5898 | 1,67 |
+| Câu hỏi giám khảo | 90 | 5,0 | 8265 | 1,67 |
+| Thẻ đề Part 2 | 155 | 9,6 | 16561 | 1,72 |
+| Số và tên | 83 | 7,8 | 13296 | 1,72 |
+| Đoạn dài | 253 | 16,5 | 27088 | 1,65 |
+| Từ khó đọc | 97 | 5,2 | 8733 | 1,67 |
+
+Tải và khởi tạo 4,4 giây, làm nóng 3,2 giây, bộ nhớ JS khoảng 177 MB. **RTF trung vị 1,67, tức là tạo chậm hơn cả thời gian nghe.**
+
+**Kết luận từ số này:**
+- Theo tiêu chí đặt ra (RTF dưới 0,6 trên điện thoại tầm trung), **Kokoro q8 WASM một luồng không đạt, ngay cả trên một máy tính mạnh**. Điện thoại tầm trung sẽ chậm hơn nữa. Tức là bản này **không dùng được cho giọng tương tác** (giám khảo đọc câu hỏi, đọc từ khi chạm).
+- Thời gian tạo gần như tỉ lệ với độ dài, nên không có mẹo cắt câu nào cứu được.
+- Còn hai hướng chưa đo, đáng thử trước khi bỏ hẳn: **(a) WebGPU** (trên máy tính có thể nhanh gấp nhiều lần, nhưng bản fp32 khoảng 300 MB và chưa chắc chạy ổn trên điện thoại), **(b) WASM đa luồng** (cần bật cô lập nguồn gốc chéo: trang đo đã được thêm tiêu đề `COOP` và `COEP` để thử, và hiện "đa luồng WASM: bật" khi đã được).
+- Dù WebGPU nhanh, đó chỉ giúp máy tính. **Cho điện thoại, hướng thực tế hơn là tạo sẵn giọng** (đã làm với bộ nhớ đệm Kokoro trên máy chủ) và **mở rộng phạm vi tạo sẵn**: mọi câu giám khảo, mọi đoạn Đọc, tạo trước khi nội dung được xuất bản, thay vì tạo lúc người dùng cần.
+
+**Việc tiếp:** chạy lại trang đo (a) WebGPU fp32, (b) WASM với đa luồng bật, (c) thử q4 cho WASM; gửi lại kết quả. Nếu không cái nào đạt, đề xuất cuối là **không làm giọng trên máy**, mà tạo sẵn toàn bộ nội dung và dùng Gemini/giọng hệ thống làm phương án cuối.
