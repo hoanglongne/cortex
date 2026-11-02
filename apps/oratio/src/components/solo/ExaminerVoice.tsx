@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
-import { examinerSpeech, pickExaminerVoice } from "@/lib/examiner-voice";
+import { examinerSpeech } from "@/lib/examiner-voice";
+import { speakLines } from "@/lib/examiner-speak";
 
 /**
  * "Giám khảo đọc câu hỏi": the question read aloud in English, like the exam,
- * with the browser's own voice. With "tự đọc" on it reads each new question as
+ * in a natural voice (the browser's own voice when that is not available). With "tự đọc" on it reads each new question as
  * soon as it shows. No score and no AI: it only speaks.
  */
 export function ExaminerVoice({ questionId, part, text }: { questionId: string; part: number; text: string }) {
@@ -18,34 +19,32 @@ export function ExaminerVoice({ questionId, part, text }: { questionId: string; 
     }
   });
   const [speaking, setSpeaking] = useState(false);
-  const supported = typeof window !== "undefined" && "speechSynthesis" in window;
+  const supported = typeof window !== "undefined" && ("speechSynthesis" in window || typeof Audio !== "undefined");
   const last = useRef<string | null>(null);
 
+  const current = useRef<{ cancel: () => void } | null>(null);
+
   const stop = () => {
-    if (supported) window.speechSynthesis.cancel();
+    current.current?.cancel();
+    current.current = null;
     setSpeaking(false);
   };
 
   const speak = () => {
-    if (!supported) return;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(examinerSpeech(part, text));
-    u.lang = "en-GB";
-    u.rate = 0.92;
-    const voices = window.speechSynthesis.getVoices();
-    const i = pickExaminerVoice(voices);
-    if (i >= 0) u.voice = voices[i];
-    u.onend = () => setSpeaking(false);
-    u.onerror = () => setSpeaking(false);
+    current.current?.cancel();
+    const run = speakLines([examinerSpeech(part, text)]);
+    current.current = run;
     setSpeaking(true);
-    window.speechSynthesis.speak(u);
+    void run.done.then(() => {
+      if (current.current === run) setSpeaking(false);
+    });
   };
 
   useEffect(() => {
     if (auto && last.current !== questionId) speak();
     last.current = questionId;
     return () => {
-      if (supported) window.speechSynthesis.cancel();
+      current.current?.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questionId, auto]);

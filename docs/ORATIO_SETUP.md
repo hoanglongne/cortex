@@ -54,6 +54,7 @@ Vercel → project **oratio** → **Settings** → **Environment Variables**. Th
 | `CRON_SECRET` | chuỗi ở bước 3 | |
 | `SUPABASE_SERVICE_ROLE_KEY` | Khoá `service_role` | Supabase → Project Settings → API → **service_role** (bấm Reveal). Bí mật, chỉ dán vào Vercel |
 | `NEXT_PUBLIC_SITE_URL` | `https://tên-miền-oratio` | có **https://** ở đầu |
+| `NEXT_PUBLIC_CORTEX_API_URL` | địa chỉ Cortex API trên Railway | cùng giá trị Lexica đang dùng. Cho giọng giám khảo tự nhiên; thiếu thì chỉ dùng giọng đã lưu sẵn hoặc giọng hệ thống |
 
 Các biến `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` và LiveKit đã có từ trước, không cần đổi.
 
