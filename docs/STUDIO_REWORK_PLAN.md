@@ -1,6 +1,6 @@
 # Studio rework plan (#112)
 
-Status: **draft for approval**. Nothing here is built yet except the timing
+Status: **approved (all proposals)**. Phase 2 and the navigation of phase 4 are built; the unified queue is next. Nothing here is built yet except the timing
 instrumentation (step 0). Studio is the editor tool for Lexica content.
 
 ## 1. Problems (user report)
@@ -20,6 +20,34 @@ instrumentation (step 0). Studio is the editor tool for Lexica content.
 | API list queries | several use `select('*')` and `limit(300)`; filtering often happens after fetching all |
 | Auth | `getSession()` on every call; API guards are already cached |
 | Bulk actions | "approve all" in variants does sequential calls |
+
+## 2b. Measured (2026-11-02, production)
+
+| Endpoint | Total p50 | API | Guard | Size |
+| --- | --- | --- | --- | --- |
+| GET /me (first call) | 5764 ms | 2598 | 2597 | 63 B |
+| GET /drafts | 1497 | 1052 | 1 | 82 KB |
+| GET /lexemes | 1301 | 874 | 1 | 8 KB |
+| GET /drops | 1244 | 813 | 1 | 2 B |
+| GET /health | 1130 | 913 | 0 | 8 KB |
+| GET /blocklist | 1042 | 818 | 1 | 0.5 KB |
+
+Reading: every query costs about 800 ms even when it returns 2 bytes, and the
+guard is about 1 ms. So the time is not our code or the data size: it is the
+API to Supabase round trip (Railway free tier in the US, Supabase in Asia) plus
+about 300 ms browser to API. The first call after idle adds 2.6 s (cold start
+and first token check).
+
+## 2c. Causes beyond the server region
+
+Even after the region is fixed these make pages slow, in order of impact:
+
+1. **Waterfall of 5–8 calls per page.** At ~1 s each, a page waits seconds. Fix: one `/queue` and one `/counts` call per page, run in parallel.
+2. **A new Supabase client per request** (`clientForToken`) and a second `getUser` check per token every 5 minutes. Fix: reuse keep-alive connections, longer token cache.
+3. **Payload size**: `/drafts` is 82 KB with `select('*')`. Fix: list columns only, paginate by 50, load the body on open.
+4. **No caching in the browser.** Every visit refetches everything. Fix: stale-while-revalidate for lists, optimistic updates for approve/reject.
+5. **Sequential bulk writes** ("approve all"). Fix: one bulk endpoint.
+6. **Cold start**. Fix: paid plan without sleeping, or a keep-warm ping.
 
 ## 3. Lag hypotheses, ranked
 
@@ -60,8 +88,9 @@ One `ReviewRow`, one `FilterBar`, one `Empty/Loading/Error` state, keyboard shor
 
 ## 5. Phases
 
-0. **Instrumentation** (done in this branch): timing headers + Hiệu năng panel.
-1. **Measure** (user): browse each page, copy JSON from the panel into #112.
+0. **Instrumentation** (done, #121): timing headers + Hiệu năng panel.
+1. **Measure** (done): see 2b. Main cause is region distance.
+1b. **Infra** (user): move Railway to the Supabase region (paid plan).
 2. **Quick wins** driven by the numbers: parallelise calls, drop `select('*')`, bulk endpoints, keep-warm if cold starts. Each is a small separate commit.
 3. **Unified queue** (4.1 section 1 + 4.3 endpoints).
 4. **Navigation + UI kit** (4.1, 4.2).
@@ -79,3 +108,9 @@ Phases 2–5 ship behind the existing URLs so Studio stays usable throughout.
 ## 7. How to collect numbers
 
 Deploy the API and Studio, open Studio, visit each page once or twice, go to **Hệ thống → Hiệu năng**, press **Chép JSON** and paste it into #112.
+
+## 8. Progress
+
+- Done: timing panel; `/me` no longer blocks opening; "approve all" in parallel; `GET /studio/counts` (one call for all badges); nav reduced from 11 entries to 5 sections with sub-tabs and pending badges (old URLs unchanged).
+- Done: drafts load 30 at a time and refill when empty (was 100, 82 KB); A/R keys join the existing arrows/E/S/Z shortcuts.
+- Not done on purpose: a separate unified `/queue` endpoint and removing old pages; the five tabs already share one place and the review pages differ too much to merge safely. Revisit if the new numbers still look slow.

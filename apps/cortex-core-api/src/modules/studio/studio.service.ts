@@ -1062,6 +1062,29 @@ export class StudioService {
 
   // ---------------------------------------------------------------- health
 
+  /** Pending-review counts for every content type, in one round trip. */
+  async counts(db: Db): Promise<Record<string, number>> {
+    const pending = (table: string) =>
+      db
+        .from(table)
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+    const tables = {
+      drafts: 'studio_drafts',
+      variants: 'studio_card_variants',
+      quotes: 'studio_card_quotes',
+      passages: 'studio_passages',
+      talk: 'studio_talk_cards',
+    };
+    const keys = Object.keys(tables) as (keyof typeof tables)[];
+    const results = await Promise.all(keys.map((k) => pending(tables[k])));
+    const out: Record<string, number> = {};
+    keys.forEach((k, i) => {
+      out[k] = results[i].error ? 0 : (results[i].count ?? 0);
+    });
+    return out;
+  }
+
   async health(db: Db) {
     const [runs, pending, generations] = await Promise.all([
       db
