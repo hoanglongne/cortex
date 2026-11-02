@@ -266,6 +266,14 @@ function SentAnswer({ answer }: { answer: MyAnswer }) {
       </button>
       {open && (
         <div id={panelId} className="flex flex-col gap-4 border-t border-line p-4">
+          {answer.teacherScores && (
+            <div className="rounded-[12px] bg-surface-2 p-3 text-sm text-ink-2">
+              <p className="font-semibold text-ink">Thầy cô chấm: band {Number(answer.teacherScores.overall).toFixed(1)}</p>
+              <p className="text-xs text-subtle">
+                {CRITERIA.map((c) => `${CRITERION_LABEL[c]} ${Number(answer.teacherScores?.[c]).toFixed(1)}`).join(" · ")}
+              </p>
+            </div>
+          )}
           {band ? (
             <>
               <div className="flex flex-col gap-2.5">

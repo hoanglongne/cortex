@@ -23,6 +23,8 @@ const base: MyAnswer = {
   submittedAt: null,
   band: null,
   reviews: [],
+  classId: null,
+  teacherScores: null,
 };
 const ans = (o: Partial<MyAnswer>): MyAnswer => ({ ...base, ...o });
 

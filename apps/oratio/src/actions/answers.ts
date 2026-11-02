@@ -54,6 +54,10 @@ export interface MyAnswer {
   /** Peer band range once reviewed */
   band: AnswerBand | null;
   reviews: ReceivedReview[];
+  /** Handed in to a class (kept out of the open Chấm chéo pool) */
+  classId: string | null;
+  /** The teacher's band per criterion and overall, when they rated it */
+  teacherScores: Record<string, number> | null;
 }
 
 const int = (v: unknown, max: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(max, Math.max(0, Math.round(v))) : 0);
@@ -140,7 +144,7 @@ export async function saveAnswer(input: AnswerInput): Promise<{ id?: string; lex
 }
 
 const ANSWER_COLS =
-  "id, question_text, part, mode, retake_of, created_at, duration_ms, speaking_ms, long_pauses, longest_pause_ms, transcript, word_count, wpm, mean_run_words, fillers, lexical_diversity, lexica_words, submitted_at";
+  "id, question_text, part, mode, retake_of, created_at, duration_ms, speaking_ms, long_pauses, longest_pause_ms, transcript, word_count, wpm, mean_run_words, fillers, lexical_diversity, lexica_words, submitted_at, class_id, teacher_scores";
 
 /** The signed-in user's answers, newest first, with peer bands. */
 export async function listMyAnswers(opts: { limit?: number; before?: string; submittedOnly?: boolean } = {}): Promise<{
@@ -189,6 +193,8 @@ export async function listMyAnswers(opts: { limit?: number; before?: string; sub
         submittedAt: r.submitted_at,
         band: bands.get(r.id)?.band ?? null,
         reviews: bands.get(r.id)?.reviews ?? [],
+        classId: r.class_id ?? null,
+        teacherScores: r.teacher_scores && typeof r.teacher_scores === "object" ? (r.teacher_scores as Record<string, number>) : null,
       })),
     };
   } catch (error) {

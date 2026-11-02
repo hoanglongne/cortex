@@ -11,7 +11,10 @@ describe("Oratio module", () => {
   it("reads bad data as defaults, never throws", () => {
     expect(oratioModule.parseMetrics("x")).toEqual({ sessions: 0, minutes: 0, ratings: 0, band: null, current_band: null, target_band: null, progress: {} });
     expect(oratioModule.parseMetrics({ band: { fluency: 12, grammar: 6.3 } }).band).toEqual({ grammar: 6.5 });
-    expect(oratioModule.parseSettings({ target_band: 3 })).toEqual({ target_band: null });
+    expect(oratioModule.parseSettings({ target_band: 3 })).toEqual({ target_band: null, peers_listen: false });
+    // Classmates hear each other only when the teacher says so
+    expect(oratioModule.parseSettings({ target_band: 6, peers_listen: true })).toEqual({ target_band: 6, peers_listen: true });
+    expect(oratioModule.parseSettings({ peers_listen: "true" }).peers_listen).toBe(false);
     expect(oratioModule.parsePayload("topic", null)).toEqual({ kind: "topic", category: "", part: null, sessions: 1 });
     expect(oratioModule.parsePayload("goal", { sessions: 99, minutes: -5 })).toEqual({ kind: "goal", sessions: 50, minutes: 0 });
   });

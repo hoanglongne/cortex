@@ -18,6 +18,8 @@ export const CRITERION_LABEL: Record<Criterion, string> = { fluency: 'Trôi ch�
 export interface OratioSettings {
     /** The band the class aims for, shown to the teacher next to each student's. */
     target_band: number | null;
+    /** Classmates may hear each other's answers handed in to the class and rate them. Off unless the teacher turns it on. */
+    peers_listen: boolean;
 }
 
 /** Kind "topic": practise sessions that touch this IELTS topic (one part, or any). */
@@ -130,7 +132,7 @@ export const oratioModule: ClassroomModuleCore<OratioSettings, OratioPayload, Or
     kinds: { topic: 'Luyện theo chủ đề', questions: 'Bộ câu hỏi', goal: 'Chỉ tiêu buổi/phút' },
     parseSettings(raw) {
         const b = band(obj(raw).target_band);
-        return { target_band: b !== null && b >= 4 ? b : null };
+        return { target_band: b !== null && b >= 4 ? b : null, peers_listen: obj(raw).peers_listen === true };
     },
     parsePayload(kind, raw) {
         const o = obj(raw);

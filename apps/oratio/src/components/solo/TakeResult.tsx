@@ -7,6 +7,7 @@ import { Character } from "@/components/ui/character";
 import { formatClock } from "@/components/ui/timer";
 import { cn } from "@/lib/utils";
 import { SelfRatingCard } from "./SelfRating";
+import { SendToClass } from "./SendToClass";
 import { SendForReview } from "./SendForReview";
 import { checkGoal, fmtMs, goalText, okMetrics, txMetrics, type Take } from "./take";
 
@@ -240,6 +241,7 @@ export function TakeResult({
 
       {take.save === "failed" && <p className="text-sm text-subtle">Chưa lưu được lần nói này vào lịch sử. Bạn cứ tiếp tục tập nhé.</p>}
       {!demo && take.save === "saved" && take.answerId && <SelfRatingCard id={take.answerId} />}
+      {!demo && take.save === "saved" && take.answerId && <SendToClass answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />}
       {!demo && take.save === "saved" && take.answerId && (
         <SendForReview answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />
       )}
