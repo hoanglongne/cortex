@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, cached, errorText } from '../lib/api';
 import { LEVELS, type Lexeme, type Level } from '../lib/types';
 import { Badge, Button, Card, ErrorNote, Input, Label, Select } from '../components/ui';
+import { allSamples, clearSamples, summarize, type CallSummary } from '../lib/perf';
 import { CaptureTokens } from './CaptureTokens';
 import { Blocklist, Jobs, Sources } from './Pipeline';
 
@@ -59,6 +60,7 @@ export default function SystemPage() {
                 </Card>
             )}
 
+            <Perf />
             <CaptureTokens />
             <Sources />
             <Blocklist />
@@ -152,6 +154,83 @@ function Lexemes() {
                     </div>
                 ))}
             </div>
+        </Card>
+    );
+}
+
+const ms = (v: number | null) => (v === null ? '—' : `${Math.round(v)}`);
+
+/** Where the time goes: browser-measured total vs. API time, per endpoint. */
+function Perf() {
+    const [rows, setRows] = useState<CallSummary[]>([]);
+    const [copied, setCopied] = useState(false);
+    const refresh = () => setRows(summarize(allSamples()));
+
+    useEffect(() => {
+        refresh();
+        const t = setInterval(refresh, 3000);
+        return () => clearInterval(t);
+    }, []);
+
+    const copy = async () => {
+        await navigator.clipboard.writeText(JSON.stringify(rows, null, 1));
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+    };
+
+    return (
+        <Card className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+                <div className="mr-auto">
+                    <h2 className="font-bold">Hiệu năng</h2>
+                    <p className="text-sm text-muted">
+                        Đi qua các trang rồi quay lại đây. Đơn vị ms. Tổng − API = mạng; API − guard = xử lý + truy vấn.
+                    </p>
+                </div>
+                <Button onClick={copy}>{copied ? 'Đã chép' : 'Chép JSON'}</Button>
+                <Button
+                    onClick={() => {
+                        clearSamples();
+                        refresh();
+                    }}
+                >
+                    Xoá
+                </Button>
+            </div>
+            {rows.length === 0 ? (
+                <p className="text-sm text-muted">Chưa có lệnh gọi nào.</p>
+            ) : (
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm font-mono">
+                        <thead className="text-left text-xs text-subtle">
+                            <tr>
+                                <th className="py-1 pr-3">Lệnh</th>
+                                <th className="pr-3">Lần</th>
+                                <th className="pr-3">Tổng p50</th>
+                                <th className="pr-3">p95</th>
+                                <th className="pr-3">API</th>
+                                <th className="pr-3">Guard</th>
+                                <th className="pr-3">KB</th>
+                                <th>Lỗi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {rows.map(r => (
+                                <tr key={r.key} className="border-t border-line">
+                                    <td className="py-1 pr-3">{r.key}</td>
+                                    <td className="pr-3">{r.count}</td>
+                                    <td className="pr-3">{ms(r.medianTotal)}</td>
+                                    <td className="pr-3">{ms(r.p95Total)}</td>
+                                    <td className="pr-3">{ms(r.medianServer)}</td>
+                                    <td className="pr-3">{ms(r.medianGuard)}</td>
+                                    <td className="pr-3">{(r.medianBytes / 1024).toFixed(1)}</td>
+                                    <td>{r.errors || ''}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </Card>
     );
 }

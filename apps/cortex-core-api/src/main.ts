@@ -6,7 +6,13 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // Sync backups can exceed express's 100kb default (see MAX_BACKUP_BYTES).
   app.useBodyParser('json', { limit: '1mb' });
+  // Stamp the arrival time so Studio's TimingInterceptor can report guard time.
+  app.use((req: { startedAtMs?: number }, _res: unknown, next: () => void) => {
+    req.startedAtMs = Date.now();
+    next();
+  });
   app.enableCors({
+    exposedHeaders: ['X-Studio-Ms', 'X-Studio-Guard-Ms'],
     origin: (
       origin: string | undefined,
       callback: (err: Error | null, allow?: boolean) => void,
