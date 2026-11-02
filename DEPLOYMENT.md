@@ -7,7 +7,7 @@ Tài liệu này hướng dẫn chiến lược triển khai (deployment) tối 
 Hệ thống được thiết kế theo mô hình **Monorepo (pnpm + Turbo)**, cho phép quản lý nhiều ứng dụng trong cùng một repository nhưng triển khai độc lập.
 
 - **Backend Hub**: `cortex-core-api` (NestJS) - Cung cấp API, xử lý LLM, Realtime (Socket.io), và kết nối Database.
-- **Frontend Apps**: `landing`, `lexica`, `synapse`, `oratio`, `solilo` (Next.js) - Các ứng dụng người dùng cuối.
+- **Frontend Apps**: `landing`, `lexica`, `synapse`, `oratio` (Next.js) - Các ứng dụng người dùng cuối.
 
 ---
 

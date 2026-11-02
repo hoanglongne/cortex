@@ -11,6 +11,7 @@ import { finishLine, finishPassage } from '../lib/engagement/reading';
 import { isOwned } from '../lib/engagement/collection';
 import { localDate } from '../lib/engagement/ghost';
 import { AudioService } from '../lib/audio/AudioService';
+import { speechChunks } from '../lib/audio/speechChunks';
 import { levelDef } from '../lib/levels';
 import { parseTurns } from '../lib/content/dialogue';
 import { usesWord } from '../lib/journey/outside';
@@ -104,7 +105,8 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
             setSpeaking(false);
             return;
         }
-        void AudioService.playText(paragraphs.join(' '), 'en', RATES[rate]);
+        // Short parts, one after another: the first starts in seconds instead of waiting for the whole text
+        void AudioService.playSequence(speechChunks(paragraphs), RATES[rate], () => setSpeaking(false));
         setSpeaking(true);
     };
 

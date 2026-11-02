@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Mic, RotateCcw, Square } from "lucide-react";
+import { ArrowLeft, ArrowRight, GraduationCap, Mic, RotateCcw, Square } from "lucide-react";
 import { getSoloQuestions } from "@/actions/questions";
 import type { IeltsQuestion } from "@/lib/types/database";
 import { useCharacterEnabled } from "@/lib/client/theme";
@@ -17,12 +17,16 @@ import { CueCard } from "@/components/ui/cue-card";
 import { LiveWaveform, SpeakingPill } from "@/components/ui/on-air";
 import { FlowShell } from "@/components/ui/shell";
 import { ExaminerVoice } from "@/components/solo/ExaminerVoice";
+import { examClosingLine, examLines, examMaxSeconds, PREP_SECONDS } from "@/lib/exam-flow";
+import { speakLines } from "@/lib/examiner-speak";
 import { formatClock, Part2Timer } from "@/components/ui/timer";
 import { TranscribeAsk, WhisperStatus, useWhisperLoader } from "./solo/TranscribeCard";
 import { DrillSummary, TakeResult } from "./solo/TakeResult";
 import { DRILL_TARGETS, UUID, deriveGoal, fmtMs, goalText, okMetrics, type Goal, type Take } from "./solo/take";
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
+type ExamPhase = "speak" | "prep" | "record" | "next" | "closing";
 
 interface SoloPracticeScreenProps {
   onBack: () => void;
@@ -68,6 +72,8 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   const [drills, setDrills] = useState<Record<string, boolean>>({});
   const [recGoal, setRecGoal] = useState<Goal | null>(null);
   const [recTarget, setRecTarget] = useState<number | null>(null);
+  const [exam, setExam] = useState<ExamPhase | null>(null);
+  const [prepLeft, setPrepLeft] = useState(PREP_SECONDS);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -276,7 +282,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
       else void startRecording();
     };
   });
-  const active = !!questions && !finished;
+  const active = !!questions && !finished && !exam;
   useEffect(() => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => {
@@ -288,6 +294,96 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [active]);
+
+  // Exam mode (#90): the examiner leads, one question after another, no retakes.
+  const startRef = useRef(startRecording);
+  const stopRef = useRef(stopRecording);
+  const examRecorded = useRef(false);
+  useEffect(() => {
+    startRef.current = startRecording;
+    stopRef.current = stopRecording;
+  });
+
+  // The examiner speaks, then Part 2 gets its minute to think
+  useEffect(() => {
+    if (exam !== "speak" || !questions) return;
+    const q = questions[index];
+    const speech = speakLines(examLines(questions, index));
+    let live = true;
+    void speech.done.then(() => {
+      if (!live) return;
+      if (q?.part === 2) setPrepLeft(PREP_SECONDS);
+      setExam(q?.part === 2 ? "prep" : "record");
+    });
+    return () => {
+      live = false;
+      speech.cancel();
+    };
+  }, [exam, index, questions]);
+
+  useEffect(() => {
+    if (exam !== "prep") return;
+    const t = setInterval(() => setPrepLeft((p) => p - 1), 1000);
+    return () => clearInterval(t);
+  }, [exam]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (exam === "prep" && prepLeft <= 0) setExam("record");
+  }, [exam, prepLeft]);
+
+  // Record with a hard stop at the part's limit
+  useEffect(() => {
+    if (exam !== "record" || !questions) return;
+    examRecorded.current = false;
+    void startRef.current();
+    const t = setTimeout(() => stopRef.current(), examMaxSeconds(questions[index]?.part ?? 1) * 1000);
+    return () => clearTimeout(t);
+  }, [exam, index, questions]);
+  useEffect(() => {
+    if (exam !== "record") return;
+    if (recording) examRecorded.current = true;
+    else if (examRecorded.current) {
+      examRecorded.current = false;
+       
+      setExam("next");
+    }
+  }, [exam, recording]);
+  // No microphone: leave exam mode instead of waiting forever
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (exam && micError) setExam(null);
+  }, [exam, micError]);
+
+  useEffect(() => {
+    if (exam !== "next" || !questions) return;
+    const t = setTimeout(() => {
+      if (index + 1 >= questions.length) setExam("closing");
+      else {
+        setIndex(index + 1);
+        setExam("speak");
+      }
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [exam, index, questions]);
+  useEffect(() => {
+    if (exam !== "closing") return;
+    const speech = speakLines([examClosingLine()]);
+    let live = true;
+    void speech.done.then(() => {
+      if (!live) return;
+      setExam(null);
+      setFinished(true);
+    });
+    return () => {
+      live = false;
+      speech.cancel();
+    };
+  }, [exam]);
+
+  const leaveExam = () => {
+    if (recording) stopRecording();
+    setExam(null);
+  };
 
   if (loadError) {
     return (
@@ -413,6 +509,24 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
               </p>
             )
           )}
+          {exam ? (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={leaveExam}>
+                Thoát thi
+              </Button>
+              {exam === "record" && recording ? (
+                <Button variant="danger" size="lg" className="flex-1" onClick={stopRecording}>
+                  <Square /> Xong câu này <span className="tabular">{formatClock(recordSeconds)}</span>
+                </Button>
+              ) : exam === "prep" ? (
+                <Button variant="primary" size="lg" className="flex-1" onClick={() => setExam("record")}>
+                  <Mic /> Nói ngay
+                </Button>
+              ) : (
+                <p className="flex-1 text-center text-sm text-muted">{exam === "closing" ? "Kết thúc buổi thi" : "Giám khảo đang dẫn…"}</p>
+              )}
+            </div>
+          ) : (
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => go(index - 1)} disabled={index === 0} aria-label="Câu trước">
               <ArrowLeft />
@@ -438,6 +552,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
               {isLast ? "Xem lại" : "Câu tiếp"} <ArrowRight />
             </Button>
           </div>
+          )}
         </div>
       }
     >
@@ -445,9 +560,9 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
         {question && (
           <div>
             <CueCard key={question.id} question={question}>
-              {question.part === 2 && !showResult && !drillOn && <Part2Timer key={`${question.id}-${list.length}`} />}
+              {question.part === 2 && !showResult && !drillOn && !exam && <Part2Timer key={`${question.id}-${list.length}`} />}
             </CueCard>
-            <ExaminerVoice questionId={question.id} part={question.part} text={question.question_text} />
+            {!exam && <ExaminerVoice questionId={question.id} part={question.part} text={question.question_text} />}
             <p className="mt-4 text-sm text-muted">{TIPS[question.part]}</p>
             {hintWords.length > 0 && (
               <div className="mt-4">
@@ -468,7 +583,34 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
         <div className="space-y-4">
           {micError && <Notice tone="error">{micError}</Notice>}
 
-          {choice === "unset" && !recording && <TranscribeAsk characterOn={characterOn} onChoose={setChoice} />}
+          {exam && !recording && (
+            <Card className="space-y-2">
+              <Label>Thi thử · Part {question?.part}</Label>
+              {exam === "speak" && <p className="text-base font-bold text-ink">Giám khảo đang nói. Nghe xong thì bạn trả lời.</p>}
+              {exam === "prep" && (
+                <>
+                  <p className="text-base font-bold text-ink">Một phút chuẩn bị</p>
+                  <p className="text-4xl font-extrabold tracking-[-0.03em] text-ink tabular">{formatClock(Math.max(0, prepLeft))}</p>
+                  <p className="text-sm text-muted">Ghi nhanh vài ý ra giấy. Hết giờ máy tự bắt đầu ghi âm.</p>
+                </>
+              )}
+              {exam === "next" && <p className="text-base font-bold text-ink">Đã ghi. Sang câu tiếp…</p>}
+              {exam === "closing" && <p className="text-base font-bold text-ink">Hết bài thi.</p>}
+            </Card>
+          )}
+          {!exam && !recording && index === 0 && list.length === 0 && (
+            <Card className="space-y-2">
+              <p className="text-sm font-bold text-ink">Muốn thử như thi thật?</p>
+              <p className="text-sm text-muted">
+                Giám khảo đọc từng câu bằng tiếng Anh, Part 2 có 1 phút chuẩn bị, mỗi câu tự dừng khi hết giờ. Không nói lại, không chấm điểm. Cần bật loa.
+              </p>
+              <Button variant="secondary" size="sm" onClick={() => setExam("speak")}>
+                <GraduationCap /> Thi thử có giám khảo
+              </Button>
+            </Card>
+          )}
+
+          {choice === "unset" && !recording && !exam && <TranscribeAsk characterOn={characterOn} onChoose={setChoice} />}
           {choice === "on" && !recording && <WhisperStatus state={whisper} />}
 
           {recording ? (

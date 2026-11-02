@@ -52,12 +52,16 @@ export function pickVoice(voices: SpeechSynthesisVoice[], lang: 'en' | 'vi'): Sp
 }
 
 /** Speaks text with the system voice. Returns false when the browser has none. */
-export function speakWithSystem(text: string, lang: 'en' | 'vi' = 'en', rate = lang === 'en' ? 0.9 : 1): boolean {
+export function speakWithSystem(text: string, lang: 'en' | 'vi' = 'en', rate = lang === 'en' ? 0.9 : 1, onEnd?: () => void): boolean {
     if (!speechAvailable() || !text) return false;
     const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang === 'en' ? 'en-US' : 'vi-VN';
     utterance.rate = rate;
+    if (onEnd) {
+        utterance.onend = onEnd;
+        utterance.onerror = onEnd;
+    }
     const voice = pickVoice(synth.getVoices(), lang);
     if (voice) utterance.voice = voice;
     synth.cancel();
@@ -68,10 +72,19 @@ export function speakWithSystem(text: string, lang: 'en' | 'vi' = 'en', rate = l
 /** Bumped by every play and stop, so a slow clip never starts after the learner moved on. */
 let seq = 0;
 
-export function stop() {
+/** Stops whatever is playing. Internal: a sequence (`playSequence`) goes on through it. */
+function halt() {
     seq++;
     element?.pause();
     if (speechAvailable()) window.speechSynthesis.cancel();
+}
+
+/** Bumped by every real stop and every new sequence, so an old sequence ends at once. */
+let run = 0;
+
+export function stop() {
+    run++;
+    halt();
 }
 
 // ─── Natural voices (Cortex API) ─────────────────────────────────────────
@@ -145,7 +158,7 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
     // The cached file first: instant, no server, no quota.
     const stored = storedVoiceUrl(text, opts);
     if (stored) {
-        stop();
+        halt();
         const mine = seq;
         el.src = stored;
         el.playbackRate = opts.rate ? Math.min(1.3, Math.max(0.6, opts.rate / 0.9)) : 1;
@@ -167,7 +180,7 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
     // The voice made on this device, when the learner turned it on and it passed the speed test
     const made = await synthOnDevice(text, opts);
     if (made) {
-        stop();
+        halt();
         const mine = seq;
         const local = URL.createObjectURL(made);
         el.src = local;
@@ -186,7 +199,7 @@ export async function speakNatural(text: string, opts: { slow?: boolean; voice?:
     }
     const url = naturalVoiceUrl(text, opts);
     if (!url) return false;
-    stop();
+    halt();
     const mine = seq;
     el.src = url;
     el.playbackRate = opts.rate ? Math.min(1.3, Math.max(0.6, opts.rate / 0.9)) : 1;
@@ -243,7 +256,7 @@ export async function play(cardId: string, clip: Clip = 'word'): Promise<AudioTi
     const url = getCard(cardId)?.audio?.[clip];
     const el = audioElement();
     if (url && el) {
-        stop();
+        halt();
         el.src = url;
         try {
             await el.play();
@@ -259,6 +272,32 @@ export async function play(cardId: string, clip: Clip = 'word'): Promise<AudioTi
 export async function playText(text: string, lang: 'en' | 'vi' = 'en', rate?: number): Promise<AudioTier> {
     if (lang === 'en' && (await speakNatural(text, { rate, slow: rate !== undefined && rate < 0.8 }))) return 'natural';
     return speakWithSystem(text, lang, rate) ? 'system' : 'none';
+}
+
+/**
+ * Reads several short texts one after another ("Nghe cả đoạn"). One long text
+ * made the natural voice wait for a whole passage to be generated; short parts
+ * start in seconds, and the next part is requested while this one plays.
+ * `onEnd` runs when the last part ends (also when a part falls back to the
+ * system voice), but not when the learner stops it.
+ */
+export async function playSequence(texts: readonly string[], rate?: number, onEnd?: () => void): Promise<void> {
+    const mine = ++run;
+    const slow = rate !== undefined && rate < 0.8;
+    for (let i = 0; i < texts.length; i++) {
+        if (mine !== run) return;
+        const next = texts[i + 1] ? naturalVoiceUrl(texts[i + 1], { slow }) : null;
+        if (next && !cloudOff()) warm(next);
+        const ok = await speakNatural(texts[i], { rate, slow, wait: true });
+        if (mine !== run) return;
+        if (!ok) {
+            // The system voice reads the rest in one go
+            const rest = texts.slice(i).join(' ');
+            if (!speakWithSystem(rest, 'en', rate, () => mine === run && onEnd?.())) onEnd?.();
+            return;
+        }
+    }
+    onEnd?.();
 }
 
 /** Starts loading an audio URL so playing it later is instant (the browser keeps it cached). */
@@ -299,4 +338,4 @@ export function preloadText(texts: readonly { text: string; slow?: boolean; voic
     }
 }
 
-export const AudioService = { play, playText, preload, preloadText, stop };
+export const AudioService = { play, playText, playSequence, preload, preloadText, stop };

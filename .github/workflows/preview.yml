@@ -12,7 +12,7 @@ on:
       app:
         description: App to preview
         type: choice
-        options: [landing, lexica, teach, oratio, studio, solilo, synapse]
+        options: [landing, lexica, teach, oratio, studio, synapse]
         required: true
   pull_request:
     types: [labeled]
@@ -37,7 +37,7 @@ jobs:
           LABEL: ${{ github.event.label.name }}
         run: |
           app="${INPUT_APP:-${LABEL#preview:}}"
-          case "$app" in landing|lexica|teach|oratio|studio|solilo|synapse) ;; *) echo "Unknown app: $app"; exit 1 ;; esac
+          case "$app" in landing|lexica|teach|oratio|studio|synapse) ;; *) echo "Unknown app: $app"; exit 1 ;; esac
           echo "app=$app" >> "$GITHUB_OUTPUT"
           echo "key=$(echo "$app" | tr '[:lower:]' '[:upper:]')" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
