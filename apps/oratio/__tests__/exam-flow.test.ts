@@ -32,3 +32,18 @@ describe("limits", () => {
     expect(examClosingLine()).toMatch(/end of the speaking test/);
   });
 });
+
+import { sentenceChunks } from "@/lib/exam-flow";
+
+describe("sentenceChunks", () => {
+  it("splits long lines into whole sentences", () => {
+    const line = "Good evening. My name is the examiner today. Could you tell me your full name, please? And what shall I call you?";
+    const out = sentenceChunks([line], 50);
+    expect(out.length).toBeGreaterThan(2);
+    expect(out.join(" ")).toBe(line);
+    expect(out.every((c) => /[.?]$/.test(c))).toBe(true);
+  });
+  it("keeps a short line whole and skips empty ones", () => {
+    expect(sentenceChunks(["Where do you live?", ""])).toEqual(["Where do you live?"]);
+  });
+});

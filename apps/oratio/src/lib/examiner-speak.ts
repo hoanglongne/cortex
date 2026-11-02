@@ -1,4 +1,5 @@
 import { pickExaminerVoice } from "@/lib/examiner-voice";
+import { sentenceChunks } from "@/lib/exam-flow";
 import { voiceFileName } from "@/lib/voice-key";
 
 /**
@@ -94,8 +95,23 @@ function speakSystem(text: string, alive: () => boolean): Promise<void> {
   });
 }
 
-/** Reads the lines one after another. `done` resolves when finished or cancelled. */
-export function speakLines(lines: readonly string[]): { done: Promise<void>; cancel: () => void } {
+/** Asks the API to make these lines now, so they are ready when the examiner needs them. Lines already stored cost nothing. */
+export function warmLines(lines: readonly string[]) {
+  for (const line of sentenceChunks(lines)) {
+    const { api } = clipUrls(line);
+    if (api) void fetch(api, { mode: "no-cors" }).catch(() => {});
+  }
+}
+
+/** Reads the lines one after another. `onStart` fires when the first sound begins; `done` resolves when finished or cancelled. */
+export function speakLines(source: readonly string[], onStart?: () => void): { done: Promise<void>; cancel: () => void } {
+  const lines = sentenceChunks(source);
+  let started = false;
+  const begin = () => {
+    if (started) return;
+    started = true;
+    onStart?.();
+  };
   let alive = true;
   let release: () => void = () => {};
   const cancelled = new Promise<void>((r) => (release = r));
@@ -103,13 +119,17 @@ export function speakLines(lines: readonly string[]): { done: Promise<void>; can
   const run = (async () => {
     for (let i = 0; i < lines.length && alive; i++) {
       const line = lines[i];
+      el?.addEventListener("playing", begin, { once: true });
       const next = lines[i + 1] ? clipUrls(lines[i + 1]).api : null;
       if (next) void fetch(next, { mode: "no-cors" }).catch(() => {}); // asks the API to make the next line while this one plays
       const { stored, api } = clipUrls(line);
       let ok = false;
       if (el && stored) ok = await playUrl(el, stored, 2500, () => alive);
       if (el && !ok && alive && api) ok = await playUrl(el, api, apiWaitMs(line), () => alive);
-      if (!ok && alive) await speakSystem(line, () => alive);
+      if (!ok && alive) {
+        begin();
+        await speakSystem(line, () => alive);
+      }
     }
   })();
   return {

@@ -18,7 +18,7 @@ import { LiveWaveform, SpeakingPill } from "@/components/ui/on-air";
 import { FlowShell } from "@/components/ui/shell";
 import { ExaminerVoice } from "@/components/solo/ExaminerVoice";
 import { examClosingLine, examLines, examMaxSeconds, PREP_SECONDS } from "@/lib/exam-flow";
-import { speakLines } from "@/lib/examiner-speak";
+import { speakLines, warmLines } from "@/lib/examiner-speak";
 import { formatClock, Part2Timer } from "@/components/ui/timer";
 import { TranscribeAsk, WhisperStatus, useWhisperLoader } from "./solo/TranscribeCard";
 import { DrillSummary, TakeResult } from "./solo/TakeResult";
@@ -26,7 +26,7 @@ import { DRILL_TARGETS, UUID, deriveGoal, fmtMs, goalText, okMetrics, type Goal,
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
-type ExamPhase = "speak" | "prep" | "record" | "next" | "closing";
+type ExamPhase = "speak" | "prep" | "record" | "review" | "closing";
 
 interface SoloPracticeScreenProps {
   onBack: () => void;
@@ -74,6 +74,9 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   const [recTarget, setRecTarget] = useState<number | null>(null);
   const [exam, setExam] = useState<ExamPhase | null>(null);
   const [prepLeft, setPrepLeft] = useState(PREP_SECONDS);
+  // The examiner's voice is ready and playing (false while it is still being made)
+  const [examHeard, setExamHeard] = useState(false);
+  const skipSpeech = useRef<(() => void) | null>(null);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -308,15 +311,23 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   useEffect(() => {
     if (exam !== "speak" || !questions) return;
     const q = questions[index];
-    const speech = speakLines(examLines(questions, index));
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setExamHeard(false);
+    const speech = speakLines(examLines(questions, index), () => setExamHeard(true));
     let live = true;
-    void speech.done.then(() => {
+    const next = () => {
       if (!live) return;
       if (q?.part === 2) setPrepLeft(PREP_SECONDS);
       setExam(q?.part === 2 ? "prep" : "record");
-    });
+    };
+    skipSpeech.current = () => {
+      speech.cancel();
+      next();
+    };
+    void speech.done.then(next);
     return () => {
       live = false;
+      skipSpeech.current = null;
       speech.cancel();
     };
   }, [exam, index, questions]);
@@ -345,7 +356,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     else if (examRecorded.current) {
       examRecorded.current = false;
        
-      setExam("next");
+      setExam("review");
     }
   }, [exam, recording]);
   // No microphone: leave exam mode instead of waiting forever
@@ -354,17 +365,6 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     if (exam && micError) setExam(null);
   }, [exam, micError]);
 
-  useEffect(() => {
-    if (exam !== "next" || !questions) return;
-    const t = setTimeout(() => {
-      if (index + 1 >= questions.length) setExam("closing");
-      else {
-        setIndex(index + 1);
-        setExam("speak");
-      }
-    }, 1200);
-    return () => clearTimeout(t);
-  }, [exam, index, questions]);
   useEffect(() => {
     if (exam !== "closing") return;
     const speech = speakLines([examClosingLine()]);
@@ -379,6 +379,16 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
       speech.cancel();
     };
   }, [exam]);
+
+  /** Moves on only when the learner says so, after they listened back or read the numbers. */
+  const nextQuestion = () => {
+    if (!questions) return;
+    if (index + 1 >= questions.length) setExam("closing");
+    else {
+      setIndex(index + 1);
+      setExam("speak");
+    }
+  };
 
   const leaveExam = () => {
     if (recording) stopRecording();
@@ -522,6 +532,19 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
                 <Button variant="primary" size="lg" className="flex-1" onClick={() => setExam("record")}>
                   <Mic /> Nói ngay
                 </Button>
+              ) : exam === "speak" ? (
+                <Button variant="secondary" size="lg" className="flex-1" onClick={() => skipSpeech.current?.()}>
+                  Bỏ qua giọng giám khảo
+                </Button>
+              ) : exam === "review" ? (
+                <>
+                  <Button variant="secondary" size="lg" onClick={() => setExam("record")}>
+                    <RotateCcw /> Nói lại
+                  </Button>
+                  <Button variant="primary" size="lg" className="flex-1" onClick={nextQuestion}>
+                    {index + 1 >= (questions?.length ?? 0) ? "Kết thúc bài thi" : "Câu tiếp"} <ArrowRight />
+                  </Button>
+                </>
               ) : (
                 <p className="flex-1 text-center text-sm text-muted">{exam === "closing" ? "Kết thúc buổi thi" : "Giám khảo đang dẫn…"}</p>
               )}
@@ -583,10 +606,15 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
         <div className="space-y-4">
           {micError && <Notice tone="error">{micError}</Notice>}
 
-          {exam && !recording && (
+          {exam && exam !== "review" && !recording && (
             <Card className="space-y-2">
               <Label>Thi thử · Part {question?.part}</Label>
-              {exam === "speak" && <p className="text-base font-bold text-ink">Giám khảo đang nói. Nghe xong thì bạn trả lời.</p>}
+              {exam === "speak" && (
+                <>
+                  <p className="text-base font-bold text-ink">{examHeard ? "Giám khảo đang nói. Nghe xong thì bạn trả lời." : "Giám khảo đang chuẩn bị câu hỏi…"}</p>
+                  {!examHeard && <p className="text-sm text-muted">Lần đầu có thể mất vài giây để tạo giọng. Nếu không muốn chờ, bấm &ldquo;Bỏ qua giọng giám khảo&rdquo;, đọc câu hỏi trên màn hình rồi trả lời luôn.</p>}
+                </>
+              )}
               {exam === "prep" && (
                 <>
                   <p className="text-base font-bold text-ink">Một phút chuẩn bị</p>
@@ -594,7 +622,6 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
                   <p className="text-sm text-muted">Ghi nhanh vài ý ra giấy. Hết giờ máy tự bắt đầu ghi âm.</p>
                 </>
               )}
-              {exam === "next" && <p className="text-base font-bold text-ink">Đã ghi. Sang câu tiếp…</p>}
               {exam === "closing" && <p className="text-base font-bold text-ink">Hết bài thi.</p>}
             </Card>
           )}
@@ -604,7 +631,15 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
               <p className="text-sm text-muted">
                 Giám khảo đọc từng câu bằng tiếng Anh, Part 2 có 1 phút chuẩn bị, mỗi câu tự dừng khi hết giờ. Không nói lại, không chấm điểm. Cần bật loa.
               </p>
-              <Button variant="secondary" size="sm" onClick={() => setExam("speak")}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  // Ask for every examiner line now so later ones are ready when they are needed
+                  if (questions) warmLines([...questions.flatMap((_, i) => examLines(questions, i)), examClosingLine()]);
+                  setExam("speak");
+                }}
+              >
                 <GraduationCap /> Thi thử có giám khảo
               </Button>
             </Card>
@@ -630,6 +665,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
             </Card>
           ) : showResult && latest ? (
             <Card>
+              {exam === "review" && <p className="mb-3 text-sm text-muted">Nghe lại bản ghi và xem chỉ số. Sẵn sàng thì bấm &ldquo;Câu tiếp&rdquo;.</p>}
               <TakeResult
                 key={latest.id}
                 take={latest}

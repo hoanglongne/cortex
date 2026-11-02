@@ -29,6 +29,28 @@ export function examLines(questions: readonly Q[], index: number): string[] {
   return [...(moment ? [moment.line] : []), examinerSpeech(q.part, q.question_text)];
 }
 
+/**
+ * Cuts lines into short spoken parts (whole sentences, grouped up to `max`
+ * characters). The voice makes a short part in seconds, and the same fixed
+ * sentences ("Now I'm going to give you a topic...") are shared by every exam,
+ * so each is made once and then played from the cache.
+ */
+export function sentenceChunks(lines: readonly string[], max = 140): string[] {
+  const out: string[] = [];
+  for (const line of lines) {
+    const sentences = line.replace(/\s+/g, " ").trim().match(/[^.!?]+[.!?]*["')\]]*\s*/g) ?? [];
+    let cur = "";
+    for (const sentence of sentences.map((x) => x.trim()).filter(Boolean)) {
+      if (cur && cur.length + 1 + sentence.length > max) {
+        out.push(cur);
+        cur = sentence;
+      } else cur = cur ? `${cur} ${sentence}` : sentence;
+    }
+    if (cur) out.push(cur);
+  }
+  return out;
+}
+
 export function examClosingLine(): string {
   return examinerMoment({ part: 3, questionInTurn: 1, turnInPart: 1, hasQuestion: true, completed: true })?.line ?? "";
 }
