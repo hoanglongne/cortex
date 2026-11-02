@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decide, initQueue, skip, undo } from './queue';
+import { decide, initQueue, skip, undo, restore } from './queue';
 
 const item = (id: string, word: string, trend = 't1') => ({ id, word, trend_id: trend });
 
@@ -27,5 +27,18 @@ describe('review queue', () => {
         expect(u.state.items[0].id).toBe('c');
         expect(undo(u.state)!.item.id).toBe('a');
         expect(undo(initQueue([]))).toBeNull();
+    });
+});
+
+describe('restore', () => {
+    it('puts a failed decision back on top and drops it from history', () => {
+        const a = { id: 'a', trend_id: null, word: 'x' };
+        const b = { id: 'b', trend_id: null, word: 'y' };
+        const decided = decide(initQueue([a, b]), 'a', 'approve');
+        expect(decided.items.map(i => i.id)).toEqual(['b']);
+        const back = restore(decided, a);
+        expect(back.items.map(i => i.id)).toEqual(['a', 'b']);
+        expect(back.history).toEqual([]);
+        expect(restore(back, a)).toBe(back);
     });
 });

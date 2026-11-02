@@ -44,3 +44,11 @@ export function undo<T extends QueueItem>(state: QueueState<T>): { state: QueueS
         state: { items: [last.item, ...state.items], history: state.history.slice(0, -1) },
     };
 }
+
+/** Puts a decided item back on top (its request failed after the queue had already moved on). */
+export function restore<T extends QueueItem>(state: QueueState<T>, item: T): QueueState<T> {
+    if (state.items.some(i => i.id === item.id)) return state;
+    const at = state.history.map(h => h.item.id).lastIndexOf(item.id);
+    const history = at >= 0 ? state.history.filter((_, i) => i !== at) : state.history;
+    return { items: [item, ...state.items], history };
+}
