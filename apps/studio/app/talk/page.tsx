@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, cached } from '../lib/api';
 import { quoteError } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote } from '../components/ui';
-import { BulkBar, RowCheck } from '../components/BulkBar';
+import { BulkBar } from '../components/BulkBar';
+import { IconAction, KeyHint, ReviewRow, StatusTabs, Tools, useRowKeys } from '../components/review';
 import { useBulkReview } from '../lib/bulk';
 
 /**
@@ -129,15 +130,42 @@ export default function TalkPage() {
         }
     };
 
+    const focused = useRowKeys({
+        ids: list.map(c => c.id),
+        onApprove: id => {
+            const c = list.find(x => x.id === id);
+            if (c && tab !== 'approved') void review(c, 'approve');
+        },
+        onReject: id => {
+            const c = list.find(x => x.id === id);
+            if (c && tab === 'pending') void review(c, 'reject');
+        },
+        onToggle: id => tab !== 'approved' && sel.toggle(id),
+    });
+
     return (
-        <div className="flex flex-col gap-4">
-            <Card>
+        <div className="flex flex-col gap-3">
+            <StatusTabs tabs={TABS} value={tab} onChange={t => { setList([]); setTab(t); }} counts={stats ? { pending: stats.pending, approved: stats.approved, rejected: stats.rejected } : null} />
+
+            <Tools
+                summary={stats ? `${stats.core} cụm có sẵn · ${stats.approved} cụm Studio đã duyệt` : undefined}
+                actions={
+                    <>
+                        <Button variant="primary" onClick={generate} disabled={!!busy}>
+                            {busy === 'generate' ? 'Đang viết…' : 'Viết 5 thẻ'}
+                        </Button>
+                        <Button onClick={publish} disabled={!!busy || !stats || stats.approved === 0}>
+                            {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản${stats?.unpublished ? ` (${stats.unpublished})` : ''}`}
+                        </Button>
+                    </>
+                }
+            >
                 <p className="text-sm text-ink-2">
                     Thẻ cụm từ cho nhánh Giao tiếp của Lexica: cụm tiếng Anh đời thường chêm trong câu tiếng Việt, kèm một tình huống để người học tự nói và một câu mẫu. Hội
-                    thoại cho nhánh này viết ở trang Đọc (chọn &ldquo;Hội thoại&rdquo;).
+                    thoại cho nhánh này viết ở tab Đọc (chọn &ldquo;Hội thoại&rdquo;).
                 </p>
-                {stats && <p className="mt-1 text-xs text-muted">{stats.core} cụm có sẵn trong app · {stats.approved} cụm Studio đã duyệt</p>}
-                <div className="mt-4 flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm text-muted">Viết thẻ mới cho:</span>
                     <select className={INPUT} value={level} onChange={(e) => setLevel(e.target.value)} aria-label="Level">
                         {LEVELS.map((l) => (
                             <option key={l.id} value={l.id}>
@@ -151,35 +179,11 @@ export default function TalkPage() {
                             <option key={t}>{t}</option>
                         ))}
                     </select>
-                    <Button variant="primary" onClick={generate} disabled={!!busy}>
-                        {busy === 'generate' ? 'Đang viết…' : 'Viết 5 thẻ'}
-                    </Button>
-                    <Button onClick={publish} disabled={!!busy || !stats || stats.approved === 0}>
-                        {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản${stats?.unpublished ? ` (${stats.unpublished} mới)` : ''}`}
-                    </Button>
                 </div>
-                {note && <p className="mt-3 text-sm text-accent">{note}</p>}
-            </Card>
+            </Tools>
 
             <ErrorNote error={error} />
-
-            <div className="flex gap-1 border-b border-line" role="tablist">
-                {TABS.map((t) => (
-                    <button
-                        key={t.id}
-                        role="tab"
-                        aria-selected={tab === t.id}
-                        onClick={() => {
-                            setList([]);
-                            setTab(t.id);
-                        }}
-                        className={`px-3 py-2 text-sm -mb-px border-b-2 ${tab === t.id ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink'}`}
-                    >
-                        {t.label}
-                        {stats && <span className="ml-1.5 font-mono text-[11px] text-subtle">{stats[t.id]}</span>}
-                    </button>
-                ))}
-            </div>
+            {note && <p className="text-sm text-accent">{note}</p>}
 
             {list.length === 0 && <p className="text-sm text-muted">Chưa có thẻ nào.</p>}
             {tab !== 'approved' && (
@@ -194,8 +198,9 @@ export default function TalkPage() {
                 />
             )}
             {list.map((c) => (
-                <TalkCardView key={c.id} card={c} busy={busy === c.id} selected={sel.selected.has(c.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(c.id)} onReview={(a, e) => review(c, a, e)} />
+                <TalkCardView key={c.id} card={c} busy={busy === c.id} focused={focused === c.id} selected={sel.selected.has(c.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(c.id)} onReview={(a, e) => review(c, a, e)} />
             ))}
+            {list.length > 0 && <KeyHint />}
         </div>
     );
 }
@@ -208,7 +213,21 @@ const FIELDS: { key: keyof Fields; label: string }[] = [
     { key: 'situation_model', label: 'Câu mẫu' },
 ];
 
-function TalkCardView({ card, busy, selected, onToggle, onReview }: { card: TalkCard; busy: boolean; selected?: boolean; onToggle?: () => void; onReview: (action: 'approve' | 'reject', edits?: Partial<Fields>) => void }) {
+function TalkCardView({
+    card,
+    busy,
+    focused,
+    selected,
+    onToggle,
+    onReview,
+}: {
+    card: TalkCard;
+    busy: boolean;
+    focused?: boolean;
+    selected?: boolean;
+    onToggle?: () => void;
+    onReview: (action: 'approve' | 'reject', edits?: Partial<Fields>) => void;
+}) {
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState<Fields>({
         phrase: card.phrase,
@@ -217,10 +236,16 @@ function TalkCardView({ card, busy, selected, onToggle, onReview }: { card: Talk
         situation_prompt: card.situation_prompt,
         situation_model: card.situation_model,
     });
+    const actions = editing ? undefined : (
+        <>
+            <IconAction kind="edit" disabled={busy} onClick={() => setEditing(true)} />
+            {card.status !== 'rejected' && <IconAction kind="reject" label="Loại" disabled={busy} onClick={() => onReview('reject')} />}
+            {card.status !== 'approved' && <IconAction kind="approve" disabled={busy} onClick={() => onReview('approve')} />}
+        </>
+    );
     return (
-        <Card>
-            <div className="flex flex-wrap items-center gap-2">
-                {onToggle && <RowCheck checked={!!selected} onChange={onToggle} label={`Chọn ${card.phrase}`} />}
+        <ReviewRow id={card.id} focused={focused} selected={selected} onToggle={onToggle} actions={actions}>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-bold text-ink">{card.phrase}</span>
                 <span className="text-sm text-muted">{card.translation_hint}</span>
                 <Badge>{LEVELS.find((l) => l.id === card.level)?.label ?? card.level}</Badge>
@@ -228,16 +253,31 @@ function TalkCardView({ card, busy, selected, onToggle, onReview }: { card: Talk
                 {card.status === 'approved' && !card.published_at && <Badge tone="warning">Chưa xuất bản</Badge>}
             </div>
             {editing ? (
-                <div className="mt-3 grid gap-2">
+                <div className="mt-2 grid gap-2">
                     {FIELDS.map((f) => (
                         <label key={f.key} className="grid gap-1 text-xs text-muted">
                             {f.label}
                             <input className={INPUT} value={draft[f.key]} onChange={(e) => setDraft({ ...draft, [f.key]: e.target.value })} />
                         </label>
                     ))}
+                    <div className="flex gap-2">
+                        <Button
+                            variant="primary"
+                            disabled={busy}
+                            onClick={() => {
+                                onReview('approve', draft);
+                                setEditing(false);
+                            }}
+                        >
+                            Lưu và duyệt
+                        </Button>
+                        <Button disabled={busy} onClick={() => setEditing(false)}>
+                            Huỷ
+                        </Button>
+                    </div>
                 </div>
             ) : (
-                <dl className="mt-3 grid gap-1.5 text-sm">
+                <dl className="mt-1 grid gap-0.5 text-sm">
                     <div>
                         <dt className="inline text-muted">Câu chêm: </dt>
                         <dd className="inline text-ink-2">{card.scenario}</dd>
@@ -252,41 +292,6 @@ function TalkCardView({ card, busy, selected, onToggle, onReview }: { card: Talk
                     </div>
                 </dl>
             )}
-            <div className="mt-3 flex flex-wrap gap-2">
-                {editing ? (
-                    <>
-                        <Button
-                            variant="primary"
-                            disabled={busy}
-                            onClick={() => {
-                                onReview('approve', draft);
-                                setEditing(false);
-                            }}
-                        >
-                            Lưu và duyệt
-                        </Button>
-                        <Button disabled={busy} onClick={() => setEditing(false)}>
-                            Huỷ
-                        </Button>
-                    </>
-                ) : (
-                    <>
-                        {card.status !== 'approved' && (
-                            <Button variant="primary" disabled={busy} onClick={() => onReview('approve')}>
-                                Duyệt
-                            </Button>
-                        )}
-                        <Button disabled={busy} onClick={() => setEditing(true)}>
-                            Sửa
-                        </Button>
-                        {card.status !== 'rejected' && (
-                            <Button disabled={busy} onClick={() => onReview('reject')}>
-                                Loại
-                            </Button>
-                        )}
-                    </>
-                )}
-            </div>
-        </Card>
+        </ReviewRow>
     );
 }

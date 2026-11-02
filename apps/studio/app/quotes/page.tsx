@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, cached } from '../lib/api';
 import { buildSummary, coverageText, findSummary, quoteError, type BuildResult, type FindResult } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
-import { BulkBar, RowCheck } from '../components/BulkBar';
+import { BulkBar } from '../components/BulkBar';
+import { IconAction, KeyHint, ReviewRow, StatusTabs, Tools, useRowKeys } from '../components/review';
 import { useBulkReview } from '../lib/bulk';
 
 /**
@@ -148,68 +149,69 @@ export default function QuotesPage() {
 
     const corpusReady = (stats?.corpus.built ?? 0) > 0;
 
+    const rows = tab === 'approved' ? [] : list;
+    const focused = useRowKeys({
+        ids: list.map(q => q.id),
+        onApprove: id => {
+            const q = list.find(x => x.id === id);
+            if (q && tab !== 'approved') void review(q, 'approve');
+        },
+        onReject: id => {
+            const q = list.find(x => x.id === id);
+            if (q && tab === 'pending') void review(q, 'reject');
+        },
+        onToggle: id => tab !== 'approved' && sel.toggle(id),
+    });
+
     return (
-        <div className="flex flex-col gap-4">
-            <Card>
+        <div className="flex flex-col gap-3">
+            <StatusTabs tabs={TABS} value={tab} onChange={t => { setList([]); setTab(t); }} counts={stats ? { pending: stats.pending, approved: stats.approved, rejected: stats.rejected } : null} />
+
+            <Tools
+                summary={stats ? `Độ phủ ${coverageText(stats.covered, stats.cards)} · ${stats.unpublished} chưa xuất bản` : undefined}
+                actions={
+                    <>
+                        <Button variant={corpusReady ? 'primary' : 'secondary'} onClick={find} disabled={!!busy || !corpusReady} title={corpusReady ? undefined : 'Dựng kho câu trước'}>
+                            {busy === 'find' ? 'Đang tìm…' : 'Tìm câu'}
+                        </Button>
+                        <Button onClick={publish} disabled={!!busy || stats?.unpublished === 0}>
+                            {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản${stats?.unpublished ? ` (${stats.unpublished})` : ''}`}
+                        </Button>
+                    </>
+                }
+            >
                 <p className="text-sm text-ink-2">
                     Câu trích thật có chứa từ của thẻ, hiện ở mặt sau thẻ trong Lexica. Máy tự tìm mỗi đêm: câu trong sách hết bản quyền (kho câu dựng sẵn) và tiêu đề báo từ các
                     nguồn RSS. Bạn chỉ cần duyệt. Bài hát thì thêm tay.
                 </p>
                 {stats && (
-                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="quote-stats">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="quote-stats">
                         <Stat label="Độ phủ" value={coverageText(stats.covered, stats.cards)} />
                         <Stat label="Chưa xuất bản" value={`${stats.unpublished} thay đổi`} tone={stats.unpublished > 0 ? 'warning' : undefined} />
                         <Stat label="Kho câu" value={`${stats.corpus.built}/${stats.corpus.books} sách · ${stats.corpus.sentences.toLocaleString('vi-VN')} câu`} />
                         <Stat label="Đã tìm" value={`${stats.searched}/${stats.cards} thẻ`} />
                     </div>
                 )}
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                     <Button variant={corpusReady ? 'secondary' : 'primary'} onClick={buildCorpus} disabled={!!busy || (!!stats && stats.corpus.built >= stats.corpus.books)}>
                         {busy === 'build' ? 'Đang tải sách…' : 'Dựng kho câu (6 sách)'}
                     </Button>
-                    <Button variant={corpusReady ? 'primary' : 'secondary'} onClick={find} disabled={!!busy || !corpusReady} title={corpusReady ? undefined : 'Dựng kho câu trước'}>
-                        {busy === 'find' ? 'Đang tìm…' : 'Tìm câu (50 thẻ)'}
-                    </Button>
-                    <Button onClick={publish} disabled={!!busy || stats?.unpublished === 0}>
-                        {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản${stats?.unpublished ? ` (${stats.unpublished})` : ''}`}
-                    </Button>
                 </div>
                 {stats && stats.corpus.failed.length > 0 && (
-                    <p className="mt-3 text-xs text-warning">
-                        {stats.corpus.failed.length} sách chưa dựng được lần trước, sẽ thử lại ở lần dựng sau.
-                    </p>
+                    <p className="text-xs text-warning">{stats.corpus.failed.length} sách chưa dựng được lần trước, sẽ thử lại ở lần dựng sau.</p>
                 )}
-                {note && <p className="mt-3 text-sm text-accent">{note}</p>}
-            </Card>
-
-            <AddQuote busy={!!busy} onAdd={(body) => run('add', async () => {
-                await api('/quotes', { method: 'POST', body });
-                return 'Đã thêm, chờ duyệt.';
-            })} />
+                <AddQuote busy={!!busy} onAdd={(body) => run('add', async () => {
+                    await api('/quotes', { method: 'POST', body });
+                    return 'Đã thêm, chờ duyệt.';
+                })} />
+            </Tools>
 
             <ErrorNote error={error} />
-
-            <div className="flex gap-1 border-b border-line" role="tablist">
-                {TABS.map((t) => (
-                    <button
-                        key={t.id}
-                        role="tab"
-                        aria-selected={tab === t.id}
-                        onClick={() => {
-                            setList([]);
-                            setTab(t.id);
-                        }}
-                        className={`px-3 py-2 text-sm -mb-px border-b-2 ${tab === t.id ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink'}`}
-                    >
-                        {t.label}
-                        {stats && <span className="ml-1.5 font-mono text-[11px] text-subtle">{stats[t.id]}</span>}
-                    </button>
-                ))}
-            </div>
+            {note && <p className="text-sm text-accent">{note}</p>}
 
             {list.length === 0 && (
                 <p className="text-sm text-muted">
-                    {tab === 'pending' ? (corpusReady ? 'Không có câu nào chờ duyệt. Bấm "Tìm câu" để tìm thêm.' : 'Chưa có kho câu. Bấm "Dựng kho câu" để bắt đầu.') : 'Chưa có câu nào.'}
+                    {tab === 'pending' ? (corpusReady ? 'Không có câu nào chờ duyệt. Bấm "Tìm câu" để tìm thêm.' : 'Chưa có kho câu. Mở "Công cụ" rồi bấm "Dựng kho câu".') : 'Chưa có câu nào.'}
                 </p>
             )}
             {tab !== 'approved' && (
@@ -224,8 +226,9 @@ export default function QuotesPage() {
                 />
             )}
             {list.map((q) => (
-                <QuoteRow key={q.id} quote={q} busy={busy === q.id} selected={sel.selected.has(q.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(q.id)} onReview={(a, t) => review(q, a, t)} />
+                <QuoteRow key={q.id} quote={q} busy={busy === q.id} focused={focused === q.id} selected={sel.selected.has(q.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(q.id)} onReview={(a, t) => review(q, a, t)} />
             ))}
+            {rows.length > 0 && <KeyHint />}
             {more && (
                 <Button onClick={() => void loadMore()} disabled={!!busy}>
                     Xem thêm
@@ -333,42 +336,50 @@ function AddQuote({ busy, onAdd }: { busy: boolean; onAdd: (body: Record<string,
     );
 }
 
-function QuoteRow({ quote, busy, selected, onToggle, onReview }: { quote: Quote; busy: boolean; selected?: boolean; onToggle?: () => void; onReview: (action: 'approve' | 'reject', text?: string) => void }) {
+function QuoteRow({
+    quote,
+    busy,
+    focused,
+    selected,
+    onToggle,
+    onReview,
+}: {
+    quote: Quote;
+    busy: boolean;
+    focused?: boolean;
+    selected?: boolean;
+    onToggle?: () => void;
+    onReview: (action: 'approve' | 'reject', text?: string) => void;
+}) {
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(quote.text);
+    const actions = editing ? undefined : (
+        <>
+            <IconAction kind="edit" disabled={busy} onClick={() => setEditing(true)} />
+            {quote.status !== 'rejected' && <IconAction kind="reject" disabled={busy} onClick={() => onReview('reject')} />}
+            {quote.status !== 'approved' && <IconAction kind="approve" disabled={busy} onClick={() => onReview('approve')} />}
+        </>
+    );
     return (
-        <Card>
-            <div className="flex items-baseline gap-2">
-                {onToggle && <RowCheck checked={!!selected} onChange={onToggle} label={`Chọn ${quote.word}`} />}
+        <ReviewRow id={quote.id} focused={focused} selected={selected} onToggle={onToggle} actions={actions}>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-bold text-ink lowercase">{quote.word}</span>
                 <Badge tone="accent">{KIND_LABEL[quote.kind]}</Badge>
                 {quote.status === 'approved' && !quote.published_at && <Badge tone="warning">Chưa xuất bản</Badge>}
-                <span className="ml-auto font-mono text-[11px] text-subtle">{quote.card_id}</span>
+                <span className="font-mono text-[11px] text-subtle truncate">
+                    {quote.url ? (
+                        <a href={quote.url} target="_blank" rel="noopener noreferrer" className="underline">
+                            {quote.source}
+                        </a>
+                    ) : (
+                        quote.source
+                    )}
+                </span>
             </div>
-            {editing ? <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} className="mt-2 w-full" /> : <p className="mt-2 text-sm text-ink-2">{quote.text}</p>}
-            {quote.translation && <p className="mt-1 text-sm text-muted">{quote.translation}</p>}
-            {quote.media && (
-                <a
-                    href={`https://www.youtube.com/watch?v=${quote.media.id}&t=${quote.media.start}s`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 inline-block font-mono text-[11px] text-accent underline"
-                >
-                    ▶ {clock(quote.media.start)}–{clock(quote.media.end)} trên YouTube
-                </a>
-            )}
-            <p className="mt-1 font-mono text-[11px] text-subtle">
-                {quote.url ? (
-                    <a href={quote.url} target="_blank" rel="noopener noreferrer" className="underline">
-                        {quote.source}
-                    </a>
-                ) : (
-                    quote.source
-                )}
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-                {editing ? (
-                    <>
+            {editing ? (
+                <>
+                    <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} className="mt-2 w-full" />
+                    <div className="mt-2 flex gap-2">
                         <Button
                             variant="primary"
                             disabled={busy}
@@ -388,25 +399,22 @@ function QuoteRow({ quote, busy, selected, onToggle, onReview }: { quote: Quote;
                         >
                             Huỷ
                         </Button>
-                    </>
-                ) : (
-                    <>
-                        {quote.status !== 'approved' && (
-                            <Button variant="primary" disabled={busy} onClick={() => onReview('approve')}>
-                                Duyệt
-                            </Button>
-                        )}
-                        <Button disabled={busy} onClick={() => setEditing(true)}>
-                            Sửa
-                        </Button>
-                        {quote.status !== 'rejected' && (
-                            <Button disabled={busy} onClick={() => onReview('reject')}>
-                                Loại
-                            </Button>
-                        )}
-                    </>
-                )}
-            </div>
-        </Card>
+                    </div>
+                </>
+            ) : (
+                <p className="mt-1 text-sm text-ink-2">{quote.text}</p>
+            )}
+            {quote.translation && <p className="mt-0.5 text-sm text-muted">{quote.translation}</p>}
+            {quote.media && (
+                <a
+                    href={`https://www.youtube.com/watch?v=${quote.media.id}&t=${quote.media.start}s`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block font-mono text-[11px] text-accent underline"
+                >
+                    ▶ {clock(quote.media.start)}–{clock(quote.media.end)} trên YouTube
+                </a>
+            )}
+        </ReviewRow>
     );
 }

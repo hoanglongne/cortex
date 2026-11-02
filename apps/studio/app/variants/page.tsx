@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, cached, errorText } from '../lib/api';
 import Scenario from '../components/Scenario';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
-import { BulkBar, RowCheck } from '../components/BulkBar';
+import { BulkBar } from '../components/BulkBar';
+import { IconAction, KeyHint, ReviewRow, Tools, useRowKeys } from '../components/review';
 import { bulkSummary, runBulk, useSelection } from '../lib/bulk';
 
 /**
@@ -145,30 +146,47 @@ export default function VariantsPage() {
 
     const approveAll = (g: Group) => reviewMany([g], 'approve');
 
+    const focused = useRowKeys({
+        ids: groups.map(g => g.card.id),
+        onApprove: id => {
+            const g = groups.find(x => x.card.id === id);
+            if (g) void reviewMany([g], 'approve');
+        },
+        onReject: id => {
+            const g = groups.find(x => x.card.id === id);
+            if (g) void reviewMany([g], 'reject');
+        },
+        onToggle: id => sel.toggle(id),
+    });
+
     return (
-        <div className="flex flex-col gap-4">
-            <Card>
+        <div className="flex flex-col gap-3">
+            <Tools
+                summary={coverage ? `${coverage.pending} chờ duyệt · ${coverage.approved} đã duyệt` : undefined}
+                actions={
+                    <>
+                        <Button variant="primary" onClick={generate} disabled={!!busy}>
+                            {busy === 'generate' ? 'Đang viết…' : 'Sinh câu cho 10 thẻ'}
+                        </Button>
+                        <Button onClick={publish} disabled={!!busy || !coverage?.approved}>
+                            {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản ${coverage?.approved ?? 0}`}
+                        </Button>
+                    </>
+                }
+            >
                 <p className="text-sm text-ink-2">
                     Mỗi thẻ có thêm 3 câu ví dụ cho dân tech, văn phòng và sinh viên, bên cạnh câu gốc (đời thường). Người học chọn kiểu của mình trong Lexica, mục Tôi.
                 </p>
                 {coverage && (
-                    <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-sm">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-sm">
                         <Stat label="Thẻ đã có câu" value={`${coverage.cardsWithApproved}/${coverage.cards}`} />
                         <Stat label="Chưa sinh" value={String(coverage.cardsWithout)} />
                         <Stat label="Chờ duyệt" value={String(coverage.pending)} />
                         <Stat label="Đã duyệt" value={String(coverage.approved)} />
                     </div>
                 )}
-                <div className="mt-4 flex flex-wrap gap-2">
-                    <Button variant="primary" onClick={generate} disabled={!!busy}>
-                        {busy === 'generate' ? 'Đang viết…' : 'Sinh câu cho 10 thẻ'}
-                    </Button>
-                    <Button onClick={publish} disabled={!!busy || !coverage?.approved}>
-                        {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản ${coverage?.approved ?? 0} câu đã duyệt`}
-                    </Button>
-                </div>
-                {note && <p className="mt-3 text-sm text-accent">{note}</p>}
-            </Card>
+            </Tools>
+            {note && <p className="text-sm text-accent">{note}</p>}
             <ErrorNote error={error} />
 
             {groups.length === 0 && coverage && <p className="text-sm text-muted">Không có câu nào chờ duyệt.</p>}
@@ -184,29 +202,36 @@ export default function VariantsPage() {
                 rejectLabel="Loại thẻ"
             />
             {groups.map(g => (
-                <Card key={g.card.id}>
-                    <div className="flex items-baseline gap-2">
-                        <RowCheck checked={sel.selected.has(g.card.id)} onChange={() => sel.toggle(g.card.id)} label={`Chọn ${g.card.word}`} />
+                <ReviewRow
+                    key={g.card.id}
+                    id={g.card.id}
+                    focused={focused === g.card.id}
+                    selected={sel.selected.has(g.card.id)}
+                    onToggle={() => sel.toggle(g.card.id)}
+                    actions={
+                        g.variants.length > 1 ? (
+                            <Button onClick={() => void approveAll(g)} disabled={!!busy || !!progress}>
+                                Duyệt cả {g.variants.length}
+                            </Button>
+                        ) : undefined
+                    }
+                >
+                    <div className="flex flex-wrap items-baseline gap-x-2">
                         <span className="font-bold text-ink lowercase">{g.card.word}</span>
                         <span className="text-sm text-muted">{g.card.translation_hint}</span>
-                        <span className="ml-auto font-mono text-[11px] text-subtle">{g.card.id}</span>
                     </div>
-                    <div className="mt-2 rounded-lg bg-surface-2 p-3">
-                        <Badge>Gốc · đời thường</Badge>
-                        <Scenario text={g.card.scenario} className="mt-1 text-sm" />
+                    <div className="mt-1 flex items-baseline gap-2 text-sm text-muted">
+                        <Badge>Gốc</Badge>
+                        <Scenario text={g.card.scenario} className="text-sm" />
                     </div>
-                    <div className="mt-2 space-y-2">
+                    <div className="mt-2 divide-y divide-line rounded-lg border border-line">
                         {g.variants.map(v => (
-                            <VariantRow key={v.archetype} variant={v} busy={busy === `${v.card_id}:${v.archetype}`} onReview={(a, s) => review(v, a, s)} />
+                            <VariantRow key={v.archetype} variant={v} busy={busy === `${v.card_id}:${v.archetype}`} onReview={(a, sc) => review(v, a, sc)} />
                         ))}
                     </div>
-                    {g.variants.length > 1 && (
-                        <Button className="mt-3" onClick={() => void approveAll(g)} disabled={!!busy || !!progress}>
-                            Duyệt cả {g.variants.length} câu
-                        </Button>
-                    )}
-                </Card>
+                </ReviewRow>
             ))}
+            {groups.length > 0 && <KeyHint />}
         </div>
     );
 }
@@ -215,27 +240,28 @@ function VariantRow({ variant, busy, onReview }: { variant: Variant; busy: boole
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(variant.scenario);
     return (
-        <div className="rounded-lg border border-line p-3">
-            <Badge tone="accent">{LABEL[variant.archetype]}</Badge>
-            {editing ? (
-                <Textarea value={text} onChange={e => setText(e.target.value)} rows={2} className="mt-2 w-full" />
-            ) : (
-                <Scenario text={variant.scenario} className="mt-1 text-sm" />
-            )}
-            <div className="mt-2 flex flex-wrap gap-2">
+        <div className="flex items-start gap-3 px-3 py-2">
+            <div className="min-w-0 flex-1">
+                <Badge tone="accent">{LABEL[variant.archetype]}</Badge>
                 {editing ? (
                     <>
-                        <Button variant="primary" disabled={busy} onClick={() => onReview('approve', text)}>Lưu và duyệt</Button>
-                        <Button disabled={busy} onClick={() => { setEditing(false); setText(variant.scenario); }}>Huỷ</Button>
+                        <Textarea value={text} onChange={e => setText(e.target.value)} rows={2} className="mt-2 w-full" />
+                        <div className="mt-2 flex gap-2">
+                            <Button variant="primary" disabled={busy} onClick={() => { onReview('approve', text); setEditing(false); }}>Lưu và duyệt</Button>
+                            <Button disabled={busy} onClick={() => { setEditing(false); setText(variant.scenario); }}>Huỷ</Button>
+                        </div>
                     </>
                 ) : (
-                    <>
-                        <Button variant="primary" disabled={busy} onClick={() => onReview('approve')}>Duyệt</Button>
-                        <Button disabled={busy} onClick={() => setEditing(true)}>Sửa</Button>
-                        <Button disabled={busy} onClick={() => onReview('reject')}>Loại</Button>
-                    </>
+                    <Scenario text={variant.scenario} className="mt-1 text-sm" />
                 )}
             </div>
+            {!editing && (
+                <div className="flex shrink-0 gap-1.5">
+                    <IconAction kind="edit" disabled={busy} onClick={() => setEditing(true)} />
+                    <IconAction kind="reject" disabled={busy} onClick={() => onReview('reject')} />
+                    <IconAction kind="approve" disabled={busy} onClick={() => onReview('approve')} />
+                </div>
+            )}
         </div>
     );
 }

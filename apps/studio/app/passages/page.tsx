@@ -5,7 +5,8 @@ import { api, cached } from '../lib/api';
 import { quoteError } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
 import PlanPanel from './PlanPanel';
-import { BulkBar, RowCheck } from '../components/BulkBar';
+import { BulkBar } from '../components/BulkBar';
+import { IconAction, KeyHint, ReviewRow, StatusTabs, Tools, useRowKeys } from '../components/review';
 import { useBulkReview } from '../lib/bulk';
 
 /**
@@ -130,15 +131,42 @@ export default function PassagesPage() {
         }
     };
 
+    const focused = useRowKeys({
+        ids: list.map(p => p.id),
+        onApprove: id => {
+            const p = list.find(x => x.id === id);
+            if (p && tab !== 'approved') void review(p, 'approve');
+        },
+        onReject: id => {
+            const p = list.find(x => x.id === id);
+            if (p && tab === 'pending') void review(p, 'reject');
+        },
+        onToggle: id => tab !== 'approved' && sel.toggle(id),
+    });
+
     return (
-        <div className="flex flex-col gap-4">
-            <PlanPanel onWritten={() => void load(tab)} />
-            <Card>
+        <div className="flex flex-col gap-3">
+            <StatusTabs tabs={TABS} value={tab} onChange={t => { setList([]); setTab(t); }} counts={stats ? { pending: stats.pending, approved: stats.approved, rejected: stats.rejected } : null} />
+
+            <Tools
+                summary={stats ? `${stats.approved} đã duyệt` : undefined}
+                actions={
+                    <>
+                        <Button variant="primary" onClick={generate} disabled={!!busy}>
+                            {busy === 'generate' ? 'Đang viết…' : kind === 'dialogue' ? 'Viết 1 hội thoại' : 'Viết 1 đoạn'}
+                        </Button>
+                        <Button onClick={publish} disabled={!!busy || !stats || stats.approved === 0}>
+                            {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản${stats?.unpublished ? ` (${stats.unpublished})` : ''}`}
+                        </Button>
+                    </>
+                }
+            >
                 <p className="text-sm text-ink-2">
                     Đoạn văn ngắn (120–200 từ) cho trang &ldquo;Đọc&rdquo; của Lexica, hoặc hội thoại 6–10 lượt (60–170 từ) cho nhánh Giao tiếp. Máy chọn 3–5 từ (hoặc cụm
                     giao tiếp) của level ít được dùng nhất và viết quanh chúng; bạn đọc, sửa nếu cần, rồi duyệt.
                 </p>
-                <div className="mt-4 flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm text-muted">Viết bài mới:</span>
                     <select className={INPUT} value={kind} onChange={(e) => setKind(e.target.value as 'text' | 'dialogue')} aria-label="Loại">
                         <option value="text">Đoạn văn (Chứng chỉ)</option>
                         <option value="dialogue">Hội thoại (Giao tiếp)</option>
@@ -156,35 +184,12 @@ export default function PassagesPage() {
                             <option key={t}>{t}</option>
                         ))}
                     </select>
-                    <Button variant="primary" onClick={generate} disabled={!!busy}>
-                        {busy === 'generate' ? 'Đang viết…' : kind === 'dialogue' ? 'Viết 1 hội thoại' : 'Viết 1 đoạn'}
-                    </Button>
-                    <Button onClick={publish} disabled={!!busy || !stats || stats.approved === 0}>
-                        {busy === 'publish' ? 'Đang xuất bản…' : `Xuất bản${stats?.unpublished ? ` (${stats.unpublished} mới)` : ''}`}
-                    </Button>
                 </div>
-                {note && <p className="mt-3 text-sm text-accent">{note}</p>}
-            </Card>
+                <PlanPanel onWritten={() => void load(tab)} />
+            </Tools>
 
             <ErrorNote error={error} />
-
-            <div className="flex gap-1 border-b border-line" role="tablist">
-                {TABS.map((t) => (
-                    <button
-                        key={t.id}
-                        role="tab"
-                        aria-selected={tab === t.id}
-                        onClick={() => {
-                            setList([]);
-                            setTab(t.id);
-                        }}
-                        className={`px-3 py-2 text-sm -mb-px border-b-2 ${tab === t.id ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink'}`}
-                    >
-                        {t.label}
-                        {stats && <span className="ml-1.5 font-mono text-[11px] text-subtle">{stats[t.id]}</span>}
-                    </button>
-                ))}
-            </div>
+            {note && <p className="text-sm text-accent">{note}</p>}
 
             {list.length === 0 && <p className="text-sm text-muted">Chưa có đoạn nào.</p>}
             {tab !== 'approved' && (
@@ -199,8 +204,9 @@ export default function PassagesPage() {
                 />
             )}
             {list.map((p) => (
-                <PassageCard key={p.id} passage={p} busy={busy === p.id} selected={sel.selected.has(p.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(p.id)} onReview={(a, e) => review(p, a, e)} />
+                <PassageCard key={p.id} passage={p} busy={busy === p.id} focused={focused === p.id} selected={sel.selected.has(p.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(p.id)} onReview={(a, e) => review(p, a, e)} />
             ))}
+            {list.length > 0 && <KeyHint />}
         </div>
     );
 }
@@ -208,27 +214,36 @@ export default function PassagesPage() {
 function PassageCard({
     passage,
     busy,
+    focused,
     selected,
     onToggle,
     onReview,
 }: {
     passage: Passage;
     busy: boolean;
+    focused?: boolean;
     selected?: boolean;
     onToggle?: () => void;
     onReview: (action: 'approve' | 'reject', edits?: Partial<Pick<Passage, 'title' | 'text' | 'translation'>>) => void;
 }) {
     const [editing, setEditing] = useState(false);
+    const [open, setOpen] = useState(false);
     const [title, setTitle] = useState(passage.title);
     const [text, setText] = useState(passage.text);
     const [translation, setTranslation] = useState(passage.translation);
     const n = words(editing ? text : passage.text);
     const dialogue = passage.kind === 'dialogue';
     const [min, max] = dialogue ? [60, 170] : [120, 200];
+    const actions = editing ? undefined : (
+        <>
+            <IconAction kind="edit" disabled={busy} onClick={() => { setEditing(true); setOpen(true); }} />
+            {passage.status !== 'rejected' && <IconAction kind="reject" disabled={busy} onClick={() => onReview('reject')} />}
+            {passage.status !== 'approved' && <IconAction kind="approve" disabled={busy} onClick={() => onReview('approve')} />}
+        </>
+    );
     return (
-        <Card>
-            <div className="flex flex-wrap items-center gap-2">
-                {onToggle && <RowCheck checked={!!selected} onChange={onToggle} label={`Chọn ${passage.title}`} />}
+        <ReviewRow id={passage.id} focused={focused} selected={selected} onToggle={onToggle} actions={actions}>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                 <span className="font-bold text-ink">{passage.title}</span>
                 <Badge>{LEVELS.find((l) => l.id === passage.level)?.label ?? passage.level}</Badge>
                 <Badge>{passage.topic}</Badge>
@@ -236,39 +251,21 @@ function PassageCard({
                 <Badge tone={n >= min && n <= max ? 'muted' : 'warning'}>{n} từ</Badge>
                 {passage.status === 'approved' && !passage.published_at && <Badge tone="warning">Chưa xuất bản</Badge>}
             </div>
-            <p className="mt-2 text-xs text-muted">
+            <p className="mt-1 text-xs text-muted">
                 Từ mới:{' '}
                 {passage.new_word_list.map((w) => (
                     <span key={w.id} className="mr-1.5 font-mono text-accent lowercase">
                         {w.word}
                     </span>
                 ))}
-                · {passage.words.length} từ khác của bộ thẻ
+                · {passage.words.length} từ khác
             </p>
             {editing ? (
-                <div className="mt-3 flex flex-col gap-2">
+                <div className="mt-2 flex flex-col gap-2">
                     <input className={INPUT} value={title} onChange={(e) => setTitle(e.target.value)} aria-label="Tiêu đề" />
                     <Textarea rows={8} value={text} onChange={(e) => setText(e.target.value)} className="w-full" aria-label="Đoạn văn" />
                     <Textarea rows={8} value={translation} onChange={(e) => setTranslation(e.target.value)} className="w-full" aria-label="Bản dịch" />
-                </div>
-            ) : (
-                <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-ink-2">{passage.text}</p>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-muted">{passage.translation}</p>
-                </div>
-            )}
-            {passage.questions.length > 0 && (
-                <ol className="mt-3 space-y-1 text-xs text-muted list-decimal list-inside">
-                    {passage.questions.map((q) => (
-                        <li key={q.question}>
-                            {q.question} <span className="text-accent">→ {q.options[q.answer]}</span>
-                        </li>
-                    ))}
-                </ol>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2">
-                {editing ? (
-                    <>
+                    <div className="flex gap-2">
                         <Button
                             variant="primary"
                             disabled={busy}
@@ -282,25 +279,28 @@ function PassageCard({
                         <Button disabled={busy} onClick={() => setEditing(false)}>
                             Huỷ
                         </Button>
-                    </>
-                ) : (
-                    <>
-                        {passage.status !== 'approved' && (
-                            <Button variant="primary" disabled={busy} onClick={() => onReview('approve')}>
-                                Duyệt
-                            </Button>
-                        )}
-                        <Button disabled={busy} onClick={() => setEditing(true)}>
-                            Sửa
-                        </Button>
-                        {passage.status !== 'rejected' && (
-                            <Button disabled={busy} onClick={() => onReview('reject')}>
-                                Loại
-                            </Button>
-                        )}
-                    </>
-                )}
-            </div>
-        </Card>
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <div className={`mt-2 grid grid-cols-1 lg:grid-cols-2 gap-4 ${open ? '' : 'max-h-16 overflow-hidden'}`}>
+                        <p className="whitespace-pre-line text-sm leading-relaxed text-ink-2">{passage.text}</p>
+                        <p className="whitespace-pre-line text-sm leading-relaxed text-muted">{passage.translation}</p>
+                    </div>
+                    <button onClick={() => setOpen(o => !o)} className="mt-1 text-xs text-accent hover:underline">
+                        {open ? 'Thu gọn' : 'Đọc cả bài'}
+                    </button>
+                    {open && passage.questions.length > 0 && (
+                        <ol className="mt-2 space-y-1 text-xs text-muted list-decimal list-inside">
+                            {passage.questions.map((q) => (
+                                <li key={q.question}>
+                                    {q.question} <span className="text-accent">→ {q.options[q.answer]}</span>
+                                </li>
+                            ))}
+                        </ol>
+                    )}
+                </>
+            )}
+        </ReviewRow>
     );
 }

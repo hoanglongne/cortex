@@ -5,7 +5,8 @@ import { api, cached, errorText } from '../lib/api';
 import type { Card as CardT, Lifecycle } from '../lib/types';
 import Scenario from '../components/Scenario';
 import { Badge, Button, Card, ErrorNote, Input, Select, Textarea } from '../components/ui';
-import { BulkBar, RowCheck } from '../components/BulkBar';
+import { BulkBar } from '../components/BulkBar';
+import { IconAction, ReviewRow, useRowKeys } from '../components/review';
 import { bulkSummary, runBulk, useSelection } from '../lib/bulk';
 
 const LIFECYCLE_TONE: Record<Lifecycle, 'accent' | 'warning' | 'muted'> = {
@@ -28,6 +29,7 @@ export default function CardsPage() {
     const [progress, setProgress] = useState('');
     const visible = cards.slice(0, shown);
     const sel = useSelection(visible.map(c => c.id));
+    const focused = useRowKeys({ ids: visible.map(c => c.id), onToggle: id => sel.toggle(id) });
 
     const setLifecycleMany = async (lifecycle: Lifecycle) => {
         const chosen = [...sel.selected];
@@ -100,15 +102,16 @@ export default function CardsPage() {
                 rejectLabel="Retire"
             />
             {visible.map(c => (
-                <CardRow key={c.id} card={c} selected={sel.selected.has(c.id)} onToggle={() => sel.toggle(c.id)} onChange={updated => setCards(list => list.map(x => (x.id === updated.id ? { ...x, ...updated } : x)))} />
+                <CardRow key={c.id} card={c} focused={focused === c.id} selected={sel.selected.has(c.id)} onToggle={() => sel.toggle(c.id)} onChange={updated => setCards(list => list.map(x => (x.id === updated.id ? { ...x, ...updated } : x)))} />
             ))}
             {shown < cards.length && <div ref={more} className="h-px" />}
         </div>
     );
 }
 
-function CardRow({ card, selected, onToggle, onChange }: { card: CardT; selected: boolean; onToggle: () => void; onChange: (c: CardT) => void }) {
+function CardRow({ card, focused, selected, onToggle, onChange }: { card: CardT; focused?: boolean; selected: boolean; onToggle: () => void; onChange: (c: CardT) => void }) {
     const [editing, setEditing] = useState(false);
+    const [stats, setStats] = useState(false);
     const [scenario, setScenario] = useState(card.scenario);
     const [hint, setHint] = useState(card.translation_hint);
     const [error, setError] = useState('');
@@ -127,28 +130,35 @@ function CardRow({ card, selected, onToggle, onChange }: { card: CardT; selected
         }
     };
 
-    return (
-        <Card className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-subtle">
-                <RowCheck checked={selected} onChange={onToggle} label={`Chọn ${card.word}`} />
-                <span className="text-ink font-sans text-base font-bold">{card.word}</span>
-                <Badge tone={LIFECYCLE_TONE[card.lifecycle]}>{card.lifecycle}</Badge>
-                <span>{card.level} · ELO {card.elo} · r{card.revision}</span>
-                {card.trend_label && <span>· {card.trend_label}</span>}
-                <span className="ml-auto">{card.id}</span>
-            </div>
-            {card.metrics && <Metrics m={card.metrics} />}
-            {card.flags && card.flags.length > 0 && (
-                <div className="flex gap-2">
-                    {card.flags.map(f => (
-                        <Badge key={f} tone="danger">
-                            {f === 'reported' ? 'bị báo cáo' : f === 'too_hard' ? 'quá khó / khó hiểu' : f}
-                        </Badge>
-                    ))}
-                </div>
+    const actions = editing ? undefined : (
+        <>
+            <IconAction kind="edit" disabled={busy} onClick={() => setEditing(true)} />
+            {card.lifecycle !== 'retired' ? (
+                <IconAction kind="reject" label="Retire" withText disabled={busy} onClick={() => patch({ lifecycle: 'retired' })} />
+            ) : (
+                <IconAction kind="approve" label="Khôi phục" withText disabled={busy} onClick={() => patch({ lifecycle: 'trend' })} />
             )}
+            {card.lifecycle === 'trend' && <IconAction kind="approve" label="Giữ vĩnh viễn" withText disabled={busy} onClick={() => patch({ lifecycle: 'evergreen' })} />}
+        </>
+    );
+
+    return (
+        <ReviewRow id={card.id} focused={focused} selected={selected} onToggle={onToggle} actions={actions}>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="font-bold text-ink">{card.word}</span>
+                <Badge tone={LIFECYCLE_TONE[card.lifecycle]}>{card.lifecycle}</Badge>
+                <span className="font-mono text-[11px] text-subtle">
+                    {card.level} · ELO {card.elo} · r{card.revision}
+                    {card.trend_label ? ` · ${card.trend_label}` : ''}
+                </span>
+                {card.flags?.map(f => (
+                    <Badge key={f} tone="danger">
+                        {f === 'reported' ? 'bị báo cáo' : f === 'too_hard' ? 'quá khó' : f}
+                    </Badge>
+                ))}
+            </div>
             {editing ? (
-                <div className="flex flex-col gap-2">
+                <div className="mt-2 flex flex-col gap-2">
                     <Textarea rows={2} value={scenario} onChange={e => setScenario(e.target.value)} />
                     <Input value={hint} onChange={e => setHint(e.target.value)} />
                     <div className="flex gap-2">
@@ -160,36 +170,21 @@ function CardRow({ card, selected, onToggle, onChange }: { card: CardT; selected
                 </div>
             ) : (
                 <>
-                    <Scenario text={card.scenario} />
+                    <Scenario text={card.scenario} className="mt-1 text-sm" />
                     <p className="text-sm text-muted">{card.translation_hint}</p>
                 </>
             )}
-            <ErrorNote error={error} />
-            {!editing && (
-                <div className="flex flex-wrap items-center gap-2">
-                    <Button variant="ghost" onClick={() => setEditing(true)}>
-                        Sửa
-                    </Button>
-                    {card.lifecycle !== 'evergreen' && (
-                        <Button variant="ghost" disabled={busy} onClick={() => patch({ lifecycle: 'evergreen' })}>
-                            Giữ vĩnh viễn
-                        </Button>
-                    )}
-                    {card.lifecycle !== 'retired' ? (
-                        <Button variant="danger" disabled={busy} onClick={() => patch({ lifecycle: 'retired' })}>
-                            Retire
-                        </Button>
-                    ) : (
-                        <Button variant="ghost" disabled={busy} onClick={() => patch({ lifecycle: 'trend' })}>
-                            Khôi phục
-                        </Button>
-                    )}
-                    {card.drops && card.drops.length > 0 && (
-                        <span className="ml-auto font-mono text-[11px] text-subtle">trong {card.drops.join(', ')}</span>
-                    )}
-                </div>
+            {card.metrics && (
+                <>
+                    <button onClick={() => setStats(v => !v)} className="mt-1 text-xs text-accent hover:underline">
+                        {stats ? 'Ẩn số liệu' : 'Số liệu'}
+                    </button>
+                    {stats && <Metrics m={card.metrics} />}
+                </>
             )}
-        </Card>
+            {card.drops && card.drops.length > 0 && <p className="mt-1 font-mono text-[11px] text-subtle">trong {card.drops.join(', ')}</p>}
+            <ErrorNote error={error} />
+        </ReviewRow>
     );
 }
 
