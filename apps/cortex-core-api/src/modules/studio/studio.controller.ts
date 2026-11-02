@@ -10,11 +10,13 @@ import {
   Put,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { CurrentUserId } from '../auth/current-user';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import { EditorGuard, StudioDb } from './editor.guard';
+import { TimingInterceptor } from './timing.interceptor';
 import {
   int,
   isoDate,
@@ -75,6 +77,7 @@ function captureId(id: string): number {
 /** Lexica Studio back office. Editors only (docs/LEXICA_STUDIO_SPEC.md §7). */
 @Controller('studio')
 @UseGuards(SupabaseAuthGuard, EditorGuard)
+@UseInterceptors(TimingInterceptor)
 export class StudioController {
   constructor(
     private readonly studio: StudioService,

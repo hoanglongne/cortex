@@ -1,3 +1,4 @@
+import { perfKey, recordCall } from './perf';
 import { getSupabase } from './supabase';
 
 /** Adds https:// when the env var was set as a bare host, drops trailing slashes. */
@@ -45,6 +46,8 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
     const session = (await getSupabase()?.auth.getSession())?.data.session;
     if (!session) throw new ApiError('Chưa đăng nhập', 401, null);
 
+    const started = performance.now();
+    const key = perfKey(init.method ?? 'GET', path);
     let res: Response;
     try {
         res = await fetch(`${API_URL}/studio${path}`, {
@@ -57,10 +60,23 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
         });
     } catch {
         // fetch only throws when the request never got an answer.
+        recordCall({ key, total: performance.now() - started, server: null, guard: null, bytes: 0, status: 0 });
         throw new ApiError('Lỗi mạng: không kết nối được tới Cortex API. Kiểm tra mạng rồi thử lại.', 0, null);
     }
     if (res.status === 204) return undefined as T;
     const text = await res.text();
+    const header = (name: string) => {
+        const v = res.headers.get(name);
+        return v === null || Number.isNaN(Number(v)) ? null : Number(v);
+    };
+    recordCall({
+        key,
+        total: performance.now() - started,
+        server: header('X-Studio-Ms'),
+        guard: header('X-Studio-Guard-Ms'),
+        bytes: text.length,
+        status: res.status,
+    });
     let body: unknown = null;
     try {
         body = text ? JSON.parse(text) : null;
