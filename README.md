@@ -10,7 +10,6 @@ Hệ sinh thái EdTech luyện IELTS gồm nhiều app chuyên biệt, dùng chu
 | `apps/landing` | `@cortex/landing` | Trang giới thiệu hệ sinh thái (Next.js) |
 | `apps/lexica` | `@cortex/lexica` | Học từ vựng qua truyện, thuật toán ELO + SRS, PWA |
 | `apps/oratio` | `@cortex/oratio` | Luyện nói P2P theo thời gian thực (LiveKit), giả lập phòng thi |
-| `apps/solilo` | `@cortex/solilo` | Luyện nói cá nhân, tập trung fluency và phát âm |
 | `apps/synapse` | `@cortex/synapse` | Game kịch bản giao diện terminal |
 | `packages/cortex-types` | `@cortex/types` | Type dùng chung giữa các app và API ([hướng dẫn](docs/SHARED_TYPES_GUIDE.md)) |
 | `packages/ui` | `@repo/ui` | Component React dùng chung |
