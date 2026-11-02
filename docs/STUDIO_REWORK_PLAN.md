@@ -1,6 +1,6 @@
 # Studio rework plan (#112)
 
-Status: **draft for approval**. Nothing here is built yet except the timing
+Status: **approved (all proposals)**. Phase 2 and the navigation of phase 4 are built; the unified queue is next. Nothing here is built yet except the timing
 instrumentation (step 0). Studio is the editor tool for Lexica content.
 
 ## 1. Problems (user report)
@@ -108,3 +108,8 @@ Phases 2–5 ship behind the existing URLs so Studio stays usable throughout.
 ## 7. How to collect numbers
 
 Deploy the API and Studio, open Studio, visit each page once or twice, go to **Hệ thống → Hiệu năng**, press **Chép JSON** and paste it into #112.
+
+## 8. Progress
+
+- Done: timing panel; `/me` no longer blocks opening; "approve all" in parallel; `GET /studio/counts` (one call for all badges); nav reduced from 11 entries to 5 sections with sub-tabs and pending badges (old URLs unchanged).
+- Next: unified review queue (`/queue`) with the shared row and J/K/A/E/R shortcuts; paginate and trim columns on list endpoints; remove old pages once the queue replaces them.

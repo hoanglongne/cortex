@@ -4,23 +4,46 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
-import { Inbox, LogOut, Flame, Layers, Package, Activity, Radar, Users, BookOpen, FileText, MessagesSquare, HeartPulse } from 'lucide-react';
+import { Inbox, LogOut, Layers, Package, Activity, Radar } from 'lucide-react';
 import { getSupabase } from '../lib/supabase';
-import { api, ApiError, clearCache, errorText } from '../lib/api';
+import { api, ApiError, cached, clearCache, errorText } from '../lib/api';
 
-const NAV = [
-    { href: '/', label: 'Duyệt', icon: Inbox },
-    { href: '/radar', label: 'Radar', icon: Radar },
-    { href: '/trends', label: 'Trend', icon: Flame },
-    { href: '/cards', label: 'Thẻ', icon: Layers },
-    { href: '/variants', label: 'Câu mẫu', icon: Users },
-    { href: '/quotes', label: 'Ngoài đời', icon: BookOpen },
-    { href: '/passages', label: 'Đọc', icon: FileText },
-    { href: '/talk', label: 'Giao tiếp', icon: MessagesSquare },
-    { href: '/drops', label: 'Drop', icon: Package },
-    { href: '/health', label: 'Sức khoẻ', icon: HeartPulse },
-    { href: '/system', label: 'Hệ thống', icon: Activity },
+export interface Section {
+    href: string;
+    label: string;
+    icon: typeof Inbox;
+    /** Pages that belong to this section; the first is the section's landing page. */
+    tabs: { href: string; label: string; count?: 'drafts' | 'variants' | 'quotes' | 'passages' | 'talk' }[];
+}
+
+export const SECTIONS: Section[] = [
+    {
+        href: '/',
+        label: 'Duyệt',
+        icon: Inbox,
+        tabs: [
+            { href: '/', label: 'Thẻ mới', count: 'drafts' },
+            { href: '/variants', label: 'Câu mẫu', count: 'variants' },
+            { href: '/quotes', label: 'Ngoài đời', count: 'quotes' },
+            { href: '/passages', label: 'Đọc', count: 'passages' },
+            { href: '/talk', label: 'Giao tiếp', count: 'talk' },
+        ],
+    },
+    {
+        href: '/radar',
+        label: 'Nguồn',
+        icon: Radar,
+        tabs: [
+            { href: '/radar', label: 'Radar' },
+            { href: '/trends', label: 'Trend' },
+        ],
+    },
+    { href: '/cards', label: 'Thư viện', icon: Layers, tabs: [{ href: '/cards', label: 'Thẻ' }, { href: '/health', label: 'Sức khoẻ thẻ' }] },
+    { href: '/drops', label: 'Drop', icon: Package, tabs: [{ href: '/drops', label: 'Lịch drop' }] },
+    { href: '/system', label: 'Hệ thống', icon: Activity, tabs: [{ href: '/system', label: 'Hệ thống' }] },
 ];
+
+const isActive = (href: string, pathname: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
 
 type Access = 'checking' | 'editor' | 'denied' | 'error';
 
@@ -30,6 +53,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null | undefined>(undefined);
     const [access, setAccess] = useState<Access>('checking');
     const [accessError, setAccessError] = useState('');
+    const [counts, setCounts] = useState<Record<string, number>>(() => cached<Record<string, number>>('/counts') ?? {});
 
     useEffect(() => {
         if (!supabase) return;
@@ -77,6 +101,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         };
     }, [userId]);
 
+    useEffect(() => {
+        if (access !== 'editor') return;
+        // Refresh the badges whenever the page changes (a review may have emptied a list).
+        api<Record<string, number>>('/counts')
+            .then(setCounts)
+            .catch(() => undefined);
+    }, [access, pathname]);
+
     if (!supabase) {
         return <Centered title="Thiếu cấu hình">Đặt NEXT_PUBLIC_SUPABASE_URL và NEXT_PUBLIC_SUPABASE_ANON_KEY (xem .env.example).</Centered>;
     }
@@ -111,8 +143,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         Lexica <span className="text-accent">Studio</span>
                     </span>
                     <nav className="flex gap-1 overflow-x-auto">
-                        {NAV.map(({ href, label, icon: Icon }) => {
-                            const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+                        {SECTIONS.map(({ href, label, icon: Icon, tabs }) => {
+                            const active = tabs.some(t => isActive(t.href, pathname));
+                            const badge = tabs.reduce((n, t) => n + (t.count ? (counts[t.count] ?? 0) : 0), 0);
                             return (
                                 <Link
                                     key={href}
@@ -123,6 +156,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                 >
                                     <Icon className="w-4 h-4" />
                                     {label}
+                                    {badge > 0 && <span className="font-mono text-[11px] px-1.5 rounded-full bg-accent text-on-accent">{badge}</span>}
                                 </Link>
                             );
                         })}
@@ -137,7 +171,35 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     </button>
                 </div>
             </header>
-            <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-6">{children}</main>
+            <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-6">
+                <SubTabs pathname={pathname} counts={counts} />
+                {children}
+            </main>
+        </div>
+    );
+}
+
+function SubTabs({ pathname, counts }: { pathname: string; counts: Record<string, number> }) {
+    const section = SECTIONS.find(sec => sec.tabs.some(t => isActive(t.href, pathname)));
+    if (!section || section.tabs.length < 2) return null;
+    return (
+        <div className="flex gap-1.5 overflow-x-auto mb-5">
+            {section.tabs.map(t => {
+                const n = t.count ? (counts[t.count] ?? 0) : 0;
+                const active = isActive(t.href, pathname);
+                return (
+                    <Link
+                        key={t.href}
+                        href={t.href}
+                        className={`flex items-center gap-1.5 px-3 h-8 rounded-full text-sm whitespace-nowrap border transition-colors ${
+                            active ? 'bg-ink text-bg border-ink' : 'border-line text-muted hover:text-ink hover:bg-surface-2'
+                        }`}
+                    >
+                        {t.label}
+                        {n > 0 && <span className="font-mono text-[11px] opacity-70">{n}</span>}
+                    </Link>
+                );
+            })}
         </div>
     );
 }
