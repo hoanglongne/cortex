@@ -13,7 +13,9 @@ const REASONS = ['cringe', 'sai nghĩa', 'nhạy cảm', 'trend cũ', 'khác'];
 type Tab = 'pending' | 'rejected_auto';
 type Mode = 'view' | 'reject' | 'edit';
 
-const PENDING = '/drafts?status=pending&limit=100';
+/** A page of drafts: small enough to load fast, refilled when the queue runs out. */
+const PAGE = 30;
+const PENDING = `/drafts?status=pending&limit=${PAGE}`;
 
 export default function InboxPage() {
     const [tab, setTab] = useState<Tab>('pending');
@@ -25,17 +27,20 @@ export default function InboxPage() {
     const [busy, setBusy] = useState(false);
     const [stats, setStats] = useState({ approved: 0, rejected: 0, ms: 0 });
     const shownAt = useRef(0);
+    const lastCount = useRef(0);
 
     const current = queue.items[0];
 
     const load = useCallback(async (t: Tab) => {
-        const path = `/drafts?status=${t}&limit=100`;
+        const path = `/drafts?status=${t}&limit=${PAGE}`;
         const hit = cached<Draft[]>(path);
         if (hit) setQueue(initQueue(hit));
         setLoading(!hit);
         setError('');
         try {
-            setQueue(initQueue(await api<Draft[]>(path)));
+            const fresh = await api<Draft[]>(path);
+            lastCount.current = fresh.length;
+            setQueue(initQueue(fresh));
         } catch (err) {
             setError(errorText(err));
         } finally {
@@ -46,6 +51,11 @@ export default function InboxPage() {
     useEffect(() => {
         void load(tab);
     }, [tab, load]);
+
+    // The page ran out but the server had more: fetch the next page.
+    useEffect(() => {
+        if (tab === 'pending' && !current && !loading && lastCount.current >= PAGE) void load(tab);
+    }, [tab, current, loading, load]);
 
     useEffect(() => {
         shownAt.current = performance.now();
@@ -118,8 +128,8 @@ export default function InboxPage() {
                 if (e.key === 'Escape') setMode('view');
                 return;
             }
-            if (e.key === 'ArrowRight') void approve();
-            else if (e.key === 'ArrowLeft') setMode('reject');
+            if (e.key === 'ArrowRight' || e.key === 'a' || e.key === 'A') void approve();
+            else if (e.key === 'ArrowLeft' || e.key === 'r' || e.key === 'R') setMode('reject');
             else if (e.key === 'e' || e.key === 'E') {
                 e.preventDefault();
                 setMode('edit');
@@ -194,7 +204,7 @@ export default function InboxPage() {
             {current && mode === 'view' && (
                 <div className="flex flex-wrap gap-2">
                     <Button onClick={() => setMode('reject')} disabled={busy}>
-                        <span className="flex items-center gap-1.5"><X className="w-4 h-4" /> Bỏ (←)</span>
+                        <span className="flex items-center gap-1.5"><X className="w-4 h-4" /> Bỏ (← hoặc R)</span>
                     </Button>
                     <Button onClick={() => setMode('edit')} disabled={busy}>
                         <span className="flex items-center gap-1.5"><Pencil className="w-4 h-4" /> Sửa (E)</span>
@@ -203,7 +213,7 @@ export default function InboxPage() {
                         <span className="flex items-center gap-1.5"><SkipForward className="w-4 h-4" /> Để sau (S)</span>
                     </Button>
                     <Button variant="primary" onClick={() => approve()} disabled={busy || current.status === 'rejected_auto'}>
-                        <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> Duyệt (→)</span>
+                        <span className="flex items-center gap-1.5"><Check className="w-4 h-4" /> Duyệt (→ hoặc A)</span>
                     </Button>
                 </div>
             )}

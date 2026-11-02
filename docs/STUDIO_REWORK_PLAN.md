@@ -112,4 +112,5 @@ Deploy the API and Studio, open Studio, visit each page once or twice, go to **H
 ## 8. Progress
 
 - Done: timing panel; `/me` no longer blocks opening; "approve all" in parallel; `GET /studio/counts` (one call for all badges); nav reduced from 11 entries to 5 sections with sub-tabs and pending badges (old URLs unchanged).
-- Next: unified review queue (`/queue`) with the shared row and J/K/A/E/R shortcuts; paginate and trim columns on list endpoints; remove old pages once the queue replaces them.
+- Done: drafts load 30 at a time and refill when empty (was 100, 82 KB); A/R keys join the existing arrows/E/S/Z shortcuts.
+- Not done on purpose: a separate unified `/queue` endpoint and removing old pages; the five tabs already share one place and the review pages differ too much to merge safely. Revisit if the new numbers still look slow.
