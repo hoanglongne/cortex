@@ -96,7 +96,9 @@ export default function VariantsPage() {
 
     const approveAll = (g: Group) =>
         run(`all:${g.card.id}`, async () => {
-            for (const v of g.variants) await api(`/variants/${v.card_id}/${v.archetype}`, { method: 'POST', body: { action: 'approve' } });
+            await Promise.all(
+                g.variants.map(v => api(`/variants/${v.card_id}/${v.archetype}`, { method: 'POST', body: { action: 'approve' } })),
+            );
         });
 
     return (

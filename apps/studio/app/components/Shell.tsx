@@ -45,10 +45,30 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (!userId) return;
         let cancelled = false;
+        // An editor confirmed on this device opens at once; /me re-checks in the background.
+        const key = `studio-editor:${userId}`;
+        try {
+            if (localStorage.getItem(key) === '1') setAccess('editor');
+        } catch {
+            // Storage blocked: fall back to waiting for /me.
+        }
         api('/me')
-            .then(() => !cancelled && setAccess('editor'))
+            .then(() => {
+                if (cancelled) return;
+                setAccess('editor');
+                try {
+                    localStorage.setItem(key, '1');
+                } catch {
+                    // Ignore.
+                }
+            })
             .catch((err: unknown) => {
                 if (cancelled) return;
+                try {
+                    localStorage.removeItem(key);
+                } catch {
+                    // Ignore.
+                }
                 setAccess(err instanceof ApiError && err.status === 403 ? 'denied' : 'error');
                 setAccessError(errorText(err));
             });
