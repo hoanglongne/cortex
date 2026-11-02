@@ -538,10 +538,18 @@ export class StudioController {
 
   // ------------------------------------------------ "Đọc" passages
   @Get('passages')
-  listPassages(@StudioDb() db: Db, @Query('status') status?: string) {
+  listPassages(
+    @StudioDb() db: Db,
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+  ) {
     const s: PassageStatus =
       status === 'approved' || status === 'rejected' ? status : 'pending';
-    return this.passages.list(db, s);
+    return this.passages.list(
+      db,
+      s,
+      Math.min(Math.max(Number(limit) || 20, 1), 100),
+    );
   }
 
   @Get('passages/stats')
@@ -608,10 +616,18 @@ export class StudioController {
 
   // ------------------------------------------------ Giao tiếp phrase cards
   @Get('talk')
-  listTalk(@StudioDb() db: Db, @Query('status') status?: string) {
+  listTalk(
+    @StudioDb() db: Db,
+    @Query('status') status?: string,
+    @Query('limit') limit?: string,
+  ) {
     const s: TalkStatus =
       status === 'approved' || status === 'rejected' ? status : 'pending';
-    return this.talk.list(db, s);
+    return this.talk.list(
+      db,
+      s,
+      Math.min(Math.max(Number(limit) || 20, 1), 100),
+    );
   }
 
   @Get('talk/stats')

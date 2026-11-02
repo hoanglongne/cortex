@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, cached } from '../lib/api';
 import { quoteError } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote } from '../components/ui';
+import { BulkBar, RowCheck } from '../components/BulkBar';
+import { useBulkReview } from '../lib/bulk';
 
 /**
  * Giao tiếp phrase cards for Lexica (docs/LEXICA_DIRECTION.md): an everyday
@@ -66,7 +68,7 @@ export default function TalkPage() {
 
     const load = useCallback(async (status: Status) => {
         try {
-            const [rows, s] = await Promise.all([api<TalkCard[]>(`/talk?status=${status}`), api<Stats>('/talk/stats')]);
+            const [rows, s] = await Promise.all([api<TalkCard[]>(`/talk?status=${status}&limit=20`), api<Stats>('/talk/stats')]);
             setList(rows);
             setStats(s);
         } catch (err) {
@@ -105,10 +107,27 @@ export default function TalkPage() {
             const r = await api<{ cards: number }>('/talk/publish', { method: 'POST' });
             return `Đã xuất bản ${r.cards} thẻ giao tiếp.`;
         });
-    const review = (c: TalkCard, action: 'approve' | 'reject', edits?: Partial<Fields>) =>
-        run(c.id, async () => {
+    const refreshStats = useCallback(() => void api<Stats>('/talk/stats').then(setStats, () => undefined), []);
+    const { sel, progress, bulk, removeOne } = useBulkReview({
+        list,
+        setList,
+        path: (id, action) => `/talk/${id}/${action}`,
+        refreshCounts: refreshStats,
+        setError: (m) => setError(m),
+        setNote,
+    });
+    const review = async (c: TalkCard, action: 'approve' | 'reject', edits?: Partial<Fields>) => {
+        setBusy(c.id);
+        setError('');
+        try {
             await api(`/talk/${c.id}/${action}`, { method: 'POST', body: edits ?? {} });
-        });
+            removeOne(c.id);
+        } catch (err) {
+            setError(quoteError(err));
+        } finally {
+            setBusy('');
+        }
+    };
 
     return (
         <div className="flex flex-col gap-4">
@@ -163,8 +182,19 @@ export default function TalkPage() {
             </div>
 
             {list.length === 0 && <p className="text-sm text-muted">Chưa có thẻ nào.</p>}
+            {tab !== 'approved' && (
+                <BulkBar
+                    total={list.length}
+                    selected={sel.selected.size}
+                    all={sel.all}
+                    onToggleAll={sel.setAll}
+                    onApprove={() => void bulk('approve')}
+                    onReject={tab === 'pending' ? () => void bulk('reject') : undefined}
+                    progress={progress}
+                />
+            )}
             {list.map((c) => (
-                <TalkCardView key={c.id} card={c} busy={busy === c.id} onReview={(a, e) => review(c, a, e)} />
+                <TalkCardView key={c.id} card={c} busy={busy === c.id} selected={sel.selected.has(c.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(c.id)} onReview={(a, e) => review(c, a, e)} />
             ))}
         </div>
     );
@@ -178,7 +208,7 @@ const FIELDS: { key: keyof Fields; label: string }[] = [
     { key: 'situation_model', label: 'Câu mẫu' },
 ];
 
-function TalkCardView({ card, busy, onReview }: { card: TalkCard; busy: boolean; onReview: (action: 'approve' | 'reject', edits?: Partial<Fields>) => void }) {
+function TalkCardView({ card, busy, selected, onToggle, onReview }: { card: TalkCard; busy: boolean; selected?: boolean; onToggle?: () => void; onReview: (action: 'approve' | 'reject', edits?: Partial<Fields>) => void }) {
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState<Fields>({
         phrase: card.phrase,
@@ -190,6 +220,7 @@ function TalkCardView({ card, busy, onReview }: { card: TalkCard; busy: boolean;
     return (
         <Card>
             <div className="flex flex-wrap items-center gap-2">
+                {onToggle && <RowCheck checked={!!selected} onChange={onToggle} label={`Chọn ${card.phrase}`} />}
                 <span className="font-bold text-ink">{card.phrase}</span>
                 <span className="text-sm text-muted">{card.translation_hint}</span>
                 <Badge>{LEVELS.find((l) => l.id === card.level)?.label ?? card.level}</Badge>

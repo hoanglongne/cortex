@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, type PanInfo } from 'framer-motion';
 import { Check, X, Pencil, SkipForward, Undo2, AlertTriangle } from 'lucide-react';
 import { api, cached, ApiError, errorText } from './lib/api';
-import { decide, initQueue, skip, undo, type QueueState } from './lib/queue';
+import { runBulk } from './lib/bulk';
+import { decide, initQueue, restore, skip, undo, type QueueState } from './lib/queue';
 import { LEVELS, RULE_LABELS, type Draft, type Level, type RuleResult } from './lib/types';
 import Scenario from './components/Scenario';
 import { Badge, Button, ErrorNote, Input, Label, Select, Textarea } from './components/ui';
@@ -83,26 +84,44 @@ export default function InboxPage() {
     const record = (kind: 'approved' | 'rejected') =>
         setStats(s => ({ ...s, [kind]: s[kind] + 1, ms: s.ms + (performance.now() - shownAt.current) }));
 
+    /**
+     * The next card shows at once; the request runs in the background and the
+     * card comes back with the reason if it fails. Edits are checked first
+     * because a rule failure must keep the editor open.
+     */
+    const decideNow = useCallback((item: Draft, action: 'approve' | 'reject', body: unknown) => {
+        setError('');
+        setQueue(q => decide(q, item.id, action));
+        record(action === 'approve' ? 'approved' : 'rejected');
+        api(`/drafts/${item.id}/${action}`, { method: 'POST', body }).catch((err: unknown) => {
+            setQueue(q => restore(q, item));
+            setStats(s => ({ ...s, [action === 'approve' ? 'approved' : 'rejected']: Math.max(0, s[action === 'approve' ? 'approved' : 'rejected'] - 1) }));
+            setError(errorText(err));
+            if (err instanceof ApiError) {
+                const validation = (err.body as { validation?: { rules?: Record<string, RuleResult> } } | null)?.validation;
+                if (validation?.rules) setFailed(validation.rules);
+            }
+        });
+    }, []);
+
     const approve = useCallback(
-        (edits?: { scenario: string; translationHint: string; level: Level }) =>
-            current &&
-            run(async () => {
-                await api(`/drafts/${current.id}/approve`, { method: 'POST', body: edits ?? {} });
+        (edits?: { scenario: string; translationHint: string; level: Level }) => {
+            if (!current) return;
+            if (!edits) return decideNow(current, 'approve', {});
+            return run(async () => {
+                await api(`/drafts/${current.id}/approve`, { method: 'POST', body: edits });
                 record('approved');
                 setQueue(q => decide(q, current.id, 'approve'));
-            }),
-        [current, run],
+            });
+        },
+        [current, run, decideNow],
     );
 
     const reject = useCallback(
-        (reason: string) =>
-            current &&
-            run(async () => {
-                await api(`/drafts/${current.id}/reject`, { method: 'POST', body: { reason } });
-                record('rejected');
-                setQueue(q => decide(q, current.id, 'reject'));
-            }),
-        [current, run],
+        (reason: string) => {
+            if (current) decideNow(current, 'reject', { reason });
+        },
+        [current, decideNow],
     );
 
     const undoLast = useCallback(
@@ -139,6 +158,34 @@ export default function InboxPage() {
         return () => window.removeEventListener('keydown', onKey);
     }, [busy, mode, current, approve, reject, undoLast]);
 
+    // One passing sentence per word and trend: its siblings are not needed once one is approved
+    const quick = (() => {
+        const seen = new Set<string>();
+        return queue.items.filter(d => {
+            if (!d.validation.ok || d.warnings.length > 0) return false;
+            const key = `${d.trend_id}:${d.word}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    })();
+    const [quickBusy, setQuickBusy] = useState('');
+    const approveQuick = async () => {
+        setError('');
+        setQuickBusy(`0/${quick.length}`);
+        const r = await runBulk(
+            quick.map(d => d.id),
+            id => api(`/drafts/${id}/approve`, { method: 'POST', body: {} }),
+            n => setQuickBusy(`${n}/${quick.length}`),
+        );
+        setQuickBusy('');
+        for (const id of r.done) {
+            setQueue(q => decide(q, id, 'approve'));
+            record('approved');
+        }
+        if (r.failed.length) setError(`Lỗi ${r.failed.length}: ${r.failed[0].error}`);
+    };
+
     const reviewed = stats.approved + stats.rejected;
 
     return (
@@ -163,7 +210,12 @@ export default function InboxPage() {
                         </>
                     )}
                 </span>
-                <Button variant="ghost" className="ml-auto" onClick={undoLast} disabled={busy || queue.history.length === 0}>
+                {tab === 'pending' && quick.length > 1 && (
+                    <Button className="ml-auto" onClick={() => void approveQuick()} disabled={busy || !!quickBusy}>
+                        {quickBusy ? `Đang duyệt ${quickBusy}` : `Duyệt nhanh ${quick.length} thẻ đạt kiểm tra`}
+                    </Button>
+                )}
+                <Button variant="ghost" className={quick.length > 1 && tab === 'pending' ? '' : 'ml-auto'} onClick={undoLast} disabled={busy || queue.history.length === 0}>
                     <span className="flex items-center gap-1.5">
                         <Undo2 className="w-4 h-4" /> Hoàn tác (Z)
                     </span>

@@ -1,9 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, cached, errorText } from '../lib/api';
 import Scenario from '../components/Scenario';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
+import { BulkBar, RowCheck } from '../components/BulkBar';
+import { bulkSummary, runBulk, useSelection } from '../lib/bulk';
 
 /**
  * Câu ví dụ theo hình mẫu: each card gets a tech, a business and a student
@@ -89,17 +91,59 @@ export default function VariantsPage() {
             return `Đã xuất bản ${r.variants} câu cho ${r.cards} thẻ. Lexica nhận trong lần mở app tới.`;
         });
 
-    const review = (v: Variant, action: 'approve' | 'reject', scenario?: string) =>
-        run(`${v.card_id}:${v.archetype}`, async () => {
-            await api(`/variants/${v.card_id}/${v.archetype}`, { method: 'POST', body: { action, ...(scenario !== undefined ? { scenario } : {}) } });
-        });
+    const refreshCoverage = useCallback(() => void api<Coverage>('/variants/coverage').then(setCoverage, () => undefined), []);
+    const countsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const coverageSoon = () => {
+        if (countsTimer.current) clearTimeout(countsTimer.current);
+        countsTimer.current = setTimeout(refreshCoverage, 1500);
+    };
+    const sel = useSelection(groups.map(g => g.card.id));
+    const [progress, setProgress] = useState('');
 
-    const approveAll = (g: Group) =>
-        run(`all:${g.card.id}`, async () => {
-            await Promise.all(
-                g.variants.map(v => api(`/variants/${v.card_id}/${v.archetype}`, { method: 'POST', body: { action: 'approve' } })),
-            );
-        });
+    /** Takes the reviewed variants out of the list; a card with none left goes too. */
+    const drop = (done: Set<string>) => {
+        const key = (v: Variant) => `${v.card_id}:${v.archetype}`;
+        setGroups(gs => gs.map(g => ({ ...g, variants: g.variants.filter(v => !done.has(key(v))) })).filter(g => g.variants.length > 0));
+        coverageSoon();
+    };
+
+    // One variant leaves the list at once, without reloading everything
+    const review = async (v: Variant, action: 'approve' | 'reject', scenario?: string) => {
+        const key = `${v.card_id}:${v.archetype}`;
+        setBusy(key);
+        setError('');
+        try {
+            await api(`/variants/${v.card_id}/${v.archetype}`, { method: 'POST', body: { action, ...(scenario !== undefined ? { scenario } : {}) } });
+            drop(new Set([key]));
+        } catch (err) {
+            setError(errorText(err));
+        } finally {
+            setBusy('');
+        }
+    };
+
+    const reviewMany = async (chosen: Group[], action: 'approve' | 'reject') => {
+        const items = chosen.flatMap(g => g.variants);
+        if (items.length === 0) return;
+        setError('');
+        setNote('');
+        setProgress(`0/${items.length}`);
+        const r = await runBulk(
+            items.map((_, i) => String(i)),
+            i => {
+                const v = items[Number(i)];
+                return api(`/variants/${v.card_id}/${v.archetype}`, { method: 'POST', body: { action } });
+            },
+            n => setProgress(`${n}/${items.length}`),
+        );
+        setProgress('');
+        drop(new Set(r.done.map(i => `${items[Number(i)].card_id}:${items[Number(i)].archetype}`)));
+        sel.clear();
+        setNote(bulkSummary(action === 'approve' ? 'duyệt' : 'loại', r));
+        if (r.failed.length) setError(r.failed[0].error);
+    };
+
+    const approveAll = (g: Group) => reviewMany([g], 'approve');
 
     return (
         <div className="flex flex-col gap-4">
@@ -128,9 +172,21 @@ export default function VariantsPage() {
             <ErrorNote error={error} />
 
             {groups.length === 0 && coverage && <p className="text-sm text-muted">Không có câu nào chờ duyệt.</p>}
+            <BulkBar
+                total={groups.length}
+                selected={sel.selected.size}
+                all={sel.all}
+                onToggleAll={sel.setAll}
+                onApprove={() => void reviewMany(groups.filter(g => sel.selected.has(g.card.id)), 'approve')}
+                onReject={() => void reviewMany(groups.filter(g => sel.selected.has(g.card.id)), 'reject')}
+                progress={progress}
+                approveLabel="Duyệt thẻ"
+                rejectLabel="Loại thẻ"
+            />
             {groups.map(g => (
                 <Card key={g.card.id}>
                     <div className="flex items-baseline gap-2">
+                        <RowCheck checked={sel.selected.has(g.card.id)} onChange={() => sel.toggle(g.card.id)} label={`Chọn ${g.card.word}`} />
                         <span className="font-bold text-ink lowercase">{g.card.word}</span>
                         <span className="text-sm text-muted">{g.card.translation_hint}</span>
                         <span className="ml-auto font-mono text-[11px] text-subtle">{g.card.id}</span>
@@ -145,7 +201,7 @@ export default function VariantsPage() {
                         ))}
                     </div>
                     {g.variants.length > 1 && (
-                        <Button className="mt-3" onClick={() => approveAll(g)} disabled={!!busy}>
+                        <Button className="mt-3" onClick={() => void approveAll(g)} disabled={!!busy || !!progress}>
                             Duyệt cả {g.variants.length} câu
                         </Button>
                     )}

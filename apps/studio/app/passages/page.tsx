@@ -5,6 +5,8 @@ import { api, cached } from '../lib/api';
 import { quoteError } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
 import PlanPanel from './PlanPanel';
+import { BulkBar, RowCheck } from '../components/BulkBar';
+import { useBulkReview } from '../lib/bulk';
 
 /**
  * "Đọc" passages for Lexica: short English texts written around 3–5 deck
@@ -66,7 +68,7 @@ export default function PassagesPage() {
 
     const load = useCallback(async (status: Status) => {
         try {
-            const [rows, s] = await Promise.all([api<Passage[]>(`/passages?status=${status}`), api<Stats>('/passages/stats')]);
+            const [rows, s] = await Promise.all([api<Passage[]>(`/passages?status=${status}&limit=15`), api<Stats>('/passages/stats')]);
             setList(rows);
             setStats(s);
         } catch (err) {
@@ -106,10 +108,27 @@ export default function PassagesPage() {
             const r = await api<{ passages: number }>('/passages/publish', { method: 'POST' });
             return `Đã xuất bản ${r.passages} đoạn văn.`;
         });
-    const review = (p: Passage, action: 'approve' | 'reject', edits?: Partial<Pick<Passage, 'title' | 'text' | 'translation'>>) =>
-        run(p.id, async () => {
+    const refreshStats = useCallback(() => void api<Stats>('/passages/stats').then(setStats, () => undefined), []);
+    const { sel, progress, bulk, removeOne } = useBulkReview({
+        list,
+        setList,
+        path: (id, action) => `/passages/${id}/${action}`,
+        refreshCounts: refreshStats,
+        setError: (m) => setError(m),
+        setNote,
+    });
+    const review = async (p: Passage, action: 'approve' | 'reject', edits?: Partial<Pick<Passage, 'title' | 'text' | 'translation'>>) => {
+        setBusy(p.id);
+        setError('');
+        try {
             await api(`/passages/${p.id}/${action}`, { method: 'POST', body: edits ?? {} });
-        });
+            removeOne(p.id);
+        } catch (err) {
+            setError(quoteError(err));
+        } finally {
+            setBusy('');
+        }
+    };
 
     return (
         <div className="flex flex-col gap-4">
@@ -168,8 +187,19 @@ export default function PassagesPage() {
             </div>
 
             {list.length === 0 && <p className="text-sm text-muted">Chưa có đoạn nào.</p>}
+            {tab !== 'approved' && (
+                <BulkBar
+                    total={list.length}
+                    selected={sel.selected.size}
+                    all={sel.all}
+                    onToggleAll={sel.setAll}
+                    onApprove={() => void bulk('approve')}
+                    onReject={tab === 'pending' ? () => void bulk('reject') : undefined}
+                    progress={progress}
+                />
+            )}
             {list.map((p) => (
-                <PassageCard key={p.id} passage={p} busy={busy === p.id} onReview={(a, e) => review(p, a, e)} />
+                <PassageCard key={p.id} passage={p} busy={busy === p.id} selected={sel.selected.has(p.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(p.id)} onReview={(a, e) => review(p, a, e)} />
             ))}
         </div>
     );
@@ -178,10 +208,14 @@ export default function PassagesPage() {
 function PassageCard({
     passage,
     busy,
+    selected,
+    onToggle,
     onReview,
 }: {
     passage: Passage;
     busy: boolean;
+    selected?: boolean;
+    onToggle?: () => void;
     onReview: (action: 'approve' | 'reject', edits?: Partial<Pick<Passage, 'title' | 'text' | 'translation'>>) => void;
 }) {
     const [editing, setEditing] = useState(false);
@@ -194,6 +228,7 @@ function PassageCard({
     return (
         <Card>
             <div className="flex flex-wrap items-center gap-2">
+                {onToggle && <RowCheck checked={!!selected} onChange={onToggle} label={`Chọn ${passage.title}`} />}
                 <span className="font-bold text-ink">{passage.title}</span>
                 <Badge>{LEVELS.find((l) => l.id === passage.level)?.label ?? passage.level}</Badge>
                 <Badge>{passage.topic}</Badge>

@@ -5,6 +5,8 @@ import { api, cached, errorText } from '../lib/api';
 import type { Card as CardT, Lifecycle } from '../lib/types';
 import Scenario from '../components/Scenario';
 import { Badge, Button, Card, ErrorNote, Input, Select, Textarea } from '../components/ui';
+import { BulkBar, RowCheck } from '../components/BulkBar';
+import { bulkSummary, runBulk, useSelection } from '../lib/bulk';
 
 const LIFECYCLE_TONE: Record<Lifecycle, 'accent' | 'warning' | 'muted'> = {
     trend: 'accent',
@@ -22,6 +24,28 @@ export default function CardsPage() {
     const [q, setQ] = useState('');
     const [lifecycle, setLifecycle] = useState<Lifecycle | ''>('');
     const [error, setError] = useState('');
+    const [note, setNote] = useState('');
+    const [progress, setProgress] = useState('');
+    const visible = cards.slice(0, shown);
+    const sel = useSelection(visible.map(c => c.id));
+
+    const setLifecycleMany = async (lifecycle: Lifecycle) => {
+        const chosen = [...sel.selected];
+        setError('');
+        setNote('');
+        setProgress(`0/${chosen.length}`);
+        const updated = new Map<string, CardT>();
+        const r = await runBulk(
+            chosen,
+            async id => updated.set(id, await api<CardT>(`/cards/${id}`, { method: 'PATCH', body: { lifecycle } })),
+            n => setProgress(`${n}/${chosen.length}`),
+        );
+        setProgress('');
+        setCards(list => list.map(x => (updated.has(x.id) ? { ...x, ...updated.get(x.id)! } : x)));
+        sel.clear();
+        setNote(bulkSummary(lifecycle === 'retired' ? 'retire' : 'giữ', r));
+        if (r.failed.length) setError(r.failed[0].error);
+    };
 
     const load = useCallback(async () => {
         try {
@@ -63,15 +87,27 @@ export default function CardsPage() {
                 <span className="self-center font-mono text-xs text-muted">{cards.length} thẻ</span>
             </div>
             <ErrorNote error={error} />
-            {cards.slice(0, shown).map(c => (
-                <CardRow key={c.id} card={c} onChange={updated => setCards(list => list.map(x => (x.id === updated.id ? { ...x, ...updated } : x)))} />
+            {note && <p className="text-sm text-accent">{note}</p>}
+            <BulkBar
+                total={visible.length}
+                selected={sel.selected.size}
+                all={sel.all}
+                onToggleAll={sel.setAll}
+                onApprove={() => void setLifecycleMany('evergreen')}
+                onReject={() => void setLifecycleMany('retired')}
+                progress={progress}
+                approveLabel="Giữ vĩnh viễn"
+                rejectLabel="Retire"
+            />
+            {visible.map(c => (
+                <CardRow key={c.id} card={c} selected={sel.selected.has(c.id)} onToggle={() => sel.toggle(c.id)} onChange={updated => setCards(list => list.map(x => (x.id === updated.id ? { ...x, ...updated } : x)))} />
             ))}
             {shown < cards.length && <div ref={more} className="h-px" />}
         </div>
     );
 }
 
-function CardRow({ card, onChange }: { card: CardT; onChange: (c: CardT) => void }) {
+function CardRow({ card, selected, onToggle, onChange }: { card: CardT; selected: boolean; onToggle: () => void; onChange: (c: CardT) => void }) {
     const [editing, setEditing] = useState(false);
     const [scenario, setScenario] = useState(card.scenario);
     const [hint, setHint] = useState(card.translation_hint);
@@ -94,6 +130,7 @@ function CardRow({ card, onChange }: { card: CardT; onChange: (c: CardT) => void
     return (
         <Card className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-subtle">
+                <RowCheck checked={selected} onChange={onToggle} label={`Chọn ${card.word}`} />
                 <span className="text-ink font-sans text-base font-bold">{card.word}</span>
                 <Badge tone={LIFECYCLE_TONE[card.lifecycle]}>{card.lifecycle}</Badge>
                 <span>{card.level} · ELO {card.elo} · r{card.revision}</span>

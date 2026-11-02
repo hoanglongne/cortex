@@ -4,6 +4,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { api, cached } from '../lib/api';
 import { buildSummary, coverageText, findSummary, quoteError, type BuildResult, type FindResult } from '../lib/quotes';
 import { Badge, Button, Card, ErrorNote, Textarea } from '../components/ui';
+import { BulkBar, RowCheck } from '../components/BulkBar';
+import { useBulkReview } from '../lib/bulk';
 
 /**
  * "Ngoài đời": real quotes that contain a card's word. The machine finds them
@@ -20,7 +22,7 @@ const TABS: { id: Status; label: string }[] = [
     { id: 'approved', label: 'Đã duyệt' },
     { id: 'rejected', label: 'Đã loại' },
 ];
-const PAGE = 30;
+const PAGE = 20;
 
 interface Quote {
     id: string;
@@ -121,10 +123,28 @@ export default function QuotesPage() {
             const r = await api<{ variants: number; quotes: number; cards: number }>('/variants/publish', { method: 'POST' });
             return `Đã xuất bản ${r.quotes} câu trích và ${r.variants} câu theo hình mẫu, cho ${r.cards} thẻ.`;
         });
-    const review = (q: Quote, action: 'approve' | 'reject', text?: string) =>
-        run(q.id, async () => {
+    const refreshStats = useCallback(() => void api<Stats>('/quotes/stats').then(setStats, () => undefined), []);
+    const { sel, progress, bulk, removeOne } = useBulkReview({
+        list,
+        setList,
+        path: (id, action) => `/quotes/${id}/${action}`,
+        refreshCounts: refreshStats,
+        setError: (m) => setError(m),
+        setNote,
+    });
+    // One quote: it leaves the list at once instead of reloading the whole page
+    const review = async (q: Quote, action: 'approve' | 'reject', text?: string) => {
+        setBusy(q.id);
+        setError('');
+        try {
             await api(`/quotes/${q.id}/${action}`, { method: 'POST', body: text !== undefined ? { text } : {} });
-        });
+            removeOne(q.id);
+        } catch (err) {
+            setError(quoteError(err));
+        } finally {
+            setBusy('');
+        }
+    };
 
     const corpusReady = (stats?.corpus.built ?? 0) > 0;
 
@@ -192,8 +212,19 @@ export default function QuotesPage() {
                     {tab === 'pending' ? (corpusReady ? 'Không có câu nào chờ duyệt. Bấm "Tìm câu" để tìm thêm.' : 'Chưa có kho câu. Bấm "Dựng kho câu" để bắt đầu.') : 'Chưa có câu nào.'}
                 </p>
             )}
+            {tab !== 'approved' && (
+                <BulkBar
+                    total={list.length}
+                    selected={sel.selected.size}
+                    all={sel.all}
+                    onToggleAll={sel.setAll}
+                    onApprove={() => void bulk('approve')}
+                    onReject={tab === 'pending' ? () => void bulk('reject') : undefined}
+                    progress={progress}
+                />
+            )}
             {list.map((q) => (
-                <QuoteRow key={q.id} quote={q} busy={busy === q.id} onReview={(a, t) => review(q, a, t)} />
+                <QuoteRow key={q.id} quote={q} busy={busy === q.id} selected={sel.selected.has(q.id)} onToggle={tab === 'approved' ? undefined : () => sel.toggle(q.id)} onReview={(a, t) => review(q, a, t)} />
             ))}
             {more && (
                 <Button onClick={() => void loadMore()} disabled={!!busy}>
@@ -302,12 +333,13 @@ function AddQuote({ busy, onAdd }: { busy: boolean; onAdd: (body: Record<string,
     );
 }
 
-function QuoteRow({ quote, busy, onReview }: { quote: Quote; busy: boolean; onReview: (action: 'approve' | 'reject', text?: string) => void }) {
+function QuoteRow({ quote, busy, selected, onToggle, onReview }: { quote: Quote; busy: boolean; selected?: boolean; onToggle?: () => void; onReview: (action: 'approve' | 'reject', text?: string) => void }) {
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(quote.text);
     return (
         <Card>
             <div className="flex items-baseline gap-2">
+                {onToggle && <RowCheck checked={!!selected} onChange={onToggle} label={`Chọn ${quote.word}`} />}
                 <span className="font-bold text-ink lowercase">{quote.word}</span>
                 <Badge tone="accent">{KIND_LABEL[quote.kind]}</Badge>
                 {quote.status === 'approved' && !quote.published_at && <Badge tone="warning">Chưa xuất bản</Badge>}
