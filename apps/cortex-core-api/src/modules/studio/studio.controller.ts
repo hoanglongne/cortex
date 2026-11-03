@@ -95,6 +95,11 @@ export class StudioController {
     return { userId, editor: true };
   }
 
+  @Get('overview')
+  overview(@StudioDb() db: Db) {
+    return this.studio.overview(db);
+  }
+
   @Get('counts')
   counts(@StudioDb() db: Db) {
     return this.studio.counts(db);

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Session } from '@supabase/supabase-js';
-import { Inbox, LogOut, Layers, Package, Activity, Radar } from 'lucide-react';
+import { Home, Inbox, LogOut, Send, Settings2, Sparkles } from 'lucide-react';
 import { getSupabase } from '../lib/supabase';
 import { api, ApiError, cached, clearCache, errorText } from '../lib/api';
 
@@ -13,34 +13,38 @@ export interface Section {
     label: string;
     icon: typeof Inbox;
     /** Pages that belong to this section; the first is the section's landing page. */
-    tabs: { href: string; label: string; count?: 'drafts' | 'variants' | 'quotes' | 'passages' | 'talk' }[];
+    tabs: { href: string; label: string; count?: 'pending' | 'unpublished' }[];
+}
+
+/** Menu badges: how many to review, how many to publish. */
+function summarize(o?: { pending: Record<string, number>; unpublished: Record<string, number> }): Record<string, number> {
+    if (!o) return {};
+    const sum = (r: Record<string, number>) => Object.values(r).reduce((n, v) => n + v, 0);
+    return { pending: sum(o.pending), unpublished: o.unpublished.quotes + o.unpublished.passages + o.unpublished.talk };
 }
 
 export const SECTIONS: Section[] = [
+    { href: '/', label: 'Hôm nay', icon: Home, tabs: [{ href: '/', label: 'Hôm nay' }] },
+    { href: '/review', label: 'Duyệt', icon: Inbox, tabs: [{ href: '/review', label: 'Duyệt', count: 'pending' }] },
+    { href: '/create', label: 'Tạo', icon: Sparkles, tabs: [{ href: '/create', label: 'Tạo' }] },
+    { href: '/publish', label: 'Xuất bản', icon: Send, tabs: [{ href: '/publish', label: 'Xuất bản', count: 'unpublished' }] },
     {
-        href: '/',
-        label: 'Duyệt',
-        icon: Inbox,
+        href: '/cards',
+        label: 'Quản lý',
+        icon: Settings2,
         tabs: [
-            { href: '/', label: 'Thẻ mới', count: 'drafts' },
-            { href: '/variants', label: 'Câu mẫu', count: 'variants' },
-            { href: '/quotes', label: 'Ngoài đời', count: 'quotes' },
-            { href: '/passages', label: 'Đọc', count: 'passages' },
-            { href: '/talk', label: 'Giao tiếp', count: 'talk' },
-        ],
-    },
-    {
-        href: '/radar',
-        label: 'Nguồn',
-        icon: Radar,
-        tabs: [
+            { href: '/cards', label: 'Thẻ' },
+            { href: '/health', label: 'Sức khoẻ thẻ' },
             { href: '/radar', label: 'Radar' },
             { href: '/trends', label: 'Trend' },
+            { href: '/variants', label: 'Câu mẫu' },
+            { href: '/quotes', label: 'Ngoài đời' },
+            { href: '/passages', label: 'Đọc' },
+            { href: '/talk', label: 'Giao tiếp' },
+            { href: '/drops', label: 'Drop' },
+            { href: '/system', label: 'Hệ thống' },
         ],
     },
-    { href: '/cards', label: 'Thư viện', icon: Layers, tabs: [{ href: '/cards', label: 'Thẻ' }, { href: '/health', label: 'Sức khoẻ thẻ' }] },
-    { href: '/drops', label: 'Drop', icon: Package, tabs: [{ href: '/drops', label: 'Lịch drop' }] },
-    { href: '/system', label: 'Hệ thống', icon: Activity, tabs: [{ href: '/system', label: 'Hệ thống' }] },
 ];
 
 const isActive = (href: string, pathname: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
@@ -53,7 +57,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null | undefined>(undefined);
     const [access, setAccess] = useState<Access>('checking');
     const [accessError, setAccessError] = useState('');
-    const [counts, setCounts] = useState<Record<string, number>>(() => cached<Record<string, number>>('/counts') ?? {});
+    const [counts, setCounts] = useState<Record<string, number>>(() => summarize(cached<{ pending: Record<string, number>; unpublished: Record<string, number> }>('/overview')));
 
     useEffect(() => {
         if (!supabase) return;
@@ -104,8 +108,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (access !== 'editor') return;
         // Refresh the badges whenever the page changes (a review may have emptied a list).
-        api<Record<string, number>>('/counts')
-            .then(setCounts)
+        api<{ pending: Record<string, number>; unpublished: Record<string, number> }>('/overview')
+            .then(o => setCounts(summarize(o)))
             .catch(() => undefined);
     }, [access, pathname]);
 

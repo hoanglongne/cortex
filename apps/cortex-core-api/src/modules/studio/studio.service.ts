@@ -1062,6 +1062,34 @@ export class StudioService {
 
   // ---------------------------------------------------------------- health
 
+  /** What the "Hôm nay" page and the menu badges need, in one round trip. */
+  async overview(db: Db): Promise<{
+    pending: Record<string, number>;
+    unpublished: Record<string, number>;
+  }> {
+    const unpublishedOf = (table: string) =>
+      db
+        .from(table)
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved')
+        .is('published_at', null);
+    const tables = {
+      quotes: 'studio_card_quotes',
+      passages: 'studio_passages',
+      talk: 'studio_talk_cards',
+    };
+    const keys = Object.keys(tables) as (keyof typeof tables)[];
+    const [pending, ...rest] = await Promise.all([
+      this.counts(db),
+      ...keys.map((k) => unpublishedOf(tables[k])),
+    ]);
+    const unpublished: Record<string, number> = {};
+    keys.forEach((k, i) => {
+      unpublished[k] = rest[i].error ? 0 : (rest[i].count ?? 0);
+    });
+    return { pending, unpublished };
+  }
+
   /** Pending-review counts for every content type, in one round trip. */
   async counts(db: Db): Promise<Record<string, number>> {
     const pending = (table: string) =>
