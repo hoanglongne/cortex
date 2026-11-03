@@ -662,8 +662,8 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
                 variant="secondary"
                 size="sm"
                 onClick={() => {
-                  // Ask for every examiner line now so later ones are ready when they are needed
-                  if (questions) warmLines([...questions.flatMap((_, i) => examLines(questions, i)), examClosingLine()]);
+                  // Only the fixed lines are worth making ahead (the same for every exam); asking for every question made the voice service slow the first line
+                  if (questions) warmLines([...new Set(questions.map((_, i) => examLines(questions, i)[0]).filter((l, i) => i === 0 || questions[i].part !== questions[i - 1].part)), examClosingLine()]);
                   analytics.capture(EVENTS.practiceStarted, { mode: "mock_exam", questions: questions?.length ?? 0 }, { track: "speaking" });
                   setExam("speak");
                 }}

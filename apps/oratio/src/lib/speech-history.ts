@@ -48,7 +48,7 @@ export function compare(before: Summary, now: Summary): Delta[] {
     { id: "mid", label: "Dừng giữa ý / phút", before: before.midPerMinute, after: now.midPerMinute, direction: direction(before.midPerMinute, now.midPerMinute, true) },
     { id: "fillers", label: "Từ đệm / phút", before: before.fillersPerMinute, after: now.fillersPerMinute, direction: direction(before.fillersPerMinute, now.fillersPerMinute, true) },
     { id: "repeats", label: "Từ lặp / phút", before: before.repeatsPerMinute, after: now.repeatsPerMinute, direction: direction(before.repeatsPerMinute, now.repeatsPerMinute, true) },
-    { id: "run", label: "Từ nói liền", before: before.meanRun, after: now.meanRun, direction: direction(before.meanRun, now.meanRun, false) },
+    { id: "run", label: "Độ dài lượt nói", before: before.meanRun, after: now.meanRun, direction: direction(before.meanRun, now.meanRun, false) },
   ];
 }
 

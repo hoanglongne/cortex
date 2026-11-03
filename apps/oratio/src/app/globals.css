@@ -109,12 +109,27 @@
   50% { opacity: 0.45; }
 }
 
+@keyframes eq {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(1); }
+}
+
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-3px); }
 }
 
 @layer base {
+  /* Anything that can be pressed shows it can be */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  [role="radio"],
+  summary,
+  label[for],
+  select {
+    cursor: pointer;
+  }
   body {
     background: var(--c-bg);
     color: var(--c-ink);

@@ -279,7 +279,7 @@ function AnswerCard({ answer, isExpanded, onToggle }: { answer: MyAnswer; isExpa
             <Metric label="Thời gian nói" value={secs(answer.speakingMs)} />
             <Metric label="Ngừng dài" value={answer.longPauses} />
             {answer.wpm !== null && <Metric label="Từ/phút" value={Math.round(answer.wpm)} />}
-            {answer.meanRunWords !== null && <Metric label="Từ mỗi mạch" value={answer.meanRunWords.toFixed(1)} />}
+            {answer.meanRunWords !== null && <Metric label="Độ dài lượt nói" value={answer.meanRunWords.toFixed(1)} />}
           </div>
 
           {answer.lexicaWords.length > 0 && (

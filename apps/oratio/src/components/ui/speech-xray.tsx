@@ -49,7 +49,7 @@ export function SpeechXray({
         <Stat tone={stats.fillers > 0 ? "warn" : undefined} value={stats.fillers} label="từ đệm" />
         <Stat tone={stats.repeats > 0 ? "warn" : undefined} value={stats.repeats} label="từ lặp" />
         <Stat value={stats.articulationRate} label="từ/phút khi nói" />
-        <Stat value={String(stats.meanRun).replace(".", ",")} label="từ nói liền" />
+        <Stat value={stats.medianRun} label="từ mỗi lượt nói" />
       </dl>
 
       <p className="mt-2 text-[15px] leading-[2] text-ink" lang="en">

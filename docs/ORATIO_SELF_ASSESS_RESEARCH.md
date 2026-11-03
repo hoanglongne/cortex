@@ -40,6 +40,17 @@ Lần thử đầu cho thấy Whisper tiny nghe sai 30 đến 40% lời nói h�
 - **Sửa lời:** nút "Máy nghe sai? Sửa lời" cho gõ lại từ sai; chỗ dừng và thời gian giữ nguyên, các số liệu tính lại ngay.
 - **Một lần chép lời, không hai:** bản chép lời trong màn kết quả và Soi lời nói dùng chung một lần chạy (trước đây chạy hai lần và có thể ra hai kết quả khác nhau).
 
+## Gợi ý điểm: tính theo 100 từ, thêm trọng số từ và ngữ pháp (phản hồi lần hai)
+
+Lỗi cũ: đếm "lần mỗi phút" với bản ghi tối thiểu 30 giây, nên 1 lỗi trong 30 giây thành 2 lỗi/phút và ngữ pháp tụt xuống 4; còn nói trôi chảy không dừng chỉ được 5 vì điểm khởi đầu là 6 mà không có phần thưởng nào. Giờ mọi thứ tính **trên 100 từ** (1 lỗi trong 75 từ ≈ 1,3/100 từ), mỗi tiêu chí có khởi điểm rõ và cộng/trừ có lý do, hiển thị ngay dưới điểm.
+
+- **Trôi chảy**: ngập ngừng/100 từ = chỗ dừng giữa ý + 0,7 × từ đệm + 0,5 × từ lặp + ậm ừ kéo dài; trừ 0,3 điểm cho mỗi đơn vị. Cộng/trừ theo tốc độ (≥110 từ/phút +0,5; <100 −0,5; <80 −1; <60 −1,5) và độ dài lượt nói (trung vị ≥8 từ +0,5; ≤3 −0,5). Nói đều, không ngập ngừng, tốc độ tự nhiên → 7.
+- **Ậm ừ ("mmm", "ừmmm")**: lỗ hổng cũ là âm thanh ngân dài vẫn có tiếng nên được tính là đang nói, và Whisper hay gán cả đoạn ngân vào thời lượng của một từ. Hai cách bắt: (1) trên âm thanh, đoạn có tiếng ≥0,7 s mà độ to gần như phẳng (độ lệch/độ to trung bình <0,3; tiếng nói thật lên xuống theo âm tiết) bị coi là "ngân", không phải lời; (2) trên từ, từ nào dài ≥0,9 s và hơn 2,5 lần thời gian cần để nói (0,18 s + 0,07 s mỗi chữ) bị cắt về đúng độ dài, phần dư thành khoảng dừng. Ngưỡng chọn bằng âm thanh tổng hợp, **chưa kiểm trên ghi âm thật**.
+- **Từ vựng (trọng số từ)**: tần suất từ lấy từ wordfreq (Robyn Speer; dữ liệu CC BY-SA 4.0), chia 4 dải Zipf (≥5,5 / 4,7–5,5 / 4,0–4,7 / 3,3–4,0; thấp hơn là "hiếm"). Dùng: tỷ lệ từ ít gặp trong các từ có nghĩa (≥40% +1, ≥30% +0,5, <15% −0,5), độ đa dạng bằng MATTR cửa sổ 20 (không phụ thuộc độ dài bài), từ nhắc ≥3 lần. Bỏ qua tên riêng (chữ hoa giữa câu). Tần suất chỉ là chỉ báo: từ hiếm có thể dùng sai hoặc do máy nghe nhầm. Dữ liệu sinh bằng `apps/oratio/scripts/build-word-bands.mjs`, nạp lười (chỉ khi mở bước Lời nói).
+- **Ngữ pháp**: phạm vi cấu trúc (mệnh đề phụ, quan hệ, quá khứ, hoàn thành, tương lai, khuyết thiếu, bị động, điều kiện, V-ing) — 5 loại trở lên +1, 3–4 loại +0,5, chỉ 1 loại −0,5; lỗi bạn đánh dấu −0,6 mỗi 100 từ; thêm một ít quy tắc bắt lỗi chắc chắn (he go, they was, a apple, more better, didn't went…) trừ tối đa 1 điểm. **Giới hạn quan trọng**: Whisper có xu hướng "sửa" ngữ pháp khi chép, nên lỗi máy thấy luôn ít hơn thực tế; vì vậy tín hiệu của người chấm quan trọng hơn.
+- **Phát âm**: chỉ dựa trên chỗ bạn đánh dấu "khó nghe" và số từ phải sửa trong bản chép (dấu hiệu mềm, có thể do máy). Chấm phát âm thật cần mô hình âm vị (wav2vec2 ~355 MB), chưa làm.
+- Các trọng số là quy tắc kinh nghiệm theo nghiên cứu về cảm nhận trôi chảy và bảng mô tả band công khai, **chưa hiệu chỉnh bằng bài đã có điểm thật**; điểm gợi ý luôn chỉ là điểm khởi đầu để người chấm xác nhận.
+
 ## Giới hạn phải nói thẳng
 
 - **Chưa chạy thử với mô hình thật** (môi trường làm việc không tải được mô hình). Phần phân tích có test với dữ liệu mốc thời gian giả; phần gọi Whisper có đường lui: không có mốc từng từ thì màn chấm dùng cách cũ.
@@ -47,3 +58,8 @@ Lần thử đầu cho thấy Whisper tiny nghe sai 30 đến 40% lời nói h�
 - Phân loại "giữa ý hay giữa các ý" dựa vào dấu câu Whisper tự thêm và danh sách từ nối; có thể sai ở câu khó hiểu.
 - Công thức tính điểm vẫn là luật mình tự đặt, chưa hiệu chỉnh bằng dữ liệu thật. Các luật "vì sao" cũng vậy: mỗi luật nói rõ nó thấy gì để người học tự kiểm.
 - "Từ bạn bí" mới chỉ hiện ra, chưa đẩy sang Lexica để ôn.
+
+
+## Ghi công
+
+Tần suất từ: wordfreq, Copyright 2022 Robyn Speer (mã Apache-2.0, dữ liệu CC BY-SA 4.0), https://github.com/rspeer/wordfreq. Danh sách dải rút gọn trong `apps/oratio/src/lib/lexical-data.ts` chia sẻ theo cùng giấy phép CC BY-SA 4.0.

@@ -17,8 +17,10 @@ export function examinerSpeech(part: number, text: string): string {
 }
 
 /** Voice names that sound like an examiner: a British voice first, then any English one. */
-export function pickExaminerVoice(voices: readonly { name: string; lang: string }[]): number {
+export function pickExaminerVoice(voices: readonly { name: string; lang: string; localService?: boolean }[]): number {
   const en = voices.map((v, i) => ({ v, i })).filter(({ v }) => v.lang.toLowerCase().startsWith("en"));
-  const score = ({ v }: { v: { name: string; lang: string } }) => (v.lang.toLowerCase().startsWith("en-gb") ? 3 : 0) + (/natural|neural|online|enhanced|premium|google|daniel|serena|kate/i.test(v.name) ? 2 : 0) - (/espeak|compact|fred|albert/i.test(v.name) ? 5 : 0);
+  // A voice on the device starts at once; an online one (Google, "Online") needs a network round trip before the first word
+  const score = ({ v }: { v: { name: string; lang: string; localService?: boolean } }) =>
+    (v.lang.toLowerCase().startsWith("en-gb") ? 3 : 0) + (/natural|neural|enhanced|premium|daniel|serena|kate/i.test(v.name) ? 2 : 0) + (v.localService ? 4 : 0) - (/online|google/i.test(v.name) ? 3 : 0) - (/espeak|compact|fred|albert/i.test(v.name) ? 5 : 0);
   return en.sort((a, b) => score(b) - score(a))[0]?.i ?? -1;
 }

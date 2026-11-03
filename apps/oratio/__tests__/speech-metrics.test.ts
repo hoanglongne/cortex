@@ -3,12 +3,22 @@ import { analyzeSamples, profileSamples } from "@/lib/client/speech-metrics";
 
 const SR = 16000;
 
-/** Concatenate segments: a number is seconds of silence, [s] is seconds of a 220 Hz tone. */
-function build(parts: (number | [number])[], amp = 0.3): Float32Array {
+/**
+ * Concatenate segments: a number is seconds of silence, [s] is seconds of
+ * "speech" (a 220 Hz tone whose loudness rises and falls about 4 times a
+ * second, like syllables), [s, "hum"] is a held flat "mmm".
+ */
+function build(parts: (number | [number] | [number, "hum"])[], amp = 0.3): Float32Array {
   const chunks = parts.map((p) => {
     const secs = Array.isArray(p) ? p[0] : p;
+    const hum = Array.isArray(p) && p[1] === "hum";
     const out = new Float32Array(Math.round(secs * SR));
-    if (Array.isArray(p)) for (let i = 0; i < out.length; i++) out[i] = amp * Math.sin((2 * Math.PI * 220 * i) / SR);
+    if (Array.isArray(p)) {
+      for (let i = 0; i < out.length; i++) {
+        const env = hum ? 1 : 0.55 + 0.45 * Math.sin((2 * Math.PI * 4 * i) / SR);
+        out[i] = amp * env * Math.sin((2 * Math.PI * 220 * i) / SR);
+      }
+    }
     return out;
   });
   const all = new Float32Array(chunks.reduce((n, c) => n + c.length, 0));
@@ -97,5 +107,22 @@ describe("profileSamples", () => {
   it("copes with silence and an empty recording", () => {
     expect(profileSamples(build([3]), SR).pauses).toEqual([]);
     expect(profileSamples(new Float32Array(0), SR).peaks.every((v) => v === 0)).toBe(true);
+  });
+});
+
+describe("held hums", () => {
+  it("are not counted as speech: a hummed stretch becomes a pause", () => {
+    const hummed = build([[2], [2.5, "hum"], [2]]);
+    const p = profileSamples(hummed, SR);
+    expect(p.hums).toHaveLength(1);
+    expect(p.pauses).toHaveLength(1);
+    expect(p.voicedShare).toBeLessThan(0.7);
+    const m = analyzeSamples(hummed, SR);
+    expect(m.hums).toBe(1);
+    expect(m.longPauses).toBe(1);
+  });
+  it("leave ordinary speech alone", () => {
+    const talk = build([[3], 0.4, [3]]);
+    expect(profileSamples(talk, SR).hums).toHaveLength(0);
   });
 });

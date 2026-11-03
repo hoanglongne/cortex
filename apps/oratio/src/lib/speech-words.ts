@@ -34,6 +34,8 @@ export interface Token {
   marker: boolean;
   /** Said again straight after itself ("the the", "I think I think") */
   repeat: boolean;
+  /** Seconds of a drawn-out sound ("sooo", "and mmm") cut off the end of this word: it counts as a pause, not as speech */
+  stretched: number;
 }
 
 export interface Gap {
@@ -62,6 +64,10 @@ export interface SpeechStats {
   fillers: number;
   markers: number;
   repeats: number;
+  /** Words drawn out far beyond their length ("and ... mmm"): the time was hesitation, not speech */
+  stretches: number;
+  /** Words said between two pauses, as the typical run of speech (median) */
+  medianRun: number;
   midPausesPerMinute: number;
   fillersPerMinute: number;
   repeatsPerMinute: number;
@@ -78,6 +84,19 @@ const MARKERS = new Set(["like", "actually", "basically", "literally"]);
 const STARTERS = new Set(["and", "but", "so", "because", "which", "that", "when", "if", "then", "also", "however", "well", "or", "while", "although", "first", "firstly", "second", "finally", "overall", "for", "in", "on", "after", "before"]);
 const SENTENCE_END = /[.!?;:,]["')\]]?$/;
 
+/**
+ * A word cannot take this long to say. Whisper's timing sometimes lets a word
+ * swallow the silence or the hum after it, so a learner who hums for two
+ * seconds looks fluent. Long words are cut to what they need and the rest
+ * becomes a gap (a pause). Rough speaking time of a word: 0.18 s plus 0.07 s a
+ * letter, and only words that last at least 0.9 s and more than 2.5 times that.
+ */
+export function plausibleSeconds(text: string): number {
+  return 0.18 + 0.07 * text.length;
+}
+const STRETCH_MIN = 0.9;
+const STRETCH_FACTOR = 2.5;
+
 const clean = (t: string) => t.toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/g, "");
 
 /** Tokens with their flags. Words with no timing or no letters are left out. */
@@ -85,7 +104,10 @@ export function tokenize(words: readonly Word[]): Token[] {
   const kept = words.map((w, src) => ({ w, src })).filter(({ w }) => Number.isFinite(w.start) && Number.isFinite(w.end) && clean(w.text) !== "");
   const tokens: Token[] = kept.map(({ w, src }, i) => {
     const c = clean(w.text);
-    return { i, src, text: w.text.trim(), clean: c, start: w.start, end: Math.max(w.end, w.start), filler: FILLERS.has(c), marker: MARKERS.has(c), repeat: false };
+    const end = Math.max(w.end, w.start);
+    const need = plausibleSeconds(c);
+    const long = end - w.start >= STRETCH_MIN && end - w.start > STRETCH_FACTOR * need;
+    return { i, src, text: w.text.trim(), clean: c, start: w.start, end: long ? w.start + need : end, filler: FILLERS.has(c), marker: MARKERS.has(c), repeat: false, stretched: long ? end - w.start - need : 0 };
   });
   const body = tokens.filter((t) => !t.filler);
   for (let k = 1; k < body.length; k++) {
@@ -126,13 +148,20 @@ export function speechStats(tokens: readonly Token[], gaps: readonly Gap[]): Spe
   // Pauses of 0.25 s and more are taken out of the speaking time
   let paused = 0;
   let runs = 1;
-  for (let k = 1; k < tokens.length; k++) {
-    const g = tokens[k].start - tokens[k - 1].end;
-    if (g >= RUN_GAP) {
-      paused += g;
+  let inRun = 0;
+  const runSizes: number[] = [];
+  for (let k = 0; k < tokens.length; k++) {
+    if (k > 0 && tokens[k].start - tokens[k - 1].end >= RUN_GAP) {
+      paused += tokens[k].start - tokens[k - 1].end;
       runs++;
+      runSizes.push(inRun);
+      inRun = 0;
     }
+    if (!tokens[k].filler) inRun++;
   }
+  runSizes.push(inRun);
+  runSizes.sort((a, b) => a - b);
+  const medianRun = runSizes.length ? runSizes[Math.floor(runSizes.length / 2)] : 0;
   const speaking = Math.max(1, span - paused);
   const mid = gaps.filter((g) => g.kind === "mid").length;
   const fillers = tokens.filter((t) => t.filler).length;
@@ -148,6 +177,8 @@ export function speechStats(tokens: readonly Token[], gaps: readonly Gap[]): Spe
     fillers,
     markers: tokens.filter((t) => t.marker).length,
     repeats,
+    stretches: tokens.filter((t) => t.stretched > 0).length,
+    medianRun,
     midPausesPerMinute: round1(mid / minutes),
     fillersPerMinute: round1(fillers / minutes),
     repeatsPerMinute: round1(repeats / minutes),

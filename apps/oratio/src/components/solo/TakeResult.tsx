@@ -81,9 +81,9 @@ function buildRows(take: Take, prev?: Take): Row[] {
       },
       {
         key: "run",
-        label: "Số từ mỗi mạch nói",
+        label: "Độ dài lượt nói",
         value: String(t.meanRunWords),
-        help: "Số từ trung bình giữa hai quãng ngừng dài. Càng cao, bài nói càng liền mạch.",
+        help: "Số từ bạn thường nói được trước khi dừng. Người nói trôi chảy giữ được những lượt nói dài và ngắt ở ranh giới giữa các ý.",
         now: t.meanRunWords,
         before: pt?.meanRunWords,
         better: "up",
