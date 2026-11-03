@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Be_Vietnam_Pro, JetBrains_Mono, Lora } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from './lib/session';
+import AnalyticsBoot from './components/AnalyticsBoot';
 
 const sans = Be_Vietnam_Pro({ variable: '--font-be-vietnam', subsets: ['latin', 'vietnamese'], weight: ['400', '500', '600', '700'] });
 const serif = Lora({ variable: '--font-lora', subsets: ['latin', 'vietnamese'], weight: ['500', '600'], style: ['normal', 'italic'] });
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </head>
             <body className={`${sans.variable} ${serif.variable} ${mono.variable} antialiased`}>
                 <SessionProvider>{children}</SessionProvider>
+                <AnalyticsBoot />
             </body>
         </html>
     );

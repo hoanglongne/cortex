@@ -16,6 +16,8 @@ import { EndingCard, Hint, LevelPicker, PhraseBook, ReportScene, TypeAnswer } fr
 import { accountsOn } from "../lib/supabase";
 import { addRun, pushLater } from "../lib/account";
 import { readCachedClasses, reportNow, settleRun, synapseWork } from "../lib/classes";
+import { EVENTS } from "@cortex/events";
+import { analytics } from "../lib/analytics";
 import { endingText, markEnding, tierOf, type EndingTier } from "../lib/endings";
 
 function makeId() {
@@ -77,6 +79,7 @@ export function TerminalBoard(props: {
   const settled = (p: Progress, ending: "gold" | "silver" | "bronze" | "fail") =>
     settleRun(p, synapseWork(readCachedClasses()), { mission_id: props.review ? "review" : (missionId ?? ""), review: Boolean(props.review), ending, at: nowIso() });
   const finishRun = (p: Progress, ending: "gold" | "silver" | "bronze" | "fail") => {
+    analytics.capture(EVENTS.practiceCompleted, { mode: props.review ? "review" : "mission", mission: props.review ? "review" : (missionId ?? ""), ending }, { track: "story" });
     const next = settled(p, ending);
     saveProgress(next);
     void reportNow(next);
@@ -167,6 +170,7 @@ export function TerminalBoard(props: {
       },
     ]);
 
+    analytics.capture(EVENTS.practiceStarted, { mode: props.review ? "review" : "mission", mission: props.review ? "review" : (missionId ?? "") }, { track: "story" });
     try {
       setMode("loading");
       const arc: StoryArc = props.review
@@ -193,6 +197,7 @@ export function TerminalBoard(props: {
 
     setSelected(choice);
     setMode("outcome");
+    analytics.capture(EVENTS.questionAnswered, { correct: choice.isCorrect, where: props.review ? "review" : "mission", stage: currentStage }, { track: "story" });
 
     setSessionHistory((h) =>
       h.concat(

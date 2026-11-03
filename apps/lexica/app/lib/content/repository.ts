@@ -188,13 +188,17 @@ export function useContentVersion(): number {
 export function withVariants(card: ContentCard, entry: CardVariants[string] | undefined): ContentCard {
     if (!entry) return card;
     const word = card.word.toLowerCase();
-    const scenarios: NonNullable<ContentCard['scenarios']> = { casual: card.scenario };
+    // A rewrite from Studio replaces the card's own sentence, if it still teaches the word
+    const rewrite = entry.casual && entry.casual.toLowerCase().includes(word) ? entry.casual : null;
+    const base = rewrite ? { ...card, scenario: rewrite } : card;
+    const scenarios: NonNullable<ContentCard['scenarios']> = { casual: base.scenario };
     let added = false;
     for (const [archetype, sentence] of Object.entries(entry)) {
+        if (archetype === 'casual') continue;
         if (sentence && sentence.toLowerCase().includes(word)) {
             scenarios[archetype as VariantArchetype] = sentence;
             added = true;
         }
     }
-    return added ? { ...card, scenarios } : card;
+    return added ? { ...base, scenarios } : base;
 }

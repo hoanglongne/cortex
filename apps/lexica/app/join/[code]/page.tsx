@@ -7,6 +7,8 @@ import { School } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import AuthGate from '../../components/AuthGate';
 import { joinClass } from '../../lib/classes';
+import { capture } from '../../lib/productAnalytics';
+import { EVENTS } from '@cortex/events';
 import { refreshClasses, reportNow } from '../../lib/classSync';
 
 /**
@@ -28,7 +30,8 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
         setBusy(true);
         setError('');
         try {
-            await joinClass(clean, shownName.trim());
+            const joined = await joinClass(clean, shownName.trim());
+            capture(EVENTS.classJoined, { via: 'link' }, { track: 'class', classId: joined.class_id });
             await refreshClasses(true);
             void reportNow();
             router.push('/today');

@@ -248,12 +248,25 @@ export class VariantsService {
         .select('card_id, kind, text, translation, source, url, media, status')
         .eq('status', 'approved'),
     );
-    if (approved.length === 0 && quoteRows.length === 0) {
+    // New sentences for cards that ship in the app itself (card-fixes.ts). Tolerant: the SQL may not be run yet.
+    const rewrites = rows<{ card_id: string; scenario: string }>({
+      ...(await db.from('studio_card_rewrites').select('card_id, scenario')),
+      error: null,
+    }).map((r) => ({ ...r, archetype: 'casual' as const }));
+    if (
+      approved.length === 0 &&
+      quoteRows.length === 0 &&
+      rewrites.length === 0
+    ) {
       throw new BadRequestException('Chưa có câu nào được duyệt');
     }
     const publishedAt = new Date().toISOString();
     const quotes = buildQuotesMap(quoteRows);
-    const file = buildVariantsFile(approved, publishedAt, quotes);
+    const file = buildVariantsFile(
+      [...approved, ...rewrites],
+      publishedAt,
+      quotes,
+    );
     const body = JSON.stringify(file);
     const { path, hash } = variantsPath(body);
     const { error } = await db.storage.from(BUCKET).upload(path, body, {

@@ -46,6 +46,7 @@ import {
 } from '../lib/buddySocial';
 import { useKnownWords } from './DuelsSection';
 import { ORATIO_URL } from '../lib/cortexConfig';
+import { EVENTS } from '@cortex/events';
 import { disablePush, enablePush, pushEnabled, pushSupport } from '../lib/push';
 
 const wordOf = (id: string) => getCard(id)?.word ?? null;
@@ -442,7 +443,10 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                                                 try {
                                                     await dateCheckin(d.id);
                                                     capture('buddy_date_checkin', { both: Boolean(d.their_in), kind: d.kind ?? 'study' });
-                                                    if (d.kind === 'speaking' && ORATIO_URL) window.location.href = ORATIO_URL;
+                                                    if (d.kind === 'speaking' && ORATIO_URL) {
+                                                        capture(EVENTS.crossAppClick, { from: 'lexica', to: 'oratio', where: 'buddy_date' }, { track: 'speaking' });
+                                                        window.location.href = ORATIO_URL;
+                                                    }
                                                     else router.push('/today');
                                                 } catch (e) {
                                                     setMsg(errText(e));

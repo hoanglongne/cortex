@@ -1,5 +1,5 @@
 import { getSupabaseClient } from './supabase';
-import { capture } from './productAnalytics';
+import { capture, identify } from './productAnalytics';
 import type { Session, User } from '@supabase/supabase-js';
 
 export type { Session, User };
@@ -42,6 +42,7 @@ export async function signInWithPassword(email: string, password: string, repeat
     const signIn = await supabase.auth.signInWithPassword({ email: clean, password });
     if (!signIn.error) {
         capture('sign_in', { method: 'password' });
+        identify();
         return { ok: true };
     }
     if (!/invalid login credentials/i.test(signIn.error.message)) return { ok: false, error: signIn.error.message };

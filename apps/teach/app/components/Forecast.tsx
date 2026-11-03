@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { EVENTS } from '@cortex/events';
+import { analytics } from '../lib/analytics';
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import type { Board } from '@cortex/classroom';
@@ -70,6 +72,7 @@ export function ForecastActions({ forecast, board, userId, onAssigned }: { forec
                                 setError('');
                                 try {
                                     await api.assignTo(board.class.id, userId, reviewAssignment(a.cardIds, localDay(Date.now())));
+                                    analytics.capture(EVENTS.assignmentCreated, { app: 'lexica', kind: 'review', source: 'forecast', scope: 'student' }, { track: 'teaching', classId: board.class.id });
                                     setState('done');
                                     onAssigned?.();
                                 } catch (e) {

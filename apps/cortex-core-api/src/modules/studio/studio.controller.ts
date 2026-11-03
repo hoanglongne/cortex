@@ -33,6 +33,7 @@ import { JOBS, PipelineService } from './pipeline.service';
 import { StudioService } from './studio.service';
 import { VARIANT_ARCHETYPES } from './variants';
 import { worstCards, type CardStatsRow } from './card-health';
+import { CardFixesService } from './card-fixes.service';
 import { VariantsService, type VariantStatus } from './variants.service';
 import { QuotesService } from './quotes.service';
 import { PassagesService, type PassageStatus } from './passages.service';
@@ -88,6 +89,7 @@ export class StudioController {
     private readonly passages: PassagesService,
     private readonly talk: TalkService,
     private readonly wordRequests: WordRequestsService,
+    private readonly cardFixes: CardFixesService,
   ) {}
 
   @Get('me')
@@ -440,6 +442,56 @@ export class StudioController {
 
   // ---------------------------------------------- content health (issue #62)
 
+  /** Hide a flagged card for now: it leaves Lexica at once (manifest `retired`). */
+  @Post('cards/:id/hide')
+  @HttpCode(200)
+  hideCard(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    return this.cardFixes.hide(
+      db,
+      userId,
+      id,
+      str(obj(body), 'reason', { max: 200, optional: true }),
+    );
+  }
+
+  @Post('cards/:id/unhide')
+  @HttpCode(200)
+  unhideCard(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.cardFixes.unhide(db, userId, id);
+  }
+
+  /** A new example sentence for a flagged card (goes out with "Xuất bản"). */
+  @Post('cards/:id/rewrite')
+  @HttpCode(200)
+  rewriteCard(
+    @StudioDb() db: Db,
+    @CurrentUserId() userId: string,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ) {
+    return this.cardFixes.rewrite(
+      db,
+      userId,
+      id,
+      str(obj(body), 'scenario', { max: 200 }) ?? '',
+    );
+  }
+
+  @Post('cards/:id/unrewrite')
+  @HttpCode(200)
+  unrewriteCard(@StudioDb() db: Db, @Param('id') id: string) {
+    return this.cardFixes.unrewrite(db, id);
+  }
+
   /** The worst cards this week, from the nightly numbers, with their words. */
   @Get('card-health')
   async cardHealth(@StudioDb() db: Db) {
@@ -451,11 +503,11 @@ export class StudioController {
       ? await Promise.all([
           db
             .from('studio_core_cards')
-            .select('id, word, translation_hint')
+            .select('id, word, translation_hint, scenario')
             .in('id', ids),
           db
             .from('studio_cards')
-            .select('id, word, translation_hint')
+            .select('id, word, translation_hint, scenario')
             .in('id', ids),
         ])
       : [{ data: [] }, { data: [] }];
@@ -465,18 +517,24 @@ export class StudioController {
           id: string;
           word: string;
           translation_hint: string;
+          scenario: string;
         }[]),
         ...((studio.data ?? []) as {
           id: string;
           word: string;
           translation_hint: string;
+          scenario: string;
         }[]),
       ].map((c) => [c.id, c]),
     );
+    const fixes = await this.cardFixes.stateFor(db, ids);
     return worst.map((w) => ({
       ...w,
       word: words.get(w.card_id)?.word ?? null,
       meaning: words.get(w.card_id)?.translation_hint ?? null,
+      scenario: words.get(w.card_id)?.scenario ?? null,
+      hidden: fixes.hidden.has(w.card_id),
+      rewritten: fixes.rewritten.get(w.card_id) ?? null,
     }));
   }
 

@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { EVENTS } from '@cortex/events';
+import { analytics } from '../../lib/analytics';
 import { Check, Sparkles } from 'lucide-react';
 import type { Board } from '@cortex/classroom';
 import { Button, Card, ErrorNote, errorText } from '../ui';
@@ -84,6 +86,7 @@ export default function Suggestions({ board, onChanged }: { board: Board; onChan
                                     run('weak', async () => {
                                         const a = reviewAssignment(weak, today);
                                         await api.assign(board.class.id, { ...a, title: `Ôn lại ${weak.length} từ cả lớp chưa vững` });
+                                        analytics.capture(EVENTS.assignmentCreated, { app: 'lexica', kind: 'review', source: 'suggestion', scope: 'class' }, { track: 'teaching', classId: board.class.id });
                                     })
                                 }
                             >
@@ -111,6 +114,7 @@ export default function Suggestions({ board, onChanged }: { board: Board; onChan
                                 onClick={() =>
                                     run('personal', async () => {
                                         for (const p of personal) await api.assignTo(board.class.id, p.userId, reviewAssignment(p.cardIds, today));
+                                        analytics.capture(EVENTS.assignmentCreated, { app: 'lexica', kind: 'review', source: 'suggestion', scope: 'student', count: personal.length }, { track: 'teaching', classId: board.class.id });
                                     })
                                 }
                             >

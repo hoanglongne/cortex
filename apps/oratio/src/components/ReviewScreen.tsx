@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { EVENTS } from "@cortex/events";
+import { analytics } from "@/lib/analytics";
 import { ChevronDown, Headphones } from "lucide-react";
 import { listMyAnswers, type MyAnswer } from "@/actions/answers";
 import { claimNextReview, getReviewStatus, skipReview, submitReview, type ReviewStatus, type ReviewTask } from "@/actions/reviews";
@@ -357,7 +359,10 @@ function ReviewTaskView({
         comment: comment.trim() || null,
       });
       if (r.error) setError(r.error);
-      else onSubmitted(r.submissionsLeft ?? 0);
+      else {
+        analytics.capture(EVENTS.peerReviewSubmitted, { tags: tags.length }, { track: "speaking" });
+        onSubmitted(r.submissionsLeft ?? 0);
+      }
     } catch {
       setError("Không gửi được điểm. Thử lại nhé.");
     }

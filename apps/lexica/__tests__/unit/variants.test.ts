@@ -15,9 +15,9 @@ const card = {
 afterEach(() => resetContent());
 
 describe('parseVariants', () => {
-    it('keeps known archetypes with text', () => {
+    it('keeps known archetypes (and casual rewrites) with text', () => {
         expect(parseVariants({ schema: 1, variants: { v001: { tech: 'a', casual: 'x', student: '' }, v002: 'bad' } }))
-            .toEqual({ v001: { tech: 'a' } });
+            .toEqual({ v001: { tech: 'a', casual: 'x' } });
     });
     it('rejects other schemas', () => {
         expect(parseVariants({ schema: 2, variants: {} })).toBeNull();
@@ -93,5 +93,29 @@ describe('repository quotes', () => {
         expect(getQuotes('v002')).toEqual([]);
         resetContent();
         expect(getQuotes('v001')).toEqual([]);
+    });
+});
+
+describe('a rewrite of the card own sentence (casual)', () => {
+    const card = { id: 'v1', word: 'resilient', scenario: 'Old resilient sentence.', translationHint: 'x' } as never;
+
+    it('replaces the card sentence when it still has the word', () => {
+        const out = withVariants(card, { casual: 'A new resilient sentence.' });
+        expect(out.scenario).toBe('A new resilient sentence.');
+    });
+
+    it('is ignored when the word is gone', () => {
+        const out = withVariants(card, { casual: 'Nothing here.' });
+        expect(out.scenario).toBe('Old resilient sentence.');
+    });
+
+    it('keeps the archetype sentences next to it', () => {
+        const out = withVariants(card, { casual: 'A new resilient sentence.', tech: 'A resilient system.' });
+        expect(out.scenarios?.casual).toBe('A new resilient sentence.');
+        expect(out.scenarios?.tech).toBe('A resilient system.');
+    });
+
+    it('is read from the overlay file', () => {
+        expect(parseVariants({ schema: 1, variants: { v1: { casual: 'x resilient', other: 'no' } } })).toEqual({ v1: { casual: 'x resilient' } });
     });
 });

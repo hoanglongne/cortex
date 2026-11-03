@@ -7,6 +7,8 @@ import { ARENA_SHAPES, testScoreLine, type TestTake } from '@cortex/classroom';
 import { useAuth } from '../../../context/AuthContext';
 import AuthGate from '../../../components/AuthGate';
 import { testAnswer, testSubmit, testTake } from '../../../lib/classes';
+import { capture } from '../../../lib/productAnalytics';
+import { EVENTS } from '@cortex/events';
 import { useLexicaStore } from '../../../store/lexicaStore';
 
 const TILE = ['bg-arena-1', 'bg-arena-2', 'bg-arena-3', 'bg-arena-4'];
@@ -44,6 +46,7 @@ function Take({ id }: { id: string }) {
     const load = useCallback(async () => {
         try {
             const v = await testTake(id);
+            capture(EVENTS.testStarted, { questions: v.questions.length }, { track: 'class' });
             setT(v);
             // Pick up where they left off
             setI(Math.max(0, v.questions.findIndex((q) => q.choice === undefined)));
@@ -177,6 +180,7 @@ function Take({ id }: { id: string }) {
                             setError('');
                             try {
                                 setT(await testSubmit(t.id));
+                                capture(EVENTS.testSubmitted, { questions: total, answered }, { track: 'class' });
                             } catch (e) {
                                 setError(e instanceof Error ? e.message : String(e));
                             } finally {

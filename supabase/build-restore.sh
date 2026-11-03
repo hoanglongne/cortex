@@ -33,6 +33,7 @@ FILES=(
   apps/cortex-core-api/supabase/migration_studio_corpus.sql
   apps/cortex-core-api/supabase/migration_studio_passages.sql
   apps/cortex-core-api/supabase/migration_studio_talk.sql
+  apps/cortex-core-api/supabase/migration_studio_card_fixes.sql
   apps/cortex-core-api/supabase/seed_studio_talk_cards.sql
   apps/cortex-core-api/supabase/seed_studio_core_cards.sql
   apps/lexica/supabase/migration_engagement.sql

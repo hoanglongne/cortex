@@ -13,6 +13,7 @@
   "dependencies": {
     "@cortex/classroom": "workspace:*",
     "@cortex/classroom-oratio": "workspace:*",
+    "@cortex/events": "workspace:*",
     "@cortex/types": "workspace:*",
     "@livekit/components-react": "^2.9.17",
     "@livekit/components-styles": "^1.2.0",

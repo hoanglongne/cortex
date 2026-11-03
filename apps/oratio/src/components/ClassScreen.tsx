@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import { daysUntil, type ClassInfo, type LeaderRow } from "@cortex/classroom";
+import { EVENTS } from "@cortex/events";
+import { analytics } from "@/lib/analytics";
 import { assignmentState, fmtBand, oratioModule, ORATIO, partLabel, type OratioMetrics } from "@cortex/classroom-oratio";
 import { syncClasses } from "@/actions/classroom";
 import { Button } from "@/components/ui/button";
@@ -91,6 +93,7 @@ function JoinForm({ defaultName, onJoined, onError }: { defaultName: string; onJ
     onError("");
     try {
       const r = await api.joinClass(clean, name.trim());
+      analytics.capture(EVENTS.classJoined, { via: "code" }, { track: "class", classId: r.class_id });
       setPendingCode(null);
       setCode("");
       onJoined(r.name);
