@@ -9,6 +9,7 @@ import { StudioController } from './studio.controller';
 import { StudioLlm } from './studio-llm';
 import { StudioService } from './studio.service';
 import { VariantsService } from './variants.service';
+import { CardFixesService } from './card-fixes.service';
 import { QuotesService } from './quotes.service';
 import { PassagesService } from './passages.service';
 import { TalkService } from './talk.service';
@@ -24,6 +25,7 @@ import { WordRequestsService } from './word-requests.service';
     StudioScheduler,
     CaptureService,
     VariantsService,
+    CardFixesService,
     QuotesService,
     PassagesService,
     TalkService,

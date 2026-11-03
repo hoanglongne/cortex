@@ -15,6 +15,8 @@ import type { PublishedQuote } from './quotes';
 
 export const VARIANT_ARCHETYPES = ['tech', 'business', 'student'] as const;
 export type VariantArchetype = (typeof VARIANT_ARCHETYPES)[number];
+/** The overlay also carries `casual`: a rewrite of the card's own sentence (card-fixes.ts). */
+export type OverlayKey = VariantArchetype | 'casual';
 
 export const ARCHETYPE_LABEL: Record<VariantArchetype, string> = {
   tech: 'dân tech (dev, designer, làm startup)',
@@ -154,7 +156,7 @@ export interface VariantsFile {
   schema: 1;
   id: 'variants';
   publishedAt: string;
-  variants: Record<string, Partial<Record<VariantArchetype, string>>>;
+  variants: Record<string, Partial<Record<OverlayKey, string>>>;
   /** "Ngoài đời" quotes per card (quotes.ts); absent in files published before them. */
   quotes?: Record<string, PublishedQuote[]>;
 }
@@ -163,7 +165,7 @@ export interface VariantsFile {
 export function buildVariantsFile(
   rows: readonly {
     card_id: string;
-    archetype: VariantArchetype;
+    archetype: OverlayKey;
     scenario: string;
   }[],
   publishedAt: string,

@@ -26,6 +26,7 @@ import {
   pickCandidates,
   PROMPT_VERSION,
 } from './prompt';
+import { retiredIds } from './card-fixes';
 import type { CardMetrics } from './feedback';
 import { StudioLlm } from './studio-llm';
 import type {
@@ -806,13 +807,16 @@ export class StudioService {
       variants: live?.variants ?? null,
       passages: live?.passages ?? null,
       talk: live?.talk ?? null,
-      retired: [
-        ...new Set(
-          [...libraryCards.values(), ...cards]
-            .filter((c) => c.lifecycle === 'retired')
-            .map((c) => c.id),
-        ),
-      ],
+      retired: retiredIds(
+        [...libraryCards.values(), ...cards]
+          .filter((c) => c.lifecycle === 'retired')
+          .map((c) => c.id),
+        // Cards hidden for now (card-fixes.ts); none when the SQL is not run yet.
+        (
+          ((await db.from('studio_hidden_cards').select('card_id')).data ??
+            []) as { card_id: string }[]
+        ).map((r) => r.card_id),
+      ),
     };
     const manifestUrl = await this.writeManifest(db, userId, manifest, {
       dropId,

@@ -137,3 +137,19 @@ describe('buildVariantsFile', () => {
     expect(a.path).not.toBe(variantsPath('{"x":2}').path);
   });
 });
+
+describe('buildVariantsFile with rewrites', () => {
+  it('carries a rewrite of the card own sentence as casual', () => {
+    const file = buildVariantsFile(
+      [
+        { card_id: 'v1', archetype: 'casual', scenario: 'A new sentence with word.' },
+        { card_id: 'v1', archetype: 'tech', scenario: 'A tech word.' },
+      ],
+      '2026-11-03T00:00:00Z',
+    );
+    expect(file.variants.v1).toEqual({
+      casual: 'A new sentence with word.',
+      tech: 'A tech word.',
+    });
+  });
+});

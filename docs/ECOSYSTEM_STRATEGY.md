@@ -123,3 +123,14 @@ Cụ thể về mặt kỹ thuật:
 - **Nút "Báo thẻ này có vấn đề"** trên mọi thẻ của Lexica (không chỉ thẻ Studio): bốn lý do (sai nghĩa, ví dụ lạ, giọng đọc sai, quá khó), mỗi người một lý do một lần cho mỗi thẻ.
 - **"Sức khoẻ nội dung" trong Studio** (`/health`): các thẻ có báo lỗi hoặc đúng dưới 50% (cần ít nhất 8 lượt), kèm từ và nghĩa. Chưa có nút "viết lại" và "tạm ẩn".
 - **Chưa có:** tỉ lệ đúng khi **ôn** từng thẻ. Lexica không gửi từng lượt ôn lên máy chủ (chỉ số tổng của lớp), nên chưa có số này. Muốn có phải gửi sự kiện ôn cho cả thẻ gốc, cần quyết định riêng về quyền riêng tư.
+
+
+---
+
+## Cập nhật 03/11/2026: việc 2, 3, 4 đã xong
+
+- **Việc 2, 3:** bảng `cortex_card_stats` (cập nhật mỗi đêm) và nút "Báo thẻ này có vấn đề" trong Lexica đã chạy.
+- **Việc 4 (Sức khoẻ thẻ trong Studio):** mỗi thẻ trong danh sách có hai nút:
+  - **Viết lại câu:** thẻ của một drop Studio sửa trực tiếp (ra cùng lần xuất bản drop kế tiếp); thẻ có sẵn trong app Lexica được ghi đè bằng một câu mới đi trong tệp phủ (overlay) khi bấm "Xuất bản", và Lexica thay câu gốc nếu câu mới vẫn chứa từ đó.
+  - **Tạm ẩn / Hiện lại:** thẻ rời Lexica ngay (danh sách `retired` của manifest), người dùng nhận trong lần mở app tới.
+  - SQL: `apps/cortex-core-api/supabase/migration_studio_card_fixes.sql` (đã nằm trong `restore_all.sql`).

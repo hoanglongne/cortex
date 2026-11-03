@@ -123,9 +123,11 @@ export function parsePack(v: unknown): ContentPack | null {
 /** Archetypes with their own example sentence; a card's own scenario is the casual one. */
 export const VARIANT_ARCHETYPES = ['tech', 'business', 'student'] as const;
 export type VariantArchetype = (typeof VARIANT_ARCHETYPES)[number];
+/** The overlay also has `casual`: a rewrite of the card's own sentence (Studio, issue #62). */
+export type OverlayKey = VariantArchetype | 'casual';
 
 /** cardId → sentence per archetype, published by Studio (variants.ts in the API). */
-export type CardVariants = Record<string, Partial<Record<VariantArchetype, string>>>;
+export type CardVariants = Record<string, Partial<Record<OverlayKey, string>>>;
 
 /** A real quote that contains the card's word ("Ngoài đời"), reviewed in Studio. */
 export interface CardQuote {
@@ -183,8 +185,8 @@ export function parseVariants(v: unknown): CardVariants | null {
     const out: CardVariants = {};
     for (const [cardId, entry] of Object.entries(v.variants)) {
         if (!isObj(entry)) continue;
-        const kept: Partial<Record<VariantArchetype, string>> = {};
-        for (const a of VARIANT_ARCHETYPES) if (isStr(entry[a])) kept[a] = entry[a] as string;
+        const kept: Partial<Record<OverlayKey, string>> = {};
+        for (const a of [...VARIANT_ARCHETYPES, 'casual'] as const) if (isStr(entry[a])) kept[a] = entry[a] as string;
         if (Object.keys(kept).length > 0) out[cardId] = kept;
     }
     return out;
