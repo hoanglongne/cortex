@@ -18,7 +18,7 @@ import { LiveWaveform, SpeakingPill } from "@/components/ui/on-air";
 import { FlowShell } from "@/components/ui/shell";
 import { ExaminerVoice } from "@/components/solo/ExaminerVoice";
 import { examClosingLine, examLines, examMaxSeconds, PREP_SECONDS } from "@/lib/exam-flow";
-import { speakLines, warmLines } from "@/lib/examiner-speak";
+import { speakLines, unlockSound, warmLines } from "@/lib/examiner-speak";
 import { EVENTS } from "@cortex/events";
 import { analytics } from "@/lib/analytics";
 import { formatClock, Part2Timer } from "@/components/ui/timer";
@@ -69,7 +69,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   const [recording, setRecording] = useState(false);
   const [recordSeconds, setRecordSeconds] = useState(0);
   const [micError, setMicError] = useState<string | null>(null);
-  const { choice, setChoice } = useTranscribeChoice();
+  const { choice, setChoice, notice: crashNotice } = useTranscribeChoice();
   const whisper = useWhisperLoader(choice);
   const [lexica, setLexica] = useState<{ recent: string[]; all: string[] }>({ recent: [], all: [] });
   // Part 2 questions where the learner chose 4/3/2
@@ -83,6 +83,9 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   const [prepLeft, setPrepLeft] = useState(PREP_SECONDS);
   // The examiner's voice is ready and playing (false while it is still being made)
   const [examHeard, setExamHeard] = useState(false);
+  // The line being said (shown as text), and whether this phone stayed silent
+  const [examLine, setExamLine] = useState("");
+  const [examSilent, setExamSilent] = useState(false);
   const skipSpeech = useRef<(() => void) | null>(null);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
@@ -231,7 +234,8 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     const target = inDrill ? DRILL_TARGETS[drillTakes.length] : null;
     const goal = !inDrill && qList.length > 0 ? deriveGoal(qList[qList.length - 1], lexica.recent, TARGET_S[question.part]?.[0] ?? 20) : null;
     try {
-      if (!streamRef.current) {
+      // A phone may end the microphone while the page waits; ask again only then
+      if (!streamRef.current?.getAudioTracks().some((t) => t.readyState === "live")) {
         streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
         setStream(streamRef.current);
       }
@@ -325,7 +329,9 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     const q = questions[index];
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setExamHeard(false);
-    const speech = speakLines(examLines(questions, index), () => setExamHeard(true));
+    setExamSilent(false);
+    setExamLine("");
+    const speech = speakLines(examLines(questions, index), () => setExamHeard(true), { onLine: setExamLine, onSilent: () => setExamSilent(true) });
     let live = true;
     const next = () => {
       if (!live) return;
@@ -547,7 +553,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
                 </Button>
               ) : exam === "speak" ? (
                 <Button variant="secondary" size="lg" className="flex-1" onClick={() => skipSpeech.current?.()}>
-                  Bỏ qua giọng giám khảo
+                  {examSilent ? "Bắt đầu nói" : "Bỏ qua giọng giám khảo"}
                 </Button>
               ) : exam === "review" ? (
                 <>
@@ -632,14 +638,31 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
 
         <div className="space-y-4">
           {micError && <Notice tone="error">{micError}</Notice>}
+          {crashNotice && <Notice tone="info">{crashNotice}</Notice>}
 
           {exam && exam !== "review" && !recording && (
             <Card className="space-y-2">
               <Label>Thi thử · Part {question?.part}</Label>
               {exam === "speak" && (
                 <>
-                  <p className="text-base font-bold text-ink">{examHeard ? "Giám khảo đang nói. Nghe xong thì bạn trả lời." : "Giám khảo đang chuẩn bị câu hỏi…"}</p>
-                  {!examHeard && <p className="text-sm text-muted">Lần đầu có thể mất vài giây để tạo giọng. Nếu không muốn chờ, bấm &ldquo;Bỏ qua giọng giám khảo&rdquo;, đọc câu hỏi trên màn hình rồi trả lời luôn.</p>}
+                  <div className="flex items-center gap-3">
+                    {!examSilent && (
+                      <div className="flex h-8 items-center gap-[3px]" aria-hidden>
+                        {[0.5, 0.9, 0.65, 1, 0.7, 0.85, 0.55].map((h, i) => (
+                          <span key={i} className="w-[3px] rounded-full bg-voice" style={{ height: `${h * 100}%`, animation: `eq 0.9s ease-in-out ${i * 0.09}s infinite alternate` }} />
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-base font-bold text-ink" role="status">
+                      {examSilent ? "Máy này không phát được tiếng giám khảo." : examHeard ? "Giám khảo đang nói. Nghe xong thì bạn trả lời." : "Giám khảo đang chuẩn bị câu hỏi…"}
+                    </p>
+                  </div>
+                  {examLine && <p className="rounded-[12px] bg-surface-2 px-3 py-2 text-[14px] leading-snug text-ink-2" lang="en">“{examLine}”</p>}
+                  {examSilent ? (
+                    <p className="text-sm text-muted">Đọc câu hỏi ở trên, rồi bấm &ldquo;Bắt đầu nói&rdquo;. Kiểm tra máy không để chế độ im lặng và đã bật âm lượng.</p>
+                  ) : (
+                    !examHeard && <p className="text-sm text-muted">Giọng giám khảo sắp phát. Nếu không muốn chờ, bấm &ldquo;Bỏ qua giọng giám khảo&rdquo; và đọc câu hỏi trên màn hình.</p>
+                  )}
                 </>
               )}
               {exam === "prep" && (
@@ -664,6 +687,8 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
                 onClick={() => {
                   // Only the fixed lines are worth making ahead (the same for every exam); asking for every question made the voice service slow the first line
                   if (questions) warmLines([...new Set(questions.map((_, i) => examLines(questions, i)[0]).filter((l, i) => i === 0 || questions[i].part !== questions[i - 1].part)), examClosingLine()]);
+                  // Phones let a page make sound only inside a tap
+                  unlockSound();
                   analytics.capture(EVENTS.practiceStarted, { mode: "mock_exam", questions: questions?.length ?? 0 }, { track: "speaking" });
                   setExam("speak");
                 }}
