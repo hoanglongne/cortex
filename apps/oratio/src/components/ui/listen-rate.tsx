@@ -6,6 +6,7 @@ import { CRITERION_LABEL } from "@cortex/classroom-oratio";
 import { CRITERIA, type CriterionScores } from "@/lib/feedback";
 import { profileUrl, type SpeechProfile } from "@/lib/client/speech-metrics";
 import { clock, evidenceLine, MARK_KINDS, mapVerdict, plainLabel, suggestBands, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { AudioPlayer } from "./audio-player";
 import { SpeechMap } from "./speech-map";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -139,18 +140,17 @@ export function ListenRate({
   return (
     <div className={cn("space-y-3", className)}>
       <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
-        <audio
-          ref={audio}
+        <AudioPlayer
           src={src}
-          controls
-          preload="metadata"
-          onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-          onTimeUpdate={(e) => {
-            setTime(e.currentTarget.currentTime);
+          seconds={seconds}
+          audioRef={audio}
+          limitSeconds={limitSeconds}
+          onDuration={setDuration}
+          onTimeUpdate={(t) => {
+            setTime(t);
             stopAtLimit();
           }}
           onSeeked={stopAtLimit}
-          className="w-full"
         />
         {limitSeconds && (
           <p className="mt-2 text-[13px] text-subtle" aria-live="polite">
