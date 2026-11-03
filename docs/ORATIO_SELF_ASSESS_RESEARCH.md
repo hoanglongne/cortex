@@ -26,9 +26,17 @@ Sau khi bật (tải mô hình một lần), máy chép lời bản ghi ngay tr�
 
 Người chấm không còn phải tự phân biệt "tìm từ" với "nghĩ ý": máy phân loại theo vị trí chỗ dừng, người chấm chỉ cần nghe chỗ vàng.
 
+## Từ "thấy gì" đến "vì sao và làm gì"
+
+1. **Máy đọc kiểu chỗ dừng** (`lib/speech-insights.ts`): nếu chỗ dừng giữa ý hay đứng ngay sau một từ ngữ pháp (the, to, a, of…) thì đó là **tìm từ tiếp theo**, không phải nghĩ ý. Các mẫu khác: mở đầu chậm (từ đầu tiên sau 2,5 giây hoặc dừng giữa ý ngay 8 giây đầu), từ đệm nằm ngay sau chỗ dừng (giữ lượt nói), nói lại từ hoặc cụm, nói quá chậm hoặc quá nhanh, và những gì làm tốt (không dừng giữa ý, nói liền một mạch dài).
+2. **Mỗi phát hiện có bằng chứng và cách thử**: các từ liên quan ("the … biggest (1,7s)"), một câu làm gì, và các **cụm nên nói thay vì im lặng hoặc nói "um"** ("How can I put it…", "Let me think about that…").
+3. **Từ bạn bí trước khi nói**: các từ đứng sau chỗ dừng ("biggest", "meet") là từ nên ôn thêm.
+4. **So với chính bạn** (`lib/speech-history.ts`): chỉ con số lưu trên máy (chỗ dừng giữa ý, từ đệm, từ lặp mỗi phút, từ nói liền; không lưu lời đã nói), so với lần nói trước và vẽ xu hướng 8 lần gần nhất. Tính theo mỗi phút để câu trả lời dài hơn không bị coi là tệ hơn, và thay đổi nhỏ hơn 20% hoặc 0,5 coi là như cũ.
+
 ## Giới hạn phải nói thẳng
 
 - **Chưa chạy thử với mô hình thật** (môi trường làm việc không tải được mô hình). Phần phân tích có test với dữ liệu mốc thời gian giả; phần gọi Whisper có đường lui: không có mốc từng từ thì màn chấm dùng cách cũ.
 - Whisper tiny.en có xu hướng **bỏ bớt từ đệm** khỏi bản chép, nên số "từ đệm" có thể thấp hơn thực tế.
 - Phân loại "giữa ý hay giữa các ý" dựa vào dấu câu Whisper tự thêm và danh sách từ nối; có thể sai ở câu khó hiểu.
-- Công thức tính điểm vẫn là luật mình tự đặt, chưa hiệu chỉnh bằng dữ liệu thật.
+- Công thức tính điểm vẫn là luật mình tự đặt, chưa hiệu chỉnh bằng dữ liệu thật. Các luật "vì sao" cũng vậy: mỗi luật nói rõ nó thấy gì để người học tự kiểm.
+- "Từ bạn bí" mới chỉ hiện ra, chưa đẩy sang Lexica để ôn.

@@ -31,6 +31,7 @@ export function SelfRatingCard({ id, src, seconds, machine }: { id: string; src:
             src={src}
             seconds={seconds}
             machine={machine}
+            historyKey={id}
             value={rating}
             onChange={(next) => {
               setSaved(false);

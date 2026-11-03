@@ -11,6 +11,9 @@ import { clock, evidenceLine, MARK_KINDS, mapVerdict, plainLabel, suggestBands, 
 import { AudioPlayer } from "./audio-player";
 import { SpeechMap } from "./speech-map";
 import { SpeechXray } from "./speech-xray";
+import { XrayCoach } from "./xray-coach";
+import { insightsFor } from "@/lib/speech-insights";
+import { addSummary, compare, compareLine, previousOf, readHistory, summaryOf, type Delta } from "@/lib/speech-history";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
@@ -36,6 +39,7 @@ export function ListenRate({
   value,
   onChange,
   machine,
+  historyKey,
   disabled = false,
   className,
 }: {
@@ -47,6 +51,8 @@ export function ListenRate({
   value: Partial<CriterionScores>;
   onChange: (next: Partial<CriterionScores>) => void;
   machine?: Machine;
+  /** Which recording this is, to keep your numbers and compare with the take before (your own takes only) */
+  historyKey?: string;
   disabled?: boolean;
   className?: string;
 }) {
@@ -70,6 +76,21 @@ export function ListenRate({
   const [xrayState, setXrayState] = React.useState<"idle" | "loading" | "ready" | "failed">("idle");
   const [loaded, setLoaded] = React.useState(0);
   const started = React.useRef(false);
+  const [deltas, setDeltas] = React.useState<Delta[] | null>(null);
+  const [trend, setTrend] = React.useState<number[]>([]);
+  const insights = React.useMemo(() => (xray ? insightsFor(xray.tokens, xray.gaps, xray.stats) : []), [xray]);
+
+  // Your numbers over time: compare with the take before this one, then keep this one
+  React.useEffect(() => {
+    if (!xray || !historyKey) return;
+    const list = readHistory();
+    const now = summaryOf(historyKey, xray.stats);
+    const before = previousOf(historyKey, list);
+     
+    setDeltas(before ? compare(before, now) : null);
+    const next = addSummary(now, list);
+    setTrend(next.slice(-8).map((s) => s.midPerMinute));
+  }, [xray, historyKey]);
 
   React.useEffect(() => {
     if (choice !== "on" || started.current) return;
@@ -272,6 +293,9 @@ export function ListenRate({
             <div className="mb-4">
               <h3 className="mb-2 text-base font-extrabold tracking-[-0.02em] text-ink">Soi lời nói</h3>
               <SpeechXray tokens={xray.tokens} gaps={xray.gaps} stats={xray.stats} time={time} onPlay={(from, to) => play(from, to)} />
+              <div className="mt-3">
+                <XrayCoach insights={insights} deltas={deltas} line={deltas ? compareLine(deltas) : null} trend={trend} />
+              </div>
             </div>
           )}
 
