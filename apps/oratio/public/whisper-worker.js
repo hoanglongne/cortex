@@ -6,11 +6,18 @@ import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transfo
 
 env.allowLocalModels = false;
 
-const MODEL = "Xenova/whisper-tiny.en";
+// tiny: ~40 MB, quick but mishears a lot of everyday speech. base and small hear far more (issue #130).
+const MODELS = { tiny: "Xenova/whisper-tiny.en", base: "Xenova/whisper-base.en", small: "Xenova/whisper-small.en" };
 let asr = null;
+let loadedModel = null;
 
-function load() {
-  asr ??= pipeline("automatic-speech-recognition", MODEL, {
+function load(model) {
+  const name = MODELS[model] || MODELS.tiny;
+  if (loadedModel !== name) {
+    asr = null;
+    loadedModel = name;
+  }
+  asr ??= pipeline("automatic-speech-recognition", name, {
     dtype: "q8",
     device: "wasm",
     progress_callback: (p) => {
@@ -24,9 +31,9 @@ function load() {
 }
 
 self.onmessage = async (event) => {
-  const { id, type, audio } = event.data;
+  const { id, type, audio, model } = event.data;
   try {
-    const run = await load();
+    const run = await load(model);
     if (type === "load") {
       self.postMessage({ id, type: "ready" });
       return;

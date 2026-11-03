@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyzeWords, findGaps, gapKind, tokenize, wordsFromChunks, xrayHeadline, type Word } from "@/lib/speech-words";
+import { analyzeWords, findGaps, gapKind, replaceWord, tokenize, wordsFromChunks, xrayHeadline, type Word } from "@/lib/speech-words";
 
 /** "I think the problem is that I I have no time" with a pause in the middle of "the ... problem" and one before "because". */
 const say = (parts: [string, number][], gapBefore: Record<number, number> = {}): Word[] => {
@@ -97,5 +97,30 @@ describe("wordsFromChunks", () => {
       { text: "d", timestamp: [2, 3] },
     ]);
     expect(w?.map((x) => x.text)).toEqual(["a", "b", "d"]);
+  });
+});
+
+
+describe("replaceWord", () => {
+  const words: Word[] = [
+    { text: "I'm", start: 0, end: 0.3 },
+    { text: "a", start: 0.3, end: 0.4 },
+    { text: "walk", start: 0.4, end: 0.8 },
+    { text: "like", start: 0.8, end: 1.0 },
+  ];
+  it("puts the right word where the wrong one was, keeping its time", () => {
+    const r = replaceWord(words, 2, "workaholic");
+    expect(r.map((w) => w.text)).toEqual(["I'm", "a", "workaholic", "like"]);
+    expect(r[2]).toMatchObject({ start: 0.4, end: 0.8 });
+  });
+  it("shares the time between several words and removes a word with empty text", () => {
+    const r = replaceWord(words, 2, "work a holic");
+    expect(r).toHaveLength(6);
+    expect(r[3].start).toBeCloseTo(0.4 + 0.4 / 3, 5);
+    expect(replaceWord(words, 1, "  ")).toHaveLength(3);
+  });
+  it("tokens remember which word they came from", () => {
+    const t = tokenize([{ text: "x", start: NaN, end: NaN }, { text: "Hello", start: 0, end: 1 }]);
+    expect(t[0].src).toBe(1);
   });
 });

@@ -20,13 +20,23 @@ export function SpeechXray({
   stats,
   time,
   onPlay,
+  editing = false,
+  onEditing,
+  onEdit,
 }: {
   tokens: readonly Token[];
   gaps: readonly Gap[];
   stats: SpeechStats;
   time: number;
   onPlay: (from: number, to: number) => void;
+  /** The learner is fixing words the machine heard wrongly */
+  editing?: boolean;
+  onEditing?: (on: boolean) => void;
+  /** `src` is the word's place in the list the tokens came from */
+  onEdit?: (src: number, text: string) => void;
 }) {
+  const [fixing, setFixing] = React.useState<Token | null>(null);
+  const [draft, setDraft] = React.useState("");
   const gapAfter = React.useMemo(() => new Map(gaps.map((g) => [g.after, g])), [gaps]);
 
   return (
@@ -50,10 +60,17 @@ export function SpeechXray({
             <React.Fragment key={t.i}>
               <button
                 type="button"
-                onClick={() => onPlay(t.start - 0.3, t.end + 0.6)}
+                onClick={() => {
+                  if (editing && onEdit) {
+                    setFixing(t);
+                    setDraft(t.text.replace(/[.,;:!?]+$/, ""));
+                  } else onPlay(t.start - 0.3, t.end + 0.6);
+                }}
                 className={cn(
                   "rounded px-0.5 transition-colors hover:bg-surface-3",
                   playing && "bg-voice/25 font-bold",
+                  editing && "border-b border-dashed border-subtle",
+                  fixing?.i === t.i && "bg-voice/25",
                   t.filler && "bg-streak/40 font-bold",
                   t.repeat && "underline decoration-danger decoration-wavy underline-offset-4",
                   t.marker && !t.filler && "underline decoration-subtle decoration-dotted underline-offset-4"
@@ -81,6 +98,55 @@ export function SpeechXray({
           );
         })}
       </p>
+
+      {onEdit && (
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => {
+              setFixing(null);
+              onEditing?.(!editing);
+            }}
+            aria-pressed={editing}
+            className={cn("h-8 rounded-full border px-3 text-[12px] font-bold transition-colors", editing ? "border-voice bg-voice text-on-voice" : "border-line-strong text-ink-2 hover:border-muted")}
+          >
+            {editing ? "Xong sửa lời" : "Máy nghe sai? Sửa lời"}
+          </button>
+          {editing && !fixing && <p className="mt-1 text-[12px] text-subtle">Chạm vào từ sai để gõ lại. Chỗ dừng và thời gian giữ nguyên.</p>}
+          {editing && fixing && (
+            <form
+              className="mt-2 flex items-center gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                onEdit(fixing.src, draft);
+                setFixing(null);
+              }}
+            >
+              <input
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                lang="en"
+                aria-label={`Sửa từ ${fixing.text}`}
+                className="h-10 min-w-0 flex-1 rounded-[10px] border border-line-strong bg-surface-2 px-3 text-[15px] text-ink focus-visible:border-voice"
+              />
+              <button type="submit" className="h-10 rounded-[10px] bg-voice px-3 text-[13px] font-bold text-on-voice">
+                Lưu
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onEdit(fixing.src, "");
+                  setFixing(null);
+                }}
+                className="h-10 rounded-[10px] border border-line-strong px-3 text-[13px] font-bold text-ink-2"
+              >
+                Xoá từ
+              </button>
+            </form>
+          )}
+        </div>
+      )}
 
       <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-subtle" aria-label="Chú thích">
         <li className="flex items-center gap-1.5">

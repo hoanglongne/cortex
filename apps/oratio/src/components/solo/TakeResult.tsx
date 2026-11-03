@@ -156,6 +156,9 @@ export function TakeResult({
   demo,
   onSent,
   drillLabel,
+  selfPlace = "inline",
+  selfOpen = false,
+  onSelfOpen,
 }: {
   take: Take;
   prev?: Take;
@@ -164,6 +167,10 @@ export function TakeResult({
   demo: boolean;
   onSent: () => void;
   drillLabel?: string;
+  /** Where the self-rating card is drawn: here, or beside the question on a wide screen */
+  selfPlace?: "inline" | "side";
+  selfOpen?: boolean;
+  onSelfOpen?: (open: boolean) => void;
 }) {
   if (take.metrics === undefined) {
     return (
@@ -236,12 +243,17 @@ export function TakeResult({
       {take.tx.status === "off" && <p className="text-sm text-subtle">Chưa bật chép lời nên chưa có các chỉ số về từ ngữ. Bật ở tab Tôi, mục Giao diện.</p>}
       {take.tx.status === "done" && take.tx.text && <Transcript text={take.tx.text} />}
 
-      <Card className="p-3 sm:p-3">
-        <AudioPlayer src={take.url} seconds={take.seconds} />
-      </Card>
+      {/* While rating, its own player is on screen: not two of them */}
+      {!selfOpen && (
+        <Card className="p-3 sm:p-3">
+          <AudioPlayer src={take.url} seconds={take.seconds} />
+        </Card>
+      )}
 
       {take.save === "failed" && <p className="text-sm text-subtle">Chưa lưu được lần nói này vào lịch sử. Bạn cứ tiếp tục tập nhé.</p>}
-      {!demo && take.save === "saved" && take.answerId && <SelfRatingCard id={take.answerId} src={take.url} seconds={take.seconds} machine={okMetrics(take) ? { longPauses: okMetrics(take)!.longPauses } : undefined} />}
+      {!demo && selfPlace === "inline" && take.save === "saved" && take.answerId && (
+        <SelfRatingCard id={take.answerId} src={take.url} seconds={take.seconds} machine={okMetrics(take) ? { longPauses: okMetrics(take)!.longPauses } : undefined} words={take.tx.words} open={selfOpen} onOpenChange={(o) => onSelfOpen?.(o)} />
+      )}
       {!demo && take.save === "saved" && take.answerId && <SendToClass answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />}
       {!demo && take.save === "saved" && take.answerId && (
         <SendForReview answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />
