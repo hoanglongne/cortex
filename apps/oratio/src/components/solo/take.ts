@@ -1,12 +1,13 @@
 import type { SpeechMetrics } from "@/lib/client/speech-metrics";
 import type { TranscriptMetrics } from "@/lib/transcript-metrics";
+import type { Word } from "@/lib/speech-words";
 import { formatClock } from "@/components/ui/timer";
 
 /** Aim for the next take, derived from the last one. */
 export type Goal = { kind: "pauses"; from: number } | { kind: "word"; word: string } | { kind: "speak"; seconds: number };
 
 /** off: transcription not on; pending: working on it; done / failed */
-export type TranscriptState = { status: "off" | "pending" | "done" | "failed"; text?: string; metrics?: TranscriptMetrics };
+export type TranscriptState = { status: "off" | "pending" | "done" | "failed"; text?: string; metrics?: TranscriptMetrics; /** Each word with its time, when the model gave them */ words?: Word[] | null };
 
 export type SaveState = "pending" | "saved" | "failed" | "skipped";
 

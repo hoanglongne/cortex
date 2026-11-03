@@ -21,6 +21,8 @@ export type GapKind = "boundary" | "mid";
 
 export interface Token {
   i: number;
+  /** Index of this word in the list given to `tokenize` (to edit it) */
+  src: number;
   text: string;
   /** Lower case without punctuation */
   clean: string;
@@ -80,10 +82,10 @@ const clean = (t: string) => t.toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/
 
 /** Tokens with their flags. Words with no timing or no letters are left out. */
 export function tokenize(words: readonly Word[]): Token[] {
-  const kept = words.filter((w) => Number.isFinite(w.start) && Number.isFinite(w.end) && clean(w.text) !== "");
-  const tokens: Token[] = kept.map((w, i) => {
+  const kept = words.map((w, src) => ({ w, src })).filter(({ w }) => Number.isFinite(w.start) && Number.isFinite(w.end) && clean(w.text) !== "");
+  const tokens: Token[] = kept.map(({ w, src }, i) => {
     const c = clean(w.text);
-    return { i, text: w.text.trim(), clean: c, start: w.start, end: Math.max(w.end, w.start), filler: FILLERS.has(c), marker: MARKERS.has(c), repeat: false };
+    return { i, src, text: w.text.trim(), clean: c, start: w.start, end: Math.max(w.end, w.start), filler: FILLERS.has(c), marker: MARKERS.has(c), repeat: false };
   });
   const body = tokens.filter((t) => !t.filler);
   for (let k = 1; k < body.length; k++) {
@@ -182,4 +184,20 @@ export function xrayHeadline(s: SpeechStats): string {
   if (s.midPauses === 0) return `Không có chỗ dừng giữa chừng một ý. Các chỗ dừng (${s.boundaryPauses}) đều ở ranh giới giữa hai ý, nghe tự nhiên.`;
   const share = s.midPauses / Math.max(1, s.midPauses + s.boundaryPauses);
   return share > 0.6 ? `${s.midPauses} trong ${s.midPauses + s.boundaryPauses} chỗ dừng nằm giữa chừng một ý: đây là chỗ nghe ngập ngừng nhất.` : `${s.midPauses} chỗ dừng giữa chừng một ý (đáng chú ý), ${s.boundaryPauses} chỗ ở ranh giới giữa hai ý (bình thường).`;
+}
+
+
+/**
+ * The learner fixes a word the machine heard wrongly ("a walk a whole like" for
+ * "a workaholic like"). The new text takes the place of the old word and its
+ * time; several words share that time evenly; empty text removes the word.
+ */
+export function replaceWord(words: readonly Word[], index: number, text: string): Word[] {
+  const w = words[index];
+  if (!w) return [...words];
+  const parts = text.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return words.filter((_, i) => i !== index);
+  const step = (w.end - w.start) / parts.length;
+  const fixed = parts.map((p, k) => ({ text: p, start: w.start + k * step, end: w.start + (k + 1) * step }));
+  return [...words.slice(0, index), ...fixed, ...words.slice(index + 1)];
 }

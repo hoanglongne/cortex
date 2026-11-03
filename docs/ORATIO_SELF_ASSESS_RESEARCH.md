@@ -33,6 +33,13 @@ Người chấm không còn phải tự phân biệt "tìm từ" với "nghĩ ý
 3. **Từ bạn bí trước khi nói**: các từ đứng sau chỗ dừng ("biggest", "meet") là từ nên ôn thêm.
 4. **So với chính bạn** (`lib/speech-history.ts`): chỉ con số lưu trên máy (chỗ dừng giữa ý, từ đệm, từ lặp mỗi phút, từ nói liền; không lưu lời đã nói), so với lần nói trước và vẽ xu hướng 8 lần gần nhất. Tính theo mỗi phút để câu trả lời dài hơn không bị coi là tệ hơn, và thay đổi nhỏ hơn 20% hoặc 0,5 coi là như cũ.
 
+## Chép lời chính xác hơn (phản hồi sau lần thử đầu)
+
+Lần thử đầu cho thấy Whisper tiny nghe sai 30 đến 40% lời nói hằng ngày ("a workaholic like me" thành "a walk a whole like like me"). Đã đổi:
+- **Chọn mô hình:** tiny (khoảng 40 MB, nhẹ nhưng sai nhiều), **base** (khoảng 80 MB) và **small** (khoảng 250 MB, chính xác nhất). Mặc định: điện thoại dùng base, máy tính đủ bộ nhớ dùng small. Ai đã đồng ý tải bản tiny trước đây vẫn giữ tiny cho tới khi tự chọn; trong màn Lời nói có nút "Dùng mô hình chính xác". Kích thước là ước lượng, chưa kiểm.
+- **Sửa lời:** nút "Máy nghe sai? Sửa lời" cho gõ lại từ sai; chỗ dừng và thời gian giữ nguyên, các số liệu tính lại ngay.
+- **Một lần chép lời, không hai:** bản chép lời trong màn kết quả và Soi lời nói dùng chung một lần chạy (trước đây chạy hai lần và có thể ra hai kết quả khác nhau).
+
 ## Giới hạn phải nói thẳng
 
 - **Chưa chạy thử với mô hình thật** (môi trường làm việc không tải được mô hình). Phần phân tích có test với dữ liệu mốc thời gian giả; phần gọi Whisper có đường lui: không có mốc từng từ thì màn chấm dùng cách cũ.

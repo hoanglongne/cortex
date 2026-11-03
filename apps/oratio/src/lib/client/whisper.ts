@@ -34,11 +34,70 @@ export function useTranscribeChoice() {
   return { choice, setChoice: set };
 }
 
+export type WhisperModel = "tiny" | "base" | "small";
+const MODEL_KEY = "oratio-whisper-model";
+
+/** What each model costs to download (approximate) and how well it hears. */
+export const MODEL_INFO: Record<WhisperModel, { size: string; label: string }> = {
+  tiny: { size: "khoảng 40 MB", label: "Nhẹ, nghe sai nhiều" },
+  base: { size: "khoảng 80 MB", label: "Cân bằng" },
+  small: { size: "khoảng 250 MB", label: "Chính xác nhất" },
+};
+
+/** A phone gets the middle model, a computer with enough memory the best one. */
+export function defaultModel(): WhisperModel {
+  if (typeof navigator === "undefined") return "base";
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) return "base";
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  return memory === undefined || memory >= 4 ? "small" : "base";
+}
+
+/** The model in use. Someone who agreed to the small download before keeps it until they choose another. */
+export function modelChoice(): WhisperModel {
+  try {
+    const v = localStorage.getItem(MODEL_KEY);
+    if (v === "tiny" || v === "base" || v === "small") return v;
+    if (localStorage.getItem(KEY) === "on") return "tiny";
+  } catch {
+    // storage blocked
+  }
+  return defaultModel();
+}
+
+export function setModelChoice(model: WhisperModel) {
+  try {
+    localStorage.setItem(MODEL_KEY, model);
+  } catch {
+    // not saved
+  }
+  if (model !== loadedFor) {
+    ready = null;
+    loadedFor = null;
+  }
+}
+
+export function useWhisperModel(): [WhisperModel, (m: WhisperModel) => void] {
+  const [model, setModel] = useState<WhisperModel>("base");
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setModel(modelChoice());
+  }, []);
+  return [
+    model,
+    (m) => {
+      setModelChoice(m);
+      setModel(m);
+    },
+  ];
+}
+
 /** Download progress, 0–1, across the model files */
 export type ProgressListener = (fraction: number) => void;
 
 let worker: Worker | null = null;
 let ready: Promise<void> | null = null;
+/** The model the running worker was last asked to load */
+let loadedFor: WhisperModel | null = null;
 let nextId = 1;
 const pending = new Map<number, { resolve: (r: { text: string; chunks?: unknown }) => void; reject: (e: Error) => void }>();
 const listeners = new Set<ProgressListener>();
@@ -80,13 +139,16 @@ function call(type: "load" | "transcribe" | "transcribe-words", audio?: Float32A
   const id = nextId++;
   return new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject });
-    getWorker().postMessage({ id, type, audio }, audio ? [audio.buffer] : []);
+    getWorker().postMessage({ id, type, audio, model: modelChoice() }, audio ? [audio.buffer] : []);
   });
 }
 
 /** Downloads the model (once) and starts it. */
 export function loadWhisper(onProgress?: ProgressListener): Promise<void> {
   if (onProgress) listeners.add(onProgress);
+  if (loadedFor !== null && loadedFor !== modelChoice()) ready = null;
+  loadedFor = modelChoice();
+  files.clear();
   ready ??= call("load").then(
     () => undefined,
     (e) => {

@@ -115,16 +115,6 @@ function buildRows(take: Take, prev?: Take): Row[] {
         now: take.lexica.length,
         before: pt ? (prev?.lexica.length ?? 0) : undefined,
         better: "up",
-        extra:
-          take.lexica.length > 0 ? (
-            <span className="mt-1.5 flex flex-wrap gap-1.5">
-              {take.lexica.slice(0, 8).map((w) => (
-                <Pill key={w} tone="listen">
-                  {w}
-                </Pill>
-              ))}
-            </span>
-          ) : null,
       }
     );
   }
@@ -156,6 +146,9 @@ export function TakeResult({
   demo,
   onSent,
   drillLabel,
+  selfPlace = "inline",
+  selfOpen = false,
+  onSelfOpen,
 }: {
   take: Take;
   prev?: Take;
@@ -164,6 +157,10 @@ export function TakeResult({
   demo: boolean;
   onSent: () => void;
   drillLabel?: string;
+  /** Where the self-rating card is drawn: here, or beside the question on a wide screen */
+  selfPlace?: "inline" | "side";
+  selfOpen?: boolean;
+  onSelfOpen?: (open: boolean) => void;
 }) {
   if (take.metrics === undefined) {
     return (
@@ -183,13 +180,13 @@ export function TakeResult({
   const happy = outcome ? outcome.state === "met" : !!m && !short;
 
   return (
-    <div className="animate-enter space-y-4">
+    <div className="animate-enter space-y-3">
       <div className="flex items-center gap-3">
-        {characterOn && <Character mood={happy ? "happy" : "idle"} size={72} decorative />}
+        {characterOn && <Character mood={happy ? "happy" : "idle"} size={52} decorative />}
         <div className="min-w-0">
           {drillLabel && <Pill tone="voice">{drillLabel}</Pill>}
-          <h2 className="mt-1 text-2xl font-extrabold tracking-[-0.03em] text-ink">{m ? `Bạn nói ${fmtMs(m.speakingMs)}` : `Bạn ghi được ${formatClock(take.seconds)}`}</h2>
-          <p className="mt-1 text-sm text-muted">
+          <h2 className="mt-0.5 text-xl font-extrabold tracking-[-0.03em] text-ink">{m ? `Bạn nói ${fmtMs(m.speakingMs)}` : `Bạn ghi được ${formatClock(take.seconds)}`}</h2>
+          <p className="mt-0.5 text-[13px] leading-snug text-muted">
             {!m
               ? "Mình chưa đo được chỗ ngừng trong bản ghi này, nhưng bạn vẫn nghe lại được."
               : prev
@@ -210,21 +207,40 @@ export function TakeResult({
       )}
 
       {rows.length > 0 && (
-        <ul className="divide-y divide-line rounded-[12px] border border-line">
-          {rows.map((r) => (
-            <li key={r.key} className="flex items-start justify-between gap-3 px-3.5 py-3">
-              <div className="min-w-0">
-                <p className="text-sm font-bold text-ink">{r.label}</p>
-                <p className="mt-0.5 text-[13px] leading-snug text-muted">{r.help}</p>
-                {r.extra}
-              </div>
-              <div className="shrink-0 text-right">
-                <p className="text-xl font-extrabold tracking-tight text-ink tabular">{r.value}</p>
-                <Delta row={r} />
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+            {rows.map((r) => (
+              <li key={r.key} className="rounded-[12px] border border-line px-3 py-2" title={r.help}>
+                <p className="truncate text-[12px] font-bold text-muted">{r.label}</p>
+                <p className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-extrabold tracking-tight text-ink tabular">{r.value}</span>
+                  <Delta row={r} />
+                </p>
+              </li>
+            ))}
+          </ul>
+          {take.lexica.length > 0 && (
+            <p className="flex flex-wrap items-center gap-1.5 text-[12px] text-muted">
+              Từ Lexica bạn vừa nói:
+              {take.lexica.slice(0, 8).map((w) => (
+                <Pill key={w} tone="listen">
+                  {w}
+                </Pill>
+              ))}
+            </p>
+          )}
+          <details className="group text-[12px] text-subtle">
+            <summary className="cursor-pointer list-none font-bold text-ink-2 hover:text-ink">Mỗi chỉ số nghĩa là gì?</summary>
+            <dl className="mt-1.5 space-y-1">
+              {rows.map((r) => (
+                <div key={r.key}>
+                  <dt className="inline font-bold text-ink-2">{r.label}: </dt>
+                  <dd className="inline">{r.help}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        </>
       )}
 
       {take.tx.status === "pending" && (
@@ -236,12 +252,17 @@ export function TakeResult({
       {take.tx.status === "off" && <p className="text-sm text-subtle">Chưa bật chép lời nên chưa có các chỉ số về từ ngữ. Bật ở tab Tôi, mục Giao diện.</p>}
       {take.tx.status === "done" && take.tx.text && <Transcript text={take.tx.text} />}
 
-      <Card className="p-3 sm:p-3">
-        <AudioPlayer src={take.url} seconds={take.seconds} />
-      </Card>
+      {/* While rating, its own player is on screen: not two of them */}
+      {!selfOpen && (
+        <Card className="p-3 sm:p-3">
+          <AudioPlayer src={take.url} seconds={take.seconds} />
+        </Card>
+      )}
 
       {take.save === "failed" && <p className="text-sm text-subtle">Chưa lưu được lần nói này vào lịch sử. Bạn cứ tiếp tục tập nhé.</p>}
-      {!demo && take.save === "saved" && take.answerId && <SelfRatingCard id={take.answerId} src={take.url} seconds={take.seconds} machine={okMetrics(take) ? { longPauses: okMetrics(take)!.longPauses } : undefined} />}
+      {!demo && selfPlace === "inline" && take.save === "saved" && take.answerId && (
+        <SelfRatingCard id={take.answerId} src={take.url} seconds={take.seconds} machine={okMetrics(take) ? { longPauses: okMetrics(take)!.longPauses } : undefined} words={take.tx.words} open={selfOpen} onOpenChange={(o) => onSelfOpen?.(o)} />
+      )}
       {!demo && take.save === "saved" && take.answerId && <SendToClass answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />}
       {!demo && take.save === "saved" && take.answerId && (
         <SendForReview answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />

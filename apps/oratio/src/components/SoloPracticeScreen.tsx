@@ -6,7 +6,7 @@ import { getSoloQuestions } from "@/actions/questions";
 import type { IeltsQuestion } from "@/lib/types/database";
 import { useCharacterEnabled } from "@/lib/client/theme";
 import { analyzeBlob } from "@/lib/client/speech-metrics";
-import { transcribe, useTranscribeChoice } from "@/lib/client/whisper";
+import { transcribeWords, useTranscribeChoice } from "@/lib/client/whisper";
 import { transcriptMetrics, lexicaWordsIn } from "@/lib/transcript-metrics";
 import { getLexicaWords, saveAnswer } from "@/actions/answers";
 import LoadingSpinner from "./LoadingSpinner";
@@ -24,6 +24,8 @@ import { analytics } from "@/lib/analytics";
 import { formatClock, Part2Timer } from "@/components/ui/timer";
 import { TranscribeAsk, WhisperStatus, useWhisperLoader } from "./solo/TranscribeCard";
 import { DrillSummary, TakeResult } from "./solo/TakeResult";
+import { SelfRatingCard } from "./solo/SelfRating";
+import { useIsWide } from "@/lib/client/use-wide";
 import { DRILL_TARGETS, UUID, deriveGoal, fmtMs, goalText, okMetrics, type Goal, type Take } from "./solo/take";
 
 const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
@@ -75,6 +77,9 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   const [recGoal, setRecGoal] = useState<Goal | null>(null);
   const [recTarget, setRecTarget] = useState<number | null>(null);
   const [exam, setExam] = useState<ExamPhase | null>(null);
+  // Self-rating is drawn beside the question on a wide screen, under the result on a narrow one
+  const wide = useIsWide();
+  const [selfOpenFor, setSelfOpenFor] = useState<number | null>(null);
   const [prepLeft, setPrepLeft] = useState(PREP_SECONDS);
   // The examiner's voice is ready and playing (false while it is still being made)
   const [examHeard, setExamHeard] = useState(false);
@@ -169,12 +174,13 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
       if (choiceRef.current === "on") {
         patchTake(questionId, id, { tx: { status: "pending" } });
         try {
-          text = (await transcribe(blob)).trim();
+          const heard = await transcribeWords(blob);
+          text = heard.text.trim();
           if (!text) throw new Error("empty");
           const ms = metrics === "failed" ? seconds * 1000 : metrics.totalMs;
           tm = transcriptMetrics(text, ms, metrics === "failed" ? 0 : metrics.longPauses);
           words = lexicaWordsIn(text, lexicaRef.current.all);
-          patchTake(questionId, id, { tx: { status: "done", text, metrics: tm }, lexica: words });
+          patchTake(questionId, id, { tx: { status: "done", text, metrics: tm, words: heard.words }, lexica: words });
         } catch {
           text = "";
           patchTake(questionId, id, { tx: { status: "failed" } });
@@ -594,6 +600,20 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
             </CueCard>
             {!exam && <ExaminerVoice questionId={question.id} part={question.part} text={question.question_text} />}
             <p className="mt-4 text-sm text-muted">{TIPS[question.part]}</p>
+            {wide && !DEMO && showResult && latest && latest.save === "saved" && latest.answerId && (
+              <div className="mt-4 md:sticky md:top-6">
+                <SelfRatingCard
+                  key={latest.id}
+                  id={latest.answerId}
+                  src={latest.url}
+                  seconds={latest.seconds}
+                  machine={okMetrics(latest) ? { longPauses: okMetrics(latest)!.longPauses } : undefined}
+                  words={latest.tx.words}
+                  open={selfOpenFor === latest.id}
+                  onOpenChange={(o) => setSelfOpenFor(o ? latest.id : null)}
+                />
+              </div>
+            )}
             {hintWords.length > 0 && (
               <div className="mt-4">
                 <p className="text-sm font-bold text-ink-2">Thử dùng từ Lexica của bạn:</p>
@@ -683,6 +703,9 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
                 demo={DEMO}
                 onSent={() => onSent(latest)}
                 drillLabel={drillLabelOf(latest)}
+                selfPlace={wide ? "side" : "inline"}
+                selfOpen={selfOpenFor === latest.id}
+                onSelfOpen={(o) => setSelfOpenFor(o ? latest.id : null)}
               />
             </Card>
           ) : drillRunning ? (

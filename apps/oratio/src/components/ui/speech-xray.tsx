@@ -20,20 +20,30 @@ export function SpeechXray({
   stats,
   time,
   onPlay,
+  editing = false,
+  onEditing,
+  onEdit,
 }: {
   tokens: readonly Token[];
   gaps: readonly Gap[];
   stats: SpeechStats;
   time: number;
   onPlay: (from: number, to: number) => void;
+  /** The learner is fixing words the machine heard wrongly */
+  editing?: boolean;
+  onEditing?: (on: boolean) => void;
+  /** `src` is the word's place in the list the tokens came from */
+  onEdit?: (src: number, text: string) => void;
 }) {
+  const [fixing, setFixing] = React.useState<Token | null>(null);
+  const [draft, setDraft] = React.useState("");
   const gapAfter = React.useMemo(() => new Map(gaps.map((g) => [g.after, g])), [gaps]);
 
   return (
     <div>
-      <p className="rounded-lg bg-surface-2 px-3 py-2 text-[13px] font-semibold leading-snug text-ink-2">{xrayHeadline(stats)}</p>
+      <p className="text-[13px] font-semibold leading-snug text-ink-2">{xrayHeadline(stats)}</p>
 
-      <dl className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+      <dl className="mt-2 flex flex-wrap gap-1.5">
         <Stat tone="warn" value={stats.midPauses} label="dừng giữa ý" />
         <Stat value={stats.boundaryPauses} label="dừng giữa các ý" />
         <Stat tone={stats.fillers > 0 ? "warn" : undefined} value={stats.fillers} label="từ đệm" />
@@ -42,7 +52,7 @@ export function SpeechXray({
         <Stat value={String(stats.meanRun).replace(".", ",")} label="từ nói liền" />
       </dl>
 
-      <p className="mt-3 text-[15px] leading-[2.1] text-ink" lang="en">
+      <p className="mt-2 text-[15px] leading-[2] text-ink" lang="en">
         {tokens.map((t) => {
           const gap = gapAfter.get(t.i);
           const playing = time >= t.start - 0.05 && time < t.end + 0.05;
@@ -50,10 +60,17 @@ export function SpeechXray({
             <React.Fragment key={t.i}>
               <button
                 type="button"
-                onClick={() => onPlay(t.start - 0.3, t.end + 0.6)}
+                onClick={() => {
+                  if (editing && onEdit) {
+                    setFixing(t);
+                    setDraft(t.text.replace(/[.,;:!?]+$/, ""));
+                  } else onPlay(t.start - 0.3, t.end + 0.6);
+                }}
                 className={cn(
                   "rounded px-0.5 transition-colors hover:bg-surface-3",
                   playing && "bg-voice/25 font-bold",
+                  editing && "border-b border-dashed border-subtle",
+                  fixing?.i === t.i && "bg-voice/25",
                   t.filler && "bg-streak/40 font-bold",
                   t.repeat && "underline decoration-danger decoration-wavy underline-offset-4",
                   t.marker && !t.filler && "underline decoration-subtle decoration-dotted underline-offset-4"
@@ -82,18 +99,67 @@ export function SpeechXray({
         })}
       </p>
 
-      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-subtle" aria-label="Chú thích">
+      {onEdit && (
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => {
+              setFixing(null);
+              onEditing?.(!editing);
+            }}
+            aria-pressed={editing}
+            className={cn("h-8 rounded-full border px-3 text-[12px] font-bold transition-colors", editing ? "border-voice bg-voice text-on-voice" : "border-line-strong text-ink-2 hover:border-muted")}
+          >
+            {editing ? "Xong sửa lời" : "Máy nghe sai? Sửa lời"}
+          </button>
+          {editing && !fixing && <p className="mt-1 text-[12px] text-subtle">Chạm vào từ sai để gõ lại. Chỗ dừng và thời gian giữ nguyên.</p>}
+          {editing && fixing && (
+            <form
+              className="mt-2 flex items-center gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                onEdit(fixing.src, draft);
+                setFixing(null);
+              }}
+            >
+              <input
+                autoFocus
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                lang="en"
+                aria-label={`Sửa từ ${fixing.text}`}
+                className="h-10 min-w-0 flex-1 rounded-[10px] border border-line-strong bg-surface-2 px-3 text-[15px] text-ink focus-visible:border-voice"
+              />
+              <button type="submit" className="h-10 rounded-[10px] bg-voice px-3 text-[13px] font-bold text-on-voice">
+                Lưu
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onEdit(fixing.src, "");
+                  setFixing(null);
+                }}
+                className="h-10 rounded-[10px] border border-line-strong px-3 text-[13px] font-bold text-ink-2"
+              >
+                Xoá từ
+              </button>
+            </form>
+          )}
+        </div>
+      )}
+
+      <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-subtle" aria-label="Chú thích">
         <li className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-6 rounded-full bg-streak" /> dừng giữa một ý
+          <span className="inline-block h-2.5 w-5 rounded-full bg-streak" /> dừng giữa ý
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-6 rounded-full bg-surface-3" /> dừng giữa hai ý (bình thường)
+          <span className="inline-block h-2.5 w-5 rounded-full bg-surface-3" /> dừng giữa các ý (ổn)
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-6 rounded bg-streak/40" /> từ đệm
+          <span className="inline-block h-2.5 w-5 rounded bg-streak/40" /> từ đệm
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="inline-block w-6 border-b-2 border-dotted border-danger" /> lặp từ
+          <span className="inline-block w-5 border-b-2 border-dotted border-danger" /> lặp
         </li>
       </ul>
     </div>
@@ -102,9 +168,9 @@ export function SpeechXray({
 
 function Stat({ value, label, tone }: { value: number | string; label: string; tone?: "warn" }) {
   return (
-    <div className={cn("rounded-[10px] px-1 py-2", tone === "warn" ? "bg-streak/25" : "bg-surface-2")}>
-      <dd className="text-xl font-extrabold leading-none tabular text-ink">{value}</dd>
-      <dt className="mt-1 text-[11px] leading-tight text-muted">{label}</dt>
+    <div className={cn("flex items-baseline gap-1 rounded-full px-2.5 py-1", tone === "warn" ? "bg-streak/25" : "bg-surface-2")}>
+      <dd className="text-sm font-extrabold tabular text-ink">{value}</dd>
+      <dt className="text-[11px] text-muted">{label}</dt>
     </div>
   );
 }
