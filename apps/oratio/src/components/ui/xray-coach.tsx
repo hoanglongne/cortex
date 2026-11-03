@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, ArrowRight, Check } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, ChevronDown } from "lucide-react";
 import type { Insight } from "@/lib/speech-insights";
 import type { Delta } from "@/lib/speech-history";
 import { cn } from "@/lib/utils";
@@ -17,14 +17,15 @@ export function XrayCoach({ insights, deltas, line, trend }: { insights: readonl
   return (
     <div className="space-y-3">
       {deltas && (
-        <section className="rounded-[12px] border border-line p-3" aria-label="So với lần trước">
-          <p className="text-sm font-bold text-ink">So với lần nói trước của bạn</p>
-          <p className="text-[13px] text-muted">{line}</p>
-          <ul className="mt-2 grid grid-cols-2 gap-1.5">
+        <section className="rounded-[12px] border border-line p-2.5" aria-label="So với lần trước">
+          <p className="text-[13px] text-muted">
+            <b className="text-ink">So với lần trước:</b> {line}
+          </p>
+          <ul className="mt-1.5 grid grid-cols-2 gap-1.5">
             {deltas.map((d) => (
-              <li key={d.id} className={cn("rounded-[10px] px-2.5 py-2", d.direction === "better" ? "bg-good/15" : d.direction === "worse" ? "bg-danger/10" : "bg-surface-2")}>
+              <li key={d.id} className={cn("rounded-[10px] px-2.5 py-1.5", d.direction === "better" ? "bg-good/15" : d.direction === "worse" ? "bg-danger/10" : "bg-surface-2")}>
                 <p className="text-[11px] leading-tight text-muted">{d.label}</p>
-                <p className="mt-0.5 flex items-center gap-1 text-base font-extrabold tabular text-ink">
+                <p className="flex items-center gap-1 text-sm font-extrabold tabular text-ink">
                   {num(d.before)} <ArrowRight className="size-3.5 text-subtle" aria-hidden /> {num(d.after)}
                   <span className="sr-only">{d.direction === "better" ? "tốt hơn" : d.direction === "worse" ? "kém hơn" : "như cũ"}</span>
                 </p>
@@ -36,41 +37,44 @@ export function XrayCoach({ insights, deltas, line, trend }: { insights: readonl
       )}
 
       {insights.length > 0 && (
-        <ul className="space-y-2" aria-label="Máy thấy gì và nên làm gì">
-          {insights.map((i) => (
-            <li key={i.id} className={cn("rounded-[12px] border p-3", i.tone === "fix" ? "border-streak/60 bg-streak/10" : "border-good/40 bg-good/10")}>
-              <p className="flex items-start gap-2 text-sm font-extrabold leading-snug text-ink">
-                {i.tone === "fix" ? <AlertTriangle className="mt-0.5 size-4 shrink-0 text-ink" aria-hidden /> : <Check className="mt-0.5 size-4 shrink-0 text-good" aria-hidden />}
-                {i.title}
-              </p>
-              <p className="mt-1 text-[13px] leading-snug text-ink-2">{i.detail}</p>
-              {i.evidence.length > 0 && (
-                <ul className="mt-1.5 flex flex-wrap gap-1.5" lang="en">
-                  {i.evidence.map((e) => (
-                    <li key={e} className="rounded-full bg-surface px-2.5 py-1 text-[12px] font-semibold text-ink-2">
-                      {e}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {i.fix && <p className="mt-2 text-[13px] font-semibold leading-snug text-ink">Thử: {i.fix}</p>}
-              {i.phrases && (
-                <ul className="mt-1.5 flex flex-wrap gap-1.5" lang="en" aria-label="Cụm nên nói thay vì im lặng">
-                  {i.phrases.map((p) => (
-                    <li key={p} className="rounded-full border border-line-strong bg-surface px-2.5 py-1 text-[12px] font-bold text-voice">
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {i.words && i.words.length > 0 && (
-                <p className="mt-2 text-[12px] leading-snug text-muted">
-                  Từ bạn bí trước khi nói: <b className="text-ink-2" lang="en">{i.words.join(", ")}</b>. Ôn các từ này sẽ giúp nói trơn hơn.
-                </p>
-              )}
-            </li>
+        <div className="divide-y divide-line rounded-[12px] border border-line" aria-label="Máy thấy gì và nên làm gì">
+          {insights.map((i, n) => (
+            <details key={i.id} open={n === 0 && i.tone === "fix"} className="group">
+              <summary className="flex cursor-pointer list-none items-start gap-2 px-3 py-2.5 text-[13px] font-extrabold leading-snug text-ink">
+                {i.tone === "fix" ? <AlertTriangle className="mt-0.5 size-4 shrink-0 text-streak" aria-hidden /> : <Check className="mt-0.5 size-4 shrink-0 text-good" aria-hidden />}
+                <span className="min-w-0 flex-1">{i.title}</span>
+                <ChevronDown className="mt-0.5 size-4 shrink-0 text-subtle transition-transform group-open:rotate-180" aria-hidden />
+              </summary>
+              <div className="px-3 pb-3 pl-9">
+                <p className="text-[13px] leading-snug text-ink-2">{i.detail}</p>
+                {i.evidence.length > 0 && (
+                  <ul className="mt-1.5 flex flex-wrap gap-1.5" lang="en">
+                    {i.evidence.map((e) => (
+                      <li key={e} className="rounded-full bg-surface-2 px-2.5 py-1 text-[12px] font-semibold text-ink-2">
+                        {e}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {i.fix && <p className="mt-2 text-[13px] font-semibold leading-snug text-ink">Thử: {i.fix}</p>}
+                {i.phrases && (
+                  <ul className="mt-1.5 flex flex-wrap gap-1.5" lang="en" aria-label="Cụm nên nói thay vì im lặng">
+                    {i.phrases.map((p) => (
+                      <li key={p} className="rounded-full border border-line-strong px-2.5 py-1 text-[12px] font-bold text-voice">
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {i.words && i.words.length > 0 && (
+                  <p className="mt-2 text-[12px] leading-snug text-muted">
+                    Từ bạn bí trước khi nói: <b className="text-ink-2" lang="en">{i.words.join(", ")}</b>. Ôn các từ này sẽ giúp nói trơn hơn.
+                  </p>
+                )}
+              </div>
+            </details>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

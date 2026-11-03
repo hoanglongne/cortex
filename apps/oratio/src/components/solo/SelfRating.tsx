@@ -28,6 +28,7 @@ export function SelfRatingCard({ id, src, seconds, machine, words, open, onOpenC
       {open && (
         <div className="mt-3 space-y-3">
           <ListenRate
+            className="border-0"
             src={src}
             seconds={seconds}
             machine={machine}

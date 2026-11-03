@@ -41,9 +41,9 @@ export function SpeechXray({
 
   return (
     <div>
-      <p className="rounded-lg bg-surface-2 px-3 py-2 text-[13px] font-semibold leading-snug text-ink-2">{xrayHeadline(stats)}</p>
+      <p className="text-[13px] font-semibold leading-snug text-ink-2">{xrayHeadline(stats)}</p>
 
-      <dl className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+      <dl className="mt-2 flex flex-wrap gap-1.5">
         <Stat tone="warn" value={stats.midPauses} label="dừng giữa ý" />
         <Stat value={stats.boundaryPauses} label="dừng giữa các ý" />
         <Stat tone={stats.fillers > 0 ? "warn" : undefined} value={stats.fillers} label="từ đệm" />
@@ -52,7 +52,7 @@ export function SpeechXray({
         <Stat value={String(stats.meanRun).replace(".", ",")} label="từ nói liền" />
       </dl>
 
-      <p className="mt-3 text-[15px] leading-[2.1] text-ink" lang="en">
+      <p className="mt-2 text-[15px] leading-[2] text-ink" lang="en">
         {tokens.map((t) => {
           const gap = gapAfter.get(t.i);
           const playing = time >= t.start - 0.05 && time < t.end + 0.05;
@@ -148,18 +148,18 @@ export function SpeechXray({
         </div>
       )}
 
-      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-subtle" aria-label="Chú thích">
+      <ul className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-subtle" aria-label="Chú thích">
         <li className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-6 rounded-full bg-streak" /> dừng giữa một ý
+          <span className="inline-block h-2.5 w-5 rounded-full bg-streak" /> dừng giữa ý
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-6 rounded-full bg-surface-3" /> dừng giữa hai ý (bình thường)
+          <span className="inline-block h-2.5 w-5 rounded-full bg-surface-3" /> dừng giữa các ý (ổn)
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-6 rounded bg-streak/40" /> từ đệm
+          <span className="inline-block h-2.5 w-5 rounded bg-streak/40" /> từ đệm
         </li>
         <li className="flex items-center gap-1.5">
-          <span className="inline-block w-6 border-b-2 border-dotted border-danger" /> lặp từ
+          <span className="inline-block w-5 border-b-2 border-dotted border-danger" /> lặp
         </li>
       </ul>
     </div>
@@ -168,9 +168,9 @@ export function SpeechXray({
 
 function Stat({ value, label, tone }: { value: number | string; label: string; tone?: "warn" }) {
   return (
-    <div className={cn("rounded-[10px] px-1 py-2", tone === "warn" ? "bg-streak/25" : "bg-surface-2")}>
-      <dd className="text-xl font-extrabold leading-none tabular text-ink">{value}</dd>
-      <dt className="mt-1 text-[11px] leading-tight text-muted">{label}</dt>
+    <div className={cn("flex items-baseline gap-1 rounded-full px-2.5 py-1", tone === "warn" ? "bg-streak/25" : "bg-surface-2")}>
+      <dd className="text-sm font-extrabold tabular text-ink">{value}</dd>
+      <dt className="text-[11px] text-muted">{label}</dt>
     </div>
   );
 }
