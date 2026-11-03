@@ -1,0 +1,201 @@
+"use client";
+
+import * as React from "react";
+import { Minus, Plus, Undo2 } from "lucide-react";
+import { CRITERION_LABEL } from "@cortex/classroom-oratio";
+import { CRITERIA, type CriterionScores } from "@/lib/feedback";
+import { clock, evidenceLine, MARK_KINDS, plainLabel, suggestBands, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { cn } from "@/lib/utils";
+import { Button } from "./button";
+
+const DOT: Record<MarkKind, string> = {
+  pause: "bg-streak",
+  repeat: "bg-subtle",
+  good: "bg-good",
+  grammar: "bg-danger",
+  unclear: "bg-listen",
+};
+
+/**
+ * Rate by listening and tapping (issue #130). Step 1: play the answer and tap
+ * a button whenever you hear a pause, a good word, a mistake or something you
+ * could not catch; no knowledge of the bands needed. Step 2: four bands start
+ * from those taps (and from the machine's numbers) and the rater only confirms
+ * or nudges them with + and −. Used for rating yourself and for rating a partner.
+ */
+export function ListenRate({
+  src,
+  seconds,
+  limitSeconds,
+  value,
+  onChange,
+  machine,
+  disabled = false,
+  className,
+}: {
+  src: string;
+  /** Length of the recording, when known before it loads */
+  seconds?: number;
+  /** The rater may listen to this much only (peer rating) */
+  limitSeconds?: number;
+  value: Partial<CriterionScores>;
+  onChange: (next: Partial<CriterionScores>) => void;
+  machine?: Machine;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const audio = React.useRef<HTMLAudioElement>(null);
+  const [marks, setMarks] = React.useState<Mark[]>([]);
+  const [duration, setDuration] = React.useState(seconds ?? 0);
+  const [phase, setPhase] = React.useState<"listen" | "confirm">(CRITERIA.every((c) => value[c] != null) ? "confirm" : "listen");
+  const [flash, setFlash] = React.useState("");
+  const [limitHit, setLimitHit] = React.useState(false);
+  // Bands the rater changed by hand: going back to listen more does not overwrite them
+  const touched = React.useRef<Set<string>>(new Set());
+
+  const shownLength = limitSeconds ? Math.min(duration || limitSeconds, limitSeconds) : duration;
+
+  const mark = (kind: MarkKind) => {
+    const el = audio.current;
+    const t = el?.currentTime ?? 0;
+    setMarks((m) => [...m, { kind, t }]);
+    const label = MARK_KINDS.find((k) => k.kind === kind)?.label ?? "";
+    setFlash(`Đã đánh dấu: ${label} lúc ${clock(t)}`);
+  };
+
+  const stopAtLimit = () => {
+    const el = audio.current;
+    if (limitSeconds && el && el.currentTime >= limitSeconds) {
+      el.pause();
+      el.currentTime = limitSeconds;
+      setLimitHit(true);
+    }
+  };
+
+  const toConfirm = () => {
+    const start = suggestBands({ marks, seconds: shownLength || duration || 60, machine });
+    const next: Partial<CriterionScores> = { ...value };
+    for (const c of CRITERIA) if (!touched.current.has(c)) next[c] = start[c];
+    onChange(next);
+    setPhase("confirm");
+  };
+
+  const nudge = (c: (typeof CRITERIA)[number], delta: number) => {
+    touched.current.add(c);
+    onChange({ ...value, [c]: Math.min(9, Math.max(1, (value[c] ?? 5) + delta)) });
+  };
+
+  return (
+    <div className={cn("space-y-3", className)}>
+      <div className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+        <audio
+          ref={audio}
+          src={src}
+          controls
+          preload="metadata"
+          onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+          onTimeUpdate={stopAtLimit}
+          onSeeked={stopAtLimit}
+          className="w-full"
+        />
+        {limitSeconds && (
+          <p className="mt-2 text-[13px] text-subtle" aria-live="polite">
+            {limitHit ? `Đã nghe đủ ${Math.round(limitSeconds / 60)} phút, đủ để chấm rồi.` : `Bạn nghe tối đa ${Math.round(limitSeconds / 60)} phút đầu của câu trả lời.`}
+          </p>
+        )}
+      </div>
+
+      {phase === "listen" ? (
+        <section className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+          <h3 className="text-base font-extrabold tracking-[-0.02em] text-ink">Nghe và bấm khi bạn nghe thấy</h3>
+          <p className="mt-0.5 text-[13px] leading-snug text-muted">Không cần biết chấm điểm. Mỗi lần nghe thấy một trong các điều dưới đây, bấm nút tương ứng.</p>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {MARK_KINDS.map((k) => (
+              <button
+                key={k.kind}
+                type="button"
+                disabled={disabled}
+                onClick={() => mark(k.kind)}
+                className={cn(
+                  "flex h-14 items-center justify-center gap-2 rounded-[12px] border border-line-strong px-2 text-[14px] font-bold text-ink transition-colors active:scale-[0.98] hover:border-muted disabled:opacity-50",
+                  k.kind === "unclear" && "col-span-2 sm:col-span-1"
+                )}
+              >
+                <span className={cn("size-2.5 shrink-0 rounded-full", DOT[k.kind])} aria-hidden />
+                {k.label}
+              </button>
+            ))}
+          </div>
+
+          <p className="mt-2 min-h-5 text-[13px] font-semibold text-voice" aria-live="polite">
+            {flash || (marks.length === 0 ? "Chưa đánh dấu gì." : "")}
+          </p>
+
+          {shownLength > 0 && (
+            <div className="relative mt-1 h-6" aria-hidden={marks.length === 0}>
+              <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-surface-3" />
+              {marks.map((m, i) => (
+                <button
+                  key={`${m.t}-${i}`}
+                  type="button"
+                  aria-label={`${MARK_KINDS.find((k) => k.kind === m.kind)?.label} lúc ${clock(m.t)}. Nghe lại.`}
+                  onClick={() => {
+                    if (audio.current) {
+                      audio.current.currentTime = Math.max(0, m.t - 2);
+                      void audio.current.play().catch(() => undefined);
+                    }
+                  }}
+                  style={{ left: `${Math.min(100, (m.t / shownLength) * 100)}%` }}
+                  className="absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full p-1.5"
+                >
+                  <span className={cn("block size-2.5 rounded-full", DOT[m.kind])} />
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-3 flex items-center gap-2">
+            <Button variant="secondary" disabled={disabled || marks.length === 0} onClick={() => setMarks((m) => m.slice(0, -1))}>
+              <Undo2 className="size-4" aria-hidden /> Bỏ dấu cuối
+            </Button>
+            <Button variant="primary" className="flex-1" disabled={disabled} onClick={toConfirm}>
+              Xong, xem điểm
+            </Button>
+          </div>
+        </section>
+      ) : (
+        <section className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+          <h3 className="text-base font-extrabold tracking-[-0.02em] text-ink">Điểm bắt đầu từ những gì bạn nghe</h3>
+          <p className="mt-0.5 text-[13px] leading-snug text-muted">Đồng ý thì giữ nguyên. Thấy cao hay thấp quá thì bấm + hoặc −.</p>
+          <ul className="mt-2 divide-y divide-line">
+            {CRITERIA.map((c) => {
+              const band = value[c] ?? 5;
+              return (
+                <li key={c} className="flex items-center gap-3 py-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-ink">{CRITERION_LABEL[c]}</p>
+                    <p className="text-lg font-extrabold leading-tight tracking-[-0.02em] text-voice">{plainLabel(band)}</p>
+                    <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, marks, machine)}</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label={`Band ${CRITERION_LABEL[c]}`}>
+                    <button type="button" aria-label="Giảm 1 band" disabled={disabled || band <= 1} onClick={() => nudge(c, -1)} className="flex size-10 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">
+                      <Minus className="size-4" aria-hidden />
+                    </button>
+                    <span className="w-8 text-center text-2xl font-extrabold tabular text-ink">{band}</span>
+                    <button type="button" aria-label="Tăng 1 band" disabled={disabled || band >= 9} onClick={() => nudge(c, 1)} className="flex size-10 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">
+                      <Plus className="size-4" aria-hidden />
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <button type="button" onClick={() => setPhase("listen")} disabled={disabled} className="mt-1 text-[13px] font-semibold text-voice">
+            Nghe thêm và đánh dấu tiếp
+          </button>
+        </section>
+      )}
+    </div>
+  );
+}

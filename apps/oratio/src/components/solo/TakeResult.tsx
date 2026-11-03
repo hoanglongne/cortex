@@ -240,7 +240,7 @@ export function TakeResult({
       </Card>
 
       {take.save === "failed" && <p className="text-sm text-subtle">Chưa lưu được lần nói này vào lịch sử. Bạn cứ tiếp tục tập nhé.</p>}
-      {!demo && take.save === "saved" && take.answerId && <SelfRatingCard id={take.answerId} hints={measuredHints(take)} />}
+      {!demo && take.save === "saved" && take.answerId && <SelfRatingCard id={take.answerId} src={take.url} seconds={take.seconds} machine={okMetrics(take) ? { longPauses: okMetrics(take)!.longPauses } : undefined} />}
       {!demo && take.save === "saved" && take.answerId && <SendToClass answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />}
       {!demo && take.save === "saved" && take.answerId && (
         <SendForReview answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />
@@ -274,14 +274,4 @@ export function DrillSummary({ takes }: { takes: Take[] }) {
       <p className="text-[13px] text-muted">Nói cùng nội dung trong thời gian ngắn dần thường làm bài trôi hơn. Nếu thấy từ/phút tăng mà quãng ngừng giảm, đó là dấu hiệu tốt.</p>
     </Card>
   );
-}
-
-/** What the machine measured in this take, per criterion, for the self-rating form to show next to the questions. */
-function measuredHints(take: Take) {
-  const m = okMetrics(take);
-  const tm = txMetrics(take);
-  return {
-    ...(m ? { fluency: `${m.longPauses} lần ngừng dài${tm ? ` · ${Math.round(tm.wpm)} từ mỗi phút` : ""}` } : {}),
-    ...(tm ? { vocabulary: `${tm.wordCount} từ · độ đa dạng ${tm.lexicalDiversity.toFixed(2).replace(".", ",")} (càng cao càng ít lặp)` } : {}),
-  };
 }

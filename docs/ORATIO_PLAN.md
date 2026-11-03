@@ -170,4 +170,8 @@ Mỗi bước có tiêu chí xong. Đứng trước mọi thứ là bước 0, c
 
 ## Cập nhật 03/11/2026: form chấm làm lại (issue #130)
 
-Tự chấm và chấm chéo dùng chung một thành phần `GuidedRating` (`components/ui/guided-rating.tsx`, luật trong `lib/rating-guide.ts`). Chấm từng tiêu chí một: 4 câu hỏi về điều nghe thấy (có/thỉnh thoảng/không, bỏ qua nếu không chắc), máy gợi ý khoảng hai band từ câu trả lời, người chấm chọn band; ô "so với người nói ở band 4, 6, 8" và các số đo máy (ngừng dài, từ mỗi phút, độ đa dạng từ) hiện cạnh câu hỏi khi tự chấm. Lệch khỏi gợi ý thì nhắc nghe lại. Máy chủ không đổi: vẫn lưu band nguyên 1 đến 9 cho từng tiêu chí. **Chưa làm:** chấm sau cuộc gọi trực tiếp (`RatingScreen`) vẫn dùng form cũ; ghi chú theo mốc thời gian, tua 10 giây, độ tự tin, gợi ý lệch sau 3 bản, màn giải thích band lần đầu, lưu câu trả lời bằng chứng.
+Bản đầu (bảng câu hỏi từng tiêu chí) bị bỏ vì chỉ thêm chữ, không dễ hơn. Bản hiện tại, `ListenRate` (`components/ui/listen-rate.tsx`, luật trong `lib/rating-marks.ts`), dùng chung cho tự chấm và chấm chéo, theo hai bước:
+1. **Nghe và bấm khi nghe thấy**: năm nút (Ngập ngừng, Lặp từ / bí từ, Từ hay, Sai ngữ pháp, Khó nghe). Mỗi lần bấm ghi một dấu vào đúng giây đang nghe, hiện trên dòng thời gian; chạm dấu để nghe lại chỗ đó. Không cần biết band.
+2. **Xác nhận**: bốn tiêu chí, mỗi cái một nhãn dễ hiểu (Còn nhiều khó khăn, Cần luyện thêm, Tạm được, Khá, Tốt), band bắt đầu từ số dấu theo mỗi phút (và số lần dừng dài máy đo khi tự chấm), kèm dòng "dựa vào gì". Người chấm chỉ bấm + hoặc − nếu không đồng ý. Máy chỉ gợi ý trong khoảng band 3 đến 7: các band quá thấp hay quá cao cần một người quyết định.
+
+Máy chủ không đổi: vẫn lưu band nguyên 1 đến 9 cho từng tiêu chí. **Chưa làm:** chấm sau cuộc gọi trực tiếp (`RatingScreen`) vẫn dùng form cũ; độ tự tin, gợi ý lệch sau 3 bản, màn giải thích band lần đầu, lưu các dấu để hiệu chỉnh luật, đoạn ghi âm mẫu làm điểm neo.
