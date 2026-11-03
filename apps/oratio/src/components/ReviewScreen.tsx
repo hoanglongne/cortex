@@ -16,7 +16,7 @@ import { BandRange, CriterionRow } from "@/components/ui/band";
 import { Card, EmptyState, Label, Notice, Pill } from "@/components/ui/card";
 import { CharacterSays } from "@/components/ui/character";
 import { CueCard } from "@/components/ui/cue-card";
-import { RubricSheet } from "@/components/ui/rubric";
+import { GuidedRating } from "@/components/ui/guided-rating";
 import { FlowShell, TabShell, type Tab } from "@/components/ui/shell";
 import { cn } from "@/lib/utils";
 
@@ -408,7 +408,7 @@ function ReviewTaskView({
         </div>
 
         <div className="flex flex-col gap-4">
-          <RubricSheet value={scores} onChange={setScores} disabled={submitting} />
+          <GuidedRating value={scores} onChange={setScores} disabled={submitting} />
 
           <Card>
             <Label className="mb-2">Nhận xét nhanh (chọn tối đa {MAX_REVIEW_TAGS})</Label>

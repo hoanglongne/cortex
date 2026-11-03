@@ -166,3 +166,8 @@ Mỗi bước có tiêu chí xong. Đứng trước mọi thứ là bước 0, c
 **#89, các việc cuối:**
 - **Giao diện hai ngôn ngữ của Solilo:** không chuyển. Oratio dành cho người học tiếng Việt và giao diện đã là tiếng Việt; thêm công tắc Anh/Việt không có người dùng rõ ràng, nên bỏ.
 - **Xoá app Solilo:** chưa xoá thư mục `apps/solilo`. Xoá thư mục làm đổi cây dự án và khiến cả 7 dự án Vercel build lại, và dự án Vercel `cortex-solilo` sẽ báo lỗi build. Cách làm: xoá dự án `cortex-solilo` trên Vercel trước (Settings → Delete Project), rồi xoá `apps/solilo` trong một lần gộp với thay đổi khác.
+
+
+## Cập nhật 03/11/2026: form chấm làm lại (issue #130)
+
+Tự chấm và chấm chéo dùng chung một thành phần `GuidedRating` (`components/ui/guided-rating.tsx`, luật trong `lib/rating-guide.ts`). Chấm từng tiêu chí một: 4 câu hỏi về điều nghe thấy (có/thỉnh thoảng/không, bỏ qua nếu không chắc), máy gợi ý khoảng hai band từ câu trả lời, người chấm chọn band; ô "so với người nói ở band 4, 6, 8" và các số đo máy (ngừng dài, từ mỗi phút, độ đa dạng từ) hiện cạnh câu hỏi khi tự chấm. Lệch khỏi gợi ý thì nhắc nghe lại. Máy chủ không đổi: vẫn lưu band nguyên 1 đến 9 cho từng tiêu chí. **Chưa làm:** chấm sau cuộc gọi trực tiếp (`RatingScreen`) vẫn dùng form cũ; ghi chú theo mốc thời gian, tua 10 giây, độ tự tin, gợi ý lệch sau 3 bản, màn giải thích band lần đầu, lưu câu trả lời bằng chứng.
