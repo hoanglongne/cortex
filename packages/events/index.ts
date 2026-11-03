@@ -18,7 +18,7 @@
  */
 
 export type CortexApp = 'lexica' | 'oratio' | 'teach' | 'synapse';
-export type CortexTrack = 'vocab' | 'speaking' | 'story' | 'class' | 'teaching';
+export type CortexTrack = 'vocab' | 'speaking' | 'story' | 'class' | 'teaching' | 'writing';
 
 /** Steps of the shared funnel. Apps may add their own events beside these. */
 export const EVENTS = {
