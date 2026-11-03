@@ -1,10 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Minus, Plus, Undo2 } from "lucide-react";
+import { Minus, Play, Plus, Undo2 } from "lucide-react";
 import { CRITERION_LABEL } from "@cortex/classroom-oratio";
 import { CRITERIA, type CriterionScores } from "@/lib/feedback";
-import { clock, evidenceLine, MARK_KINDS, plainLabel, suggestBands, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { profileUrl, type SpeechProfile } from "@/lib/client/speech-metrics";
+import { clock, evidenceLine, MARK_KINDS, mapVerdict, plainLabel, suggestBands, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { SpeechMap } from "./speech-map";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
@@ -52,6 +54,55 @@ export function ListenRate({
   const [limitHit, setLimitHit] = React.useState(false);
   // Bands the rater changed by hand: going back to listen more does not overwrite them
   const touched = React.useRef<Set<string>>(new Set());
+  const [profile, setProfile] = React.useState<SpeechProfile | null>(null);
+  const [time, setTime] = React.useState(0);
+  // The long pauses the machine found, judged one by one: looking for a word, or just thinking
+  const [judged, setJudged] = React.useState<Record<number, "search" | "think">>({});
+  const [active, setActive] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    let live = true;
+    void profileUrl(src).then((p) => live && setProfile(p));
+    return () => {
+      live = false;
+    };
+  }, [src]);
+
+  // Pauses inside the part the rater may hear; the three longest, in the order they happen
+  const moments = React.useMemo(() => {
+    if (!profile) return [];
+    return profile.pauses
+      .map((p, i) => ({ ...p, i }))
+      .filter((p) => !limitSeconds || p.startMs / 1000 < limitSeconds)
+      .sort((a, b) => b.endMs - b.startMs - (a.endMs - a.startMs))
+      .slice(0, 3)
+      .sort((a, b) => a.startMs - b.startMs);
+  }, [profile, limitSeconds]);
+  const foundPauses = profile ? profile.pauses.filter((p) => !limitSeconds || p.startMs / 1000 < limitSeconds).length : null;
+  const searching = Object.entries(judged).filter(([, v]) => v === "search").length;
+  const thinking = Object.entries(judged).filter(([, v]) => v === "think").length;
+  // Judged pauses become taps, so the band counts them once
+  const allMarks = React.useMemo<Mark[]>(
+    () => [...marks, ...moments.filter((m) => judged[m.i] === "search").map((m) => ({ kind: "pause" as const, t: m.startMs / 1000 }))],
+    [marks, moments, judged]
+  );
+  const machineNow: Machine | undefined = foundPauses != null ? { longPauses: foundPauses, reviewed: Object.keys(judged).length } : machine;
+
+  const play = (from: number, to?: number) => {
+    const el = audio.current;
+    if (!el) return;
+    el.currentTime = Math.max(0, from);
+    void el.play().catch(() => undefined);
+    if (to != null) {
+      const stop = () => {
+        if (el.currentTime >= to) {
+          el.pause();
+          el.removeEventListener("timeupdate", stop);
+        }
+      };
+      el.addEventListener("timeupdate", stop);
+    }
+  };
 
   const shownLength = limitSeconds ? Math.min(duration || limitSeconds, limitSeconds) : duration;
 
@@ -73,7 +124,7 @@ export function ListenRate({
   };
 
   const toConfirm = () => {
-    const start = suggestBands({ marks, seconds: shownLength || duration || 60, machine });
+    const start = suggestBands({ marks: allMarks, seconds: shownLength || duration || 60, machine: machineNow });
     const next: Partial<CriterionScores> = { ...value };
     for (const c of CRITERIA) if (!touched.current.has(c)) next[c] = start[c];
     onChange(next);
@@ -94,7 +145,10 @@ export function ListenRate({
           controls
           preload="metadata"
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-          onTimeUpdate={stopAtLimit}
+          onTimeUpdate={(e) => {
+            setTime(e.currentTarget.currentTime);
+            stopAtLimit();
+          }}
           onSeeked={stopAtLimit}
           className="w-full"
         />
@@ -107,7 +161,62 @@ export function ListenRate({
 
       {phase === "listen" ? (
         <section className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
-          <h3 className="text-base font-extrabold tracking-[-0.02em] text-ink">Nghe và bấm khi bạn nghe thấy</h3>
+          {profile && (
+            <div className="mb-4">
+              <h3 className="text-base font-extrabold tracking-[-0.02em] text-ink">Máy đã nghe trước giúp bạn</h3>
+              <p className="mb-2 mt-0.5 text-[13px] leading-snug text-muted">
+                {foundPauses === 0 ? "Không có chỗ dừng dài nào. Chạm vào bản đồ để nghe từ chỗ đó." : `Có ${foundPauses} chỗ người nói dừng lâu (vùng vàng). Chạm vào bản đồ để nghe từ chỗ đó.`}
+              </p>
+              <SpeechMap profile={profile} time={time} limitSeconds={limitSeconds} marks={allMarks} activePause={active} onSeek={(sec) => play(sec)} />
+
+              {moments.length > 0 && (
+                <ul className="mt-3 space-y-2">
+                  {moments.map((m, n) => (
+                    <li key={m.i} className="rounded-[12px] border border-line p-3">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActive(m.i);
+                            play(m.startMs / 1000 - 2.5, m.endMs / 1000 + 1.5);
+                          }}
+                          className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-voice px-3.5 text-[13px] font-bold text-on-voice"
+                        >
+                          <Play className="size-3.5 fill-current" aria-hidden /> Nghe chỗ {n + 1}
+                        </button>
+                        <p className="min-w-0 text-[13px] leading-snug text-ink-2">
+                          <b className="text-ink">{clock(m.startMs / 1000)}</b> · dừng {((m.endMs - m.startMs) / 1000).toFixed(1).replace(".", ",")} giây
+                        </p>
+                      </div>
+                      <div role="group" aria-label={`Chỗ ${n + 1} là gì?`} className="mt-2 grid grid-cols-2 gap-1.5">
+                        {([
+                          ["search", "Đang tìm từ"],
+                          ["think", "Đang nghĩ ý"],
+                        ] as const).map(([v, label]) => (
+                          <button
+                            key={v}
+                            type="button"
+                            aria-pressed={judged[m.i] === v}
+                            onClick={() =>
+                              setJudged((j) => {
+                                const { [m.i]: current, ...rest } = j;
+                                return current === v ? rest : { ...rest, [m.i]: v };
+                              })
+                            }
+                            className={cn("h-10 rounded-[10px] border text-[13px] font-bold transition-colors", judged[m.i] === v ? "border-voice bg-voice text-on-voice" : "border-line-strong text-ink-2 hover:border-muted")}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          <h3 className="text-base font-extrabold tracking-[-0.02em] text-ink">{profile ? "Còn lại: bấm khi bạn nghe thấy" : "Nghe và bấm khi bạn nghe thấy"}</h3>
           <p className="mt-0.5 text-[13px] leading-snug text-muted">Không cần biết chấm điểm. Mỗi lần nghe thấy một trong các điều dưới đây, bấm nút tương ứng.</p>
 
           <div className="mt-3 grid grid-cols-2 gap-2">
@@ -132,7 +241,7 @@ export function ListenRate({
             {flash || (marks.length === 0 ? "Chưa đánh dấu gì." : "")}
           </p>
 
-          {shownLength > 0 && (
+          {shownLength > 0 && !profile && (
             <div className="relative mt-1 h-6" aria-hidden={marks.length === 0}>
               <div className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-surface-3" />
               {marks.map((m, i) => (
@@ -167,6 +276,7 @@ export function ListenRate({
       ) : (
         <section className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
           <h3 className="text-base font-extrabold tracking-[-0.02em] text-ink">Điểm bắt đầu từ những gì bạn nghe</h3>
+          {profile && <p className="mt-1 rounded-lg bg-surface-2 px-3 py-2 text-[13px] font-semibold leading-snug text-ink-2">{mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking })}</p>}
           <p className="mt-0.5 text-[13px] leading-snug text-muted">Đồng ý thì giữ nguyên. Thấy cao hay thấp quá thì bấm + hoặc −.</p>
           <ul className="mt-2 divide-y divide-line">
             {CRITERIA.map((c) => {
@@ -176,7 +286,7 @@ export function ListenRate({
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-ink">{CRITERION_LABEL[c]}</p>
                     <p className="text-lg font-extrabold leading-tight tracking-[-0.02em] text-voice">{plainLabel(band)}</p>
-                    <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, marks, machine)}</p>
+                    <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, allMarks, machineNow)}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label={`Band ${CRITERION_LABEL[c]}`}>
                     <button type="button" aria-label="Giảm 1 band" disabled={disabled || band <= 1} onClick={() => nudge(c, -1)} className="flex size-10 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">

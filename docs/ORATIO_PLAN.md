@@ -170,8 +170,10 @@ Mỗi bước có tiêu chí xong. Đứng trước mọi thứ là bước 0, c
 
 ## Cập nhật 03/11/2026: form chấm làm lại (issue #130)
 
-Bản đầu (bảng câu hỏi từng tiêu chí) bị bỏ vì chỉ thêm chữ, không dễ hơn. Bản hiện tại, `ListenRate` (`components/ui/listen-rate.tsx`, luật trong `lib/rating-marks.ts`), dùng chung cho tự chấm và chấm chéo, theo hai bước:
-1. **Nghe và bấm khi nghe thấy**: năm nút (Ngập ngừng, Lặp từ / bí từ, Từ hay, Sai ngữ pháp, Khó nghe). Mỗi lần bấm ghi một dấu vào đúng giây đang nghe, hiện trên dòng thời gian; chạm dấu để nghe lại chỗ đó. Không cần biết band.
-2. **Xác nhận**: bốn tiêu chí, mỗi cái một nhãn dễ hiểu (Còn nhiều khó khăn, Cần luyện thêm, Tạm được, Khá, Tốt), band bắt đầu từ số dấu theo mỗi phút (và số lần dừng dài máy đo khi tự chấm), kèm dòng "dựa vào gì". Người chấm chỉ bấm + hoặc − nếu không đồng ý. Máy chỉ gợi ý trong khoảng band 3 đến 7: các band quá thấp hay quá cao cần một người quyết định.
+Hai bản đầu (bảng câu hỏi, rồi chỉ năm nút bấm) bị bỏ vì vẫn bắt người chấm tự tìm chỗ cần chú ý. Bản hiện tại, `ListenRate` (`components/ui/listen-rate.tsx`, luật trong `lib/rating-marks.ts`, phân tích âm thanh trong `lib/client/speech-metrics.ts`), để **máy nghe trước** rồi chỉ cho người chấm đúng chỗ cần nghe. Dùng chung cho tự chấm và chấm chéo:
+1. **Bản đồ giọng nói**: bản ghi vẽ thành các cột (cao chỗ có tiếng, phẳng chỗ im), mỗi chỗ dừng dài tô vàng kèm số giây; chạm bất kỳ đâu để nghe từ đó.
+2. **Ba chỗ máy tìm sẵn**: ba quãng dừng dài nhất, mỗi chỗ một nút "Nghe chỗ N" (phát từ 2,5 giây trước đến 1,5 giây sau) và hai nút "Đang tìm từ" / "Đang nghĩ ý". Máy không phân biệt được hai việc này, người nghe quyết trong vài giây.
+3. **Bấm khi nghe thấy** những thứ máy không nghe được: lặp từ / bí từ, từ hay, sai ngữ pháp, khó nghe.
+4. **Xác nhận**: bốn tiêu chí, nhãn dễ hiểu (Còn nhiều khó khăn … Tốt), điểm điền sẵn từ các lựa chọn trên (chỗ dừng đã nghe không bị tính hai lần), một câu tóm tắt ("86% thời gian có tiếng, 3 chỗ dừng dài, 1 chỗ là tìm từ…") và dòng "dựa vào gì" cho từng tiêu chí. Chỉ bấm + hoặc − khi không đồng ý. Máy chỉ gợi ý trong band 3 đến 7.
 
-Máy chủ không đổi: vẫn lưu band nguyên 1 đến 9 cho từng tiêu chí. **Chưa làm:** chấm sau cuộc gọi trực tiếp (`RatingScreen`) vẫn dùng form cũ; độ tự tin, gợi ý lệch sau 3 bản, màn giải thích band lần đầu, lưu các dấu để hiệu chỉnh luật, đoạn ghi âm mẫu làm điểm neo.
+Phân tích chạy trên máy người chấm (giải mã bản ghi); không tải thêm gì lên. Nếu bản ghi của người khác không tải được để phân tích (chặn CORS), màn chấm chỉ còn phần bấm. Máy chủ không đổi: vẫn lưu band nguyên 1 đến 9 cho từng tiêu chí. **Chưa làm:** chấm sau cuộc gọi trực tiếp (`RatingScreen`) vẫn dùng form cũ; phân tích chỉ có quãng dừng (chưa có từ đệm, đều giọng, nói nhỏ); độ tự tin, gợi ý lệch sau 3 bản, lưu các lựa chọn để hiệu chỉnh luật, đoạn ghi âm mẫu làm điểm neo.

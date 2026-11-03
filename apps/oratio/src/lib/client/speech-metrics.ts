@@ -102,3 +102,84 @@ export async function analyzeBlob(blob: Blob, opts?: AnalyzeOptions): Promise<Sp
   const { samples, sampleRate } = await decodeBlobToMono(blob);
   return analyzeSamples(samples, sampleRate, opts);
 }
+
+
+export interface SpeechProfile {
+  durationMs: number;
+  /** Loudness per bar, 0 to 1, for drawing the voice map */
+  peaks: number[];
+  /** Silences of at least `minPauseMs` between two stretches of speech */
+  pauses: { startMs: number; endMs: number }[];
+  /** Share of the time between the first and the last word that has voice in it */
+  voicedShare: number;
+}
+
+/**
+ * What the screen shows as "bản đồ giọng nói": a loudness bar per slice of the
+ * recording and where the long pauses are, so a rater can see hesitation and
+ * jump to it instead of hunting for it by ear. Pure maths over decoded
+ * samples; nothing is uploaded.
+ */
+export function profileSamples(samples: Float32Array, sampleRate: number, opts: { bars?: number; minPauseMs?: number } & AnalyzeOptions = {}): SpeechProfile {
+  const { bars = 96, minPauseMs = 1500, frameMs = 50, bridgeMs = 300, minRms = 0.01, relativeThreshold = 0.15 } = opts;
+  const durationMs = sampleRate > 0 ? (samples.length / sampleRate) * 1000 : 0;
+  const frameSize = Math.max(1, Math.round((sampleRate * frameMs) / 1000));
+  const frames = Math.floor(samples.length / frameSize);
+  const empty = { durationMs, peaks: new Array<number>(bars).fill(0), pauses: [], voicedShare: 0 };
+  if (frames === 0) return empty;
+
+  const rms = new Float32Array(frames);
+  for (let f = 0; f < frames; f++) {
+    let sum = 0;
+    const base = f * frameSize;
+    for (let i = 0; i < frameSize; i++) sum += samples[base + i] * samples[base + i];
+    rms[f] = Math.sqrt(sum / frameSize);
+  }
+  const sorted = Array.from(rms).sort((a, b) => a - b);
+  const loud = sorted[Math.min(frames - 1, Math.floor(frames * 0.95))] || 1e-6;
+  const threshold = Math.max(minRms, loud * relativeThreshold);
+  const voiced = Array.from(rms, (v) => v >= threshold);
+
+  const peaks = Array.from({ length: bars }, (_, b) => {
+    const from = Math.floor((b * frames) / bars);
+    const to = Math.max(from + 1, Math.floor(((b + 1) * frames) / bars));
+    let m = 0;
+    for (let f = from; f < to && f < frames; f++) m = Math.max(m, rms[f]);
+    return Math.min(1, Math.sqrt(m / loud));
+  });
+
+  const first = voiced.indexOf(true);
+  if (first === -1) return { ...empty, peaks };
+  const last = voiced.lastIndexOf(true);
+  const bridgeFrames = Math.round(bridgeMs / frameMs);
+  const pauseFrames = Math.round(minPauseMs / frameMs);
+  const pauses: SpeechProfile["pauses"] = [];
+  let voicedFrames = 0;
+  let f = first;
+  while (f <= last) {
+    if (voiced[f]) {
+      voicedFrames++;
+      f++;
+      continue;
+    }
+    let end = f;
+    while (!voiced[end]) end++;
+    const gap = end - f;
+    if (gap <= bridgeFrames) voicedFrames += gap;
+    if (gap >= pauseFrames) pauses.push({ startMs: f * frameMs, endMs: end * frameMs });
+    f = end;
+  }
+  return { durationMs, peaks, pauses, voicedShare: voicedFrames / (last - first + 1) };
+}
+
+/** Decode and profile a recording from a URL (blob: or the signed link). Null when it cannot be fetched or decoded. */
+export async function profileUrl(url: string, opts?: Parameters<typeof profileSamples>[2]): Promise<SpeechProfile | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const { samples, sampleRate } = await decodeBlobToMono(await res.blob());
+    return profileSamples(samples, sampleRate, opts);
+  } catch {
+    return null;
+  }
+}

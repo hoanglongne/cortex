@@ -32,6 +32,8 @@ const MIN_SECONDS = 30;
 export interface Machine {
   /** Long pauses the machine counted (measured, not heard) */
   longPauses?: number;
+  /** Of those, how many the rater already listened to and judged (they are in the marks, so they are not counted twice) */
+  reviewed?: number;
 }
 
 const clamp = (n: number) => Math.min(SUGGEST_MAX, Math.max(SUGGEST_MIN, Math.round(n)));
@@ -40,7 +42,8 @@ const clamp = (n: number) => Math.min(SUGGEST_MAX, Math.max(SUGGEST_MIN, Math.ro
 export function suggestBands(input: { marks: readonly Mark[]; seconds: number; machine?: Machine }): Record<Criterion, number> {
   const minutes = Math.max(input.seconds, MIN_SECONDS) / 60;
   const per = (kind: MarkKind) => input.marks.filter((m) => m.kind === kind).length / minutes;
-  const machinePauses = input.machine?.longPauses != null ? input.machine.longPauses / minutes : 0;
+  const unreviewed = input.machine?.longPauses != null ? Math.max(0, input.machine.longPauses - (input.machine.reviewed ?? 0)) : 0;
+  const machinePauses = unreviewed / minutes;
   return {
     fluency: clamp(6 - 0.9 * (per("pause") + 0.5 * machinePauses)),
     vocabulary: clamp(5 + 0.8 * per("good") - 0.9 * per("repeat")),
@@ -65,7 +68,7 @@ export function evidenceLine(criterion: Criterion, marks: readonly Mark[], machi
   const parts: string[] = [];
   if (criterion === "fluency") {
     parts.push(`${count(marks, "pause")} lần bạn đánh dấu ngập ngừng`);
-    if (machine?.longPauses != null) parts.push(`máy đo ${machine.longPauses} lần dừng dài`);
+    if (machine?.longPauses != null) parts.push(`máy thấy ${machine.longPauses} chỗ dừng dài`);
   } else if (criterion === "vocabulary") {
     parts.push(`${count(marks, "good")} từ hay, ${count(marks, "repeat")} chỗ lặp hoặc bí từ`);
   } else if (criterion === "grammar") {
@@ -80,4 +83,17 @@ export function evidenceLine(criterion: Criterion, marks: readonly Mark[], machi
 export function clock(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+
+/** One sentence on the answer as a whole, from the voice map and what the rater judged about each long pause. */
+export function mapVerdict(input: { voicedShare: number; pauses: number; searching: number; thinking: number }): string {
+  const share = Math.round(input.voicedShare * 100);
+  if (input.pauses === 0) return `Bạn nói liền mạch: ${share}% thời gian có tiếng, không có chỗ dừng dài.`;
+  const judged = input.searching + input.thinking;
+  const tail =
+    judged === 0
+      ? "Nghe thử từng chỗ để biết là tìm từ hay chỉ nghĩ ý."
+      : `${input.searching} chỗ là tìm từ, ${input.thinking} chỗ là nghĩ ý${judged < input.pauses ? `, ${input.pauses - judged} chỗ chưa nghe` : ""}.`;
+  return `${share}% thời gian có tiếng, ${input.pauses} chỗ dừng dài. ${tail}`;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clock, evidenceLine, plainLabel, suggestBands, type Mark } from "@/lib/rating-marks";
+import { clock, evidenceLine, mapVerdict, plainLabel, suggestBands, type Mark } from "@/lib/rating-marks";
 
 const marks = (kind: Mark["kind"], n: number): Mark[] => Array.from({ length: n }, (_, i) => ({ kind, t: i * 10 }));
 
@@ -41,7 +41,7 @@ describe("plainLabel", () => {
 
 describe("evidenceLine", () => {
   it("shows the rater's taps and the machine's number", () => {
-    expect(evidenceLine("fluency", marks("pause", 2), { longPauses: 4 })).toBe("2 lần bạn đánh dấu ngập ngừng · máy đo 4 lần dừng dài");
+    expect(evidenceLine("fluency", marks("pause", 2), { longPauses: 4 })).toBe("2 lần bạn đánh dấu ngập ngừng · máy thấy 4 chỗ dừng dài");
     expect(evidenceLine("vocabulary", [...marks("good", 1), ...marks("repeat", 2)])).toBe("1 từ hay, 2 chỗ lặp hoặc bí từ");
   });
 });
@@ -50,5 +50,27 @@ describe("clock", () => {
   it("formats seconds", () => {
     expect(clock(65)).toBe("1:05");
     expect(clock(-3)).toBe("0:00");
+  });
+});
+
+
+describe("long pauses the rater already judged", () => {
+  it("are not counted twice (once as a tap, once as a machine number)", () => {
+    const base = { marks: marks("pause", 2), seconds: 60 };
+    const raw = suggestBands({ ...base, machine: { longPauses: 4 } }).fluency;
+    const reviewed = suggestBands({ ...base, machine: { longPauses: 4, reviewed: 4 } }).fluency;
+    expect(reviewed).toBeGreaterThanOrEqual(raw);
+  });
+});
+
+describe("mapVerdict", () => {
+  it("says it is smooth when there are no long pauses", () => {
+    expect(mapVerdict({ voicedShare: 0.82, pauses: 0, searching: 0, thinking: 0 })).toMatch(/liền mạch.*82%/);
+  });
+  it("asks to listen before anything was judged", () => {
+    expect(mapVerdict({ voicedShare: 0.7, pauses: 3, searching: 0, thinking: 0 })).toMatch(/3 chỗ dừng dài.*Nghe thử/);
+  });
+  it("sums up what was judged and what is left", () => {
+    expect(mapVerdict({ voicedShare: 0.7, pauses: 3, searching: 1, thinking: 1 })).toMatch(/1 chỗ là tìm từ, 1 chỗ là nghĩ ý, 1 chỗ chưa nghe/);
   });
 });
