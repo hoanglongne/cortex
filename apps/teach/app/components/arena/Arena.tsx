@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { EVENTS } from '@cortex/events';
+import { analytics } from '../../lib/analytics';
 import { Check, Presentation, Shuffle, Users } from 'lucide-react';
 import { ARENA_SHAPES, ARENA_TEAMS, timeLeft, type ArenaHost, type ArenaMode, type ArenaTeamScore, type Board } from '@cortex/classroom';
 import { LEXICA } from '@cortex/classroom-lexica';
@@ -233,6 +235,7 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                             setError('');
                             try {
                                 const r = await api.arenaOpen(board.class.id, seconds, qs, { hideNames: hide, mode, teams });
+                                analytics.capture(EVENTS.arenaHosted, { mode, questions: qs.length }, { track: 'teaching', classId: board.class.id });
                                 onOpened(r.id);
                             } catch (e) {
                                 setError(errorText(e));

@@ -92,6 +92,8 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   const lexicaRef = useRef(lexica);
   // Per question: the saved id of the first take, which later takes point to
   const firstAnswerRef = useRef<Record<string, Promise<string | undefined>>>({});
+  const partsRef = useRef<Record<string, number>>({});
+  const partOf = (questionId: string) => partsRef.current[questionId] ?? 0;
   useEffect(() => {
     choiceRef.current = choice;
     lexicaRef.current = lexica;
@@ -108,6 +110,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     const result = await getSoloQuestions();
     if (result.success && result.questions && result.questions.length > 0) {
       setQuestions(result.questions);
+      partsRef.current = Object.fromEntries(result.questions.map((q) => [q.id, q.part]));
       setIndex(0);
       setFinished(false);
       setTakes({});
@@ -200,6 +203,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
           fillers: tm?.fillers ?? null,
           lexicalDiversity: tm?.lexicalDiversity ?? null,
         });
+        if (res.id) analytics.capture(EVENTS.practiceCompleted, { mode: "take", part: partOf(questionId), retake: Boolean(retakeOf), seconds: Math.round(metrics.totalMs / 1000) }, { track: "speaking" });
         if (res.id) patchTake(questionId, id, { save: "saved", answerId: res.id, ...(res.lexicaWords ? { lexica: res.lexicaWords } : {}) });
         else patchTake(questionId, id, { save: "failed" });
         return res.id;

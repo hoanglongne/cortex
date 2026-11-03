@@ -31,8 +31,22 @@ export const EVENTS = {
   practiceCompleted: 'practice_completed',
   arenaJoined: 'arena_joined',
   arenaFinished: 'arena_finished',
-  /** A link from one Cortex app to another: props `from`, `to` */
+  /** A link from one Cortex app to another: props `from`, `to`, `where` */
   crossAppClick: 'cross_app_click',
+  classLeft: 'class_left',
+  /** A teacher gave work: props `app`, `kind`, `source`, `scope` (class or student) */
+  assignmentCreated: 'assignment_created',
+  testCreated: 'test_created',
+  testStarted: 'test_started',
+  testSubmitted: 'test_submitted',
+  /** A teacher opened an Arena room: props `mode`, `questions` */
+  arenaHosted: 'arena_hosted',
+  /** A learner scored a peer's answer in Oratio */
+  peerReviewSubmitted: 'peer_review_submitted',
+  matchSearchStarted: 'match_search_started',
+  matchFound: 'match_found',
+  /** One question or scene answered: props `correct`, `where` */
+  questionAnswered: 'question_answered',
 } as const;
 export type SharedEvent = (typeof EVENTS)[keyof typeof EVENTS];
 

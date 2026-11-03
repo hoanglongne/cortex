@@ -17,6 +17,8 @@ import type { ErrorKind } from '../lib/pronunciation/pairs';
 import { setPronBeta } from '../lib/pronunciation/model/client';
 import { loadDict } from '../lib/pronunciation/phones';
 import { ORATIO_URL } from '../lib/cortexConfig';
+import { capture } from '../lib/productAnalytics';
+import { EVENTS } from '@cortex/events';
 
 /**
  * "Luyện nói 2 phút" (docs/LEXICA_FEEDBACK_TASKS.md T8): five words, three
@@ -43,7 +45,11 @@ function SpeakingLadder() {
                         <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${s.here ? 'bg-accent text-on-accent' : 'bg-surface-2 text-ink-2'}`}>{i + 1}</span>
                         <span className="min-w-0">
                             {s.href ? (
-                                <a href={s.href} className="font-semibold text-accent underline-offset-2 hover:underline">
+                                <a
+                                    href={s.href}
+                                    onClick={() => capture(EVENTS.crossAppClick, { from: 'lexica', to: 'oratio', where: 'speaking_ladder', step: s.label }, { track: 'speaking' })}
+                                    className="font-semibold text-accent underline-offset-2 hover:underline"
+                                >
                                     {s.label}
                                 </a>
                             ) : (

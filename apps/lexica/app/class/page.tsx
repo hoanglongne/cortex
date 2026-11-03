@@ -242,7 +242,10 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                 </div>
                 <button
                     onClick={() => {
-                        if (window.confirm(`Rời lớp ${cls.name}? Giáo viên sẽ không thấy tiến độ của bạn nữa.`)) void leaveClass(cls.id).then(onLeft);
+                        if (window.confirm(`Rời lớp ${cls.name}? Giáo viên sẽ không thấy tiến độ của bạn nữa.`)) void leaveClass(cls.id).then(() => {
+                            capture(EVENTS.classLeft, {}, { track: 'class', classId: cls.id });
+                            onLeft();
+                        });
                     }}
                     className="text-xs text-muted hover:text-danger flex items-center gap-1"
                 >

@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { EVENTS } from '@cortex/events';
+import { analytics } from '../../lib/analytics';
 import { Check, Plus, Presentation } from 'lucide-react';
 import { testScoreLine, type Board, type ClassTest, type TestResults } from '@cortex/classroom';
 import { LEXICA } from '@cortex/classroom-lexica';
@@ -175,6 +177,7 @@ function CreateTest({ board, onCreated }: { board: Board; onCreated: (id: string
                     setError('');
                     try {
                         const r = await api.testCreate(board.class.id, title.trim() || (lessonTitle ? `Kiểm tra: ${lessonTitle}` : 'Kiểm tra từ vựng'), due || null, qs);
+                        analytics.capture(EVENTS.testCreated, { questions: qs.length }, { track: 'teaching', classId: board.class.id });
                         onCreated(r.id);
                     } catch (e) {
                         setError(errorText(e));

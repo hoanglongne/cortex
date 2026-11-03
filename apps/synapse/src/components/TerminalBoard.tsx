@@ -197,6 +197,7 @@ export function TerminalBoard(props: {
 
     setSelected(choice);
     setMode("outcome");
+    analytics.capture(EVENTS.questionAnswered, { correct: choice.isCorrect, where: props.review ? "review" : "mission", stage: currentStage }, { track: "story" });
 
     setSessionHistory((h) =>
       h.concat(

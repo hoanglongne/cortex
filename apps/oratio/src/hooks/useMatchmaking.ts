@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useLayoutEffect, useRef } from "react";
+import { EVENTS } from "@cortex/events";
+import { analytics } from "@/lib/analytics";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { findMatch, cancelMatch } from "@/actions/matchmaking";
 import type { FindMatchResult, Match, PublicProfile } from "@/lib/types/database";
@@ -238,6 +240,7 @@ export function useMatchmaking(
       });
 
       // Initial search
+      analytics.capture(EVENTS.matchSearchStarted, { bandMin, bandMax }, { track: "speaking" });
       const result: FindMatchResult = await findMatch(bandMin, bandMax);
 
       if (result.status === "error") {
@@ -249,6 +252,7 @@ export function useMatchmaking(
           partner: result.partner,
         });
         setStatus("matched");
+        analytics.capture(EVENTS.matchFound, { waited: "instant" }, { track: "speaking" });
         stopSearchTimer();
         onMatchFoundRef.current?.({
           roomId: result.roomId!,

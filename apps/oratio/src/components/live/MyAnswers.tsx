@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { EVENTS } from "@cortex/events";
+import { analytics } from "@/lib/analytics";
 import { saveAnswer } from "@/actions/answers";
 import { Card, Label } from "@/components/ui/card";
 import { analyzeBlob } from "@/lib/client/speech-metrics";
@@ -85,6 +87,7 @@ export function MyAnswers({ answers }: { answers: LiveAnswer[] }) {
           fillers: tm?.fillers ?? null,
           lexicalDiversity: tm?.lexicalDiversity ?? null,
         });
+        if (res.id) analytics.capture(EVENTS.practiceCompleted, { mode: "live", seconds: Math.round(metrics.totalMs / 1000) }, { track: "speaking" });
         if (res.id) patch({ save: "saved", answerId: res.id, ...(res.lexicaWords ? { lexica: res.lexicaWords } : {}) });
         else patch({ save: "failed" });
       } catch {

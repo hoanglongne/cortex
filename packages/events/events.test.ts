@@ -81,3 +81,17 @@ describe('createAppAnalytics', () => {
     expect(unsub).toBe(1);
   });
 });
+
+import { readFileSync } from 'node:fs';
+import { EVENTS } from './index';
+
+describe('docs/EVENTS.md', () => {
+  it('lists every shared event', () => {
+    const doc = readFileSync(new URL('../../docs/EVENTS.md', import.meta.url), 'utf8');
+    for (const name of Object.values(EVENTS)) expect(doc, name).toContain('`' + name + '`');
+  });
+  it('has unique event names', () => {
+    const names = Object.values(EVENTS);
+    expect(new Set(names).size).toBe(names.length);
+  });
+});

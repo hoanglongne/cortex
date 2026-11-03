@@ -186,6 +186,7 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
     const finished = view?.state === 'finished';
     useEffect(() => {
         if (!finished) return;
+        capture(EVENTS.arenaFinished, {}, { track: 'class' });
         let live = true;
         applyArenaResults().then(
             (r) => live && setApplied(r),

@@ -8,6 +8,7 @@
 
 import { CORTEX_API_URL } from './cortexConfig';
 import { capture } from './productAnalytics';
+import { EVENTS } from '@cortex/events';
 import { authHeaders, getCortexAuth } from './cortexAuth';
 
 export type LexicaEvent =
@@ -141,6 +142,7 @@ export const analytics = {
 
     oratioCTAClick(storyId: string) {
         send('oratio_cta_click', { storyId });
+        capture(EVENTS.crossAppClick, { from: 'lexica', to: 'oratio', where: 'story' }, { track: 'speaking' });
     },
 
     levelSelected(level: string) {

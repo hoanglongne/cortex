@@ -27,10 +27,20 @@ Không có khoá thì không gửi gì và app chạy bình thường. Sau khi �
 | `class_joined` | vào lớp | `via` (`code`/`link`), `class` | Lexica, Oratio |
 | `class_created` | giáo viên tạo lớp | `apps`, `class` | Teach |
 | `practice_started` | bắt đầu một buổi luyện | `mode`, … | Oratio (`mock_exam`), Synapse (`mission`/`review`) |
-| `practice_completed` | xong một buổi luyện | `mode`, … | Oratio (`mock_exam`), Synapse (`mission`/`review`, `ending`) |
+| `practice_completed` | xong một buổi luyện hoặc một lần nói | `mode`, … | Oratio (`mock_exam`; `take` kèm `part`, `retake`, `seconds`; `live`), Synapse (`mission`/`review`, `ending`) |
 | `arena_joined` | vào phòng Đấu trường | — | Lexica |
-| `arena_finished` | xong ván | — | chưa gắn |
-| `cross_app_click` | bấm sang app khác | `from`, `to` | chưa gắn (Lexica còn `oratio_cta_click`) |
+| `arena_finished` | thấy kết quả ván Đấu trường | — | Lexica |
+| `cross_app_click` | bấm sang app khác | `from`, `to`, `where` | Lexica (thang nói, hẹn thi Buddy, truyện) |
+| `class_left` | rời lớp | `class` | Lexica |
+| `assignment_created` | giáo viên giao bài | `app`, `kind`, `source` (`manual`/`suggestion`/`forecast`), `scope` (`class`/`student`), `class` | Teach |
+| `test_created` | giáo viên tạo bài kiểm tra | `questions`, `class` | Teach |
+| `test_started` | học viên mở bài kiểm tra | `questions` | Lexica |
+| `test_submitted` | học viên nộp bài kiểm tra | `questions`, `answered` | Lexica |
+| `arena_hosted` | giáo viên mở phòng Đấu trường | `mode`, `questions`, `class` | Teach |
+| `peer_review_submitted` | chấm cho bạn trong Oratio | `tags` | Oratio |
+| `match_search_started` | bắt đầu tìm bạn luyện | `bandMin`, `bandMax` | Oratio |
+| `match_found` | tìm được bạn luyện | — | Oratio |
+| `question_answered` | trả lời một câu/cảnh | `correct`, `where`, `stage` | Synapse |
 
 Lexica giữ thêm các sự kiện riêng (`today_start`, `swipe`, `story_*`, `buddy_*`, `speak_attempt`…); chúng vẫn gửi như cũ và được gắn `track` theo tiền tố tên.
 

@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { EVENTS } from '@cortex/events';
+import { analytics } from '../../lib/analytics';
 import { Plus, Presentation, Trash2 } from 'lucide-react';
 import { assignmentStudents, daysUntil, type Board } from '@cortex/classroom';
 import { Badge, Button, Card, Drawer, Empty, ErrorNote, errorText, LinkButton } from '../ui';
@@ -120,6 +122,7 @@ export default function Assignments({ board, onChanged, startOpen }: { board: Bo
                         onCancel={close}
                         onSubmit={async (n) => {
                             await api.assign(board.class.id, { app: mod.core.id, kind: n.kind, title: n.title, payload: n.payload, due: n.due });
+                            analytics.capture(EVENTS.assignmentCreated, { app: mod.core.id, kind: n.kind, source: 'manual', scope: 'class' }, { track: 'teaching', classId: board.class.id });
                             close();
                             onChanged();
                         }}
