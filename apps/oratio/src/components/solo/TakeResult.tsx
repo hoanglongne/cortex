@@ -7,6 +7,7 @@ import { AudioPlayer } from "@/components/ui/audio-player";
 import { Character } from "@/components/ui/character";
 import { formatClock } from "@/components/ui/timer";
 import { cn } from "@/lib/utils";
+import { TranscribingHint } from "@/components/ui/transcribing-hint";
 import { SelfRatingCard } from "./SelfRating";
 import { SendToClass } from "./SendToClass";
 import { SendForReview } from "./SendForReview";
@@ -244,9 +245,7 @@ export function TakeResult({
       )}
 
       {take.tx.status === "pending" && (
-        <p className="text-sm text-muted" aria-live="polite">
-          Đang chép lời trên máy của bạn…
-        </p>
+        <TranscribingHint loaded={1} />
       )}
       {take.tx.status === "failed" && <p className="text-sm text-muted">Không chép lời được lần này. Các chỉ số về thời gian ở trên vẫn đúng.</p>}
       {take.tx.status === "off" && <p className="text-sm text-subtle">Chưa bật chép lời nên chưa có các chỉ số về từ ngữ. Bật ở tab Tôi, mục Giao diện.</p>}

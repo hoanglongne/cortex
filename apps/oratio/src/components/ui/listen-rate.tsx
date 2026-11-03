@@ -15,6 +15,7 @@ import { addSummary, compare, compareLine, previousOf, readHistory, summaryOf, t
 import { AudioPlayer } from "./audio-player";
 import { SpeechMap } from "./speech-map";
 import { SpeechXray } from "./speech-xray";
+import { LanguageInsights } from "./language-insights";
 import { TranscribingHint } from "./transcribing-hint";
 import { XrayCoach } from "./xray-coach";
 import { cn } from "@/lib/utils";
@@ -389,6 +390,7 @@ export function ListenRate({
                     </Button>
                   </div>
                 )}
+                <LanguageInsights lexical={lexical} grammar={grammar} />
                 <div className="mt-3">
                   <XrayCoach insights={insights} deltas={deltas} line={deltas ? compareLine(deltas) : null} trend={trend} />
                 </div>
