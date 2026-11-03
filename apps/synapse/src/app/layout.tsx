@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "../context/ThemeContext";
+import AnalyticsBoot from "../components/AnalyticsBoot";
 import { AuthProvider } from "../context/AuthContext";
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#0a0a0a]">
         <AuthProvider>
           <ThemeProvider>{children}</ThemeProvider>
+          <AnalyticsBoot />
         </AuthProvider>
       </body>
     </html>

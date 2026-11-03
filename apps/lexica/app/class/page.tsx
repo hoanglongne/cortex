@@ -7,6 +7,8 @@ import { ClipboardCheck, Crown, LogOut, School, Swords, Users } from 'lucide-rea
 import { useAuth } from '../context/AuthContext';
 import AuthGate from '../components/AuthGate';
 import { useLexicaStore } from '../store/lexicaStore';
+import { capture } from '../lib/productAnalytics';
+import { EVENTS } from '@cortex/events';
 import { arenaOpenRooms, myTests, assignedCounts, daysUntil, joinClass, leaderboard, leaveClass, lessonOf, type ArenaRoomOpen, type ClassInfo, type LeaderRow, type MyTest } from '../lib/classes';
 import { dungFromScore, lexicaModule } from '@cortex/classroom-lexica';
 import { TEACH_URL } from '../lib/cortexConfig';
@@ -180,7 +182,8 @@ function JoinForm({ onJoined, onError }: { onJoined: () => void; onError: (e: st
         setBusy(true);
         onError('');
         try {
-            await joinClass(code, name);
+            const joined = await joinClass(code, name);
+            capture(EVENTS.classJoined, { via: 'code' }, { track: 'class', classId: joined.class_id });
             setCode('');
             onJoined();
             void reportNow();

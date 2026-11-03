@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildCapturePayload, getAnonymousId } from '@/app/lib/productAnalytics';
+import { getAnonymousId, trackOf } from '@/app/lib/productAnalytics';
 
 function memoryStorage(initial: Record<string, string> = {}) {
     const data = { ...initial };
@@ -21,7 +21,7 @@ describe('getAnonymousId', () => {
         expect(storage.data.lexica_anon_id).toBe(first);
     });
 
-    it('returns the stored id', () => {
+    it('returns the stored id (kept from before the shared package)', () => {
         expect(getAnonymousId(memoryStorage({ lexica_anon_id: 'abc' }))).toBe('abc');
     });
 
@@ -40,19 +40,11 @@ describe('getAnonymousId', () => {
     });
 });
 
-describe('buildCapturePayload', () => {
-    it('tags the app and attaches the Cortex user when signed in', () => {
-        const payload = buildCapturePayload('swipe', { direction: 'right' }, 'anon-1', 'user-9', 'key');
-        expect(payload).toMatchObject({
-            api_key: 'key',
-            event: 'swipe',
-            distinct_id: 'anon-1',
-            properties: { direction: 'right', app: 'lexica', cortex_user_id: 'user-9' },
-        });
-    });
-
-    it('omits cortex_user_id for anonymous users', () => {
-        const payload = buildCapturePayload('app_open', undefined, 'anon-1', null, 'key');
-        expect(payload.properties).toEqual({ app: 'lexica' });
+describe('trackOf', () => {
+    it('puts events on their learning track', () => {
+        expect(trackOf('story_open')).toBe('story');
+        expect(trackOf('speak_attempt')).toBe('speaking');
+        expect(trackOf('arena_joined')).toBe('class');
+        expect(trackOf('today_start')).toBe('vocab');
     });
 });

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@cortex/classroom": "workspace:*",
+    "@cortex/events": "workspace:*",
     "@cortex/classroom-lexica": "workspace:*",
     "@cortex/classroom-oratio": "workspace:*",
     "@cortex/classroom-synapse": "workspace:*",

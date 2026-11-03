@@ -5,7 +5,7 @@ import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   turbopack: {}, // Allow webpack config from next-pwa
-  transpilePackages: ['@cortex/classroom', '@cortex/classroom-lexica', '@cortex/brand'],
+  transpilePackages: ['@cortex/classroom', '@cortex/classroom-lexica', '@cortex/brand', "@cortex/events"],
   // The old link challenges (/challenge/<id>) are gone; their links land on the games
   // The speed lab needs cross-origin isolation (multi-threaded WASM); nothing else in the app does
   async headers() {

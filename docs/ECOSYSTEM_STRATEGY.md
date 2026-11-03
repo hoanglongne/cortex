@@ -127,7 +127,9 @@ Cụ thể về mặt kỹ thuật:
 
 ---
 
-## Cập nhật 03/11/2026: việc 2, 3, 4 đã xong
+## Cập nhật 03/11/2026: việc 1, 2, 3, 4 đã xong
+
+- **Việc 1 (bộ sự kiện chung):** gói `@cortex/events`, quy ước và danh sách sự kiện ở `docs/EVENTS.md`. Cần đặt `NEXT_PUBLIC_POSTHOG_KEY` giống nhau ở 4 project Vercel.
 
 - **Việc 2, 3:** bảng `cortex_card_stats` (cập nhật mỗi đêm) và nút "Báo thẻ này có vấn đề" trong Lexica đã chạy.
 - **Việc 4 (Sức khoẻ thẻ trong Studio):** mỗi thẻ trong danh sách có hai nút:

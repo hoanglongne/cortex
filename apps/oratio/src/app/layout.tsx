@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
+import AnalyticsBoot from "@/components/AnalyticsBoot";
 import PwaRegister from "@/components/PwaRegister";
 import "./globals.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({
       <body className="min-h-screen" suppressHydrationWarning>
         {children}
         <PwaRegister />
+        <AnalyticsBoot />
       </body>
     </html>
   );

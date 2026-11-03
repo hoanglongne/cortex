@@ -1,6 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import { EVENTS } from '@cortex/events';
+import { analytics } from '../../lib/analytics';
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus, Users } from 'lucide-react';
@@ -110,6 +112,7 @@ function CreateClass({ open, onClose, onCreated }: { open: boolean; onClose: () 
         setError('');
         try {
             const r = await api.createClass(name.trim(), apps, settings, place || null);
+            analytics.capture(EVENTS.classCreated, { apps: apps.length }, { track: 'teaching', classId: r.id });
             setName('');
             onCreated(r.id);
         } catch (e) {

@@ -19,6 +19,8 @@ import { FlowShell } from "@/components/ui/shell";
 import { ExaminerVoice } from "@/components/solo/ExaminerVoice";
 import { examClosingLine, examLines, examMaxSeconds, PREP_SECONDS } from "@/lib/exam-flow";
 import { speakLines, warmLines } from "@/lib/examiner-speak";
+import { EVENTS } from "@cortex/events";
+import { analytics } from "@/lib/analytics";
 import { formatClock, Part2Timer } from "@/components/ui/timer";
 import { TranscribeAsk, WhisperStatus, useWhisperLoader } from "./solo/TranscribeCard";
 import { DrillSummary, TakeResult } from "./solo/TakeResult";
@@ -367,6 +369,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
 
   useEffect(() => {
     if (exam !== "closing") return;
+    analytics.capture(EVENTS.practiceCompleted, { mode: "mock_exam" }, { track: "speaking" });
     const speech = speakLines([examClosingLine()]);
     let live = true;
     void speech.done.then(() => {
@@ -637,6 +640,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
                 onClick={() => {
                   // Ask for every examiner line now so later ones are ready when they are needed
                   if (questions) warmLines([...questions.flatMap((_, i) => examLines(questions, i)), examClosingLine()]);
+                  analytics.capture(EVENTS.practiceStarted, { mode: "mock_exam", questions: questions?.length ?? 0 }, { track: "speaking" });
                   setExam("speak");
                 }}
               >

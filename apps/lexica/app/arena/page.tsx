@@ -8,6 +8,8 @@ import { ARENA_SHAPES, ARENA_TEAMS, timeLeft, type ArenaPlayerView, type ArenaRo
 import { useAuth } from '../context/AuthContext';
 import AuthGate from '../components/AuthGate';
 import { arenaJoin, arenaOpenRooms } from '../lib/classes';
+import { capture } from '../lib/productAnalytics';
+import { EVENTS } from '@cortex/events';
 import { useArenaPlayer } from './useArenaPlayer';
 import { applyArenaResults } from './applyResults';
 
@@ -105,6 +107,7 @@ function Join({ code: fromLink, onJoined }: { code: string | null; onJoined: (id
         setError('');
         try {
             const r = await arenaJoin(c);
+            capture(EVENTS.arenaJoined, {}, { track: 'class' });
             onJoined(r.id);
         } catch (e) {
             setError(e instanceof Error ? e.message : String(e));

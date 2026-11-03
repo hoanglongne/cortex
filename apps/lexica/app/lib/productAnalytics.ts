@@ -1,91 +1,55 @@
 /**
- * Product analytics for every user, including anonymous ones, so the
- * launch funnel and retention can be measured (see docs/PRELAUNCH_PLAN.md).
+ * Product analytics for every user, including anonymous ones, so the launch
+ * funnel and retention can be measured (see docs/PRELAUNCH_PLAN.md).
  *
- * Sends to PostHog's public capture API without the SDK. Disabled (no-op)
- * unless NEXT_PUBLIC_POSTHOG_KEY is set.
+ * The sending, the shared event names and the privacy rules live in
+ * @cortex/events, the same package Oratio, Teach and Synapse use (issue #61).
+ * Disabled (no-op) unless NEXT_PUBLIC_POSTHOG_KEY is set.
  */
-
-const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY || '';
-const POSTHOG_HOST = (process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com').replace(/\/$/, '');
+import { anonymousId, createTracker, type CortexTrack } from '@cortex/events';
 
 const ANON_ID_KEY = 'lexica_anon_id';
 
 type Props = Record<string, string | number | boolean | null | undefined>;
 
+const tracker = createTracker({
+    app: 'lexica',
+    key: process.env.NEXT_PUBLIC_POSTHOG_KEY || '',
+    host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    // Kept from before the shared package, so existing visitors stay the same person
+    anonKey: ANON_ID_KEY,
+    getUserId: () => {
+        try {
+            return localStorage.getItem('cortex_user_id');
+        } catch {
+            return null;
+        }
+    },
+});
+
 export function isProductAnalyticsEnabled(): boolean {
-    return Boolean(POSTHOG_KEY);
+    return tracker.enabled;
 }
 
 /** Stable per-browser id. Falls back to a per-page id if storage is blocked. */
-let memoryId: string | null = null;
-export function getAnonymousId(storage: Pick<Storage, 'getItem' | 'setItem'> | null = safeLocalStorage()): string {
-    try {
-        const existing = storage?.getItem(ANON_ID_KEY);
-        if (existing) return existing;
-    } catch {
-        // storage blocked; fall through
-    }
-    const id = memoryId ?? newId();
-    memoryId = id;
-    try {
-        storage?.setItem(ANON_ID_KEY, id);
-    } catch {
-        // keep the in-memory id
-    }
-    return id;
+export function getAnonymousId(storage?: Pick<Storage, 'getItem' | 'setItem'> | null): string {
+    return storage === undefined ? anonymousId(ANON_ID_KEY) : anonymousId(ANON_ID_KEY, storage);
 }
 
-export function buildCapturePayload(
-    event: string,
-    props: Props | undefined,
-    distinctId: string,
-    cortexUserId: string | null,
-    apiKey = POSTHOG_KEY,
-) {
-    return {
-        api_key: apiKey,
-        event,
-        distinct_id: distinctId,
-        timestamp: new Date().toISOString(),
-        properties: {
-            ...props,
-            app: 'lexica',
-            ...(cortexUserId ? { cortex_user_id: cortexUserId } : {}),
-        },
-    };
+/** Which learning track an event belongs to, for the shared funnel. */
+export function trackOf(event: string): CortexTrack | undefined {
+    if (event.startsWith('story_')) return 'story';
+    if (event.startsWith('speak_') || event === 'voice_success' || event === 'voice_fail' || event === 'voice_hit' || event === 'oratio_cta_click') return 'speaking';
+    if (event.startsWith('class_') || event.startsWith('arena_')) return 'class';
+    return 'vocab';
 }
 
-export function capture(event: string, props?: Props): void {
-    if (!POSTHOG_KEY || typeof window === 'undefined') return;
-
-    let cortexUserId: string | null = null;
-    try {
-        cortexUserId = localStorage.getItem('cortex_user_id');
-    } catch {
-        // ignore
-    }
-
-    const body = JSON.stringify(buildCapturePayload(event, props, getAnonymousId(), cortexUserId));
-    fetch(`${POSTHOG_HOST}/capture/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-        keepalive: true,
-    }).catch(() => {
-        // analytics must never break the app
-    });
+/** Sends an event with the app and track attached. Pass `classId` for class events (it is hashed before leaving the device). */
+export function capture(event: string, props?: Props, ctx?: { track?: CortexTrack; classId?: string | null }): void {
+    tracker.capture(event, props, { track: ctx?.track ?? trackOf(event), classId: ctx?.classId });
 }
 
-function safeLocalStorage(): Storage | null {
-    try {
-        return typeof window !== 'undefined' ? window.localStorage : null;
-    } catch {
-        return null;
-    }
-}
-
-function newId(): string {
-    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
-    return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+/** Call after sign-in: joins this browser's earlier anonymous events to the person. */
+export function identify(): void {
+    tracker.identify();
 }
