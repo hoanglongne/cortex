@@ -59,12 +59,15 @@ export function readSelf(): Record<string, SelfRating> {
   }
 }
 
-export function saveSelf(id: string, r: SelfRating): void {
+/** True when the rating was kept on this device. */
+export function saveSelf(id: string, r: SelfRating): boolean {
   try {
     const all = { ...readSelf(), [id]: r };
     const keep = Object.fromEntries(Object.entries(all).slice(-100));
     localStorage.setItem(KEY, JSON.stringify(keep));
+    return true;
   } catch {
     // Private mode.
+    return false;
   }
 }

@@ -115,8 +115,8 @@ export function insightsFor(tokens: readonly Token[], gaps: readonly Gap[], stat
   if (stats.midPauses === 0 && stats.words >= 20) {
     out.push({ id: "smooth", tone: "good", title: "Không có chỗ dừng giữa chừng một ý", detail: `Các chỗ dừng (${stats.boundaryPauses}) đều ở ranh giới giữa hai ý, nên nghe tự nhiên.`, evidence: [] });
   }
-  if (stats.meanRun >= 9) {
-    out.push({ id: "runs", tone: "good", title: "Bạn nói liền một mạch dài", detail: `Trung bình ${String(stats.meanRun).replace(".", ",")} từ giữa hai lần dừng.`, evidence: [] });
+  if (stats.medianRun >= 8) {
+    out.push({ id: "runs", tone: "good", title: "Bạn giữ được những lượt nói dài", detail: `Thường bạn nói khoảng ${stats.medianRun} từ trước khi ngắt. Ngắt đúng chỗ giữa các ý là cách người nói trôi chảy làm.`, evidence: [] });
   }
   return out;
 }

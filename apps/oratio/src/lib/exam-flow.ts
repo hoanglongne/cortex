@@ -19,14 +19,27 @@ export function examMaxSeconds(part: number): number {
 /** Seconds to think before Part 2, as in the real test. */
 export const PREP_SECONDS = 60;
 
+/**
+ * Alone, nobody answers "what is your full name?", so the examiner skips the
+ * small talk of a live test: the question comes after a few seconds, not after
+ * half a minute of introductions. Short lines are also the ones the natural
+ * voice has in its cache, so they play in one voice at once.
+ */
+const SOLO_LINES: Partial<Record<string, string>> = {
+  "p1-open": "Good evening. Let's begin with some questions about you.",
+  "p2-brief": "Now I'm going to give you a topic to talk about.",
+  "p2-after": "Thank you. One more question about it.",
+  "p3-open": "Thank you. Now some more general questions about the same topic.",
+};
+
 /** What the examiner says at question `index`: the part's opening line (first question of a part), then the question. */
 export function examLines(questions: readonly Q[], index: number): string[] {
   const q = questions[index];
   if (!q) return [];
   const questionInTurn = questions.slice(0, index).filter((x) => x.part === q.part).length + 1;
   const moment = examinerMoment({ part: q.part, questionInTurn, turnInPart: 1, hasQuestion: true, completed: false });
-  // Part 2's brief already ends with "Here is your topic."
-  return [...(moment ? [moment.line] : []), examinerSpeech(q.part, q.question_text)];
+  const opening = moment ? (SOLO_LINES[moment.id] ?? moment.line) : null;
+  return [...(opening ? [opening] : []), examinerSpeech(q.part, q.question_text)];
 }
 
 /**

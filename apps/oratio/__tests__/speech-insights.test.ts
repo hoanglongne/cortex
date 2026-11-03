@@ -44,7 +44,7 @@ describe("insightsFor", () => {
   });
 
   it("flags a very slow pace (each word drawn out, few pauses)", () => {
-    const words: [string, number, number][] = Array.from({ length: 12 }, (_, i) => [`w${i}`, i * 1.0, i * 1.0 + 0.9]);
+    const words: [string, number, number][] = Array.from({ length: 12 }, (_, i) => [`wonderful${i}`, i * 1.0, i * 1.0 + 0.9]);
     expect(analyze(words).insights.some((i) => i.id === "slow")).toBe(true);
   });
 });

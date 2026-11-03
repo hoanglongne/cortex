@@ -44,6 +44,8 @@ export function clipUrls(text: string): { stored: string | null; api: string | n
 
 /** Longest the check "is this clip already made?" may take: a missing file answers in a fraction of a second. */
 export const PROBE_MS = 1200;
+/** The system voice has this long to begin; a browser that never begins must not hold the exam. */
+const START_MS = 2500;
 /** Time given to a clip that exists before the system voice takes over. */
 const PLAY_MS = 4000;
 
@@ -114,10 +116,18 @@ function speakSystem(text: string, alive: () => boolean): Promise<void> {
     const i = pickExaminerVoice(voices);
     if (i >= 0) u.voice = voices[i];
     const timer = setTimeout(resolve, 4000 + text.length * 90);
+    // Some browsers accept the text and never speak. No sound within this time: move on, the text is on screen.
+    const silent = setTimeout(() => {
+      clearTimeout(timer);
+      synth.cancel();
+      resolve();
+    }, START_MS);
     const end = () => {
       clearTimeout(timer);
+      clearTimeout(silent);
       resolve();
     };
+    u.onstart = () => clearTimeout(silent);
     u.onend = end;
     u.onerror = end;
     if (alive()) synth.speak(u);

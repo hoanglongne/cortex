@@ -7,12 +7,15 @@ import { CRITERIA, type CriterionScores } from "@/lib/feedback";
 import { profileUrl, type SpeechProfile } from "@/lib/client/speech-metrics";
 import { loadWhisper, MODEL_INFO, transcribeWords, useTranscribeChoice, useWhisperModel } from "@/lib/client/whisper";
 import { analyzeWords, replaceWord, type Word } from "@/lib/speech-words";
-import { clock, evidenceLine, MARK_KINDS, mapVerdict, plainLabel, suggestBands, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { clock, evidenceLine, MARK_KINDS, mapVerdict, plainLabel, suggestBands, type Language, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { grammarProfile } from "@/lib/grammar-check";
+import type { LexicalProfile } from "@/lib/lexical-weight";
 import { insightsFor } from "@/lib/speech-insights";
 import { addSummary, compare, compareLine, previousOf, readHistory, summaryOf, type Delta } from "@/lib/speech-history";
 import { AudioPlayer } from "./audio-player";
 import { SpeechMap } from "./speech-map";
 import { SpeechXray } from "./speech-xray";
+import { TranscribingHint } from "./transcribing-hint";
 import { XrayCoach } from "./xray-coach";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -98,6 +101,22 @@ export function ListenRate({
     return heard.length >= 8 ? analyzeWords(heard) : null;
   }, [rawWords, limitSeconds]);
   const insights = React.useMemo(() => (xray ? insightsFor(xray.tokens, xray.gaps, xray.stats) : []), [xray]);
+  // Vocabulary weight (word frequency list, loaded only when needed) and grammar signals from the words
+  const [lexical, setLexical] = React.useState<LexicalProfile | null>(null);
+  React.useEffect(() => {
+    let live = true;
+    if (!xray) {
+      setLexical(null);
+      return;
+    }
+    void import("@/lib/lexical-weight").then((m) => live && setLexical(m.lexicalProfile(xray.tokens)));
+    return () => {
+      live = false;
+    };
+  }, [xray]);
+  const grammar = React.useMemo(() => (xray ? grammarProfile(xray.tokens.map((t) => t.text)) : null), [xray]);
+  const [fixes, setFixes] = React.useState(0);
+  const language = React.useMemo<Language>(() => ({ lexical, grammar, corrections: fixes }), [lexical, grammar, fixes]);
   const [deltas, setDeltas] = React.useState<Delta[] | null>(null);
   const [trend, setTrend] = React.useState<number[]>([]);
 
@@ -173,7 +192,8 @@ export function ListenRate({
     () => [...marks, ...moments.filter((m) => judged[m.i] === "search").map((m) => ({ kind: "pause" as const, t: m.startMs / 1000 }))],
     [marks, moments, judged]
   );
-  const machineNow: Machine | undefined = foundPauses != null ? { longPauses: foundPauses, reviewed: Object.keys(judged).length } : machine;
+  const humsHeard = profile ? profile.hums.filter((h) => !limitSeconds || h.startMs / 1000 < limitSeconds).length : null;
+  const machineNow: Machine | undefined = foundPauses != null ? { longPauses: foundPauses, reviewed: Object.keys(judged).length, hums: humsHeard ?? 0 } : machine;
 
   const play = (from: number, to?: number) => {
     const el = audio.current;
@@ -210,7 +230,7 @@ export function ListenRate({
 
   /** The four bands start from everything gathered so far, except the ones the rater changed by hand. */
   const toScore = () => {
-    const start = suggestBands({ marks: allMarks, seconds: shownLength || duration || 60, machine: machineNow, speech: xray?.stats });
+    const start = suggestBands({ marks: allMarks, seconds: shownLength || duration || 60, machine: machineNow, speech: xray?.stats, language });
     const next: Partial<CriterionScores> = { ...value };
     for (const c of CRITERIA) if (!touched.current.has(c)) next[c] = start[c];
     onChange(next);
@@ -334,9 +354,7 @@ export function ListenRate({
               </div>
             )}
             {xrayState === "loading" && (
-              <p className="mt-2 rounded-[12px] bg-surface-2 px-3 py-2 text-[13px] font-semibold text-ink-2" aria-live="polite">
-                Đang soi lời nói{loaded > 0 && loaded < 1 ? ` (tải mô hình ${Math.round(loaded * 100)}%)` : "…"}
-              </p>
+              <TranscribingHint loaded={loaded} />
             )}
             {xrayState === "failed" && <p className="mt-2 text-[13px] text-subtle">Chưa soi được lời nói lần này. Bạn vẫn chấm được bằng cách nghe và bấm ở bước Đánh dấu.</p>}
             {xray && (
@@ -349,7 +367,10 @@ export function ListenRate({
                   onPlay={(from, to) => play(from, to)}
                   editing={editing}
                   onEditing={setEditing}
-                  onEdit={(src, text) => setRawWords((w) => (w ? replaceWord(w, src, text) : w))}
+                  onEdit={(src, text) => {
+                    setFixes((n) => n + 1);
+                    setRawWords((w) => (w ? replaceWord(w, src, text) : w));
+                  }}
                 />
                 {betterModel && choice === "on" && (
                   <div className="mt-3 rounded-[12px] border border-line p-3">
@@ -436,7 +457,7 @@ export function ListenRate({
         {tab === "score" && (
           <div>
             <p className="text-[12px] leading-snug text-muted">
-              {profile && !xray ? `${mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking })} ` : ""}Điểm đã điền sẵn từ những gì bạn nghe. Đồng ý thì giữ nguyên, không thì bấm + hoặc −.
+              {profile && !xray ? `${mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking, hums: humsHeard ?? 0 })} ` : ""}Điểm đã điền sẵn từ những gì bạn nghe. Đồng ý thì giữ nguyên, không thì bấm + hoặc −.
             </p>
             <ul className="mt-1 divide-y divide-line">
               {CRITERIA.map((c) => {
@@ -446,7 +467,7 @@ export function ListenRate({
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-ink">{CRITERION_LABEL[c]}</p>
                       <p className="text-base font-extrabold leading-tight tracking-[-0.02em] text-voice">{plainLabel(band)}</p>
-                      <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, allMarks, machineNow, xray?.stats)}</p>
+                      <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, allMarks, machineNow, xray?.stats, language)}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label={`Band ${CRITERION_LABEL[c]}`}>
                       <button type="button" aria-label="Giảm 1 band" disabled={disabled || band <= 1} onClick={() => nudge(c, -1)} className="flex size-9 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">

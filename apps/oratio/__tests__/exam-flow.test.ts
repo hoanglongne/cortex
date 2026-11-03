@@ -14,8 +14,11 @@ describe("examLines", () => {
     expect(examLines(qs, 0)).toHaveLength(2);
     expect(examLines(qs, 0)[0]).toMatch(/Good evening/);
     expect(examLines(qs, 1)).toEqual(["Where do you live?"]);
-    expect(examLines(qs, 2)[0]).toMatch(/one minute to think/);
+    expect(examLines(qs, 2)[0]).toMatch(/give you a topic/);
+    expect(examLines(qs, 2)[1]).toMatch(/one minute to think/);
     expect(examLines(qs, 3)[0]).toMatch(/general questions/);
+    // No small talk before the first question
+    expect(examLines(qs, 0).join(" ").length).toBeLessThan(120);
     expect(examLines(qs, 4)).toEqual(["Is tourism good?"]);
   });
   it("is empty past the end", () => {

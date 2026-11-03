@@ -124,3 +124,27 @@ describe("replaceWord", () => {
     expect(t[0].src).toBe(1);
   });
 });
+
+describe("drawn-out words (hums that Whisper puts inside a word)", () => {
+  it("cuts a word that lasts far longer than it needs and counts the rest as a pause", () => {
+    const words = [
+      { text: "I", start: 0, end: 0.2 },
+      { text: "think", start: 0.2, end: 0.6 },
+      { text: "and", start: 0.6, end: 3.1 },
+      { text: "then", start: 3.1, end: 3.4 },
+      { text: "we", start: 3.4, end: 3.6 },
+      { text: "went", start: 3.6, end: 4.0 },
+      { text: "home", start: 4.0, end: 4.4 },
+      { text: "early", start: 4.4, end: 4.9 },
+    ];
+    const { tokens, gaps, stats } = analyzeWords(words);
+    expect(tokens[2].stretched).toBeGreaterThan(1.5);
+    expect(tokens[2].end).toBeLessThan(1.2);
+    expect(gaps.some((g) => g.after === 2 && g.seconds > 1.5)).toBe(true);
+    expect(stats.stretches).toBe(1);
+  });
+  it("leaves ordinary words alone", () => {
+    const words = ["a", "b", "c", "d", "e", "f", "g", "h"].map((t, i) => ({ text: t + "x", start: i * 0.4, end: i * 0.4 + 0.35 }));
+    expect(analyzeWords(words).stats.stretches).toBe(0);
+  });
+});

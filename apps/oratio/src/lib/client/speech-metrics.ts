@@ -11,6 +11,8 @@ export interface SpeechMetrics {
   /** Silences of at least `longPauseMs` between two stretches of speech */
   longPauses: number;
   longestPauseMs: number;
+  /** Held "mmm" sounds that were not counted as speech */
+  hums?: number;
 }
 
 export interface AnalyzeOptions {
@@ -23,6 +25,56 @@ export interface AnalyzeOptions {
   minRms?: number;
   /** Speech threshold as a share of the loud (95th percentile) level */
   relativeThreshold?: number;
+}
+
+
+export interface Hum {
+  startMs: number;
+  endMs: number;
+}
+
+/**
+ * A learner who cannot find the next word often hums "mmm / ừmmm" for a second
+ * or two. That has voice in it, so a plain loudness check counts it as speech
+ * and the answer looks fluent. Speech rises and falls with every syllable; a
+ * hum is almost flat. Any voiced stretch of at least `minMs` whose loudness
+ * hardly changes is taken out of the voiced frames and reported as a hum.
+ * Pure maths; tuned on synthetic tones and noise, not on real recordings.
+ */
+export function maskHums(rms: ArrayLike<number>, voiced: boolean[], frameMs: number, minMs = 700, maxVariation = 0.3): { voiced: boolean[]; hums: Hum[] } {
+  const win = Math.max(4, Math.round(minMs / frameMs));
+  const flat = new Array<boolean>(rms.length).fill(false);
+  for (let s = 0; s + win <= rms.length; s++) {
+    let ok = true;
+    let sum = 0;
+    for (let i = s; i < s + win; i++) {
+      if (!voiced[i]) {
+        ok = false;
+        break;
+      }
+      sum += rms[i];
+    }
+    if (!ok) continue;
+    const mean = sum / win;
+    let sq = 0;
+    for (let i = s; i < s + win; i++) sq += (rms[i] - mean) ** 2;
+    if (mean > 0 && Math.sqrt(sq / win) / mean < maxVariation) for (let i = s; i < s + win; i++) flat[i] = true;
+  }
+  const out = voiced.slice();
+  const hums: Hum[] = [];
+  let f = 0;
+  while (f < flat.length) {
+    if (!flat[f]) {
+      f++;
+      continue;
+    }
+    let end = f;
+    while (end < flat.length && flat[end]) end++;
+    for (let i = f; i < end; i++) out[i] = false;
+    hums.push({ startMs: f * frameMs, endMs: end * frameMs });
+    f = end;
+  }
+  return { voiced: out, hums };
 }
 
 export function analyzeSamples(samples: Float32Array, sampleRate: number, opts: AnalyzeOptions = {}): SpeechMetrics {
@@ -44,10 +96,11 @@ export function analyzeSamples(samples: Float32Array, sampleRate: number, opts: 
   const sorted = Array.from(rms).sort((a, b) => a - b);
   const loud = sorted[Math.min(frames - 1, Math.floor(frames * 0.95))];
   const threshold = Math.max(minRms, loud * relativeThreshold);
-  const voiced = Array.from(rms, (v) => v >= threshold);
+  const masked = maskHums(rms, Array.from(rms, (v) => v >= threshold), frameMs);
+  const voiced = masked.voiced;
 
   const first = voiced.indexOf(true);
-  if (first === -1) return { speakingMs: 0, totalMs, longPauses: 0, longestPauseMs: 0 };
+  if (first === -1) return { speakingMs: 0, totalMs, longPauses: 0, longestPauseMs: 0, hums: masked.hums.length };
   const last = voiced.lastIndexOf(true);
 
   const bridgeFrames = Math.round(bridgeMs / frameMs);
@@ -78,6 +131,7 @@ export function analyzeSamples(samples: Float32Array, sampleRate: number, opts: 
     totalMs,
     longPauses,
     longestPauseMs: longestPause * frameMs,
+    hums: masked.hums.length,
   };
 }
 
@@ -110,6 +164,8 @@ export interface SpeechProfile {
   peaks: number[];
   /** Silences of at least `minPauseMs` between two stretches of speech */
   pauses: { startMs: number; endMs: number }[];
+  /** Held "mmm" sounds: voice, but not words */
+  hums: Hum[];
   /** Share of the time between the first and the last word that has voice in it */
   voicedShare: number;
 }
@@ -125,7 +181,7 @@ export function profileSamples(samples: Float32Array, sampleRate: number, opts: 
   const durationMs = sampleRate > 0 ? (samples.length / sampleRate) * 1000 : 0;
   const frameSize = Math.max(1, Math.round((sampleRate * frameMs) / 1000));
   const frames = Math.floor(samples.length / frameSize);
-  const empty = { durationMs, peaks: new Array<number>(bars).fill(0), pauses: [], voicedShare: 0 };
+  const empty = { durationMs, peaks: new Array<number>(bars).fill(0), pauses: [], hums: [], voicedShare: 0 };
   if (frames === 0) return empty;
 
   const rms = new Float32Array(frames);
@@ -138,7 +194,8 @@ export function profileSamples(samples: Float32Array, sampleRate: number, opts: 
   const sorted = Array.from(rms).sort((a, b) => a - b);
   const loud = sorted[Math.min(frames - 1, Math.floor(frames * 0.95))] || 1e-6;
   const threshold = Math.max(minRms, loud * relativeThreshold);
-  const voiced = Array.from(rms, (v) => v >= threshold);
+  const masked = maskHums(rms, Array.from(rms, (v) => v >= threshold), frameMs);
+  const voiced = masked.voiced;
 
   const peaks = Array.from({ length: bars }, (_, b) => {
     const from = Math.floor((b * frames) / bars);
@@ -169,7 +226,7 @@ export function profileSamples(samples: Float32Array, sampleRate: number, opts: 
     if (gap >= pauseFrames) pauses.push({ startMs: f * frameMs, endMs: end * frameMs });
     f = end;
   }
-  return { durationMs, peaks, pauses, voicedShare: voicedFrames / (last - first + 1) };
+  return { durationMs, peaks, pauses, hums: masked.hums, voicedShare: voicedFrames / (last - first + 1) };
 }
 
 /** Decode and profile a recording from a URL (blob: or the signed link). Null when it cannot be fetched or decoded. */
