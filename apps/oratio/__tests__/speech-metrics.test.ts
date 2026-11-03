@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyzeSamples } from "@/lib/client/speech-metrics";
+import { analyzeSamples, profileSamples } from "@/lib/client/speech-metrics";
 
 const SR = 16000;
 
@@ -55,5 +55,47 @@ describe("analyzeSamples", () => {
 
   it("handles empty input", () => {
     expect(analyzeSamples(new Float32Array(0), SR)).toEqual({ speakingMs: 0, totalMs: 0, longPauses: 0, longestPauseMs: 0 });
+  });
+});
+
+
+describe("profileSamples", () => {
+  // 3 s speech, 2.4 s pause, 2 s speech, 1.6 s pause, 3 s speech
+  const take = build([[3], 2.4, [2], 1.6, [3]]);
+
+  it("finds each long pause with where it starts and ends", () => {
+    const p = profileSamples(take, SR);
+    expect(p.pauses).toHaveLength(2);
+    expect(p.pauses[0].startMs).toBeCloseTo(3000, -2);
+    expect(p.pauses[0].endMs - p.pauses[0].startMs).toBeCloseTo(2400, -2);
+    expect(p.pauses[1].endMs - p.pauses[1].startMs).toBeCloseTo(1600, -2);
+  });
+
+  it("agrees with the long pause count of analyzeSamples", () => {
+    expect(profileSamples(take, SR).pauses.length).toBe(analyzeSamples(take, SR).longPauses);
+  });
+
+  it("draws a bar per slice, loud where there is voice and flat in the pause", () => {
+    const p = profileSamples(take, SR, { bars: 100 });
+    expect(p.peaks).toHaveLength(100);
+    expect(p.peaks[5]).toBeGreaterThan(0.5);
+    // 3.0 to 5.4 s of 12 s is bars 25 to 45: the middle of it is silent
+    expect(p.peaks[35]).toBeLessThan(0.1);
+    expect(Math.max(...p.peaks)).toBeLessThanOrEqual(1);
+  });
+
+  it("reports how much of the answer had voice in it", () => {
+    const p = profileSamples(take, SR);
+    expect(p.voicedShare).toBeGreaterThan(0.6);
+    expect(p.voicedShare).toBeLessThan(0.75);
+  });
+
+  it("does not call leading or trailing silence a pause", () => {
+    expect(profileSamples(build([3, [2], 3]), SR).pauses).toHaveLength(0);
+  });
+
+  it("copes with silence and an empty recording", () => {
+    expect(profileSamples(build([3]), SR).pauses).toEqual([]);
+    expect(profileSamples(new Float32Array(0), SR).peaks.every((v) => v === 0)).toBe(true);
   });
 });

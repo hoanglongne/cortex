@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Card, Notice, Pill } from "@/components/ui/card";
+import { AudioPlayer } from "@/components/ui/audio-player";
 import { Character } from "@/components/ui/character";
 import { formatClock } from "@/components/ui/timer";
 import { cn } from "@/lib/utils";
@@ -236,11 +237,11 @@ export function TakeResult({
       {take.tx.status === "done" && take.tx.text && <Transcript text={take.tx.text} />}
 
       <Card className="p-3 sm:p-3">
-        <audio controls src={take.url} className="h-10 w-full" aria-label="Nghe lại bản ghi" />
+        <AudioPlayer src={take.url} seconds={take.seconds} />
       </Card>
 
       {take.save === "failed" && <p className="text-sm text-subtle">Chưa lưu được lần nói này vào lịch sử. Bạn cứ tiếp tục tập nhé.</p>}
-      {!demo && take.save === "saved" && take.answerId && <SelfRatingCard id={take.answerId} />}
+      {!demo && take.save === "saved" && take.answerId && <SelfRatingCard id={take.answerId} src={take.url} seconds={take.seconds} machine={okMetrics(take) ? { longPauses: okMetrics(take)!.longPauses } : undefined} />}
       {!demo && take.save === "saved" && take.answerId && <SendToClass answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />}
       {!demo && take.save === "saved" && take.answerId && (
         <SendForReview answerId={take.answerId} blob={take.blob} submitted={take.submitted} onSent={onSent} />

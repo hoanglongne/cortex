@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { wordsFromChunks, type Word } from "@/lib/speech-words";
 
 /**
  * On-device transcription (public/whisper-worker.js). Off until the learner
@@ -39,7 +40,7 @@ export type ProgressListener = (fraction: number) => void;
 let worker: Worker | null = null;
 let ready: Promise<void> | null = null;
 let nextId = 1;
-const pending = new Map<number, { resolve: (text: string) => void; reject: (e: Error) => void }>();
+const pending = new Map<number, { resolve: (r: { text: string; chunks?: unknown }) => void; reject: (e: Error) => void }>();
 const listeners = new Set<ProgressListener>();
 const files = new Map<string, { loaded: number; total: number }>();
 
@@ -47,7 +48,7 @@ function getWorker(): Worker {
   if (worker) return worker;
   worker = new Worker("/whisper-worker.js", { type: "module" });
   worker.onmessage = (e: MessageEvent) => {
-    const m = e.data as { id?: number; type: string; text?: string; message?: string; file?: string; loaded?: number; total?: number };
+    const m = e.data as { id?: number; type: string; text?: string; chunks?: unknown; message?: string; file?: string; loaded?: number; total?: number };
     if (m.type === "progress" && m.file && m.total) {
       files.set(m.file, { loaded: m.loaded ?? 0, total: m.total });
       let loaded = 0;
@@ -63,7 +64,7 @@ function getWorker(): Worker {
     if (!p) return;
     pending.delete(m.id!);
     if (m.type === "error") p.reject(new Error(m.message ?? "Whisper failed"));
-    else p.resolve(m.text ?? "");
+    else p.resolve({ text: m.text ?? "", chunks: m.chunks });
   };
   worker.onerror = (e) => {
     pending.forEach((p) => p.reject(new Error(e.message || "Whisper worker failed")));
@@ -75,7 +76,7 @@ function getWorker(): Worker {
   return worker;
 }
 
-function call(type: "load" | "transcribe", audio?: Float32Array): Promise<string> {
+function call(type: "load" | "transcribe" | "transcribe-words", audio?: Float32Array): Promise<{ text: string; chunks?: unknown }> {
   const id = nextId++;
   return new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject });
@@ -116,5 +117,12 @@ async function toWhisperInput(blob: Blob): Promise<Float32Array> {
 /** The English transcript of a recording, made on this device. */
 export async function transcribe(blob: Blob): Promise<string> {
   await loadWhisper();
-  return call("transcribe", await toWhisperInput(blob));
+  return (await call("transcribe", await toWhisperInput(blob))).text;
+}
+
+/** The transcript with each word's start and end time (null words when the model gave no usable timing). */
+export async function transcribeWords(blob: Blob): Promise<{ text: string; words: Word[] | null }> {
+  await loadWhisper();
+  const r = await call("transcribe-words", await toWhisperInput(blob));
+  return { text: r.text, words: wordsFromChunks(r.chunks) };
 }

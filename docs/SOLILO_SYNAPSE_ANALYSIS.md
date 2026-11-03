@@ -157,3 +157,18 @@ Bị chặn bởi quyết định riêng tư của #64 (bài viết của học 
 3. Nếu A: có làm **giao diện terminal** cho chế độ Truyện (khác biệt) hay dùng giao diện chung của phần Chơi?
 4. **Listening và Writing**: bắt đầu bằng L1 Nghe chép? Còn quyết định riêng tư cho Writing (#64) thì khi nào bạn quyết?
 5. Trang landing: đổi trạng thái Solilo và Synapse như mục 4?
+
+
+---
+
+## Cập nhật 03/11/2026: Writing W1 đến W4 đã làm (issue #105)
+
+Trang `/write` trong Lexica (vào từ Luyện → Viết). Máy chỉ kiểm những gì nhìn thấy trong chữ (độ dài, từ nối, số liệu, viết tắt) và nhắc học viên tự kiểm phần còn lại; **không cho điểm, không gửi bài đi đâu** (bản nháp chỉ lưu trên máy).
+
+| Bậc | Gì có |
+|---|---|
+| W1 Câu của bạn | Nhật ký câu đã viết sau buổi Hôm nay (`/journal`); trang Viết dẫn tới đó |
+| W2 Viết lại câu | Lấy câu thân mật và cụm cần nâng cấp từ `upgradeModule` của thẻ (hơn 560 thẻ); kiểm: đủ câu, khác câu gốc, dùng cụm trang trọng gợi ý, hết từ thân mật, không viết tắt; sau đó xem các cách nâng cấp kèm sắc thái |
+| W3 Đoạn văn có khung | 6 chủ đề; bước 1 xếp 4 câu mẫu đúng thứ tự (nêu ý, giải thích, ví dụ, kết); bước 2 viết 4 phần với câu mở gợi ý; kiểm: 4 phần đủ ý, độ dài, từ nối, mở ví dụ và kết đúng cách |
+| W4 Mô tả biểu đồ | Biểu đồ đường do chương trình sinh từ một số hạt giống (72 biểu đồ, đổi theo ngày, không vướng bản quyền đề); kiểm: đủ 150 từ, câu tổng quan, động từ xu hướng, số liệu từ biểu đồ, nhắc đủ mọi đường, so sánh, không nêu ý kiến |
+| W5, W6 | Vẫn chờ quyết định riêng tư (#64) và Oratio chấm chéo trong lớp (#88); trang ghi rõ "sắp có" |

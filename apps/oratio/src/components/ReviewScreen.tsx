@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EVENTS } from "@cortex/events";
 import { analytics } from "@/lib/analytics";
 import { ChevronDown, Headphones } from "lucide-react";
@@ -16,7 +16,7 @@ import { BandRange, CriterionRow } from "@/components/ui/band";
 import { Card, EmptyState, Label, Notice, Pill } from "@/components/ui/card";
 import { CharacterSays } from "@/components/ui/character";
 import { CueCard } from "@/components/ui/cue-card";
-import { RubricSheet } from "@/components/ui/rubric";
+import { ListenRate } from "@/components/ui/listen-rate";
 import { FlowShell, TabShell, type Tab } from "@/components/ui/shell";
 import { cn } from "@/lib/utils";
 
@@ -330,22 +330,11 @@ function ReviewTaskView({
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [limitHit, setLimitHit] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   const complete = CRITERIA.every((c) => scores[c] != null);
 
   const toggleTag = (t: string) =>
     setTags((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : prev.length >= MAX_REVIEW_TAGS ? prev : [...prev, t]));
-
-  const stopAtLimit = () => {
-    const el = audioRef.current;
-    if (el && el.currentTime >= LISTEN_LIMIT_S) {
-      el.pause();
-      el.currentTime = LISTEN_LIMIT_S;
-      setLimitHit(true);
-    }
-  };
 
   const submit = async () => {
     if (!complete || submitting) return;
@@ -390,25 +379,10 @@ function ReviewTaskView({
       <div className="grid gap-4 md:grid-cols-[1fr_1.4fr] md:items-start">
         <div className="flex flex-col gap-3 md:sticky md:top-6">
           <CueCard question={{ part: task.part, category: "Câu của người khác", question_text: task.questionText }} />
-          <Card>
-            <Label className="mb-2">Nghe câu trả lời</Label>
-            <audio
-              ref={audioRef}
-              src={task.audioUrl}
-              controls
-              preload="metadata"
-              onTimeUpdate={stopAtLimit}
-              onSeeked={stopAtLimit}
-              className="w-full"
-            />
-            <p className="mt-2 text-[13px] text-subtle" aria-live="polite">
-              {limitHit ? "Đã nghe đủ 2 phút, đủ để chấm rồi." : "Bạn nghe tối đa 2 phút đầu của câu trả lời."}
-            </p>
-          </Card>
         </div>
 
         <div className="flex flex-col gap-4">
-          <RubricSheet value={scores} onChange={setScores} disabled={submitting} />
+          <ListenRate src={task.audioUrl} seconds={task.durationMs / 1000} limitSeconds={LISTEN_LIMIT_S} value={scores} onChange={setScores} disabled={submitting} />
 
           <Card>
             <Label className="mb-2">Nhận xét nhanh (chọn tối đa {MAX_REVIEW_TAGS})</Label>

@@ -37,7 +37,7 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
                 <div className="grid grid-cols-3 gap-2">
                     <Tile href="/read" icon={<BookOpen className="w-5 h-5" />} title="Đọc" hint="Đoạn ngắn" />
                     <Tile href="/speak" icon={<Mic className="w-5 h-5" />} title="Nói" hint="Nghe và nói" />
-                    <Tile href="/journal" icon={<PenLine className="w-5 h-5" />} title="Viết" hint="Câu của bạn" />
+                    <Tile href="/write" icon={<PenLine className="w-5 h-5" />} title="Viết" hint="Câu đến bài" />
                 </div>
             </section>
 
