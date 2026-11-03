@@ -45,7 +45,7 @@ export function clipUrls(text: string): { stored: string | null; api: string | n
 /** Longest the check "is this clip already made?" may take: a missing file answers in a fraction of a second. */
 export const PROBE_MS = 1200;
 /** The system voice has this long to begin; a browser that never begins must not hold the exam. */
-const START_MS = 2500;
+const START_MS = 3500;
 /** Time given to a clip that exists before the system voice takes over. */
 const PLAY_MS = 4000;
 
@@ -104,10 +104,37 @@ async function playUrl(el: HTMLAudioElement, url: string, alive: () => boolean):
   }
 }
 
-function speakSystem(text: string, alive: () => boolean): Promise<void> {
+/**
+ * Phones (iOS above all) only let a page speak or play sound after a tap, and
+ * only in the same moment as the tap. The exam's first line is spoken after
+ * some waiting, which is too late, so the start button calls this inside its
+ * tap: it speaks nothing, audibly, and unlocks both kinds of sound.
+ */
+export function unlockSound() {
+  if (typeof window === "undefined") return;
+  try {
+    if ("speechSynthesis" in window) {
+      const u = new SpeechSynthesisUtterance(" ");
+      u.volume = 0;
+      window.speechSynthesis.speak(u);
+    }
+    const el = audio();
+    if (el) {
+      // A silent, very short clip
+      el.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=";
+      void el.play().catch(() => undefined);
+    }
+  } catch {
+    // Not available: the exam still shows the question as text.
+  }
+}
+
+/** Resolves true when the voice really began, false when this browser took the text and stayed silent. */
+function speakSystem(text: string, alive: () => boolean): Promise<boolean> {
   const synth = typeof window !== "undefined" && "speechSynthesis" in window ? window.speechSynthesis : null;
-  if (!synth) return Promise.resolve();
-  return new Promise<void>((resolve) => {
+  if (!synth) return Promise.resolve(false);
+  return new Promise<boolean>((resolve) => {
+    let began = false;
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "en-GB";
@@ -115,19 +142,22 @@ function speakSystem(text: string, alive: () => boolean): Promise<void> {
     const voices = synth.getVoices();
     const i = pickExaminerVoice(voices);
     if (i >= 0) u.voice = voices[i];
-    const timer = setTimeout(resolve, 4000 + text.length * 90);
-    // Some browsers accept the text and never speak. No sound within this time: move on, the text is on screen.
+    const timer = setTimeout(() => resolve(began), 4000 + text.length * 90);
+    // Some browsers accept the text and never speak. No sound within this time: say so, the text is on screen.
     const silent = setTimeout(() => {
       clearTimeout(timer);
       synth.cancel();
-      resolve();
+      resolve(false);
     }, START_MS);
     const end = () => {
       clearTimeout(timer);
       clearTimeout(silent);
-      resolve();
+      resolve(began);
     };
-    u.onstart = () => clearTimeout(silent);
+    u.onstart = () => {
+      began = true;
+      clearTimeout(silent);
+    };
     u.onend = end;
     u.onerror = end;
     if (alive()) synth.speak(u);
@@ -191,7 +221,7 @@ export function warmLines(lines: readonly string[]) {
 }
 
 /** Reads the lines one after another. `onStart` fires when the first sound begins; `done` resolves when finished or cancelled. */
-export function speakLines(source: readonly string[], onStart?: () => void): { done: Promise<void>; cancel: () => void } {
+export function speakLines(source: readonly string[], onStart?: () => void, hooks: { onLine?: (line: string) => void; onSilent?: () => void } = {}): { done: Promise<void>; cancel: () => void } {
   const lines = sentenceChunks(source);
   let alive = true;
   let started = false;
@@ -215,11 +245,16 @@ export function speakLines(source: readonly string[], onStart?: () => void): { d
     if (allThere && el) {
       el.addEventListener("playing", begin, { once: true });
       for (let i = 0; i < lines.length && alive; i++) {
+        hooks.onLine?.(lines[i]);
         const ok = await playUrl(el, stored[i] as string, () => alive);
         if (!ok && alive) {
           // A clip that would not play: the system voice reads this and the rest
           begin();
-          for (const rest of lines.slice(i)) if (alive) await speakSystem(rest, () => alive);
+          for (const rest of lines.slice(i)) {
+            if (!alive) break;
+            hooks.onLine?.(rest);
+            await speakSystem(rest, () => alive);
+          }
           return;
         }
       }
@@ -227,11 +262,21 @@ export function speakLines(source: readonly string[], onStart?: () => void): { d
     }
 
     // Not made yet: speak now, make the natural clips for next time
-    begin();
     warmLines(lines);
+    let spoke = false;
     for (const line of lines) {
       if (!alive) return;
-      await speakSystem(line, () => alive);
+      hooks.onLine?.(line);
+      const said = await speakSystem(line, () => alive);
+      if (said) {
+        spoke = true;
+        begin();
+      } else if (!spoke) {
+        // The first line never sounded: do not talk to nobody; let the screen say so and wait for the learner
+        if (alive) hooks.onSilent?.();
+        await cancelled;
+        return;
+      }
     }
   })();
 
