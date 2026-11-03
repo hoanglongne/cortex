@@ -5,9 +5,12 @@ import { Minus, Play, Plus, Undo2 } from "lucide-react";
 import { CRITERION_LABEL } from "@cortex/classroom-oratio";
 import { CRITERIA, type CriterionScores } from "@/lib/feedback";
 import { profileUrl, type SpeechProfile } from "@/lib/client/speech-metrics";
+import { loadWhisper, transcribeWords, useTranscribeChoice } from "@/lib/client/whisper";
+import { analyzeWords } from "@/lib/speech-words";
 import { clock, evidenceLine, MARK_KINDS, mapVerdict, plainLabel, suggestBands, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
 import { AudioPlayer } from "./audio-player";
 import { SpeechMap } from "./speech-map";
+import { SpeechXray } from "./speech-xray";
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
 
@@ -60,6 +63,40 @@ export function ListenRate({
   // The long pauses the machine found, judged one by one: looking for a word, or just thinking
   const [judged, setJudged] = React.useState<Record<number, "search" | "think">>({});
   const [active, setActive] = React.useState<number | null>(null);
+
+  // "Soi lời nói": the words with their timing, made on this device
+  const { choice, setChoice } = useTranscribeChoice();
+  const [xray, setXray] = React.useState<ReturnType<typeof analyzeWords> | null>(null);
+  const [xrayState, setXrayState] = React.useState<"idle" | "loading" | "ready" | "failed">("idle");
+  const [loaded, setLoaded] = React.useState(0);
+  const started = React.useRef(false);
+
+  React.useEffect(() => {
+    if (choice !== "on" || started.current) return;
+    started.current = true;
+    let live = true;
+     
+    setXrayState("loading");
+    void (async () => {
+      try {
+        await loadWhisper((f) => live && setLoaded(f));
+        const blob = await (await fetch(src)).blob();
+        const { words } = await transcribeWords(blob);
+        if (!live) return;
+        const heard = words ? words.filter((w) => !limitSeconds || w.start < limitSeconds) : null;
+        if (heard && heard.length >= 8) {
+          setXray(analyzeWords(heard));
+          setXrayState("ready");
+        } else setXrayState("failed");
+      } catch {
+        if (live) setXrayState("failed");
+      }
+    })();
+    return () => {
+      live = false;
+      started.current = false;
+    };
+  }, [choice, src, limitSeconds]);
 
   React.useEffect(() => {
     let live = true;
@@ -125,7 +162,7 @@ export function ListenRate({
   };
 
   const toConfirm = () => {
-    const start = suggestBands({ marks: allMarks, seconds: shownLength || duration || 60, machine: machineNow });
+    const start = suggestBands({ marks: allMarks, seconds: shownLength || duration || 60, machine: machineNow, speech: xray?.stats });
     const next: Partial<CriterionScores> = { ...value };
     for (const c of CRITERIA) if (!touched.current.has(c)) next[c] = start[c];
     onChange(next);
@@ -169,7 +206,7 @@ export function ListenRate({
               </p>
               <SpeechMap profile={profile} time={time} limitSeconds={limitSeconds} marks={allMarks} activePause={active} onSeek={(sec) => play(sec)} />
 
-              {moments.length > 0 && (
+              {!xray && moments.length > 0 && (
                 <ul className="mt-3 space-y-2">
                   {moments.map((m, n) => (
                     <li key={m.i} className="rounded-[12px] border border-line p-3">
@@ -213,6 +250,28 @@ export function ListenRate({
                   ))}
                 </ul>
               )}
+            </div>
+          )}
+
+          {choice !== "on" && xrayState === "idle" && (
+            <div className="mb-4 rounded-[12px] border border-dashed border-line-strong p-3">
+              <p className="text-sm font-bold text-ink">Soi lời nói</p>
+              <p className="mt-0.5 text-[13px] leading-snug text-muted">Máy chép lại lời ngay trên máy bạn rồi chỉ ra chỗ dừng giữa chừng một ý, từ đệm và từ lặp. Chạm vào từ để nghe. Cần tải mô hình khoảng 40 MB một lần; âm thanh không rời khỏi máy.</p>
+              <Button variant="secondary" className="mt-2" disabled={disabled} onClick={() => setChoice("on")}>
+                Bật soi lời nói
+              </Button>
+            </div>
+          )}
+          {xrayState === "loading" && (
+            <p className="mb-4 rounded-[12px] bg-surface-2 px-3 py-2 text-[13px] font-semibold text-ink-2" aria-live="polite">
+              Đang soi lời nói{loaded > 0 && loaded < 1 ? ` (tải mô hình ${Math.round(loaded * 100)}%)` : "…"}
+            </p>
+          )}
+          {xrayState === "failed" && <p className="mb-4 text-[13px] text-subtle">Chưa soi được lời nói lần này, bạn vẫn chấm được bằng cách nghe và bấm.</p>}
+          {xray && (
+            <div className="mb-4">
+              <h3 className="mb-2 text-base font-extrabold tracking-[-0.02em] text-ink">Soi lời nói</h3>
+              <SpeechXray tokens={xray.tokens} gaps={xray.gaps} stats={xray.stats} time={time} onPlay={(from, to) => play(from, to)} />
             </div>
           )}
 
@@ -276,7 +335,7 @@ export function ListenRate({
       ) : (
         <section className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
           <h3 className="text-base font-extrabold tracking-[-0.02em] text-ink">Điểm bắt đầu từ những gì bạn nghe</h3>
-          {profile && <p className="mt-1 rounded-lg bg-surface-2 px-3 py-2 text-[13px] font-semibold leading-snug text-ink-2">{mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking })}</p>}
+          {profile && !xray && <p className="mt-1 rounded-lg bg-surface-2 px-3 py-2 text-[13px] font-semibold leading-snug text-ink-2">{mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking })}</p>}
           <p className="mt-0.5 text-[13px] leading-snug text-muted">Đồng ý thì giữ nguyên. Thấy cao hay thấp quá thì bấm + hoặc −.</p>
           <ul className="mt-2 divide-y divide-line">
             {CRITERIA.map((c) => {
@@ -286,7 +345,7 @@ export function ListenRate({
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-ink">{CRITERION_LABEL[c]}</p>
                     <p className="text-lg font-extrabold leading-tight tracking-[-0.02em] text-voice">{plainLabel(band)}</p>
-                    <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, allMarks, machineNow)}</p>
+                    <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, allMarks, machineNow, xray?.stats)}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label={`Band ${CRITERION_LABEL[c]}`}>
                     <button type="button" aria-label="Giảm 1 band" disabled={disabled || band <= 1} onClick={() => nudge(c, -1)} className="flex size-10 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">

@@ -6,6 +6,7 @@
  * confirms or nudges four numbers. Pure, unit tested.
  */
 import type { Criterion } from "@cortex/classroom-oratio";
+import type { SpeechStats } from "@/lib/speech-words";
 
 export type MarkKind = "pause" | "repeat" | "good" | "grammar" | "unclear";
 
@@ -38,14 +39,28 @@ export interface Machine {
 
 const clamp = (n: number) => Math.min(SUGGEST_MAX, Math.max(SUGGEST_MIN, Math.round(n)));
 
+/**
+ * With the words and their timing, fluency counts only the pauses in the
+ * middle of an idea (the ones that sound hesitant), filler sounds and repeated
+ * words, and rewards long runs of speech; without them it uses the taps and
+ * the machine's long pauses.
+ */
+function fluencyBand(tapPauses: number, machinePauses: number, speech?: SpeechStats | null): number {
+  if (!speech || speech.words < 8) return clamp(6 - 0.9 * (tapPauses + 0.5 * machinePauses));
+  const trouble = tapPauses + speech.midPausesPerMinute + 0.5 * speech.fillersPerMinute + 0.4 * speech.repeatsPerMinute;
+  const run = speech.meanRun >= 9 ? 0.5 : speech.meanRun < 4 ? -0.5 : 0;
+  const rate = speech.articulationRate < 80 ? -0.5 : 0;
+  return clamp(6 + run + rate - 0.9 * trouble);
+}
+
 /** The starting band for each criterion. With no marks at all it is a plain middle (6, vocabulary 5). */
-export function suggestBands(input: { marks: readonly Mark[]; seconds: number; machine?: Machine }): Record<Criterion, number> {
+export function suggestBands(input: { marks: readonly Mark[]; seconds: number; machine?: Machine; speech?: SpeechStats | null }): Record<Criterion, number> {
   const minutes = Math.max(input.seconds, MIN_SECONDS) / 60;
   const per = (kind: MarkKind) => input.marks.filter((m) => m.kind === kind).length / minutes;
   const unreviewed = input.machine?.longPauses != null ? Math.max(0, input.machine.longPauses - (input.machine.reviewed ?? 0)) : 0;
   const machinePauses = unreviewed / minutes;
   return {
-    fluency: clamp(6 - 0.9 * (per("pause") + 0.5 * machinePauses)),
+    fluency: fluencyBand(per("pause"), machinePauses, input.speech),
     vocabulary: clamp(5 + 0.8 * per("good") - 0.9 * per("repeat")),
     grammar: clamp(6 - 0.9 * per("grammar")),
     pronunciation: clamp(6 - 1.1 * per("unclear")),
@@ -64,9 +79,13 @@ export function plainLabel(band: number): string {
 const count = (marks: readonly Mark[], kind: MarkKind) => marks.filter((m) => m.kind === kind).length;
 
 /** What the band is based on, in the rater's own taps and the machine's numbers. */
-export function evidenceLine(criterion: Criterion, marks: readonly Mark[], machine?: Machine): string {
+export function evidenceLine(criterion: Criterion, marks: readonly Mark[], machine?: Machine, speech?: SpeechStats | null): string {
   const parts: string[] = [];
-  if (criterion === "fluency") {
+  if (criterion === "fluency" && speech && speech.words >= 8) {
+    parts.push(`${speech.midPauses} chỗ dừng giữa chừng một ý`);
+    if (speech.fillers > 0) parts.push(`${speech.fillers} từ đệm`);
+    parts.push(`nói liền trung bình ${String(speech.meanRun).replace(".", ",")} từ`);
+  } else if (criterion === "fluency") {
     parts.push(`${count(marks, "pause")} lần bạn đánh dấu ngập ngừng`);
     if (machine?.longPauses != null) parts.push(`máy thấy ${machine.longPauses} chỗ dừng dài`);
   } else if (criterion === "vocabulary") {

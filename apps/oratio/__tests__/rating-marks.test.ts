@@ -74,3 +74,27 @@ describe("mapVerdict", () => {
     expect(mapVerdict({ voicedShare: 0.7, pauses: 3, searching: 1, thinking: 1 })).toMatch(/1 chỗ là tìm từ, 1 chỗ là nghĩ ý, 1 chỗ chưa nghe/);
   });
 });
+
+
+describe("fluency from the words and their timing", () => {
+  const speech = (o: Partial<import("@/lib/speech-words").SpeechStats> = {}): import("@/lib/speech-words").SpeechStats => ({
+    words: 120, span: 60, wordsPerMinute: 120, articulationRate: 140, meanRun: 6, midPauses: 0, boundaryPauses: 6, fillers: 0, markers: 0, repeats: 0, midPausesPerMinute: 0, fillersPerMinute: 0, repeatsPerMinute: 0, ...o,
+  });
+  it("does not mark down pauses between ideas", () => {
+    const calm = suggestBands({ marks: [], seconds: 60, speech: speech({ boundaryPauses: 12 }) }).fluency;
+    const stumbling = suggestBands({ marks: [], seconds: 60, speech: speech({ midPauses: 6, midPausesPerMinute: 6 }) }).fluency;
+    expect(calm).toBeGreaterThanOrEqual(6);
+    expect(stumbling).toBeLessThan(calm);
+  });
+  it("counts fillers and repeats and rewards long runs", () => {
+    const base = suggestBands({ marks: [], seconds: 60, speech: speech() }).fluency;
+    expect(suggestBands({ marks: [], seconds: 60, speech: speech({ fillersPerMinute: 6, repeatsPerMinute: 4 }) }).fluency).toBeLessThan(base);
+    expect(suggestBands({ marks: [], seconds: 60, speech: speech({ meanRun: 11 }) }).fluency).toBeGreaterThanOrEqual(base);
+  });
+  it("falls back to the taps when there are too few words", () => {
+    expect(suggestBands({ marks: [], seconds: 60, speech: speech({ words: 3 }) }).fluency).toBe(6);
+  });
+  it("says what it is based on", () => {
+    expect(evidenceLine("fluency", [], undefined, speech({ midPauses: 3, fillers: 2, meanRun: 7.5 }))).toBe("3 chỗ dừng giữa chừng một ý · 2 từ đệm · nói liền trung bình 7,5 từ");
+  });
+});

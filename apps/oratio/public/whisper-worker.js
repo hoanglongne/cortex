@@ -31,6 +31,18 @@ self.onmessage = async (event) => {
       self.postMessage({ id, type: "ready" });
       return;
     }
+    if (type === "transcribe-words") {
+      // Each word with the time it started and ended (issue #130). If the model cannot give timings, the text alone still comes back.
+      try {
+        const out = await run(audio, { chunk_length_s: 30, stride_length_s: 5, return_timestamps: "word" });
+        self.postMessage({ id, type: "result", text: (out.text || "").trim(), chunks: out.chunks || null });
+        return;
+      } catch (err) {
+        const out = await run(audio, { chunk_length_s: 30, stride_length_s: 5 });
+        self.postMessage({ id, type: "result", text: (out.text || "").trim(), chunks: null });
+        return;
+      }
+    }
     const out = await run(audio, { chunk_length_s: 30, stride_length_s: 5 });
     self.postMessage({ id, type: "result", text: (out.text || "").trim() });
   } catch (err) {
