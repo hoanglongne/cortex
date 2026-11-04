@@ -7,22 +7,42 @@ import EngagementSync from "./components/EngagementSync";
 import ContentLoader from "./components/ContentLoader";
 import HydrationGate from "./components/HydrationGate";
 import AppNav, { DesktopNav } from "./components/AppNav";
+import ErrorReporter from "./components/ErrorReporter";
 import BuddySync from "./components/BuddySync";
 import StudyDateBanner from "./components/StudyDateBanner";
 import { DeviceVoiceBoot } from "./components/DeviceVoiceCard";
 
 // Design system fonts (docs/DESIGN_SYSTEM.md). Vietnamese subset is required:
 // without it, accented letters fall back to the system font.
+const SITE = (() => {
+  const own = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (own) return /^https?:\/\//i.test(own) ? own : `https://${own}`;
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  return vercel ? `https://${vercel}` : "http://localhost:3000";
+})();
+
+const TITLE = "Lexica – Học từ tiếng Anh từ chính câu tiếng Việt của bạn";
+const DESCRIPTION = "Mỗi ngày một phiên ngắn: hiểu, nhớ, gặp, dùng. Học từ vựng IELTS và giao tiếp qua câu chêm tiếng Việt, nghe giọng đọc, luyện nói.";
+
 export const metadata: Metadata = {
-  title: "LEXICA - IELTS Vocabulary Swiper",
-  description: "Master IELTS vocabulary through addictive swipe-based micro-learning. The fastest way to level up your English.",
-  keywords: ["IELTS", "vocabulary", "English learning", "flashcards", "education"],
-  authors: [{ name: "ORATIO" }],
+  metadataBase: new URL(SITE),
+  title: TITLE,
+  description: DESCRIPTION,
+  keywords: ["IELTS", "từ vựng tiếng Anh", "học từ vựng", "flashcard", "luyện nói"],
   manifest: "/manifest.json",
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    siteName: "Lexica",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Lexica: học từ tiếng Anh từ chính câu tiếng Việt của bạn" }],
+  },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION, images: ["/og.png"] },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "LEXICA",
+    title: "Lexica",
   },
   formatDetection: {
     telephone: false,
@@ -51,11 +71,12 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="vi"
       className="h-full antialiased"
     >
       <body className="min-h-full flex flex-col bg-bg text-ink overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
+          <ErrorReporter />
           <CloudSync />
           <ClassSync />
           <BuddySync />

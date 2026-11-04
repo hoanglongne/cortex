@@ -8,7 +8,7 @@ export default function PrivacyPage() {
     return (
         <LegalPage
             title="Chính sách riêng tư"
-            updated="10/2026"
+            updated="11/2026"
             intro={<p>Lexica giữ ít dữ liệu nhất có thể. Phần lớn việc học của bạn nằm ngay trên máy bạn. Trang này nói rõ app lưu gì, gửi gì đi đâu, và bạn làm gì được với dữ liệu của mình.</p>}
             sections={[
                 {
@@ -44,6 +44,20 @@ export default function PrivacyPage() {
                             <p>Bản ghi &quot;Giọng bạn&quot; để nghe lại chỉ nằm trong bộ nhớ của trang, mất khi đóng trang.</p>
                         </>
                     ),
+                },
+                {
+                    title: 'Giọng đọc và câu nhờ máy nhận xét',
+                    body: (
+                        <ul>
+                            <li>Giọng đọc tự nhiên được tạo bằng dịch vụ giọng nói (Google Gemini) hoặc tạo sẵn: văn bản cần đọc (từ, câu của thẻ) được gửi tới dịch vụ đó để tạo âm thanh.</li>
+                            <li>Khi bạn dùng &quot;Một câu hôm nay&quot;, nhờ máy xem câu bạn đã dùng, hoặc tạo bài đọc quanh các từ của bạn, <b>câu bạn viết và các từ đó được gửi</b> tới máy chủ Cortex rồi tới dịch vụ AI (Google Gemini) để nhận xét hoặc viết bài. Đừng viết thông tin cá nhân (tên thật, số điện thoại, địa chỉ) vào các ô này.</li>
+                            <li>Lexica không dùng các câu này để quảng cáo.</li>
+                        </ul>
+                    ),
+                },
+                {
+                    title: 'Báo lỗi tự động',
+                    body: <p>Khi app bị lỗi, thông tin kỹ thuật (tên lỗi, vị trí trong mã, trang bạn đang mở không kèm phần sau dấu ?, loại trình duyệt, phiên bản app) được gửi tới dịch vụ theo dõi lỗi (Sentry) để nhóm sửa. Không gửi nội dung thẻ, câu bạn viết, giọng nói hay thông tin tài khoản.</p>,
                 },
                 {
                     title: 'Lớp học',

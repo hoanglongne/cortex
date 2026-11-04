@@ -5,10 +5,12 @@ import {
   NotFoundException,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { SupabaseAuthGuard } from '../auth/supabase-auth.guard';
 import { CurrentUserId, assertSameUser } from '../auth/current-user';
+import type { AuthedRequest } from '../auth/supabase-auth.guard';
 import { BackupRecord, SyncService } from './sync.service';
 
 @Controller('v1/sync')
@@ -21,9 +23,10 @@ export class SyncController {
   saveBackup(
     @CurrentUserId() callerId: string,
     @Body() body: unknown,
+    @Req() req: AuthedRequest,
   ): Promise<BackupRecord> {
     assertSameUser(callerId, (body as { userId?: unknown } | null)?.userId);
-    return this.syncService.saveBackup(body);
+    return this.syncService.saveBackup(body, req.accessToken);
   }
 
   @Get('backup/:userId/:appSource')
@@ -31,9 +34,14 @@ export class SyncController {
     @CurrentUserId() callerId: string,
     @Param('userId') userId: string,
     @Param('appSource') appSource: string,
+    @Req() req: AuthedRequest,
   ): Promise<BackupRecord> {
     assertSameUser(callerId, userId);
-    const backup = await this.syncService.getBackup(userId, appSource);
+    const backup = await this.syncService.getBackup(
+      userId,
+      appSource,
+      req.accessToken,
+    );
     if (!backup) throw new NotFoundException('No backup found');
     return backup;
   }

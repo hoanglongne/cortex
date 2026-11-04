@@ -55,12 +55,12 @@ Phát hiện khi rà code, phải xử lý trước khi có người dùng thậ
 
 ## Giai đoạn 2 – Vận hành và pháp lý
 
-- [ ] **Trang Privacy Policy + Terms.** App thu email (đăng nhập OTP qua Supabase) và dùng **micro**. Đây là yêu cầu tối thiểu, và cũng cần khi muốn đưa lên store sau này.
-- [ ] **Theo dõi lỗi**: thêm Sentry (free tier) cho Lexica. Hiện lỗi chỉ được `console.error`.
+- [x] **Trang Privacy Policy + Terms** (đã cập nhật 11/2026: giọng đọc, câu gửi AI, báo lỗi). App thu email (đăng nhập OTP qua Supabase) và dùng **micro**. Đây là yêu cầu tối thiểu, và cũng cần khi muốn đưa lên store sau này.
+- [x] **Theo dõi lỗi**: `app/lib/errorReport.ts` gửi lỗi chưa bắt (và lỗi từ ErrorBoundary, `error.tsx`) tới Sentry bằng giao thức envelope, không dùng SDK. **Còn lại: tạo project Sentry, đặt `NEXT_PUBLIC_SENTRY_DSN` trên Vercel.** Stack lấy từ bản build nén nên chỉ chỉ ra vị trí.
 - [ ] **Uptime**: trỏ một uptime monitor (UptimeRobot hoặc Better Stack, đều có bản free) vào `GET /health` của Cortex API. Endpoint này trả về 503 khi Supabase hoặc Redis down.
 - [ ] **Supabase**: chạy `supabase/restore_all.sql` (xem `supabase/README.md`). Kiểm tra lại RLS cho `action_logs`, `app_backups` và `user_vocabulary`: Cortex API đang dùng **publishable key**, nên phải chắc người dùng không đọc được dữ liệu của người khác qua chính key đó.
 - [ ] **Biến môi trường trên Vercel** (project `cortex-lexica`): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_CORTEX_API_URL`, `NEXT_PUBLIC_CORTEX_HUB_URL`, cùng key analytics.
-- [ ] **Domain riêng + OG image** để link chia sẻ trông đáng tin (hiện chỉ có metadata title trong `app/layout.tsx`).
+- [x] **Domain riêng + OG image**: có `og.png`, `robots`, `sitemap`, `metadataBase`; đặt `NEXT_PUBLIC_SITE_URL` khi có tên miền riêng, và thêm tên miền API vào CSP `connect-src` và `media-src` trong `vercel.json` nếu không còn dùng `*.up.railway.app`. (cũ:) để link chia sẻ trông đáng tin (hiện chỉ có metadata title trong `app/layout.tsx`).
 
 ## Giai đoạn 3 – Kiểm thử trước launch
 

@@ -1,7 +1,7 @@
 {
-    "name": "LEXICA - IELTS Vocabulary Swiper",
-    "short_name": "LEXICA",
-    "description": "Master IELTS vocabulary through addictive swipe-based micro-learning",
+    "name": "Lexica – Học từ tiếng Anh",
+    "short_name": "Lexica",
+    "description": "Mỗi ngày một phiên ngắn: hiểu, nhớ, gặp, dùng. Học từ vựng IELTS và giao tiếp.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0E0F11",
