@@ -60,6 +60,13 @@ export const lexicaUI: ModuleUI = {
                         ))}
                     </div>
                 </Field>
+                <label className="flex items-start gap-3 text-ink-2">
+                    <input type="checkbox" checked={s.peers_write} onChange={(e) => onChange({ ...s, peers_write: e.target.checked })} className="mt-1 h-4 w-4 accent-[var(--color-accent)]" />
+                    <span>
+                        Cho bạn cùng lớp đọc và chấm bài viết của nhau
+                        <span className="block text-sm text-muted">Mặc định tắt: chỉ thầy cô đọc bài viết. Khi bật, em nào tự tick &ldquo;cho bạn cùng lớp đọc&rdquo; lúc nộp thì bài của em đó (ẩn danh) vào hàng chấm của các bạn trong lớp; điểm bạn chấm chỉ để tham khảo.</span>
+                    </span>
+                </label>
                 <Field label="Level (không bắt buộc)">
                     <select value={s.level ?? ''} onChange={(e) => onChange({ ...s, level: e.target.value || null })} className={inputClass}>
                         <option value="">Không đặt</option>

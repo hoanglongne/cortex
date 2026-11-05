@@ -18,6 +18,8 @@ interface Piece {
     expires_at: string;
     teacher_scores: { task: number; coherence: number; vocabulary: number; grammar: number; overall: number } | null;
     teacher_comment: string | null;
+    peers_ok: boolean;
+    peer: { raters: number; task: number; coherence: number; vocabulary: number; grammar: number; comments: string[] } | null;
 }
 
 const KIND: Record<Piece['kind'], string> = { sentence: 'Câu', paragraph: 'Đoạn văn', task1: 'Task 1', task2: 'Task 2' };
@@ -64,6 +66,11 @@ export default function ClassWriting({ board }: { board: Board }) {
             {rows.length === 0 ? (
                 <p className="text-sm text-muted">Chưa em nào nộp bài viết vào lớp. Em nộp ở Lexica, mục Luyện → Viết, nút “Nộp cho lớp”. Chỉ thầy cô thấy bài, và bài tự xoá sau 30 ngày.</p>
             ) : (
+                <>
+                <p className="text-sm text-ink-2">
+                    <b className="tabular text-ink">{rows.length}</b> bài, đã chấm <b className="tabular text-ink">{rows.filter((r) => r.teacher_scores).length}</b>
+                    {rows.some((r) => r.peers_ok) ? `, ${rows.filter((r) => r.peers_ok).length} bài cho bạn cùng lớp chấm` : ''}.
+                </p>
                 <ul className="space-y-2">
                     {rows.map((r) => (
                         <li key={r.id} className="rounded-xl border border-line">
@@ -74,12 +81,16 @@ export default function ClassWriting({ board }: { board: Board }) {
                                         {KIND[r.kind]} · {r.words} từ · {new Date(r.submitted_at).toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' })}
                                     </span>
                                 </span>
-                                {r.teacher_scores ? <Badge tone="accent">Đã chấm {fmt(r.teacher_scores.overall)}</Badge> : <Badge tone="warm">Chưa chấm</Badge>}
+                                <span className="flex shrink-0 gap-1.5">
+                                    {r.teacher_scores ? <Badge tone="accent">Đã chấm {fmt(r.teacher_scores.overall)}</Badge> : <Badge tone="warm">Chưa chấm</Badge>}
+                                    {r.peer && <Badge>{r.peer.raters} bạn chấm ~{fmt(Math.round(((r.peer.task + r.peer.coherence + r.peer.vocabulary + r.peer.grammar) / 4) * 2) / 2)}</Badge>}
+                                </span>
                             </button>
                             {open === r.id && <PiecePanel piece={r} onRated={load} />}
                         </li>
                     ))}
                 </ul>
+                </>
             )}
         </div>
     );
@@ -111,6 +122,15 @@ function PiecePanel({ piece, onRated }: { piece: Piece; onRated: () => Promise<v
             <p className="whitespace-pre-wrap rounded-lg bg-surface-2 p-3 text-sm leading-relaxed text-ink" lang="en">
                 {piece.body}
             </p>
+            {piece.peer && (
+                <div className="rounded-lg border border-line p-2.5 text-sm">
+                    <p className="font-medium text-ink">{piece.peer.raters} bạn đã chấm (ẩn danh)</p>
+                    <p className="text-xs text-muted">{CRITERIA.map(([k, label]) => `${label} ${fmt(piece.peer![k])}`).join(' · ')}</p>
+                    {piece.peer.comments.map((c, i) => (
+                        <p key={i} className="mt-1 whitespace-pre-wrap text-ink-2">&ldquo;{c}&rdquo;</p>
+                    ))}
+                </div>
+            )}
             <div className="grid grid-cols-2 gap-2">
                 {CRITERIA.map(([key, label]) => (
                     <label key={key} className="text-sm text-ink-2">

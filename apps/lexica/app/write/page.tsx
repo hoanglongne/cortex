@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import BackLink from '../components/BackLink';
 import Handed from './Handed';
+import PeerReview from './PeerReview';
 import W2 from './W2';
 import W3 from './W3';
 import W4 from './W4';
@@ -64,10 +65,7 @@ export default function WritePage() {
 
                 <Handed />
 
-                <section className="rounded-2xl border border-dashed border-line p-4 text-sm text-muted">
-                    <p className="font-semibold text-ink-2">Chấm chéo giữa các bạn: sắp có</p>
-                    <p className="mt-1">Giáo viên sẽ bật được việc bạn cùng lớp đọc và chấm ẩn danh bài của nhau. Hiện chỉ giáo viên của lớp đọc bài bạn nộp.</p>
-                </section>
+                <PeerReview />
             </div>
         </div>
     );

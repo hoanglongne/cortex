@@ -7,6 +7,11 @@ describe('handInError', () => {
         expect(handInError('too many today')).toMatch(/tối đa 10/);
         expect(handInError('bad body')).toMatch(/quá dài/);
     });
+    it('explains the peer rating refusals', () => {
+        expect(handInError('already rated')).toMatch(/đã chấm bài này/);
+        expect(handInError('peers off')).toMatch(/chưa bật/);
+        expect(handInError('not available')).toMatch(/không còn/);
+    });
     it('says the feature is not switched on when the SQL is missing', () => {
         expect(handInError('Could not find the function public.writing_submit in the schema cache')).toMatch(/chưa được bật/);
     });

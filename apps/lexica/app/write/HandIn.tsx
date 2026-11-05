@@ -5,6 +5,7 @@ import { Send } from 'lucide-react';
 import { capture } from '../lib/productAnalytics';
 import { readCachedClasses } from '../lib/classes';
 import { refreshClasses } from '../lib/classSync';
+import { lexicaModule } from '@cortex/classroom-lexica';
 import { handIn, type WritingKind } from '../lib/writing/handIn';
 
 /**
@@ -17,6 +18,7 @@ export default function HandIn({ kind, prompt, body }: { kind: WritingKind; prom
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sentBody, setSentBody] = useState<string | null>(null);
+    const [peers, setPeers] = useState(false);
 
     useEffect(() => {
         let live = true;
@@ -29,12 +31,13 @@ export default function HandIn({ kind, prompt, body }: { kind: WritingKind; prom
     if (classes.length === 0) return null;
     const chosen = classes.find((c) => c.id === classId) ?? classes[0];
     const sent = sentBody === body;
+    const peersAllowed = lexicaModule.parseSettings(chosen.settings?.lexica).peers_write;
     const empty = body.trim().length === 0;
 
     const send = async () => {
         setBusy(true);
         setError(null);
-        const err = await handIn(chosen.id, kind, prompt, body);
+        const err = await handIn(chosen.id, kind, prompt, body, peersAllowed && peers);
         setBusy(false);
         if (err) return setError(err);
         setSentBody(body);
@@ -56,6 +59,12 @@ export default function HandIn({ kind, prompt, body }: { kind: WritingKind; prom
             <p className="text-xs text-muted">
                 Chỉ giáo viên của lớp <b>{chosen.name}</b> đọc được bài này, không bạn nào khác. Bài tự xoá sau 30 ngày, bạn cũng xoá ngay được ở mục “Bài đã nộp”. Giáo viên có thể chấm và viết nhận xét cho bạn.
             </p>
+            {peersAllowed && (
+                <label className="flex items-start gap-2 text-xs text-ink-2">
+                    <input type="checkbox" checked={peers} onChange={(e) => setPeers(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[var(--color-accent)]" />
+                    <span>Cho bạn cùng lớp đọc và chấm bài này, không hiện tên bạn. (Không bắt buộc. Bạn chỉ chọn cho bài này.)</span>
+                </label>
+            )}
             <button type="button" disabled={busy || empty || sent} onClick={() => void send()} className="flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-on-accent disabled:opacity-50">
                 <Send className="h-4 w-4" aria-hidden /> {sent ? 'Đã nộp' : busy ? 'Đang nộp…' : 'Nộp bài này'}
             </button>

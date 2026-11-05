@@ -59,6 +59,21 @@ export default function Handed() {
                             ) : (
                                 <p className="mt-2 text-xs text-subtle">Giáo viên chưa chấm.</p>
                             )}
+                            {p.peers_ok && (
+                                <div className="mt-2 rounded-lg border border-line p-2.5 text-sm">
+                                    {p.peer ? (
+                                        <>
+                                            <p className="font-semibold text-ink">{p.peer.raters} bạn đã chấm (ẩn danh)</p>
+                                            <p className="text-xs text-muted">{(Object.keys(LABEL) as (keyof typeof LABEL)[]).map((k) => `${LABEL[k]} ${bandText(p.peer![k])}`).join(' · ')}</p>
+                                            {p.peer.comments.map((c, i) => (
+                                                <p key={i} className="mt-1 whitespace-pre-wrap text-ink-2">“{c}”</p>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <p className="text-xs text-subtle">Chưa bạn nào chấm. Điểm các bạn chấm chỉ để tham khảo.</p>
+                                    )}
+                                </div>
+                            )}
                         </li>
                     ))}
                 </ul>
