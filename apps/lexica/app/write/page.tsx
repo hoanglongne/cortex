@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Lock } from 'lucide-react';
 import BackLink from '../components/BackLink';
+import Handed from './Handed';
 import W2 from './W2';
 import W3 from './W3';
 import W4 from './W4';
@@ -11,7 +11,8 @@ import W4 from './W4';
 /**
  * "Viết": a ladder from one sentence to a whole answer (issue #105). Each step
  * checks only what the program can see and leaves the rest to the learner;
- * nothing is scored and nothing is uploaded.
+ * nothing is scored by the program; a piece leaves the device only when the
+ * student hands it in to their class (W6).
  */
 const STEPS = [
     { id: 'w1', label: 'Câu của bạn', hint: 'Viết một câu với từ mới' },
@@ -61,11 +62,11 @@ export default function WritePage() {
                 {step === 'w3' && <W3 />}
                 {step === 'w4' && <W4 />}
 
+                <Handed />
+
                 <section className="rounded-2xl border border-dashed border-line p-4 text-sm text-muted">
-                    <p className="flex items-center gap-2 font-semibold text-ink-2">
-                        <Lock className="h-4 w-4" /> Sắp có: chấm chéo và giáo viên xem bài
-                    </p>
-                    <p className="mt-1">Cần một lớp học để bạn bè và giáo viên đọc bài viết của bạn. Khi có, bài viết chỉ hiện trong lớp và chỉ khi bạn chọn gửi.</p>
+                    <p className="font-semibold text-ink-2">Chấm chéo giữa các bạn: sắp có</p>
+                    <p className="mt-1">Giáo viên sẽ bật được việc bạn cùng lớp đọc và chấm ẩn danh bài của nhau. Hiện chỉ giáo viên của lớp đọc bài bạn nộp.</p>
                 </section>
             </div>
         </div>

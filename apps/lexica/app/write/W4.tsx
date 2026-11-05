@@ -5,6 +5,7 @@ import LineChart from '../components/writing/LineChart';
 import { capture } from '../lib/productAnalytics';
 import { makeChart, chartFacts, CHART_COUNT } from '../lib/writing/chart';
 import { checkTask1, passed, wordCount } from '../lib/writing/checks';
+import HandIn from './HandIn';
 import { CheckList, Panel, Privacy, SelfCheck, useDraft } from './shared';
 
 /** A starting chart that changes each day, so two days do not give the same one. */
@@ -73,6 +74,7 @@ export default function W4() {
                     </details>
                 </div>
             )}
+            <HandIn kind="task1" prompt={`Mô tả biểu đồ: ${chart.title} (${chart.unit})`} body={text} />
             <Privacy />
         </Panel>
     );

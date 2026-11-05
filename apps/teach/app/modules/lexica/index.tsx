@@ -1,5 +1,6 @@
 'use client';
 
+import ClassWriting from './ClassWriting';
 import { useEffect, useState } from 'react';
 import { studentApp, type ClassroomModuleCore } from '@cortex/classroom';
 import { classSounds, lexicaModule, oftenMissed, SOUND_KINDS, SOUND_LABEL, STEP_LABEL, TARGET_MAX, TARGET_MIN, type LexicaMetrics, type LexicaSettings, type WordsPayload } from '@cortex/classroom-lexica';
@@ -88,6 +89,10 @@ export const lexicaUI: ModuleUI = {
                 <StepBar counts={{ hieu: avg('hieu'), nho: avg('nho'), gap: avg('gap'), dung: avg('dung'), doi: avg('doi') }} />
                 <p className="mt-1 text-xs text-subtle">trung bình mỗi em</p>
                 <ClassScores classId={board.class.id} students={board.students.length} />
+                <div className="mt-4">
+                    <p className="mb-2 text-sm font-medium text-ink">Bài viết đã nộp vào lớp</p>
+                    <ClassWriting board={board} />
+                </div>
                 {sounds.length > 0 && (
                     <div data-testid="class-sounds" className="mt-4">
                         <p className="text-sm font-medium text-ink">Âm cả lớp hay sai (14 ngày)</p>

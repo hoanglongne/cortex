@@ -172,3 +172,12 @@ Trang `/write` trong Lexica (vào từ Luyện → Viết). Máy chỉ kiểm nh
 | W3 Đoạn văn có khung | 6 chủ đề; bước 1 xếp 4 câu mẫu đúng thứ tự (nêu ý, giải thích, ví dụ, kết); bước 2 viết 4 phần với câu mở gợi ý; kiểm: 4 phần đủ ý, độ dài, từ nối, mở ví dụ và kết đúng cách |
 | W4 Mô tả biểu đồ | Biểu đồ đường do chương trình sinh từ một số hạt giống (72 biểu đồ, đổi theo ngày, không vướng bản quyền đề); kiểm: đủ 150 từ, câu tổng quan, động từ xu hướng, số liệu từ biểu đồ, nhắc đủ mọi đường, so sánh, không nêu ý kiến |
 | W5, W6 | Vẫn chờ quyết định riêng tư (#64) và Oratio chấm chéo trong lớp (#88); trang ghi rõ "sắp có" |
+
+## Cập nhật 05/11/2026: W6 (giáo viên xem và chấm bài viết) đã làm (issue #105)
+
+Quy tắc riêng tư giống Oratio #88 (bạn chọn): học viên **chủ động** bấm "Nộp bài này" từng bài và thấy rõ ai đọc; chỉ giáo viên của lớp đọc; bài **tự xoá sau 30 ngày**, học viên xoá ngay được; giáo viên chấm 4 tiêu chí (đúng yêu cầu đề, mạch lạc, từ vựng, ngữ pháp, bước 0,5) và viết nhận xét, học viên đọc lại. **Không có AI chấm** (chưa gửi bài tới Gemini).
+
+- SQL: `packages/classroom-lexica/sql/classroom_writing.sql` (đã thêm vào `supabase/teach_all.sql`; **chạy lại file này**). Bảng không có policy, mọi đọc ghi qua hàm `writing_submit / writing_mine / writing_delete / writing_class_list / writing_teacher_rate`; tối đa 10 bài mỗi ngày. Đã thử trên Postgres thật: chạy lại được, người ngoài lớp bị từ chối, học viên không tự chấm được, bài quá hạn biến mất.
+- Lexica: nút "Nộp cho lớp" ở W2, W3, W4 (chỉ hiện khi học viên có lớp), mục "Bài đã nộp cho lớp" trong `/write` có điểm và nhận xét, nút xoá.
+- Teach: tab tổng quan lớp Lexica có mục "Bài viết đã nộp vào lớp" để đọc và chấm (`modules/lexica/ClassWriting.tsx`).
+- **W5 (chấm chéo giữa bạn) chưa làm**: cần công tắc lớp "bạn cùng lớp đọc và chấm ẩn danh" như Oratio, làm đợt sau.

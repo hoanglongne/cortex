@@ -52,6 +52,7 @@ FILES=(
   packages/classroom/sql/classroom_tests.sql
   apps/lexica/supabase/migration_card_stats.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
+  packages/classroom-lexica/sql/classroom_writing.sql
   apps/lexica/supabase/migration_placement.sql
   apps/lexica/supabase/placement_bank.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
@@ -97,6 +98,7 @@ TEACH=(
   packages/classroom/sql/classroom_tests.sql
   apps/lexica/supabase/migration_card_stats.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
+  packages/classroom-lexica/sql/classroom_writing.sql
   apps/lexica/supabase/migration_placement.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
   packages/classroom-synapse/sql/classroom_synapse.sql
