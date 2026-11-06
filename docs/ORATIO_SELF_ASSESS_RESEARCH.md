@@ -63,3 +63,13 @@ Lỗi cũ: đếm "lần mỗi phút" với bản ghi tối thiểu 30 giây, n�
 ## Ghi công
 
 Tần suất từ: wordfreq, Copyright 2022 Robyn Speer (mã Apache-2.0, dữ liệu CC BY-SA 4.0), https://github.com/rspeer/wordfreq. Danh sách dải rút gọn trong `apps/oratio/src/lib/lexical-data.ts` chia sẻ theo cùng giấy phép CC BY-SA 4.0.
+
+
+## Cập nhật 06/11/2026 (issue #130)
+
+- **"Tôi không chắc"** cho từng tiêu chí, dùng chung cho tự chấm và chấm chéo (tối đa 3 tiêu chí, để một lần chấm luôn nói được điều gì đó). Tiêu chí không chắc **không tính** vào band của câu (chỉ tính những người chắc; không ai chắc thì tính tất cả), vào điểm tổng và vào độ tin cậy của người chấm. SQL: `apps/oratio/supabase/migration_2026_11_unsure.sql` (đã nằm trong `supabase/oratio_2026_10.sql`, **chạy lại file này**). Tự chấm lưu tập "không chắc" cùng điểm trên máy.
+- **Điểm neo**: mỗi tiêu chí có mục "Band 4, 6, 8 nghe thế nào" (lấy từ bảng mô tả band có sẵn).
+- **Giải thích band lần đầu**: khung "Band là gì?" ở bước Điểm, hiện một lần.
+- **Ghi chú theo mốc thời gian** ở bước Đánh dấu (tuỳ chọn, chỉ lưu trên máy). Tua lại 10 giây đã có từ trước.
+- Chưa làm: lặp đoạn, hỏi độ tự tin riêng (đã có "không chắc" thay thế), thử với người không chuyên, chụp so sánh 1280px.
+- Sửa lỗi: nút "Lưu tự chấm" dùng tên màu không có trong Oratio (`bg-accent`), nên nút **không có nền**, trông như chữ trơn: đây mới là lý do nút "liệt" ở phản hồi trước.

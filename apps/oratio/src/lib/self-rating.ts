@@ -45,6 +45,17 @@ export function gapLine(g: number | undefined): string {
 
 const KEY = "oratio-self-ratings";
 
+/** The criteria the learner said they were unsure about for an answer. */
+export function readUnsure(id: string): Criterion[] {
+  try {
+    const v = JSON.parse(localStorage.getItem(KEY) ?? "{}") as Record<string, { unsure?: unknown }>;
+    const raw = v[id]?.unsure;
+    return Array.isArray(raw) ? raw.filter((c): c is Criterion => (CRITERIA as readonly string[]).includes(c as string)).slice(0, 3) : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Ratings kept on this device, by answer (the latest 100). */
 export function readSelf(): Record<string, SelfRating> {
   try {
@@ -60,9 +71,11 @@ export function readSelf(): Record<string, SelfRating> {
 }
 
 /** True when the rating was kept on this device. */
-export function saveSelf(id: string, r: SelfRating): boolean {
+export function saveSelf(id: string, r: SelfRating, unsure: readonly Criterion[] = []): boolean {
   try {
-    const all = { ...readSelf(), [id]: r };
+    // Kept next to the four bands so they stay together; readSelf returns the bands only
+    const stored = JSON.parse(localStorage.getItem(KEY) ?? "{}") as Record<string, unknown>;
+    const all = { ...stored, [id]: unsure.length ? { ...r, unsure: [...unsure] } : r };
     const keep = Object.fromEntries(Object.entries(all).slice(-100));
     localStorage.setItem(KEY, JSON.stringify(keep));
     return true;

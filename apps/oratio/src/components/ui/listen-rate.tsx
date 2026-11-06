@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Minus, Play, Plus, Undo2 } from "lucide-react";
-import { CRITERION_LABEL } from "@cortex/classroom-oratio";
+import { BAND_DESCRIPTORS, CRITERION_LABEL, type Criterion } from "@cortex/classroom-oratio";
 import { CRITERIA, type CriterionScores } from "@/lib/feedback";
 import { profileUrl, type SpeechProfile } from "@/lib/client/speech-metrics";
 import { loadWhisper, MODEL_INFO, transcribeWords, useTranscribeChoice, useWhisperModel } from "@/lib/client/whisper";
@@ -50,6 +50,8 @@ export function ListenRate({
   limitSeconds,
   value,
   onChange,
+  unsure = [],
+  onUnsure,
   machine,
   historyKey,
   words: knownWords,
@@ -63,6 +65,9 @@ export function ListenRate({
   limitSeconds?: number;
   value: Partial<CriterionScores>;
   onChange: (next: Partial<CriterionScores>) => void;
+  /** Criteria the rater could not judge ("Tôi không chắc"); at most three. Optional: without `onUnsure` the toggle is not shown. */
+  unsure?: readonly Criterion[];
+  onUnsure?: (next: Criterion[]) => void;
   machine?: Machine;
   /** Which recording this is, to keep your numbers and compare with the take before (your own takes only) */
   historyKey?: string;
@@ -85,6 +90,15 @@ export function ListenRate({
   // The long pauses the machine found, judged one by one: looking for a word, or just thinking
   const [judged, setJudged] = React.useState<Record<number, "search" | "think">>({});
   const [active, setActive] = React.useState<number | null>(null);
+  const [introSeen, setIntroSeen] = React.useState(true);
+  React.useEffect(() => {
+    try {
+      setIntroSeen(localStorage.getItem("oratio-band-intro") === "1");
+    } catch {
+      // storage blocked: show it each time
+      setIntroSeen(false);
+    }
+  }, []);
 
   // "Soi lời nói": the words with their timing, made on this device
   const { choice, setChoice } = useTranscribeChoice();
@@ -421,6 +435,33 @@ export function ListenRate({
             <p className="mt-1.5 min-h-4 text-[12px] font-semibold text-voice" aria-live="polite">
               {flash || (marks.length === 0 ? "Chưa đánh dấu gì." : "")}
             </p>
+            {marks.length > 0 && (
+              <div className="mt-1.5">
+                <label className="block text-[12px] text-muted">
+                  Ghi chú cho dấu vừa bấm lúc {clock(marks[marks.length - 1].t)} (không bắt buộc, chỉ lưu trên máy)
+                  <input
+                    type="text"
+                    value={marks[marks.length - 1].note ?? ""}
+                    maxLength={120}
+                    disabled={disabled}
+                    onChange={(e) => setMarks((m) => m.map((x, i) => (i === m.length - 1 ? { ...x, note: e.target.value } : x)))}
+                    className="mt-1 h-9 w-full rounded-[10px] border border-line-strong bg-surface px-2.5 text-[13px] text-ink outline-none focus:border-voice"
+                  />
+                </label>
+                {marks.some((m) => m.note) && (
+                  <ul className="mt-1.5 space-y-0.5 text-[12px] text-ink-2">
+                    {marks.filter((m) => m.note).map((m, i) => (
+                      <li key={`${m.t}-${i}`}>
+                        <button type="button" onClick={() => play(m.t - 2)} className="font-semibold text-voice">
+                          {clock(m.t)}
+                        </button>{" "}
+                        {MARK_KINDS.find((k) => k.kind === m.kind)?.label}: {m.note}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
             {profile ? (
               <div className="mt-1">
                 <SpeechMap profile={profile} time={time} limitSeconds={limitSeconds} marks={allMarks} activePause={active} onSeek={(sec) => play(sec)} />
@@ -461,15 +502,59 @@ export function ListenRate({
             <p className="text-[12px] leading-snug text-muted">
               {profile && !xray ? `${mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking, hums: humsHeard ?? 0 })} ` : ""}Điểm đã điền sẵn từ những gì bạn nghe. Đồng ý thì giữ nguyên, không thì bấm + hoặc −.
             </p>
+            {!introSeen && (
+              <div className="mt-2 rounded-[12px] border border-line bg-surface-2 p-3 text-[12px] leading-snug text-ink-2">
+                <p className="font-bold text-ink">Band là gì?</p>
+                <p className="mt-0.5">Thang từ 1 đến 9. Band 4: nói được nhưng ngắt quãng, khó theo dõi. Band 6: nói được dài, còn lỗi và lặp. Band 8: trôi chảy, hiếm khi vấp. Không chắc thì cứ bấm “Không chắc” cho tiêu chí đó, không sao cả.</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIntroSeen(true);
+                    try {
+                      localStorage.setItem("oratio-band-intro", "1");
+                    } catch {
+                      // not saved
+                    }
+                  }}
+                  className="mt-1.5 h-8 rounded-full bg-voice px-3 text-[12px] font-bold text-on-voice"
+                >
+                  Đã hiểu
+                </button>
+              </div>
+            )}
             <ul className="mt-1 divide-y divide-line">
               {CRITERIA.map((c) => {
                 const band = value[c] ?? 5;
+                const isUnsure = unsure.includes(c);
                 return (
                   <li key={c} className="flex items-center gap-3 py-2">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-ink">{CRITERION_LABEL[c]}</p>
                       <p className="text-base font-extrabold leading-tight tracking-[-0.02em] text-voice">{plainLabel(band)}</p>
                       <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, allMarks, machineNow, xray?.stats, language)}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                        {onUnsure && (
+                          <button
+                            type="button"
+                            aria-pressed={isUnsure}
+                            disabled={disabled || (!isUnsure && unsure.length >= 3)}
+                            onClick={() => onUnsure(isUnsure ? unsure.filter((x) => x !== c) : [...unsure, c])}
+                            className={cn("h-7 rounded-full border px-2.5 text-[11px] font-bold transition-colors disabled:opacity-40", isUnsure ? "border-voice bg-voice text-on-voice" : "border-line-strong text-ink-2 hover:border-muted")}
+                          >
+                            {isUnsure ? "Không chắc ✓" : "Không chắc"}
+                          </button>
+                        )}
+                        <details className="text-[11px] text-subtle">
+                          <summary className="cursor-pointer select-none font-semibold text-ink-2">Band 4, 6, 8 nghe thế nào</summary>
+                          <ul className="mt-1 space-y-1">
+                            {[4, 6, 8].map((b) => (
+                              <li key={b}>
+                                <b className="text-ink-2">Band {b}:</b> {BAND_DESCRIPTORS[c][b]}
+                              </li>
+                            ))}
+                          </ul>
+                        </details>
+                      </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label={`Band ${CRITERION_LABEL[c]}`}>
                       <button type="button" aria-label="Giảm 1 band" disabled={disabled || band <= 1} onClick={() => nudge(c, -1)} className="flex size-9 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">

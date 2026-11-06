@@ -16,6 +16,8 @@ export interface Mark {
   kind: MarkKind;
   /** Seconds into the recording */
   t: number;
+  /** What the rater wrote about this moment (optional, kept on the device) */
+  note?: string;
 }
 
 export const MARK_KINDS: { kind: MarkKind; label: string; criterion: Criterion; good: boolean }[] = [

@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
-import { CRITERIA } from "@cortex/classroom-oratio";
+import { CRITERIA, type Criterion } from "@cortex/classroom-oratio";
 import { Card } from "@/components/ui/card";
 import { ListenRate } from "@/components/ui/listen-rate";
 import type { CriterionScores } from "@/lib/feedback";
 import type { Machine } from "@/lib/rating-marks";
 import type { Word } from "@/lib/speech-words";
-import { overall, readSelf, saveSelf, type SelfRating } from "@/lib/self-rating";
+import { overall, readSelf, readUnsure, saveSelf, type SelfRating } from "@/lib/self-rating";
 
 /**
  * "Tự chấm": listen to yourself again, tap when you hear a pause, a good word
@@ -18,6 +18,7 @@ import { overall, readSelf, saveSelf, type SelfRating } from "@/lib/self-rating"
 export function SelfRatingCard({ id, src, seconds, machine, words, open, onOpenChange }: { id: string; src: string; seconds: number; machine?: Machine; words?: Word[] | null; open: boolean; onOpenChange: (open: boolean) => void }) {
   const [rating, setRating] = useState<Partial<CriterionScores>>(() => readSelf()[id] ?? {});
   const [failed, setFailed] = useState(false);
+  const [unsure, setUnsure] = useState<Criterion[]>(() => readUnsure(id));
   const [saved, setSaved] = useState(() => Boolean(readSelf()[id]));
   const complete = CRITERIA.every((c) => rating[c] != null);
   const full = (): SelfRating => rating as SelfRating;
@@ -40,6 +41,11 @@ export function SelfRatingCard({ id, src, seconds, machine, words, open, onOpenC
             historyKey={id}
             words={words}
             value={rating}
+            unsure={unsure}
+            onUnsure={(next) => {
+              setSaved(false);
+              setUnsure(next);
+            }}
             onChange={(next) => {
               setSaved(false);
               setRating(next);
@@ -50,11 +56,11 @@ export function SelfRatingCard({ id, src, seconds, machine, words, open, onOpenC
               type="button"
               disabled={saved}
               onClick={() => {
-                const ok = saveSelf(id, full());
+                const ok = saveSelf(id, full(), unsure);
                 setSaved(ok);
                 setFailed(!ok);
               }}
-              className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-xl text-sm font-bold ${saved ? "bg-good-soft text-ink" : "bg-accent text-on-accent"}`}
+              className={`flex h-10 w-full items-center justify-center gap-1.5 rounded-xl text-sm font-bold ${saved ? "bg-good-soft text-ink" : "bg-voice text-on-voice"}`}
             >
               {saved ? (
                 <>

@@ -64,6 +64,7 @@ FILES=(
   apps/oratio/supabase/migration_2026_10_live.sql
   apps/oratio/supabase/seed_part2_solilo.sql
   apps/oratio/supabase/migration_2026_11_class.sql
+  apps/oratio/supabase/migration_2026_11_unsure.sql
 )
 
 OUT=supabase/restore_all.sql
@@ -129,6 +130,7 @@ ORATIO=(
   apps/oratio/supabase/migration_2026_10_live.sql
   apps/oratio/supabase/seed_part2_solilo.sql
   apps/oratio/supabase/migration_2026_11_class.sql
+  apps/oratio/supabase/migration_2026_11_unsure.sql
 )
 ORATIO_OUT=supabase/oratio_2026_10.sql
 {

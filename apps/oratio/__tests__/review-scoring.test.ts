@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { answerBand, pickNext, reliabilityOf, submissionsLeft, type QueueCandidate } from "@/lib/review-scoring";
+import { answerBand, cleanUnsure, overallOf, pickNext, reliabilityOf, submissionsLeft, type QueueCandidate } from "@/lib/review-scoring";
 
 const s = (v: number) => ({ fluency: v, vocabulary: v, grammar: v, pronunciation: v });
 const pairs = (n: number, diff: number) => Array.from({ length: n }, () => ({ given: 6 + diff, reference: 6 }));
@@ -87,5 +87,35 @@ describe("pickNext", () => {
     expect(pickNext([c("a"), c("anchor", { isAnchor: true })], () => 0.1)?.id).toBe("anchor");
     expect(pickNext([c("a"), c("anchor", { isAnchor: true })], () => 0.9)?.id).toBe("a");
     expect(pickNext([c("anchor", { isAnchor: true })], () => 0.9)?.id).toBe("anchor");
+  });
+});
+
+describe("Tôi không chắc (unsure criteria)", () => {
+  const scores = (f: number, v: number, g: number, p: number) => ({ fluency: f, vocabulary: v, grammar: g, pronunciation: p });
+  it("leaves unsure criteria out of the overall", () => {
+    expect(overallOf(scores(6, 6, 6, 2), ["pronunciation"])).toBe(6);
+    expect(overallOf(scores(6, 6, 6, 2))).toBe(5);
+    // Four unsure: falls back to all four, so a rating still means something
+    expect(overallOf(scores(6, 6, 6, 2), ["fluency", "vocabulary", "grammar", "pronunciation"])).toBe(5);
+  });
+  it("counts only the raters who were sure about a criterion", () => {
+    const band = answerBand([
+      { scores: scores(6, 6, 6, 3), weight: 1, unsure: ["pronunciation"] },
+      { scores: scores(6, 6, 6, 7), weight: 1 },
+    ]);
+    expect(band?.criteria.pronunciation).toBe(7);
+    expect(band?.criteria.fluency).toBe(6);
+  });
+  it("uses everyone when nobody was sure", () => {
+    const band = answerBand([
+      { scores: scores(6, 6, 6, 4), weight: 1, unsure: ["pronunciation"] },
+      { scores: scores(6, 6, 6, 6), weight: 1, unsure: ["pronunciation"] },
+    ]);
+    expect(band?.criteria.pronunciation).toBe(5);
+  });
+  it("cleans what a client sends", () => {
+    expect(cleanUnsure(["grammar", "grammar", "nope", 5, "fluency", "vocabulary", "pronunciation"])).toEqual(["grammar", "fluency", "vocabulary"]);
+    expect(cleanUnsure("grammar")).toEqual([]);
+    expect(cleanUnsure(undefined)).toEqual([]);
   });
 });

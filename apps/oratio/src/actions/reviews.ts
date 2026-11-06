@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { currentUserId, isUuid } from "@/lib/server/match-access";
 import { AUDIO_BUCKET, CLAIM_TTL_MS, exchangeCounts, reliabilities } from "@/lib/server/answers";
 import { CRITERIA, MAX_COMMENT_LENGTH, MAX_TAG_LENGTH, type CriterionScores } from "@/lib/feedback";
-import { pickNext, submissionsLeft, type QueueCandidate } from "@/lib/review-scoring";
+import { cleanUnsure, pickNext, submissionsLeft, type QueueCandidate } from "@/lib/review-scoring";
 
 /**
  * Chấm chéo (docs/ORATIO_REDESIGN.md §5.2): listen to someone's answer,
@@ -181,6 +181,8 @@ export interface ReviewInput {
   scores: CriterionScores;
   tags: string[];
   comment: string | null;
+  /** Criteria the reviewer could not judge ("Tôi không chắc"); at most three */
+  unsure?: string[];
 }
 
 export async function submitReview(input: ReviewInput): Promise<{ submissionsLeft?: number; error?: string }> {
@@ -194,6 +196,7 @@ export async function submitReview(input: ReviewInput): Promise<{ submissionsLef
       if (typeof v !== "number" || !Number.isInteger(v) || v < 1 || v > 9) return { error: "Mỗi tiêu chí cần một band từ 1 đến 9" };
       scores[c] = v;
     }
+    const unsure = cleanUnsure(input.unsure);
     const tags = Array.isArray(input.tags)
       ? [...new Set(input.tags.filter((t) => typeof t === "string").map((t) => t.trim().slice(0, MAX_TAG_LENGTH)))].filter(Boolean).slice(0, 4)
       : [];
@@ -216,6 +219,7 @@ export async function submitReview(input: ReviewInput): Promise<{ submissionsLef
       answer_id: input.answerId,
       reviewer_id: userId,
       ...scores,
+      unsure,
       tags,
       comment,
     });

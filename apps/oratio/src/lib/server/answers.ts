@@ -1,8 +1,9 @@
-import { CRITERIA, type CriterionScores } from "@/lib/feedback";
+import { CRITERIA, type Criterion, type CriterionScores } from "@/lib/feedback";
 import {
   answerBand,
   mean,
   MIN_SAMPLES,
+  cleanUnsure,
   overallOf,
   reliabilityOf,
   type AnswerBand,
@@ -32,6 +33,8 @@ export interface ReviewRow {
   tags: string[];
   comment: string | null;
   created_at: string;
+  /** Criteria the reviewer said they were unsure about */
+  unsure?: string[] | null;
 }
 
 export const scoresOf = (r: Pick<ReviewRow, "fluency" | "vocabulary" | "grammar" | "pronunciation">): CriterionScores => ({
@@ -41,7 +44,7 @@ export const scoresOf = (r: Pick<ReviewRow, "fluency" | "vocabulary" | "grammar"
   pronunciation: Number(r.pronunciation),
 });
 
-const REVIEW_COLS = "answer_id, reviewer_id, fluency, vocabulary, grammar, pronunciation, tags, comment, created_at";
+const REVIEW_COLS = "answer_id, reviewer_id, fluency, vocabulary, grammar, pronunciation, tags, comment, created_at, unsure";
 
 /** Reliability of each reviewer, from their anchor reviews and agreement with others. */
 export async function reliabilities(admin: AdminClient, reviewerIds: string[]): Promise<Map<string, Reliability>> {
@@ -73,13 +76,14 @@ export async function reliabilities(admin: AdminClient, reviewerIds: string[]): 
     const history: ReviewerHistory = { anchors: [], consensus: [] };
     for (const r of reviews.filter((x) => x.reviewer_id === id)) {
       const answer = answerById.get(r.answer_id);
-      const given = overallOf(scoresOf(r));
+      const unsure = cleanUnsure(r.unsure);
+      const given = overallOf(scoresOf(r), unsure);
       if (answer?.mode === "anchor" && answer.anchor_scores) {
-        const ref = CRITERIA.map((c) => Number(answer.anchor_scores![c])).filter((v) => !Number.isNaN(v));
+        const ref = CRITERIA.filter((c) => !unsure.includes(c)).map((c) => Number(answer.anchor_scores![c])).filter((v) => !Number.isNaN(v));
         if (ref.length) history.anchors.push({ given, reference: mean(ref) });
       } else {
         const others = (byAnswer.get(r.answer_id) ?? []).filter((x) => x.reviewer_id !== id);
-        if (others.length >= MIN_SAMPLES - 1) history.consensus.push({ given, reference: mean(others.map((o) => overallOf(scoresOf(o)))) });
+        if (others.length >= MIN_SAMPLES - 1) history.consensus.push({ given, reference: mean(others.map((o) => overallOf(scoresOf(o), cleanUnsure(o.unsure)))) });
       }
     }
     out.set(id, reliabilityOf(history));
@@ -89,6 +93,8 @@ export async function reliabilities(admin: AdminClient, reviewerIds: string[]): 
 
 export interface ReceivedReview {
   scores: CriterionScores;
+  /** Criteria this reviewer was unsure about */
+  unsure?: Criterion[];
   tags: string[];
   comment: string | null;
   createdAt: string;
@@ -107,10 +113,10 @@ export async function bandsFor(
   for (const id of answerIds) {
     const mine = rows.filter((r) => r.answer_id === id);
     out.set(id, {
-      band: answerBand(mine.map((r) => ({ scores: scoresOf(r), weight: weights.get(r.reviewer_id)?.weight ?? 0.6 }))),
+      band: answerBand(mine.map((r) => ({ scores: scoresOf(r), weight: weights.get(r.reviewer_id)?.weight ?? 0.6, unsure: cleanUnsure(r.unsure) }))),
       reviews: mine
         .sort((a, b) => b.created_at.localeCompare(a.created_at))
-        .map((r) => ({ scores: scoresOf(r), tags: r.tags ?? [], comment: r.comment, createdAt: r.created_at })),
+        .map((r) => ({ scores: scoresOf(r), unsure: cleanUnsure(r.unsure), tags: r.tags ?? [], comment: r.comment, createdAt: r.created_at })),
     });
   }
   return out;

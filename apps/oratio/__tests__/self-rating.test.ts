@@ -28,3 +28,19 @@ describe("self rating", () => {
     expect(gapLine(-1.5)).toContain("thấp hơn 1.5 band");
   });
 });
+
+describe("unsure criteria kept with a self rating", () => {
+  it("are stored next to the bands and read back, without changing the bands", async () => {
+    const store = new Map<string, string>();
+    (globalThis as { localStorage?: unknown }).localStorage = {
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k),
+    };
+    const { saveSelf, readSelf, readUnsure } = await import("@/lib/self-rating");
+    expect(saveSelf("a1", { fluency: 6, vocabulary: 5, grammar: 6, pronunciation: 4 }, ["pronunciation", "grammar"])).toBe(true);
+    expect(readSelf().a1).toEqual({ fluency: 6, vocabulary: 5, grammar: 6, pronunciation: 4 });
+    expect(readUnsure("a1")).toEqual(["pronunciation", "grammar"]);
+    expect(readUnsure("missing")).toEqual([]);
+  });
+});
