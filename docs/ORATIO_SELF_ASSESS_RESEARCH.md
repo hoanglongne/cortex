@@ -73,3 +73,9 @@ Tần suất từ: wordfreq, Copyright 2022 Robyn Speer (mã Apache-2.0, dữ li
 - **Ghi chú theo mốc thời gian** ở bước Đánh dấu (tuỳ chọn, chỉ lưu trên máy). Tua lại 10 giây đã có từ trước.
 - Chưa làm: lặp đoạn, hỏi độ tự tin riêng (đã có "không chắc" thay thế), thử với người không chuyên, chụp so sánh 1280px.
 - Sửa lỗi: nút "Lưu tự chấm" dùng tên màu không có trong Oratio (`bg-accent`), nên nút **không có nền**, trông như chữ trơn: đây mới là lý do nút "liệt" ở phản hồi trước.
+
+### Chấm bằng câu hỏi bằng chứng (06/11/2026, #130)
+
+Bước Điểm giờ đi **từng tiêu chí một (1/4 … 4/4)**: dòng "lần nghe này chú ý gì" + nút Nghe lại; **4 câu hỏi về điều nghe được** (Có / Thỉnh thoảng / Không), ví dụ "Có lúc dừng hơn 2 giây để tìm từ không?"; từ đó ra **khoảng 2 band** gợi ý (`lib/evidence.ts`: câu trả lời tốt = 1, lưng chừng = 0,5, xấu = 0, trung bình quy ra 3 đến 7; trả lời ít câu thì khoảng rộng hơn). Câu nào máy đo được thì máy **trả lời sẵn và ghi con số** (số chỗ dừng, từ lặp, từ/phút, từ nối, % từ ít gặp, loại cấu trúc, lỗi bạn đánh dấu); người chấm đổi được. Chọn band **ngoài khoảng gợi ý thì phải chọn một lý do** mới ghi nhận. Cuối cùng có màn tóm tắt bốn điểm. Mỗi tiêu chí có "Band 4, 6, 8 nghe thế nào" với ví dụ cụ thể (`lib/band-examples.ts`, **do nhóm Cortex soạn, chưa giáo viên nào duyệt**).
+
+Trọng số là quy tắc kinh nghiệm theo bảng mô tả band, chưa hiệu chỉnh bằng bài có điểm thật. Chưa làm: lặp đoạn, và thử với người không chuyên (cần bạn bè thật).

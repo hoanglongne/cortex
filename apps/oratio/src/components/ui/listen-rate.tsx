@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Minus, Play, Plus, Undo2 } from "lucide-react";
-import { BAND_DESCRIPTORS, CRITERION_LABEL, type Criterion } from "@cortex/classroom-oratio";
+import { Play, Undo2 } from "lucide-react";
+import type { Criterion } from "@cortex/classroom-oratio";
 import { CRITERIA, type CriterionScores } from "@/lib/feedback";
 import { profileUrl, type SpeechProfile } from "@/lib/client/speech-metrics";
 import { loadWhisper, MODEL_INFO, transcribeWords, useTranscribeChoice, useWhisperModel } from "@/lib/client/whisper";
 import { analyzeWords, replaceWord, type Word } from "@/lib/speech-words";
-import { clock, evidenceLine, MARK_KINDS, mapVerdict, plainLabel, suggestBands, type Language, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { clock, evidenceLine, MARK_KINDS, mapVerdict, suggestBands, type Language, type Machine, type Mark, type MarkKind } from "@/lib/rating-marks";
+import { countConnectors, presets as evidencePresets } from "@/lib/evidence";
 import { grammarProfile } from "@/lib/grammar-check";
 import type { LexicalProfile } from "@/lib/lexical-weight";
 import { insightsFor } from "@/lib/speech-insights";
@@ -15,6 +16,7 @@ import { addSummary, compare, compareLine, previousOf, readHistory, summaryOf, t
 import { AudioPlayer } from "./audio-player";
 import { SpeechMap } from "./speech-map";
 import { SpeechXray } from "./speech-xray";
+import { EvidenceRate, type Answers } from "./evidence-rate";
 import { LanguageInsights } from "./language-insights";
 import { TranscribingHint } from "./transcribing-hint";
 import { XrayCoach } from "./xray-coach";
@@ -91,6 +93,9 @@ export function ListenRate({
   const [judged, setJudged] = React.useState<Record<number, "search" | "think">>({});
   const [active, setActive] = React.useState<number | null>(null);
   const [introSeen, setIntroSeen] = React.useState(true);
+  // Answers to the evidence questions and the reasons for bands outside the suggested range
+  const [answers, setAnswers] = React.useState<Answers>({});
+  const [reasons, setReasons] = React.useState<Partial<Record<Criterion, string>>>({});
   React.useEffect(() => {
     try {
       setIntroSeen(localStorage.getItem("oratio-band-intro") === "1");
@@ -208,7 +213,16 @@ export function ListenRate({
     [marks, moments, judged]
   );
   const humsHeard = profile ? profile.hums.filter((h) => !limitSeconds || h.startMs / 1000 < limitSeconds).length : null;
-  const machineNow: Machine | undefined = foundPauses != null ? { longPauses: foundPauses, reviewed: Object.keys(judged).length, hums: humsHeard ?? 0 } : machine;
+  const reviewedCount = Object.keys(judged).length;
+  const machineNow = React.useMemo<Machine | undefined>(
+    () => (foundPauses != null ? { longPauses: foundPauses, reviewed: reviewedCount, hums: humsHeard ?? 0 } : machine),
+    [foundPauses, reviewedCount, humsHeard, machine]
+  );
+  // What the machine can answer of the evidence questions, with the numbers behind each
+  const presets = React.useMemo(
+    () => evidencePresets({ marks: allMarks, speech: xray?.stats, machine: machineNow, lexical, grammar, corrections: fixes, connectors: xray ? countConnectors(xray.tokens.map((t) => t.clean)) : undefined }),
+    [allMarks, xray, machineNow, lexical, grammar, fixes]
+  );
 
   const play = (from: number, to?: number) => {
     const el = audio.current;
@@ -254,10 +268,6 @@ export function ListenRate({
 
   const go = (t: Tab) => (t === "score" ? toScore() : setTab(t));
 
-  const nudge = (c: (typeof CRITERIA)[number], delta: number) => {
-    touched.current.add(c);
-    onChange({ ...value, [c]: Math.min(9, Math.max(1, (value[c] ?? 5) + delta)) });
-  };
 
   const betterModel = model !== "small";
 
@@ -500,7 +510,7 @@ export function ListenRate({
         {tab === "score" && (
           <div>
             <p className="text-[12px] leading-snug text-muted">
-              {profile && !xray ? `${mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking, hums: humsHeard ?? 0 })} ` : ""}Điểm đã điền sẵn từ những gì bạn nghe. Đồng ý thì giữ nguyên, không thì bấm + hoặc −.
+              {profile && !xray ? `${mapVerdict({ voicedShare: profile.voicedShare, pauses: foundPauses ?? 0, searching, thinking, hums: humsHeard ?? 0 })} ` : ""}Trả lời vài câu hỏi về điều bạn nghe được, máy gợi ý khoảng band, bạn quyết định.
             </p>
             {!introSeen && (
               <div className="mt-2 rounded-[12px] border border-line bg-surface-2 p-3 text-[12px] leading-snug text-ink-2">
@@ -522,53 +532,26 @@ export function ListenRate({
                 </button>
               </div>
             )}
-            <ul className="mt-1 divide-y divide-line">
-              {CRITERIA.map((c) => {
-                const band = value[c] ?? 5;
-                const isUnsure = unsure.includes(c);
-                return (
-                  <li key={c} className="flex items-center gap-3 py-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-bold text-ink">{CRITERION_LABEL[c]}</p>
-                      <p className="text-base font-extrabold leading-tight tracking-[-0.02em] text-voice">{plainLabel(band)}</p>
-                      <p className="mt-0.5 text-[12px] leading-snug text-subtle">{evidenceLine(c, allMarks, machineNow, xray?.stats, language)}</p>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                        {onUnsure && (
-                          <button
-                            type="button"
-                            aria-pressed={isUnsure}
-                            disabled={disabled || (!isUnsure && unsure.length >= 3)}
-                            onClick={() => onUnsure(isUnsure ? unsure.filter((x) => x !== c) : [...unsure, c])}
-                            className={cn("h-7 rounded-full border px-2.5 text-[11px] font-bold transition-colors disabled:opacity-40", isUnsure ? "border-voice bg-voice text-on-voice" : "border-line-strong text-ink-2 hover:border-muted")}
-                          >
-                            {isUnsure ? "Không chắc ✓" : "Không chắc"}
-                          </button>
-                        )}
-                        <details className="text-[11px] text-subtle">
-                          <summary className="cursor-pointer select-none font-semibold text-ink-2">Band 4, 6, 8 nghe thế nào</summary>
-                          <ul className="mt-1 space-y-1">
-                            {[4, 6, 8].map((b) => (
-                              <li key={b}>
-                                <b className="text-ink-2">Band {b}:</b> {BAND_DESCRIPTORS[c][b]}
-                              </li>
-                            ))}
-                          </ul>
-                        </details>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-1.5" role="group" aria-label={`Band ${CRITERION_LABEL[c]}`}>
-                      <button type="button" aria-label="Giảm 1 band" disabled={disabled || band <= 1} onClick={() => nudge(c, -1)} className="flex size-9 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">
-                        <Minus className="size-4" aria-hidden />
-                      </button>
-                      <span className="w-7 text-center text-xl font-extrabold tabular text-ink">{band}</span>
-                      <button type="button" aria-label="Tăng 1 band" disabled={disabled || band >= 9} onClick={() => nudge(c, 1)} className="flex size-9 items-center justify-center rounded-full border border-line-strong text-ink-2 hover:border-muted disabled:opacity-40">
-                        <Plus className="size-4" aria-hidden />
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="mt-2">
+              <EvidenceRate
+                value={value}
+                answers={answers}
+                onAnswers={setAnswers}
+                presets={presets}
+                unsure={unsure}
+                onUnsure={onUnsure}
+                reasons={reasons}
+                onReason={(c, r) => setReasons((x) => ({ ...x, [c]: r }))}
+                evidence={(c) => evidenceLine(c, allMarks, machineNow, xray?.stats, language)}
+                onListenAgain={() => play(0)}
+                disabled={disabled}
+                onBand={(c, band, byHand) => {
+                  if (byHand) touched.current.add(c);
+                  else if (touched.current.has(c)) return;
+                  onChange({ ...value, [c]: band });
+                }}
+              />
+            </div>
           </div>
         )}
 
