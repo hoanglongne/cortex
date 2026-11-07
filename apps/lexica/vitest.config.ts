@@ -7,6 +7,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    // CI runs many test files at once on a slow machine; the placement simulation took over 5 s there (under 1 s here)
+    testTimeout: 30_000,
     setupFiles: ['./vitest.setup.ts'],
     include: ['__tests__/unit/**/*.test.{ts,tsx}'],
     coverage: {
