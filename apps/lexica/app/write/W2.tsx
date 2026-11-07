@@ -5,6 +5,7 @@ import { getAllCards } from '../lib/content/repository';
 import { useLexicaStore } from '../store/lexicaStore';
 import { capture } from '../lib/productAnalytics';
 import { checkFormalRewrite, passed, wordCount } from '../lib/writing/checks';
+import HandIn from './HandIn';
 import { CheckList, Panel, Privacy, SelfCheck, useDraft } from './shared';
 
 /** W2: say the same sentence more formally, then compare with the options of the card's upgrade module. */
@@ -93,6 +94,7 @@ export default function W2() {
                     ))}
                 </div>
             )}
+            <HandIn kind="sentence" prompt={`Viết lại trang trọng hơn: ${m.simpleSentence}`} body={text} />
             <Privacy />
         </Panel>
     );

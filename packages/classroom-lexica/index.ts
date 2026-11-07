@@ -24,6 +24,8 @@ export interface LexicaSettings {
     ends_on: string | null;
     /** The verified vocabulary score the class aims for by then. */
     target_score: number | null;
+    /** Classmates may read each other's handed-in writing and rate it, without names (off unless the teacher turns it on) */
+    peers_write: boolean;
 }
 
 /** The score scale's bounds for a class target (Lexica's ELO_FLOOR..ELO_CEIL, rounded). */
@@ -195,7 +197,7 @@ export const lexicaModule: ClassroomModuleCore<LexicaSettings, WordsPayload, Lex
         const level = ['beginner', 'intermediate', 'advanced', 'expert'].includes(o.level as string) ? (o.level as LexicaSettings['level']) : null;
         const ends = typeof o.ends_on === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(o.ends_on) ? o.ends_on : null;
         const target = typeof o.target_score === 'number' && o.target_score >= TARGET_MIN && o.target_score <= TARGET_MAX ? Math.round(o.target_score) : null;
-        return { branch: o.branch === 'talk' ? 'talk' : 'cert', level, ends_on: ends, target_score: target };
+        return { branch: o.branch === 'talk' ? 'talk' : 'cert', level, ends_on: ends, target_score: target, peers_write: o.peers_write === true };
     },
     parsePayload(_kind, raw) {
         const o = obj(raw);

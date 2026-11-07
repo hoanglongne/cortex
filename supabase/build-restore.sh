@@ -52,6 +52,7 @@ FILES=(
   packages/classroom/sql/classroom_tests.sql
   apps/lexica/supabase/migration_card_stats.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
+  packages/classroom-lexica/sql/classroom_writing.sql
   apps/lexica/supabase/migration_placement.sql
   apps/lexica/supabase/placement_bank.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
@@ -63,6 +64,7 @@ FILES=(
   apps/oratio/supabase/migration_2026_10_live.sql
   apps/oratio/supabase/seed_part2_solilo.sql
   apps/oratio/supabase/migration_2026_11_class.sql
+  apps/oratio/supabase/migration_2026_11_unsure.sql
 )
 
 OUT=supabase/restore_all.sql
@@ -97,6 +99,7 @@ TEACH=(
   packages/classroom/sql/classroom_tests.sql
   apps/lexica/supabase/migration_card_stats.sql
   packages/classroom-lexica/sql/classroom_lexica.sql
+  packages/classroom-lexica/sql/classroom_writing.sql
   apps/lexica/supabase/migration_placement.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
   packages/classroom-synapse/sql/classroom_synapse.sql
@@ -127,6 +130,7 @@ ORATIO=(
   apps/oratio/supabase/migration_2026_10_live.sql
   apps/oratio/supabase/seed_part2_solilo.sql
   apps/oratio/supabase/migration_2026_11_class.sql
+  apps/oratio/supabase/migration_2026_11_unsure.sql
 )
 ORATIO_OUT=supabase/oratio_2026_10.sql
 {

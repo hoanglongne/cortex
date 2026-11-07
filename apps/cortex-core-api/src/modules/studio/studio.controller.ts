@@ -492,6 +492,18 @@ export class StudioController {
     return this.cardFixes.unrewrite(db, id);
   }
 
+  /** Notes sent from Lexica's "Góp ý" form, newest first (the editors' own read policy applies). */
+  @Get('feedback')
+  async feedback(@StudioDb() db: Db) {
+    const res = await db
+      .from('lexica_feedback')
+      .select('id, kind, message, contact, page, device, created_at')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if (res.error) throw new BadRequestException(res.error.message);
+    return res.data ?? [];
+  }
+
   /** The worst cards this week, from the nightly numbers, with their words. */
   @Get('card-health')
   async cardHealth(@StudioDb() db: Db) {

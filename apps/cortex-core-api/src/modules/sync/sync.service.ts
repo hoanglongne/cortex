@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import type { AppSource } from '@cortex/types';
 import { SupabaseService } from '../supabase/supabase.service';
 
@@ -31,11 +36,11 @@ export class SyncService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async saveBackup(body: unknown): Promise<BackupRecord> {
+  async saveBackup(body: unknown, accessToken?: string): Promise<BackupRecord> {
     const { userId, appSource, data } = this.validateBackupBody(body);
     const updatedAt = new Date().toISOString();
 
-    const { error } = await this.client().from('app_backups').upsert(
+    const { error } = await this.client(accessToken).from('app_backups').upsert(
       {
         user_id: userId,
         app_source: appSource,
@@ -45,8 +50,12 @@ export class SyncService {
       { onConflict: 'user_id,app_source' },
     );
     if (error) {
-      this.logger.error(`Backup upsert failed: ${error.message}`);
-      throw error;
+      // Supabase errors are plain objects, which Nest turns into an empty 500: say what happened in the log
+      const e = error as { message?: string; code?: string; hint?: string };
+      this.logger.error(
+        `Backup upsert failed: ${e.message ?? 'unknown'} (code ${e.code ?? '-'}${e.hint ? `, hint: ${e.hint}` : ''})`,
+      );
+      throw new InternalServerErrorException('Could not save the backup');
     }
 
     this.logger.log(`[Sync] Saved ${appSource} backup for ${userId}`);
@@ -56,17 +65,23 @@ export class SyncService {
   async getBackup(
     userId: string,
     appSource: string,
+    accessToken?: string,
   ): Promise<BackupRecord | null> {
     this.assertUserId(userId);
     this.assertAppSource(appSource);
 
-    const { data, error } = await this.client()
+    const { data, error } = await this.client(accessToken)
       .from('app_backups')
       .select('raw_data, updated_at')
       .eq('user_id', userId)
       .eq('app_source', appSource)
       .maybeSingle();
-    if (error) throw error;
+    if (error) {
+      this.logger.error(
+        `Backup read failed: ${error.message} (code ${error.code ?? '-'})`,
+      );
+      throw new InternalServerErrorException('Could not read the backup');
+    }
     if (!data) return null;
 
     const row = data as { raw_data: unknown; updated_at: string };
@@ -117,8 +132,17 @@ export class SyncService {
     }
   }
 
-  private client() {
-    const client = this.supabaseService.getClient();
+  /**
+   * The caller has been verified and is the owner of the row (the controller
+   * checks it). Writes go with the caller's own token, so row-level security
+   * (migration_app_backups_rls.sql) decides; a service-role key, when the
+   * server has one, skips that and works the same way.
+   */
+  private client(accessToken?: string) {
+    const client =
+      this.supabaseService.serviceClient() ??
+      (accessToken ? this.supabaseService.clientForToken(accessToken) : null) ??
+      this.supabaseService.getClient();
     if (!client) throw new Error('Supabase client not initialized');
     return client;
   }

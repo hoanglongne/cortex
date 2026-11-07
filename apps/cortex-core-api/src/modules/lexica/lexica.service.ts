@@ -53,11 +53,46 @@ class Lru<V> {
   }
 }
 
+/**
+ * At most `max` jobs at once; the rest wait their turn (up to `maxWaiting`,
+ * then they are refused at once so a crowd cannot pile up minutes of waiting).
+ * The voice model answers a few requests a minute; many at once only make
+ * all of them fail, a short queue lets most of them succeed.
+ */
+export class Gate {
+  private active = 0;
+  private waiting: (() => void)[] = [];
+  constructor(
+    private readonly max: number,
+    private readonly maxWaiting: number,
+  ) {}
+  async run<T>(job: () => Promise<T>): Promise<T> {
+    if (this.active >= this.max) {
+      if (this.waiting.length >= this.maxWaiting)
+        throw new HttpException(
+          'The voice is busy, try again in a moment',
+          HttpStatus.SERVICE_UNAVAILABLE,
+        );
+      await new Promise<void>((resolve) => this.waiting.push(resolve));
+    }
+    this.active++;
+    try {
+      return await job();
+    } finally {
+      this.active--;
+      this.waiting.shift()?.();
+    }
+  }
+}
+
 @Injectable()
 export class LexicaService {
   private readonly log = new Logger(LexicaService.name);
   private readings = new Lru<unknown>(300);
   private clips = new Lru<Buffer>(400);
+  /** Clips being made right now: a second request for the same clip waits for the first instead of calling the voice model again */
+  private making = new Map<string, Promise<Buffer>>();
+  private voiceGate = new Gate(2, 12);
   private limits = {
     reading: new DailyLimit(20),
     transcribe: new DailyLimit(150),
@@ -155,7 +190,22 @@ export class LexicaService {
       this.clips.set(key, hit);
       return hit;
     }
+    const running = this.making.get(key);
+    if (running) return running;
     this.take('tts', who);
+    const job = this.voiceGate.run(() => this.makeClip(key, input));
+    this.making.set(key, job);
+    try {
+      return await job;
+    } finally {
+      this.making.delete(key);
+    }
+  }
+
+  private async makeClip(
+    key: string,
+    input: NonNullable<ReturnType<typeof ttsInput>>,
+  ): Promise<Buffer> {
     const model =
       this.config.get<string>('LEXICA_TTS_MODEL') ??
       'gemini-2.5-flash-preview-tts';
@@ -198,11 +248,18 @@ export class LexicaService {
   ): Promise<GeminiReply | null> {
     const key = this.config.get<string>('GEMINI_API_KEY');
     if (!key) throw new ServiceUnavailableException('GEMINI_API_KEY not set');
-    const res = await fetch(`${GEMINI}/${model}:generateContent`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify(body),
-    });
+    const call = () =>
+      fetch(`${GEMINI}/${model}:generateContent`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify(body),
+      });
+    let res = await call();
+    // Rate limit: one more try after a short wait, then give up (the app falls back to another voice)
+    if (res.status === 429) {
+      await new Promise((r) => setTimeout(r, 2500));
+      res = await call();
+    }
     if (!res.ok) {
       this.log.warn(`gemini ${model} ${res.status}`);
       throw new ServiceUnavailableException('Voice model unavailable');

@@ -21,7 +21,24 @@ export const ANCHOR_EVERY = 5;
 
 export const mean = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 
-export const overallOf = (s: CriterionScores) => mean(CRITERIA.map((c) => s[c]));
+/**
+ * The overall of four bands. A rater may say "Tôi không chắc" about some
+ * criteria (they could not judge them); those are left out, so a guess does not
+ * count the same as a judgement. All four unsure falls back to all four.
+ */
+export const overallOf = (s: CriterionScores, unsure: readonly Criterion[] = []) => {
+  const sure = CRITERIA.filter((c) => !unsure.includes(c));
+  return mean((sure.length ? sure : CRITERIA).map((c) => s[c]));
+};
+
+/** The criteria a rater can say they are unsure about: at most three, so a rating always says something. */
+export const MAX_UNSURE = 3;
+
+/** A clean list of unsure criteria from anything a client sent: known criteria only, no repeats, at most three. */
+export function cleanUnsure(raw: unknown): Criterion[] {
+  if (!Array.isArray(raw)) return [];
+  return [...new Set(raw.filter((c): c is Criterion => (CRITERIA as readonly string[]).includes(c as string)))].slice(0, MAX_UNSURE);
+}
 
 /** IELTS rounding to the nearest half band. */
 export const toHalfBand = (x: number) => Math.min(9, Math.max(1, Math.round(x * 2) / 2));
@@ -65,6 +82,8 @@ export function reliabilityOf(h: ReviewerHistory): Reliability {
 export interface WeightedReview {
   scores: CriterionScores;
   weight: number;
+  /** Criteria the rater was unsure about: not counted for those criteria */
+  unsure?: readonly Criterion[];
 }
 
 export interface AnswerBand {
@@ -81,13 +100,19 @@ export function answerBand(reviews: WeightedReview[]): AnswerBand | null {
   const total = reviews.reduce((a, r) => a + r.weight, 0);
   const wmean = (f: (r: WeightedReview) => number) => reviews.reduce((a, r) => a + r.weight * f(r), 0) / total;
 
+  // Per criterion, the raters who were sure about it (all of them when nobody was)
   const criteria = {} as Record<Criterion, number>;
-  for (const c of CRITERIA) criteria[c] = toHalfBand(wmean((r) => r.scores[c]));
+  for (const c of CRITERIA) {
+    const sure = reviews.filter((r) => !r.unsure?.includes(c));
+    const used = sure.length ? sure : reviews;
+    const t = used.reduce((a, r) => a + r.weight, 0);
+    criteria[c] = toHalfBand(used.reduce((a, r) => a + r.weight * r.scores[c], 0) / t);
+  }
 
-  const overall = wmean((r) => overallOf(r.scores));
+  const overall = wmean((r) => overallOf(r.scores, r.unsure));
   // One rater: ±0.5. More: the weighted spread, at least a quarter band each way.
   const spread =
-    reviews.length === 1 ? 0.5 : Math.max(0.25, Math.sqrt(wmean((r) => (overallOf(r.scores) - overall) ** 2)));
+    reviews.length === 1 ? 0.5 : Math.max(0.25, Math.sqrt(wmean((r) => (overallOf(r.scores, r.unsure) - overall) ** 2)));
   const low = toHalfBand(overall - spread);
   const high = toHalfBand(overall + spread);
   return { low, high: Math.max(low, high), raters: reviews.length, criteria };

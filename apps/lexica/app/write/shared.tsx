@@ -88,4 +88,4 @@ export function Panel({ title, children, hint }: { title: string; children: Reac
     );
 }
 
-export const Privacy = () => <p className="text-xs text-subtle">Bài viết chỉ nằm trên máy bạn. Máy chỉ kiểm những gì nhìn thấy trong chữ (độ dài, từ nối, số liệu), không cho điểm.</p>;
+export const Privacy = () => <p className="text-xs text-subtle">Bài viết chỉ nằm trên máy bạn, trừ khi bạn bấm “Nộp cho lớp” (khi đó chỉ giáo viên của lớp đọc). Máy chỉ kiểm những gì nhìn thấy trong chữ (độ dài, từ nối, số liệu), không cho điểm.</p>;

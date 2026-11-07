@@ -55,7 +55,9 @@ returns jsonb language sql immutable as $$
     -- The course's last day and the class's target score, for the forecasts (forecast.ts)
     'ends_on', case when p->>'ends_on' ~ '^\d{4}-\d{2}-\d{2}$' and (p->>'ends_on') between '2020-01-01' and '2100-12-31' then p->>'ends_on' end,
     'target_score', case when jsonb_typeof(p->'target_score') = 'number' and (p->>'target_score')::numeric between 400 and 1800
-      then round((p->>'target_score')::numeric)::int end
+      then round((p->>'target_score')::numeric)::int end,
+    -- Classmates may read each other's handed-in writing and rate it, without names (writing_peer_* functions)
+    'peers_write', case when p->>'peers_write' = 'true' or p->'peers_write' = 'true'::jsonb then true else false end
   ));
 $$;
 

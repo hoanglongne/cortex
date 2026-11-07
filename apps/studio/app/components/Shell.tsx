@@ -35,6 +35,7 @@ export const SECTIONS: Section[] = [
         tabs: [
             { href: '/cards', label: 'Thẻ' },
             { href: '/health', label: 'Sức khoẻ thẻ' },
+            { href: '/feedback', label: 'Góp ý' },
             { href: '/radar', label: 'Radar' },
             { href: '/trends', label: 'Trend' },
             { href: '/variants', label: 'Câu mẫu' },

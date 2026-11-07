@@ -2,6 +2,7 @@
 
 import { Component, ReactNode } from 'react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { reportError } from '../lib/errorReport';
 
 interface Props {
     children: ReactNode;
@@ -25,6 +26,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
     componentDidCatch(error: Error, info: React.ErrorInfo) {
         console.error('[ErrorBoundary]', error, info.componentStack);
+        reportError(error, { source: 'boundary' });
     }
 
     handleReset = () => {

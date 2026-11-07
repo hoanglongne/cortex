@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { capture } from '../lib/productAnalytics';
 import { FRAMES, PARTS, scrambled, type PartKey } from '../lib/writing/frames';
 import { checkParagraph, passed, wordCount } from '../lib/writing/checks';
+import HandIn from './HandIn';
 import { CheckList, Panel, Privacy, SelfCheck, useDraft } from './shared';
 
 /** W3: put the four parts of a model paragraph in order, then write your own in the same frame. */
@@ -145,6 +146,7 @@ function Write({ frameId }: { frameId: string }) {
                     </details>
                 </div>
             )}
+            <HandIn kind="paragraph" prompt={frame.prompt} body={PARTS.map((p) => values[p.key]).join(' ').trim()} />
             <Privacy />
         </Panel>
     );

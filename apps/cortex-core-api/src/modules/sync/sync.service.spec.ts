@@ -14,6 +14,8 @@ function makeSupabase(result: { data?: unknown; error: unknown }) {
   const from = jest.fn().mockReturnValue(query);
   const supabase = {
     getClient: () => ({ from }),
+    serviceClient: () => null,
+    clientForToken: () => ({ from }),
   } as unknown as SupabaseService;
   return { supabase, from, query };
 }
@@ -59,13 +61,21 @@ describe('SyncService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('propagates Supabase errors on save', async () => {
+  it('turns a Supabase error into a clear 500 (and logs the reason)', async () => {
     const service = new SyncService(
-      makeSupabase({ error: new Error('db down') }).supabase,
+      makeSupabase({
+        error: {
+          message: 'new row violates row-level security policy',
+          code: '42501',
+        },
+      }).supabase,
     );
     await expect(
-      service.saveBackup({ userId: USER, appSource: 'oratio', data: {} }),
-    ).rejects.toThrow('db down');
+      service.saveBackup(
+        { userId: USER, appSource: 'oratio', data: {} },
+        'token',
+      ),
+    ).rejects.toThrow('Could not save the backup');
   });
 
   it('returns the stored backup', async () => {

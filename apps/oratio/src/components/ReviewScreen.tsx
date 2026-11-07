@@ -326,6 +326,7 @@ function ReviewTaskView({
   onSubmitted: (submissionsLeft: number) => void;
 }) {
   const [scores, setScores] = useState<Partial<CriterionScores>>({});
+  const [unsure, setUnsure] = useState<Criterion[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -344,6 +345,7 @@ function ReviewTaskView({
       const r = await submitReview({
         answerId: task.answerId,
         scores: scores as CriterionScores,
+        unsure,
         tags,
         comment: comment.trim() || null,
       });
@@ -382,7 +384,7 @@ function ReviewTaskView({
         </div>
 
         <div className="flex flex-col gap-4">
-          <ListenRate src={task.audioUrl} seconds={task.durationMs / 1000} limitSeconds={LISTEN_LIMIT_S} value={scores} onChange={setScores} disabled={submitting} />
+          <ListenRate src={task.audioUrl} seconds={task.durationMs / 1000} limitSeconds={LISTEN_LIMIT_S} value={scores} onChange={setScores} unsure={unsure} onUnsure={setUnsure} disabled={submitting} />
 
           <Card>
             <Label className="mb-2">Nhận xét nhanh (chọn tối đa {MAX_REVIEW_TAGS})</Label>
