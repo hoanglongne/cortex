@@ -36,16 +36,11 @@ export class SyncService {
 
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async saveBackup(
-    body: unknown,
-    accessToken?: string,
-  ): Promise<BackupRecord> {
+  async saveBackup(body: unknown, accessToken?: string): Promise<BackupRecord> {
     const { userId, appSource, data } = this.validateBackupBody(body);
     const updatedAt = new Date().toISOString();
 
-    const { error } = await this.client(accessToken)
-      .from('app_backups')
-      .upsert(
+    const { error } = await this.client(accessToken).from('app_backups').upsert(
       {
         user_id: userId,
         app_source: appSource,

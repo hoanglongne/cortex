@@ -26,7 +26,7 @@ describe('boss fight', () => {
     });
 
     it('a wrong or late answer costs a heart and breaks the chain', () => {
-        let f = answer(newFight(12), true, 5000).fight;
+        const f = answer(newFight(12), true, 5000).fight;
         const w = answer(f, false, 5000);
         expect(w.fight.hearts).toBe(2);
         expect(w.fight.combo).toBe(0);

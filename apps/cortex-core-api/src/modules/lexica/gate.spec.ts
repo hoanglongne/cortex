@@ -14,7 +14,9 @@ describe('Gate', () => {
       active--;
       return 1;
     };
-    const results = await Promise.all(Array.from({ length: 6 }, () => gate.run(job)));
+    const results = await Promise.all(
+      Array.from({ length: 6 }, () => gate.run(job)),
+    );
     expect(results).toHaveLength(6);
     expect(peak).toBe(2);
   });
@@ -23,8 +25,8 @@ describe('Gate', () => {
     const gate = new Gate(1, 1);
     let release: () => void = () => {};
     const first = gate.run(() => new Promise<void>((r) => (release = r)));
-    const second = gate.run(async () => 2);
-    await expect(gate.run(async () => 3)).rejects.toThrow('busy');
+    const second = gate.run(() => Promise.resolve(2));
+    await expect(gate.run(() => Promise.resolve(3))).rejects.toThrow('busy');
     release();
     await first;
     await expect(second).resolves.toBe(2);

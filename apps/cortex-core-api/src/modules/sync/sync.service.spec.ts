@@ -64,11 +64,17 @@ describe('SyncService', () => {
   it('turns a Supabase error into a clear 500 (and logs the reason)', async () => {
     const service = new SyncService(
       makeSupabase({
-        error: { message: 'new row violates row-level security policy', code: '42501' },
+        error: {
+          message: 'new row violates row-level security policy',
+          code: '42501',
+        },
       }).supabase,
     );
     await expect(
-      service.saveBackup({ userId: USER, appSource: 'oratio', data: {} }, 'token'),
+      service.saveBackup(
+        { userId: USER, appSource: 'oratio', data: {} },
+        'token',
+      ),
     ).rejects.toThrow('Could not save the backup');
   });
 
