@@ -226,6 +226,18 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
 
     return (
         <div className="mt-4 flex flex-1 flex-col">
+            {view.mode === 'survival' && view.alive !== undefined && (
+                <p className={`mb-3 self-start rounded-full px-3 py-1 text-sm font-bold ${view.alive ? 'bg-accent text-on-accent' : 'bg-surface-3 text-ink-2'}`}>
+                    {view.alive ? 'Bạn còn trụ' : 'Bạn đã rời nhóm đầu. Đúng liền 2 câu để quay lại'}
+                    {view.survivors !== undefined ? ` · còn ${view.survivors} em` : ''}
+                </p>
+            )}
+            {view.mode === 'progress' && view.gain !== undefined && (
+                <p className="mb-3 self-start rounded-full bg-surface-3 px-3 py-1 text-sm font-bold text-ink-2">
+                    So với mức thường của bạn: {view.gain >= 0 ? '+' : ''}
+                    {view.gain} điểm mỗi câu
+                </p>
+            )}
             {view.team && (
                 <p className={`mb-3 self-start rounded-full px-3 py-1 text-sm font-bold text-on-arena ${TILE[view.team - 1]}`}>
                     {ARENA_TEAMS[view.team]}
@@ -306,6 +318,14 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
                     {view.team && view.team_rank && (
                         <p className="mt-4 text-xl font-bold text-ink">{view.team_rank === 1 ? `${ARENA_TEAMS[view.team]} thắng!` : `${ARENA_TEAMS[view.team]} về thứ ${view.team_rank}`}</p>
                     )}
+                    {view.mode === 'survival' && view.alive !== undefined && (
+                        <p className="mt-4 text-xl font-bold text-ink">{view.alive ? 'Bạn là người sống sót!' : 'Bạn không còn trụ đến cuối'}</p>
+                    )}
+                    {view.mode === 'progress' && view.gain !== undefined && (
+                        <p className="mt-4 text-xl font-bold text-ink">
+                            {view.gain > 0 ? `Bạn hơn mức thường của mình ${view.gain} điểm mỗi câu` : view.gain === 0 ? 'Bạn đúng bằng mức thường của mình' : `Ván này thấp hơn mức thường của bạn ${-view.gain} điểm mỗi câu`}
+                        </p>
+                    )}
                     <p className="mt-4 text-3xl font-bold text-ink">
                         Hạng {view.rank}
                         <span className="text-lg text-muted">/{view.players}</span>
@@ -371,6 +391,7 @@ function Reveal({ view }: { view: ArenaPlayerView }) {
             <p className="mt-8 font-mono text-sm text-ink-2">
                 {view.score} điểm · hạng {view.rank}/{view.players}
             </p>
+            {view.mode === 'survival' && view.alive !== undefined && <p className="mt-1 font-mono text-sm text-muted">{view.alive ? 'Còn trụ' : 'Đã rời nhóm đầu'}</p>}
             {view.team && view.team_score !== undefined && (
                 <p className="mt-1 font-mono text-sm text-muted">
                     {ARENA_TEAMS[view.team]}: {view.team_score} điểm · hạng {view.team_rank}/{view.teams}

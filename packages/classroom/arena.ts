@@ -18,7 +18,20 @@ export interface ArenaQuestionInput {
     outcomes?: string[];
 }
 
-export type ArenaMode = 'classic' | 'team';
+/**
+ * classic: everyone for themselves. team: 2 to 4 even teams. survival: a wrong
+ * or missed answer takes a player out of the top group, two right in a row
+ * bring them back. progress: ranked by points per question above the player's
+ * own usual in this class's earlier rooms.
+ */
+export type ArenaMode = 'classic' | 'team' | 'survival' | 'progress';
+
+export const ARENA_MODES: { id: ArenaMode; label: string; hint: string }[] = [
+    { id: 'classic', label: 'Cổ điển', hint: 'Mỗi em một mình, điểm cao nhất thắng.' },
+    { id: 'team', label: 'Đội', hint: 'Chia 2 đến 4 đội đều sức; điểm đội là trung bình của các thành viên.' },
+    { id: 'survival', label: 'Sống sót', hint: 'Sai hoặc bỏ trống một câu là rời nhóm đầu; đúng liền hai câu thì quay lại. Cuối cùng xem ai còn trụ.' },
+    { id: 'progress', label: 'Tiến bộ', hint: 'Xếp theo mức hơn chính mình: điểm mỗi câu so với mức thường của em ở các ván trước.' },
+];
 
 export interface ArenaPlayer {
     user_id: string;
@@ -28,6 +41,10 @@ export interface ArenaPlayer {
     rank: number;
     /** Team mode: 1..4. */
     team?: number;
+    /** Survival: still in the top group. */
+    alive?: boolean;
+    /** Progress: points per question so far, minus the player's own usual. */
+    gain?: number;
 }
 
 /** A team's standing: its members' average score. */
@@ -45,6 +62,7 @@ export interface ArenaStat {
     answered: number;
     correct: number;
     avg_ms: number | null;
+    alive?: boolean;
     /** Wrong answers given in under 1.5 seconds. */
     fast_wrong: number;
 }
@@ -115,6 +133,11 @@ export interface ArenaPlayerView {
     rank: number;
     players: number;
     mode: ArenaMode;
+    /** Survival: this player still in the top group, and how many are. */
+    alive?: boolean;
+    survivors?: number;
+    /** Progress: points per question so far above the player's own usual (negative: below). */
+    gain?: number;
     /** Team mode: this player's team, its score and rank, and how many teams. */
     team?: number;
     team_score?: number;
@@ -124,7 +147,22 @@ export interface ArenaPlayerView {
     /** This player's answer to the current question; right or wrong only once locked. */
     mine?: { choice: number; correct?: boolean; points?: number };
     /** At the end. */
-    top?: { name: string; score: number; rank: number }[];
+    top?: { name: string; score: number; rank: number; gain?: number; alive?: boolean }[];
+}
+
+/** One finished room in the class's history (arena_history). */
+export interface ArenaHistoryRow {
+    id: string;
+    mode: ArenaMode;
+    teams: number;
+    created_at: string;
+    finished_at: string | null;
+    questions: number;
+    players: number;
+    answers: number;
+    correct: number;
+    /** Who ranked first (the survivor, the biggest gain…) */
+    winner: string | null;
 }
 
 export interface ArenaRoomOpen {

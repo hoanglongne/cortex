@@ -4,7 +4,7 @@ import type { AdminOverview, AppId, Assignment, Board, ClassInfo, InviteKind, Le
 import type { ClassParents, ParentView, ReportContent, WeekMetrics } from './parents';
 import type { AttendanceByClass, Mark, Session, Slot } from './attendance';
 import type { ClassTest, MyTest, TestResults, TestTake } from './tests';
-import type { ArenaHost, ArenaMode, ArenaPlayerView, ArenaQuestionInput, ArenaResult, ArenaRoomOpen, ArenaState } from './arena';
+import type { ArenaHistoryRow, ArenaHost, ArenaMode, ArenaPlayerView, ArenaQuestionInput, ArenaResult, ArenaRoomOpen, ArenaState } from './arena';
 
 export class ClassError extends Error {}
 
@@ -106,6 +106,7 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         arenaAnswer: (roomId: string, idx: number, choice: number) => rpc<{ received: boolean }>('arena_answer', { p_room: roomId, p_idx: idx, p_choice: choice }),
         /** This student's answers in rooms finished in the last 14 days. */
         arenaMyResults: () => rpc<ArenaResult[]>('arena_my_results'),
+        arenaHistory: (classId: string) => rpc<ArenaHistoryRow[]>('arena_history', { p_class: classId }),
 
         // Class tests (sql/classroom_tests.sql)
         testCreate: (classId: string, title: string, due: string | null, questions: ArenaQuestionInput[]) =>

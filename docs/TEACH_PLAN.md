@@ -307,6 +307,14 @@ Bảng xếp hạng có thể **ẩn tên** (chỉ hiện top 3 với tên, còn
 - **Giảng lại:** nút "Giảng lại N từ" mở Trình chiếu từ với đúng các từ cả lớp sai nhiều (`/present/<lớp>?tool=slides&words=…`).
 - **Còn lại cho T2c:** chế độ Sống sót, Tiến bộ; mã QR; trang `play` cho khách; lịch sử các ván; câu Nghe.
 
+### 4.10 T2c (08/11/2026): Sống sót, Tiến bộ, mã QR, lịch sử ván (issue #63)
+- **Sống sót** (`mode = 'survival'`): sai **hoặc bỏ trống** một câu là rời nhóm đầu (`alive = false`); **đúng liền hai câu** thì quay lại. Xếp hạng: ai còn trụ đứng trên ai đã rời, rồi theo điểm. Máy chiếu hiện "Còn trụ N/M", cuối ván "Người sống sót: …". Điện thoại hiện "Bạn còn trụ / đã rời nhóm đầu".
+- **Tiến bộ** (`mode = 'progress'`): xếp theo **mức hơn chính mình**: điểm mỗi câu của ván này trừ **mức thường** của em (trung bình điểm mỗi câu trong tối đa 5 ván đã kết thúc gần nhất của lớp, chốt lúc em vào phòng; em mới dùng trung vị mức thường của các bạn có lịch sử, hoặc 0). Điện thoại hiện "+X điểm mỗi câu so với mức thường". Lưu ý: kế hoạch ban đầu nói tính theo điểm từ vựng (độ khó câu so với trình độ); bản này dùng lịch sử ván của chính em vì nhiều em chưa có điểm kiểm tra trình độ.
+- **Mã QR** ở phòng chờ: quét là vào thẳng phòng (`/arena?code=…`, Lexica đã có sẵn). Đã thử mã hoá và giải mã lại đúng đường dẫn.
+- **Lịch sử ván** (`arena_history`): danh sách tối đa 30 ván đã kết thúc của lớp (ngày, cách chơi, số câu, số em, % đúng, người đứng đầu), hiện dưới màn thiết lập đấu trường.
+- SQL: `packages/classroom/sql/classroom_arena.sql` (trong `supabase/teach_all.sql`; **chạy lại file này**). Đã thử trên Postgres tạm: chạy lại được, sống sót (bỏ trống bị loại, đúng liền hai câu quay lại), tiến bộ (mức thường từ ván trước), lịch sử, học viên không xem được lịch sử.
+- **Chưa làm:** trang `play` cho khách (cần bật đăng nhập ẩn danh trên Supabase và chấp nhận em chưa có tài khoản vào lớp; quyết định riêng) và câu Nghe (cần âm thanh trong ván). Chưa thử Realtime và wifi lớp thật.
+
 ---
 
 ## 5. T3 và T5 (27/10/2026): đã làm, chưa có PR

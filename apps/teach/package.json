@@ -12,13 +12,14 @@
   },
   "dependencies": {
     "@cortex/classroom": "workspace:*",
-    "@cortex/events": "workspace:*",
     "@cortex/classroom-lexica": "workspace:*",
     "@cortex/classroom-oratio": "workspace:*",
     "@cortex/classroom-synapse": "workspace:*",
+    "@cortex/events": "workspace:*",
     "@supabase/supabase-js": "^2.90.1",
     "lucide-react": "^1.7.0",
     "next": "16.2.2",
+    "qrcode-generator": "1.4.4",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
