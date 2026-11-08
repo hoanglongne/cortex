@@ -313,7 +313,10 @@ Bảng xếp hạng có thể **ẩn tên** (chỉ hiện top 3 với tên, còn
 - **Mã QR** ở phòng chờ: quét là vào thẳng phòng (`/arena?code=…`, Lexica đã có sẵn). Đã thử mã hoá và giải mã lại đúng đường dẫn.
 - **Lịch sử ván** (`arena_history`): danh sách tối đa 30 ván đã kết thúc của lớp (ngày, cách chơi, số câu, số em, % đúng, người đứng đầu), hiện dưới màn thiết lập đấu trường.
 - SQL: `packages/classroom/sql/classroom_arena.sql` (trong `supabase/teach_all.sql`; **chạy lại file này**). Đã thử trên Postgres tạm: chạy lại được, sống sót (bỏ trống bị loại, đúng liền hai câu quay lại), tiến bộ (mức thường từ ván trước), lịch sử, học viên không xem được lịch sử.
-- **Chưa làm:** trang `play` cho khách (cần bật đăng nhập ẩn danh trên Supabase và chấp nhận em chưa có tài khoản vào lớp; quyết định riêng) và câu Nghe (cần âm thanh trong ván). Chưa thử Realtime và wifi lớp thật.
+- **Khách vào bằng mã** (08/11/2026): giáo viên tick "Cho khách vào bằng mã" khi mở phòng (mặc định tắt). Ai chưa có tài khoản mở `/arena` trong Lexica (hoặc quét QR), nhập mã và một cái tên là chơi; chỉ vào được phòng đã bật khách, tối đa 60 khách một phòng, tên được làm sạch (chữ, số, khoảng trắng, tối đa 20 ký tự) và đổi nếu trùng. Khách **không thành thành viên lớp**, không lưu gì vào việc học, không có từ sai vào bài ôn. Phòng chờ ghi "khách" cạnh tên và có nút ✕ để gỡ tên không hợp. SQL: `arena_join_guest`, `arena_kick`, cột `guests` của phòng và `guest` của người chơi.
+  - **Cần bật trên Supabase:** Authentication → Sign In / Providers → **Allow anonymous sign-ins**. Khách là người dùng ẩn danh của Supabase, giữ trong một phiên riêng của trình duyệt (`lexica-guest-auth`) để phần còn lại của Lexica không thấy: không hồ sơ, không đồng bộ, không sao lưu.
+  - **Rủi ro cần biết:** bật đăng nhập ẩn danh nghĩa là bất kỳ ai cũng lấy được một phiên `authenticated` mà không cần email. Các hàm của lớp đều kiểm tra thành viên nên người ẩn danh không đọc được gì, nhưng các tính năng mở cho mọi `authenticated` (ví dụ gửi góp ý, hạn mức mỗi tài khoản) dễ bị lạm dụng hơn. Nên bật CAPTCHA (Turnstile) ở mục Attack Protection của Supabase.
+- **Chưa làm:** câu Nghe (cần âm thanh trong ván). Chưa thử Realtime, đăng nhập ẩn danh và wifi lớp thật.
 
 ---
 

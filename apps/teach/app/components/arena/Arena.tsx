@@ -71,6 +71,7 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
     const [count, setCount] = useState(10);
     const [seconds, setSeconds] = useState(20);
     const [hide, setHide] = useState(true);
+    const [guests, setGuests] = useState(false);
     const [mode, setMode] = useState<ArenaMode>('classic');
     const [teams, setTeams] = useState(2);
     const [busy, setBusy] = useState(false);
@@ -214,6 +215,14 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                     </span>
                 </label>
 
+                <label className="mt-6 flex items-start gap-3 text-ink-2">
+                    <input type="checkbox" checked={guests} onChange={(e) => setGuests(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--color-accent)]" />
+                    <span>
+                        Cho khách vào bằng mã (không cần tài khoản)
+                        <span className="block text-[15px] text-muted">Người chưa có tài khoản hoặc chưa vào lớp nhập mã và một cái tên là chơi được, chỉ trong ván này; không lưu gì vào việc học. Thầy cô gỡ được tên không hợp ở phòng chờ.</span>
+                    </span>
+                </label>
+
                 <div className="mt-10 flex flex-wrap items-center gap-4">
                     <button
                         disabled={busy || (storyOn ? !storyKey : !words || usable < 3)}
@@ -242,7 +251,7 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                             setBusy(true);
                             setError('');
                             try {
-                                const r = await api.arenaOpen(board.class.id, seconds, qs, { hideNames: hide, mode, teams });
+                                const r = await api.arenaOpen(board.class.id, seconds, qs, { hideNames: hide, mode, teams, guests });
                                 analytics.capture(EVENTS.arenaHosted, { mode, questions: qs.length }, { track: 'teaching', classId: board.class.id });
                                 onOpened(r.id);
                             } catch (e) {
@@ -325,6 +334,7 @@ function Stage({ roomId, words, people, onTeach, onClose }: { roomId: string; wo
                         if (split) await api.arenaTeamsSet(roomId, split);
                         await api.arenaNext(roomId);
                     })}
+                    onKick={(userId) => void act(() => api.arenaKick(roomId, userId))}
                     onCancel={() => void act(() => api.arenaFinish(roomId)).then(() => onClose(null))}
                 />
             )}
@@ -336,7 +346,7 @@ function Stage({ roomId, words, people, onTeach, onClose }: { roomId: string; wo
     );
 }
 
-function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: Person[]; onStart: (split: Record<string, number> | null) => Promise<void>; onCancel: () => void }) {
+function Lobby({ host, people, onStart, onKick, onCancel }: { host: ArenaHost; people: Person[]; onStart: (split: Record<string, number> | null) => Promise<void>; onKick: (userId: string) => void; onCancel: () => void }) {
     const team = host.mode === 'team';
     const strength = (id: string) => people.find((p) => p.id === id)?.strength ?? null;
     const [base, setBase] = useState<Record<string, number>>({});
@@ -359,7 +369,7 @@ function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: P
                 )}
             </div>
             <p className="mt-10 flex items-center gap-2 text-[17px] text-ink-2">
-                <Users className="h-5 w-5" /> {host.players.length} em đã vào
+                <Users className="h-5 w-5" /> {host.players.length} em đã vào{host.guests ? ' · khách cũng vào được bằng mã' : ''}
             </p>
             {team ? (
                 <div className="mt-4 grid w-full gap-3" style={{ gridTemplateColumns: `repeat(${host.teams}, minmax(0, 1fr))` }}>
@@ -368,7 +378,14 @@ function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: P
                             <p className={`inline-block rounded-full px-3 py-1 text-[15px] font-semibold text-on-arena ${TILE[t - 1]}`}>{ARENA_TEAMS[t]}</p>
                             <ul className="mt-3 space-y-1 text-[17px] text-ink">
                                 {host.players.filter((p) => split[p.user_id] === t).map((p) => (
-                                    <li key={p.user_id}>{p.name}</li>
+                                    <li key={p.user_id}>
+                                        {p.name}
+                                        {p.guest && (
+                                            <button onClick={() => onKick(p.user_id)} aria-label={`Gỡ ${p.name}`} className="ml-2 text-[15px] text-muted hover:text-ink">
+                                                ✕ khách
+                                            </button>
+                                        )}
+                                    </li>
                                 ))}
                             </ul>
                         </div>
@@ -377,8 +394,14 @@ function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: P
             ) : (
                 <ul className="mt-4 flex max-w-3xl flex-wrap justify-center gap-2">
                     {host.players.map((p) => (
-                        <li key={p.user_id} className="rounded-full bg-surface px-4 py-2 text-[17px] text-ink shadow-[var(--shadow-card)]">
+                        <li key={p.user_id} className="flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-[17px] text-ink shadow-[var(--shadow-card)]">
                             {p.name}
+                            {p.guest && <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[12px] font-semibold text-muted">khách</span>}
+                            {p.guest && (
+                                <button onClick={() => onKick(p.user_id)} aria-label={`Gỡ ${p.name}`} className="text-[15px] text-muted hover:text-ink">
+                                    ✕
+                                </button>
+                            )}
                         </li>
                     ))}
                 </ul>

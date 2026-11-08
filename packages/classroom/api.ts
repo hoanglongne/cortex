@@ -85,7 +85,7 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
             rpc<Session>('classroom_session_set', { p_class: classId, p_date: date, p_topic: patch.topic ?? null, p_cancelled: patch.cancelled ?? null }),
 
         // Arena (sql/classroom_arena.sql): the teacher's screen drives, students answer
-        arenaOpen: (classId: string, seconds: number, questions: ArenaQuestionInput[], opts: { hideNames?: boolean; mode?: ArenaMode; teams?: number } = {}) =>
+        arenaOpen: (classId: string, seconds: number, questions: ArenaQuestionInput[], opts: { hideNames?: boolean; mode?: ArenaMode; teams?: number; guests?: boolean } = {}) =>
             rpc<{ id: string; code: string }>('arena_open', {
                 p_class: classId,
                 p_seconds: seconds,
@@ -93,6 +93,7 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
                 p_hide_names: opts.hideNames ?? true,
                 p_mode: opts.mode ?? 'classic',
                 p_teams: opts.mode === 'team' ? (opts.teams ?? 2) : 0,
+                p_guests: opts.guests ?? false,
             }),
         /** Team mode, in the lobby: who plays in which team (1..N). */
         arenaTeamsSet: (roomId: string, teams: Record<string, number>) => rpc<{ ok: boolean }>('arena_teams_set', { p_room: roomId, p_teams: teams }),
@@ -102,6 +103,10 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         arenaHost: (roomId: string) => rpc<ArenaHost>('arena_host_state', { p_room: roomId }),
         arenaOpenRooms: () => rpc<ArenaRoomOpen[]>('arena_open_rooms'),
         arenaJoin: (code: string) => rpc<{ id: string }>('arena_join', { p_code: code }),
+        /** Someone without an account (a guest session): a room the teacher opened for guests, by code and a name. */
+        arenaJoinGuest: (code: string, name: string) => rpc<{ id: string }>('arena_join_guest', { p_code: code, p_name: name }),
+        /** The teacher takes a player out of the lobby. */
+        arenaKick: (roomId: string, userId: string) => rpc<{ ok: boolean }>('arena_kick', { p_room: roomId, p_user: userId }),
         arenaState: (roomId: string) => rpc<ArenaPlayerView>('arena_state', { p_room: roomId }),
         arenaAnswer: (roomId: string, idx: number, choice: number) => rpc<{ received: boolean }>('arena_answer', { p_room: roomId, p_idx: idx, p_choice: choice }),
         /** This student's answers in rooms finished in the last 14 days. */

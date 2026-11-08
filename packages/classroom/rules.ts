@@ -36,6 +36,9 @@ const MESSAGES: Record<string, string> = {
     'test closed': 'Bài kiểm tra đã đóng.',
     'already handed in': 'Bạn đã nộp bài này rồi.',
     'bad mode': 'Chế độ đội cần 2 đến 4 đội, và chỉ chia đội trước khi bắt đầu.',
+    'no guests': 'Phòng này chỉ dành cho học viên của lớp. Hãy đăng nhập, hoặc nhờ giáo viên cho khách vào.',
+    'room full': 'Phòng đã đủ khách.',
+    'bad name': 'Nhập một tên (chữ hoặc số, tối đa 20 ký tự).',
 };
 
 export function classMessage(raw: string): string {

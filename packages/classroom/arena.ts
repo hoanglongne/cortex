@@ -43,6 +43,8 @@ export interface ArenaPlayer {
     team?: number;
     /** Survival: still in the top group. */
     alive?: boolean;
+    /** Joined by code and a name, without being in the class. */
+    guest?: boolean;
     /** Progress: points per question so far, minus the player's own usual. */
     gain?: number;
 }
@@ -86,6 +88,8 @@ export interface ArenaHost {
     mode: ArenaMode;
     /** Team mode: how many teams (2–4); 0 otherwise. */
     teams: number;
+    /** Open to people without an account (a code and a name). */
+    guests?: boolean;
     seconds: number;
     hide_names: boolean;
     state: ArenaState;
