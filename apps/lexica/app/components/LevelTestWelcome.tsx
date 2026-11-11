@@ -1,5 +1,6 @@
 'use client';
 
+import { LexicaLogo } from './LexicaLogo';
 import { useState, useEffect } from 'react';
 import { FlaskConical, Gamepad2, Zap } from 'lucide-react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
@@ -26,8 +27,8 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
         <div className="w-full px-4 relative">
             {/* Logo - Top Left - Hidden on mobile when scrolled */}
             <div className={`fixed top-4 left-4 md:top-6 md:left-6 z-50 transition-opacity duration-300 ${isScrolled ? 'opacity-0 md:opacity-100' : 'opacity-100'}`}>
-                <h1 className="text-2xl md:text-3xl font-bold text-ink tracking-tight">
-                    LEXICA
+                <h1 className="text-ink">
+                    <LexicaLogo className="h-6 md:h-7 w-auto" />
                 </h1>
             </div>
 
