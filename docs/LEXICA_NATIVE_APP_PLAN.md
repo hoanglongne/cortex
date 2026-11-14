@@ -107,7 +107,7 @@ Các ước tính là của mình, cho một người làm toàn thời gian que
 
 ## 6. Đã chốt (14/11/2026)
 - **Cách A (Capacitor nạp web)**, đã nêu rõ nhược điểm (mục 7).
-- **Tên miền:** một tên miền Cortex dưới 30 USD/năm; Lexica là tên miền con (`lexica.<tên miền>`). Chưa mua.
+- **Tên miền:** `cortexlearn.app`; Lexica ở `lexica.cortexlearn.app`. Deep link và Sign in with Apple dùng tên này.
 - **Tài khoản nhà phát triển:** cá nhân (không cần D-U-N-S). Tên người bán trên App Store sẽ là tên cá nhân.
 - **Build iOS:** dùng máy Mac của chủ sản phẩm.
 - **Gói trả tiền:** ban đầu chỉ bán trên web. App không có nút mua, không nhắc giá, không dẫn link ra trang thanh toán, trừ khi quy định cho Việt Nam cho phép (kiểm tra lại trước khi nộp).
