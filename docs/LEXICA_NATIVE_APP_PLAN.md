@@ -105,7 +105,25 @@ Các ước tính là của mình, cho một người làm toàn thời gian que
 | Bàn phím bị nghi ngờ về riêng tư | Cao | Xử lý trên máy, không cần Full Access, nói rõ trong mô tả; làm sau cùng |
 | Bảo trì hai phần gốc (Swift, Kotlin) | Vừa | Giữ phần gốc thật mỏng; mọi logic (matcher, rules) ở TypeScript dùng chung |
 
-## 6. Cần chủ sản phẩm chốt
+## 6. Đã chốt (14/11/2026)
+- **Cách A (Capacitor nạp web)**, đã nêu rõ nhược điểm (mục 7).
+- **Tên miền:** một tên miền Cortex dưới 30 USD/năm; Lexica là tên miền con (`lexica.<tên miền>`). Chưa mua.
+- **Tài khoản nhà phát triển:** cá nhân (không cần D-U-N-S). Tên người bán trên App Store sẽ là tên cá nhân.
+- **Build iOS:** dùng máy Mac của chủ sản phẩm.
+- **Gói trả tiền:** ban đầu chỉ bán trên web. App không có nút mua, không nhắc giá, không dẫn link ra trang thanh toán, trừ khi quy định cho Việt Nam cho phép (kiểm tra lại trước khi nộp).
+
+## 7. Nhược điểm của cách A, nói thẳng
+1. **Rủi ro bị Apple từ chối (4.2).** App chủ yếu là web view. Phần gốc (chia sẻ, tiện ích Safari) giảm rủi ro, không xoá được. Bị từ chối thì mất 1–3 vòng duyệt, hoặc phải chuyển sang cách B.
+2. **Không mạng là không dùng được.** App nạp web từ máy chủ: mất mạng thì chỉ còn màn "mất mạng" (service worker giúp được phần đã tải). Người học trên xe buýt, vùng sóng yếu sẽ thấy rõ.
+3. **Cảm giác "không phải app thật".** Cuộn, chuyển trang, bàn phím, vuốt quay lại vẫn là của trình duyệt. Người dùng iPhone khó tính sẽ nhận ra.
+4. **Máy chủ sập là app sập.** Vercel hoặc tên miền lỗi thì app trên cửa hàng cũng trắng màn hình.
+5. **Khó kiểm soát phiên bản.** Web cập nhật là mọi app cập nhật ngay, kể cả khi bản web mới hỏng phần gốc (ví dụ đổi đường dẫn `/num-van` làm nút chia sẻ hỏng). Cần test phần gốc trước mỗi lần deploy web.
+6. **Phần gốc vẫn phải viết bằng Swift/Kotlin.** Chia sẻ, tiện ích Safari, bàn phím không làm bằng web được. Đây là phần tốn công và dễ lỗi nhất, Capacitor không giúp.
+7. **Hiệu năng của tác vụ nặng.** Chấm phát âm và Whisper trên máy chạy trong web view chậm hơn và tốn pin hơn so với chạy gốc. Trên iPhone, WebGPU trong web view có thể bị hạn chế.
+8. **Bán trên web làm app kém tiện.** Người dùng iPhone không mua được trong app, phải tự lên web. Tỉ lệ chuyển đổi sẽ thấp hơn so với có IAP.
+9. **Tài khoản cá nhân.** Tên và có thể địa chỉ cá nhân của bạn hiện công khai trên cửa hàng. Sau này đổi sang công ty phải chuyển app, khá phiền.
+
+## 8. Câu hỏi cũ
 1. Có đồng ý cách A (Capacitor nạp web) để ra nhanh không?
 2. Tên miền chính thức của Lexica là gì? Deep link và Sign in with Apple cần nó.
 3. Ai đứng tên tài khoản nhà phát triển: cá nhân hay công ty? Công ty cần mã D-U-N-S với Apple.
