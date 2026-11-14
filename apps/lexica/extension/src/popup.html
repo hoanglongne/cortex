@@ -1,0 +1,15 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><style>
+body{margin:0;width:260px;background:#0E0F11;color:#EDEEF0;font:14px/1.45 system-ui,sans-serif;padding:14px}
+h1{font-size:15px;margin:0 0 10px}h1 span{color:#C6F432}
+.row{display:flex;justify-content:space-between;align-items:center;margin:10px 0}
+button{width:100%;padding:9px;border-radius:10px;border:0;font:inherit;font-weight:600;cursor:pointer;background:#C6F432;color:#0E0F11}
+button.off{background:#26282D;color:#EDEEF0}
+input{width:100%;accent-color:#C6F432}.muted{color:#9AA0A8;font-size:12px}
+</style></head><body>
+<h1>Lexica <span>Núm vặn</span></h1>
+<div class="muted" id="host"></div>
+<div class="row"><span>Mức tiếng Anh</span><b id="lv"></b></div>
+<input type="range" id="level" min="10" max="100" step="10">
+<div style="margin-top:12px"><button id="toggle"></button></div>
+<p class="muted">Thử nghiệm: 75 từ. Chạm vào từ màu chanh để xem nghĩa. Không gửi nội dung trang đi đâu.</p>
+<script src="popup.js"></script></body></html>

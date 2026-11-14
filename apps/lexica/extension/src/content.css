@@ -1,0 +1,5 @@
+.lx-dial{color:#5a7d00;background:rgba(198,244,50,.28);border-radius:3px;padding:0 2px;cursor:pointer;font-weight:600;text-decoration:none}
+@media (prefers-color-scheme:dark){.lx-dial{color:#C6F432;background:rgba(198,244,50,.14)}}
+.lx-tip{position:absolute;z-index:2147483647;max-width:300px;background:#16171A;color:#EDEEF0;border:1px solid #26282D;border-radius:12px;padding:10px 12px;font:14px/1.45 system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.lx-tip b{font-size:17px}.lx-tip .ipa{color:#9AA0A8;font-family:ui-monospace,monospace;margin-left:6px}.lx-tip .vi{margin-top:4px;color:#C4C6CB}.lx-tip .hint{margin-top:2px;color:#9AA0A8}
+.lx-tip button{background:none;border:0;color:#C6F432;cursor:pointer;font-size:16px;margin-left:6px}
