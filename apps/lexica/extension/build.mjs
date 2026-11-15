@@ -28,6 +28,6 @@ for (const m of src.matchAll(/"id":\s*"(v\d+)"[\s\S]*?"ipa":\s*"([^"]*)"[\s\S]*?
 
 const body = fs.readFileSync(`${here}src/content.body.js`, 'utf8');
 fs.writeFileSync(`${out}/content.js`, `(() => {\n${matcher}\nconst RULES = ${JSON.stringify(DIAL_RULES)};\nconst CARDS = ${JSON.stringify(cards)};\n${body}\n})();\n`);
-for (const f of ['manifest.json', 'content.css', 'popup.html', 'popup.js']) fs.copyFileSync(`${here}src/${f}`, `${out}/${f}`);
+for (const f of ['manifest.json', 'content.css', 'popup.html', 'popup.js', 'bridge.js', 'sw.js']) fs.copyFileSync(`${here}src/${f}`, `${out}/${f}`);
 fs.copyFileSync(`${here}../public/icon-192.png`, `${out}/icon-128.png`);
 console.log(`built ${out}: ${DIAL_RULES.length} rules, ${Object.keys(cards).length} cards`);

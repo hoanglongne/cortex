@@ -70,6 +70,17 @@ export default function PrivacyPage() {
                     ),
                 },
                 {
+                    title: 'Núm vặn: đọc bài và tiện ích Chrome',
+                    body: (
+                        <ul>
+                            <li>Khi bạn dán chữ vào Núm vặn, việc đổi từ chạy ngay trên máy bạn. Khi bạn dán link báo, máy chủ Lexica tải bài đó một lần để lấy phần chữ, không lưu lại.</li>
+                            <li>Tiện ích Chrome &quot;Lexica Núm vặn&quot; chỉ chạy trên trang bạn bật. Nó đọc chữ trên trang <b>ngay trong trình duyệt</b> để đổi từ, không gửi nội dung trang hay địa chỉ trang đi đâu.</li>
+                            <li>Khi bạn mở Lexica trên cùng trình duyệt, tiện ích đọc lịch ôn của bạn (mã từ và ngày ôn tới) và chuyển cho Lexica những từ bạn đã chạm xem nghĩa. Việc này diễn ra giữa tiện ích và trang Lexica trên máy bạn, không qua máy chủ.</li>
+                            <li>Tiện ích không chạy trên trang đăng nhập, thanh toán, email, ô nhập chữ hay vùng soạn thảo. Gỡ tiện ích là xoá hết dữ liệu của nó.</li>
+                        </ul>
+                    ),
+                },
+                {
                     title: 'Đo cách dùng app',
                     body: (
                         <ul>

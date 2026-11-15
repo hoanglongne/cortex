@@ -10,7 +10,7 @@ const NOUNISH = ['tính', 'sự', 'độ'];
 
 export const DIAL_RULES_D0: DialRule[] = [
     // "bất khả thi" is infeasible, not feasible.
-    { cardId: 'v004', en: 'feasible', vi: ['khả thi'], notBefore: [...NOUNISH, 'nghiên cứu', 'bất'] },
+    { cardId: 'v004', en: 'feasible', vi: ['khả thi'], notBefore: [...NOUNISH, 'nghiên cứu', 'bất', 'tiền'] },
     { cardId: 'v005', en: 'inevitable', vi: ['không thể tránh khỏi', 'không tránh khỏi'] },
     { cardId: 'v137', en: 'sustainable', vi: ['bền vững'], notBefore: NOUNISH, notAfter: ['trong môi trường'] },
     { cardId: 'v138', en: 'transparent', vi: ['minh bạch'], notBefore: NOUNISH },
@@ -20,23 +20,23 @@ export const DIAL_RULES_D0: DialRule[] = [
     { cardId: 'v100', en: 'comprehensive', vi: ['toàn diện'], notBefore: NOUNISH },
     { cardId: 'v099', en: 'chronic', vi: ['mãn tính', 'kinh niên'] },
     // "hiệu quả năng lượng" is energy efficiency.
-    { cardId: 'v360', en: 'effective', vi: ['hiệu quả'], notBefore: [...NOUNISH, 'mang lại', 'đem lại', 'đạt'], notAfter: ['năng lượng', 'kinh tế', 'sử dụng', 'hoạt động', 'thương mại', 'tài chính', 'sản xuất', 'đầu tư'] },
+    { cardId: 'v360', en: 'effective', vi: ['hiệu quả'], notBefore: [...NOUNISH, 'mang lại', 'đem lại', 'đạt'], notAfter: ['năng lượng', 'kinh tế', 'sử dụng', 'hoạt động', 'thương mại', 'tài chính', 'sản xuất', 'đầu tư', 'thị trường', 'kinh doanh'] },
     { cardId: 'v375', en: 'temporary', vi: ['tạm thời'] },
-    { cardId: 'v376', en: 'urgent', vi: ['khẩn cấp'], notBefore: ['tình trạng', 'trường hợp', 'tình huống', 'cấp cứu', 'ứng cứu', 'cứu hộ', 'cứu nạn', 'sơ tán', 'tắt', 'lối thoát', 'cửa thoát'] },
+    { cardId: 'v376', en: 'urgent', vi: ['khẩn cấp'], notBefore: ['tình trạng', 'trường hợp', 'tình huống', 'cấp cứu', 'ứng cứu', 'cứu hộ', 'cứu nạn', 'sơ tán', 'tắt', 'lối thoát', 'cửa thoát', 'dừng', 'làn'] },
     { cardId: 'v378', en: 'accurate', vi: ['chính xác'], notBefore: NOUNISH },
     { cardId: 'v388', en: 'necessary', vi: ['cần thiết'], notBefore: NOUNISH },
     // "cơ hội thành công", a football "cơ hội": a chance, not an opportunity.
-    { cardId: 'v426', en: 'opportunity', vi: ['cơ hội'], notAfter: ['thành công', 'nguy hiểm', 'ghi bàn', 'sống', 'vượt qua', 'được', 'chiến thắng', 'thắng', 'trúng', 'đi tiếp', 'bị bỏ lỡ', 'đánh đầu', 'dứt điểm', 'sút', 'phản công'], notBefore: ['tạo ra', 'bỏ lỡ', 'phung phí', 'hàng loạt'] },
+    { cardId: 'v426', en: 'opportunity', vi: ['cơ hội'], notAfter: ['thành công', 'nguy hiểm', 'ghi bàn', 'sống', 'vượt qua', 'được', 'chiến thắng', 'thắng', 'trúng', 'đi tiếp', 'bị bỏ lỡ', 'đánh đầu', 'dứt điểm', 'sút', 'phản công', 'để tổ chức tấn công'], notBefore: ['tạo ra', 'bỏ lỡ', 'phung phí', 'hàng loạt', 'tận dụng tối đa những'] },
     { cardId: 'v355', en: 'quality', vi: ['chất lượng'] },
     // Bare "ảnh hưởng" is mostly "affect" (bị ảnh hưởng, gây ảnh hưởng); keep the noun only.
     { cardId: 'v420', en: 'influence', vi: ['tầm ảnh hưởng', 'sức ảnh hưởng'] },
     { cardId: 'v069', en: 'impact', vi: ['tác động'] },
-    { cardId: 'v084', en: 'benefit', vi: ['lợi ích'] },
+    { cardId: 'v084', en: 'benefit', vi: ['lợi ích'], notBefore: ['nhóm'] },
     { cardId: 'v316', en: 'procedure', vi: ['thủ tục'] },
     { cardId: 'v309', en: 'estimate', vi: ['ước tính'] },
     { cardId: 'v314', en: 'approach', vi: ['cách tiếp cận'] },
     // "triển khai quân/lực lượng" is "deploy".
-    { cardId: 'v328', en: 'implement', vi: ['triển khai'], notAfter: ['quân', 'lực lượng', 'binh', 'hệ thống phòng không', 'tên lửa', 'vũ khí'] },
+    { cardId: 'v328', en: 'implement', vi: ['triển khai'], notAfter: ['quân', 'lực lượng', 'binh', 'hệ thống phòng không', 'tên lửa', 'vũ khí', 'các nhóm', 'nhóm'] },
     // "duy trì ở mức" is "remain at".
     { cardId: 'v330', en: 'maintain', vi: ['duy trì'], notAfter: ['ở', 'đến', 'tới', 'trong'] },
     { cardId: 'v325', en: 'eliminate', vi: ['loại bỏ'], notBefore: ['bị'] },
@@ -49,7 +49,7 @@ export const DIAL_RULES_D0: DialRule[] = [
     { cardId: 'v407', en: 'mention', vi: ['đề cập'] },
     { cardId: 'v396', en: 'admit', vi: ['thừa nhận'] },
     { cardId: 'v398', en: 'complain', vi: ['phàn nàn', 'than phiền'] },
-    { cardId: 'v365', en: 'encourage', vi: ['khuyến khích'], notBefore: ['học bổng'] },
+    { cardId: 'v365', en: 'encourage', vi: ['khuyến khích'], notBefore: ['học bổng', 'giải'] },
     { cardId: 'v385', en: 'ignore', vi: ['phớt lờ', 'làm ngơ'] },
     { cardId: 'v318', en: 'reveal', vi: ['tiết lộ', 'hé lộ'] },
     { cardId: 'v063', en: 'cautious', vi: ['thận trọng'], notBefore: NOUNISH },
@@ -63,9 +63,9 @@ export const DIAL_RULES_D0: DialRule[] = [
     // "khả năng chủ động" is self-reliance; "chủ động chất lượng" is "control quality".
     { cardId: 'v131', en: 'proactive', vi: ['chủ động'], notBefore: [...NOUNISH, 'khả năng', 'thế'], notAfter: ['về', 'chất lượng', 'nguồn'] },
     // "khách quan sát" is "khách | quan sát" (guests observe).
-    { cardId: 'v125', en: 'objective', vi: ['khách quan'], notBefore: NOUNISH, notAfter: ['sát'] },
+    { cardId: 'v125', en: 'objective', vi: ['khách quan'], notBefore: NOUNISH, notAfter: ['sát', 'tâm'] },
     // "không dám chủ quan", "chủ quan với" mean "complacent".
-    { cardId: 'v136', en: 'subjective', vi: ['chủ quan'], notBefore: [...NOUNISH, 'dám', 'đừng', 'không', 'tâm lý'], notAfter: ['với', 'trước', 'mà'] },
+    { cardId: 'v136', en: 'subjective', vi: ['chủ quan'], notBefore: [...NOUNISH, 'dám', 'đừng', 'không', 'tâm lý', 'từng', 'quá'], notAfter: ['với', 'trước', 'mà'] },
     { cardId: 'v096', en: 'biased', vi: ['thiên vị'], notBefore: NOUNISH },
     { cardId: 'v431', en: 'trustworthy', vi: ['đáng tin cậy'], notBefore: NOUNISH },
     // "giảm nhẹ vai trò/tội" is "downplay / reduce a sentence".
@@ -88,7 +88,7 @@ export const DIAL_RULES_D0: DialRule[] = [
     { cardId: 'v413', en: 'unique', vi: ['độc đáo', 'độc nhất'], notBefore: NOUNISH },
     { cardId: 'v353', en: 'motivate', vi: ['tạo động lực'] },
     // "hợp tác" is mostly "cooperate/cooperation" (diplomacy, investigations).
-    { cardId: 'v303', en: 'collaborate', vi: ['cộng tác'], notBefore: ['cộng tác viên'] },
+    { cardId: 'v303', en: 'collaborate', vi: ['cộng tác'], notAfter: ['viên'] },
     { cardId: 'v364', en: 'determined', vi: ['quyết tâm'] },
     { cardId: 'v372', en: 'patient', vi: ['kiên nhẫn'], notBefore: NOUNISH },
     { cardId: 'v384', en: 'honest', vi: ['trung thực'], notBefore: NOUNISH },

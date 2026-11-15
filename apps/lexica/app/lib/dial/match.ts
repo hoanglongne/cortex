@@ -21,6 +21,10 @@ export interface DialRule {
     notAfter?: string[];
     /** For ambiguous phrases: match only right after one of these phrases. */
     onlyAfter?: string[];
+    /** Skip at the start of a sentence, where the phrase is an adverb ("Cụ thể, ..." = "Specifically, ..."). */
+    notAtStart?: boolean;
+    /** For ambiguous phrases: match only right before one of these phrases ("chắc chắn sẽ"). */
+    onlyBefore?: string[];
 }
 
 export interface DialHit {
@@ -74,6 +78,7 @@ interface Compiled {
     notBefore: string[][];
     notAfter: string[][];
     onlyAfter: string[][] | null;
+    onlyBefore: string[][] | null;
 }
 
 export interface DialIndex {
@@ -90,6 +95,7 @@ export function compileRules(rules: DialRule[]): DialIndex {
                 notBefore: (rule.notBefore ?? []).map(keys),
                 notAfter: (rule.notAfter ?? []).map(keys),
                 onlyAfter: rule.onlyAfter ? rule.onlyAfter.map(keys) : null,
+                onlyBefore: rule.onlyBefore ? rule.onlyBefore.map(keys) : null,
             };
             const list = byFirst.get(c.phrase[0]) ?? [];
             list.push(c);
@@ -138,6 +144,10 @@ export function findHits(text: string, index: DialIndex): DialHit[] {
                 if (c.notBefore.some((p) => seqAt(tokens, i - p.length, p))) continue;
                 if (c.notAfter.some((p) => seqAt(tokens, i + n, p))) continue;
                 if (c.onlyAfter && !c.onlyAfter.some((p) => seqAt(tokens, i - p.length, p))) continue;
+                if (c.rule.notAtStart && sentenceStart(src, tokens, i)) continue;
+                if (c.onlyBefore && !c.onlyBefore.some((p) => seqAt(tokens, i + n, p))) continue;
+                // A capital inside the phrase means a name ("cầu Kỳ Hà").
+                if (tokens.slice(i + 1, i + n).some((t) => t.capital)) continue;
                 hits.push({
                     cardId: c.rule.cardId,
                     en: c.rule.en,
@@ -161,7 +171,7 @@ export function dedupeRules(rules: DialRule[]): DialRule[] {
         .map((r) => ({
             ...r,
             vi: r.vi.filter((v) => {
-                const key = `${v.normalize('NFC').toLowerCase()}|${(r.onlyAfter ?? []).join(',')}`;
+                const key = `${v.normalize('NFC').toLowerCase()}|${(r.onlyAfter ?? []).join(',')}|${(r.onlyBefore ?? []).join(',')}`;
                 if (seen.has(key)) return false;
                 seen.add(key);
                 return true;
