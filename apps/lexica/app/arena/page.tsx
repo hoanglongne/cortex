@@ -10,23 +10,25 @@ import AuthGate from '../components/AuthGate';
 import { arenaJoin, arenaOpenRooms } from '../lib/classes';
 import { capture } from '../lib/productAnalytics';
 import { EVENTS } from '@cortex/events';
+import { guestApi, startGuestSession } from '../lib/guestSupabase';
 import { useArenaPlayer } from './useArenaPlayer';
 import { applyArenaResults } from './applyResults';
 
 const TILE = ['bg-arena-1', 'bg-arena-2', 'bg-arena-3', 'bg-arena-4'];
 const ROOM_KEY = 'lexica-arena-room';
+const GUEST_ROOM_KEY = 'lexica-arena-guest-room';
 
-function readRoom(): string | null {
+function readRoom(key = ROOM_KEY): string | null {
     try {
-        return sessionStorage.getItem(ROOM_KEY);
+        return sessionStorage.getItem(key);
     } catch {
         return null;
     }
 }
-function writeRoom(id: string | null) {
+function writeRoom(id: string | null, key = ROOM_KEY) {
     try {
-        if (id) sessionStorage.setItem(ROOM_KEY, id);
-        else sessionStorage.removeItem(ROOM_KEY);
+        if (id) sessionStorage.setItem(key, id);
+        else sessionStorage.removeItem(key);
     } catch {
         // private mode: a reload asks for the code again
     }
@@ -52,12 +54,15 @@ function Arena() {
     const { user, loading } = useAuth();
     const params = useSearchParams();
     const [room, setRoom] = useState<string | null>(null);
+    // A guest (no account): the room they joined with a code and a name
+    const [guestRoom, setGuestRoom] = useState<string | null>(null);
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
         // After mount: sessionStorage is not there on the server
         const t = setTimeout(() => {
             setRoom(readRoom());
+            setGuestRoom(readRoom(GUEST_ROOM_KEY));
             setReady(true);
         }, 0);
         return () => clearTimeout(t);
@@ -66,6 +71,10 @@ function Arena() {
     const enter = (id: string | null) => {
         writeRoom(id);
         setRoom(id);
+    };
+    const enterAsGuest = (id: string | null) => {
+        writeRoom(id, GUEST_ROOM_KEY);
+        setGuestRoom(id);
     };
 
     if (loading || !ready) return <div className="min-h-screen bg-bg" />;
@@ -81,9 +90,12 @@ function Arena() {
                     </p>
                     <span className="w-16" />
                 </div>
-                {!user ? (
-                    <div className="mt-6">
-                        <AuthGate reason="Đăng nhập để vào đấu trường của lớp." redirectPath="/arena" />
+                {!user && guestRoom ? (
+                    <Play roomId={guestRoom} onLeave={() => enterAsGuest(null)} asGuest />
+                ) : !user ? (
+                    <div className="mt-6 space-y-6">
+                        <GuestJoin code={params.get('code')} onJoined={enterAsGuest} />
+                        <AuthGate reason="Là học viên của lớp? Đăng nhập để vào đấu trường và giữ từ sai vào bài ôn." redirectPath="/arena" />
                     </div>
                 ) : room ? (
                     <Play roomId={room} onLeave={() => enter(null)} />
@@ -92,6 +104,64 @@ function Arena() {
                 )}
             </div>
         </div>
+    );
+}
+
+/** Vào bằng mã và một cái tên, không cần tài khoản: chỉ vào được phòng mà giáo viên mở cho khách. */
+function GuestJoin({ code: fromLink, onJoined }: { code: string | null; onJoined: (id: string) => void }) {
+    const [code, setCode] = useState(fromLink?.replace(/\D/g, '').slice(0, 6) ?? '');
+    const [name, setName] = useState('');
+    const [busy, setBusy] = useState(false);
+    const [error, setError] = useState('');
+
+    const go = async () => {
+        setBusy(true);
+        setError('');
+        try {
+            const started = await startGuestSession();
+            if (started) return setError(started);
+            const r = await guestApi.arenaJoinGuest(code, name);
+            capture(EVENTS.arenaJoined, { guest: true }, { track: 'class' });
+            onJoined(r.id);
+        } catch (e) {
+            setError(e instanceof Error ? e.message : String(e));
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    return (
+        <section className="rounded-2xl border border-line bg-surface p-5">
+            <p className="font-semibold text-ink">Vào chơi, không cần tài khoản</p>
+            <p className="mt-1 text-xs text-muted">Nhập mã 6 chữ số trên màn hình của giáo viên và một cái tên để cả lớp thấy. Bạn chỉ chơi ván này, không lưu gì vào việc học.</p>
+            <div className="mt-3 space-y-2">
+                <input
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    placeholder="000000"
+                    aria-label="Mã phòng"
+                    className="h-14 w-full rounded-xl border border-line bg-bg px-4 text-center font-mono text-2xl tracking-[0.3em] text-ink"
+                />
+                <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value.slice(0, 20))}
+                    autoComplete="nickname"
+                    placeholder="Tên của bạn"
+                    aria-label="Tên của bạn"
+                    className="h-12 w-full rounded-xl border border-line bg-bg px-4 text-ink"
+                />
+                <button onClick={() => void go()} disabled={busy || code.length !== 6 || name.trim().length === 0} className="h-12 w-full rounded-xl bg-accent font-bold text-on-accent disabled:opacity-40">
+                    {busy ? '…' : 'Vào chơi'}
+                </button>
+            </div>
+            {error && (
+                <p className="mt-3 text-sm text-danger" role="alert">
+                    {error}
+                </p>
+            )}
+        </section>
     );
 }
 
@@ -176,8 +246,8 @@ function Join({ code: fromLink, onJoined }: { code: string | null; onJoined: (id
     );
 }
 
-function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
-    const { view, receivedAt, error, answer } = useArenaPlayer(roomId);
+function Play({ roomId, onLeave, asGuest = false }: { roomId: string; onLeave: () => void; asGuest?: boolean }) {
+    const { view, receivedAt, error, answer } = useArenaPlayer(roomId, asGuest);
     const [clock, setClock] = useState(0);
     const [picked, setPicked] = useState<{ idx: number; choice: number } | null>(null);
     const [sendError, setSendError] = useState('');
@@ -187,6 +257,8 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
     useEffect(() => {
         if (!finished) return;
         capture(EVENTS.arenaFinished, {}, { track: 'class' });
+        // A guest has no learning to put the missed words into
+        if (asGuest) return;
         let live = true;
         applyArenaResults().then(
             (r) => live && setApplied(r),
@@ -195,7 +267,7 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
         return () => {
             live = false;
         };
-    }, [finished]);
+    }, [finished, asGuest]);
 
     useEffect(() => {
         if (!open) return;
@@ -226,6 +298,18 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
 
     return (
         <div className="mt-4 flex flex-1 flex-col">
+            {view.mode === 'survival' && view.alive !== undefined && (
+                <p className={`mb-3 self-start rounded-full px-3 py-1 text-sm font-bold ${view.alive ? 'bg-accent text-on-accent' : 'bg-surface-3 text-ink-2'}`}>
+                    {view.alive ? 'Bạn còn trụ' : 'Bạn đã rời nhóm đầu. Đúng liền 2 câu để quay lại'}
+                    {view.survivors !== undefined ? ` · còn ${view.survivors} em` : ''}
+                </p>
+            )}
+            {view.mode === 'progress' && view.gain !== undefined && (
+                <p className="mb-3 self-start rounded-full bg-surface-3 px-3 py-1 text-sm font-bold text-ink-2">
+                    So với mức thường của bạn: {view.gain >= 0 ? '+' : ''}
+                    {view.gain} điểm mỗi câu
+                </p>
+            )}
             {view.team && (
                 <p className={`mb-3 self-start rounded-full px-3 py-1 text-sm font-bold text-on-arena ${TILE[view.team - 1]}`}>
                     {ARENA_TEAMS[view.team]}
@@ -306,6 +390,14 @@ function Play({ roomId, onLeave }: { roomId: string; onLeave: () => void }) {
                     {view.team && view.team_rank && (
                         <p className="mt-4 text-xl font-bold text-ink">{view.team_rank === 1 ? `${ARENA_TEAMS[view.team]} thắng!` : `${ARENA_TEAMS[view.team]} về thứ ${view.team_rank}`}</p>
                     )}
+                    {view.mode === 'survival' && view.alive !== undefined && (
+                        <p className="mt-4 text-xl font-bold text-ink">{view.alive ? 'Bạn là người sống sót!' : 'Bạn không còn trụ đến cuối'}</p>
+                    )}
+                    {view.mode === 'progress' && view.gain !== undefined && (
+                        <p className="mt-4 text-xl font-bold text-ink">
+                            {view.gain > 0 ? `Bạn hơn mức thường của mình ${view.gain} điểm mỗi câu` : view.gain === 0 ? 'Bạn đúng bằng mức thường của mình' : `Ván này thấp hơn mức thường của bạn ${-view.gain} điểm mỗi câu`}
+                        </p>
+                    )}
                     <p className="mt-4 text-3xl font-bold text-ink">
                         Hạng {view.rank}
                         <span className="text-lg text-muted">/{view.players}</span>
@@ -371,6 +463,7 @@ function Reveal({ view }: { view: ArenaPlayerView }) {
             <p className="mt-8 font-mono text-sm text-ink-2">
                 {view.score} điểm · hạng {view.rank}/{view.players}
             </p>
+            {view.mode === 'survival' && view.alive !== undefined && <p className="mt-1 font-mono text-sm text-muted">{view.alive ? 'Còn trụ' : 'Đã rời nhóm đầu'}</p>}
             {view.team && view.team_score !== undefined && (
                 <p className="mt-1 font-mono text-sm text-muted">
                     {ARENA_TEAMS[view.team]}: {view.team_score} điểm · hạng {view.team_rank}/{view.teams}

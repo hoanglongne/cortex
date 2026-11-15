@@ -44,7 +44,7 @@
         }
     ],
     "share_target": {
-        "action": "/spot",
+        "action": "/num-van",
         "method": "GET",
         "params": {
             "title": "title",

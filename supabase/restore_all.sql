@@ -5488,7 +5488,12 @@ notify pgrst, 'reload schema';
 -- 6-digit code, 3 to 30 questions, 10 to 60 seconds each. Players are the
 -- class's students. Modes: classic (everyone for themselves) and team (2–4
 -- teams the teacher balances; a team's score is its members' average, so a
--- weaker student still adds to it). When the room finishes, each player's
+-- weaker student still adds to it), survival (a wrong or missed answer takes a
+-- player out of the top group; two right in a row bring them back) and
+-- progress (ranked by how much better than their own usual they did). A room can
+-- also let guests in: people without an account (or not in the class) enter the
+-- code and a name, as Supabase anonymous users; they play this one room only and
+-- never become class members. When the room finishes, each player's
 -- answers stay readable to them (arena_my_results) so Lexica can put the
 -- words they missed back into review. Every read and write goes through the functions below;
 -- the tables have RLS on and no policies.
@@ -5511,8 +5516,10 @@ create table if not exists cortex_arena_rooms (
 -- A code is unique among rooms still running
 -- Added with team mode (T2b)
 alter table cortex_arena_rooms add column if not exists teams int not null default 0;
+-- Guests (T2c): may people without an account join this room with a code and a name?
+alter table cortex_arena_rooms add column if not exists guests boolean not null default false;
 alter table cortex_arena_rooms drop constraint if exists cortex_arena_rooms_mode_check;
-alter table cortex_arena_rooms add constraint cortex_arena_rooms_mode_check check (mode in ('classic', 'team') and teams between 0 and 4 and (mode = 'classic') = (teams = 0));
+alter table cortex_arena_rooms add constraint cortex_arena_rooms_mode_check check (mode in ('classic', 'team', 'survival', 'progress') and teams between 0 and 4 and (mode = 'team') = (teams > 0));
 create unique index if not exists cortex_arena_rooms_code_idx on cortex_arena_rooms (code) where state <> 'finished';
 create index if not exists cortex_arena_rooms_class_idx on cortex_arena_rooms (class_id, created_at desc);
 
@@ -5541,6 +5548,12 @@ create table if not exists cortex_arena_players (
 );
 
 alter table cortex_arena_players add column if not exists team int check (team between 1 and 4);
+-- Survival (T2c): still in the top group? A wrong or missed answer takes a player out; two right in a row bring them back.
+alter table cortex_arena_players add column if not exists alive boolean not null default true;
+-- A guest (anonymous sign-in): the name is what they typed, not a class member's
+alter table cortex_arena_players add column if not exists guest boolean not null default false;
+-- Progress (T2c): the player's usual points per question in this class's earlier rooms, fixed when they join
+alter table cortex_arena_players add column if not exists baseline int;
 
 create table if not exists cortex_arena_answers (
   room_id uuid not null references cortex_arena_rooms(id) on delete cascade,
@@ -5574,12 +5587,44 @@ returns int language sql immutable as $$
   end;
 $$;
 
--- The room's ranking: score, then who joined first. `rank` starts at 1; ties share it.
+-- The usual points per question of a player in this class's last 5 finished rooms (null with none).
+create or replace function public.cortex_arena_baseline(p_class uuid, p_user uuid)
+returns int language sql stable as $$
+  select round(avg(p.score::numeric / greatest((select count(*) from cortex_arena_questions q where q.room_id = r.id), 1)))::int
+  from (
+    select r2.id from cortex_arena_rooms r2
+    join cortex_arena_players p2 on p2.room_id = r2.id and p2.user_id = p_user
+    where r2.class_id = p_class and r2.state = 'finished'
+    order by r2.finished_at desc nulls last limit 5
+  ) r
+  join cortex_arena_players p on p.room_id = r.id and p.user_id = p_user;
+$$;
+
+-- The room's ranking. Classic and team: score. Survival: players still in first, then score. Progress: gain
+-- (points per question so far, minus their own usual; the class's middle usual stands in for a newcomer), then score.
+-- Ties share a rank. `gain` is null outside progress mode.
+drop function if exists public.cortex_arena_ranking(uuid);
 create or replace function public.cortex_arena_ranking(p_room uuid)
-returns table (user_id uuid, name text, score int, rank int) language sql stable as $$
-  select p.user_id, p.name, p.score, (rank() over (order by p.score desc))::int
-  from cortex_arena_players p where p.room_id = p_room
-  order by p.score desc, p.joined_at;
+returns table (user_id uuid, name text, score int, rank int, alive boolean, gain int) language sql stable as $$
+  with r as (
+    select id, mode,
+      greatest(case when state in ('reveal', 'finished') then q_index + 1 else q_index end, 1) as asked
+    from cortex_arena_rooms where id = p_room
+  ),
+  mid as (
+    select coalesce(percentile_cont(0.5) within group (order by p.baseline), 0) as usual
+    from cortex_arena_players p where p.room_id = p_room and p.baseline is not null
+  ),
+  k as (
+    select p.user_id, p.name, p.score, p.alive, p.joined_at, r.mode,
+      case when r.mode = 'progress' then round(p.score::numeric / r.asked - coalesce(p.baseline, (select usual from mid)))::int end as gain
+    from cortex_arena_players p, r where p.room_id = p_room
+  )
+  select k.user_id, k.name, k.score,
+    (rank() over (order by case when k.mode = 'survival' and not k.alive then 1 else 0 end, coalesce(k.gain, 0) desc, k.score desc))::int,
+    k.alive, k.gain
+  from k
+  order by case when k.mode = 'survival' and not k.alive then 1 else 0 end, coalesce(k.gain, 0) desc, k.score desc, k.joined_at;
 $$;
 
 -- Each team's score (its members' average, rounded), size and rank; empty outside team mode.
@@ -5657,7 +5702,8 @@ $$;
 
 -- Open a room for the class with these questions; a room still running in the class is finished first.
 drop function if exists public.arena_open(uuid, int, jsonb, boolean);
-create or replace function public.arena_open(p_class uuid, p_seconds int, p_questions jsonb, p_hide_names boolean default true, p_mode text default 'classic', p_teams int default 0)
+drop function if exists public.arena_open(uuid, int, jsonb, boolean, text, int);
+create or replace function public.arena_open(p_class uuid, p_seconds int, p_questions jsonb, p_hide_names boolean default true, p_mode text default 'classic', p_teams int default 0, p_guests boolean default false)
 returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
   qs jsonb;
@@ -5666,7 +5712,7 @@ declare
   b bytea;
 begin
   if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
-  if coalesce(p_mode, 'classic') not in ('classic', 'team') or (p_mode = 'team' and coalesce(p_teams, 0) not between 2 and 4) then raise exception 'bad mode'; end if;
+  if coalesce(p_mode, 'classic') not in ('classic', 'team', 'survival', 'progress') or (p_mode = 'team' and coalesce(p_teams, 0) not between 2 and 4) then raise exception 'bad mode'; end if;
   qs := cortex_arena_clean_questions(p_questions);
   update cortex_arena_rooms set state = 'finished', finished_at = now() where class_id = p_class and state <> 'finished';
   loop
@@ -5674,9 +5720,9 @@ begin
     c := lpad((((get_byte(b, 0) * 65536 + get_byte(b, 1) * 256 + get_byte(b, 2)) % 900000) + 100000)::text, 6, '0');
     exit when not exists (select 1 from cortex_arena_rooms where code = c and state <> 'finished');
   end loop;
-  insert into cortex_arena_rooms (class_id, code, host, seconds, hide_names, mode, teams)
+  insert into cortex_arena_rooms (class_id, code, host, seconds, hide_names, mode, teams, guests)
   values (p_class, c, auth.uid(), least(greatest(coalesce(p_seconds, 20), 10), 60), coalesce(p_hide_names, true),
-    coalesce(p_mode, 'classic'), case when p_mode = 'team' then p_teams else 0 end)
+    coalesce(p_mode, 'classic'), case when p_mode = 'team' then p_teams else 0 end, coalesce(p_guests, false))
   returning id into rid;
   insert into cortex_arena_questions (room_id, idx, card_id, kind, prompt, options, answer, outcomes)
   select rid, (o - 1)::int, q->>'card_id', q->>'kind', q->>'prompt', q->'options', (q->>'answer')::int, q->'outcomes'
@@ -5714,7 +5760,7 @@ begin
 end;
 $$;
 
--- Close the open question: no more answers; whoever did not answer loses their run of right answers.
+-- Close the open question: no more answers.
 create or replace function public.arena_lock(p_room uuid)
 returns jsonb language plpgsql volatile security definer set search_path = public as $$
 declare
@@ -5722,7 +5768,8 @@ declare
 begin
   if r.state <> 'question' then return jsonb_build_object('state', r.state); end if;
   update cortex_arena_rooms set state = 'reveal' where id = p_room;
-  update cortex_arena_players p set streak = 0
+  -- Whoever did not answer loses their run of right answers (and, in survival, their place in the top group)
+  update cortex_arena_players p set streak = 0, alive = case when r.mode = 'survival' then false else p.alive end
   where p.room_id = p_room and not exists (select 1 from cortex_arena_answers a where a.room_id = p_room and a.idx = r.q_index and a.user_id = p.user_id);
   return jsonb_build_object('state', 'reveal');
 end;
@@ -5765,10 +5812,11 @@ declare
 begin
   select * into q from cortex_arena_questions where room_id = p_room and idx = r.q_index;
   return jsonb_build_object(
-    'id', r.id, 'class_id', r.class_id, 'code', r.code, 'mode', r.mode, 'teams', r.teams, 'seconds', r.seconds, 'hide_names', r.hide_names,
+    'id', r.id, 'class_id', r.class_id, 'code', r.code, 'mode', r.mode, 'teams', r.teams, 'guests', r.guests, 'seconds', r.seconds, 'hide_names', r.hide_names,
     'state', r.state, 'q_index', r.q_index, 'q_opened_at', r.q_opened_at, 'now', now(),
     'total', (select count(*) from cortex_arena_questions where room_id = p_room),
-    'players', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('user_id', k.user_id, 'name', k.name, 'score', k.score, 'rank', k.rank,
+    'players', coalesce((select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('user_id', k.user_id, 'name', k.name, 'score', k.score, 'rank', k.rank, 'alive', k.alive, 'gain', k.gain,
+      'guest', (select guest from cortex_arena_players x where x.room_id = p_room and x.user_id = k.user_id) or null,
       'team', (select team from cortex_arena_players x where x.room_id = p_room and x.user_id = k.user_id)))) from cortex_arena_ranking(p_room) k), '[]'::jsonb),
     'team_scores', case when r.mode = 'team' then coalesce((select jsonb_agg(jsonb_build_object('team', t.team, 'members', t.members, 'score', t.score, 'rank', t.rank)) from cortex_arena_teams(p_room) t), '[]'::jsonb) end,
     'question', case when q.room_id is not null and r.state in ('question', 'reveal') then jsonb_strip_nulls(jsonb_build_object(
@@ -5792,7 +5840,7 @@ begin
     -- Per student at the end: right answers, how fast, and quick wrong answers (under 1.5 s: likely a guess)
     'stats', case when r.state = 'finished' then coalesce((
       select jsonb_agg(jsonb_build_object(
-        'user_id', p.user_id, 'name', p.name,
+        'user_id', p.user_id, 'name', p.name, 'alive', p.alive,
         'answered', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id),
         'correct', (select count(*) from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id and a.correct),
         'avg_ms', (select round(avg(a.ms))::int from cortex_arena_answers a where a.room_id = p_room and a.user_id = p.user_id),
@@ -5828,7 +5876,7 @@ begin
   if r.id is null then raise exception 'no such room'; end if;
   select display_name into nm from cortex_class_members where class_id = r.class_id and user_id = auth.uid();
   if nm is null then raise exception 'not in this class'; end if;
-  insert into cortex_arena_players (room_id, user_id, name) values (r.id, auth.uid(), nm)
+  insert into cortex_arena_players (room_id, user_id, name, baseline) values (r.id, auth.uid(), nm, case when r.mode = 'progress' then cortex_arena_baseline(r.class_id, auth.uid()) end)
   on conflict (room_id, user_id) do nothing;
   -- A team game already under way: a newcomer joins the smallest team
   if r.mode = 'team' and r.state <> 'lobby' then
@@ -5861,6 +5909,9 @@ begin
     'total', (select count(*) from cortex_arena_questions where room_id = p_room),
     'class', (select name from cortex_classes where id = r.class_id),
     'name', me.name, 'score', me.score, 'streak', me.streak, 'rank', my_rank,
+    'alive', case when r.mode = 'survival' then me.alive end,
+    'survivors', case when r.mode = 'survival' then (select count(*) from cortex_arena_players where room_id = p_room and alive) end,
+    'gain', (select k.gain from cortex_arena_ranking(p_room) k where k.user_id = auth.uid()),
     'mode', r.mode, 'team', me.team,
     'team_score', (select t.score from cortex_arena_teams(p_room) t where t.team = me.team),
     'team_rank', (select t.rank from cortex_arena_teams(p_room) t where t.team = me.team),
@@ -5875,7 +5926,7 @@ begin
       'correct', case when r.state <> 'question' then mine.correct end,
       'points', case when r.state <> 'question' then mine.points end
     ) end,
-    'top', case when r.state = 'finished' then (select jsonb_agg(jsonb_build_object('name', k.name, 'score', k.score, 'rank', k.rank)) from (select * from cortex_arena_ranking(p_room) limit 3) k) end
+    'top', case when r.state = 'finished' then (select jsonb_agg(jsonb_strip_nulls(jsonb_build_object('name', k.name, 'score', k.score, 'rank', k.rank, 'gain', k.gain, 'alive', case when r.mode = 'survival' then k.alive end))) from (select * from cortex_arena_ranking(p_room) limit 3) k) end
   ));
 end;
 $$;
@@ -5907,7 +5958,9 @@ begin
   ok := p_choice = q.answer;
   pts := cortex_arena_points(ok, ms, r.seconds, me.streak);
   insert into cortex_arena_answers (room_id, idx, user_id, choice, correct, ms, points) values (p_room, p_idx, auth.uid(), p_choice, ok, ms, pts);
-  update cortex_arena_players set score = score + pts, streak = case when ok then streak + 1 else 0 end
+  update cortex_arena_players set score = score + pts, streak = case when ok then streak + 1 else 0 end,
+    -- Survival: a wrong answer takes the player out of the top group; two right in a row bring them back
+    alive = case when r.mode <> 'survival' then alive when not ok then false when alive then true else me.streak + 1 >= 2 end
   where room_id = p_room and user_id = auth.uid();
   return jsonb_build_object('received', true);
 end;
@@ -5931,16 +5984,82 @@ returns jsonb language sql stable security definer set search_path = public as $
   where r.state = 'finished' and r.finished_at > now() - interval '14 days';
 $$;
 
+-- A guest joins by code and a name: only rooms the teacher opened for guests, only as an anonymous Supabase user
+-- (never a class member), at most 60 guests a room. The name is cleaned (letters, digits, spaces; 1 to 20 characters)
+-- and made different from the ones already there. Coming back with the same session keeps the score.
+create or replace function public.arena_join_guest(p_code text, p_name text)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms;
+  nm text;
+  base text;
+  n int := 1;
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  select * into r from cortex_arena_rooms where code = trim(p_code) and state <> 'finished' and created_at > now() - interval '6 hours';
+  if r.id is null then raise exception 'no such room'; end if;
+  if not r.guests then raise exception 'no guests'; end if;
+  if exists (select 1 from cortex_arena_players where room_id = r.id and user_id = auth.uid()) then
+    return jsonb_build_object('id', r.id);
+  end if;
+  if (select count(*) from cortex_arena_players where room_id = r.id and guest) >= 60 then raise exception 'room full'; end if;
+  base := left(btrim(regexp_replace(regexp_replace(coalesce(p_name, ''), '[^[:alnum:] ]', '', 'g'), '\s+', ' ', 'g')), 20);
+  if char_length(base) < 1 then raise exception 'bad name'; end if;
+  nm := base;
+  while exists (select 1 from cortex_arena_players where room_id = r.id and lower(name) = lower(nm)) loop
+    n := n + 1;
+    nm := left(base, 17) || ' ' || n;
+  end loop;
+  insert into cortex_arena_players (room_id, user_id, name, guest) values (r.id, auth.uid(), nm, true);
+  if r.mode = 'team' and r.state <> 'lobby' then
+    update cortex_arena_players set team = cortex_arena_smallest_team(r.id) where room_id = r.id and user_id = auth.uid() and team is null;
+  end if;
+  return jsonb_build_object('id', r.id);
+end;
+$$;
+
+-- The teacher removes a player from the lobby (a wrong or rude guest name).
+create or replace function public.arena_kick(p_room uuid, p_user uuid)
+returns jsonb language plpgsql volatile security definer set search_path = public as $$
+declare
+  r cortex_arena_rooms := cortex_arena_room_teach(p_room);
+begin
+  if r.state <> 'lobby' then raise exception 'bad mode'; end if;
+  delete from cortex_arena_players where room_id = p_room and user_id = p_user;
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+-- The teacher's history: the class's finished rooms (newest first), with how many played, how many right answers
+-- overall and who came first. Names are the class's own (the teacher sees them already).
+create or replace function public.arena_history(p_class uuid)
+returns jsonb language plpgsql stable security definer set search_path = public as $$
+begin
+  if not classroom_can_teach(p_class) then raise exception 'not the teacher'; end if;
+  return coalesce((
+    select jsonb_agg(jsonb_build_object(
+      'id', r.id, 'mode', r.mode, 'teams', r.teams, 'finished_at', r.finished_at, 'created_at', r.created_at,
+      'questions', (select count(*) from cortex_arena_questions q where q.room_id = r.id),
+      'players', (select count(*) from cortex_arena_players p where p.room_id = r.id),
+      'answers', (select count(*) from cortex_arena_answers a where a.room_id = r.id),
+      'correct', (select count(*) from cortex_arena_answers a where a.room_id = r.id and a.correct),
+      'winner', (select k.name from cortex_arena_ranking(r.id) k order by k.rank, k.name limit 1)
+    ) order by coalesce(r.finished_at, r.created_at) desc)
+    from (select * from cortex_arena_rooms where class_id = p_class and state = 'finished' order by coalesce(finished_at, created_at) desc limit 30) r
+  ), '[]'::jsonb);
+end;
+$$;
+
 do $$
 declare f text;
 begin
-  foreach f in array array['arena_open(uuid, int, jsonb, boolean, text, int)', 'arena_teams_set(uuid, jsonb)', 'arena_my_results()', 'arena_next(uuid)', 'arena_lock(uuid)', 'arena_finish(uuid)',
+  foreach f in array array['arena_history(uuid)', 'arena_kick(uuid, uuid)', 'arena_join_guest(text, text)', 'arena_open(uuid, int, jsonb, boolean, text, int, boolean)', 'arena_teams_set(uuid, jsonb)', 'arena_my_results()', 'arena_next(uuid)', 'arena_lock(uuid)', 'arena_finish(uuid)',
     'arena_host_state(uuid)', 'arena_open_rooms()', 'arena_join(text)', 'arena_state(uuid)', 'arena_answer(uuid, int, int)'] loop
     execute format('revoke all on function public.%s from public, anon', f);
     execute format('grant execute on function public.%s to authenticated', f);
   end loop;
   foreach f in array array['cortex_arena_grace()', 'cortex_arena_points(boolean, int, int, int)', 'cortex_arena_ranking(uuid)',
-    'cortex_arena_clean_questions(jsonb)', 'cortex_arena_room_teach(uuid)', 'cortex_arena_teams(uuid)', 'cortex_arena_smallest_team(uuid)'] loop
+    'cortex_arena_baseline(uuid, uuid)', 'cortex_arena_clean_questions(jsonb)', 'cortex_arena_room_teach(uuid)', 'cortex_arena_teams(uuid)', 'cortex_arena_smallest_team(uuid)'] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
   end loop;
 end $$;

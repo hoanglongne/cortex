@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Languages, Pause, Plus, Volume2, X } from 'lucide-react';
+import { Check, Languages, Pause, Plus, SlidersHorizontal, Volume2, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getCard } from '../lib/content/repository';
 import { splitByWords, type Passage, type PassageQuestion } from '../lib/content/passages';
@@ -16,6 +16,8 @@ import { levelDef } from '../lib/levels';
 import { parseTurns } from '../lib/content/dialogue';
 import { usesWord } from '../lib/journey/outside';
 import DialogueScene from './DialogueScene';
+import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialSheet } from './DialText';
+import { useDialLevel } from '../lib/dial/level';
 
 /** Reading speeds for "Nghe cả đoạn". */
 const RATES = { slow: 0.65, normal: 0.9 } as const;
@@ -33,6 +35,11 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
     const markMet = useLexicaStore((s) => s.markMet);
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
     const [showTranslation, setShowTranslation] = useState(false);
+    // Núm vặn (docs/LEXICA_WOW_PLAN.md §2): read the Vietnamese translation with
+    // words swapped to English; at 100 % it becomes the English original.
+    const [dialOn, setDialOn] = useState(false);
+    const [dialLevel, setDialLevel] = useDialLevel();
+    const dialSheet = useDialSheet();
     const [rate, setRate] = useState<keyof typeof RATES>('slow');
     const [speaking, setSpeaking] = useState(false);
     const [selected, setSelected] = useState<string | null>(null);
@@ -56,6 +63,8 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
     const translation = dialogue ? split(passage.translation).map((t) => speakerOf(t).line) : split(passage.translation);
     // A dialogue opens as a scene, turn by turn; "Cả bài" is the whole text at once.
     const [view, setView] = useState<'scene' | 'roleplay' | 'all'>(dialogue ? 'scene' : 'all');
+    const dialPriority = useMemo(() => new Set(passage.newWords), [passage.newWords]);
+    const dial = useDialParagraphs(translation, dialLevel, dialPriority);
     const [sceneDone, setSceneDone] = useState(false);
     const scenes = useMemo(() => (dialogue ? parseTurns(passage.text, passage.translation) : []), [dialogue, passage]);
     const whole = view === 'all';
@@ -199,6 +208,13 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                     >
                         <Languages className="w-4 h-4" /> Xem nghĩa tiếng Việt
                     </button>
+                    <button
+                        onClick={() => { setDialOn(!dialOn); dialSheet.close(); }}
+                        aria-pressed={dialOn}
+                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${dialOn ? 'border-accent text-accent' : 'border-line text-ink hover:border-line-strong'}`}
+                    >
+                        <SlidersHorizontal className="w-4 h-4" /> Núm vặn
+                    </button>
                 </div>
                 )}
 
@@ -206,7 +222,27 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                     <span className="text-accent">Từ mới</span> · <span className="underline decoration-ink/30 underline-offset-4">từ đã học</span> · bấm vào từ để xem nghĩa
                 </p>
 
-                {whole ? (
+                {whole && dialOn ? (
+                <section className="mt-4">
+                    <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
+                        <DialSlider level={dialLevel} onChange={setDialLevel} total={dialLevel < 100 ? dial.total : undefined} />
+                        <p className="mt-1 text-xs text-subtle">0% là tiếng Việt, 100% là nguyên bản tiếng Anh.</p>
+                    </div>
+                    <article data-testid="passage-dial" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
+                        {paragraphs.map((para, i) => (
+                            <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
+                                {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
+                                <p className="text-lg leading-relaxed text-ink-2">
+                                    {dialLevel === 100 || !translation[i]
+                                        ? renderLine(para)
+                                        : <DialParagraph text={translation[i]} hits={dial.hits[i] ?? []} shown={dial.shown[i] ?? []} onOpen={dialSheet.setOpen} />}
+                                </p>
+                            </div>
+                        ))}
+                    </article>
+                    <DialSheet hit={dialSheet.open} onClose={dialSheet.close} />
+                </section>
+                ) : whole ? (
                 <article data-testid="passage-text" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                     {paragraphs.map((para, i) => (
                         <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>

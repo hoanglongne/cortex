@@ -11,6 +11,8 @@ export default function AuthBridge() {
         'http://localhost:3005',
         'https://cortex-landing.vercel.app',
         'https://cortex-lexica.vercel.app',
+        'https://lexica.cortexlearn.app',
+        'https://cortexlearn.app',
         'https://cortex-synapse.vercel.app',
       ];
 

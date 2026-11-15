@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Lexica Núm vặn",
+  "version": "0.1.0",
+  "description": "Đọc web tiếng Việt, các từ bạn đang học hiện bằng tiếng Anh ngay trong câu.",
+  "permissions": ["storage", "activeTab"],
+  "action": { "default_popup": "popup.html", "default_title": "Lexica Núm vặn" },
+  "icons": { "128": "icon-128.png" },
+  "content_scripts": [{ "matches": ["http://*/*", "https://*/*"], "js": ["content.js"], "css": ["content.css"], "run_at": "document_idle" }]
+}

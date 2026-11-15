@@ -1,5 +1,6 @@
 'use client';
 
+import { LexicaLogo } from './LexicaLogo';
 import Link from 'next/link';
 import { BookOpen, Dumbbell, Flame, Gamepad2, LayoutGrid, RotateCcw, UserRound, Users } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -19,7 +20,7 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
     return (
         <header className="hidden lg:block shrink-0 border-b border-line">
             <div className="max-w-6xl xl:max-w-7xl mx-auto px-8 h-16 flex items-center gap-3">
-                <span className="text-2xl font-bold text-ink tracking-tight mr-2">LEXICA</span>
+                <LexicaLogo className="h-6 w-auto text-ink mr-2" />
                 <button
                     onClick={onChangeLevel}
                     title="Đổi level"

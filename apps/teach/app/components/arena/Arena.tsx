@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { EVENTS } from '@cortex/events';
 import { analytics } from '../../lib/analytics';
 import { Check, Presentation, Shuffle, Users } from 'lucide-react';
-import { ARENA_SHAPES, ARENA_TEAMS, timeLeft, type ArenaHost, type ArenaMode, type ArenaTeamScore, type Board } from '@cortex/classroom';
+import { ARENA_MODES, ARENA_SHAPES, ARENA_TEAMS, timeLeft, type ArenaHistoryRow, type ArenaHost, type ArenaMode, type ArenaTeamScore, type Board } from '@cortex/classroom';
+import QrCode from './QrCode';
 import { LEXICA } from '@cortex/classroom-lexica';
 import { api } from '../../lib/supabase';
 import { LEXICA_URL } from '../../lib/config';
@@ -50,7 +51,12 @@ export default function Arena({ board, words, people, onTeach }: { board: Board;
         setRoom(id);
     };
     if (room) return <Stage roomId={room} words={words} people={people} onTeach={onTeach} onClose={(again) => { setRetry(again); open(null); }} />;
-    return <Setup board={board} words={words} retry={retry} onOpened={open} />;
+    return (
+        <>
+            <Setup board={board} words={words} retry={retry} onOpened={open} />
+            <History classId={board.class.id} />
+        </>
+    );
 }
 
 const COUNTS = [10, 15, 20];
@@ -65,6 +71,7 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
     const [count, setCount] = useState(10);
     const [seconds, setSeconds] = useState(20);
     const [hide, setHide] = useState(true);
+    const [guests, setGuests] = useState(false);
     const [mode, setMode] = useState<ArenaMode>('classic');
     const [teams, setTeams] = useState(2);
     const [busy, setBusy] = useState(false);
@@ -179,12 +186,11 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                 <section className="mt-8">
                     <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">Cách chơi</p>
                     <div className="flex flex-wrap items-center gap-2">
-                        <button className={chip(mode === 'classic')} onClick={() => setMode('classic')}>
-                            Mỗi em một mình
-                        </button>
-                        <button className={chip(mode === 'team')} onClick={() => setMode('team')}>
-                            Theo đội
-                        </button>
+                        {ARENA_MODES.map((m) => (
+                            <button key={m.id} className={chip(mode === m.id)} onClick={() => setMode(m.id)} aria-pressed={mode === m.id}>
+                                {m.label}
+                            </button>
+                        ))}
                         {mode === 'team' && (
                             <span className="ml-2 flex items-center gap-2">
                                 {[2, 3, 4].map((n) => (
@@ -195,7 +201,10 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                             </span>
                         )}
                     </div>
-                    {mode === 'team' && <p className="mt-2 text-[15px] text-muted">Teach chia đội đều sức. Điểm đội là điểm trung bình của các thành viên, nên em nào cũng góp sức.</p>}
+                    <p className="mt-2 text-[15px] text-muted">
+                        {ARENA_MODES.find((m) => m.id === mode)?.hint}
+                        {mode === 'team' ? ' Teach chia đội đều sức, nên em nào cũng góp sức.' : ''}
+                    </p>
                 </section>
 
                 <label className="mt-8 flex items-start gap-3 text-ink-2">
@@ -203,6 +212,14 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                     <span>
                         Bảng xếp hạng chỉ hiện tên top 3
                         <span className="block text-[15px] text-muted">Các em khác xem hạng của mình trên điện thoại, không ai bị bêu tên.</span>
+                    </span>
+                </label>
+
+                <label className="mt-6 flex items-start gap-3 text-ink-2">
+                    <input type="checkbox" checked={guests} onChange={(e) => setGuests(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--color-accent)]" />
+                    <span>
+                        Cho khách vào bằng mã (không cần tài khoản)
+                        <span className="block text-[15px] text-muted">Người chưa có tài khoản hoặc chưa vào lớp nhập mã và một cái tên là chơi được, chỉ trong ván này; không lưu gì vào việc học. Thầy cô gỡ được tên không hợp ở phòng chờ.</span>
                     </span>
                 </label>
 
@@ -234,7 +251,7 @@ function Setup({ board, words, retry, onOpened }: { board: Board; words: WordInd
                             setBusy(true);
                             setError('');
                             try {
-                                const r = await api.arenaOpen(board.class.id, seconds, qs, { hideNames: hide, mode, teams });
+                                const r = await api.arenaOpen(board.class.id, seconds, qs, { hideNames: hide, mode, teams, guests });
                                 analytics.capture(EVENTS.arenaHosted, { mode, questions: qs.length }, { track: 'teaching', classId: board.class.id });
                                 onOpened(r.id);
                             } catch (e) {
@@ -317,6 +334,7 @@ function Stage({ roomId, words, people, onTeach, onClose }: { roomId: string; wo
                         if (split) await api.arenaTeamsSet(roomId, split);
                         await api.arenaNext(roomId);
                     })}
+                    onKick={(userId) => void act(() => api.arenaKick(roomId, userId))}
                     onCancel={() => void act(() => api.arenaFinish(roomId)).then(() => onClose(null))}
                 />
             )}
@@ -328,7 +346,7 @@ function Stage({ roomId, words, people, onTeach, onClose }: { roomId: string; wo
     );
 }
 
-function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: Person[]; onStart: (split: Record<string, number> | null) => Promise<void>; onCancel: () => void }) {
+function Lobby({ host, people, onStart, onKick, onCancel }: { host: ArenaHost; people: Person[]; onStart: (split: Record<string, number> | null) => Promise<void>; onKick: (userId: string) => void; onCancel: () => void }) {
     const team = host.mode === 'team';
     const strength = (id: string) => people.find((p) => p.id === id)?.strength ?? null;
     const [base, setBase] = useState<Record<string, number>>({});
@@ -341,9 +359,17 @@ function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: P
             <p className="text-[17px] text-ink-2">Mở Lexica trên điện thoại → Lớp học → Vào đấu trường, hoặc vào</p>
             <p className="mt-1 font-mono text-[22px] font-semibold text-accent-strong">{link}</p>
             <p className="mt-8 text-[13px] font-semibold uppercase tracking-[0.12em] text-muted">Mã phòng</p>
-            <p className="mt-1 font-mono text-[72px] font-bold leading-none tracking-[0.18em] text-ink tabular sm:text-[112px]">{host.code}</p>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-8">
+                <p className="font-mono text-[72px] font-bold leading-none tracking-[0.18em] text-ink tabular sm:text-[112px]">{host.code}</p>
+                {LEXICA_URL && (
+                    <div className="flex flex-col items-center gap-2">
+                        <QrCode text={`${LEXICA_URL}/arena?code=${host.code}`} label={`Mã QR vào phòng ${host.code}`} className="h-40 w-40 rounded-[12px] sm:h-52 sm:w-52" />
+                        <p className="text-[15px] text-muted">Quét để vào thẳng phòng</p>
+                    </div>
+                )}
+            </div>
             <p className="mt-10 flex items-center gap-2 text-[17px] text-ink-2">
-                <Users className="h-5 w-5" /> {host.players.length} em đã vào
+                <Users className="h-5 w-5" /> {host.players.length} em đã vào{host.guests ? ' · khách cũng vào được bằng mã' : ''}
             </p>
             {team ? (
                 <div className="mt-4 grid w-full gap-3" style={{ gridTemplateColumns: `repeat(${host.teams}, minmax(0, 1fr))` }}>
@@ -352,7 +378,14 @@ function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: P
                             <p className={`inline-block rounded-full px-3 py-1 text-[15px] font-semibold text-on-arena ${TILE[t - 1]}`}>{ARENA_TEAMS[t]}</p>
                             <ul className="mt-3 space-y-1 text-[17px] text-ink">
                                 {host.players.filter((p) => split[p.user_id] === t).map((p) => (
-                                    <li key={p.user_id}>{p.name}</li>
+                                    <li key={p.user_id}>
+                                        {p.name}
+                                        {p.guest && (
+                                            <button onClick={() => onKick(p.user_id)} aria-label={`Gỡ ${p.name}`} className="ml-2 text-[15px] text-muted hover:text-ink">
+                                                ✕ khách
+                                            </button>
+                                        )}
+                                    </li>
                                 ))}
                             </ul>
                         </div>
@@ -361,8 +394,14 @@ function Lobby({ host, people, onStart, onCancel }: { host: ArenaHost; people: P
             ) : (
                 <ul className="mt-4 flex max-w-3xl flex-wrap justify-center gap-2">
                     {host.players.map((p) => (
-                        <li key={p.user_id} className="rounded-full bg-surface px-4 py-2 text-[17px] text-ink shadow-[var(--shadow-card)]">
+                        <li key={p.user_id} className="flex items-center gap-2 rounded-full bg-surface px-4 py-2 text-[17px] text-ink shadow-[var(--shadow-card)]">
                             {p.name}
+                            {p.guest && <span className="rounded-full bg-surface-2 px-2 py-0.5 text-[12px] font-semibold text-muted">khách</span>}
+                            {p.guest && (
+                                <button onClick={() => onKick(p.user_id)} aria-label={`Gỡ ${p.name}`} className="text-[15px] text-muted hover:text-ink">
+                                    ✕
+                                </button>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -389,7 +428,10 @@ function Question({ host, left, onLock, onNext, isLast }: { host: ArenaHost; lef
     const reveal = host.state === 'reveal';
     const secs = Math.ceil(left / 1000);
     const most = Math.max(1, ...(q.counts ?? [0]));
-    const top = host.players.filter((p) => p.score > 0).slice(0, host.hide_names ? 3 : 5);
+    const survival = host.mode === 'survival';
+    const progress = host.mode === 'progress';
+    const alive = host.players.filter((p) => p.alive !== false).length;
+    const top = (survival ? host.players.filter((p) => p.alive !== false) : host.players.filter((p) => p.score > 0)).slice(0, host.hide_names ? 3 : 5);
     return (
         <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-6">
             <div className="flex flex-wrap items-center justify-between gap-3 text-[17px] text-ink-2">
@@ -446,7 +488,7 @@ function Question({ host, left, onLock, onNext, isLast }: { host: ArenaHost; lef
                     </aside>
                 ) : reveal && top.length > 0 && (
                     <aside className="rounded-[var(--radius-card)] bg-surface p-5 shadow-[var(--shadow-card)]">
-                        <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">Dẫn đầu</p>
+                        <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">{survival ? `Còn trụ: ${alive}/${host.players.length} em` : progress ? 'Tiến bộ nhất' : 'Dẫn đầu'}</p>
                         <ol className="space-y-2">
                             {top.map((p) => (
                                 <li key={p.user_id} className="flex items-baseline justify-between gap-3 text-[19px]">
@@ -454,7 +496,7 @@ function Question({ host, left, onLock, onNext, isLast }: { host: ArenaHost; lef
                                         <span className="mr-2 font-mono text-muted tabular">{p.rank}</span>
                                         {p.name}
                                     </span>
-                                    <span className="font-mono font-semibold tabular text-ink">{p.score}</span>
+                                    <span className="font-mono font-semibold tabular text-ink">{progress && p.gain !== undefined ? `${p.gain >= 0 ? '+' : ''}${p.gain}` : p.score}</span>
                                 </li>
                             ))}
                         </ol>
@@ -478,7 +520,10 @@ function Question({ host, left, onLock, onNext, isLast }: { host: ArenaHost; lef
 
 function Finished({ host, words, onTeach, onClose }: { host: ArenaHost; words: WordIndex | null; onTeach: (cardIds: string[]) => void; onClose: (again: string[] | null) => void }) {
     const [details, setDetails] = useState(false);
-    const podium = host.players.filter((p) => p.score > 0).slice(0, 3);
+    const survival = host.mode === 'survival';
+    const progress = host.mode === 'progress';
+    const survivors = host.players.filter((p) => p.alive !== false);
+    const podium = (survival ? survivors.length ? survivors : host.players : host.players).filter((p) => p.score > 0).slice(0, 3);
     // Second, first, third: the winner in the middle
     const order = [podium[1], podium[0], podium[2]].filter(Boolean);
     const summary = host.summary ?? [];
@@ -493,6 +538,12 @@ function Finished({ host, words, onTeach, onClose }: { host: ArenaHost; words: W
     return (
         <div className="mx-auto w-full max-w-5xl flex-1 px-5 py-10">
             <h2 className="text-center font-serif text-[40px] font-semibold text-ink">Kết quả</h2>
+            {survival && (
+                <p className="mx-auto mt-6 max-w-3xl text-center font-serif text-[28px] font-semibold text-ink">
+                    {survivors.length === 0 ? 'Không em nào trụ đến cuối.' : `Người sống sót: ${survivors.map((p) => p.name).join(', ')}`}
+                </p>
+            )}
+            {progress && <p className="mx-auto mt-6 max-w-3xl text-center text-[17px] text-ink-2">Xếp theo mức hơn chính mình: điểm mỗi câu so với mức thường của từng em ở các ván trước.</p>}
             {host.team_scores && host.team_scores.length > 0 && (
                 <section className="mx-auto mt-8 max-w-2xl">
                     <p className="text-center font-serif text-[30px] font-semibold text-ink">{host.team_scores.filter((t) => t.rank === 1).map((t) => ARENA_TEAMS[t.team]).join(' và ')} thắng!</p>
@@ -509,7 +560,7 @@ function Finished({ host, words, onTeach, onClose }: { host: ArenaHost; words: W
                     {order.map((p) => (
                         <div key={p.user_id} className="flex w-36 flex-col items-center sm:w-48">
                             <p className="text-center text-[22px] font-semibold leading-tight text-ink">{p.name}</p>
-                            <p className="mt-1 font-mono text-[17px] text-ink-2 tabular">{p.score}</p>
+                            <p className="mt-1 font-mono text-[17px] text-ink-2 tabular">{progress && p.gain !== undefined ? `${p.gain >= 0 ? '+' : ''}${p.gain} mỗi câu` : p.score}</p>
                             <div className={`mt-3 flex w-full items-start justify-center rounded-t-[14px] pt-3 font-serif text-[40px] font-bold text-on-arena ${height(p)} ${p === podium[0] ? 'bg-arena-1' : p === podium[1] ? 'bg-arena-3' : 'bg-arena-4'}`}>
                                 {p.rank}
                             </div>
@@ -634,6 +685,48 @@ function StoryReveal({ q }: { q: NonNullable<ArenaHost['question']> }) {
                     <b lang="en" className="text-ink">{q.options[right]?.split(' · ')[0]}</b>: {outcomes[right]}
                 </p>
             )}
+        </section>
+    );
+}
+
+const MODE_LABEL: Record<ArenaMode, string> = { classic: 'Cổ điển', team: 'Đội', survival: 'Sống sót', progress: 'Tiến bộ' };
+
+/** Các ván trước của lớp: ngày, cách chơi, bao nhiêu em, tỉ lệ đúng và ai đứng đầu. */
+function History({ classId }: { classId: string }) {
+    const [rows, setRows] = useState<ArenaHistoryRow[] | null>(null);
+    const [error, setError] = useState('');
+    useEffect(() => {
+        let live = true;
+        api.arenaHistory(classId).then(
+            (r) => live && setRows(r),
+            (e) => {
+                if (!live) return;
+                setError(/Could not find|schema cache/i.test(errorText(e)) ? 'Chưa cài SQL mới của Đấu trường (chạy lại supabase/teach_all.sql).' : errorText(e));
+                setRows([]);
+            },
+        );
+        return () => {
+            live = false;
+        };
+    }, [classId]);
+    if (rows === null || (rows.length === 0 && !error)) return null;
+    return (
+        <section className="mx-auto mt-10 w-full max-w-3xl px-5 pb-10" aria-label="Các ván trước">
+            <p className="mb-3 text-[13px] font-semibold uppercase tracking-[0.06em] text-muted">Các ván trước của lớp</p>
+            <ErrorNote error={error} />
+            <ul className="divide-y divide-line rounded-[var(--radius-card)] bg-surface shadow-[var(--shadow-card)]">
+                {rows.map((r) => (
+                    <li key={r.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-3 text-[15px]">
+                        <span className="text-ink">
+                            <b>{MODE_LABEL[r.mode]}</b> · {new Date(r.finished_at ?? r.created_at).toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' })} · {r.questions} câu · {r.players} em
+                        </span>
+                        <span className="text-muted">
+                            {r.answers > 0 ? `${Math.round((r.correct / r.answers) * 100)}% đúng` : 'chưa có câu trả lời'}
+                            {r.winner ? ` · đứng đầu: ${r.winner}` : ''}
+                        </span>
+                    </li>
+                ))}
+            </ul>
         </section>
     );
 }
