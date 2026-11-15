@@ -1,5 +1,7 @@
 // Content script body (bundled after the matcher, rules and card data by build.mjs).
 (() => {
+    if (window.__lexicaNumVan) return;
+    window.__lexicaNumVan = true;
     const host = location.hostname;
     const SKIP = 'SCRIPT,STYLE,NOSCRIPT,TEXTAREA,INPUT,SELECT,CODE,PRE,BUTTON,SVG,CANVAS';
     // Never run on login, payment or mail pages.

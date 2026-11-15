@@ -12,7 +12,24 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
         };
         render();
         $('toggle').disabled = !host;
-        $('toggle').onclick = () => { v.sites[host] = !v.sites[host]; if (!v.sites[host]) delete v.sites[host]; chrome.storage.sync.set({ sites: v.sites }); render(); };
+        $('toggle').onclick = async () => {
+            const origins = [`https://${host}/*`, `http://${host}/*`];
+            if (!v.sites[host]) {
+                // Ask for this site only (needs the click, so it happens here in the popup).
+                const ok = await chrome.permissions.request({ origins });
+                if (!ok) return;
+                v.sites[host] = true;
+                await chrome.storage.sync.set({ sites: v.sites });
+                // Run on the open page now; later visits use the registered script.
+                await chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['content.css'] }).catch(() => {});
+                await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] }).catch(() => {});
+            } else {
+                delete v.sites[host];
+                await chrome.storage.sync.set({ sites: v.sites });
+                await chrome.permissions.remove({ origins }).catch(() => {});
+            }
+            render();
+        };
         $('level').oninput = (e) => { v.level = Number(e.target.value); chrome.storage.sync.set({ level: v.level }); render(); };
     });
 });

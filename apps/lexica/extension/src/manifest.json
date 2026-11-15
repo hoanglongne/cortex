@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "Lexica Núm vặn",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Đọc web tiếng Việt, các từ bạn đang học hiện bằng tiếng Anh ngay trong câu.",
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "scripting"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -17,23 +18,6 @@
   "content_scripts": [
     {
       "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "exclude_matches": [
-        "https://lexica.cortexlearn.app/*",
-        "https://cortex-lexica.vercel.app/*"
-      ],
-      "js": [
-        "content.js"
-      ],
-      "css": [
-        "content.css"
-      ],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": [
         "https://lexica.cortexlearn.app/*",
         "https://cortex-lexica.vercel.app/*",
         "http://localhost:3000/*"
@@ -43,5 +27,12 @@
       ],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "sw.js"
+  }
 }

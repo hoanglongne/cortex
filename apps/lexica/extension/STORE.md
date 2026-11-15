@@ -20,11 +20,14 @@
 - **Danh mục:** Education. **Ngôn ngữ:** Tiếng Việt.
 
 ## Quyền và lý do (mục "Privacy practices")
+Từ bản 0.3, tiện ích **không xin quyền đọc mọi trang lúc cài**. Nó xin quyền **từng trang** khi người dùng bấm "Bật trên trang này".
+
 | Quyền | Lý do điền vào form |
 |---|---|
 | `storage` | Lưu trang bạn đã bật, mức tiếng Anh, lịch ôn lấy từ Lexica và các từ đã chạm chờ gửi cho Lexica. |
 | `activeTab` | Biết trang đang mở để popup bật/tắt đúng trang đó. |
-| Content script trên `http(s)://*/*` | Đổi từ trên trang bạn đã bật. Trên trang chưa bật, script không làm gì. |
+| `scripting` | Chạy phần đổi từ trên đúng những trang người dùng đã bật (đăng ký content script theo từng trang). |
+| `optional_host_permissions` (`http(s)://*/*`) | Chỉ được xin khi người dùng bấm "Bật trên trang này", cho đúng trang đó; tắt là trả lại quyền. |
 | Content script trên `lexica.cortexlearn.app` | Đọc lịch ôn của bạn và chuyển cho Lexica các từ đã chạm, ngay trong trình duyệt. |
 
 - **Mục đích duy nhất (single purpose):** hiện từ tiếng Anh bạn đang học trong trang tiếng Việt bạn đọc.
@@ -32,10 +35,10 @@
 - **Remote code:** không. Toàn bộ mã nằm trong gói.
 - **Chính sách riêng tư:** https://lexica.cortexlearn.app/privacy (mục "Núm vặn: đọc bài và tiện ích Chrome").
 
-## Hình ảnh cần chuẩn bị
-- Icon 128×128: `extension/dist/icon-128.png` (đã có).
-- Ít nhất 1 ảnh chụp 1280×800: một bài báo có câu chêm và ô nghĩa đang mở.
-- Ảnh quảng bá nhỏ 440×280 (tuỳ chọn): logo Lexica + chữ "Đọc báo, học từ".
+## Hình ảnh (đã có trong `extension/store/`)
+- Icon 128×128: `extension/dist/icon-128.png`.
+- Ảnh chụp 1280×800: `store/screenshot-1280x800.png`. Đây là một trang demo tự viết, không phải trang báo thật, để không dùng thương hiệu của báo khác.
+- Ảnh quảng bá nhỏ 440×280: `store/promo-440x280.png`.
 
 ## Rủi ro khi duyệt
-- Quyền đọc mọi trang (`http(s)://*/*`) làm việc duyệt lâu hơn và có thể bị hỏi thêm. Nếu bị từ chối, chuyển sang `optional_host_permissions` và xin quyền theo từng trang khi người dùng bấm "Bật trên trang này".
+- Đã dùng quyền theo từng trang nên rủi ro thấp hơn. Vẫn có thể bị hỏi vì `optional_host_permissions` rộng. Trả lời: chỉ xin khi người dùng bấm, cho đúng trang đó.
