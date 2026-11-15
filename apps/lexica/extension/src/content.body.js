@@ -76,7 +76,10 @@
         tip.querySelector('.hint').textContent = c.hint || '';
         // A tap means "not recalled": queue it for Lexica (applied next time Lexica is open).
         chrome.storage.local.get({ pendingTaps: [] }, ({ pendingTaps }) => {
-            chrome.storage.local.set({ pendingTaps: [...pendingTaps, { cardId: s.dataset.card, at: Date.now() }].slice(-500) });
+            chrome.storage.local.set({ pendingTaps: [...pendingTaps, { cardId: s.dataset.card, at: Date.now() }].slice(-500) }, () => {
+                // With an account the worker sends it to Lexica right away (any device).
+                chrome.runtime.sendMessage({ type: 'dial-tap' }).catch?.(() => {});
+            });
         });
         const note = document.createElement('div');
         note.className = 'hint';

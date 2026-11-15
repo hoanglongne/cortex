@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Lexica Núm vặn",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Đọc web tiếng Việt, các từ bạn đang học hiện bằng tiếng Anh ngay trong câu.",
   "permissions": [
     "storage",
@@ -34,5 +34,8 @@
   ],
   "background": {
     "service_worker": "sw.js"
-  }
+  },
+  "host_permissions": [
+    "https://cortexapi-production-964a.up.railway.app/*"
+  ]
 }
