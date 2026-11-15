@@ -36,7 +36,7 @@ describe("class work", () => {
   });
 
   it("runs and class work survive a new device", () => {
-    const remote = { profile: { setting: "auto", auto: "learn", recent: [], seenScenes: [], cleared: [], endings: [], extra: { runs: 7, homework: { a1: { done: true, best: "gold", tries: 3 } } } }, phrases: {} };
+    const remote = { profile: { setting: "auto", auto: "learn", recent: [], seenScenes: [], cleared: [], endings: [], extra: { runs: 7, homework: { a1: { done: true, best: "gold" as const, tries: 3 } } } }, phrases: {} };
     const local = settleRun(emptyProgress(), [mission], run({ ending: "fail" }));
     const m = mergeProgress(local, remote);
     expect(m.runs).toBe(7);
