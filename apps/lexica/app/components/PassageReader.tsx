@@ -16,7 +16,7 @@ import { levelDef } from '../lib/levels';
 import { parseTurns } from '../lib/content/dialogue';
 import { usesWord } from '../lib/journey/outside';
 import DialogueScene from './DialogueScene';
-import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialSheet } from './DialText';
+import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialRank, useDialSheet } from './DialText';
 import { useDialLevel } from '../lib/dial/level';
 
 /** Reading speeds for "Nghe cả đoạn". */
@@ -63,7 +63,14 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
     const translation = dialogue ? split(passage.translation).map((t) => speakerOf(t).line) : split(passage.translation);
     // A dialogue opens as a scene, turn by turn; "Cả bài" is the whole text at once.
     const [view, setView] = useState<'scene' | 'roleplay' | 'all'>(dialogue ? 'scene' : 'all');
-    const dialPriority = useMemo(() => new Set(passage.newWords), [passage.newWords]);
+    // The passage's new words first, then words due for review, then other learned words.
+    const dialRankAll = useDialRank();
+    const dialPriority = useMemo(() => {
+        const m = new Map<string, number>();
+        for (const id of passage.newWords) m.set(id, -1);
+        for (const [id, r] of dialRankAll) if (!m.has(id)) m.set(id, r);
+        return m;
+    }, [passage.newWords, dialRankAll]);
     const dial = useDialParagraphs(translation, dialLevel, dialPriority);
     const [sceneDone, setSceneDone] = useState(false);
     const scenes = useMemo(() => (dialogue ? parseTurns(passage.text, passage.translation) : []), [dialogue, passage]);
@@ -240,7 +247,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                             </div>
                         ))}
                     </article>
-                    <DialSheet hit={dialSheet.open} onClose={dialSheet.close} />
+                    <DialSheet hit={dialSheet.open} onClose={dialSheet.close} effect={dialSheet.effect} />
                 </section>
                 ) : whole ? (
                 <article data-testid="passage-text" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>

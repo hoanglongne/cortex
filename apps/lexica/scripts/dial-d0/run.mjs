@@ -2,17 +2,21 @@
 // hits (with their sentence) for labelling, plus a labelling page.
 // Usage: node scripts/dial-d0/run.mjs <dir> <dev|test>   (reads <dir>/corpus-<set>.json)
 import fs from 'node:fs';
-import { compileRules, findHits } from '../../app/lib/dial/match.ts';
+import { compileRules, findHits, dedupeRules } from '../../app/lib/dial/match.ts';
 import { DIAL_RULES_D0 } from '../../app/lib/dial/rules.ts';
+import { DIAL_RULES_MORE } from '../../app/lib/dial/rulesMore.ts';
+// Same list as app/lib/dial/allRules.ts (scripts import .ts files directly).
+const DIAL_RULES = dedupeRules([...DIAL_RULES_D0, ...DIAL_RULES_MORE]);
 
 const [dir, set = 'dev'] = process.argv.slice(2);
 const corpus = JSON.parse(fs.readFileSync(`${dir}/corpus-${set}.json`, 'utf8'));
-const idx = compileRules(DIAL_RULES_D0);
+const idx = compileRules(DIAL_RULES);
 
 const hits = [];
 let words = 0;
 for (const [ai, a] of corpus.entries()) {
-    for (const para of a.text.split('\n')) {
+    for (const raw of a.text.split('\n')) {
+        const para = raw.normalize('NFC');
         words += para.split(/\s+/).length;
         for (const h of findHits(para, idx)) {
             // The sentence around the hit.
@@ -27,5 +31,5 @@ for (const [ai, a] of corpus.entries()) {
 fs.writeFileSync(`${dir}/hits-${set}.json`, JSON.stringify(hits, null, 1));
 const byWord = {};
 for (const h of hits) byWord[h.en] = (byWord[h.en] ?? 0) + 1;
-console.log(`${corpus.length} articles, ~${words} syllables, ${hits.length} hits, ${Object.keys(byWord).length}/${DIAL_RULES_D0.length} rules fired`);
+console.log(`${corpus.length} articles, ~${words} syllables, ${hits.length} hits, ${Object.keys(byWord).length}/${DIAL_RULES.length} rules fired`);
 console.log(Object.entries(byWord).sort((a, b) => b[1] - a[1]).map(([w, n]) => `${w}:${n}`).join(' '));

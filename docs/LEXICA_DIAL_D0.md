@@ -65,3 +65,45 @@ Hai hướng:
 2. **Chấm vòng 3** trên bộ bài mới lấy vào một ngày khác, gồm cả Facebook hoặc diễn đàn nếu lấy được.
 3. Nếu vòng 3 ≥ 95% với cả hai người chấm: viết luật cho các thẻ còn lại (ưu tiên cấp Cơ bản, Trung cấp) và sang D1 (trình đọc trong app).
 4. Nếu không đạt: thêm bộ tách từ tiếng Việt chạy trên máy, hoặc dùng lớp 2 (hỏi máy chủ) làm chính cho người dùng premium.
+
+---
+
+## Vòng 3 và 4: luật cho cả bộ thẻ (15/11/2026)
+
+**Đã làm:**
+- Luật cho 344 từ còn lại (`app/lib/dial/rulesMore.ts`). Gộp với 75 từ cũ trong `allRules.ts`, tổng cộng **415 luật**. Một cụm cùng ngữ cảnh chỉ thuộc về một thẻ.
+- Còn 5 từ cố ý bỏ trống vì không có cụm tiếng Việt đủ đặc hiệu (`DIAL_SKIPPED`).
+- Mật độ tăng từ khoảng 6 lên khoảng 11–15 chỗ thay trên 1.000 tiếng.
+
+**Chấm, chỉ tính chỗ thay của luật mới (luật cũ đã chấm ở vòng 2):**
+
+| Vòng | Bộ bài | Số bài | Chỗ thay của luật mới | Sai nghĩa | Đúng nghĩa |
+|---|---|---|---|---|---|
+| 3 | r3 (mới) | 62 | 306 | ~57 | **~81%** |
+| 4 | dev-r4 (mới, sau khi sửa theo vòng 3) | 66 | 417 | ~55 | **~87%** |
+
+- Đã sửa thêm luật theo lỗi của vòng 4. **Chưa đo lại** trên bộ bài mới, nên chưa biết luật mới đã đạt 95% chưa.
+- Chỗ thay của luật cũ trong vòng 3 và 4 chưa chấm lại.
+
+**Nhóm lỗi mới gặp:**
+| Cụm | Hay nghĩa là | Đã xử lý |
+|---|---|---|
+| "có khả năng mưa" | *likely to*, không phải *capable* | Bỏ "có khả năng"; chỉ giữ "có/đủ năng lực" |
+| "sẵn sàng" | *ready* | Bỏ khỏi *willing* |
+| "năng suất lúa", "năng suất lao động" | *yield*, *productivity* | Bỏ khỏi *efficient* |
+| "chênh lệch giá" | *spread*, *difference* | Bỏ khỏi *discrepancy* |
+| "cắt giảm nhân sự" | *lay off*, *cut jobs* | *curtail* không khớp khi đi trước "nhân sự/nhân viên" |
+| "đáp ứng yêu cầu/điều trị" | *meet*, *respond to* | *accommodate* chỉ còn với "nhu cầu" |
+| "thông tin được", "bắt buộc phải", "doanh thu được", "có lợi ích" | tách từ sai | `notBefore`/`notAfter` theo tiếng liền trước/sau |
+| "Cụ thể,", "Đáng chú ý," đầu câu | trạng từ (*Specifically*, *Notably*) | Chưa xử lý (đúng nghĩa, sai từ loại) |
+
+**Bài học:** luật cho từ phổ thông dễ sai hơn nhiều so với từ học thuật, vì cụm tiếng Việt phổ thông có nhiều nghĩa. Luật nào khớp quá nhiều trong một bộ bài (ví dụ "có khả năng" khớp 22 lần) cần nghi ngờ trước tiên.
+
+## Nối với lịch ôn
+- **Thứ tự hiện từ khi mức dưới 100%:** từ mới của bài (trong trình đọc), rồi từ **đến hạn ôn trong vòng 1 ngày**, rồi các từ đã học khác, cuối cùng mới tới từ chưa học (`dialRank`, `pickHits`).
+- **Chạm xem nghĩa = chưa nhớ** (`dialTap` trong store):
+  - từ đã học → **đến hạn ôn ngay**, không đổi độ dễ (lượt ôn thật sẽ quyết);
+  - từ chưa học → **thêm vào bộ thẻ học tiếp theo**.
+  - Ô nghĩa báo rõ điều này cho người học.
+- **Đọc lướt qua không chạm thì chưa tính gì.** Theo kế hoạch (mục 2.5), tín hiệu này cần hiệu chỉnh bằng kiểm tra thật trước khi được dùng.
+- **Tiện ích Chrome chưa nối với tài khoản**, nên chưa đổi được lịch ôn.

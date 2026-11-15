@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
-import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialSheet } from '../components/DialText';
+import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialRank, useDialSheet } from '../components/DialText';
 import { useDialLevel } from '../lib/dial/level';
 import { allowedUrl, firstUrl, DIAL_SITES } from '../lib/dial/extract';
-import { useLexicaStore } from '../store/lexicaStore';
 
 const SAMPLE = `Sau nhiều tháng chuẩn bị, công ty quyết định triển khai phương án mới vì nó khả thi và tiết kiệm chi phí. Ban giám đốc thừa nhận kế hoạch cũ thiếu minh bạch và không mang lại lợi ích như mong đợi.
 Theo các chuyên gia, việc duy trì chất lượng dịch vụ là điều cần thiết. Nhân viên được khuyến khích chủ động đề xuất ý tưởng, kể cả những cách tiếp cận đầy thách thức.
@@ -31,9 +30,8 @@ export default function DialReader() {
     const [level, setLevel] = useDialLevel();
     const sheet = useDialSheet();
 
-    // The learner's own words come first when the level is below 100 %.
-    const progress = useLexicaStore((s) => s.cardProgress);
-    const priority = useMemo(() => new Set(Object.keys(progress ?? {})), [progress]);
+    // Words due for review first, then the learner's other words.
+    const priority = useDialRank();
 
     const open = useCallback(async (raw: string) => {
         setError(null);
@@ -121,7 +119,7 @@ export default function DialReader() {
                     {article.url && <p className="mt-6 text-xs text-subtle">Nội dung thuộc về trang gốc. Lexica không lưu bài này.</p>}
                 </section>
             )}
-            <DialSheet hit={sheet.open} onClose={sheet.close} />
+            <DialSheet hit={sheet.open} onClose={sheet.close} effect={sheet.effect} />
         </main>
     );
 }
