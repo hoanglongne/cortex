@@ -1,3 +1,5 @@
+import { calibrate } from '../lib/learner/dialSignal';
+import { emptyLearner, evidenceFromChange, record as recordLearner, seedFromSm2, type Evidence, type LearnerState } from '../lib/learner/model';
 import { analytics } from '../lib/analytics';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
 import { authHeaders, getCortexAuth } from '../lib/cortexAuth';
@@ -223,6 +225,11 @@ interface LexicaStore {
      * the review itself decides); a new word is queued to learn.
      */
     dialTap: (cardId: string) => 'due' | 'queued' | 'none';
+    /** Learner model (lib/learner/model.ts), shadow only: predicts, does not schedule. */
+    learner: LearnerState;
+    recordEvidence: (e: Evidence) => void;
+    /** Núm vặn weekly check (issue #142): graded answers, and calibration of the "seen" signal. */
+    finishDialCheck: (results: { cardId: string; right: boolean }[]) => void;
     /** A class quiz's results: wrong words back into review, quick right ones as a right recall. */
     applyArena: (results: ArenaResult[]) => { again: number; recalled: number; queued: number };
     /** A finished game: wrong words come again, right ones count as a recall (lib/games/rounds.ts). */
@@ -687,6 +694,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 set({
                     userStats: INITIAL_USER_STATS,
                     cardProgress: {},
+                    learner: emptyLearner(),
                     knownWords: {},
                     mySentences: {},
                     learnedWords: new Set<string>(),
@@ -971,7 +979,26 @@ export const useLexicaStore = create<LexicaStore>()(
                 return { again: plan.again.length, recalled: plan.recalled.length };
             },
 
+            learner: emptyLearner(),
+            recordEvidence: (e) => set({ learner: recordLearner(get().learner ?? emptyLearner(), e) }),
+            finishDialCheck: (results) => {
+                const now = Date.now();
+                let learner = get().learner ?? emptyLearner();
+                for (const r of results) {
+                    learner = recordLearner(learner, { cardId: r.cardId, facet: 'recog', source: 'check', outcome: r.right ? 'right' : 'wrong', weight: 1, at: now });
+                }
+                learner = { ...learner, dial: calibrate(learner.dial, results.length, results.filter((r) => r.right).length, now) };
+                set({ learner });
+                // A missed word goes back into review, like a tap.
+                for (const r of results) if (!r.right && get().cardProgress[r.cardId]) {
+                    const p = get().cardProgress[r.cardId];
+                    if (p.nextReviewAt > now) set({ cardProgress: { ...get().cardProgress, [r.cardId]: { ...p, nextReviewAt: now } } });
+                }
+            },
+
             dialTap: (cardId) => {
+                // Tapping to see the meaning: not recalled (graded, recognition).
+                get().recordEvidence({ cardId, facet: 'recog', source: 'dial', outcome: 'wrong', weight: 1, at: Date.now() });
                 const { cardProgress } = get();
                 const p = cardProgress[cardId];
                 if (p) {
@@ -1094,6 +1121,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 paceNudgeAt: state.paceNudgeAt,
                 gameLog: state.gameLog,
                 knownWords: state.knownWords,
+                learner: state.learner,
                 // Personalization
                 userArchetype: state.userArchetype,
                 mySentences: state.mySentences,
@@ -1162,4 +1190,23 @@ export function initializeLexicaStore() {
     if (store.currentDeck.length === 0) {
         store.loadNewDeck();
     }
+}
+
+// Learner model (issue #143): turn store changes into evidence, in shadow.
+if (typeof window !== 'undefined') {
+    const seed = () => {
+        const s = useLexicaStore.getState();
+        const seeded = seedFromSm2(s.learner ?? emptyLearner(), s.cardProgress);
+        if (seeded !== s.learner) useLexicaStore.setState({ learner: seeded });
+    };
+    if (useLexicaStore.persist?.hasHydrated?.()) seed();
+    else useLexicaStore.persist?.onFinishHydration?.(seed);
+    useLexicaStore.subscribe((next, prev) => {
+        if (!prev || next.learner !== prev.learner) return;
+        const found = evidenceFromChange(prev, next, Date.now());
+        if (found.length === 0) return;
+        let learner = next.learner ?? emptyLearner();
+        for (const { e, sm2 } of found) learner = recordLearner(learner, e, sm2);
+        useLexicaStore.setState({ learner });
+    });
 }

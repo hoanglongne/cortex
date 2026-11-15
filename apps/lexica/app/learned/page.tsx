@@ -1,5 +1,6 @@
 'use client';
 
+import LearnerFacets from '../components/LearnerFacets';
 import Link from 'next/link';
 import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users, LayoutGrid, Swords } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -142,6 +143,8 @@ export default function LearnedPage() {
                     </Link>
                 </div>
             )}
+
+            <LearnerFacets />
 
             {/* Vocabulary Games Card */}
             {learnedCount >= 4 && (

@@ -16,7 +16,7 @@ import { levelDef } from '../lib/levels';
 import { parseTurns } from '../lib/content/dialogue';
 import { usesWord } from '../lib/journey/outside';
 import DialogueScene from './DialogueScene';
-import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialRank, useDialSheet } from './DialText';
+import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialRank, useDialSeen, useDialSheet } from './DialText';
 import { useDialLevel } from '../lib/dial/level';
 
 /** Reading speeds for "Nghe cả đoạn". */
@@ -72,6 +72,8 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
         return m;
     }, [passage.newWords, dialRankAll]);
     const dial = useDialParagraphs(translation, dialLevel, dialPriority);
+    const dialRef = useRef<HTMLElement>(null);
+    useDialSeen(dialRef, dialOn);
     const [sceneDone, setSceneDone] = useState(false);
     const scenes = useMemo(() => (dialogue ? parseTurns(passage.text, passage.translation) : []), [dialogue, passage]);
     const whole = view === 'all';
@@ -235,7 +237,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                         <DialSlider level={dialLevel} onChange={setDialLevel} total={dialLevel < 100 ? dial.total : undefined} />
                         <p className="mt-1 text-xs text-subtle">0% là tiếng Việt, 100% là nguyên bản tiếng Anh.</p>
                     </div>
-                    <article data-testid="passage-dial" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
+                    <article ref={dialRef} data-testid="passage-dial" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                         {paragraphs.map((para, i) => (
                             <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
                                 {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
