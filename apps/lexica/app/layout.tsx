@@ -1,3 +1,4 @@
+import DialTapBridge from './components/DialTapBridge';
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
@@ -84,6 +85,7 @@ export default function RootLayout({
           <DeviceVoiceBoot />
           <EngagementSync />
           <ContentLoader />
+          <DialTapBridge />
           <HydrationGate>
             <DesktopNav />
             {children}
