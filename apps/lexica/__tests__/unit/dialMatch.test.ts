@@ -55,5 +55,12 @@ describe('all dial rules', () => {
         }
         const all = compileRules(DIAL_RULES);
         expect(findHits('Đây là bài toán hóc búa và chúng tôi tự hỏi nên làm gì.', all).map((h) => h.en)).toEqual(['conundrum', 'wonder']);
+        // A capital inside the phrase is a name; onlyBefore narrows "chắc chắn".
+        expect(findHits('Công trình gồm cầu Kỳ Hà và cầu Mới.', all)).toEqual([]);
+        expect(findHits('Đội chơi rất chắc chắn.', all)).toEqual([]);
+        expect(findHits('Anh ấy chắc chắn sẽ đến.', all).map((h) => h.en)).toEqual(['certain']);
+        // Sentence-start adverbs are skipped, the adjective is kept.
+        expect(findHits('Cụ thể, kế hoạch cần mục tiêu cụ thể.', all).map((h) => h.vi)).toEqual(['cụ thể']);
+        expect(findHits('Cụ thể, kế hoạch cần mục tiêu cụ thể.', all)[0].start).toBeGreaterThan(10);
     });
 });

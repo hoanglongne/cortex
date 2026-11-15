@@ -107,3 +107,36 @@ Hai hướng:
   - Ô nghĩa báo rõ điều này cho người học.
 - **Đọc lướt qua không chạm thì chưa tính gì.** Theo kế hoạch (mục 2.5), tín hiệu này cần hiệu chỉnh bằng kiểm tra thật trước khi được dùng.
 - **Tiện ích Chrome chưa nối với tài khoản**, nên chưa đổi được lịch ôn.
+
+---
+
+## Vòng 5 và 6: chấm mẫu ngẫu nhiên cả bộ luật (issue #140, 15/11/2026)
+
+**Cách chấm mới:** lấy **mẫu ngẫu nhiên** từ mọi chỗ thay (luật cũ lẫn luật mới), thay vì chấm riêng luật mới, để con số phản ánh đúng thứ người học thấy.
+
+| Vòng | Bộ bài (chưa dùng để sửa luật) | Chỗ thay | Mẫu chấm | Sai nghĩa | Đúng nghĩa | Khoảng tin cậy 95% (Wilson) |
+|---|---|---|---|---|---|---|
+| 5 | 67 bài báo + 9 bài Wikipedia | 553 | 300 | 29 | **90,3%** | ~86,4–93,1% |
+| 6 | 112 bài báo (sau khi sửa theo vòng 5) | 1.095 | 250 | 17 | **93,2%** | ~89,4–95,7% |
+
+- **Chưa đạt 95%.** Đã sửa tiếp theo lỗi vòng 6, chưa đo lại.
+- Wikipedia (văn bách khoa) sai nhiều hơn báo, chủ yếu vì "phê chuẩn".
+- Mật độ khoảng 11–12 chỗ thay trên 1.000 tiếng.
+- Chỉ có một người chấm (Claude, cũng là người viết luật). Trang chấm cho người thứ hai: 100 chỗ thay ngẫu nhiên của vòng 6.
+
+**Lỗi chính và cách sửa:**
+| Cụm | Ngữ cảnh sai | Sửa |
+|---|---|---|
+| "phê chuẩn" | Thượng viện phê chuẩn = *confirm/approve* | Bỏ khỏi *validate* |
+| "chắc chắn" | "chơi rất chắc chắn" = *solid* | Thêm `onlyBefore` (mới): chỉ khớp trước "sẽ, là, rằng, không, có, được, đã, phải" |
+| "mô phỏng" | *simulate* | Bỏ khỏi *imitate* |
+| "đáp ứng" | đáp ứng yêu cầu/kỳ vọng/điều trị | *accommodate* chỉ còn trước "nhu cầu" |
+| "tập trung" | đợt tập trung (đội tuyển), khuyến mại tập trung | `notBefore`/`notAfter` theo các cụm đó |
+| "dưới chân thành", "du khách quan tâm", "cầu Kỳ Hà", "việc làm rõ ràng" | tách từ sai, tên riêng | Mới: bỏ qua khi có chữ hoa **bên trong** cụm; thêm `notBefore`/`notAfter` |
+| "Cụ thể,", "Đáng chú ý,", "Chắc chắn," đầu câu | trạng từ | Mới: `notAtStart` |
+| "cộng tác viên", "giải khuyến khích", "tiền khả thi", "làn dừng khẩn cấp", "nhóm lợi ích" | danh từ ghép | `notBefore`/`notAfter` |
+
+**Về từ loại (quyết định):**
+- Giữ **dạng gốc** của từ tiếng Anh, như câu chêm hiện nay.
+- Lý do: câu vẫn theo ngữ pháp tiếng Việt, và mục tiêu của Núm vặn là nhận ra nghĩa.
+- Trạng từ đầu câu đã được bỏ qua. Dạng danh từ/trạng từ riêng cho thẻ (`forms`) để sau, khi có phản hồi người dùng.
