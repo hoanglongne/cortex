@@ -34,7 +34,7 @@ const [outDir, set = 'dev', perArg, skipArg, ...exclude] = process.argv.slice(2)
 const per = Number(perArg ?? 4);
 const skip = Number(skipArg ?? 0);
 const excluded = new Set(exclude.flatMap((f) => JSON.parse(fs.readFileSync(f, 'utf8')).map((a) => a.url)));
-const FEEDS = set === 'dev' ? FEEDS_DEV : FEEDS_TEST;
+const FEEDS = set.startsWith('dev') ? FEEDS_DEV : FEEDS_TEST;
 const seenParas = new Set();
 fs.mkdirSync(outDir, { recursive: true });
 

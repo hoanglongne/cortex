@@ -3,16 +3,18 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Volume2, X } from 'lucide-react';
 import { compileRules, findHits, type DialHit } from '../lib/dial/match';
-import { DIAL_RULES_D0 } from '../lib/dial/rules';
+import { DIAL_RULES } from '../lib/dial/allRules';
 import { pickHits } from '../lib/dial/level';
 import { VOCAB_DATABASE } from '../data/vocabCards';
 import { playText } from '../lib/audio/AudioService';
+import { useLexicaStore } from '../store/lexicaStore';
+import { dialRank } from '../lib/dial/review';
 
-const INDEX = compileRules(DIAL_RULES_D0);
+const INDEX = compileRules(DIAL_RULES);
 const CARDS = new Map(VOCAB_DATABASE.map((c) => [c.id, c]));
 
 /** Hits of every paragraph, and which to show, with one density across the whole text. */
-export function useDialParagraphs(paras: string[], level: number, priority?: ReadonlySet<string>) {
+export function useDialParagraphs(paras: string[], level: number, priority?: ReadonlySet<string> | ReadonlyMap<string, number>) {
     return useMemo(() => {
         const hits = paras.map((p) => findHits(p, INDEX));
         const flat = hits.flat();
@@ -42,7 +44,7 @@ export function DialParagraph({ text, hits, shown, onOpen }: { text: string; hit
 }
 
 /** Bottom sheet with the original phrase, meaning and sound of a tapped word. */
-export function DialSheet({ hit, onClose }: { hit: DialHit | null; onClose: () => void }) {
+export function DialSheet({ hit, onClose, effect = 'none' }: { hit: DialHit | null; onClose: () => void; effect?: 'due' | 'queued' | 'none' }) {
     if (!hit) return null;
     const card = CARDS.get(hit.cardId);
     return (
@@ -57,6 +59,8 @@ export function DialSheet({ hit, onClose }: { hit: DialHit | null; onClose: () =
                         </div>
                         <p className="text-sm text-ink-2 mt-1">Trong bài: <b className="text-ink">{hit.vi}</b></p>
                         {card && <p className="text-sm text-muted mt-1">{card.translationHint}</p>}
+                        {effect === 'due' && <p className="text-xs text-accent mt-2">Đã đưa từ này vào lượt ôn tới.</p>}
+                        {effect === 'queued' && <p className="text-xs text-accent mt-2">Đã thêm từ này vào bộ thẻ học tiếp theo.</p>}
                     </div>
                     <button onClick={onClose} aria-label="Đóng" className="p-1 text-muted"><X className="w-5 h-5" /></button>
                 </div>
@@ -79,7 +83,24 @@ export function DialSlider({ level, onChange, total }: { level: number; onChange
     );
 }
 
+/**
+ * The tapped word, and what the tap did to the review schedule: a tap means
+ * the learner did not recall the word (a learned word becomes due, a new one
+ * is queued to learn).
+ */
 export function useDialSheet() {
-    const [open, setOpen] = useState<DialHit | null>(null);
-    return { open, setOpen, close: () => setOpen(null) };
+    const [open, setOpenState] = useState<DialHit | null>(null);
+    const [effect, setEffect] = useState<'due' | 'queued' | 'none'>('none');
+    const dialTap = useLexicaStore((s) => s.dialTap);
+    const setOpen = (h: DialHit | null) => {
+        setOpenState(h);
+        if (h) setEffect(dialTap(h.cardId));
+    };
+    return { open, setOpen, effect, close: () => setOpenState(null) };
+}
+
+/** Due words first, then other learned words. */
+export function useDialRank() {
+    const progress = useLexicaStore((s) => s.cardProgress);
+    return useMemo(() => dialRank(progress), [progress]);
 }

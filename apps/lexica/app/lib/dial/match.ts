@@ -153,3 +153,19 @@ export function findHits(text: string, index: DialIndex): DialHit[] {
     }
     return hits;
 }
+
+/** Drop a phrase (with the same context) already claimed by an earlier rule. */
+export function dedupeRules(rules: DialRule[]): DialRule[] {
+    const seen = new Set<string>();
+    return rules
+        .map((r) => ({
+            ...r,
+            vi: r.vi.filter((v) => {
+                const key = `${v.normalize('NFC').toLowerCase()}|${(r.onlyAfter ?? []).join(',')}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            }),
+        }))
+        .filter((r) => r.vi.length > 0);
+}

@@ -42,3 +42,18 @@ describe('dial matcher', () => {
         expect(words('quyết tâmhuyết')).toEqual([]);
     });
 });
+
+describe('all dial rules', () => {
+    it('cover most of the deck, with valid card ids and no empty rules', async () => {
+        const { DIAL_RULES } = await import('../../app/lib/dial/allRules');
+        const { VOCAB_DATABASE } = await import('../../app/data/vocabCards');
+        const ids = new Set(VOCAB_DATABASE.map((c) => c.id));
+        expect(DIAL_RULES.length).toBeGreaterThan(400);
+        for (const r of DIAL_RULES) {
+            expect(ids.has(r.cardId), r.cardId).toBe(true);
+            expect(r.vi.length).toBeGreaterThan(0);
+        }
+        const all = compileRules(DIAL_RULES);
+        expect(findHits('Đây là bài toán hóc búa và chúng tôi tự hỏi nên làm gì.', all).map((h) => h.en)).toEqual(['conundrum', 'wonder']);
+    });
+});

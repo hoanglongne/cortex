@@ -217,6 +217,12 @@ interface LexicaStore {
     queueCards: (cardIds: string[]) => number;
     /** A light "good" review for each card (reading a passage). */
     lightReview: (cardIds: string[]) => void;
+    /**
+     * Núm vặn: the learner tapped an English word to see its meaning, so they
+     * did not recall it. A learned word becomes due now (its ease is left alone,
+     * the review itself decides); a new word is queued to learn.
+     */
+    dialTap: (cardId: string) => 'due' | 'queued' | 'none';
     /** A class quiz's results: wrong words back into review, quick right ones as a right recall. */
     applyArena: (results: ArenaResult[]) => { again: number; recalled: number; queued: number };
     /** A finished game: wrong words come again, right ones count as a recall (lib/games/rounds.ts). */
@@ -963,6 +969,18 @@ export const useLexicaStore = create<LexicaStore>()(
                 for (const id of plan.again) get().submitReviewAnswer(id, false);
                 for (const id of plan.recalled) get().submitReviewAnswer(id, true, 'good');
                 return { again: plan.again.length, recalled: plan.recalled.length };
+            },
+
+            dialTap: (cardId) => {
+                const { cardProgress } = get();
+                const p = cardProgress[cardId];
+                if (p) {
+                    const now = Date.now();
+                    if (p.nextReviewAt <= now) return 'none';
+                    set({ cardProgress: { ...cardProgress, [cardId]: { ...p, nextReviewAt: now } } });
+                    return 'due';
+                }
+                return get().queueCards([cardId]) > 0 ? 'queued' : 'none';
             },
 
             lightReview: (cardIds) => {
