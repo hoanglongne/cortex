@@ -28,10 +28,11 @@ Từ bản 0.3, tiện ích **không xin quyền đọc mọi trang lúc cài**.
 | `activeTab` | Biết trang đang mở để popup bật/tắt đúng trang đó. |
 | `scripting` | Chạy phần đổi từ trên đúng những trang người dùng đã bật (đăng ký content script theo từng trang). |
 | `optional_host_permissions` (`http(s)://*/*`) | Chỉ được xin khi người dùng bấm "Bật trên trang này", cho đúng trang đó; tắt là trả lại quyền. |
-| Content script trên `lexica.cortexlearn.app` | Đọc lịch ôn của bạn và chuyển cho Lexica các từ đã chạm, ngay trong trình duyệt. |
+| Content script trên `lexica.cortexlearn.app` | Đọc lịch ôn của bạn và chuyển cho Lexica các từ đã chạm, ngay trong trình duyệt; nhận mã tiện ích khi bạn đã đăng nhập. |
+| `host_permissions`: API Cortex (`cortexapi-production-964a.up.railway.app`) | Với tài khoản: lấy lịch ôn và gửi các từ đã chạm (chỉ mã từ và thời điểm) để dùng trên mọi máy. |
 
 - **Mục đích duy nhất (single purpose):** hiện từ tiếng Anh bạn đang học trong trang tiếng Việt bạn đọc.
-- **Dữ liệu thu thập:** không. Đánh dấu: không bán, không dùng cho mục đích khác, không dùng để xét tín dụng.
+- **Dữ liệu thu thập:** khi đã đăng nhập Lexica, tiện ích gửi về máy chủ Lexica **mã từ đã chạm và thời điểm** (để đưa vào lượt ôn). Không gửi nội dung trang, địa chỉ trang hay lịch sử duyệt web. Mục "User activity" trong form: không chọn; "Website content": không. Đánh dấu: không bán, không dùng cho mục đích khác, không dùng để xét tín dụng.
 - **Remote code:** không. Toàn bộ mã nằm trong gói.
 - **Chính sách riêng tư:** https://lexica.cortexlearn.app/privacy (mục "Núm vặn: đọc bài và tiện ích Chrome").
 

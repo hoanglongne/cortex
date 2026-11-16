@@ -28,6 +28,9 @@ for (const m of src.matchAll(/"id":\s*"(v\d+)"[\s\S]*?"ipa":\s*"([^"]*)"[\s\S]*?
 
 const body = fs.readFileSync(`${here}src/content.body.js`, 'utf8');
 fs.writeFileSync(`${out}/content.js`, `(() => {\n${matcher}\nconst RULES = ${JSON.stringify(DIAL_RULES)};\nconst CARDS = ${JSON.stringify(cards)};\n${body}\n})();\n`);
-for (const f of ['manifest.json', 'content.css', 'popup.html', 'popup.js', 'bridge.js', 'sw.js']) fs.copyFileSync(`${here}src/${f}`, `${out}/${f}`);
+for (const f of ['manifest.json', 'content.css', 'popup.html', 'popup.js', 'bridge.js']) fs.copyFileSync(`${here}src/${f}`, `${out}/${f}`);
+// The API the worker talks to (must match manifest host_permissions).
+const API = (process.env.CORTEX_API_URL || 'https://cortexapi-production-964a.up.railway.app').replace(/\/+$/, '');
+fs.writeFileSync(`${out}/sw.js`, fs.readFileSync(`${here}src/sw.js`, 'utf8').replace('__CORTEX_API_URL__', API));
 fs.copyFileSync(`${here}../public/icon-192.png`, `${out}/icon-128.png`);
 console.log(`built ${out}: ${DIAL_RULES.length} rules, ${Object.keys(cards).length} cards`);

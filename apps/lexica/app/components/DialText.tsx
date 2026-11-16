@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { Volume2, X } from 'lucide-react';
 import { compileRules, findHits, type DialHit } from '../lib/dial/match';
 import { DIAL_RULES } from '../lib/dial/allRules';
@@ -9,6 +9,7 @@ import { VOCAB_DATABASE } from '../data/vocabCards';
 import { playText } from '../lib/audio/AudioService';
 import { useLexicaStore } from '../store/lexicaStore';
 import { dialRank } from '../lib/dial/review';
+import { SEEN_MIN_MS, seenWeight } from '../lib/learner/dialSignal';
 
 const INDEX = compileRules(DIAL_RULES);
 const CARDS = new Map(VOCAB_DATABASE.map((c) => [c.id, c]));
@@ -33,7 +34,7 @@ export function DialParagraph({ text, hits, shown, onOpen }: { text: string; hit
         if (!shown[i]) return;
         out.push(src.slice(last, h.start));
         out.push(
-            <button key={i} onClick={() => onOpen(h)} className="font-semibold text-accent underline decoration-accent/40 decoration-dotted underline-offset-4">
+            <button key={i} data-dial-card={h.cardId} onClick={() => onOpen(h)} className="font-semibold text-accent underline decoration-accent/40 decoration-dotted underline-offset-4">
                 {h.en}
             </button>,
         );
@@ -103,4 +104,42 @@ export function useDialSheet() {
 export function useDialRank() {
     const progress = useLexicaStore((s) => s.cardProgress);
     return useMemo(() => dialRank(progress), [progress]);
+}
+
+/**
+ * "Seen" signal (issue #142): a swapped word that stays on screen for a moment
+ * without a tap. Logged once per word per page, with a small weight that the
+ * weekly check calibrates; it never changes a memory by itself.
+ */
+export function useDialSeen(root: RefObject<HTMLElement | null>, active: boolean) {
+    const done = useRef(new Set<string>());
+    useEffect(() => {
+        const el = root.current;
+        if (!active || !el || typeof IntersectionObserver === 'undefined') return;
+        const timers = new Map<Element, ReturnType<typeof setTimeout>>();
+        const io = new IntersectionObserver((entries) => {
+            for (const en of entries) {
+                const id = (en.target as HTMLElement).dataset.dialCard;
+                if (!id || done.current.has(id)) continue;
+                if (en.isIntersecting && document.visibilityState === 'visible') {
+                    if (timers.has(en.target)) continue;
+                    timers.set(en.target, setTimeout(() => {
+                        timers.delete(en.target);
+                        if (done.current.has(id)) return;
+                        done.current.add(id);
+                        const { learner, recordEvidence } = useLexicaStore.getState();
+                        recordEvidence({ cardId: id, facet: 'recog', source: 'dial', outcome: 'seen', weight: seenWeight(learner?.dial), at: Date.now() });
+                    }, SEEN_MIN_MS));
+                } else {
+                    clearTimeout(timers.get(en.target));
+                    timers.delete(en.target);
+                }
+            }
+        }, { threshold: 0.9 });
+        const watch = () => el.querySelectorAll('[data-dial-card]').forEach((b) => io.observe(b));
+        watch();
+        const mo = new MutationObserver(() => { io.disconnect(); watch(); });
+        mo.observe(el, { childList: true, subtree: true });
+        return () => { io.disconnect(); mo.disconnect(); timers.forEach(clearTimeout); };
+    }, [root, active]);
 }

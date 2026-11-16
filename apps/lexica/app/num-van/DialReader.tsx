@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
-import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialRank, useDialSheet } from '../components/DialText';
+import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialRank, useDialSeen, useDialSheet } from '../components/DialText';
+import DialCheck from '../components/DialCheck';
 import { useDialLevel } from '../lib/dial/level';
 import { allowedUrl, firstUrl, DIAL_SITES } from '../lib/dial/extract';
 
@@ -69,6 +70,8 @@ export default function DialReader() {
 
     const paras = useMemo(() => article?.paragraphs ?? [], [article]);
     const dial = useDialParagraphs(paras, level, priority);
+    const articleRef = useRef<HTMLElement>(null);
+    useDialSeen(articleRef, !!article);
 
     return (
         <main className="min-h-dvh bg-bg text-ink px-4 py-5 max-w-2xl mx-auto pb-40">
@@ -78,6 +81,7 @@ export default function DialReader() {
                 <span className="text-[11px] font-mono uppercase tracking-wider text-accent border border-accent/30 rounded px-1.5 py-0.5">Thử nghiệm</span>
             </div>
 
+            {!article && <DialCheck />}
             {!article ? (
                 <section className="space-y-3">
                     <p className="text-sm text-muted">Dán link bài báo hoặc một đoạn tiếng Việt. Lexica đổi các từ bạn đang học sang tiếng Anh ngay trong câu.</p>
@@ -111,7 +115,7 @@ export default function DialReader() {
                         </div>
                     </div>
                     {article.title && <h2 className="text-xl font-semibold mb-3">{article.title}</h2>}
-                    <article className="space-y-4 text-[17px] leading-[1.75]">
+                    <article ref={articleRef} className="space-y-4 text-[17px] leading-[1.75]">
                         {paras.map((p, i) => (
                             <p key={i}><DialParagraph text={p} hits={dial.hits[i]} shown={dial.shown[i]} onOpen={sheet.setOpen} /></p>
                         ))}

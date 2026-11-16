@@ -34,10 +34,12 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     });
 });
 
-chrome.storage.local.get({ lexica: null, pendingTaps: [] }, ({ lexica, pendingTaps }) => {
+chrome.runtime.sendMessage({ type: 'dial-refresh' }).catch?.(() => {});
+chrome.storage.local.get({ lexica: null, pendingTaps: [], dialToken: null }, ({ lexica, pendingTaps, dialToken }) => {
     const el = document.getElementById('sync');
-    if (!lexica) { el.textContent = 'Chưa kết nối Lexica: mở lexica.cortexlearn.app một lần trên trình duyệt này để tiện ích biết từ của bạn.'; return; }
+    if (!lexica) { el.textContent = 'Chưa kết nối Lexica: mở lexica.cortexlearn.app một lần trên trình duyệt này (đăng nhập để dùng trên mọi máy).'; return; }
     const n = Object.keys(lexica.due).length;
     const when = new Date(lexica.syncedAt).toLocaleString('vi-VN');
-    el.textContent = `Đã kết nối Lexica: ${n} từ của bạn (cập nhật ${when}).` + (pendingTaps.length ? ` ${pendingTaps.length} từ đã chạm sẽ vào lượt ôn khi bạn mở Lexica.` : '');
+    const how = dialToken ? 'theo tài khoản, mọi máy' : 'chỉ trình duyệt này';
+    el.textContent = `Đã kết nối Lexica (${how}): ${n} từ của bạn, cập nhật ${when}.` + (pendingTaps.length ? ` ${pendingTaps.length} từ đã chạm đang chờ gửi.` : '');
 });
