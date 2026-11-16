@@ -1,5 +1,6 @@
 'use client';
 
+import KnowUseLexica from '../components/KnowUseLexica';
 import LearnerFacets from '../components/LearnerFacets';
 import Link from 'next/link';
 import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users, LayoutGrid, Swords } from 'lucide-react';
@@ -144,6 +145,7 @@ export default function LearnedPage() {
                 </div>
             )}
 
+            <KnowUseLexica />
             <LearnerFacets />
 
             {/* Vocabulary Games Card */}
