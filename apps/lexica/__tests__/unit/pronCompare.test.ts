@@ -35,4 +35,12 @@ describe('sound pairs (#153)', () => {
         expect(list).toHaveLength(SOUND_PAIRS.length);
         expect(pairsForLearner([])[0]).toBe(SOUND_PAIRS[0]);
     });
+
+    it('air flow kind per sound (#154)', () => {
+        expect(mouthFor('P')!.flow).toBe('burst');
+        expect(mouthFor('CH')!.flow).toBe('burst');
+        expect(mouthFor('S')!.flow).toBe('steady');
+        expect(mouthFor('NG')!.flow).toBe('nasal');
+        expect(mouthFor('IY')!.flow).toBe('none');
+    });
 });

@@ -66,6 +66,8 @@ const CLASS_OF: Record<string, string> = {
 
 const VOICELESS = new Set(['P', 'T', 'K', 'F', 'TH', 'S', 'SH', 'CH', 'HH']);
 const NASAL = new Set(['M', 'N', 'NG']);
+/** Stops and affricates: the air is held, then released in a burst. */
+export const STOPS = new Set(['P', 'B', 'T', 'D', 'K', 'G', 'CH', 'JH']);
 
 /** A smooth path through points (Catmull–Rom as cubic Béziers). */
 function through(pts: readonly Pt[], move = true): string {
@@ -103,6 +105,8 @@ export interface MouthDrawing {
     contact: Pt | null;
     /** Little marks at the throat when the voice buzzes. */
     voiced: boolean;
+    /** How the air moves: a burst after a stop, a steady stream, out through the nose, or none drawn. */
+    flow: 'burst' | 'steady' | 'nasal' | 'none';
     sides: boolean;
     hint: string;
     /** "Rung cổ họng" or "Không rung": said under the picture. */
@@ -165,6 +169,7 @@ export function mouthFor(phone: string): MouthDrawing | null {
         airEnd: airPts ? airPts[airPts.length - 1] : null,
         contact: pose.contact ? [pose.contact[0], pose.contact[1] + (pose.contact[0] > 160 && pose.lips !== 'teeth' ? d * 0.3 : 0)] : null,
         voiced,
+        flow: nasal ? 'nasal' : STOPS.has(p) ? 'burst' : airPts ? 'steady' : 'none',
         sides: pose.sides === true,
         hint: pose.hint + (nasal ? ' Hơi đi ra đằng mũi.' : ''),
         voiceHint: isVowel(phone) ? '' : voiced ? 'Rung cổ họng (đặt tay lên cổ sẽ thấy rung).' : 'Không rung cổ họng, chỉ có hơi.',

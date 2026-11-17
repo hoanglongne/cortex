@@ -4,7 +4,7 @@
  * between two sounds so the pictures can mark them.
  */
 import { bare, isVowel } from './phones';
-import { poseOf } from './mouth';
+import { poseOf, STOPS } from './mouth';
 import type { ErrorKind } from './pairs';
 import type { MouthPart } from './steps';
 
@@ -36,9 +36,6 @@ export const SOUND_PAIRS: SoundPair[] = [
     { a: 'NG', b: 'N', words: ['sing', 'sin'], kind: 'final_ng', note: 'sing: cuống lưỡi chạm vòm mềm. sin: đầu lưỡi chạm lợi.' },
     { a: 'L', b: 'N', words: ['light', 'night'], kind: 'final_l', note: 'Cùng đầu lưỡi ở lợi. light: hơi ra hai bên lưỡi. night: hơi ra mũi.' },
 ];
-
-/** Sounds that stop the air and then release it (the pose alone does not show this). */
-const STOPS = new Set(['P', 'B', 'T', 'D', 'K', 'G', 'CH', 'JH']);
 
 const far = (p: [number, number], q: [number, number], d = 6) => Math.hypot(p[0] - q[0], p[1] - q[1]) > d;
 
