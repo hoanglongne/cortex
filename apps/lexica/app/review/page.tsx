@@ -1,5 +1,6 @@
 'use client';
 
+import { unsaidFirst } from '../lib/journey/knowUse';
 import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ReviewSession from '../components/ReviewSession';
@@ -17,6 +18,7 @@ function ReviewPageContent() {
 
     const cardProgress = useLexicaStore(state => state.cardProgress);
     const learnedWords = useLexicaStore(state => state.learnedWords);
+    const journeys = useLexicaStore(state => state.journeys);
 
     const dueCardIds = useMemo(() => {
         if (idsParam) return idsParam.split(',').filter(id => cardProgress[id]);
@@ -26,8 +28,9 @@ function ReviewPageContent() {
             return Array.from(learnedWords).filter(id => vocabIds.has(id));
         }
         if (hardOnly) return hardWords(cardProgress).map(p => p.cardId);
-        return getDueCards(cardProgress).map(p => p.cardId);
-    }, [cardProgress, learnedWords, testAll, hardOnly, idsParam]);
+        // Words learned but never said come first (issue #137).
+        return unsaidFirst(getDueCards(cardProgress).map(p => p.cardId), journeys);
+    }, [cardProgress, learnedWords, testAll, hardOnly, idsParam, journeys]);
 
     const n = dueCardIds.length;
     return (

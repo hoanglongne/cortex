@@ -15,6 +15,7 @@ import { useCharacterEnabled } from "@/lib/client/theme";
 import { CRITERIA, type Criterion } from "@/lib/feedback";
 import { TabShell, type Tab } from "@/components/ui/shell";
 import { cn } from "@/lib/utils";
+import KnowUseCard from "@/components/KnowUseCard";
 
 interface ProgressScreenProps {
   profile: Profile | null;
@@ -342,6 +343,9 @@ export default function ProgressScreen({ profile, onTab, onOpenLeaderboard }: Pr
             </Card>
           </>
         )}
+        <div className="mt-3">
+          <KnowUseCard answers={answers} onTab={onTab} />
+        </div>
         <div className="mt-3">
           <Card>
             <Label>Từ Lexica bạn đã nói</Label>
