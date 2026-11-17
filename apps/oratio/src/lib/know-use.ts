@@ -104,3 +104,19 @@ export function upgradesFor(answers: MyAnswer[], learnedWords: string[], said: S
   }
   return out.sort((a, b) => b.count - a.count).slice(0, 4);
 }
+
+/**
+ * A question to say again with stronger words: the latest answer that used
+ * the most frequent plain word, with its upgrades; otherwise the latest
+ * answer with three learned words not yet said.
+ */
+export function retryTarget(answers: MyAnswer[], upgrades: Upgrade[], unused: string[]): { questionId: string; questionText: string; words: string[]; plain?: string } | null {
+  const latest = [...answers].filter((a) => a.questionId).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const top = upgrades[0];
+  if (top) {
+    const a = latest.find((x) => x.transcript && lexicaWordsIn(x.transcript, [top.plain]).length > 0);
+    if (a) return { questionId: a.questionId, questionText: a.questionText, words: top.options, plain: top.plain };
+  }
+  if (unused.length && latest[0]) return { questionId: latest[0].questionId, questionText: latest[0].questionText, words: unused.slice(0, 3) };
+  return null;
+}

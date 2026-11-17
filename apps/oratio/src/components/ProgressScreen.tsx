@@ -16,10 +16,13 @@ import { CRITERIA, type Criterion } from "@/lib/feedback";
 import { TabShell, type Tab } from "@/components/ui/shell";
 import { cn } from "@/lib/utils";
 import KnowUseCard from "@/components/KnowUseCard";
+import type { SoloFocus } from "@/components/SoloPracticeScreen";
 
 interface ProgressScreenProps {
   profile: Profile | null;
   onTab: (tab: Tab) => void;
+  /** Practise one question again with suggested words (Biết – Dùng). */
+  onPracticeWith?: (focus: SoloFocus) => void;
   onOpenLeaderboard: () => void;
 }
 
@@ -179,7 +182,7 @@ function WeakestTip({ averages, enabled }: { averages: Record<Criterion, number>
   );
 }
 
-export default function ProgressScreen({ profile, onTab, onOpenLeaderboard }: ProgressScreenProps) {
+export default function ProgressScreen({ profile, onTab, onPracticeWith, onOpenLeaderboard }: ProgressScreenProps) {
   const [summary, setSummary] = useState<FeedbackSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -344,7 +347,7 @@ export default function ProgressScreen({ profile, onTab, onOpenLeaderboard }: Pr
           </>
         )}
         <div className="mt-3">
-          <KnowUseCard answers={answers} onTab={onTab} />
+          <KnowUseCard answers={answers} onTab={onTab} onPracticeWith={onPracticeWith} />
         </div>
         <div className="mt-3">
           <Card>

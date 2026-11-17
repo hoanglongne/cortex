@@ -4,21 +4,23 @@
  */
 import type { Journeys } from './steps';
 
-export interface KnowUseCount { learned: number; used: number; unused: string[] }
+export interface KnowUseCount { learned: number; used: number; unused: string[]; inOratio: number }
 
 export function knowUseCount(learnedIds: Iterable<string>, journeys: Journeys, wordOf: (id: string) => string | undefined): KnowUseCount {
     // Count each word once, even when it has several cards.
-    const words = new Map<string, { ids: string[]; used: boolean }>();
+    const words = new Map<string, { ids: string[]; used: boolean; oratio: boolean }>();
     for (const id of learnedIds) {
         const w = wordOf(id)?.toLowerCase();
         if (!w) continue;
-        const e = words.get(w) ?? { ids: [], used: false };
+        const e = words.get(w) ?? { ids: [], used: false, oratio: false };
         e.ids.push(id);
         e.used ||= Boolean(journeys[id]?.usedAt);
+        e.oratio ||= Boolean(journeys[id]?.oratioAt);
         words.set(w, e);
     }
     const unused = [...words.values()].filter((e) => !e.used).map((e) => e.ids[0]);
-    return { learned: words.size, used: words.size - unused.length, unused };
+    const inOratio = [...words.values()].filter((e) => e.oratio).length;
+    return { learned: words.size, used: words.size - unused.length, unused, inOratio };
 }
 
 /** Review order: words never said come first, otherwise the given order is kept. */

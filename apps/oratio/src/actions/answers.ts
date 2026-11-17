@@ -34,6 +34,8 @@ export interface AnswerInput {
 
 export interface MyAnswer {
   id: string;
+  /** The question answered (to practise it again). */
+  questionId: string;
   questionText: string;
   part: number;
   mode: "solo" | "live";
@@ -144,7 +146,7 @@ export async function saveAnswer(input: AnswerInput): Promise<{ id?: string; lex
 }
 
 const ANSWER_COLS =
-  "id, question_text, part, mode, retake_of, created_at, duration_ms, speaking_ms, long_pauses, longest_pause_ms, transcript, word_count, wpm, mean_run_words, fillers, lexical_diversity, lexica_words, submitted_at, class_id, teacher_scores";
+  "id, question_id, question_text, part, mode, retake_of, created_at, duration_ms, speaking_ms, long_pauses, longest_pause_ms, transcript, word_count, wpm, mean_run_words, fillers, lexical_diversity, lexica_words, submitted_at, class_id, teacher_scores";
 
 /** The signed-in user's answers, newest first, with peer bands. */
 export async function listMyAnswers(opts: { limit?: number; before?: string; submittedOnly?: boolean } = {}): Promise<{
@@ -174,6 +176,7 @@ export async function listMyAnswers(opts: { limit?: number; before?: string; sub
     return {
       answers: rows.map((r) => ({
         id: r.id,
+        questionId: r.question_id ?? "",
         questionText: r.question_text,
         part: r.part,
         mode: r.mode,

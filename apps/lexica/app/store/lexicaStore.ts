@@ -510,7 +510,9 @@ export const useLexicaStore = create<LexicaStore>()(
                     if (!card) continue;
                     // Same as speaking it in Lexica: every card of that word, and only if already understood
                     for (const id of sameWordIds(card.id)) {
-                        const next = sayClearly(journeys[id], now);
+                        let next = sayClearly(journeys[id], now);
+                        // Remember that it was said in Oratio (shown in Biết – Dùng).
+                        if (next && !next.oratioAt) next = { ...next, oratioAt: now };
                         if (next && next !== journeys[id]) {
                             journeys[id] = next;
                             changed = true;
