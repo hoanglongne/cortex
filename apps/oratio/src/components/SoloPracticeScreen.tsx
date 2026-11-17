@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, GraduationCap, Mic, RotateCcw, Square } from "lucide-react";
-import { getSoloQuestions } from "@/actions/questions";
+import { getQuestionById, getSoloQuestions } from "@/actions/questions";
 import type { IeltsQuestion } from "@/lib/types/database";
 import { useCharacterEnabled } from "@/lib/client/theme";
 import { analyzeBlob } from "@/lib/client/speech-metrics";
@@ -32,9 +32,13 @@ const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 type ExamPhase = "speak" | "prep" | "record" | "review" | "closing";
 
+/** Start with one question and suggested words (Biết – Dùng, issue #137). */
+export interface SoloFocus { questionId: string; words: string[] }
+
 interface SoloPracticeScreenProps {
   onBack: () => void;
   onFindPartner: () => void;
+  focus?: SoloFocus | null;
 }
 
 /** How long a good answer usually runs, per part (seconds). */
@@ -59,7 +63,7 @@ function spaceBelongsToTarget(el: EventTarget | null) {
  * take for peer review. Each take is saved as numbers (and a transcript when
  * on-device transcription is on). No band is ever computed from them.
  */
-export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracticeScreenProps) {
+export default function SoloPracticeScreen({ onBack, onFindPartner, focus }: SoloPracticeScreenProps) {
   const { enabled: characterOn } = useCharacterEnabled();
   const [questions, setQuestions] = useState<IeltsQuestion[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -112,13 +116,20 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     getLexicaWords().then(setLexica, () => {});
   }, []);
 
+  const focusId = focus?.questionId ?? null;
   const load = useCallback(async () => {
     setLoadError(null);
     setQuestions(null);
     const result = await getSoloQuestions();
     if (result.success && result.questions && result.questions.length > 0) {
-      setQuestions(result.questions);
-      partsRef.current = Object.fromEntries(result.questions.map((q) => [q.id, q.part]));
+      // A focused question (Biết – Dùng) goes first.
+      let list = result.questions;
+      if (focusId) {
+        const one = await getQuestionById(focusId).catch(() => null);
+        if (one?.success && one.question) list = [one.question, ...list.filter((q) => q.id !== one.question!.id)];
+      }
+      setQuestions(list);
+      partsRef.current = Object.fromEntries(list.map((q) => [q.id, q.part]));
       setIndex(0);
       setFinished(false);
       setTakes({});
@@ -127,7 +138,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     } else {
       setLoadError("Không tải được câu hỏi. Kiểm tra mạng rồi thử lại.");
     }
-  }, []);
+  }, [focusId]);
 
   useEffect(() => {
     // Loading data on mount; the setState calls happen after the await
@@ -232,7 +243,7 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
     const drillTakes = qList.filter((t) => t.drillTarget);
     const inDrill = !!drills[question.id] && drillTakes.length < DRILL_TARGETS.length;
     const target = inDrill ? DRILL_TARGETS[drillTakes.length] : null;
-    const goal = !inDrill && qList.length > 0 ? deriveGoal(qList[qList.length - 1], lexica.recent, TARGET_S[question.part]?.[0] ?? 20) : null;
+    const goal = !inDrill && qList.length > 0 ? deriveGoal(qList[qList.length - 1], focus?.words.length ? focus.words : lexica.recent, TARGET_S[question.part]?.[0] ?? 20) : null;
     try {
       // A phone may end the microphone while the page waits; ask again only then
       if (!streamRef.current?.getAudioTracks().some((t) => t.readyState === "live")) {
@@ -512,9 +523,9 @@ export default function SoloPracticeScreen({ onBack, onFindPartner }: SoloPracti
   const drillDone = drillOn && drillStep >= DRILL_TARGETS.length;
   const canOfferDrill = question?.part === 2 && !drillOn && list.length === 0 && !recording;
   const nextTarget = drillRunning ? DRILL_TARGETS[drillStep] : null;
-  const nextGoal: Goal | null = showResult && !drillRunning ? deriveGoal(latest, lexica.recent, lo) : null;
+  const nextGoal: Goal | null = showResult && !drillRunning ? deriveGoal(latest, focus?.words.length ? focus.words : lexica.recent, lo) : null;
   const shownGoal = recording ? recGoal : nextGoal;
-  const hintWords = lexica.recent;
+  const hintWords = focus?.words.length ? focus.words : lexica.recent;
   const drillLabelOf = (t: Take) => (t.drillTarget ? `4/3/2 · lần ${drillTakes.indexOf(t) + 1} · ${formatClock(t.drillTarget)}` : undefined);
   const onSent = (t: Take) => question && patchTake(question.id, t.id, { submitted: true });
 

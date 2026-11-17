@@ -49,6 +49,8 @@ export interface WordJourney {
     metAt?: number;
     /** When the word was first said clearly. */
     usedAt?: number;
+    /** When the word was first said in an Oratio answer (issue #137). */
+    oratioAt?: number;
     /** When the learner said they used it in their own life (the fifth step, "Đời"). */
     livedAt?: number;
 }

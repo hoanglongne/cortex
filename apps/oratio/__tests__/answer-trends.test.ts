@@ -4,6 +4,7 @@ import { isoWeek, lexicaUsed, milestones, weeklyPoints } from "@/lib/answer-tren
 
 const base: MyAnswer = {
   id: "a",
+  questionId: "q1",
   questionText: "q",
   part: 1,
   mode: "solo",

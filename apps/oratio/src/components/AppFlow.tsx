@@ -18,6 +18,7 @@ const MeScreen = lazy(() => import("./MeScreen"));
 const PartnersScreen = lazy(() => import("./PartnersScreen"));
 const CallHistoryScreen = lazy(() => import("./CallHistoryScreen"));
 const SoloPracticeScreen = lazy(() => import("./SoloPracticeScreen"));
+import type { SoloFocus } from "./SoloPracticeScreen";
 const ReviewScreen = lazy(() => import("./ReviewScreen"));
 const ClassScreen = lazy(() => import("./ClassScreen"));
 const OnboardingScreen = lazy(() => import("./OnboardingScreen"));
@@ -364,6 +365,8 @@ export default function AppFlow() {
     handleStartMatching();
   }, [backHome, handleStartMatching]);
 
+  // A question to practise again with suggested words (Biết – Dùng, issue #137).
+  const [soloFocus, setSoloFocus] = useState<SoloFocus | null>(null);
   const handleTab = useCallback((tab: Tab) => {
     setNotice(null);
     setCurrentScreen(TAB_SCREEN[tab]);
@@ -451,7 +454,7 @@ export default function AppFlow() {
     case "solo":
       return (
         <Suspense fallback={fallback("Đang tải câu hỏi…")}>
-          <SoloPracticeScreen onBack={handleBackToHome} onFindPartner={handleStartMatching} />
+          <SoloPracticeScreen onBack={() => { setSoloFocus(null); handleBackToHome(); }} onFindPartner={handleStartMatching} focus={soloFocus} />
         </Suspense>
       );
 
@@ -465,7 +468,7 @@ export default function AppFlow() {
     case "progress":
       return (
         <Suspense fallback={fallback("Đang tải…")}>
-          <ProgressScreen profile={profile} onTab={handleTab} onOpenLeaderboard={() => {
+          <ProgressScreen profile={profile} onTab={handleTab} onPracticeWith={(f) => { setSoloFocus(f); setCurrentScreen("solo"); }} onOpenLeaderboard={() => {
               setLeaderboardFrom("progress");
               setCurrentScreen("leaderboard");
             }}

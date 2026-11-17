@@ -22,7 +22,7 @@ export default function KnowUseLexica() {
                 <h2 className="text-base font-bold text-ink">Biết {k.learned} · Dùng {k.used}</h2>
                 <span className="ml-auto font-mono text-xs text-muted">{pct}%</span>
             </div>
-            <p className="mt-1 text-xs text-muted">Từ bạn đã nói rõ ra, ở Lexica hoặc khi trả lời trong Oratio, trên tổng số từ đã học.</p>
+            <p className="mt-1 text-xs text-muted">Từ bạn đã nói rõ ra, ở Lexica hoặc khi trả lời trong Oratio, trên tổng số từ đã học.{k.inOratio > 0 && <> <span className="text-accent">{k.inOratio} từ đã nói trong Oratio.</span></>}</p>
             <div className="mt-2 h-1.5 bg-bg rounded-full overflow-hidden"><div className="h-full bg-accent" style={{ width: `${Math.max(2, pct)}%` }} /></div>
             {practice.length > 0 && (
                 <>

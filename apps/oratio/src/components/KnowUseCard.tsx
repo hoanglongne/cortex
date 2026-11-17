@@ -5,14 +5,16 @@ import { Share2 } from "lucide-react";
 import { getLexicaWords, type MyAnswer } from "@/actions/answers";
 import { Button } from "@/components/ui/button";
 import { Card, Label, Pill } from "@/components/ui/card";
-import { knowUse, MIN_MINUTES, upgradesFor } from "@/lib/know-use";
+import { knowUse, MIN_MINUTES, retryTarget, upgradesFor } from "@/lib/know-use";
+import { knowUseImage } from "@/lib/client/know-use-image";
+import type { SoloFocus } from "@/components/SoloPracticeScreen";
 import type { Tab } from "@/components/ui/shell";
 
 /**
  * Khoảng cách Biết – Dùng (issue #137): Lexica words learned vs said in
  * recorded answers. Counts only; no speech leaves the device.
  */
-export default function KnowUseCard({ answers, onTab }: { answers: MyAnswer[]; onTab: (tab: Tab) => void }) {
+export default function KnowUseCard({ answers, onTab, onPracticeWith }: { answers: MyAnswer[]; onTab: (tab: Tab) => void; onPracticeWith?: (f: SoloFocus) => void }) {
   const [learnedWords, setLearnedWords] = useState<string[] | null>(null);
   useEffect(() => {
     getLexicaWords().then((w) => setLearnedWords(w.all), () => setLearnedWords([]));
@@ -22,14 +24,32 @@ export default function KnowUseCard({ answers, onTab }: { answers: MyAnswer[]; o
   const said = useMemo(() => new Set(answers.flatMap((a) => a.lexicaWords.map((w) => w.trim().toLowerCase()))), [answers]);
   const upgrades = useMemo(() => (learnedWords ? upgradesFor(answers, learnedWords, said) : []), [answers, learnedWords, said]);
   const [copied, setCopied] = useState(false);
+  const retry = useMemo(() => (data ? retryTarget(answers, upgrades, data.unused) : null), [answers, upgrades, data]);
 
   if (!data || data.learned === 0) return null;
   const pct = Math.round(data.rate * 100);
   const share = async () => {
     const text = `Biết ${data.learned} · Dùng ${data.used} từ tiếng Anh. Mình đang kéo khoảng cách này lại với Lexica và Oratio.`;
     try {
-      if (navigator.share) await navigator.share({ text });
-      else { await navigator.clipboard.writeText(text); setCopied(true); }
+      // An image with the numbers only; never any speech.
+      const blob = await knowUseImage(data.learned, data.used);
+      const file = blob ? new File([blob], "biet-dung.png", { type: "image/png" }) : null;
+      if (file && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], text });
+      } else if (file) {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "biet-dung.png";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        setCopied(true);
+      } else if (navigator.share) {
+        await navigator.share({ text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+      }
     } catch { /* cancelled */ }
   };
 
@@ -74,10 +94,20 @@ export default function KnowUseCard({ answers, onTab }: { answers: MyAnswer[]; o
             </div>
           )}
 
+          {retry && onPracticeWith && (
+            <div className="mt-4 rounded-[var(--radius-control)] border border-line p-3">
+              <p className="text-xs text-muted">Nói lại câu này{retry.plain ? `, thay "${retry.plain}"` : ""} bằng: <b className="text-ink">{retry.words.join(", ")}</b></p>
+              <p className="mt-1 text-sm text-ink-2 line-clamp-2">{retry.questionText}</p>
+            </div>
+          )}
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button size="sm" variant="primary" onClick={() => onTab("practice")}>Nói một câu với từ mới</Button>
+            {retry && onPracticeWith ? (
+              <Button size="sm" variant="primary" onClick={() => onPracticeWith({ questionId: retry.questionId, words: retry.words })}>Nói lại câu này với từ mới</Button>
+            ) : (
+              <Button size="sm" variant="primary" onClick={() => onTab("practice")}>Nói một câu với từ mới</Button>
+            )}
             <Button size="sm" variant="secondary" onClick={() => void share()}>
-              <Share2 className="h-4 w-4" /> {copied ? "Đã chép" : `Biết ${data.learned} · Dùng ${data.used}`}
+              <Share2 className="h-4 w-4" /> {copied ? "Đã lưu ảnh" : `Chia sẻ: Biết ${data.learned} · Dùng ${data.used}`}
             </Button>
           </div>
         </>

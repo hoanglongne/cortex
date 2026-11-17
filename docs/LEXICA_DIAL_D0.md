@@ -140,3 +140,21 @@ Hai hướng:
 - Giữ **dạng gốc** của từ tiếng Anh, như câu chêm hiện nay.
 - Lý do: câu vẫn theo ngữ pháp tiếng Việt, và mục tiêu của Núm vặn là nhận ra nghĩa.
 - Trạng từ đầu câu đã được bỏ qua. Dạng danh từ/trạng từ riêng cho thẻ (`forms`) để sau, khi có phản hồi người dùng.
+
+## Vòng 7 (17/11/2026)
+| Bộ bài | Chỗ thay | Mẫu chấm | Sai nghĩa | Đúng nghĩa | Khoảng tin cậy 95% |
+|---|---|---|---|---|---|
+| 133 bài báo mới | 1.187 | 250 | 13 | **94,8%** | ~91,3–96,9% |
+
+- **Tiến trình:** 90,3% → 93,2% → 94,8% qua ba vòng. Vẫn hơi dưới ngưỡng 95%, nhưng ngưỡng đã nằm trong khoảng tin cậy.
+- **Lỗi còn lại:**
+  - "tập trung kinh tế" là thuật ngữ luật cạnh tranh; "chăn nuôi tập trung";
+  - "triển khai máy bay, vệ tinh, mạng, hạ tầng" là *deploy*;
+  - "tiếp thu ý kiến";
+  - "tiếng Anh lưu loát" là *fluent*, không phải *eloquent*;
+  - "để có cơ sở".
+  - Đã sửa cả, chưa đo lại.
+- **Đề xuất:**
+  - coi luật đã đủ tốt để dùng cho người học;
+  - để nút "Thay sai" (D1) gom lỗi thật từ người dùng;
+  - chấm lại mỗi khi thêm luật.

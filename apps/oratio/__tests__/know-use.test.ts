@@ -32,3 +32,17 @@ describe("Biết – Dùng", () => {
     expect(upgradesFor(answers, learned, said, 2).find((u) => u.plain === "important")?.options).toEqual(["crucial"]);
   });
 });
+
+import { retryTarget } from "@/lib/know-use";
+
+describe("retry target", () => {
+  const a = (id: string, createdAt: string, transcript: string) =>
+    ({ questionId: id, questionText: `Q ${id}`, createdAt, transcript, lexicaWords: [], speakingMs: 0 }) as unknown as MyAnswer;
+  it("picks the latest answer with the plain word, else the latest answer with unused words", () => {
+    const answers = [a("q1", "2026-11-01", "very good place"), a("q2", "2026-11-05", "very good food"), a("q3", "2026-11-06", "nothing")];
+    const ups = [{ plain: "very good", count: 2, options: ["outstanding"] }];
+    expect(retryTarget(answers, ups, [])).toEqual({ questionId: "q2", questionText: "Q q2", words: ["outstanding"], plain: "very good" });
+    expect(retryTarget(answers, [], ["crucial", "vague", "abundant", "x"])).toEqual({ questionId: "q3", questionText: "Q q3", words: ["crucial", "vague", "abundant"] });
+    expect(retryTarget([], [], ["x"])).toBeNull();
+  });
+});
