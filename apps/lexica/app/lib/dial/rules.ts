@@ -36,7 +36,7 @@ export const DIAL_RULES_D0: DialRule[] = [
     { cardId: 'v309', en: 'estimate', vi: ['ước tính'] },
     { cardId: 'v314', en: 'approach', vi: ['cách tiếp cận'] },
     // "triển khai quân/lực lượng" is "deploy".
-    { cardId: 'v328', en: 'implement', vi: ['triển khai'], notAfter: ['quân', 'lực lượng', 'binh', 'hệ thống phòng không', 'tên lửa', 'vũ khí', 'các nhóm', 'nhóm'] },
+    { cardId: 'v328', en: 'implement', vi: ['triển khai'], notAfter: ['quân', 'lực lượng', 'binh', 'hệ thống phòng không', 'tên lửa', 'vũ khí', 'các nhóm', 'nhóm', 'các máy bay', 'máy bay', 'mạng', 'hạ tầng', 'một loạt vệ tinh', 'vệ tinh'] },
     // "duy trì ở mức" is "remain at".
     { cardId: 'v330', en: 'maintain', vi: ['duy trì'], notAfter: ['ở', 'đến', 'tới', 'trong'] },
     { cardId: 'v325', en: 'eliminate', vi: ['loại bỏ'], notBefore: ['bị'] },
