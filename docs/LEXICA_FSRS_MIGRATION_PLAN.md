@@ -24,7 +24,7 @@ Trên dữ liệu Anki, FSRS cho số lần ôn ít hơn ở cùng mức nhớ. 
 ### F0: đo (đang chạy, từ #143)
 - **Đã có:** mọi câu trả lời nhận ra có chấm đều được dùng để chấm cả hai mô hình (log loss, Brier), trước khi cập nhật.
 - **Cần thêm:**
-  - [ ] Gửi số đo **ẩn danh, chỉ con số** (n, tổng log loss mỗi mô hình) lên PostHog mỗi tuần, để xem trên **tất cả** người học chứ không chỉ một máy.
+  - [x] Gửi số đo **ẩn danh, chỉ con số** (n, tổng log loss mỗi mô hình) lên PostHog mỗi tuần, để xem trên **tất cả** người học chứ không chỉ một máy. Sự kiện `learner_model_week` (`lib/learner/report.ts`): tổng log loss/Brier từ lần gửi trước, trình độ, và tối đa 300 dòng `[mã từ, đúng 0/1, số ngày]` cho F1.
   - [ ] Bảng theo dõi: log loss FSRS vs SM-2 theo tuần, theo trình độ.
 - **Qua chặng khi:** ≥ 50 người học, mỗi người ≥ 30 câu, và FSRS có log loss thấp hơn ở **≥ 70% người học**. Mức chênh trung bình phải có ý nghĩa: khoảng tin cậy bootstrap 95% không chứa 0.
 - **Nếu FSRS không thắng:** dừng, xem lại cách suy bằng chứng (có thể đang tính sai đúng/sai) trước khi nghĩ tới đổi.
@@ -92,3 +92,5 @@ Các con số là ước tính của mình. Thời gian chờ dữ liệu phụ 
 1. Đồng ý gửi số đo ẩn danh (chỉ con số) lên PostHog cho F0 không?
 2. Đồng ý gom nhật ký ẩn danh (mã từ, kết quả, khoảng ngày) để fit trọng số ở F1 không?
 3. Ngưỡng chuyển: "≥ 50 người học, FSRS thắng ở ≥ 70%" có hợp không?
+
+**Đã quyết (11/2026):** cả ba đều đồng ý.

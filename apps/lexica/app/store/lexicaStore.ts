@@ -1,4 +1,6 @@
 import { calibrate } from '../lib/learner/dialSignal';
+import { weeklyReport } from '../lib/learner/report';
+import { capture } from '../lib/productAnalytics';
 import { emptyLearner, evidenceFromChange, record as recordLearner, seedFromSm2, type Evidence, type LearnerState } from '../lib/learner/model';
 import { analytics } from '../lib/analytics';
 import { CORTEX_API_URL } from '../lib/cortexConfig';
@@ -1201,8 +1203,18 @@ if (typeof window !== 'undefined') {
         const seeded = seedFromSm2(s.learner ?? emptyLearner(), s.cardProgress);
         if (seeded !== s.learner) useLexicaStore.setState({ learner: seeded });
     };
-    if (useLexicaStore.persist?.hasHydrated?.()) seed();
-    else useLexicaStore.persist?.onFinishHydration?.(seed);
+    // FSRS F0: weekly anonymous prediction scores + fitting rows (numbers only).
+    const report = () => {
+        const s = useLexicaStore.getState();
+        const learner = s.learner ?? emptyLearner();
+        const due = weeklyReport(learner, learner.reported, Date.now());
+        if (!due) return;
+        capture('learner_model_week', { ...due.props, level: s.recommendedLevel ?? 'none' });
+        useLexicaStore.setState({ learner: { ...useLexicaStore.getState().learner, reported: due.mark } });
+    };
+    const start = () => { seed(); report(); };
+    if (useLexicaStore.persist?.hasHydrated?.()) start();
+    else useLexicaStore.persist?.onFinishHydration?.(start);
     useLexicaStore.subscribe((next, prev) => {
         if (!prev || next.learner !== prev.learner) return;
         const found = evidenceFromChange(prev, next, Date.now());

@@ -5,6 +5,7 @@
  * predictions are scored against outcomes (`metrics`) so we can tell whether
  * it predicts better before letting it schedule.
  */
+import type { ReportMark } from './report';
 import { firstReview, retrievability, review, type Memory, type Rating } from './fsrs';
 
 /** recog: sees it and knows it; recall: brings it up from a cue; produce: uses it in own sentence; wild: used it in real life. */
@@ -40,6 +41,8 @@ export interface LearnerState {
     dial?: { asked: number; correct: number; lastCheck?: number };
     /** Random per learner, for the experiment split. */
     seed?: string;
+    /** Last weekly F0 report sent (lib/learner/report.ts). */
+    reported?: ReportMark;
 }
 
 export const LOG_CAP = 1500;

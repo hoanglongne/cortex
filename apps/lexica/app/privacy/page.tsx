@@ -87,6 +87,7 @@ export default function PrivacyPage() {
                         <ul>
                             <li>App gửi sự kiện ẩn danh (ví dụ &quot;xong phiên học&quot;, &quot;đã luyện nói&quot;) tới PostHog để biết phần nào hữu ích, phần nào khó dùng.</li>
                             <li>Sự kiện gắn với một mã ngẫu nhiên của trình duyệt; nếu bạn đăng nhập thì kèm mã tài khoản. Không gửi câu bạn viết hay giọng bạn.</li>
+                            <li>Mỗi tuần một lần, app gửi số đo về lịch ôn: lịch hiện tại và cách tính mới đoán bạn nhớ từ đúng đến đâu, kèm danh sách lượt ôn dạng mã từ, đúng/sai và số ngày giữa hai lần ôn. Chỉ có con số, dùng để chỉnh lịch ôn cho người học Lexica.</li>
                         </ul>
                     ),
                 },
