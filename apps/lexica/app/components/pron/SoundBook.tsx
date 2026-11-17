@@ -6,6 +6,8 @@ import { useLexicaStore } from '../../store/lexicaStore';
 import { localDate } from '../../lib/engagement/ghost';
 import { improved, practiceSuggestion, weakSounds } from '../../lib/pronunciation/soundLog';
 import type { ErrorKind } from '../../lib/pronunciation/pairs';
+import { pairsForLearner } from '../../lib/pronunciation/compare';
+import MouthCompare from './MouthCompare';
 
 const TREND = { better: 'đỡ hơn tuần trước', same: 'như tuần trước', worse: 'nhiều hơn tuần trước' } as const;
 
@@ -20,7 +22,10 @@ export default function SoundBook({ onPractice }: { onPractice: (kind: ErrorKind
     const weak = useMemo(() => weakSounds(log ?? {}, today), [log, today]);
     const better = useMemo(() => improved(log ?? {}, today), [log, today]);
     const suggest = useMemo(() => practiceSuggestion(log ?? {}, today), [log, today]);
+    const pairs = useMemo(() => pairsForLearner(weak.map((w) => w.kind)).filter((p) => p.kind && weak.some((w) => w.kind === p.kind)), [weak]);
+    const [pairAt, setPairAt] = useState(0);
     if (weak.length === 0 && better.length === 0) return null;
+    const pair = pairs.length ? pairs[pairAt % pairs.length] : null;
     return (
         <div data-testid="sound-book" className="rounded-2xl border border-line bg-surface p-5">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Âm hay sai · 14 ngày</p>
@@ -45,6 +50,19 @@ export default function SoundBook({ onPractice }: { onPractice: (kind: ErrorKind
                 <button onClick={() => onPractice(suggest)} className="mt-4 h-10 px-4 rounded-xl bg-accent text-on-accent font-semibold text-sm">
                     Luyện 2 phút: {SOUND_LABEL[suggest]}
                 </button>
+            )}
+            {pair && (
+                <div className="mt-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-ink">So sánh khẩu hình</p>
+                        {pairs.length > 1 && (
+                            <button type="button" onClick={() => setPairAt((i) => i + 1)} className="text-xs text-accent">
+                                Cặp khác ({(pairAt % pairs.length) + 1}/{pairs.length})
+                            </button>
+                        )}
+                    </div>
+                    <MouthCompare pair={pair} />
+                </div>
             )}
             <p className="mt-3 text-xs text-subtle">Đếm theo những lần máy nghe chưa rõ, nên chỉ là ước lượng.</p>
         </div>

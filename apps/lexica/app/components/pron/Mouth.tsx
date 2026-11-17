@@ -10,7 +10,8 @@ const HI = '#F5B942';
  * tongue, teeth, lips and soft palate in place, a ring where they touch, the
  * air's path, and a buzz mark at the throat for voiced sounds.
  */
-export default function Mouth({ phone, className = '', focus }: { phone: string; className?: string; focus?: MouthPart | null }) {
+export default function Mouth({ phone, className = '', focus }: { phone: string; className?: string; focus?: MouthPart | readonly MouthPart[] | null }) {
+    const on = (part: MouthPart) => (Array.isArray(focus) ? focus.includes(part) : focus === part);
     const m = mouthFor(phone);
     if (!m) return null;
     return (
@@ -20,7 +21,7 @@ export default function Mouth({ phone, className = '', focus }: { phone: string;
             <path d={m.cavity} className="fill-bg" />
             <path d={m.velum} className="fill-surface-3" />
             <path d={m.profile} fill="none" className="stroke-muted" strokeWidth="1.5" />
-            <path d={m.tongue} fill="#E8737A" stroke={focus === 'tongue' ? HI : '#F09AA0'} strokeWidth={focus === 'tongue' ? 3 : 1} />
+            <path d={m.tongue} fill="#E8737A" stroke={on('tongue') ? HI : '#F09AA0'} strokeWidth={on('tongue') ? 3 : 1} />
             <path d={m.upperTooth} className="fill-ink" />
             <path d={m.lowerTooth} className="fill-ink" />
             {m.nasalAir && <path d={m.nasalAir} fill="none" className="stroke-accent" strokeWidth="2" strokeDasharray="4 4" />}
@@ -34,12 +35,12 @@ export default function Mouth({ phone, className = '', focus }: { phone: string;
             {m.contact && <circle cx={m.contact[0]} cy={m.contact[1]} r="5" fill="none" className="stroke-accent" strokeWidth="2" />}
             {m.voiced && <path d="M50,128 l6,-4 l-6,-4 l6,-4" fill="none" className="stroke-accent" strokeWidth="1.5" />}
             {/* The part the current step is about (lib/pronunciation/steps.ts). */}
-            {focus === 'lips' && <ellipse cx="183" cy="66" rx="9" ry="12" fill="none" stroke={HI} strokeWidth="2.5" />}
-            {focus === 'jaw' && <path d={m.lowerTooth} fill="none" stroke={HI} strokeWidth="2.5" />}
-            {focus === 'contact' && m.contact && <circle cx={m.contact[0]} cy={m.contact[1]} r="8" fill="none" stroke={HI} strokeWidth="2.5" />}
-            {focus === 'air' && m.air && <path d={m.air} fill="none" stroke={HI} strokeWidth="3" />}
-            {focus === 'nose' && m.nasalAir && <path d={m.nasalAir} fill="none" stroke={HI} strokeWidth="3" />}
-            {focus === 'voice' && <circle cx="53" cy="122" r="10" fill="none" stroke={HI} strokeWidth="2.5" />}
+            {on('lips') && <ellipse cx="183" cy="66" rx="9" ry="12" fill="none" stroke={HI} strokeWidth="2.5" />}
+            {on('jaw') && <path d={m.lowerTooth} fill="none" stroke={HI} strokeWidth="2.5" />}
+            {on('contact') && m.contact && <circle cx={m.contact[0]} cy={m.contact[1]} r="8" fill="none" stroke={HI} strokeWidth="2.5" />}
+            {on('air') && m.air && <path d={m.air} fill="none" stroke={HI} strokeWidth="3" />}
+            {on('nose') && m.nasalAir && <path d={m.nasalAir} fill="none" stroke={HI} strokeWidth="3" />}
+            {on('voice') && <circle cx="53" cy="122" r="10" fill="none" stroke={HI} strokeWidth="2.5" />}
         </svg>
     );
 }

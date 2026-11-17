@@ -11,7 +11,7 @@ import { bare, isVowel } from './phones';
 type Pt = [number, number];
 type Lips = 'neutral' | 'spread' | 'round' | 'closed' | 'teeth';
 
-interface Pose {
+export interface Pose {
     /** Tongue points from back to tip: back, dorsum, blade, tip. */
     tongue: [Pt, Pt, Pt, Pt];
     /** 0 closed teeth … 1 wide open. */
@@ -169,4 +169,13 @@ export function mouthFor(phone: string): MouthDrawing | null {
         hint: pose.hint + (nasal ? ' Hơi đi ra đằng mũi.' : ''),
         voiceHint: isVowel(phone) ? '' : voiced ? 'Rung cổ họng (đặt tay lên cổ sẽ thấy rung).' : 'Không rung cổ họng, chỉ có hơi.',
     };
+}
+
+/** The raw pose behind `phone`'s picture, for comparing two sounds (lib/pronunciation/compare.ts). */
+export function poseOf(phone: string): { cls: string; pose: Pose; voiced: boolean; nasal: boolean } | null {
+    const p = bare(phone);
+    const cls = CLASS_OF[p];
+    const pose = POSES[cls];
+    if (!pose) return null;
+    return { cls, pose, voiced: !VOICELESS.has(p), nasal: NASAL.has(p) || pose.nasal === true };
 }

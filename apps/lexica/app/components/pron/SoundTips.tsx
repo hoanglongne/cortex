@@ -22,6 +22,8 @@ import { useLexicaStore } from '../../store/lexicaStore';
 import Mouth from './Mouth';
 import { mouthFor } from '../../lib/pronunciation/mouth';
 import { guideFor } from '../../lib/pronunciation/steps';
+import { pairFor, partsThatDiffer } from '../../lib/pronunciation/compare';
+import MouthCompare from './MouthCompare';
 
 export interface AttemptFeedback {
     sound: SoundFeedback;
@@ -243,6 +245,17 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                         <p className="text-[11px] text-muted">{issue.word.toLowerCase()}</p>
                     </div>
                 </div>
+
+                {swapped && partsThatDiffer(issue.phone, issue.heardAs!).length > 0 && (
+                    <MouthCompare
+                        pair={{
+                            a: issue.phone,
+                            b: issue.heardAs!,
+                            note: pairFor(issue.phone, issue.heardAs!)?.note ?? 'So hai hình: phần viền vàng là chỗ cần đổi.',
+                            words: pairWord ? [issue.word.toLowerCase(), pairWord] : undefined,
+                        }}
+                    />
+                )}
 
                 <MouthHint key={issue.phone} phone={issue.phone} tip={tip} />
 
