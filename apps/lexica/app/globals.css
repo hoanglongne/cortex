@@ -278,20 +278,3 @@ svg *:focus {
   .lx-reveal-sweep::after { animation: none; }
 }
 
-/* A full set: a slow light sweep across it (issue #146). */
-.lx-set-complete::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(105deg, transparent 35%, rgba(198, 244, 50, 0.12) 50%, transparent 65%);
-  background-size: 250% 100%;
-  animation: lx-sweep 4.5s ease-in-out infinite;
-}
-@keyframes lx-sweep {
-  0% { background-position: 120% 0; }
-  60%, 100% { background-position: -120% 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .lx-set-complete::after { animation: none; background: none; }
-}

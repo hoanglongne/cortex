@@ -6,8 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronDown, Gift, Hammer, HelpCircle, Leaf, Lock, Shield, Snowflake, Sparkles, Sprout, Ticket, Trophy, Wand2, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards, getCard, getCurrentDrop, getQuotes, useContentVersion } from '../lib/content/repository';
-import { TOPIC_COLOR } from '../lib/engagement/cardLook';
-import { buildSets, isOwned, topicOf, seasonOpen, setProgress, type CollectionSet } from '../lib/engagement/collection';
+import { buildSets, isOwned, seasonOpen, setProgress, type CollectionSet } from '../lib/engagement/collection';
 import { CONCEPTS, editionPerks, markExplained, nextExplainer, nextGoal, PERK_LABEL, readExplained, secondExample, walletLines, walletVisible, type Concept } from '../lib/engagement/albumGuide';
 import { scenarioFor } from '../lib/content/persona';
 import InTheWild from '../components/InTheWild';
@@ -313,7 +312,7 @@ function SetRow({
     const allSilver = p.complete && economy && set.cardIds.every((id) => (economy.editions[id]?.edition ?? 'common') !== 'common' && economy.editions[id]);
 
     return (
-        <div className={`relative overflow-hidden rounded-2xl border bg-surface ${allSilver ? 'lx-edition-silver' : p.complete ? 'border-accent/50' : 'border-line'} ${p.complete ? 'lx-set-complete' : ''}`}>
+        <div className={`rounded-2xl border bg-surface ${allSilver ? 'lx-edition-silver' : p.complete ? 'border-accent/50' : 'border-line'}`}>
             <button onClick={onToggle} className="w-full flex items-center gap-3 p-4 text-left">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -358,10 +357,9 @@ function SetRow({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`relative overflow-hidden aspect-[3/4] rounded-xl border p-2 pt-3 flex flex-col justify-between text-left transition-transform active:scale-95 hover:-translate-y-0.5 ${owned ? `border-line-strong bg-surface-2 text-ink ${EDITION_CLASS[owned.edition]}` : STATE_STYLE[cp.state]}`}
+                                className={`relative aspect-[3/4] rounded-xl border p-2 flex flex-col justify-between text-left transition-transform active:scale-95 ${owned ? `border-line-strong bg-surface-2 text-ink ${EDITION_CLASS[owned.edition]}` : STATE_STYLE[cp.state]}`}
                             >
-                                {/* The topic's colour, as on the big card */}
-                                <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: card ? TOPIC_COLOR[topicOf(card)] : undefined }} />
+
                                 <span className="flex items-center justify-between">
                                     <Icon className="w-3.5 h-3.5" />
                                     {ready && <span className="w-2 h-2 rounded-full bg-accent animate-pulse" aria-label="Sẵn sàng đúc" />}

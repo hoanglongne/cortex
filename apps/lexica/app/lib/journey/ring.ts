@@ -16,9 +16,3 @@ export function ringArcs(n: number, r: number, cx = r, cy = r, gap = 14): string
         return `M${x1},${y1} A${r},${r} 0 ${b - a > 180 ? 1 : 0} 1 ${x2},${y2}`;
     });
 }
-
-/** Where a stage's label sits: the middle of its arc, pushed out by `out`. */
-export function arcMiddle(i: number, n: number, r: number, cx = r, cy = r, out = 0): [number, number] {
-    const [x, y] = pt(cx, cy, r + out, (i + 0.5) * (360 / n));
-    return [x, y];
-}
