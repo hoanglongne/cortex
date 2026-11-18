@@ -13,7 +13,7 @@ import { saveThemePref } from './ThemeSync';
 import { parseThemePref, THEME_KEY, THEME_LABEL, THEME_PREFS, type ThemePref } from '../lib/theme';
 import { useEffect, useState } from 'react';
 
-const chip = (on: boolean) => `h-9 px-3 rounded-lg border text-xs font-medium ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
+const chip = (on: boolean) => `h-9 px-3 whitespace-nowrap rounded-lg border text-xs font-medium ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
 
 /** Learning settings: branch, pace, example style, level, device voice. Moved from "Tôi" to /settings (issue #146). */
 export default function LearningSettings() {
@@ -78,7 +78,7 @@ export default function LearningSettings() {
                     <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Cài đặt học</p>
                     <div className="space-y-2">
                         <span className="text-muted text-sm">Câu ví dụ theo kiểu</span>
-                        <div className="grid grid-cols-4 gap-1.5">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
                             {ARCHETYPE_OPTIONS.map((opt) => (
                                 <button key={opt.id} onClick={() => setUserArchetype(opt.id)} aria-pressed={(userArchetype ?? 'casual') === opt.id} className={`h-10 ${chip((userArchetype ?? 'casual') === opt.id)}`}>
                                     {opt.label}

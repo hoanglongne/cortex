@@ -142,7 +142,7 @@ export default function PlayPage() {
                                     </span>
                                     <span>
                                         <span className="block font-mono text-[10px] uppercase tracking-wide" style={{ color: c }}>{why}</span>
-                                        <span className="block text-lg font-bold text-ink">{g.name}</span>
+                                        <span className="block whitespace-nowrap text-lg font-bold text-ink">{g.name}</span>
                                         <span className="mt-0.5 block text-sm leading-snug text-ink-2 line-clamp-2">{g.hint}</span>
                                     </span>
                                 </Link>
@@ -155,8 +155,8 @@ export default function PlayPage() {
 
                 <details className="group/fold rounded-2xl border border-line bg-surface/40 p-3" aria-label="Cơ chế mới">
                     <summary className="flex cursor-pointer list-none items-baseline gap-2">
-                        <h3 className="font-semibold text-ink">Thử thách</h3>
-                        <span className="text-xs text-subtle">Không chỉ chọn đáp án · {FEATURED.length} game</span>
+                        <h3 className="shrink-0 whitespace-nowrap font-semibold text-ink">Thử thách</h3>
+                        <span className="min-w-0 truncate text-xs text-subtle">Không chỉ chọn đáp án · {FEATURED.length} game</span>
                         <ChevronDown className="ml-auto h-4 w-4 self-center text-muted transition-transform group-open/fold:rotate-180" />
                     </summary>
                     <div className="mt-3">
@@ -194,8 +194,8 @@ export default function PlayPage() {
                 {GROUPS.map((g) => (
                     <details key={g.title} aria-label={g.title} className="group/fold rounded-2xl border border-line bg-surface/40 p-3">
                         <summary className="flex cursor-pointer list-none items-baseline gap-2">
-                            <h3 className="font-semibold text-ink">{g.title}</h3>
-                            <span className="text-xs text-subtle">{g.hint} · {g.games.length} game</span>
+                            <h3 className="shrink-0 whitespace-nowrap font-semibold text-ink">{g.title}</h3>
+                            <span className="min-w-0 truncate text-xs text-subtle">{g.hint} · {g.games.length} game</span>
                             <ChevronDown className="ml-auto h-4 w-4 self-center text-muted transition-transform group-open/fold:rotate-180" />
                         </summary>
                         <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -215,7 +215,7 @@ export default function PlayPage() {
                                             <span className="flex h-11 w-11 items-center justify-center rounded-2xl text-on-status" style={{ background: c }}>
                                                 <Icon className="h-5 w-5" />
                                             </span>
-                                            <span className="mt-3 flex items-center gap-2 font-semibold text-ink">
+                                            <span className="mt-3 flex min-w-0 items-center gap-2 whitespace-nowrap text-[15px] font-semibold text-ink">
                                                 {name}
                                                 {tag && (
                                                     <span className="rounded-md px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide" style={{ background: edge(c, 22), color: c }}>

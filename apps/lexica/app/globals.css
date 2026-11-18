@@ -62,30 +62,41 @@
 }
 
 /*
- * Light theme (issue #146, round 3): same tokens, light values. Chosen in
- * Cài đặt (Tối / Sáng / Theo máy); the html element carries data-theme.
- * The lime accent is too pale on white, so light uses a deep olive with
- * white text on it.
+ * Light theme (issue #146, round 3): same tokens, light values, warm paper
+ * instead of grey. Fills keep the brand lime (buttons, bars, rings); text,
+ * borders and strokes in the accent switch to a deep olive (--accent-ink)
+ * so they stay readable on white. Chosen in Cài đặt (Tối / Sáng / Theo máy);
+ * the html element carries data-theme.
  */
 :root[data-theme="light"] {
-  --color-bg: #F5F5F1;
+  --color-bg: #F4F2EA;
   --color-surface: #FFFFFF;
-  --color-surface-2: #EFEFEA;
-  --color-surface-3: #E3E3DD;
-  --color-line: #E1E1DA;
-  --color-line-strong: #C9C9C1;
-  --color-ink: #15161A;
-  --color-ink-2: #383B42;
-  --color-muted: #63666D;
-  --color-subtle: #8E9198;
-  --color-accent: #4F6E00;
-  --color-accent-strong: #3F5900;
-  --color-on-accent: #FFFFFF;
-  --color-danger: #C93B2B;
-  --color-warning: #A86B0C;
+  --color-surface-2: #ECE9DF;
+  --color-surface-3: #DFDBCE;
+  --color-line: #E2DED2;
+  --color-line-strong: #C9C4B5;
+  --color-ink: #17160F;
+  --color-ink-2: #3B3A33;
+  --color-muted: #66645B;
+  --color-subtle: #95928A;
+  --color-accent: #C6F432;
+  --color-accent-strong: #B6E61C;
+  --color-on-accent: #17160F;
+  --accent-ink: #4A6800;
+  --color-danger: #D23F2E;
+  --color-warning: #B7740A;
   --color-on-status: #FFFFFF;
   color-scheme: light;
 }
+:root[data-theme="light"] .text-accent,
+:root[data-theme="light"] .hover\:text-accent:hover,
+:root[data-theme="light"] .group:hover .group-hover\:text-accent { color: var(--accent-ink); }
+:root[data-theme="light"] .border-accent,
+:root[data-theme="light"] .hover\:border-accent:hover { border-color: var(--accent-ink); }
+:root[data-theme="light"] .stroke-accent { stroke: var(--accent-ink); }
+:root[data-theme="light"] .fill-accent { fill: var(--accent-ink); }
+:root[data-theme="light"] .decoration-accent { text-decoration-color: var(--accent-ink); }
+:root[data-theme="light"] .accent-\[var\(--color-accent\)\] { accent-color: var(--accent-ink); }
 
 /*
  * Branch accents (issue #146, round 3): Chứng chỉ keeps the lime, Giao tiếp
@@ -97,9 +108,10 @@
   --color-on-accent: #0E0F11;
 }
 :root[data-theme="light"][data-branch="talk"] {
-  --color-accent: #0B6A9E;
-  --color-accent-strong: #08557F;
-  --color-on-accent: #FFFFFF;
+  --color-accent: #6CCDFF;
+  --color-accent-strong: #4BBDF5;
+  --color-on-accent: #0E1A22;
+  --accent-ink: #0A6596;
 }
 
 body {

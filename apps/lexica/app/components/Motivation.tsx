@@ -81,7 +81,7 @@ export default function Motivation({ variant }: { variant: 'strip' | 'column' })
                 </p>
             )}
             <Link href="/buddy" className="flex items-center gap-2 hover:text-ink">
-                <Users className="w-4 h-4" /> Học cùng bạn (Buddy)
+                <Users className="w-4 h-4" /> Học cùng bạn
             </Link>
         </aside>
     );

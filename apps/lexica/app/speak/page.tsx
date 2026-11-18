@@ -34,7 +34,7 @@ function SpeakingLadder() {
         { label: 'Tập một mình', hint: 'Oratio: câu hỏi IELTS thật, ghi âm, xem chỉ số của mình', href: ORATIO_URL },
         { label: 'Nói lại', hint: 'Nghe bản ghi, nói lần hai cho trôi chảy hơn', href: ORATIO_URL },
         { label: 'Chấm chéo', hint: 'Gửi bài, bạn luyện chấm cho bạn, bạn chấm lại cho người khác', href: ORATIO_URL },
-        { label: 'Phòng thi', hint: 'Giờ thi chung, nói với người thật. Hẹn một bạn trong Buddy', href: '/buddy' },
+        { label: 'Phòng thi', hint: 'Giờ thi chung, nói với người thật. Hẹn một bạn trong Bạn học', href: '/buddy' },
     ];
     return (
         <details className="rounded-2xl border border-line bg-surface p-4">

@@ -70,7 +70,7 @@ export function DesktopNav() {
                             key={d.href}
                             href={d.href}
                             aria-current={active === d.href ? 'page' : undefined}
-                            className={`h-9 px-3 rounded-lg text-sm flex items-center gap-2 ${active === d.href ? 'bg-surface text-accent' : 'text-muted hover:text-ink hover:bg-surface'}`}
+                            className={`h-9 px-3 shrink-0 whitespace-nowrap rounded-lg text-sm flex items-center gap-2 ${active === d.href ? 'bg-surface text-accent' : 'text-muted hover:text-ink hover:bg-surface'}`}
                         >
                             {d.icon}
                             {d.label}
@@ -101,7 +101,7 @@ export default function AppNav() {
                             className={`flex flex-col items-center justify-center gap-1 h-16 active:scale-95 transition ${active === t.id ? 'text-accent' : 'text-muted hover:text-ink'}`}
                         >
                             {t.icon}
-                            <span className="text-[11px] font-medium">{t.label}</span>
+                            <span className="text-[11px] font-medium whitespace-nowrap">{t.label}</span>
                         </Link>
                     ))}
                 </div>

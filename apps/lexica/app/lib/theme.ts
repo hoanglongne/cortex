@@ -8,7 +8,7 @@ export const THEME_KEY = 'lexica-theme';
 export const THEME_LABEL: Record<ThemePref, string> = { dark: 'Tối', light: 'Sáng', system: 'Theo máy' };
 export const THEME_PREFS: ThemePref[] = ['dark', 'light', 'system'];
 /** Browser bar colour per theme (matches --color-bg). */
-export const THEME_BAR: Record<'dark' | 'light', string> = { dark: '#0E0F11', light: '#F5F5F1' };
+export const THEME_BAR: Record<'dark' | 'light', string> = { dark: '#0E0F11', light: '#F4F2EA' };
 
 export function parseThemePref(raw: string | null): ThemePref {
     return raw === 'light' || raw === 'system' || raw === 'dark' ? raw : 'dark';

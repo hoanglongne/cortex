@@ -54,8 +54,8 @@ function Row({ href, icon, title, hint }: { href: string; icon: React.ReactNode;
     return (
         <Link href={href} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 first:rounded-t-2xl last:rounded-b-2xl">
             <span className="w-8 h-8 rounded-lg bg-surface-2 flex items-center justify-center text-muted shrink-0">{icon}</span>
-            <span className="flex-1 text-sm font-medium text-ink">{title}</span>
-            {hint && <span className="text-xs text-muted">{hint}</span>}
+            <span className="shrink-0 whitespace-nowrap text-sm font-medium text-ink">{title}</span>
+            <span className="flex-1 min-w-0 truncate text-right text-xs text-muted">{hint}</span>
             <ChevronRight className="w-4 h-4 text-subtle" />
         </Link>
     );
