@@ -1,4 +1,4 @@
-# Lexica Núm vặn: hồ sơ Chrome Web Store (issue #141)
+# Lexica Blend: hồ sơ Chrome Web Store (issue #141)
 
 ## Việc chủ sản phẩm làm
 1. Đăng ký tài khoản nhà phát triển Chrome Web Store (phí một lần, khoảng 5 USD) bằng tài khoản Google.
@@ -6,10 +6,10 @@
 3. Vào Developer Dashboard → New item → tải file zip lên, điền các mục dưới đây, nộp duyệt.
 
 ## Tên và mô tả
-- **Tên:** Lexica Núm vặn
+- **Tên:** Lexica Blend
 - **Mô tả ngắn (≤ 132 ký tự):** Đọc web tiếng Việt, từ bạn đang học hiện bằng tiếng Anh ngay trong câu. Chạm để xem nghĩa và nghe phát âm.
 - **Mô tả dài:**
-  > Núm vặn biến những trang tiếng Việt bạn vẫn đọc mỗi ngày thành bài học tiếng Anh.
+  > Blend biến những trang tiếng Việt bạn vẫn đọc mỗi ngày thành bài học tiếng Anh.
   >
   > - Bật trên trang bạn muốn (VnExpress, Tuổi Trẻ, Thanh Niên…). Những từ bạn đang học hiện bằng tiếng Anh ngay trong câu, đúng kiểu câu chêm.
   > - Kéo "Mức tiếng Anh" để đổi ít hay nhiều từ.
@@ -34,7 +34,7 @@ Từ bản 0.3, tiện ích **không xin quyền đọc mọi trang lúc cài**.
 - **Mục đích duy nhất (single purpose):** hiện từ tiếng Anh bạn đang học trong trang tiếng Việt bạn đọc.
 - **Dữ liệu thu thập:** khi đã đăng nhập Lexica, tiện ích gửi về máy chủ Lexica **mã từ đã chạm và thời điểm** (để đưa vào lượt ôn). Không gửi nội dung trang, địa chỉ trang hay lịch sử duyệt web. Mục "User activity" trong form: không chọn; "Website content": không. Đánh dấu: không bán, không dùng cho mục đích khác, không dùng để xét tín dụng.
 - **Remote code:** không. Toàn bộ mã nằm trong gói.
-- **Chính sách riêng tư:** https://lexica.cortexlearn.app/privacy (mục "Núm vặn: đọc bài và tiện ích Chrome").
+- **Chính sách riêng tư:** https://lexica.cortexlearn.app/privacy (mục "Blend: đọc bài và tiện ích Chrome").
 
 ## Hình ảnh (đã có trong `extension/store/`)
 - Icon 128×128: `extension/dist/icon-128.png`.

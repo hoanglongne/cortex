@@ -1,11 +1,11 @@
 /**
- * Núm vặn preferences shared by the app and the extension
+ * Blend preferences shared by the app and the extension
  * (docs/LEXICA_DIAL_MERID_PLAN.md, issues #160–#165).
  *
  * - N1: three intensities with a per-page cap, plus an estimate line.
  * - N2: how a swapped word shows (replace, highlight only, both).
  * - N3: a key per rule hit, for 👍/👎 feedback.
- * - N4: pages Núm vặn never touches.
+ * - N4: pages Blend never touches.
  * - N7: which language a page is in.
  *
  * Pure and import-free on purpose: extension/build.mjs transpiles this file
@@ -72,7 +72,7 @@ export function estimateLine(e: { perDay: number; perWeek: number; guessed: bool
     return `≈ ${e.perDay} lượt gặp từ mỗi ngày · ≈ ${e.perWeek} từ khác nhau mỗi tuần${e.guessed ? ' (ước tính)' : ''}`;
 }
 
-/** Sites Núm vặn never runs on, whatever the learner picks: money, mail, health, government, sign-in. */
+/** Sites Blend never runs on, whatever the learner picks: money, mail, health, government, sign-in. */
 export const BLOCKED_HOSTS = [
     // banks and wallets
     'vietcombank.com.vn', 'techcombank.com.vn', 'bidv.com.vn', 'vietinbank.vn', 'agribank.com.vn', 'mbbank.com.vn', 'tpb.vn', 'vpbank.com.vn',
@@ -98,7 +98,7 @@ export function onSite(host: string, site: string): boolean {
 }
 
 /**
- * Pages Núm vặn never touches (issue #160): the hard list above, hosts or
+ * Pages Blend never touches (issue #160): the hard list above, hosts or
  * paths that look like banking, mail, health or sign-in, and any page with a
  * password or card-number field.
  */

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { allowedUrl, extractArticle } from '../../../lib/dial/extract';
 
 /**
- * Núm vặn: fetch one shared article and return its paragraphs for the reader.
+ * Blend: fetch one shared article and return its paragraphs for the reader.
  * Only listed news sites (no open proxy), nothing is stored, small per-IP limit.
  */
 const MAX_BYTES = 3_000_000;

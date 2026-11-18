@@ -1,5 +1,5 @@
 /**
- * The learner's Núm vặn level (0–100 %), shared by every dial view and kept on
+ * The learner's Blend level (0–100 %), shared by every dial view and kept on
  * this device. Pure helpers plus a tiny hook.
  */
 import { useEffect, useState } from 'react';

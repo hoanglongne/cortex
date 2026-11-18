@@ -1,5 +1,5 @@
 /**
- * Núm vặn D0 rules (docs/LEXICA_WOW_PLAN.md §2.9): a first, hand-written set
+ * Blend D0 rules (docs/LEXICA_WOW_PLAN.md §2.9): a first, hand-written set
  * for the trial. Each rule must only fire where the English word is right;
  * when unsure, leave the phrase out. To be reviewed by a person before use.
  */

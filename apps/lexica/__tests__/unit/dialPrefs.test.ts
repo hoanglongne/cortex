@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { defaultMode, estimate, estimateLine, hitText, intensityFromLevel, isBlocked, onSite, pageLanguage, ruleKey } from '../../app/lib/dial/prefs';
 
-describe('Núm vặn prefs', () => {
+describe('Blend prefs', () => {
     it('N1: estimate from reading habits, capped by intensity', () => {
         expect(estimate('light', 10, 6)).toEqual({ perDay: 30, perWeek: 84, guessed: false });
         expect(estimate('heavy', 10, 6).perDay).toBe(60);

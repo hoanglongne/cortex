@@ -227,23 +227,23 @@ interface LexicaStore {
     /** A light "good" review for each card (reading a passage). */
     lightReview: (cardIds: string[]) => void;
     /**
-     * Núm vặn: the learner tapped an English word to see its meaning, so they
+     * Blend: the learner tapped an English word to see its meaning, so they
      * did not recall it. A learned word becomes due now (its ease is left alone,
      * the review itself decides); a new word is queued to learn.
      */
     dialTap: (cardId: string) => 'due' | 'queued' | 'none';
-    /** Núm vặn (#163): words the learner said they know; never swapped again. cardId -> when. */
+    /** Blend (#163): words the learner said they know; never swapped again. cardId -> when. */
     dialKnown: Record<string, number>;
     markDialKnown: (cardId: string, known: boolean) => void;
-    /** Núm vặn (#163): 👍/👎 per rule hit (lib/dial/prefs.ts ruleKey) -> [up, down]. */
+    /** Blend (#163): 👍/👎 per rule hit (lib/dial/prefs.ts ruleKey) -> [up, down]. */
     dialFeedback: Record<string, [number, number]>;
     rateDialRule: (key: string, vote: 'up' | 'down') => void;
-    /** Núm vặn (#164): first mission, tap 3 swapped words. */
+    /** Blend (#164): first mission, tap 3 swapped words. */
     dialMission: { taps: number; doneAt?: number };
     /** Learner model (lib/learner/model.ts), shadow only: predicts, does not schedule. */
     learner: LearnerState;
     recordEvidence: (e: Evidence) => void;
-    /** Núm vặn weekly check (issue #142): graded answers, and calibration of the "seen" signal. */
+    /** Blend weekly check (issue #142): graded answers, and calibration of the "seen" signal. */
     finishDialCheck: (results: { cardId: string; right: boolean }[]) => void;
     /** A class quiz's results: wrong words back into review, quick right ones as a right recall. */
     applyArena: (results: ArenaResult[]) => { again: number; recalled: number; queued: number };

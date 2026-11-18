@@ -1,5 +1,5 @@
 /**
- * Núm vặn N7 (issue #165), experimental and off by default: on English pages,
+ * Blend N7 (issue #165), experimental and off by default: on English pages,
  * plain phrases become the academic word the learner is studying ("get rid
  * of" → eliminate). Same matcher as the Vietnamese rules (it works on any
  * letters); `vi` holds the English phrases here.

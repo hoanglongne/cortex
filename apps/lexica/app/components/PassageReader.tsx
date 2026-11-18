@@ -35,7 +35,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
     const markMet = useLexicaStore((s) => s.markMet);
     const recordSpeak = useLexicaStore((s) => s.recordSpeak);
     const [showTranslation, setShowTranslation] = useState(false);
-    // Núm vặn (docs/LEXICA_WOW_PLAN.md §2): read the Vietnamese translation with
+    // Blend (docs/LEXICA_WOW_PLAN.md §2): read the Vietnamese translation with
     // words swapped to English; at 100 % it becomes the English original.
     const [dialOn, setDialOn] = useState(false);
     const [dialLevel, setDialLevel] = useDialLevel();
@@ -222,7 +222,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                         aria-pressed={dialOn}
                         className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${dialOn ? 'border-accent text-accent' : 'border-line text-ink hover:border-line-strong'}`}
                     >
-                        <SlidersHorizontal className="w-4 h-4" /> Núm vặn
+                        <SlidersHorizontal className="w-4 h-4" /> Blend
                     </button>
                 </div>
                 )}

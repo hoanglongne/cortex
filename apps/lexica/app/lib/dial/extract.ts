@@ -1,5 +1,5 @@
 /**
- * Pull the readable paragraphs out of an article page (Núm vặn, reading a
+ * Pull the readable paragraphs out of an article page (Blend, reading a
  * shared link). Pure: the API route fetches, this only parses.
  */
 

@@ -1,5 +1,5 @@
 /**
- * Núm vặn and the review schedule (docs/LEXICA_WOW_PLAN.md §2.4–2.5).
+ * Blend and the review schedule (docs/LEXICA_WOW_PLAN.md §2.4–2.5).
  * Which words to show first: those due (or due within a day), then the other
  * learned words. Pure.
  */

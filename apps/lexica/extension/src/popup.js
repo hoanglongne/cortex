@@ -8,7 +8,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     $('blocked').hidden = !blocked;
     chrome.storage.local.get({ lexica: null, pageStats: {} }, ({ lexica, pageStats }) => {
         const learned = lexica?.learned ?? 0;
-        // Last 7 days of pages read with Núm vặn on (counted on this device).
+        // Last 7 days of pages read with Blend on (counted on this device).
         const days = Object.values(pageStats);
         const pages = days.reduce((n, d) => n + d.pages, 0), shown = days.reduce((n, d) => n + d.shown, 0);
         const habit = days.length >= 2 && pages >= 5 ? { perDay: pages / 7, perPage: shown / pages } : null;

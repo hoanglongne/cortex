@@ -1,4 +1,4 @@
-/** Every Núm vặn rule. A phrase with the same context belongs to the first card that claims it. */
+/** Every Blend rule. A phrase with the same context belongs to the first card that claims it. */
 import { dedupeRules, type DialRule } from './match';
 import { DIAL_RULES_D0 } from './rules';
 import { DIAL_RULES_MORE } from './rulesMore';

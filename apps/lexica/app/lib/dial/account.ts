@@ -1,5 +1,5 @@
 /**
- * Núm vặn extension, cross-device link (issue #141). With a Lexica account:
+ * Blend extension, cross-device link (issue #141). With a Lexica account:
  * - Lexica gives the extension a dial token (it can only read the review
  *   schedule and add tapped words), handed over in the page via postMessage;
  * - taps the extension sent to the API are claimed here and applied.

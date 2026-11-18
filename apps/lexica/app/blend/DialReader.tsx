@@ -26,7 +26,7 @@ const ERRORS: Record<string, string> = {
 
 interface Article { title: string; paragraphs: string[]; url?: string }
 
-/** Núm vặn reader: paste text or a news link (or share one to Lexica on Android). */
+/** Blend reader: paste text or a news link (or share one to Lexica on Android). */
 export default function DialReader() {
     const [input, setInput] = useState('');
     const [article, setArticle] = useState<Article | null>(null);
@@ -69,7 +69,7 @@ export default function DialReader() {
         if (shared) {
             setInput(shared);
             void open(shared);
-            history.replaceState(null, '', '/num-van');
+            history.replaceState(null, '', '/blend');
         }
     }, [open]);
 
@@ -82,7 +82,7 @@ export default function DialReader() {
         <main className="min-h-dvh bg-bg text-ink px-4 py-5 max-w-2xl mx-auto pb-40">
             <div className="flex items-center gap-3 mb-4">
                 <Link href="/" aria-label="Về trang chủ" className="p-2 -ml-2 text-muted hover:text-ink"><ArrowLeft className="w-5 h-5" /></Link>
-                <h1 className="text-lg font-semibold">Núm vặn</h1>
+                <h1 className="text-lg font-semibold">Blend</h1>
                 <span className="text-[11px] font-mono uppercase tracking-wider text-accent border border-accent/30 rounded px-1.5 py-0.5">Thử nghiệm</span>
             </div>
 

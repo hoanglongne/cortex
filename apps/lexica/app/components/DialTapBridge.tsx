@@ -6,7 +6,7 @@ import { parseDialEvents, TAPS_EVENT, TAPS_KEY } from '../lib/dial/bridge';
 import { claimDialTaps, HELLO, isHello, issueDialToken, TOKEN } from '../lib/dial/account';
 
 /**
- * Applies words tapped in the Núm vặn extension: from this browser
+ * Applies words tapped in the Blend extension: from this browser
  * (lib/dial/bridge.ts) and, with an account, from any device via the API
  * (lib/dial/account.ts). Also gives the extension its dial token.
  */

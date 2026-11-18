@@ -1,5 +1,5 @@
 /**
- * Núm vặn extension bridge (issue #141), browser-local, no server.
+ * Blend extension bridge (issue #141), browser-local, no server.
  *
  * - The extension's script on the Lexica site reads `lexica-storage` (the
  *   persisted store) for each card's next review, so the extension shows due
