@@ -1,5 +1,7 @@
 'use client';
 
+import { aroundBlank, optionDiff } from '../lib/optionDiff';
+
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -373,7 +375,9 @@ function QuestionCard({
                 height and nothing scrolls off a phone screen. */}
             {question.type !== 'meaning-to-word' && !showReveal && (
                 <div className="space-y-2">
-                    {question.options.map((option, i) => {
+                    {question.options.map((option, i, all) => {
+                        // Faint shared words, bold the part that differs (lib/optionDiff.ts).
+                        const parts = question.type === 'context-pick' ? null : optionDiff(all)[i];
                         const isSelected = selected === option;
                         const isCorrectOpt = option === question.answer;
                         let cls = 'bg-ink/[0.02] border-ink/20 text-ink-2 hover:border-accent/50 hover:bg-ink/[0.04] active:scale-[0.99]';
@@ -396,8 +400,14 @@ function QuestionCard({
                                 </span>
                                 <span className={isLong ? 'italic leading-snug' : ''}>
                                     {isLong
-                                        ? highlightBlank(blank(option, question.optionWords?.[i] ?? question.word))
-                                        : option}
+                                        ? highlightBlank(aroundBlank(blank(option, question.optionWords?.[i] ?? question.word)))
+                                        : parts && parts.length > 1
+                                            ? parts.map((p, k) => (
+                                                <span key={k} className={p.differs ? 'font-semibold' : 'opacity-60'}>
+                                                    {k > 0 ? ' ' : ''}{p.text}
+                                                </span>
+                                            ))
+                                            : option}
                                 </span>
                             </button>
                         );
