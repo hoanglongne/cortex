@@ -25,6 +25,7 @@ import SpeakDrill from '../components/SpeakDrill';
 import StepNumbers from '../components/StepNumbers';
 import InstallCard from '../components/InstallCard';
 import PledgeCard from '../components/PledgeCard';
+import RecapHero from '../components/RecapHero';
 import { classWordsToQueue } from '../lib/classes';
 
 /** What a stage works on, fixed when the stage starts so answers don't reshuffle it. */
@@ -256,7 +257,7 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
         <motion.div data-testid="today-recap" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
             <div className="rounded-2xl border border-line bg-surface p-5">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Xong hôm nay</p>
-                <h1 className="mt-2 text-xl font-semibold text-ink">{headline(delta)}</h1>
+                <RecapHero words={delta ? delta.hieu + delta.nho + delta.gap + delta.dung : 0} headline={headline(delta)} />
                 <div className="mt-4">
                     <StepNumbers counts={now} delta={delta} />
                 </div>
