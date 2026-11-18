@@ -1,6 +1,8 @@
 'use client';
 
 import { aroundBlank, optionDiff } from '../lib/optionDiff';
+import { feelFor } from '../lib/engagement/answerFeel';
+import { vibrate } from '../lib/engagement/haptics';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -56,6 +58,15 @@ interface Result {
 const TIMER_SECONDS = 15;
 /** Answered right within this many seconds counts as easy (lib/srs.ts). */
 const FAST_SECONDS = 5;
+/** Right answers in a row in this review session, for the climbing tone. Reset when a session starts. */
+const run = { streak: 0 };
+function countRun(correct: boolean): number {
+    run.streak = correct ? run.streak + 1 : 0;
+    return run.streak;
+}
+function resetRun() {
+    run.streak = 0;
+}
 
 /** "8 ngày": when a right answer brings this word back. */
 function previewNextIn(cardId: string, fast: boolean): string {
@@ -226,7 +237,7 @@ function QuestionCard({
     /** `close`: a typed answer with a slip or another form of the word (lib/answerMatch.ts). */
     onAnswer: (correct: boolean, fast?: boolean, close?: boolean) => void;
 }) {
-    const { click } = useSoundEffects();
+    const { click, comboTick, quizWrong: wrongTone, soundEnabled: soundOn } = useSoundEffects();
     const [selected, setSelected] = useState<string | null>(null);
     const [answered, setAnswered] = useState(false);
     const [isCorrect, setIsCorrect] = useState(false);
@@ -263,6 +274,14 @@ function QuestionCard({
         if (question.type === 'meaning-to-word') inputRef.current?.focus();
     }, [question.type]);
 
+    // A short tone and buzz per answer; a run of right answers climbs (lib/engagement/answerFeel.ts).
+    const feel = (correct: boolean) => {
+        const f = feelFor(correct, countRun(correct));
+        if (f.sound === 'combo') comboTick(f.combo);
+        else wrongTone();
+        vibrate(f.buzz, soundOn);
+    };
+
     const handleSelect = (option: string) => {
         if (answered) return;
         click();
@@ -270,6 +289,7 @@ function QuestionCard({
         setAnswered(true);
         const correct = option === question.answer;
         setIsCorrect(correct);
+        feel(correct);
         if (correct) {
             const fast = timeLeft >= TIMER_SECONDS - FAST_SECONDS;
             setNextIn(previewNextIn(question.cardId, fast));
@@ -284,6 +304,7 @@ function QuestionCard({
         click();
         const match = matchAnswer(typedInput, question.answer);
         const correct = match.kind === 'exact';
+        feel(correct || match.kind === 'close');
         setAnswered(true);
         setIsCorrect(correct);
         // Close: shown as "Gần đúng" with the right spelling; the learner taps on once they've seen it.
@@ -851,6 +872,11 @@ export default function ReviewSession({
 }) {
     const embedded = Boolean(onDone);
     const submitReviewAnswer = useLexicaStore(state => state.submitReviewAnswer);
+
+    // A new session starts its run of right answers from zero.
+    useEffect(() => {
+        resetRun();
+    }, []);
 
     // The first words of the run sound at once when tapped
     const firstIds = dueCardIds.slice(0, 5).join(',');
