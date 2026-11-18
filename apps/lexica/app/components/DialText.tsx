@@ -114,11 +114,11 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
 
 /** Intensity (#161) and display mode (#162). */
 export function DialControls({ intensity, mode, onChange, total, estimate }: { intensity: DialIntensity; mode: DialMode; onChange: (p: { intensity?: DialIntensity; mode?: DialMode }) => void; total?: number; estimate?: string }) {
-    const seg = (on: boolean) => `flex-1 h-9 rounded-lg border text-sm ${on ? 'border-accent text-accent' : 'border-line text-ink-2'}`;
+    const seg = (on: boolean) => `flex-1 min-w-0 h-9 px-1 whitespace-nowrap rounded-lg border text-xs sm:text-sm ${on ? 'border-accent text-accent' : 'border-line text-ink-2'}`;
     return (
         <div className="space-y-2">
             <div className="flex items-center gap-2">
-                <span className="w-24 shrink-0 text-sm text-muted">Cường độ</span>
+                <span className="w-[4.5rem] shrink-0 whitespace-nowrap text-xs sm:text-sm text-muted">Cường độ</span>
                 {INTENSITIES.map((k) => (
                     <button key={k} onClick={() => onChange({ intensity: k })} aria-pressed={intensity === k} className={seg(intensity === k)}>
                         {INTENSITY[k].label}
@@ -126,7 +126,7 @@ export function DialControls({ intensity, mode, onChange, total, estimate }: { i
                 ))}
             </div>
             <div className="flex items-center gap-2">
-                <span className="w-24 shrink-0 text-sm text-muted">Cách hiện</span>
+                <span className="w-[4.5rem] shrink-0 whitespace-nowrap text-xs sm:text-sm text-muted">Cách hiện</span>
                 {MODES.map((m) => (
                     <button key={m} onClick={() => onChange({ mode: m })} aria-pressed={mode === m} className={seg(mode === m)}>
                         {MODE_LABEL[m]}

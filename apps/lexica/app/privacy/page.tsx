@@ -27,7 +27,7 @@ export default function PrivacyPage() {
                         <ul>
                             <li>Email (và mật khẩu đã mã hoá) để đăng nhập.</li>
                             <li>Bản sao lưu tiến độ học, để bạn học tiếp trên máy khác.</li>
-                            <li>Dữ liệu Album, Buddy, thử thách nếu bạn dùng các phần đó.</li>
+                            <li>Dữ liệu Album, Bạn học, thử thách nếu bạn dùng các phần đó.</li>
                             <li>Lưu trên Supabase (máy chủ đặt tại khu vực châu Á – Thái Bình Dương hoặc nơi khác do nhà cung cấp quản lý), có mã hoá khi truyền.</li>
                         </ul>
                     ),

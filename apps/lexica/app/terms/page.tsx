@@ -38,7 +38,7 @@ export default function TermsPage() {
                     title: 'Dùng đúng mực',
                     body: (
                         <ul>
-                            <li>Không gửi nội dung xúc phạm, quấy rối, vi phạm pháp luật (trong Buddy, tên hiển thị, góp ý).</li>
+                            <li>Không gửi nội dung xúc phạm, quấy rối, vi phạm pháp luật (trong Bạn học, tên hiển thị, góp ý).</li>
                             <li>Không tìm cách phá app, gian lận bảng xếp hạng, hay lấy dữ liệu của người khác.</li>
                             <li>Tài khoản vi phạm có thể bị khoá.</li>
                         </ul>

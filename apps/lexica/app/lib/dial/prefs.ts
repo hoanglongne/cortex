@@ -24,7 +24,7 @@ export const INTENSITIES: DialIntensity[] = ['light', 'medium', 'heavy'];
 
 export const MODE_LABEL: Record<DialMode, string> = {
     replace: 'Thay hẳn',
-    highlight: 'Chỉ tô sáng',
+    highlight: 'Tô sáng',
     both: 'Cả hai',
 };
 export const MODES: DialMode[] = ['replace', 'highlight', 'both'];

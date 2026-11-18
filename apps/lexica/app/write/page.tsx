@@ -16,8 +16,8 @@ import W4 from './W4';
  * student hands it in to their class (W6).
  */
 const STEPS = [
-    { id: 'w1', label: 'Câu của bạn', hint: 'Viết một câu với từ mới' },
-    { id: 'w2', label: 'Viết lại câu', hint: 'Nói trang trọng hơn' },
+    { id: 'w1', label: 'Một câu', hint: 'Viết một câu với từ mới' },
+    { id: 'w2', label: 'Viết lại', hint: 'Nói trang trọng hơn' },
     { id: 'w3', label: 'Đoạn văn', hint: 'Bốn phần có khung' },
     { id: 'w4', label: 'Biểu đồ', hint: 'Mô tả số liệu' },
 ] as const;
@@ -42,7 +42,7 @@ export default function WritePage() {
                             role="tab"
                             aria-selected={step === s.id}
                             onClick={() => setStep(s.id)}
-                            className={`rounded-lg px-1 py-2 text-center text-xs sm:text-sm ${step === s.id ? 'bg-surface font-semibold text-ink shadow-sm' : 'text-muted hover:text-ink'}`}
+                            className={`rounded-lg px-1 py-2 text-center whitespace-nowrap text-xs sm:text-sm ${step === s.id ? 'bg-surface font-semibold text-ink shadow-sm' : 'text-muted hover:text-ink'}`}
                         >
                             <span className="block font-mono text-[10px] text-subtle">W{i + 1}</span>
                             {s.label}

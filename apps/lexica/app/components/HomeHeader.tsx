@@ -24,26 +24,26 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
                 <button
                     onClick={onChangeLevel}
                     title="Đổi level"
-                    className="h-8 px-3 rounded-lg border border-line bg-surface text-xs font-medium text-ink-2 hover:border-line-strong"
+                    className="h-8 px-3 shrink-0 whitespace-nowrap rounded-lg border border-line bg-surface text-xs font-medium text-ink-2 hover:border-line-strong"
                 >
                     {level && level !== 'all' ? `${levelDef(level).label} · ${levelDef(level).cefr}` : 'Tất cả level'}
                 </button>
                 {path && (
-                    <Link href="/path" className="h-8 px-3 rounded-lg border border-accent/40 bg-accent/5 text-xs font-mono text-ink flex items-center gap-1.5 hover:border-accent">
+                    <Link href="/path" className="h-8 px-3 shrink-0 whitespace-nowrap rounded-lg border border-accent/40 bg-accent/5 text-xs font-mono text-ink flex items-center gap-1.5 hover:border-accent">
                         Ngày {currentDay(path, daysDone, localDate())}/{PATH_DAYS} · {BRANCH_LABEL[path.branch]}
                     </Link>
                 )}
-                <span className="h-8 px-3 rounded-lg border border-line bg-surface text-xs font-mono text-ink-2 flex items-center gap-1.5" title="Chuỗi ngày học">
+                <span className="h-8 px-3 shrink-0 whitespace-nowrap rounded-lg border border-line bg-surface text-xs font-mono text-ink-2 flex items-center gap-1.5" title="Chuỗi ngày học">
                     <Flame className={`w-3.5 h-3.5 ${streak > 0 ? 'text-warning' : 'text-subtle'}`} />
                     {streak} ngày
                 </span>
-                <nav className="ml-auto flex items-center gap-1" aria-label="Điều hướng">
+                <nav className="ml-auto flex shrink-0 items-center gap-1" aria-label="Điều hướng">
                     <NavLink href="/review" icon={<RotateCcw className="w-4 h-4" />} label="Ôn tập" badge={due > 0 ? due : undefined} />
                     <NavLink href="/practice" icon={<Dumbbell className="w-4 h-4" />} label="Luyện" />
                     <NavLink href="/play" icon={<Gamepad2 className="w-4 h-4" />} label="Chơi" />
                     <NavLink href="/learned" icon={<BookOpen className="w-4 h-4" />} label="Từ của tôi" />
                     <NavLink href="/album" icon={<LayoutGrid className="w-4 h-4" />} label="Album" />
-                    <NavLink href="/buddy" icon={<Users className="w-4 h-4" />} label="Buddy" />
+                    <NavLink href="/buddy" icon={<Users className="w-4 h-4" />} label="Bạn học" />
                     <NavLink href="/me" icon={<UserRound className="w-4 h-4" />} label="Tôi" />
                 </nav>
             </div>
@@ -53,9 +53,10 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
 
 function NavLink({ href, icon, label, badge }: { href: string; icon: React.ReactNode; label: string; badge?: number }) {
     return (
-        <Link href={href} className="h-9 px-3 rounded-lg text-sm text-muted hover:text-ink hover:bg-surface flex items-center gap-2" aria-label={badge ? `${label}: ${badge} từ đến hạn` : label}>
+        <Link href={href} title={label} className="h-9 px-2.5 xl:px-3 shrink-0 whitespace-nowrap rounded-lg text-sm text-muted hover:text-ink hover:bg-surface flex items-center gap-2" aria-label={badge ? `${label}: ${badge} từ đến hạn` : label}>
             {icon}
-            {label}
+            {/* Icons only on narrower desktops, so no label ever wraps */}
+            <span className="hidden xl:inline">{label}</span>
             {badge !== undefined && <span className="min-w-5 h-5 px-1 rounded-full bg-warning text-bg text-[11px] font-bold leading-5 text-center">{badge > 99 ? '99+' : badge}</span>}
         </Link>
     );

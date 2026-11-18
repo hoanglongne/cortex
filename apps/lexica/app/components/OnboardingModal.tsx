@@ -71,7 +71,7 @@ const STEPS = [
         iconBg: 'bg-warning/15 border-warning/30',
         title: 'Lộ trình 30 ngày',
         body: 'Mốc ngày 7, 14, 21 cho bạn thấy mình đi được bao xa. Ngày 30 có bài kiểm tra 30 từ và thẻ kết quả để chia sẻ.',
-        detail: 'Bỏ một ngày thì lộ trình dời theo, không mất gì. Album, hũ điểm và Buddy là phần thưởng sau khi học.',
+        detail: 'Bỏ một ngày thì lộ trình dời theo, không mất gì. Album, hũ điểm và Bạn học là phần thưởng sau khi học.',
     },
 ];
 
