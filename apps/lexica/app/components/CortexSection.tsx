@@ -154,7 +154,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
             {/* Fluency Progress Bar */}
             <div className="mb-6">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-muted">Fluency Score</span>
+                    <span className="text-sm text-muted">Điểm trôi chảy</span>
                     <span className="text-sm font-bold text-accent">{Math.round(profile.fluency_score)}%</span>
                 </div>
                 <div className="h-2.5 w-full bg-surface rounded-full overflow-hidden">

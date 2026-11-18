@@ -38,6 +38,8 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
   // -------------------------------------------------------------------------
   test('trang /onboarding hiển thị màn hình chào mừng LEXICA', async ({ page }) => {
     await page.goto('/onboarding');
+    // Thử một thẻ trước (#146): bỏ qua để tới màn chào mừng.
+    await page.getByRole('button', { name: 'Để sau' }).click();
 
     // Modal phải xuất hiện với tiêu đề chào mừng
     await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
@@ -48,6 +50,8 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
   // -------------------------------------------------------------------------
   test('chọn archetype "tech" và hoàn thành onboarding → chuyển khỏi /onboarding', async ({ page }) => {
     await page.goto('/onboarding');
+    // Thử một thẻ trước (#146): bỏ qua để tới màn chào mừng.
+    await page.getByRole('button', { name: 'Để sau' }).click();
 
     // Đợi modal xuất hiện
     await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
@@ -109,11 +113,22 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     expect(await page.evaluate(() => localStorage.getItem('lexica-branch-pick'))).toBe('talk');
   });
 
+  test('thử một thẻ trước: bấm "Biết rồi" thấy nghĩa rồi vào màn chào mừng', async ({ page }) => {
+    await page.goto('/onboarding');
+    await expect(page.getByTestId('try-card')).toBeVisible({ timeout: 8_000 });
+    await page.getByRole('button', { name: 'Biết rồi' }).click();
+    await expect(page.getByTestId('try-meaning')).toBeVisible();
+    await page.getByRole('button', { name: /Học như vậy mỗi ngày/ }).click();
+    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
+  });
+
   // -------------------------------------------------------------------------
   // Test 4: Nút Skip cho phép thoát ngay lập tức
   // -------------------------------------------------------------------------
   test('nút Skip (X) bỏ qua toàn bộ onboarding', async ({ page }) => {
     await page.goto('/onboarding');
+    // Thử một thẻ trước (#146): bỏ qua để tới màn chào mừng.
+    await page.getByRole('button', { name: 'Để sau' }).click();
 
     await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
 

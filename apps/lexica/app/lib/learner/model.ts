@@ -43,6 +43,8 @@ export interface LearnerState {
     seed?: string;
     /** Last weekly F0 report sent (lib/learner/report.ts). */
     reported?: ReportMark;
+    /** When FSRS started scheduling this learner (F2); unset while on SM-2. */
+    fsrsSince?: number;
 }
 
 export const LOG_CAP = 1500;

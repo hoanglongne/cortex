@@ -3,13 +3,14 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ChevronDown, Gift, Hammer, HelpCircle, Leaf, Lock, Shield, Snowflake, Sparkles, Sprout, Ticket, Trophy, Volume2, Wand2, X } from 'lucide-react';
+import { ArrowRight, ChevronDown, Gift, Hammer, HelpCircle, Leaf, Lock, Shield, Snowflake, Sparkles, Sprout, Ticket, Trophy, Wand2, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards, getCard, getCurrentDrop, getQuotes, useContentVersion } from '../lib/content/repository';
 import { buildSets, isOwned, seasonOpen, setProgress, type CollectionSet } from '../lib/engagement/collection';
 import { CONCEPTS, editionPerks, markExplained, nextExplainer, nextGoal, PERK_LABEL, readExplained, secondExample, walletLines, walletVisible, type Concept } from '../lib/engagement/albumGuide';
 import { scenarioFor } from '../lib/content/persona';
 import InTheWild from '../components/InTheWild';
+import WordCard from '../components/WordCard';
 import { AudioService } from '../lib/audio/AudioService';
 import type { UserCardProgress } from '../lib/eloAlgorithm';
 import { EDITION_LABEL, EDITION_RANK, type BoxItem, type Edition, type EconomyState, type OwnedEdition, useEconomy } from '../lib/engagement/economy';
@@ -358,6 +359,7 @@ function SetRow({
                                 onClick={() => onSelect(id)}
                                 className={`relative aspect-[3/4] rounded-xl border p-2 flex flex-col justify-between text-left transition-transform active:scale-95 ${owned ? `border-line-strong bg-surface-2 text-ink ${EDITION_CLASS[owned.edition]}` : STATE_STYLE[cp.state]}`}
                             >
+
                                 <span className="flex items-center justify-between">
                                     <Icon className="w-3.5 h-3.5" />
                                     {ready && <span className="w-2 h-2 rounded-full bg-accent animate-pulse" aria-label="Sẵn sàng đúc" />}
@@ -407,24 +409,19 @@ function CardSheet({
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 40, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className={`relative w-full max-w-md rounded-2xl border border-line bg-surface p-5 ${owned ? EDITION_CLASS[owned.edition] : ''}`}
+                className={`relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-line bg-surface p-5 ${owned ? EDITION_CLASS[owned.edition] : ''}`}
             >
                 <div>
-                    {owned && (
-                        <p className={`font-mono text-[11px] uppercase tracking-wider mb-2 ${owned.edition === 'common' ? 'text-muted' : `lx-edition-label-${owned.edition}`}`}>
-                            {EDITION_LABEL[owned.edition]}
-                            {owned.serial != null && ` · No.${String(owned.serial).padStart(4, '0')}`}
-                        </p>
-                    )}
-                    <div className="flex items-center gap-2 mb-1">
-                        <p className="text-2xl font-bold text-accent tracking-wide">{card.word}</p>
-                        <button onClick={() => void AudioService.play(cardId, 'word')} className="p-1.5 rounded-lg bg-accent/10 text-accent" aria-label="Nghe">
-                            <Volume2 className="w-4 h-4" />
-                        </button>
-                    </div>
-                    {card.ipa && <p className="text-muted text-sm font-mono mb-2">/{card.ipa}/</p>}
-                    <p className="text-ink-2 text-sm mb-3">{card.translationHint}</p>
-                    <p className="text-muted text-sm italic leading-relaxed border-t border-line pt-3">&ldquo;{shownSentence}&rdquo;</p>
+                    <WordCard
+                        card={{ word: card.word, ipa: card.ipa, meaning: card.translationHint, example: shownSentence, scenario: card.scenario }}
+                        edition={owned?.edition ?? 'common'}
+                        serial={owned?.serial}
+                        onSpeak={() => void AudioService.play(cardId, 'word')}
+                        className="mx-auto w-56"
+                    />
+                    <p className="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted">
+                        <Icon className="w-3.5 h-3.5" /> {STATE_LABEL[progress.state]}
+                    </p>
 
                     {/* What each edition adds for learning; the ones this card has are lit. */}
                     <ul data-testid="edition-perks" className="mt-3 space-y-1 font-mono text-[11px]">

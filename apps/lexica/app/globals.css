@@ -277,3 +277,4 @@ svg *:focus {
 @media (prefers-reduced-motion: reduce) {
   .lx-reveal-sweep::after { animation: none; }
 }
+

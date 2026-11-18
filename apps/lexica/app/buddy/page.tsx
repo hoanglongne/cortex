@@ -157,7 +157,7 @@ function Buddy() {
                 <div className="w-full max-w-sm bg-surface rounded-2xl p-6 border border-line space-y-6">
                     <div className="text-center space-y-2">
                         <Users className="w-10 h-10 text-accent mx-auto" />
-                        <h1 className="text-xl font-bold text-ink">Study Buddy</h1>
+                        <h1 className="text-xl font-bold text-ink">Bạn học</h1>
                         <p className="text-muted text-sm">Học cùng tối đa 5 người bạn: thấy tuần học của nhau, giữ chuỗi đôi, nhắc nhau mỗi ngày.</p>
                         {params.get('code') && <p className="text-sm text-accent">Đăng nhập để nhận lời mời của bạn.</p>}
                     </div>
@@ -185,7 +185,7 @@ function Buddy() {
                     <Link href="/me" className="text-muted hover:text-accent text-sm">
                         ← Tôi
                     </Link>
-                    <p className="text-ink font-bold">Study Buddy</p>
+                    <p className="text-ink font-bold">Bạn học</p>
                     <button onClick={signOut} className="text-muted hover:text-ink" aria-label="Đăng xuất">
                         <LogOut className="w-4 h-4" />
                     </button>

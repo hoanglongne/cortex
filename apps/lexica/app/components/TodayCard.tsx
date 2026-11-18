@@ -1,9 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, BookOpen, Check, Mic, Plus, RotateCcw } from 'lucide-react';
+import { ringArcs } from '../lib/journey/ring';
 import { useTodayPlan } from '../hooks/useTodayPlan';
-import { planLine, STAGE_LABEL, STAGE_MINUTES, STAGE_TITLE, type Stage } from '../lib/journey/today';
+import { planLine, STAGE_LABEL, STAGE_TITLE, type Stage } from '../lib/journey/today';
+
+const ARCS = ringArcs(4, 108, 120, 120, 18);
 
 const STAGE_ICON: Record<Stage, React.ReactNode> = {
     review: <RotateCcw className="w-4 h-4" />,
@@ -22,9 +26,10 @@ export default function TodayCard() {
     const doneCount = plan.stages.filter((s) => s.status === 'done').length;
     const started = doneCount > 0;
     const next = plan.stages.find((s) => s.status === 'todo')?.stage;
+    const still = useReducedMotion();
 
     return (
-        <section data-testid="today-card" className="w-full rounded-3xl border border-accent/40 bg-gradient-to-b from-accent/10 to-accent/[0.03] p-5 sm:p-6">
+        <section data-testid="today-card" className="w-full rounded-3xl border border-line bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Hôm nay</p>
                 {!plan.complete && <p className="font-mono text-[11px] text-muted">~{plan.minutes} phút</p>}
@@ -32,29 +37,58 @@ export default function TodayCard() {
             <h2 className="mt-1.5 text-2xl font-semibold text-ink">{plan.complete ? 'Xong hôm nay' : started ? 'Tiếp tục phiên hôm nay' : 'Phiên học hôm nay'}</h2>
             {next && <p className="mt-1 text-sm text-muted">Tiếp theo: {STAGE_TITLE[next].toLowerCase()}</p>}
 
-            {/* The four stages as one path: done, next, still to come, or nothing to do today */}
-            <ol className="mt-5 grid grid-cols-4" aria-label="Các chặng">
-                {plan.stages.map((s, i) => {
-                    const isNext = s.stage === next;
-                    const dot =
-                        s.status === 'done'
-                            ? 'bg-accent text-on-accent border-accent'
-                            : isNext
-                              ? 'bg-surface text-accent border-accent ring-4 ring-accent/15'
-                              : s.status === 'empty'
-                                ? 'bg-transparent text-subtle border-line border-dashed'
-                                : 'bg-surface text-muted border-line-strong';
-                    return (
-                        <li key={s.stage} className="relative flex flex-col items-center text-center">
-                            {i > 0 && <span aria-hidden className={`absolute top-5 right-1/2 w-full h-0.5 -translate-y-1/2 ${plan.stages[i - 1].status === 'done' ? 'bg-accent/60' : 'bg-line'}`} />}
-                            <span className={`relative z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-colors ${dot}`}>
-                                {s.status === 'done' ? <Check className="w-4 h-4" /> : STAGE_ICON[s.stage]}
-                            </span>
-                            <span className={`mt-1.5 text-sm font-semibold ${s.status === 'empty' ? 'text-subtle' : 'text-ink'}`}>{STAGE_LABEL[s.stage]}</span>
-                            <span className="font-mono text-[10px] text-muted">{s.status === 'empty' ? 'không có' : s.status === 'done' ? 'xong' : `~${STAGE_MINUTES[s.stage]}′`}</span>
-                        </li>
-                    );
-                })}
+            {/* The four stages as a ring of arcs around the one button (issue #146); their names sit below, not on the ring */}
+            <div className="relative mx-auto mt-5 h-44 w-44">
+                <svg viewBox="0 0 240 240" className="absolute inset-0 h-full w-full" aria-hidden>
+                    {ARCS.map((d, i) => {
+                        const s = plan.stages[i];
+                        const isNext = s.stage === next;
+                        return (
+                            <g key={s.stage}>
+                                <path d={d} fill="none" strokeWidth="12" strokeLinecap="round" className={s.status === 'empty' ? 'stroke-surface-3/40' : 'stroke-surface-3'} />
+                                {(s.status === 'done' || isNext) && (
+                                    <motion.path
+                                        d={d}
+                                        fill="none"
+                                        strokeWidth="12"
+                                        strokeLinecap="round"
+                                        className={s.status === 'done' ? 'stroke-accent' : 'stroke-accent/40'}
+                                        initial={still ? false : { pathLength: 0 }}
+                                        animate={{ pathLength: 1 }}
+                                        transition={{ duration: 0.5, delay: i * 0.1 }}
+                                    />
+                                )}
+                            </g>
+                        );
+                    })}
+                </svg>
+                <div className="absolute inset-[22%] flex items-center justify-center">
+                    {plan.complete ? (
+                        <span className="flex h-full w-full flex-col items-center justify-center rounded-full border border-accent/40 text-accent">
+                            <Check className="h-7 w-7" />
+                            <span className="mt-0.5 text-xs font-semibold">Xong</span>
+                        </span>
+                    ) : (
+                        <Link
+                            href="/today"
+                            data-testid="today-start"
+                            className="flex h-full w-full flex-col items-center justify-center rounded-full bg-accent text-on-accent transition active:scale-95 hover:bg-accent-strong"
+                        >
+                            <ArrowRight className="h-6 w-6" />
+                            <span className="mt-0.5 text-sm font-bold">{started ? `Tiếp (${doneCount}/4)` : 'Bắt đầu'}</span>
+                        </Link>
+                    )}
+                </div>
+            </div>
+            <ol className="mt-4 grid grid-cols-4 gap-2" aria-label="Các chặng">
+                {plan.stages.map((s) => (
+                    <li key={s.stage} className="flex flex-col items-center gap-1 text-center">
+                        <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${s.status === 'done' ? 'border-accent bg-accent text-on-accent' : s.stage === next ? 'border-accent text-accent' : 'border-line text-muted'}`}>
+                            {s.status === 'done' ? <Check className="w-3.5 h-3.5" /> : STAGE_ICON[s.stage]}
+                        </span>
+                        <span className={`text-xs font-semibold ${s.status === 'empty' ? 'text-subtle line-through' : 'text-ink'}`}>{STAGE_LABEL[s.stage]}</span>
+                    </li>
+                ))}
             </ol>
 
             {plan.complete ? (
@@ -68,16 +102,7 @@ export default function TodayCard() {
                     </Link>
                 </div>
             ) : (
-                <>
-                    <Link
-                        href="/today"
-                        data-testid="today-start"
-                        className="mt-6 h-14 w-full rounded-2xl bg-accent hover:bg-accent-strong text-on-accent font-bold text-lg flex items-center justify-center gap-2 active:scale-[0.99] transition"
-                    >
-                        {started ? `Tiếp tục (${doneCount}/4)` : 'Bắt đầu hôm nay'} <ArrowRight className="w-5 h-5" />
-                    </Link>
-                    <p className="mt-2 text-center font-mono text-[11px] text-muted">{planLine(plan)}</p>
-                </>
+                <p className="mt-3 text-center font-mono text-[11px] text-muted">{planLine(plan)}</p>
             )}
         </section>
     );
