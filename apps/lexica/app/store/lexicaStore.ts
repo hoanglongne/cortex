@@ -1,5 +1,6 @@
 import { calibrate } from '../lib/learner/dialSignal';
 import { weeklyReport } from '../lib/learner/report';
+import { fsrsDueAt, sm2DueAt, usesFsrs } from '../lib/learner/scheduler';
 import { capture } from '../lib/productAnalytics';
 import { emptyLearner, evidenceFromChange, record as recordLearner, seedFromSm2, type Evidence, type LearnerState } from '../lib/learner/model';
 import { analytics } from '../lib/analytics';
@@ -1209,8 +1210,19 @@ export function initializeLexicaStore() {
 if (typeof window !== 'undefined') {
     const seed = () => {
         const s = useLexicaStore.getState();
-        const seeded = seedFromSm2(s.learner ?? emptyLearner(), s.cardProgress);
-        if (seeded !== s.learner) useLexicaStore.setState({ learner: seeded });
+        let learner = seedFromSm2(s.learner ?? emptyLearner(), s.cardProgress);
+        if (!learner.seed) learner = { ...learner, seed: Math.random().toString(36).slice(2, 10) };
+        // F2: start or stop FSRS scheduling for this learner (off for all while FSRS_ROLLOUT is 0).
+        const on = usesFsrs(learner.seed);
+        if (on && !learner.fsrsSince) learner = { ...learner, fsrsSince: Date.now() };
+        if (!on && learner.fsrsSince) {
+            // Switched back: every word returns to the date SM-2 kept underneath.
+            const cardProgress = { ...s.cardProgress };
+            for (const [id, p] of Object.entries(cardProgress)) cardProgress[id] = { ...p, nextReviewAt: sm2DueAt(p) };
+            learner = { ...learner, fsrsSince: undefined };
+            useLexicaStore.setState({ cardProgress });
+        }
+        if (learner !== s.learner) useLexicaStore.setState({ learner });
     };
     // FSRS F0: weekly anonymous prediction scores + fitting rows (numbers only).
     const report = () => {
@@ -1230,6 +1242,20 @@ if (typeof window !== 'undefined') {
         if (found.length === 0) return;
         let learner = next.learner ?? emptyLearner();
         for (const { e, sm2 } of found) learner = recordLearner(learner, e, sm2);
-        useLexicaStore.setState({ learner });
+        // F2: when FSRS schedules this learner, it sets the next review after a graded answer.
+        let cardProgress = next.cardProgress;
+        if (learner.fsrsSince) {
+            const now = Date.now();
+            for (const { e } of found) {
+                const p = cardProgress[e.cardId];
+                const mem = learner.memories[e.cardId]?.recog;
+                if (e.source !== 'review' || !p || !mem) continue;
+                // SM-2's own new gap stands in for "the gap so far" when capping growth after the switch.
+                const prevGapDays = p.intervalDays ?? 0;
+                const due = fsrsDueAt(mem, now, { sm2DueAt: sm2DueAt(p), prevGapDays, switchedAt: learner.fsrsSince });
+                if (due !== p.nextReviewAt) cardProgress = { ...cardProgress, [e.cardId]: { ...p, nextReviewAt: due } };
+            }
+        }
+        useLexicaStore.setState(cardProgress === next.cardProgress ? { learner } : { learner, cardProgress });
     });
 }

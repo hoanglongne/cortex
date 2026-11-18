@@ -25,11 +25,13 @@ Trên dữ liệu Anki, FSRS cho số lần ôn ít hơn ở cùng mức nhớ. 
 - **Đã có:** mọi câu trả lời nhận ra có chấm đều được dùng để chấm cả hai mô hình (log loss, Brier), trước khi cập nhật.
 - **Cần thêm:**
   - [x] Gửi số đo **ẩn danh, chỉ con số** (n, tổng log loss mỗi mô hình) lên PostHog mỗi tuần, để xem trên **tất cả** người học chứ không chỉ một máy. Sự kiện `learner_model_week` (`lib/learner/report.ts`): tổng log loss/Brier từ lần gửi trước, trình độ, và tối đa 300 dòng `[mã từ, đúng 0/1, số ngày]` cho F1.
-  - [ ] Bảng theo dõi: log loss FSRS vs SM-2 theo tuần, theo trình độ.
+  - [x] Kiểm tra qua chặng: `node apps/lexica/scripts/fsrs-f0/gate.mjs <file xuất từ PostHog>` (`lib/learner/f0Gate.ts`) in ra số người học, % FSRS thắng, khoảng tin cậy và ĐẠT / CHƯA.
+  - [ ] Bảng theo dõi trong PostHog: log loss FSRS vs SM-2 theo tuần, theo trình độ (tạo khi đã có dữ liệu).
 - **Qua chặng khi:** ≥ 50 người học, mỗi người ≥ 30 câu, và FSRS có log loss thấp hơn ở **≥ 70% người học**. Mức chênh trung bình phải có ý nghĩa: khoảng tin cậy bootstrap 95% không chứa 0.
 - **Nếu FSRS không thắng:** dừng, xem lại cách suy bằng chứng (có thể đang tính sai đúng/sai) trước khi nghĩ tới đổi.
 
 ### F1: fit trọng số (song song với F0)
+- **Đã có:** `scripts/fsrs-f0/to-optimizer.mjs` đổi các dòng trong sự kiện tuần thành file CSV cho fsrs-optimizer.
 - **Đầu vào:** nhật ký bằng chứng ẩn danh, mỗi dòng gồm mã từ, kết quả và khoảng ngày giữa hai lần ôn. Không có nội dung.
 - **Cách làm:** dùng công cụ tối ưu FSRS mã nguồn mở (fsrs-optimizer) chạy ngoài app, ra bộ 17 trọng số cho Lexica.
 - **Kiểm tra:**
@@ -41,6 +43,7 @@ Trên dữ liệu Anki, FSRS cho số lần ôn ít hơn ở cùng mức nhớ. 
 - **Trước khi làm:** cần ý kiến của chủ sản phẩm về việc gom nhật ký ẩn danh. Dù chỉ có con số, cũng phải nói trong trang riêng tư.
 
 ### F2: chuyển dần (khi F0 đạt)
+- **Đã viết sẵn, đang TẮT** (`lib/learner/scheduler.ts`, `FSRS_ROLLOUT = 0`). Khi F0 đạt: đổi thành 10, rồi 50, rồi 100. Đổi về 0 là mọi từ quay lại ngày SM-2.
 - **Cờ `scheduler`:** `'sm2' | 'fsrs'`, theo từng người.
   - Mặc định vẫn `sm2`.
   - Bật cho 10% người học mới trước, rồi 50%, rồi 100%.
