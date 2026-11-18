@@ -44,7 +44,7 @@
         }
     ],
     "share_target": {
-        "action": "/num-van",
+        "action": "/blend",
         "method": "GET",
         "params": {
             "title": "title",

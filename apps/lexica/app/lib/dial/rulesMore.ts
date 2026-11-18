@@ -1,5 +1,5 @@
 /**
- * Núm vặn rules for the rest of the deck (docs/LEXICA_DIAL_D0.md, round 3).
+ * Blend rules for the rest of the deck (docs/LEXICA_DIAL_D0.md, round 3).
  * Same standard as rules.ts: only phrases that certainly mean the word; a
  * phrase is given to one card only. Rare words often have no Vietnamese phrase
  * that is specific enough and are left out (see DIAL_SKIPPED).

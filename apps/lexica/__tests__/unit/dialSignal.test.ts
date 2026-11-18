@@ -5,7 +5,7 @@ import type { EvidenceRow } from '../../app/lib/learner/model';
 const DAY = 86_400_000;
 const T = 1_800_000_000_000;
 
-describe('Núm vặn signals', () => {
+describe('Blend signals', () => {
     it('"seen" is worth little until checks back it, and almost nothing if they do not', () => {
         expect(seenWeight(undefined)).toBe(0.2);
         expect(seenWeight({ asked: 5, correct: 5 })).toBe(0.2);

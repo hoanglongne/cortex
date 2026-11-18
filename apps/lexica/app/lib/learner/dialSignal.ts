@@ -1,5 +1,5 @@
 /**
- * Núm vặn implicit signals (issue #142), pure.
+ * Blend implicit signals (issue #142), pure.
  *
  * - "Seen": a swapped word stayed on screen long enough to be read without a
  *   tap. Weak evidence: logged with a small weight, never moves a memory
@@ -52,7 +52,7 @@ export function calibrate(c: DialCalibration | undefined, asked: number, correct
     return { asked: (c?.asked ?? 0) + asked, correct: (c?.correct ?? 0) + correct, lastCheck: now };
 }
 
-/** Experiment flag: when on, "dial" words are left to Núm vặn alone and compared with "card" words. */
+/** Experiment flag: when on, "dial" words are left to Blend alone and compared with "card" words. */
 export const DIAL_EXPERIMENT = false;
 
 /** Stable 50/50 split of words per learner. */

@@ -8,13 +8,17 @@
     const TAPS_KEY = 'lexica-dial-taps';
     try {
         const raw = localStorage.getItem(STORE_KEY);
-        const progress = raw ? JSON.parse(raw)?.state?.cardProgress : null;
+        const state = raw ? JSON.parse(raw)?.state : null;
+        const progress = state?.cardProgress;
         if (progress && typeof progress === 'object') {
             const due = {};
             for (const [id, p] of Object.entries(progress)) {
                 if (/^v\d{3,4}$/.test(id) && typeof p?.nextReviewAt === 'number') due[id] = p.nextReviewAt;
             }
-            chrome.storage.local.set({ lexica: { due, syncedAt: Date.now(), via: 'page' } });
+            // Words marked "Đã thuộc" (#163) are never swapped; the learned count picks the default display mode (#162).
+            const known = {};
+            for (const [id, t] of Object.entries(state.dialKnown ?? {})) if (/^v\d{3,4}$/.test(id) && typeof t === 'number') known[id] = t;
+            chrome.storage.local.set({ lexica: { due, known, learned: Object.keys(due).length, syncedAt: Date.now(), via: 'page' } });
         }
     } catch { /* not signed in or storage blocked */ }
 

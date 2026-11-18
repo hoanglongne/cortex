@@ -37,7 +37,7 @@ export interface LearnerState {
     log: EvidenceRow[];
     /** Prediction scores on graded recognition answers: FSRS vs the SM-2 schedule. */
     metrics: { fsrs: ModelScore; sm2: ModelScore };
-    /** Núm vặn weekly check results (lib/learner/dialSignal.ts). */
+    /** Blend weekly check results (lib/learner/dialSignal.ts). */
     dial?: { asked: number; correct: number; lastCheck?: number };
     /** Random per learner, for the experiment split. */
     seed?: string;

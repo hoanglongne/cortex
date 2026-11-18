@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Lexica Núm vặn",
-  "version": "0.4.0",
+  "name": "Lexica Blend",
+  "version": "0.5.0",
   "description": "Đọc web tiếng Việt, các từ bạn đang học hiện bằng tiếng Anh ngay trong câu.",
   "permissions": [
     "storage",
@@ -10,7 +10,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Lexica Núm vặn"
+    "default_title": "Lexica Blend"
   },
   "icons": {
     "128": "icon-128.png"

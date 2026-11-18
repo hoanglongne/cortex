@@ -1,5 +1,5 @@
 /**
- * Núm vặn (docs/LEXICA_WOW_PLAN.md §2.3), layer 1: find Vietnamese phrases in
+ * Blend (docs/LEXICA_WOW_PLAN.md §2.3), layer 1: find Vietnamese phrases in
  * a text that a vetted rule maps to an English card word. Runs on device, no
  * network. Pure and dependency-free so scripts can run it with plain Node.
  *

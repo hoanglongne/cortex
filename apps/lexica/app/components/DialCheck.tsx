@@ -20,7 +20,7 @@ function shuffle<T>(a: T[], seed: number): T[] {
 }
 
 /**
- * Weekly Núm vặn check (issue #142): a few words the learner only read past
+ * Weekly Blend check (issue #142): a few words the learner only read past
  * are asked for real. Right answers count as recall; the share right sets how
  * much "read past" is worth from then on.
  */

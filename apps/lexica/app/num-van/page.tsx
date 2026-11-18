@@ -1,9 +1,8 @@
-import type { Metadata } from 'next';
-import DialReader from './DialReader';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Núm vặn (thử nghiệm) · Lexica', robots: { index: false } };
-
-/** Núm vặn D1 preview (docs/LEXICA_WOW_PLAN.md §2): paste Vietnamese text, read it as câu chêm. Unlinked. */
-export default function NumVanPage() {
-    return <DialReader />;
+/** Old address of Blend (was "Núm vặn"); keeps shared links and the share target working. */
+export default async function OldBlendPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(await searchParams)) if (typeof v === 'string') q.set(k, v);
+    redirect(q.size ? `/blend?${q}` : '/blend');
 }
