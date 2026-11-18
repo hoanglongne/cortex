@@ -19,8 +19,13 @@ import { exposures } from '../../lib/pronunciation/soundLog';
 import { spellingSyllables } from '../../lib/pronunciation/syllables';
 import type { ErrorKind } from '../../lib/pronunciation/pairs';
 import { useLexicaStore } from '../../store/lexicaStore';
-import Mouth from './Mouth';
 import { mouthFor } from '../../lib/pronunciation/mouth';
+import { guideFor } from '../../lib/pronunciation/steps';
+import { pairFor, partsThatDiffer } from '../../lib/pronunciation/compare';
+import MouthCompare from './MouthCompare';
+import SelfCheckCard from './SelfCheckCard';
+import MouthPlayer from './MouthPlayer';
+import WordSounds from './WordSounds';
 
 export interface AttemptFeedback {
     sound: SoundFeedback;
@@ -243,7 +248,20 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                     </div>
                 </div>
 
-                <MouthHint phone={issue.phone} tip={tip} />
+                {swapped && partsThatDiffer(issue.phone, issue.heardAs!).length > 0 && (
+                    <MouthCompare
+                        pair={{
+                            a: issue.phone,
+                            b: issue.heardAs!,
+                            note: pairFor(issue.phone, issue.heardAs!)?.note ?? 'So hai hình: phần viền vàng là chỗ cần đổi.',
+                            words: pairWord ? [issue.word.toLowerCase(), pairWord] : undefined,
+                        }}
+                    />
+                )}
+
+                <MouthHint key={issue.phone} phone={issue.phone} tip={tip} />
+                <SelfCheckCard key={`check-${issue.phone}`} phone={issue.phone} />
+                <WordSounds key={`word-${issue.word}`} word={issue.word.toLowerCase()} startPhone={issue.phone} />
 
                 <div className="flex flex-wrap gap-2">
                     <ListenButton label={issue.word.toLowerCase()} onPlay={() => void sayModel(issue.word.toLowerCase(), 'slow')} icon={<Volume2 className="w-3.5 h-3.5" />} />
@@ -260,15 +278,36 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
     );
 }
 
-/** The mouth for the right sound, its one-line pose, whether the throat buzzes, and the error group's tip. */
-function MouthHint({ phone, tip }: { phone: string; tip: string | null }) {
+/** The mouth for the right sound, up to three steps (tap one to light its part), the usual Vietnamese slip, and the error group's tip. */
+export function MouthHint({ phone, tip }: { phone: string; tip: string | null }) {
     const m = mouthFor(phone);
+    const guide = guideFor(phone);
+    const [step, setStep] = useState(0);
+    const focus = guide?.steps[step]?.part ?? null;
     return (
         <div className="grid grid-cols-[112px_1fr] gap-3 items-start">
-            <Mouth phone={phone} className="w-28 h-auto" />
+            <MouthPlayer phone={phone} focus={focus} className="w-28" />
             <div className="space-y-1 text-sm">
-                {m && <p className="text-ink">{m.hint}</p>}
-                {m?.voiceHint && <p className="text-xs text-muted">{m.voiceHint}</p>}
+                {guide ? (
+                    <ol data-testid="sound-steps" className="space-y-1">
+                        {guide.steps.map((x, i) => (
+                            <li key={i}>
+                                <button
+                                    type="button"
+                                    onClick={() => setStep(i)}
+                                    aria-pressed={i === step}
+                                    className={`w-full text-left rounded-md px-1.5 py-0.5 ${i === step ? 'bg-surface-3 text-ink' : 'text-ink-2'}`}
+                                >
+                                    <span className="font-semibold text-accent">{i + 1}.</span> {x.text}
+                                </button>
+                            </li>
+                        ))}
+                    </ol>
+                ) : (
+                    m && <p className="text-ink">{m.hint}</p>
+                )}
+                {!guide && m?.voiceHint && <p className="text-xs text-muted">{m.voiceHint}</p>}
+                {guide?.slip && <p className="text-xs text-muted">{guide.slip}</p>}
                 {tip && <p className="text-xs text-ink-2">{tip}</p>}
             </div>
         </div>

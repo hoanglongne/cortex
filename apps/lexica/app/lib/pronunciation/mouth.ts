@@ -11,7 +11,7 @@ import { bare, isVowel } from './phones';
 type Pt = [number, number];
 type Lips = 'neutral' | 'spread' | 'round' | 'closed' | 'teeth';
 
-interface Pose {
+export interface Pose {
     /** Tongue points from back to tip: back, dorsum, blade, tip. */
     tongue: [Pt, Pt, Pt, Pt];
     /** 0 closed teeth … 1 wide open. */
@@ -66,6 +66,8 @@ const CLASS_OF: Record<string, string> = {
 
 const VOICELESS = new Set(['P', 'T', 'K', 'F', 'TH', 'S', 'SH', 'CH', 'HH']);
 const NASAL = new Set(['M', 'N', 'NG']);
+/** Stops and affricates: the air is held, then released in a burst. */
+export const STOPS = new Set(['P', 'B', 'T', 'D', 'K', 'G', 'CH', 'JH']);
 
 /** A smooth path through points (Catmull–Rom as cubic Béziers). */
 function through(pts: readonly Pt[], move = true): string {
@@ -103,6 +105,8 @@ export interface MouthDrawing {
     contact: Pt | null;
     /** Little marks at the throat when the voice buzzes. */
     voiced: boolean;
+    /** How the air moves: a burst after a stop, a steady stream, out through the nose, or none drawn. */
+    flow: 'burst' | 'steady' | 'nasal' | 'none';
     sides: boolean;
     hint: string;
     /** "Rung cổ họng" or "Không rung": said under the picture. */
@@ -111,9 +115,16 @@ export interface MouthDrawing {
 
 /** The picture for the sound `phone` (ARPAbet, stress ignored); null for an unknown phone. */
 export function mouthFor(phone: string): MouthDrawing | null {
+    const pose = POSES[CLASS_OF[bare(phone)]];
+    return pose ? drawPose(phone, pose) : null;
+}
+
+/**
+ * The picture for `phone` drawn in any pose (for motion: lib/pronunciation/motion.ts).
+ * `marks: false` hides the contact ring; `air: false` hides the air path.
+ */
+export function drawPose(phone: string, pose: Pose, show: { marks?: boolean; air?: boolean } = {}): MouthDrawing {
     const p = bare(phone);
-    const pose = POSES[CLASS_OF[p]];
-    if (!pose) return null;
     const d = pose.jaw * 22;
     const nasal = NASAL.has(p) || pose.nasal === true;
     const voiced = !VOICELESS.has(p);
@@ -150,7 +161,7 @@ export function mouthFor(phone: string): MouthDrawing | null {
     let tongue = `${through(top)} ${through(underside, false)} Z`;
     if (pose.curl) tongue += ` M${tip[0] - 2},${tip[1] + 2} q8,-6 2,-13`;
 
-    const airPts = pose.air?.map(([x, y]): Pt => [x, x > 150 ? y + d * 0.35 : y]) ?? null;
+    const airPts = show.air === false ? null : pose.air?.map(([x, y]): Pt => [x, x > 150 ? y + d * 0.35 : y]) ?? null;
     return {
         head,
         profile,
@@ -163,10 +174,20 @@ export function mouthFor(phone: string): MouthDrawing | null {
         nasalAir: nasal ? 'M80,64 C80,54 84,48 92,43 C116,36 150,36 186,46' : null,
         air: airPts ? through(airPts) : null,
         airEnd: airPts ? airPts[airPts.length - 1] : null,
-        contact: pose.contact ? [pose.contact[0], pose.contact[1] + (pose.contact[0] > 160 && pose.lips !== 'teeth' ? d * 0.3 : 0)] : null,
+        contact: show.marks !== false && pose.contact ? [pose.contact[0], pose.contact[1] + (pose.contact[0] > 160 && pose.lips !== 'teeth' ? d * 0.3 : 0)] : null,
         voiced,
+        flow: nasal ? 'nasal' : STOPS.has(p) ? 'burst' : airPts ? 'steady' : 'none',
         sides: pose.sides === true,
         hint: pose.hint + (nasal ? ' Hơi đi ra đằng mũi.' : ''),
         voiceHint: isVowel(phone) ? '' : voiced ? 'Rung cổ họng (đặt tay lên cổ sẽ thấy rung).' : 'Không rung cổ họng, chỉ có hơi.',
     };
+}
+
+/** The raw pose behind `phone`'s picture, for comparing two sounds (lib/pronunciation/compare.ts). */
+export function poseOf(phone: string): { cls: string; pose: Pose; voiced: boolean; nasal: boolean } | null {
+    const p = bare(phone);
+    const cls = CLASS_OF[p];
+    const pose = POSES[cls];
+    if (!pose) return null;
+    return { cls, pose, voiced: !VOICELESS.has(p), nasal: NASAL.has(p) || pose.nasal === true };
 }
