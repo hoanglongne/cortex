@@ -19,12 +19,12 @@ import { exposures } from '../../lib/pronunciation/soundLog';
 import { spellingSyllables } from '../../lib/pronunciation/syllables';
 import type { ErrorKind } from '../../lib/pronunciation/pairs';
 import { useLexicaStore } from '../../store/lexicaStore';
-import Mouth from './Mouth';
 import { mouthFor } from '../../lib/pronunciation/mouth';
 import { guideFor } from '../../lib/pronunciation/steps';
 import { pairFor, partsThatDiffer } from '../../lib/pronunciation/compare';
 import MouthCompare from './MouthCompare';
 import SelfCheckCard from './SelfCheckCard';
+import MouthPlayer from './MouthPlayer';
 
 export interface AttemptFeedback {
     sound: SoundFeedback;
@@ -284,7 +284,7 @@ export function MouthHint({ phone, tip }: { phone: string; tip: string | null })
     const focus = guide?.steps[step]?.part ?? null;
     return (
         <div className="grid grid-cols-[112px_1fr] gap-3 items-start">
-            <Mouth phone={phone} focus={focus} className="w-28 h-auto" />
+            <MouthPlayer phone={phone} focus={focus} className="w-28" />
             <div className="space-y-1 text-sm">
                 {guide ? (
                     <ol data-testid="sound-steps" className="space-y-1">

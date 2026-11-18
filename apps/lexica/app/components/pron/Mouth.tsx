@@ -2,6 +2,7 @@
 
 import { useReducedMotion } from 'framer-motion';
 import { mouthFor } from '../../lib/pronunciation/mouth';
+import { frameAt } from '../../lib/pronunciation/motion';
 import type { MouthPart } from '../../lib/pronunciation/steps';
 
 const HI = '#F5B942';
@@ -32,10 +33,11 @@ function AirDots({ path, flow }: { path: string; flow: 'burst' | 'steady' | 'nas
  * tongue, teeth, lips and soft palate in place, a ring where they touch, the
  * air's path, and a buzz mark at the throat for voiced sounds.
  */
-export default function Mouth({ phone, className = '', focus }: { phone: string; className?: string; focus?: MouthPart | readonly MouthPart[] | null }) {
+export default function Mouth({ phone, className = '', focus, t = null }: { phone: string; className?: string; focus?: MouthPart | readonly MouthPart[] | null; t?: number | null }) {
     const on = (part: MouthPart) => (Array.isArray(focus) ? focus.includes(part) : focus === part);
     const still = useReducedMotion();
-    const m = mouthFor(phone);
+    // While playing (t set), the frame of the motion; otherwise the still pose.
+    const m = t === null ? mouthFor(phone) : (frameAt(phone, t)?.drawing ?? null);
     if (!m) return null;
     const flowPath = m.flow === 'nasal' ? m.nasalAir : m.flow === 'none' ? null : m.air;
     return (
@@ -71,7 +73,7 @@ export default function Mouth({ phone, className = '', focus }: { phone: string;
                     <text x="40" y="145" fontSize="9" className="fill-muted">nghỉ</text>
                 </g>
             )}
-            {!still && flowPath && m.flow !== 'none' && <AirDots path={flowPath} flow={m.flow} />}
+            {!still && t === null && flowPath && m.flow !== 'none' && <AirDots path={flowPath} flow={m.flow} />}
             {/* The part the current step is about (lib/pronunciation/steps.ts). */}
             {on('lips') && <ellipse cx="183" cy="66" rx="9" ry="12" fill="none" stroke={HI} strokeWidth="2.5" />}
             {on('jaw') && <path d={m.lowerTooth} fill="none" stroke={HI} strokeWidth="2.5" />}

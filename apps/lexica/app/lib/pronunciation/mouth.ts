@@ -115,9 +115,16 @@ export interface MouthDrawing {
 
 /** The picture for the sound `phone` (ARPAbet, stress ignored); null for an unknown phone. */
 export function mouthFor(phone: string): MouthDrawing | null {
+    const pose = POSES[CLASS_OF[bare(phone)]];
+    return pose ? drawPose(phone, pose) : null;
+}
+
+/**
+ * The picture for `phone` drawn in any pose (for motion: lib/pronunciation/motion.ts).
+ * `marks: false` hides the contact ring; `air: false` hides the air path.
+ */
+export function drawPose(phone: string, pose: Pose, show: { marks?: boolean; air?: boolean } = {}): MouthDrawing {
     const p = bare(phone);
-    const pose = POSES[CLASS_OF[p]];
-    if (!pose) return null;
     const d = pose.jaw * 22;
     const nasal = NASAL.has(p) || pose.nasal === true;
     const voiced = !VOICELESS.has(p);
@@ -154,7 +161,7 @@ export function mouthFor(phone: string): MouthDrawing | null {
     let tongue = `${through(top)} ${through(underside, false)} Z`;
     if (pose.curl) tongue += ` M${tip[0] - 2},${tip[1] + 2} q8,-6 2,-13`;
 
-    const airPts = pose.air?.map(([x, y]): Pt => [x, x > 150 ? y + d * 0.35 : y]) ?? null;
+    const airPts = show.air === false ? null : pose.air?.map(([x, y]): Pt => [x, x > 150 ? y + d * 0.35 : y]) ?? null;
     return {
         head,
         profile,
@@ -167,7 +174,7 @@ export function mouthFor(phone: string): MouthDrawing | null {
         nasalAir: nasal ? 'M80,64 C80,54 84,48 92,43 C116,36 150,36 186,46' : null,
         air: airPts ? through(airPts) : null,
         airEnd: airPts ? airPts[airPts.length - 1] : null,
-        contact: pose.contact ? [pose.contact[0], pose.contact[1] + (pose.contact[0] > 160 && pose.lips !== 'teeth' ? d * 0.3 : 0)] : null,
+        contact: show.marks !== false && pose.contact ? [pose.contact[0], pose.contact[1] + (pose.contact[0] > 160 && pose.lips !== 'teeth' ? d * 0.3 : 0)] : null,
         voiced,
         flow: nasal ? 'nasal' : STOPS.has(p) ? 'burst' : airPts ? 'steady' : 'none',
         sides: pose.sides === true,
