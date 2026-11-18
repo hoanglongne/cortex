@@ -38,11 +38,11 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
   // Use state initializer to shuffle once on mount
   const [parts] = useState<SurgeryPart[]>(() => {
     const allParts: SurgeryPart[] = [
-      ...(module.prefix ? [{ id: 'p', text: module.prefix.text, type: 'Prefix', meaning: module.prefix.meaning, relatedWords: module.prefix.relatedWords }] : []),
-      ...(module.prefix2 ? [{ id: 'p2', text: module.prefix2.text, type: 'Prefix 2', meaning: module.prefix2.meaning, relatedWords: module.prefix2.relatedWords }] : []),
-      { id: 'r', text: module.root.text, type: 'Root', meaning: module.root.meaning, relatedWords: module.root.relatedWords },
-      ...(module.root2 ? [{ id: 'r2', text: module.root2.text, type: 'Root 2', meaning: module.root2.meaning, relatedWords: module.root2.relatedWords }] : []),
-      ...(module.suffix ? [{ id: 's', text: module.suffix.text, type: 'Suffix', meaning: module.suffix.meaning, relatedWords: module.suffix.relatedWords }] : []),
+      ...(module.prefix ? [{ id: 'p', text: module.prefix.text, type: 'Tiền tố', meaning: module.prefix.meaning, relatedWords: module.prefix.relatedWords }] : []),
+      ...(module.prefix2 ? [{ id: 'p2', text: module.prefix2.text, type: 'Tiền tố 2', meaning: module.prefix2.meaning, relatedWords: module.prefix2.relatedWords }] : []),
+      { id: 'r', text: module.root.text, type: 'Gốc', meaning: module.root.meaning, relatedWords: module.root.relatedWords },
+      ...(module.root2 ? [{ id: 'r2', text: module.root2.text, type: 'Gốc 2', meaning: module.root2.meaning, relatedWords: module.root2.relatedWords }] : []),
+      ...(module.suffix ? [{ id: 's', text: module.suffix.text, type: 'Hậu tố', meaning: module.suffix.meaning, relatedWords: module.suffix.relatedWords }] : []),
     ];
     return [...allParts].sort(() => 0.5 - Math.random());
   });

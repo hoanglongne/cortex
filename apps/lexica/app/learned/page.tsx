@@ -3,53 +3,27 @@
 import KnowUseLexica from '../components/KnowUseLexica';
 import LearnerFacets from '../components/LearnerFacets';
 import Link from 'next/link';
-import { BookOpen, Trophy, Save, Sparkles, BookMarked, RotateCcw, Gamepad2, FlaskConical, ArrowDown, Users, LayoutGrid, Swords } from 'lucide-react';
+import { BookOpen, Trophy, Save, Sparkles, Swords } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { getProgressStats } from '../lib/eloAlgorithm';
 import LearnedWordsList from '../components/LearnedWordsList';
 import KnownWordsList from '../components/KnownWordsList';
-import SRSCalendar from '../components/SRSCalendar';
 import OnboardingModal from '../components/OnboardingModal';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useSoundEffects } from '../hooks/useSoundEffects';
-import { getAllCards, getCard } from '../lib/content/repository';
+import { getCard } from '../lib/content/repository';
 import { hardWords } from '../lib/engagement/hard';
 
 export default function LearnedPage() {
     const [showHelp, setShowHelp] = useState(false);
-    const [showLabsGuide, setShowLabsGuide] = useState(false);
     const { buttonPress, click } = useSoundEffects();
     const learnedCount = useLexicaStore(state => state.learnedWords.size);
-    const learnedWords = useLexicaStore(state => state.learnedWords);
-    const todayLearnedWords = useLexicaStore(state => state.todayLearnedWords);
     const masteredCount = useLexicaStore(state => state.getMasteredWordsCount());
     const cardProgress = useLexicaStore(state => state.cardProgress);
-    const progressStats = getProgressStats(cardProgress);
     const hard = useMemo(() => hardWords(cardProgress), [cardProgress]);
 
-    // Get words with lab modules
-    const labWords = useMemo(() => {
-        const learnedWordIds = Array.from(learnedWords);
-        return getAllCards().filter(card =>
-            learnedWordIds.includes(card.id) &&
-            (card.surgeryModule || card.upgradeModule)
-        );
-    }, [learnedWords]);
-
-    // Auto-dismiss guide and scroll
-    useEffect(() => {
-        if (showLabsGuide) {
-            // Scroll to vocabulary section immediately
-            document.getElementById('vocabulary-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            // Auto-dismiss after 4 seconds
-            const timer = setTimeout(() => {
-                setShowLabsGuide(false);
-            }, 4000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [showLabsGuide]);
+    // Words due now or within two days: the ones about to slip.
+    const [now] = useState(() => Date.now());
+    const fading = useMemo(() => Object.values(cardProgress).filter((p) => p.state !== 'mastered' && p.nextReviewAt <= now + 2 * 86_400_000).length, [cardProgress, now]);
 
     return (
         <div className="min-h-screen bg-bg px-3 sm:px-4 py-6 sm:py-8 pb-20">
@@ -148,151 +122,28 @@ export default function LearnedPage() {
             <KnowUseLexica />
             <LearnerFacets />
 
-            {/* Vocabulary Games Card */}
-            {learnedCount >= 4 && (
-                <div id="practice-section" className="max-w-5xl mx-auto mb-6 sm:mb-8">
-                    <h2 className="text-base sm:text-lg font-bold text-ink mb-3 sm:mb-4 flex items-center gap-2">
-                        <Gamepad2 className="w-5 h-5 text-accent" />
-                        Thực hành
-                    </h2>
-                    <div className="space-y-3">
-                        <Link
-                            href="/play"
-                            data-tour-id="game-hub-button"
-                            className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-surface-2/50">
-                                    <Gamepad2 className="w-5 h-5 text-ink" />
-                                </div>
-                                <div className="text-left">
-                                    <div className="text-ink font-semibold text-sm mb-1">Chơi</div>
-                                    <div className="text-muted text-xs">13 game, chơi cũng là ôn từ</div>
-                                </div>
-                            </div>
-                            <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
-                        </Link>
-
-                        {progressStats.dueToday > 0 && (
-                            <Link href="/review" className="flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-surface-2/50">
-                                        <RotateCcw className="w-5 h-5 text-ink" />
-                                    </div>
-                                    <div>
-                                        <div className="text-ink font-semibold text-sm">Ôn tập hôm nay</div>
-                                        <div className="text-muted text-xs">{progressStats.dueToday} từ cần ôn</div>
-                                    </div>
-                                </div>
-                                <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
-                            </Link>
-                        )}
-
-                        <Link
-                            href="/album"
-                            className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-surface-2/50">
-                                    <LayoutGrid className="w-5 h-5 text-ink" />
-                                </div>
-                                <div>
-                                    <div className="text-ink font-semibold text-sm mb-0.5">Album thẻ</div>
-                                    <div className="text-muted text-xs">Sưu tầm đủ từng bộ chủ đề và bộ mùa</div>
-                                </div>
-                            </div>
-                            <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
-                        </Link>
-
-                        <Link
-                            href="/read"
-                            className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-surface-2/50">
-                                    <BookMarked className="w-5 h-5 text-ink" />
-                                </div>
-                                <div>
-                                    <div className="text-ink font-semibold text-sm mb-0.5">Đọc 2 phút</div>
-                                    <div className="text-muted text-xs">
-                                        Đoạn văn ngắn có từ bạn đang học
-                                    </div>
-                                </div>
-                            </div>
-                            <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
-                        </Link>
-
-                        <Link
-                            href="/buddy"
-                            className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-accent/20 hover:border-accent/50 transition-all hover:scale-[1.01] active:scale-95 group"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-accent/10">
-                                    <Users className="w-5 h-5 text-accent" />
-                                </div>
-                                <div>
-                                    <div className="text-ink font-semibold text-sm mb-0.5">Study Buddy</div>
-                                    <div className="text-muted text-xs">
-                                        Học cùng bạn bè, duy trì chuỗi đôi
-                                    </div>
-                                </div>
-                            </div>
-                            <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
-                        </Link>
-
-                        {labWords.length > 0 && (
-                            <button
-                                onClick={() => {
-                                    buttonPress();
-                                    setShowLabsGuide(true);
-                                }}
-                                className="w-full flex items-center justify-between p-4 rounded-xl bg-surface/40 border border-line/50 hover:border-line-strong transition-all hover:scale-[1.01] active:scale-95 group"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-surface-2/50">
-                                        <FlaskConical className="w-5 h-5 text-ink" />
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="text-ink font-semibold text-sm mb-0.5">Deep Dive Labs</div>
-                                        <div className="text-muted text-xs">
-                                            {labWords.length} từ có Surgery/Upgrade module
-                                        </div>
-                                    </div>
-                                </div>
-                                <span className="text-muted text-lg font-bold group-hover:translate-x-1 transition-transform">→</span>
-                            </button>
-                        )}
-                    </div>
-                </div>
-            )}
-
             {/* Vocabulary Warehouse Section */}
             <div id="vocabulary-section" className="max-w-5xl mx-auto mb-6 sm:mb-8">
-                {/* Labs Guide Hint */}
-                {showLabsGuide && (
-                    <div className="mb-3 sm:mb-4 p-2.5 sm:p-3 bg-accent/10 border border-accent/30 rounded-lg flex items-center gap-2 sm:gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <ArrowDown className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-accent flex-shrink-0" />
-                        <p className="text-accent text-xs sm:text-sm flex-1">
-                            Nhấn vào bất kỳ từ nào để xem Surgery Lab và Upgrade Lab
-                        </p>
-                        <button
-                            onClick={() => setShowLabsGuide(false)}
-                            className="text-accent/60 hover:text-accent text-lg leading-none flex-shrink-0"
-                        >
-                            ×
-                        </button>
-                    </div>
-                )}
-
                 <h2 className="text-base sm:text-lg font-bold text-ink mb-3 sm:mb-4 flex items-center gap-2">
                     <BookOpen className="w-5 h-5 text-accent" />
                     Kho từ vựng
                 </h2>
 
-                {/* SRS Calendar */}
-                <div className="mb-4 sm:mb-6">
-                    <SRSCalendar cardProgress={cardProgress} />
-                </div>
+                {/* Instead of a review calendar: how many words are about to slip */}
+                {fading > 0 && (
+                    <Link
+                        href="/review"
+                        onClick={() => buttonPress()}
+                        data-testid="fading-words"
+                        className="mb-4 sm:mb-6 flex items-center justify-between gap-3 rounded-xl border border-line bg-surface/40 p-4 hover:border-line-strong"
+                    >
+                        <div>
+                            <p className="text-ink font-semibold text-sm">{fading} từ sắp quên</p>
+                            <p className="text-muted text-xs">Ôn trong 2 ngày tới để giữ chúng lại</p>
+                        </div>
+                        <span className="text-accent text-sm font-semibold">Ôn ngay →</span>
+                    </Link>
+                )}
 
                 {/* Learned Words List */}
                 <LearnedWordsList />
@@ -303,7 +154,7 @@ export default function LearnedPage() {
             <div className="max-w-5xl mx-auto mt-12 text-center space-y-2">
                 <p className="text-xs text-muted flex items-center justify-center gap-1.5">
                     <Save className="w-3.5 h-3.5" />
-                    Dữ liệu được lưu an toàn trong localStorage
+                    Từ của bạn được lưu trên máy này
                 </p>
                 <p className="text-xs text-subtle flex items-center justify-center gap-1.5">
                     Mỗi ngày bạn học, bộ não sẽ mạnh hơn một chút

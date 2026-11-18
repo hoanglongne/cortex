@@ -95,7 +95,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     )}
                     {/* Meta row */}
                     <div className="flex items-center gap-2 font-mono text-[11px] text-subtle">
-                        <span>ELO {card.elo}</span>
+                        <span>Độ khó {card.elo}</span>
                         {isBossCard && (
                             <span className="flex items-center gap-1 text-warning"><Swords className="w-3 h-3" /> BOSS</span>
                         )}

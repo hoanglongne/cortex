@@ -107,7 +107,7 @@ export async function acceptInvite(
         .or(`and(user_a_id.eq.${invite.from_user_id},user_b_id.eq.${acceptorId}),and(user_a_id.eq.${acceptorId},user_b_id.eq.${invite.from_user_id})`)
         .single();
 
-    if (existing) return { success: false, error: 'Hai bạn đã là Study Buddy rồi!' };
+    if (existing) return { success: false, error: 'Hai bạn đã là bạn học rồi!' };
 
     // Tạo pair + đánh dấu invite accepted
     const [{ error: pairErr }] = await Promise.all([

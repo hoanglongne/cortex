@@ -451,7 +451,7 @@ function HomeContent() {
                       className="flex items-center gap-2 text-accent text-xs hover:text-accent transition-colors"
                     >
                       <BookOpen className="w-3.5 h-3.5" />
-                      Thử Deep Dive Labs để hiểu sâu hơn
+                      Mở một từ để mổ xẻ gốc từ và xem từ nâng cấp
                     </Link>
                   </div>
                 </div>

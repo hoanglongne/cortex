@@ -40,7 +40,7 @@ function formatNextReviewFull(nextReviewAt?: number, isMastered?: boolean) {
 }
 
 function formatNextReview(nextReviewAt?: number, isMastered?: boolean) {
-    if (isMastered) return 'Mastered';
+    if (isMastered) return 'Đã thuộc';
     if (!nextReviewAt) return 'Chưa có lịch ôn';
     const nextReviewDate = new Date(nextReviewAt);
     const now = new Date();
@@ -146,7 +146,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                     <div className="mt-8 pt-6 border-t border-line">
                         <div className="flex items-center gap-2 text-ink font-bold text-xs uppercase font-mono mb-4">
                             <FlaskConical className="w-4 h-4 text-accent" />
-                            Deep Dive Training
+                            Hiểu sâu hơn
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             {card.surgeryModule && (
@@ -155,7 +155,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                                     className="flex flex-col items-center gap-2 p-4 rounded-xl bg-accent/20 border-2 border-accent/50 hover:bg-accent-strong/30 hover:border-accent transition-all group"
                                 >
                                     <Scissors className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold text-accent uppercase font-mono tracking-tight">Surgery Lab</span>
+                                    <span className="text-xs font-bold text-accent uppercase font-mono tracking-tight">Mổ xẻ từ</span>
                                 </button>
                             )}
                             {card.upgradeModule && (
@@ -164,7 +164,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                                     className="flex flex-col items-center gap-2 p-4 rounded-xl bg-warning/20 border-2 border-warning/50 hover:bg-warning/30 hover:border-warning transition-all group"
                                 >
                                     <TrendingUp className="w-5 h-5 text-warning group-hover:scale-110 transition-transform" />
-                                    <span className="text-xs font-bold text-warning uppercase font-mono tracking-tight">Upgrade Lab</span>
+                                    <span className="text-xs font-bold text-warning uppercase font-mono tracking-tight">Từ nâng cấp</span>
                                 </button>
                             )}
                         </div>

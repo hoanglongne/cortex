@@ -56,7 +56,7 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
         <div className="bg-surface/30 border border-line rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
                 <CalendarDays className="w-5 h-5 text-accent" />
-                <h2 className="text-base font-bold text-ink">Lịch ôn tập SRS</h2>
+                <h2 className="text-base font-bold text-ink">Lịch ôn tập</h2>
                 <span className="ml-auto text-xs text-muted">14 ngày tới</span>
             </div>
 
