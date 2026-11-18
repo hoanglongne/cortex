@@ -61,6 +61,47 @@
   /* Shape: Tailwind's default radius scale (see DESIGN_SYSTEM.md) */
 }
 
+/*
+ * Light theme (issue #146, round 3): same tokens, light values. Chosen in
+ * Cài đặt (Tối / Sáng / Theo máy); the html element carries data-theme.
+ * The lime accent is too pale on white, so light uses a deep olive with
+ * white text on it.
+ */
+:root[data-theme="light"] {
+  --color-bg: #F5F5F1;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #EFEFEA;
+  --color-surface-3: #E3E3DD;
+  --color-line: #E1E1DA;
+  --color-line-strong: #C9C9C1;
+  --color-ink: #15161A;
+  --color-ink-2: #383B42;
+  --color-muted: #63666D;
+  --color-subtle: #8E9198;
+  --color-accent: #4F6E00;
+  --color-accent-strong: #3F5900;
+  --color-on-accent: #FFFFFF;
+  --color-danger: #C93B2B;
+  --color-warning: #A86B0C;
+  --color-on-status: #FFFFFF;
+  color-scheme: light;
+}
+
+/*
+ * Branch accents (issue #146, round 3): Chứng chỉ keeps the lime, Giao tiếp
+ * gets a sky blue. The html element carries data-branch.
+ */
+:root[data-branch="talk"] {
+  --color-accent: #5CC8FF;
+  --color-accent-strong: #8AD8FF;
+  --color-on-accent: #0E0F11;
+}
+:root[data-theme="light"][data-branch="talk"] {
+  --color-accent: #0B6A9E;
+  --color-accent-strong: #08557F;
+  --color-on-accent: #FFFFFF;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-ink);

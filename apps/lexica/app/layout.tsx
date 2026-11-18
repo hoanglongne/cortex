@@ -1,3 +1,5 @@
+import ThemeSync from './components/ThemeSync';
+import { THEME_BOOT } from './lib/theme';
 import DialTapBridge from './components/DialTapBridge';
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
@@ -74,7 +76,13 @@ export default function RootLayout({
     <html
       lang="vi"
       className="h-full antialiased"
+      data-theme="dark"
+      suppressHydrationWarning
     >
+      <head>
+        {/* Light theme and branch accent before first paint (lib/theme.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body className="min-h-full flex flex-col bg-bg text-ink overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
           <ErrorReporter />
@@ -86,6 +94,7 @@ export default function RootLayout({
           <EngagementSync />
           <ContentLoader />
           <DialTapBridge />
+          <ThemeSync />
           <HydrationGate>
             <DesktopNav />
             {children}

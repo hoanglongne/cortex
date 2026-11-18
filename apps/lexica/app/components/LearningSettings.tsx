@@ -9,6 +9,9 @@ import { BRANCH_PROMISE } from '../lib/journey/branchInfo';
 import BranchCompare from './BranchCompare';
 import PaceChooser from './PaceChooser';
 import DeviceVoiceCard from './DeviceVoiceCard';
+import { saveThemePref } from './ThemeSync';
+import { parseThemePref, THEME_KEY, THEME_LABEL, THEME_PREFS, type ThemePref } from '../lib/theme';
+import { useEffect, useState } from 'react';
 
 const chip = (on: boolean) => `h-9 px-3 rounded-lg border text-xs font-medium ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
 
@@ -22,6 +25,11 @@ export default function LearningSettings() {
     const mySentenceOff = useLexicaStore((s) => s.mySentencePrompt.off);
     const setMySentenceOff = useLexicaStore((s) => s.setMySentenceOff);
 
+    const [theme, setTheme] = useState<ThemePref>('dark');
+    useEffect(() => {
+        try { setTheme(parseThemePref(localStorage.getItem(THEME_KEY))); } catch { /* private mode */ }
+    }, []);
+
     const changeLevel = () => {
         const store = useLexicaStore.getState();
         if (!store.hasSeenWelcome) store.skipToManual();
@@ -31,6 +39,17 @@ export default function LearningSettings() {
 
     return (
         <div className="space-y-5 mb-8">
+            <section className="rounded-2xl border border-line bg-surface p-4 space-y-2" data-testid="theme-setting">
+                <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Giao diện</p>
+                <div className="grid grid-cols-3 gap-1.5">
+                    {THEME_PREFS.map((p) => (
+                        <button key={p} onClick={() => { setTheme(p); saveThemePref(p); }} aria-pressed={theme === p} className={`h-10 ${chip(theme === p)}`}>
+                            {THEME_LABEL[p]}
+                        </button>
+                    ))}
+                </div>
+                <p className="text-xs text-muted">Màu nhấn theo nhánh học: xanh chanh cho Chứng chỉ, xanh trời cho Giao tiếp.</p>
+            </section>
                 <DeviceVoiceCard />
 
                 {path && (

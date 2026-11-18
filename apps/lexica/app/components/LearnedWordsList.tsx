@@ -176,7 +176,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
             <AnimatePresence>
                 {labMode === 'surgery' && card.surgeryModule && (
                     <div
-                        className="fixed inset-0 z-[120] bg-[#0E0F11]/90 backdrop-blur-md flex items-center justify-center p-4"
+                        className="fixed inset-0 z-[120] bg-bg/90 backdrop-blur-md flex items-center justify-center p-4"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <SurgeryLab
@@ -190,7 +190,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                 )}
                 {labMode === 'upgrade' && card.upgradeModule && (
                     <div
-                        className="fixed inset-0 z-[120] bg-[#0E0F11]/90 backdrop-blur-md flex items-center justify-center p-4"
+                        className="fixed inset-0 z-[120] bg-bg/90 backdrop-blur-md flex items-center justify-center p-4"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <UpgradeLab
