@@ -5,12 +5,17 @@ import { GUIDED_PHONES } from '../../lib/pronunciation/steps';
 import { SOUND_PAIRS } from '../../lib/pronunciation/compare';
 import MouthCompare from '../../components/pron/MouthCompare';
 import SelfCheckCard from '../../components/pron/SelfCheckCard';
+import WordSounds from '../../components/pron/WordSounds';
 
 /** Every sound's mouth picture and steps on one page, for reviewing the content (issue #152). */
 export default function MouthDevPage() {
     return (
         <main className="mx-auto max-w-2xl p-4 space-y-4">
             <h1 className="text-lg font-semibold text-ink">Hướng dẫn phát âm theo âm</h1>
+            <h2 className="text-base font-semibold text-ink">Âm trong từ</h2>
+            {['think', 'world', 'cats'].map((w) => (
+                <WordSounds key={w} word={w} />
+            ))}
             <h2 className="text-base font-semibold text-ink">Cặp dễ nhầm</h2>
             {SOUND_PAIRS.map((x) => (
                 <div key={x.a + x.b} data-testid={`pair-${x.a}-${x.b}`}>

@@ -23,7 +23,18 @@ const STEPS: { t: number; label: string }[] = [
  * relaxed mouth into the sound and back; stops show the release. With
  * reduced motion on, three still frames to step through instead.
  */
-export default function MouthPlayer({ phone, focus, className = '' }: { phone: string; focus?: MouthPart | readonly MouthPart[] | null; className?: string }) {
+export default function MouthPlayer({
+    phone,
+    focus,
+    className = '',
+    autoSlow = false,
+}: {
+    phone: string;
+    focus?: MouthPart | readonly MouthPart[] | null;
+    className?: string;
+    /** Play once, slowly, when shown (remount with a new key to replay). */
+    autoSlow?: boolean;
+}) {
     const still = useReducedMotion();
     const [t, setT] = useState<number | null>(null);
     const [slow, setSlow] = useState(false);
@@ -35,6 +46,26 @@ export default function MouthPlayer({ phone, focus, className = '' }: { phone: s
         raf.current = null;
     };
     useEffect(() => stop, []);
+    useEffect(() => {
+        if (!autoSlow || still) return;
+        const ms = PLAY_MS / SLOW;
+        let start: number | null = null;
+        const tick = (now: number) => {
+            start ??= now;
+            const x = (now - start) / ms;
+            if (x >= 1) {
+                setT(null);
+                raf.current = null;
+                return;
+            }
+            setT(x);
+            raf.current = requestAnimationFrame(tick);
+        };
+        raf.current = requestAnimationFrame(tick);
+        return () => {
+            if (raf.current !== null) cancelAnimationFrame(raf.current);
+        };
+    }, [autoSlow, still]);
 
     const play = (isSlow = slow, isLoop = loop) => {
         stop();
