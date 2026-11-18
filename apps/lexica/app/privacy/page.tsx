@@ -77,7 +77,9 @@ export default function PrivacyPage() {
                             <li>Tiện ích Chrome &quot;Lexica Núm vặn&quot; chỉ chạy trên trang bạn bật. Nó đọc chữ trên trang <b>ngay trong trình duyệt</b> để đổi từ, không gửi nội dung trang hay địa chỉ trang đi đâu.</li>
                             <li>Khi bạn mở Lexica trên cùng trình duyệt, tiện ích đọc lịch ôn của bạn (mã từ và ngày ôn tới) và chuyển cho Lexica những từ bạn đã chạm xem nghĩa. Nếu chưa đăng nhập, việc này chỉ diễn ra trên máy bạn.</li>
                             <li>Nếu bạn đã đăng nhập, Lexica cấp cho tiện ích một mã riêng chỉ làm được hai việc: đọc lịch ôn (mã từ và ngày ôn tới) và gửi các từ bạn đã chạm (mã từ và thời điểm), để dùng được trên mọi máy. Mã không đọc được gì khác trong tài khoản. Đăng nhập lại trên máy khác sẽ cấp mã mới và mã cũ hết hiệu lực.</li>
-                            <li>Tiện ích không chạy trên trang đăng nhập, thanh toán, email, ô nhập chữ hay vùng soạn thảo. Gỡ tiện ích là xoá hết dữ liệu của nó.</li>
+                            <li>Tiện ích không bao giờ chạy trên trang ngân hàng và ví điện tử, email, y tế, cơ quan nhà nước, trang đăng nhập và thanh toán, trang có ô mật khẩu hoặc số thẻ, cũng như ô nhập chữ hay vùng soạn thảo. Bạn không bật lại được ở những trang này. Gỡ tiện ích là xoá hết dữ liệu của nó.</li>
+                            <li>Để ước tính số từ bạn gặp mỗi ngày, tiện ích đếm số trang đã đọc và số từ đã đổi trong 7 ngày, chỉ là con số, lưu trên máy bạn.</li>
+                            <li>Khi bạn bấm 👍 hoặc 👎 trên một từ được đổi, Lexica gửi đi mã của luật đổi từ và dấu bạn chọn để sửa những chỗ đổi sai. Không gửi câu, đoạn văn hay địa chỉ trang.</li>
                         </ul>
                     ),
                 },

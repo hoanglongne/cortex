@@ -232,6 +232,14 @@ interface LexicaStore {
      * the review itself decides); a new word is queued to learn.
      */
     dialTap: (cardId: string) => 'due' | 'queued' | 'none';
+    /** Núm vặn (#163): words the learner said they know; never swapped again. cardId -> when. */
+    dialKnown: Record<string, number>;
+    markDialKnown: (cardId: string, known: boolean) => void;
+    /** Núm vặn (#163): 👍/👎 per rule hit (lib/dial/prefs.ts ruleKey) -> [up, down]. */
+    dialFeedback: Record<string, [number, number]>;
+    rateDialRule: (key: string, vote: 'up' | 'down') => void;
+    /** Núm vặn (#164): first mission, tap 3 swapped words. */
+    dialMission: { taps: number; doneAt?: number };
     /** Learner model (lib/learner/model.ts), shadow only: predicts, does not schedule. */
     learner: LearnerState;
     recordEvidence: (e: Evidence) => void;
@@ -427,6 +435,9 @@ export const useLexicaStore = create<LexicaStore>()(
             spokenAt: {},
             soundLog: {},
             selfChecks: {},
+            dialKnown: {},
+            dialFeedback: {},
+            dialMission: { taps: 0 },
             reviewLog: {},
             arenaApplied: [],
             journeys: {},
@@ -721,6 +732,9 @@ export const useLexicaStore = create<LexicaStore>()(
                     spokenAt: {},
                     soundLog: {},
                     selfChecks: {},
+                    dialKnown: {},
+                    dialFeedback: {},
+                    dialMission: { taps: 0 },
                     reviewLog: {},
                     arenaApplied: [],
                     journeys: {},
@@ -1012,6 +1026,13 @@ export const useLexicaStore = create<LexicaStore>()(
             dialTap: (cardId) => {
                 // Tapping to see the meaning: not recalled (graded, recognition).
                 get().recordEvidence({ cardId, facet: 'recog', source: 'dial', outcome: 'wrong', weight: 1, at: Date.now() });
+                // First mission (#164): three taps.
+                const m = get().dialMission ?? { taps: 0 };
+                if (!m.doneAt) {
+                    const taps = m.taps + 1;
+                    set({ dialMission: taps >= 3 ? { taps, doneAt: Date.now() } : { taps } });
+                    if (taps >= 3) capture('dial_mission_done', {});
+                }
                 const { cardProgress } = get();
                 const p = cardProgress[cardId];
                 if (p) {
@@ -1021,6 +1042,24 @@ export const useLexicaStore = create<LexicaStore>()(
                     return 'due';
                 }
                 return get().queueCards([cardId]) > 0 ? 'queued' : 'none';
+            },
+
+            markDialKnown: (cardId, known) => {
+                const next = { ...(get().dialKnown ?? {}) };
+                if (known) {
+                    next[cardId] = Date.now();
+                    // Said "I know this": a graded right answer at the recognition step.
+                    get().recordEvidence({ cardId, facet: 'recog', source: 'dial', outcome: 'right', weight: 1, at: Date.now() });
+                } else delete next[cardId];
+                set({ dialKnown: next });
+            },
+
+            rateDialRule: (key, vote) => {
+                const all = get().dialFeedback ?? {};
+                const [up, down] = all[key] ?? [0, 0];
+                set({ dialFeedback: { ...all, [key]: vote === 'up' ? [up + 1, down] : [up, down + 1] } });
+                // The rule code and the vote only: never the sentence.
+                capture('dial_rule_feedback', { rule: key, vote });
             },
 
             lightReview: (cardIds) => {
@@ -1115,6 +1154,9 @@ export const useLexicaStore = create<LexicaStore>()(
                 spokenAt: state.spokenAt,
                 soundLog: state.soundLog,
                 selfChecks: state.selfChecks,
+                dialKnown: state.dialKnown,
+                dialFeedback: state.dialFeedback,
+                dialMission: state.dialMission,
                 reviewLog: state.reviewLog,
                 arenaApplied: state.arenaApplied,
                 journeys: state.journeys,

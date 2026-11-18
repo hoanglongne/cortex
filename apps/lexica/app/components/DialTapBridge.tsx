@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useLexicaStore } from '../store/lexicaStore';
-import { parseTaps, TAPS_EVENT, TAPS_KEY } from '../lib/dial/bridge';
+import { parseDialEvents, TAPS_EVENT, TAPS_KEY } from '../lib/dial/bridge';
 import { claimDialTaps, HELLO, isHello, issueDialToken, TOKEN } from '../lib/dial/account';
 
 /**
@@ -15,12 +15,16 @@ export default function DialTapBridge() {
         const applyLocal = () => {
             let raw: string | null = null;
             try { raw = localStorage.getItem(TAPS_KEY); } catch { return; }
-            const taps = parseTaps(raw);
+            const events = parseDialEvents(raw);
             if (raw !== null) {
                 try { localStorage.removeItem(TAPS_KEY); } catch { /* private mode */ }
             }
-            const { dialTap } = useLexicaStore.getState();
-            for (const t of taps) dialTap(t.cardId);
+            const { dialTap, markDialKnown, rateDialRule } = useLexicaStore.getState();
+            for (const e of events) {
+                if (e.kind === 'tap') dialTap(e.cardId);
+                else if (e.kind === 'known') markDialKnown(e.cardId, true);
+                else if (e.rule) rateDialRule(e.rule, e.kind);
+            }
         };
         const applyRemote = async () => {
             const taps = await claimDialTaps();

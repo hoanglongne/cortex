@@ -71,7 +71,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
         for (const [id, r] of dialRankAll) if (!m.has(id)) m.set(id, r);
         return m;
     }, [passage.newWords, dialRankAll]);
-    const dial = useDialParagraphs(translation, dialLevel, dialPriority);
+    const dial = useDialParagraphs(translation, dialLevel, dialPriority, Infinity, dialSheet.hidden);
     const dialRef = useRef<HTMLElement>(null);
     useDialSeen(dialRef, dialOn);
     const [sceneDone, setSceneDone] = useState(false);
@@ -249,7 +249,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                             </div>
                         ))}
                     </article>
-                    <DialSheet hit={dialSheet.open} onClose={dialSheet.close} effect={dialSheet.effect} />
+                    <DialSheet hit={dialSheet.open} onClose={dialSheet.close} effect={dialSheet.effect} onKnown={dialSheet.onKnown} onVote={dialSheet.onVote} />
                 </section>
                 ) : whole ? (
                 <article data-testid="passage-text" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>

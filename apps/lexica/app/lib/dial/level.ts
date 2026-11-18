@@ -4,6 +4,7 @@
  */
 import { useEffect, useState } from 'react';
 import type { DialHit } from './match';
+import { defaultMode, intensityFromLevel, type DialIntensity, type DialMode } from './prefs';
 
 const KEY = 'lexica-dial-level';
 export const DEFAULT_DIAL_LEVEL = 50;
@@ -30,10 +31,10 @@ export function useDialLevel(): [number, (v: number) => void] {
 /**
  * Which hits to show at a level. Hits on ranked cards go first (lower rank
  * first: due words, then other learned words); the rest fill up to `level` %
- * of all hits, spread evenly.
+ * of all hits, spread evenly, and never more than `cap` (the intensity's per-page cap).
  */
-export function pickHits(hits: DialHit[], level: number, priority: ReadonlySet<string> | ReadonlyMap<string, number> = new Set()): Set<number> {
-    const want = Math.round((hits.length * level) / 100);
+export function pickHits(hits: DialHit[], level: number, priority: ReadonlySet<string> | ReadonlyMap<string, number> = new Set(), cap = Infinity): Set<number> {
+    const want = Math.min(cap, Math.round((hits.length * level) / 100));
     const rankOf = (id: string): number | undefined =>
         priority instanceof Map ? priority.get(id) : (priority as ReadonlySet<string>).has(id) ? 0 : undefined;
     const pri = hits.map((_, i) => i).filter((i) => rankOf(hits[i].cardId) !== undefined)
@@ -51,3 +52,35 @@ export function pickHits(hits: DialHit[], level: number, priority: ReadonlySet<s
     }
     return shown;
 }
+
+const PREFS_KEY = 'lexica-dial-prefs';
+
+export interface DialPrefs { intensity: DialIntensity; mode: DialMode }
+
+/** Saved intensity and display mode; before any choice, the old level and the learner's word count decide. */
+export function readDialPrefs(learnedWords: number): DialPrefs {
+    const fallback: DialPrefs = { intensity: intensityFromLevel(readDialLevel()), mode: defaultMode(learnedWords) };
+    try {
+        const raw = JSON.parse(localStorage.getItem(PREFS_KEY) ?? 'null') as Partial<DialPrefs> | null;
+        return {
+            intensity: raw?.intensity === 'light' || raw?.intensity === 'medium' || raw?.intensity === 'heavy' ? raw.intensity : fallback.intensity,
+            mode: raw?.mode === 'replace' || raw?.mode === 'highlight' || raw?.mode === 'both' ? raw.mode : fallback.mode,
+        };
+    } catch {
+        return fallback;
+    }
+}
+
+export function useDialPrefs(learnedWords: number): [DialPrefs, (p: Partial<DialPrefs>) => void] {
+    const [prefs, setPrefs] = useState<DialPrefs>({ intensity: 'medium', mode: 'replace' });
+    useEffect(() => setPrefs(readDialPrefs(learnedWords)), [learnedWords]);
+    const set = (p: Partial<DialPrefs>) => {
+        setPrefs((cur) => {
+            const next = { ...cur, ...p };
+            try { localStorage.setItem(PREFS_KEY, JSON.stringify(next)); } catch { /* private mode */ }
+            return next;
+        });
+    };
+    return [prefs, set];
+}
+

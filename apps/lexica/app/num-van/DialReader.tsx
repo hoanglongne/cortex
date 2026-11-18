@@ -3,9 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
-import { DialParagraph, DialSheet, DialSlider, useDialParagraphs, useDialRank, useDialSeen, useDialSheet } from '../components/DialText';
+import { DialControls, DialParagraph, DialSheet, useDialParagraphs, useDialRank, useDialSeen, useDialSheet } from '../components/DialText';
+import DialDemo from './DialDemo';
+import DialMission from './DialMission';
+import { useLexicaStore } from '../store/lexicaStore';
+import { INTENSITY } from '../lib/dial/prefs';
 import DialCheck from '../components/DialCheck';
-import { useDialLevel } from '../lib/dial/level';
+import { useDialPrefs } from '../lib/dial/level';
 import { allowedUrl, firstUrl, DIAL_SITES } from '../lib/dial/extract';
 
 const SAMPLE = `Sau nhiều tháng chuẩn bị, công ty quyết định triển khai phương án mới vì nó khả thi và tiết kiệm chi phí. Ban giám đốc thừa nhận kế hoạch cũ thiếu minh bạch và không mang lại lợi ích như mong đợi.
@@ -28,7 +32,8 @@ export default function DialReader() {
     const [article, setArticle] = useState<Article | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [level, setLevel] = useDialLevel();
+    const learned = useLexicaStore((s) => s.learnedWords.size);
+    const [prefs, setPrefs] = useDialPrefs(learned);
     const sheet = useDialSheet();
 
     // Words due for review first, then the learner's other words.
@@ -69,7 +74,7 @@ export default function DialReader() {
     }, [open]);
 
     const paras = useMemo(() => article?.paragraphs ?? [], [article]);
-    const dial = useDialParagraphs(paras, level, priority);
+    const dial = useDialParagraphs(paras, INTENSITY[prefs.intensity].share, priority, INTENSITY[prefs.intensity].cap, sheet.hidden);
     const articleRef = useRef<HTMLElement>(null);
     useDialSeen(articleRef, !!article);
 
@@ -81,6 +86,7 @@ export default function DialReader() {
                 <span className="text-[11px] font-mono uppercase tracking-wider text-accent border border-accent/30 rounded px-1.5 py-0.5">Thử nghiệm</span>
             </div>
 
+            {!article && <DialMission />}
             {!article && <DialCheck />}
             {!article ? (
                 <section className="space-y-3">
@@ -98,6 +104,7 @@ export default function DialReader() {
                         </button>
                         <button onClick={() => setInput(SAMPLE)} className="rounded-xl border border-line px-4 text-sm text-ink-2">Đoạn mẫu</button>
                     </div>
+                    <DialDemo text={SAMPLE} prefs={prefs} onChange={setPrefs} />
                     <details className="text-xs text-muted">
                         <summary className="cursor-pointer">Link từ những trang nào?</summary>
                         <p className="mt-1">{DIAL_SITES.join(', ')}. Trên Android, bấm Chia sẻ trong trình duyệt hoặc app báo rồi chọn Lexica.</p>
@@ -106,7 +113,7 @@ export default function DialReader() {
             ) : (
                 <section>
                     <div className="sticky top-0 z-10 bg-bg/95 backdrop-blur py-3 mb-3 border-b border-line">
-                        <DialSlider level={level} onChange={setLevel} total={dial.total} />
+                        <DialControls intensity={prefs.intensity} mode={prefs.mode} onChange={setPrefs} total={dial.total} />
                         <div className="mt-2 flex items-center justify-between text-xs">
                             {article.url ? (
                                 <a href={article.url} target="_blank" rel="noreferrer" className="text-muted flex items-center gap-1 truncate"><ExternalLink className="w-3 h-3" /> {new URL(article.url).hostname}</a>
@@ -117,13 +124,13 @@ export default function DialReader() {
                     {article.title && <h2 className="text-xl font-semibold mb-3">{article.title}</h2>}
                     <article ref={articleRef} className="space-y-4 text-[17px] leading-[1.75]">
                         {paras.map((p, i) => (
-                            <p key={i}><DialParagraph text={p} hits={dial.hits[i]} shown={dial.shown[i]} onOpen={sheet.setOpen} /></p>
+                            <p key={i}><DialParagraph text={p} hits={dial.hits[i]} shown={dial.shown[i]} onOpen={sheet.setOpen} mode={prefs.mode} /></p>
                         ))}
                     </article>
                     {article.url && <p className="mt-6 text-xs text-subtle">Nội dung thuộc về trang gốc. Lexica không lưu bài này.</p>}
                 </section>
             )}
-            <DialSheet hit={sheet.open} onClose={sheet.close} effect={sheet.effect} />
+            <DialSheet hit={sheet.open} onClose={sheet.close} effect={sheet.effect} onKnown={sheet.onKnown} onVote={sheet.onVote} />
         </main>
     );
 }
