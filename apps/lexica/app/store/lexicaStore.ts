@@ -86,6 +86,8 @@ interface LexicaStore {
     spokenAt: Record<string, number>;
     /** Sound groups tried and heard off per day, 60 days (lib/pronunciation/soundLog.ts). */
     soundLog: SoundLog;
+    /** Self-checks with an object the learner marked as done: check id -> when (lib/pronunciation/selfCheck.ts). Weak evidence; never changes a score. */
+    selfChecks: Record<string, number>;
     /** Recalls of words seen before, right and all, per day, 30 days (lib/journey/reviewLog.ts): the class report's recall rate. */
     reviewLog: ReviewLog;
     /** Class quiz rooms already put into review (lib/arenaReview.ts). */
@@ -215,6 +217,8 @@ interface LexicaStore {
     recordSpeak: (cardId: string, level: SpeakLevel) => void;
     /** One attempt's sound groups: those the words had, and those the app heard off. */
     recordSounds: (tried: ErrorKind[], missed: ErrorKind[]) => void;
+    /** The learner did a self-check (paper, hand on throat…) and says it worked. */
+    markSelfCheck: (id: string) => void;
 
     // Reading actions
     /** Adds cards to the front of the next deck (as new cards). Returns how many were added. */
@@ -421,6 +425,7 @@ export const useLexicaStore = create<LexicaStore>()(
             speakMisses: {},
             spokenAt: {},
             soundLog: {},
+            selfChecks: {},
             reviewLog: {},
             arenaApplied: [],
             journeys: {},
@@ -714,6 +719,7 @@ export const useLexicaStore = create<LexicaStore>()(
                     speakMisses: {},
                     spokenAt: {},
                     soundLog: {},
+                    selfChecks: {},
                     reviewLog: {},
                     arenaApplied: [],
                     journeys: {},
@@ -937,6 +943,8 @@ export const useLexicaStore = create<LexicaStore>()(
                 set({ soundLog: addAttempt(get().soundLog, localDate(), tried, missed) });
             },
 
+            markSelfCheck: (id) => set({ selfChecks: { ...(get().selfChecks ?? {}), [id]: Date.now() } }),
+
             recordSpeak: (cardId, level) => {
                 const used = level === 'clear' ? sayClearly(get().journeys[cardId], Date.now()) : undefined;
                 set({
@@ -1105,6 +1113,7 @@ export const useLexicaStore = create<LexicaStore>()(
                 speakMisses: state.speakMisses,
                 spokenAt: state.spokenAt,
                 soundLog: state.soundLog,
+                selfChecks: state.selfChecks,
                 reviewLog: state.reviewLog,
                 arenaApplied: state.arenaApplied,
                 journeys: state.journeys,

@@ -24,6 +24,7 @@ import { mouthFor } from '../../lib/pronunciation/mouth';
 import { guideFor } from '../../lib/pronunciation/steps';
 import { pairFor, partsThatDiffer } from '../../lib/pronunciation/compare';
 import MouthCompare from './MouthCompare';
+import SelfCheckCard from './SelfCheckCard';
 
 export interface AttemptFeedback {
     sound: SoundFeedback;
@@ -258,6 +259,7 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                 )}
 
                 <MouthHint key={issue.phone} phone={issue.phone} tip={tip} />
+                <SelfCheckCard key={`check-${issue.phone}`} phone={issue.phone} />
 
                 <div className="flex flex-wrap gap-2">
                     <ListenButton label={issue.word.toLowerCase()} onPlay={() => void sayModel(issue.word.toLowerCase(), 'slow')} icon={<Volume2 className="w-3.5 h-3.5" />} />

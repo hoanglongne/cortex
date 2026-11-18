@@ -4,6 +4,7 @@ import { MouthHint } from '../../components/pron/SoundTips';
 import { GUIDED_PHONES } from '../../lib/pronunciation/steps';
 import { SOUND_PAIRS } from '../../lib/pronunciation/compare';
 import MouthCompare from '../../components/pron/MouthCompare';
+import SelfCheckCard from '../../components/pron/SelfCheckCard';
 
 /** Every sound's mouth picture and steps on one page, for reviewing the content (issue #152). */
 export default function MouthDevPage() {
@@ -21,6 +22,7 @@ export default function MouthDevPage() {
                 <section key={p} data-testid={`guide-${p}`} className="rounded-xl bg-surface-2 p-3">
                     <p className="mb-2 font-mono text-xs text-subtle">{p}</p>
                     <MouthHint phone={p} tip={null} />
+                    <div className="mt-2"><SelfCheckCard phone={p} /></div>
                 </section>
             ))}
         </main>
