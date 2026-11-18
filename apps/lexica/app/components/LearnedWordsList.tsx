@@ -253,7 +253,7 @@ export default function LearnedWordsList() {
         return (
             <div className="text-muted text-center py-8 flex flex-col items-center gap-2">
                 <HandHeart className="w-8 h-8" />
-                <p>Chưa học từ nào. Bắt đầu swipe thôi!</p>
+                <p>Chưa học từ nào. Bắt đầu học thôi!</p>
             </div>
         );
     }

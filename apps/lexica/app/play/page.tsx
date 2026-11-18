@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, CloudRain, Check, Compass, Ear, Headphones, Mic, PencilLine, Grid3x3, Skull, FileText, Flame, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap, type LucideIcon } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, CloudRain, Check, Compass, Ear, Headphones, Mic, PencilLine, Grid3x3, Skull, FileText, Flame, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap, type LucideIcon } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
 import { localDate } from '../lib/engagement/ghost';
+import { todaysPicks } from '../lib/games/picks';
 import { MIN_WORDS, usePool } from './usePool';
 import { edge, GAME_COLOR, tint, type GameId } from './theme';
 
@@ -68,6 +69,12 @@ export default function PlayPage() {
     const ready = known.length >= MIN_WORDS;
     const plays = playsOn(log ?? {}, today);
     const pct = Math.min(100, Math.round((plays / GAME_GOAL) * 100));
+    const branch = useLexicaStore((s) => s.path?.branch ?? null);
+    const progress = useLexicaStore((s) => s.cardProgress);
+    const [now] = useState(() => Date.now());
+    const due = Object.values(progress).filter((p) => p.nextReviewAt <= now).length;
+    const picks = todaysPicks(today, branch, due);
+    const all = [...FEATURED, ...GROUPS.flatMap((g) => g.games)];
 
     return (
         <div className="min-h-screen bg-bg px-4 py-6 lg:py-8">
@@ -111,11 +118,48 @@ export default function PlayPage() {
                     </p>
                 )}
 
-                <section aria-label="Cơ chế mới">
+                <section aria-label="Hợp với bạn hôm nay" data-testid="game-picks">
                     <div className="mb-2.5 flex items-baseline gap-2">
-                        <h2 className="font-semibold text-ink">Thử thách</h2>
-                        <span className="text-xs text-subtle">Không chỉ chọn đáp án</span>
+                        <h2 className="font-semibold text-ink">3 game hợp với bạn hôm nay</h2>
                     </div>
+                    <div className="grid gap-3 lg:grid-cols-3">
+                        {picks.map(({ id, why }) => {
+                            const g = all.find((x) => x.id === id);
+                            if (!g) return null;
+                            const c = GAME_COLOR[id];
+                            const Icon = g.icon;
+                            return (
+                                <Link
+                                    key={id}
+                                    href={ready ? `/play/${id}` : '/play'}
+                                    aria-disabled={!ready}
+                                    className={`relative flex items-center gap-4 overflow-hidden rounded-3xl border p-5 transition-transform active:scale-[0.98] ${ready ? 'hover:-translate-y-0.5' : 'pointer-events-none opacity-50'}`}
+                                    style={{ background: `linear-gradient(135deg, ${tint(c, 22)}, ${tint(c, 6)})`, borderColor: edge(c, 50) }}
+                                >
+                                    <Icon aria-hidden className="pointer-events-none absolute -bottom-6 -right-4 h-28 w-28 -rotate-12 opacity-[0.1]" style={{ color: c }} />
+                                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-on-status" style={{ background: c }}>
+                                        <Icon className="h-6 w-6" />
+                                    </span>
+                                    <span>
+                                        <span className="block font-mono text-[10px] uppercase tracking-wide" style={{ color: c }}>{why}</span>
+                                        <span className="block text-lg font-bold text-ink">{g.name}</span>
+                                        <span className="mt-0.5 block text-sm leading-snug text-ink-2 line-clamp-2">{g.hint}</span>
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </section>
+
+                <h2 className="pt-2 text-sm font-semibold uppercase tracking-wide text-subtle">Tất cả game</h2>
+
+                <details className="group/fold rounded-2xl border border-line bg-surface/40 p-3" aria-label="Cơ chế mới">
+                    <summary className="flex cursor-pointer list-none items-baseline gap-2">
+                        <h3 className="font-semibold text-ink">Thử thách</h3>
+                        <span className="text-xs text-subtle">Không chỉ chọn đáp án · {FEATURED.length} game</span>
+                        <ChevronDown className="ml-auto h-4 w-4 self-center text-muted transition-transform group-open/fold:rotate-180" />
+                    </summary>
+                    <div className="mt-3">
                     <div className="grid gap-3 lg:grid-cols-2">
                         {FEATURED.map(({ id, name, hint, icon: Icon, tag }) => {
                             const c = GAME_COLOR[id];
@@ -144,15 +188,17 @@ export default function PlayPage() {
                             );
                         })}
                     </div>
-                </section>
+                    </div>
+                </details>
 
                 {GROUPS.map((g) => (
-                    <section key={g.title} aria-label={g.title}>
-                        <div className="mb-2.5 flex items-baseline gap-2">
-                            <h2 className="font-semibold text-ink">{g.title}</h2>
-                            <span className="text-xs text-subtle">{g.hint}</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                    <details key={g.title} aria-label={g.title} className="group/fold rounded-2xl border border-line bg-surface/40 p-3">
+                        <summary className="flex cursor-pointer list-none items-baseline gap-2">
+                            <h3 className="font-semibold text-ink">{g.title}</h3>
+                            <span className="text-xs text-subtle">{g.hint} · {g.games.length} game</span>
+                            <ChevronDown className="ml-auto h-4 w-4 self-center text-muted transition-transform group-open/fold:rotate-180" />
+                        </summary>
+                        <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
                             {g.games.map(({ id, name, hint, icon: Icon, tag }, i) => {
                                 const c = GAME_COLOR[id];
                                 return (
@@ -183,7 +229,7 @@ export default function PlayPage() {
                                 );
                             })}
                         </div>
-                    </section>
+                    </details>
                 ))}
             </div>
         </div>
