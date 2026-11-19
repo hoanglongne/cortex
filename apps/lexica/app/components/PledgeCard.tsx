@@ -57,7 +57,7 @@ export default function PledgeCard({ offer = false }: { offer?: boolean }) {
                         <button onClick={() => setAnswer('used')} className="lx-hard lx-press h-11 rounded-xl bg-accent text-on-accent font-extrabold">
                             Dùng rồi
                         </button>
-                        <button onClick={() => setAnswer('not-yet')} className="h-11 rounded-xl border border-line text-ink hover:border-line-strong">
+                        <button onClick={() => setAnswer('not-yet')} className="h-11 lx-soft rounded-xl text-ink hover:border-line-strong">
                             Chưa
                         </button>
                     </div>
@@ -98,7 +98,7 @@ export default function PledgeCard({ offer = false }: { offer?: boolean }) {
                                     clearPledge();
                                     setDone('Đã bỏ hẹn. Cuối phiên sau sẽ có từ khác để thử.');
                                 }}
-                                className="h-11 rounded-xl border border-line text-ink hover:border-line-strong"
+                                className="h-11 lx-soft rounded-xl text-ink hover:border-line-strong"
                             >
                                 Bỏ hẹn
                             </button>
@@ -135,7 +135,7 @@ export default function PledgeCard({ offer = false }: { offer?: boolean }) {
                 <button onClick={() => makePledge(card.id)} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-extrabold">
                     Mình sẽ thử
                 </button>
-                <button onClick={() => setSkipped((s) => [...s, card.id])} className="h-10 px-3 rounded-xl border border-line text-sm text-ink hover:border-line-strong">
+                <button onClick={() => setSkipped((s) => [...s, card.id])} className="h-10 px-3 lx-soft rounded-xl text-sm text-ink hover:border-line-strong">
                     Từ khác
                 </button>
             </div>

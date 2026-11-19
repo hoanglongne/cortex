@@ -34,7 +34,7 @@ export default function StudyDateBanner() {
     }, [user]);
     if (!open || hidden === open.id) return null;
     return (
-        <div role="status" className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-2 border-b border-accent/40 bg-surface px-4 py-2 text-sm text-ink">
+        <div role="status" className="fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-2 border-b border-line-strong bg-surface px-4 py-2 text-sm text-ink">
             <Link href="/buddy" className="flex min-w-0 items-center gap-2">
                 <CalendarClock className="h-4 w-4 shrink-0 text-accent" />
                 <span className="truncate">{open.their_in ? `${open.with_name ?? 'Bạn học'} đang học, vào học cùng nhé` : `Đến giờ học chung với ${open.with_name ?? 'bạn học'}`}</span>

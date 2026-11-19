@@ -87,7 +87,7 @@ function Weekly({ day }: { day: number }) {
                     </Link>
                 </section>
             )}
-            <Link href="/" className="block text-center h-12 leading-[3rem] rounded-xl border border-line text-ink">
+            <Link href="/" className="block text-center h-12 leading-[3rem] lx-soft rounded-xl text-ink">
                 Tiếp tục học
             </Link>
         </motion.div>
@@ -189,7 +189,7 @@ function FinalResult() {
                 <Link href="/path/setup?next=1" className="lx-hard lx-press h-12 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center">
                     Lộ trình mới
                 </Link>
-                <Link href="/path" className="h-12 rounded-xl border border-line text-ink flex items-center justify-center">
+                <Link href="/path" className="h-12 lx-soft rounded-xl text-ink flex items-center justify-center">
                     Chế độ duy trì
                 </Link>
             </div>

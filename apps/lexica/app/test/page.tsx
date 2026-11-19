@@ -33,7 +33,7 @@ export default function TestPage() {
                         click();
                         router.push('/');
                     }}
-                    className="fixed top-4 left-4 md:top-6 md:left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-surface/90 border border-line hover:border-accent text-ink text-sm font-medium transition-colors"
+                    className="fixed top-4 left-4 md:top-6 md:left-6 z-50 flex items-center gap-2 px-4 py-2 rounded-lg bg-surface/90 border border-line hover:border-ink text-ink text-sm font-medium transition-colors"
                 >
                     <ArrowLeft className="w-4 h-4" />
                     Quay lại

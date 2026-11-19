@@ -102,7 +102,7 @@ export default function GuideCard() {
     const tip = nextTip(facts, tipsDismissed, today);
     if (!tip) return null;
     return (
-        <section data-testid="tip" aria-label="Gợi ý" className="w-full rounded-2xl border border-accent/30 bg-accent/5 p-4">
+        <section data-testid="tip" aria-label="Gợi ý" className="w-full rounded-2xl p-4 lx-soft bg-surface-2">
             <p className="flex items-start gap-2 text-sm text-ink">
                 <Lightbulb className="w-4 h-4 mt-0.5 text-accent shrink-0" />
                 <span>{tip.text}</span>

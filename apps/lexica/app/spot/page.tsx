@@ -118,7 +118,7 @@ function HuntSection() {
             </div>
             <div className="lx-soft rounded-[18px] bg-surface overflow-hidden">
                 <div className="px-4 pt-4 pb-3 flex items-center gap-3">
-                    <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
+                    <span className="w-9 h-9 rounded-xl bg-surface-2 text-accent flex items-center justify-center shrink-0">
                         <Eye className="w-4 h-4" />
                     </span>
                     <div className="flex-1 min-w-0">
@@ -151,7 +151,7 @@ function HuntSection() {
                                             type="button"
                                             onClick={() => setOpen(open === id ? null : id)}
                                             aria-expanded={open === id}
-                                            className={`h-8 px-3 shrink-0 rounded-lg border text-xs font-medium ${open === id ? '!border-ink bg-ink text-bg' : 'border-accent/40 text-accent hover:bg-accent/10'}`}
+                                            className={`h-8 px-3 shrink-0 rounded-lg border text-xs font-medium ${open === id ? '!border-ink bg-ink text-bg' : 'border-line-strong text-accent hover:bg-accent/10'}`}
                                         >
                                             Gặp rồi
                                         </button>
@@ -253,7 +253,7 @@ function ScanSection({ initial }: { initial: string }) {
         setSaved(ids.length);
     };
     const link = 'text-xs text-muted hover:text-ink';
-    const action = 'h-8 px-3 rounded-lg border border-accent/40 text-xs font-medium text-accent hover:bg-accent/10 flex items-center gap-1.5';
+    const action = 'h-8 px-3 lx-soft rounded-lg text-xs font-medium text-accent hover:bg-accent/10 flex items-center gap-1.5';
 
     return (
         <section id="spot-scan" className="scroll-mt-4">
@@ -281,7 +281,7 @@ function ScanSection({ initial }: { initial: string }) {
                         maxLength={5000}
                         placeholder="Email, caption, lời bài hát…"
                         aria-label="Đoạn văn"
-                        className="w-full rounded-xl border border-line bg-bg px-3 py-2 text-sm text-ink placeholder:text-subtle outline-none focus:border-accent"
+                        className="w-full lx-soft rounded-xl bg-bg px-3 py-2 text-sm text-ink placeholder:text-subtle outline-none focus:border-accent"
                     />
                 )}
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -387,7 +387,7 @@ function CollectionSection() {
                                         </p>
                                     </div>
                                     {c.snippets.slice(0, 1).map((s) => (
-                                        <p key={s} className="mt-1.5 border-l-2 border-accent/50 pl-2.5 text-xs italic text-ink-2 line-clamp-2">
+                                        <p key={s} className="mt-1.5 border-l-2 border-line-strong pl-2.5 text-xs italic text-ink-2 line-clamp-2">
                                             “{s}”
                                         </p>
                                     ))}
@@ -414,7 +414,7 @@ function Highlighted({ text, spans }: { text: string; spans: { start: number; en
         if (s.start < at) continue;
         parts.push(text.slice(at, s.start));
         parts.push(
-            <mark key={s.start} className="rounded bg-accent/30 px-0.5 text-ink font-medium">
+            <mark key={s.start} className="rounded bg-surface-2 px-0.5 text-ink font-medium">
                 {text.slice(s.start, s.end)}
             </mark>,
         );

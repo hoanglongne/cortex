@@ -9,7 +9,7 @@ import { BRANCH_ROWS, BRANCH_SWITCH_NOTE } from '../lib/journey/branchInfo';
 export default function BranchCompare({ defaultOpen = false }: { defaultOpen?: boolean }) {
     const [open, setOpen] = useState(defaultOpen);
     return (
-        <div className="lx-soft rounded-xl bg-surface-2/30">
+        <div className="lx-soft rounded-xl bg-surface-2">
             <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="w-full h-10 px-3 flex items-center justify-between text-xs font-medium text-ink-2">
                 So sánh hai hướng
                 <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />

@@ -88,7 +88,7 @@ export default function DialogueScene({
                 <p className="text-sm text-muted">App đọc câu của người kia. Tới lượt bạn, app chỉ hiện ý tiếng Việt: bạn nói câu tiếng Anh, rồi xem câu gốc.</p>
                 <div className="flex flex-wrap gap-2">
                     {speakers.map((s) => (
-                        <button key={s} onClick={() => setRole(s)} className="h-11 px-5 rounded-xl border border-line-strong bg-bg text-ink font-medium hover:border-accent">
+                        <button key={s} onClick={() => setRole(s)} className="h-11 px-5 lx-soft rounded-xl bg-bg text-ink font-medium hover:border-ink">
                             {s}
                         </button>
                     ))}
@@ -113,7 +113,7 @@ export default function DialogueScene({
                             key={i}
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className={`rounded-2xl border px-4 py-3 ${left ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}`}
+                            className={`rounded-2xl border px-4 py-3 ${left ? 'border-line bg-surface mr-8' : 'border-line-strong bg-surface-2 ml-8'}`}
                         >
                             <div className="flex items-center justify-between gap-2">
                                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">
@@ -160,7 +160,7 @@ export default function DialogueScene({
             {mustGuess && next !== null && <Guess turns={turns} index={next} seed={seed} onPicked={(pick) => setGuessed((g) => ({ ...g, [next]: pick }))} />}
 
             {next !== null && !mustGuess && !waitingForMe && (
-                <button onClick={() => setShown((n) => n + 1)} className="w-full h-12 rounded-xl border border-line-strong bg-surface text-ink font-semibold hover:border-accent">
+                <button onClick={() => setShown((n) => n + 1)} className="w-full h-12 lx-soft rounded-xl bg-surface text-ink font-semibold hover:border-ink">
                     {guessed[next] ? 'Xem câu tiếp' : 'Tiếp'} ({shown}/{turns.length})
                 </button>
             )}
@@ -174,7 +174,7 @@ function Guess({ turns, index, seed, onPicked }: { turns: Turn[]; index: number;
     const g = guessOptions(turns, index, seed)!;
     const [pick, setPick] = useState<string | null>(null);
     return (
-        <div className="rounded-2xl border border-dashed border-accent/40 p-4 space-y-2">
+        <div className="rounded-2xl border border-dashed border-line-strong p-4 space-y-2">
             <p className="text-sm text-ink">
                 Đoán xem <b>{turns[index].speaker}</b> sẽ nói ý nào?
             </p>
@@ -235,7 +235,7 @@ function MyTurn({ meaning, line, canListen, onResult }: { meaning: string; line:
                             <Mic className="w-4 h-4" /> Nói
                         </button>
                     ))}
-                <button onClick={() => onResult('skipped')} className="h-10 px-4 rounded-xl border border-line text-sm text-ink-2 flex items-center gap-2">
+                <button onClick={() => onResult('skipped')} className="h-10 px-4 lx-soft rounded-xl text-sm text-ink-2 flex items-center gap-2">
                     <Eye className="w-4 h-4" /> Xem câu
                 </button>
             </div>

@@ -82,7 +82,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
                     href={HUB_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 hover:bg-accent-strong/20 border border-accent/30 hover:border-accent/50 text-accent text-sm font-medium rounded-lg transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 hover:border-ink text-sm font-medium rounded-lg transition-colors lx-soft bg-surface-2"
                 >
                     <ExternalLink className="w-4 h-4" />
                     Đăng nhập Cortex Hub
@@ -92,11 +92,11 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
     }
 
     return (
-        <div className="bg-surface/50 border border-accent/30 rounded-xl p-6 mb-8">
+        <div className="bg-surface/50 border border-line-strong rounded-xl p-6 mb-8">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-accent/20">
+                    <div className="p-2 rounded-lg bg-surface-2">
                         <Brain className="w-6 h-6 text-accent animate-pulse" />
                     </div>
                     <div>
@@ -124,7 +124,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
                         }
                     }}
                     disabled={isSyncing}
-                    className="flex items-center gap-2 px-3 py-2 bg-accent/10 hover:bg-accent-strong/20 border border-accent/30 hover:border-accent/50 text-accent text-xs font-medium rounded-lg transition-all disabled:opacity-50 active:scale-95"
+                    className="flex items-center gap-2 px-3 py-2 hover:border-ink text-xs font-medium rounded-lg transition-all disabled:opacity-50 active:scale-95 lx-sticker bg-surface text-ink"
                 >
                     <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
                     {isSyncing ? 'Đang đồng bộ...' : 'Đồng bộ'}
@@ -169,7 +169,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
             {/* AI Recommendation */}
             {profile.difficulty_recommendation && (
-                <div className="p-4 rounded-xl bg-accent/5 border border-accent/20 mb-4">
+                <div className="p-4 rounded-xl mb-4 lx-soft bg-surface-2">
                     <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="w-4 h-4 text-accent" />
                         <span className="text-xs font-bold text-accent uppercase font-mono">Gợi ý từ AI</span>

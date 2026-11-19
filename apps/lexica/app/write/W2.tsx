@@ -65,7 +65,7 @@ export default function W2() {
                 <button onClick={check} disabled={text.trim().length === 0} className="lx-hard lx-press h-10 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-40">
                     Kiểm tra
                 </button>
-                <button onClick={() => setShown((v) => !v)} className="h-10 rounded-xl border border-line px-4 text-sm text-ink-2 hover:bg-surface-2">
+                <button onClick={() => setShown((v) => !v)} className="h-10 lx-soft rounded-xl px-4 text-sm text-ink-2 hover:bg-surface-2">
                     {shown ? 'Ẩn gợi ý' : 'Xem gợi ý'}
                 </button>
                 <button onClick={next} className="h-10 rounded-xl px-3 text-sm text-muted hover:text-ink">

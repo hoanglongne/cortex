@@ -56,9 +56,9 @@ function SettingsPageContent() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Sound Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line">
+                        <div className="flex items-center justify-between p-4 bg-bg/50 lx-soft rounded-lg">
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${soundEnabled ? 'bg-accent/15' : 'bg-surface-2/60'
+                                <div className={`p-2 rounded-lg ${soundEnabled ? 'bg-surface-2' : 'bg-surface-2'
  }`}>
                                     {soundEnabled ? (
                                         <Volume2 className="w-5 h-5 text-accent" />
@@ -87,9 +87,9 @@ function SettingsPageContent() {
                         </div>
 
                         {/* Speaking practice (it no longer blocks swiping) */}
-                        <Link href="/speak" className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line hover:border-line-strong">
+                        <Link href="/speak" className="flex items-center justify-between p-4 bg-bg/50 lx-soft rounded-lg hover:border-line-strong">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-accent/15">
+                                <div className="p-2 rounded-lg bg-surface-2">
                                     <Mic className="w-5 h-5 text-accent" />
                                 </div>
                                 <div>
@@ -101,9 +101,9 @@ function SettingsPageContent() {
                         </Link>
 
                         {/* Auto-Review Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line md:col-span-2">
+                        <div className="flex items-center justify-between p-4 bg-bg/50 lx-soft rounded-lg md:col-span-2">
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${autoReviewInDeck ? 'bg-warning/15' : 'bg-surface-2/60'
+                                <div className={`p-2 rounded-lg ${autoReviewInDeck ? 'bg-warning/15' : 'bg-surface-2'
  }`}>
                                     <RotateCcw className={`w-5 h-5 ${autoReviewInDeck ? 'text-warning' : 'text-muted'}`} />
                                 </div>
@@ -288,7 +288,7 @@ function PronPackSetting() {
                             await deletePack();
                             setState('none');
                         }}
-                        className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                        className="h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong"
                     >
                         Xoá gói chấm
                     </button>
@@ -304,7 +304,7 @@ function PronPackSetting() {
                                 a.click();
                                 URL.revokeObjectURL(a.href);
                             }}
-                            className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                            className="h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong"
                         >
                             Tải sổ đo ({logCount} lần nói)
                         </button>
@@ -315,7 +315,7 @@ function PronPackSetting() {
                                 setPronBeta(false);
                                 setState('hidden');
                             }}
-                            className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                            className="h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong"
                         >
                             Tắt thử nghiệm
                         </button>

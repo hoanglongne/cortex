@@ -45,10 +45,10 @@ export default function HandIn({ kind, prompt, body }: { kind: WritingKind; prom
     };
 
     return (
-        <div className="space-y-2 rounded-xl border border-line p-3">
+        <div className="space-y-2 lx-soft rounded-xl p-3">
             <p className="text-sm font-semibold text-ink">Nộp cho lớp</p>
             {classes.length > 1 && (
-                <select value={chosen.id} onChange={(e) => setClassId(e.target.value)} aria-label="Chọn lớp" className="h-10 w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink">
+                <select value={chosen.id} onChange={(e) => setClassId(e.target.value)} aria-label="Chọn lớp" className="h-10 w-full lx-soft rounded-lg bg-surface px-3 text-sm text-ink">
                     {classes.map((c) => (
                         <option key={c.id} value={c.id}>
                             {c.name}

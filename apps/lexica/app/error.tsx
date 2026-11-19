@@ -15,7 +15,7 @@ export default function RouteError({ error, reset }: { error: Error & { digest?:
                 <button type="button" onClick={reset} className="lx-hard lx-press h-11 px-5 rounded-xl bg-accent text-on-accent font-extrabold">
                     Thử lại
                 </button>
-                <Link href="/feedback?from=error" className="h-11 px-5 rounded-xl border border-line-strong text-ink-2 font-semibold flex items-center">
+                <Link href="/feedback?from=error" className="h-11 px-5 lx-soft rounded-xl text-ink-2 font-semibold flex items-center">
                     Báo lỗi
                 </Link>
             </div>

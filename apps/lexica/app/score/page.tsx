@@ -72,7 +72,7 @@ export default function ScorePage() {
                                         {before ? ` · ${last.score - before.score >= 0 ? '+' : ''}${last.score - before.score} so với lần trước` : ''}
                                     </p>
                                 </div>
-                                <button onClick={() => void share()} disabled={sharing === 'busy'} className="h-10 px-3 shrink-0 whitespace-nowrap rounded-xl border border-accent/40 text-accent text-sm font-medium flex items-center gap-1.5 hover:bg-accent/10">
+                                <button onClick={() => void share()} disabled={sharing === 'busy'} className="h-10 px-3 shrink-0 whitespace-nowrap lx-soft rounded-xl text-accent text-sm font-medium flex items-center gap-1.5 hover:bg-accent/10">
                                     {sharing === 'busy' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />} Chia sẻ
                                 </button>
                             </div>
@@ -105,7 +105,7 @@ export default function ScorePage() {
                         {placements.length > 1 && <History list={placements} />}
 
                         <section className="lx-soft rounded-[18px] bg-surface p-4 flex items-start gap-3">
-                            <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
+                            <span className="w-9 h-9 rounded-xl bg-surface-2 text-accent flex items-center justify-center shrink-0">
                                 <Gauge className="w-4 h-4" />
                             </span>
                             <div className="flex-1">

@@ -33,7 +33,7 @@ export default function RetakeCard() {
 
     return (
         <section className="lx-soft w-full rounded-[18px] bg-surface p-4 flex items-start gap-3">
-            <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
+            <span className="w-9 h-9 rounded-xl bg-surface-2 text-accent flex items-center justify-center shrink-0">
                 <Gauge className="w-4 h-4" />
             </span>
             <div className="flex-1 min-w-0">

@@ -194,7 +194,7 @@ function Buddy() {
                 </div>
 
                 {/* Me: name, streak, today, this week */}
-                <section className={`rounded-2xl border p-4 ${goalMet ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
+                <section className={`rounded-2xl border p-4 ${goalMet ? 'lx-soft bg-surface-2' : 'border-line bg-surface'}`}>
                     <div className="flex items-center justify-between gap-2">
                         {editingName ? (
                             <div className="flex items-center gap-1">
@@ -236,7 +236,7 @@ function Buddy() {
                 {/* One thing at a time: the friends, what waits in the inbox, the week */}
                 <nav className="lx-soft flex gap-1 rounded-xl bg-surface p-1" role="tablist" aria-label="Buddy">
                     {([['friends', 'Bạn học'], ['inbox', 'Hộp thư'], ['week', 'Tuần này']] as const).map(([id, label]) => (
-                        <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`h-9 flex-1 rounded-lg text-sm font-semibold ${tab === id ? 'bg-accent/12 text-accent' : 'text-ink-2'}`}>
+                        <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`h-9 flex-1 rounded-lg text-sm font-semibold ${tab === id ? 'bg-surface-2 text-accent' : 'text-ink-2'}`}>
                             {label}
                             {id === 'inbox' && waiting > 0 && <span className="ml-1.5 rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-bold text-on-accent">{waiting}</span>}
                         </button>
@@ -266,7 +266,7 @@ function Buddy() {
                         </h2>
                         <ol className="mt-2 space-y-1.5">
                             {ranking.map((r, i) => (
-                                <li key={r.id} className={`flex items-center gap-3 rounded-lg px-2 py-1.5 ${r.id === user.id ? 'bg-accent/10' : ''}`}>
+                                <li key={r.id} className={`flex items-center gap-3 rounded-lg px-2 py-1.5 ${r.id === user.id ? 'bg-surface-2' : ''}`}>
                                     <span className="w-5 font-mono text-sm text-muted">{i + 1}</span>
                                     <span className="flex-1 truncate text-sm text-ink">{r.id === user.id ? `${r.name} (bạn)` : r.name}</span>
                                     <span className="text-xs text-muted tabular-nums">
@@ -313,7 +313,7 @@ function Buddy() {
                         <div className="flex items-center gap-1.5 text-xs" role="group" aria-label="Chọn game thách đấu">
                             <span className="text-muted mr-1">Thách đấu bằng</span>
                             {DUEL_GAMES.map((g) => (
-                                <button key={g.id} onClick={() => setDuelGame(g.id)} aria-pressed={duelGame === g.id} className={`h-8 px-3 rounded-lg border font-medium ${duelGame === g.id ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}>
+                                <button key={g.id} onClick={() => setDuelGame(g.id)} aria-pressed={duelGame === g.id} className={`h-8 px-3 rounded-lg border font-medium ${duelGame === g.id ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2 border-line-strong/50 text-ink-2'}`}>
                                     {g.label}
                                 </button>
                             ))}
@@ -360,7 +360,7 @@ function WeekDots({ days, acts, today, forceToday = false }: { days: string[]; a
                 const met = Boolean(a?.goal_met) || (d === today && forceToday);
                 return (
                     <li key={d} className="flex flex-col items-center gap-1" title={`${weekday(d)} ${Number(d.slice(8))}/${Number(d.slice(5, 7))}: ${met ? 'đạt mục tiêu' : studied ? 'có học' : 'chưa học'}`}>
-                        <span className={`w-7 h-7 rounded-full flex items-center justify-center ${met ? 'bg-accent text-on-accent' : studied ? 'bg-accent/30' : 'bg-surface-2'} ${d === today ? 'ring-1 ring-ink-2' : ''}`}>
+                        <span className={`w-7 h-7 rounded-full flex items-center justify-center ${met ? 'bg-accent text-on-accent' : studied ? 'bg-surface-2' : 'bg-surface-2'} ${d === today ? 'ring-1 ring-ink-2' : ''}`}>
                             {met && <Check className="w-3.5 h-3.5" />}
                         </span>
                         <span className={`text-[10px] ${d === today ? 'text-ink' : 'text-subtle'}`}>{d === today ? 'Nay' : weekday(d)}</span>
@@ -406,7 +406,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
                     <>
                         <div className="flex gap-2">
                             <div className="flex-1 h-11 rounded-lg bg-surface-2 text-ink font-mono text-lg tracking-widest flex items-center justify-center">{code}</div>
-                            <button onClick={() => void navigator.clipboard.writeText(code)} className="h-11 px-3 rounded-lg border border-line text-ink" aria-label="Chép mã">
+                            <button onClick={() => void navigator.clipboard.writeText(code)} className="h-11 px-3 lx-soft rounded-lg text-ink" aria-label="Chép mã">
                                 <Copy className="w-4 h-4" />
                             </button>
                         </div>
@@ -457,7 +457,7 @@ function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBu
     const both = myGoalMet && buddyMet;
 
     return (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`rounded-2xl border p-4 ${both ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`rounded-2xl border p-4 ${both ? 'lx-soft bg-surface-2' : 'border-line bg-surface'}`}>
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <p className="font-semibold text-ink truncate">{buddy.nickname}</p>
@@ -493,7 +493,7 @@ function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBu
                                     const r = await share(nudgeText(buddy.nickname, window.location.origin));
                                     setNudged(r === 'copied' ? 'Đã chép lời nhắc' : r === 'shared' ? 'Đã nhắc' : '');
                                 }}
-                                className="h-9 px-3 rounded-lg border border-line text-sm text-ink flex items-center gap-1.5 hover:border-line-strong"
+                                className="h-9 px-3 lx-soft rounded-lg text-sm text-ink flex items-center gap-1.5 hover:border-line-strong"
                             >
                                 <Bell className="w-4 h-4" /> {nudged || 'Nhắc bạn học'}
                             </button>

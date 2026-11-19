@@ -113,10 +113,10 @@ export default function RecallPanel({
         <div className="relative space-y-1.5">
             {check.options.map((option, i) => {
                 const isAnswer = option === check.answer;
-                let cls = 'bg-surface-2 border-line-strong text-ink hover:border-accent/60 active:scale-[0.99]';
-                if (result !== null && isAnswer) cls = 'bg-accent/15 border-accent text-ink';
+                let cls = 'bg-surface-2 border-line-strong text-ink hover:border-ink active:scale-[0.99]';
+                if (result !== null && isAnswer) cls = '!border-ink bg-ink text-bg';
                 else if (result !== null && option === picked) cls = 'bg-danger/15 border-danger text-ink';
-                else if (result !== null) cls = 'bg-surface-2/40 border-line text-subtle';
+                else if (result !== null) cls = 'bg-surface-2 border-line text-subtle';
                 return (
                     <button
                         key={option}
@@ -146,7 +146,7 @@ function Verdict({ correct, word, meaning, aid, nextIn }: { correct: boolean; wo
         <div
             role="status"
             data-testid="recall-verdict"
-            className={`absolute inset-0 overflow-y-auto flex flex-col justify-center rounded-xl border bg-surface px-4 py-2 ${correct ? 'border-accent/60' : 'border-danger/50'}`}
+            className={`absolute inset-0 overflow-y-auto flex flex-col justify-center rounded-xl border bg-surface px-4 py-2 ${correct ? 'border-line-strong' : 'border-danger/50'}`}
         >
             <VerdictText correct={correct} word={word} meaning={meaning} aid={aid} nextIn={nextIn} />
         </div>

@@ -98,7 +98,7 @@ function Rainfall({ cards, practice, onAgain }: { cards: GameCard[]; practice: b
             <Bar game="rain" title="Mưa từ" score={rain.score} right={<span className="mr-1 text-subtle">Lv {level(rain)}</span>} />
             <div className="flex items-center justify-between text-xs">
                 {practice ? (
-                    <button onClick={() => setStopped(true)} className="rounded-lg border border-line px-2 py-1 text-ink-2">
+                    <button onClick={() => setStopped(true)} className="lx-soft rounded-lg px-2 py-1 text-ink-2">
                         Xong, xem kết quả
                     </button>
                 ) : (

@@ -77,7 +77,7 @@ export default function SessionRecap({
                         />
                     )}
                     {candidate && offer === 'idle' && (
-                        <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2 mb-1">
+                        <div className="flex items-center gap-2 rounded-xl px-3 py-2 mb-1 lx-soft bg-surface-2">
                             <PenLine className="w-4 h-4 text-accent shrink-0" />
                             <p className="flex-1 text-ink">
                                 Gắn <span className="font-bold lowercase">{candidate.word}</span> với đời bạn?

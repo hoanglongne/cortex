@@ -78,7 +78,7 @@ export default function PeerReview() {
                     {ROWS.map(([key, label, hint]) => (
                         <label key={key} className="block text-sm text-ink-2">
                             <span className="font-medium text-ink">{label}</span> <span className="text-xs text-muted">· {hint}</span>
-                            <select value={scores[key]} onChange={(e) => setScores({ ...scores, [key]: Number(e.target.value) })} className="mt-1 h-10 w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink">
+                            <select value={scores[key]} onChange={(e) => setScores({ ...scores, [key]: Number(e.target.value) })} className="mt-1 h-10 w-full lx-soft rounded-lg bg-surface px-3 text-sm text-ink">
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                                     <option key={n} value={n}>
                                         {n}
@@ -89,7 +89,7 @@ export default function PeerReview() {
                     ))}
                     <label className="block text-sm text-ink-2">
                         Một lời góp ý ngắn (không bắt buộc, hãy lịch sự)
-                        <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} rows={2} className="mt-1 w-full rounded-lg border border-line-strong bg-surface p-2 text-sm text-ink" />
+                        <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} rows={2} className="mt-1 w-full lx-soft rounded-lg bg-surface p-2 text-sm text-ink" />
                     </label>
                     <button type="button" disabled={busy} onClick={() => void send()} className="lx-hard lx-press h-10 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-50">
                         {busy ? 'Đang gửi…' : 'Gửi điểm và xem bài tiếp'}

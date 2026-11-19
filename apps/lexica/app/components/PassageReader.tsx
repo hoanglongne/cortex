@@ -138,7 +138,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                         setSelected(seg.cardId!);
                     }}
                     data-word={seg.cardId}
-                    className={isOwned(progress[seg.cardId]) ? 'underline decoration-ink/30 underline-offset-4 hover:decoration-ink' : 'rounded px-0.5 bg-accent/15 text-accent font-semibold hover:bg-accent/25'}
+                    className={isOwned(progress[seg.cardId]) ? 'underline decoration-ink/30 underline-offset-4 hover:decoration-ink' : 'rounded px-0.5 bg-surface-2 text-accent font-semibold hover:bg-accent/25'}
                 >
                     {seg.text}
                 </button>
@@ -203,7 +203,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                         {speaking ? <Pause className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                         {speaking ? 'Dừng' : 'Nghe cả đoạn'}
                     </button>
-                    <div className="flex rounded-lg border border-line overflow-hidden text-xs" role="radiogroup" aria-label="Tốc độ đọc">
+                    <div className="flex lx-soft rounded-lg overflow-hidden text-xs" role="radiogroup" aria-label="Tốc độ đọc">
                         {(['slow', 'normal'] as const).map((r) => (
                             <button key={r} role="radio" aria-checked={rate === r} onClick={() => setRate(r)} className={`h-9 px-3 ${rate === r ? 'bg-surface-2 text-ink' : 'text-muted'}`}>
                                 {r === 'slow' ? 'Chậm' : 'Bình thường'}
@@ -213,14 +213,14 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                     <button
                         onClick={() => setShowTranslation(!showTranslation)}
                         aria-pressed={showTranslation}
-                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${showTranslation ? 'border-accent text-accent' : 'border-line text-ink hover:border-line-strong'}`}
+                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${showTranslation ? '!border-ink bg-ink text-bg' : 'border-line text-ink hover:border-line-strong'}`}
                     >
                         <Languages className="w-4 h-4" /> Xem nghĩa tiếng Việt
                     </button>
                     <button
                         onClick={() => { setDialOn(!dialOn); dialSheet.close(); }}
                         aria-pressed={dialOn}
-                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${dialOn ? 'border-accent text-accent' : 'border-line text-ink hover:border-line-strong'}`}
+                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${dialOn ? '!border-ink bg-ink text-bg' : 'border-line text-ink hover:border-line-strong'}`}
                     >
                         <SlidersHorizontal className="w-4 h-4" /> Blend
                     </button>
@@ -239,7 +239,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                     </div>
                     <article ref={dialRef} data-testid="passage-dial" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                         {paragraphs.map((para, i) => (
-                            <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
+                            <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-line-strong bg-surface-2 ml-8'}` : ''}>
                                 {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
                                 <p className="text-lg leading-relaxed text-ink-2">
                                     {dialLevel === 100 || !translation[i]
@@ -254,7 +254,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                 ) : whole ? (
                 <article data-testid="passage-text" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                     {paragraphs.map((para, i) => (
-                        <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
+                        <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-line-strong bg-surface-2 ml-8'}` : ''}>
                             {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
                             <p className="text-lg leading-relaxed text-ink-2">{renderLine(para)}</p>
                             {showTranslation && translation[i] && <p className="mt-1.5 text-sm leading-relaxed text-muted">{translation[i]}</p>}
@@ -368,10 +368,10 @@ function FinishCard({ reviewed, added, questions, onDone }: { reviewed: number; 
                 </button>
             ) : (
             <div className="mt-5 grid grid-cols-2 gap-2">
-                <Link href="/read" className="h-11 rounded-xl border border-line text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
+                <Link href="/read" className="h-11 lx-soft rounded-xl text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
                     Đọc đoạn khác
                 </Link>
-                <Link href="/" className="h-11 rounded-xl border border-line text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
+                <Link href="/" className="h-11 lx-soft rounded-xl text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
                     Học tiếp
                 </Link>
             </div>
@@ -388,7 +388,7 @@ function Question({ q }: { q: PassageQuestion }) {
             <div className="mt-2 space-y-1.5">
                 {q.options.map((o, i) => {
                     const done = picked !== null;
-                    const cls = done && i === q.answer ? 'border-accent text-ink bg-accent/10' : done && i === picked ? 'border-danger/60 text-muted' : 'border-line text-ink-2 hover:border-line-strong';
+                    const cls = done && i === q.answer ? '!border-ink bg-ink text-bg' : done && i === picked ? 'border-danger/60 text-muted' : 'border-line text-ink-2 hover:border-line-strong';
                     return (
                         <button key={o} disabled={done} onClick={() => setPicked(i)} className={`w-full text-left text-sm rounded-xl border px-3 py-2 ${cls}`}>
                             {o}

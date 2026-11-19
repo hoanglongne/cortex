@@ -49,7 +49,7 @@ export default function DialCheck() {
 
     if (!started) {
         return (
-            <section className="mb-4 rounded-xl border border-accent/30 bg-accent/5 p-3" data-testid="dial-check">
+            <section className="mb-4 rounded-xl p-3 lx-soft bg-surface-2" data-testid="dial-check">
                 <p className="text-sm text-ink font-semibold">Kiểm tra nhanh tuần này</p>
                 <p className="text-xs text-muted mt-0.5">{questions.length} từ bạn đã đọc lướt qua mà không chạm. Còn nhớ không? Kết quả giúp Lexica biết đọc lướt có làm bạn nhớ lâu hơn.</p>
                 <button onClick={() => { setFrozen(fresh); setStarted(true); }} className="mt-2 rounded-lg bg-accent text-on-accent text-sm font-semibold px-3 py-1.5">Bắt đầu (1 phút)</button>
@@ -88,7 +88,7 @@ export default function DialCheck() {
                     <button
                         key={k}
                         onClick={() => answer(k)}
-                        className={`text-left text-sm rounded-lg border px-3 py-2 flex items-center justify-between ${picked === null ? 'border-line hover:border-line-strong' : k === q.answer ? 'border-accent text-accent' : k === picked ? 'border-danger text-danger' : 'border-line opacity-60'}`}
+                        className={`text-left text-sm rounded-lg border px-3 py-2 flex items-center justify-between ${picked === null ? 'border-line hover:border-line-strong' : k === q.answer ? '!border-ink bg-ink text-bg' : k === picked ? 'border-danger text-danger' : 'border-line opacity-60'}`}
                     >
                         {o}
                         {picked !== null && k === q.answer && <Check className="w-4 h-4" />}

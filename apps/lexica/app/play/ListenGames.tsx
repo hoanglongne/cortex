@@ -303,7 +303,7 @@ export function LinkedGame({ rounds, onAgain }: { rounds: LinkedRound[]; onAgain
             <div className="space-y-3 rounded-3xl border p-5" style={{ background: tint(c, 8), borderColor: edge(c, 30) }}>
                 <PlayBar game="linked" onPlay={() => play()} plays={plays} />
                 <div className="flex justify-center">
-                    <button onClick={() => play(true)} className="flex h-8 items-center gap-1.5 rounded-lg border border-line px-3 text-xs text-ink-2">
+                    <button onClick={() => play(true)} className="flex h-8 items-center gap-1.5 lx-soft rounded-lg px-3 text-xs text-ink-2">
                         <Turtle className="h-3.5 w-3.5" /> Nghe chậm
                     </button>
                 </div>
@@ -325,7 +325,7 @@ export function LinkedGame({ rounds, onAgain }: { rounds: LinkedRound[]; onAgain
             </div>
             {picked !== null && (
                 <div className="space-y-2">
-                    <p className="lx-soft rounded-xl bg-surface-2/50 p-3 text-sm text-ink-2">
+                    <p className="lx-soft rounded-xl bg-surface-2 p-3 text-sm text-ink-2">
                         <span lang="en" className="font-semibold text-ink">“{q.said}”</span>
                         <br />
                         {q.note}

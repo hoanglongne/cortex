@@ -83,7 +83,7 @@ export default function DialReader() {
             <div className="flex items-center gap-3 mb-4">
                 <Link href="/" aria-label="Về trang chủ" className="p-2 -ml-2 text-muted hover:text-ink"><ArrowLeft className="w-5 h-5" /></Link>
                 <h1 className="text-lg font-semibold">Blend</h1>
-                <span className="text-[11px] font-mono uppercase tracking-wider text-accent border border-accent/30 rounded px-1.5 py-0.5">Thử nghiệm</span>
+                <span className="text-[11px] font-mono uppercase tracking-wider text-accent border border-line-strong rounded px-1.5 py-0.5">Thử nghiệm</span>
             </div>
 
             {!article && <DialMission />}
@@ -102,7 +102,7 @@ export default function DialReader() {
                         <button onClick={() => void open(input)} disabled={!input.trim() || loading} className="lx-hard lx-press flex-1 rounded-xl bg-accent text-on-accent font-extrabold py-3 disabled:opacity-40 flex items-center justify-center gap-2">
                             {loading && <Loader2 className="w-4 h-4 animate-spin" />} Đọc
                         </button>
-                        <button onClick={() => setInput(SAMPLE)} className="rounded-xl border border-line px-4 text-sm text-ink-2">Đoạn mẫu</button>
+                        <button onClick={() => setInput(SAMPLE)} className="lx-soft rounded-xl px-4 text-sm text-ink-2">Đoạn mẫu</button>
                     </div>
                     <DialDemo text={SAMPLE} prefs={prefs} onChange={setPrefs} />
                     <details className="text-xs text-muted">

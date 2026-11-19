@@ -52,7 +52,7 @@ function Order({ model }: { model: readonly string[] }) {
                 {order
                     .filter((i) => !picked.includes(i))
                     .map((i) => (
-                        <button key={i} onClick={() => setPicked((p) => [...p, i])} className="block w-full rounded-lg border border-line p-2.5 text-left text-sm text-ink-2 hover:bg-surface-2" lang="en">
+                        <button key={i} onClick={() => setPicked((p) => [...p, i])} className="block w-full lx-soft rounded-lg p-2.5 text-left text-sm text-ink-2 hover:bg-surface-2" lang="en">
                             {model[i]}
                         </button>
                     ))}

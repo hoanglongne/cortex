@@ -29,7 +29,7 @@ export default function InstallCard() {
         }
     };
     return (
-        <div data-testid="install-card" className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
+        <div data-testid="install-card" className="rounded-2xl p-4 lx-soft bg-surface-2">
             <p className="font-semibold text-ink">Cài Lexica lên màn hình chính</p>
             <p className="mt-1 text-sm text-muted">Mở bằng một chạm mỗi ngày, chạy cả khi mạng yếu.</p>
             {isIOS ? (

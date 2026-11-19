@@ -57,7 +57,7 @@ export default function DeviceVoiceCard() {
                             const a = new Audio(URL.createObjectURL(blob));
                             void a.play().catch(() => undefined);
                         }}
-                        className="mt-2 h-8 rounded-lg border border-line px-3 text-xs font-semibold text-ink-2"
+                        className="mt-2 h-8 lx-soft rounded-lg px-3 text-xs font-semibold text-ink-2"
                     >
                         Nghe thử
                     </button>

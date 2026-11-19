@@ -159,7 +159,7 @@ function Duel({ id }: { id: string }) {
                                 setShared('');
                             }
                         }}
-                        className="mt-4 h-11 rounded-xl border border-line px-4 text-sm text-ink flex items-center gap-2"
+                        className="mt-4 h-11 lx-soft rounded-xl px-4 text-sm text-ink flex items-center gap-2"
                     >
                         <Share2 className="h-4 w-4" /> {shared || 'Nhắn bạn vào chơi'}
                     </button>

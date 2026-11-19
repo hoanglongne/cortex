@@ -59,7 +59,7 @@ export default function PlacementResultView({
                                 <div key={k} className="flex items-center gap-3">
                                     <span className="w-32 shrink-0 text-sm text-ink">{KIND_LABEL[k]}</span>
                                     <span className="flex-1 h-2 rounded-full bg-surface-3 overflow-hidden">
-                                        <span className="block h-full rounded-full bg-accent/80" style={{ width: `${(right / total) * 100}%` }} />
+                                        <span className="block h-full rounded-full bg-surface-2" style={{ width: `${(right / total) * 100}%` }} />
                                     </span>
                                     <span className="w-10 text-right text-xs text-muted tabular-nums">
                                         {right}/{total}
@@ -80,7 +80,7 @@ export default function PlacementResultView({
                         <button onClick={onAccept} className="lx-hard lx-press h-12 flex-1 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold">
                             Học ở level {level.label}
                         </button>
-                        <button onClick={onChoose} className="h-12 px-4 rounded-xl border border-line text-sm text-ink-2 hover:border-line-strong">
+                        <button onClick={onChoose} className="h-12 px-4 lx-soft rounded-xl text-sm text-ink-2 hover:border-line-strong">
                             Tự chọn level
                         </button>
                     </div>

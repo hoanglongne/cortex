@@ -53,13 +53,13 @@ export default function PaceChooser({ value, onChange, compareTo }: { value: num
                         type="button"
                         onClick={() => onChange(n)}
                         aria-pressed={value === n}
-                        className={`h-8 px-3 rounded-lg border text-xs font-medium ${value === n ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
+                        className={`h-8 px-3 rounded-lg border text-xs font-medium ${value === n ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2 border-line-strong/50 text-ink-2'}`}
                     >
                         {n}
                     </button>
                 ))}
             </div>
-            <div className="lx-soft rounded-xl bg-surface-2/40 p-3">
+            <div className="lx-soft rounded-xl bg-surface-2 p-3">
                 <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Sau 30 ngày khoảng ${total} từ`}>
                     {TICKS.map((t) => (
                         <g key={t}>

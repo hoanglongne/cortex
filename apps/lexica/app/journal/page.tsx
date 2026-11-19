@@ -85,7 +85,7 @@ export default function JournalPage() {
                                         key={id}
                                         onClick={() => setPicked(id)}
                                         aria-pressed={id === current}
-                                        className={`h-9 px-3.5 shrink-0 rounded-full border text-sm lowercase flex items-center gap-1 ${id === current ? 'border-accent bg-accent text-on-accent font-semibold' : 'border-line bg-surface text-ink-2 hover:border-line-strong'}`}
+                                        className={`h-9 px-3.5 shrink-0 rounded-full border text-sm lowercase flex items-center gap-1 ${id === current ? '!border-ink bg-ink text-bg font-semibold' : 'border-line bg-surface text-ink-2 hover:border-line-strong'}`}
                                     >
                                         {saved.includes(id) && <Check className="w-3.5 h-3.5" />}
                                         {getCard(id)?.word}
@@ -133,7 +133,7 @@ export default function JournalPage() {
                                                     </option>
                                                 ))}
                                             </select>
-                                            <button onClick={another} aria-label="Đổi câu hỏi" title="Đổi câu hỏi" className="ml-auto w-9 h-9 shrink-0 rounded-full border border-line bg-bg/60 flex items-center justify-center text-accent hover:border-accent/60">
+                                            <button onClick={another} aria-label="Đổi câu hỏi" title="Đổi câu hỏi" className="ml-auto w-9 h-9 shrink-0 rounded-full border border-line bg-bg/60 flex items-center justify-center text-accent hover:border-ink">
                                                 <Shuffle className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -167,7 +167,7 @@ export default function JournalPage() {
                                 <p className="px-1 font-mono text-[11px] uppercase tracking-wider text-subtle">Câu bạn vừa viết · sẽ hiện khi ôn</p>
                                 {saved.map((id) =>
                                     mySentences[id] ? (
-                                        <figure key={id} className="rounded-2xl border border-accent/30 bg-accent/5 px-4 py-3">
+                                        <figure key={id} className="rounded-2xl px-4 py-3 lx-soft bg-surface-2">
                                             <blockquote className="text-ink">“{mySentences[id].text}”</blockquote>
                                             <figcaption className="mt-1 text-xs text-muted lowercase">{getCard(id)?.word}</figcaption>
                                         </figure>

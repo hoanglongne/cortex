@@ -19,7 +19,7 @@ export default function SelfCheckCard({ phone }: { phone: string }) {
     if (!check) return null;
     const done = doneAt !== undefined;
     return (
-        <div data-testid="self-check" className="rounded-xl border border-line p-3">
+        <div data-testid="self-check" className="lx-soft rounded-xl p-3">
             <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="w-full flex items-center justify-between gap-2 text-left">
                 <span className="flex items-center gap-2 text-sm font-semibold text-ink">
                     <Hand className="w-4 h-4 text-accent" /> Thử ngay: {check.object}

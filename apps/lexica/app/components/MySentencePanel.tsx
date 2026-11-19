@@ -42,7 +42,7 @@ export default function MySentencePanel({
                             key={s}
                             type="button"
                             onClick={() => onSave(s, 'picked')}
-                            className="w-full text-left rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-ink-2 hover:border-accent/50 hover:text-ink transition-colors"
+                            className="w-full text-left lx-soft rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink-2 hover:border-ink hover:text-ink transition-colors"
                         >
                             {s}
                         </button>
@@ -69,11 +69,11 @@ export default function MySentencePanel({
                         rows={3}
                         maxLength={MAX_WRITTEN + 40}
                         placeholder={options[0] ? `Ví dụ: ${options[0]}` : `Ví dụ: Hôm nay mình thấy ${word} khi…`}
-                        className="w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-subtle focus:outline-none focus:border-accent/50"
+                        className="w-full lx-soft rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-subtle focus:outline-none focus:border-accent/50"
                     />
                     {problem && <p className="text-xs text-warning">{problem}</p>}
                     <div className="flex flex-wrap items-center gap-2">
-                        <button type="button" onClick={() => setText(insertWord(text, card.word))} className="h-9 rounded-lg border border-line px-3 text-xs text-ink hover:bg-surface-3">
+                        <button type="button" onClick={() => setText(insertWord(text, card.word))} className="h-9 lx-soft rounded-lg px-3 text-xs text-ink hover:bg-surface-3">
                             + chèn {word}
                         </button>
                         <button type="button" onClick={save} className="lx-hard lx-press h-9 rounded-lg bg-accent px-4 text-xs font-extrabold text-on-accent hover:bg-accent-strong">

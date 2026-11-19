@@ -282,7 +282,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                     </p>
                     <ol className="mt-2 space-y-1">
                         {board.slice(0, 10).map((r, i) => (
-                            <li key={`${r.name}-${i}`} className={`flex items-center gap-2 rounded-lg px-2 py-1 text-sm ${r.me ? 'bg-accent/10 text-ink' : 'text-ink-2'}`}>
+                            <li key={`${r.name}-${i}`} className={`flex items-center gap-2 rounded-lg px-2 py-1 text-sm ${r.me ? 'bg-surface-2 text-ink' : 'text-ink-2'}`}>
                                 <span className="w-5 font-mono text-xs text-muted">{i + 1}</span>
                                 {i === 0 && <Crown className="w-3.5 h-3.5 text-warning" />}
                                 <span className="flex-1 truncate">

@@ -33,7 +33,7 @@ export default function Motivation({ variant }: { variant: 'strip' | 'column' })
 
     if (variant === 'strip') {
         return (
-            <section data-testid="motivation-strip" aria-label="Động lực" className="lx-soft w-full rounded-[18px] bg-surface-2/40 px-4 py-3 flex items-center gap-4 overflow-x-auto text-xs text-muted">
+            <section data-testid="motivation-strip" aria-label="Động lực" className="lx-soft w-full rounded-[18px] bg-surface-2 px-4 py-3 flex items-center gap-4 overflow-x-auto text-xs text-muted">
                 {wallet && (
                     <span className="flex items-center gap-1 shrink-0">
                         <Sparkles className="w-3.5 h-3.5" /> {wallet.dust} Bụi
@@ -57,7 +57,7 @@ export default function Motivation({ variant }: { variant: 'strip' | 'column' })
     }
 
     return (
-        <aside data-testid="motivation-column" aria-label="Động lực" className="lx-soft hidden lg:flex flex-col gap-3 rounded-[18px] bg-surface-2/40 p-4 text-sm text-muted w-full">
+        <aside data-testid="motivation-column" aria-label="Động lực" className="lx-soft hidden lg:flex flex-col gap-3 rounded-[18px] bg-surface-2 p-4 text-sm text-muted w-full">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Sưu tầm và bạn học</p>
             {wallet && (
                 <Link href="/album" className="flex items-center gap-2 hover:text-ink">

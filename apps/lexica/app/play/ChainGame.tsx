@@ -139,13 +139,13 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
             <ol className="space-y-1" aria-label="Chuỗi từ">
                 {rows.slice(-4).map((r, k) => (
                     <li key={k} className="flex items-center gap-2 text-xs">
-                        <span className="w-24 truncate rounded-lg border border-line px-2 py-1 text-muted">
+                        <span className="w-24 truncate lx-soft rounded-lg px-2 py-1 text-muted">
                             <span className="mr-1 text-[10px] uppercase text-subtle">Máy</span>
                             {r.cpu}
                         </span>
                         <span aria-hidden className="text-subtle">→</span>
                         {r.me ? (
-                            <span className="w-24 truncate rounded-lg border border-accent/40 px-2 py-1 text-accent">
+                            <span className="w-24 truncate lx-soft rounded-lg px-2 py-1 text-accent">
                                 <span className="mr-1 text-[10px] uppercase opacity-70">Bạn</span>
                                 {r.me}
                             </span>

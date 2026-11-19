@@ -296,10 +296,10 @@ function SayStep({ card, onDone, onChips, byEar = false }: { card: ContentCard; 
             {!hidden && phrase && <p className="text-sm text-muted">{card.translationHint}</p>}
             {!hidden && !syl.fromIpa && card.ipa && <p className="font-mono text-sm text-muted">/{card.ipa}/</p>}
             <div className="mt-4 flex flex-wrap gap-2">
-                <button onClick={() => void sayModel(word, 'slow')} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                <button onClick={() => void sayModel(word, 'slow')} className="h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                     <Volume2 className="w-4 h-4" /> Mẫu chậm
                 </button>
-                <button onClick={() => void sayModel(word)} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                <button onClick={() => void sayModel(word)} className="h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                     <Volume2 className="w-4 h-4" /> Mẫu thường
                 </button>
             </div>
@@ -368,7 +368,7 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             <div className="mt-5 rounded-xl bg-surface-2 p-4">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Nói trong cụm</p>
                 <p className="mt-1 text-xl text-ink">{phrase}</p>
-                <button onClick={() => void sayModel(phrase)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                <button onClick={() => void sayModel(phrase)} className="mt-3 h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                     <Play className="w-4 h-4" /> Nghe mẫu
                 </button>
             </div>
@@ -423,10 +423,10 @@ function ShadowStep({ card, onDone }: { card: ContentCard; onDone: () => void })
                 {quote && <p className="mt-2 text-xs text-muted">{quote.source}</p>}
                 {quote?.translation && <p className="mt-1 text-sm text-ink-2">{quote.translation}</p>}
                 <div className="mt-3 flex flex-wrap gap-2">
-                    <button onClick={() => void sayModel(line, 'slow')} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                    <button onClick={() => void sayModel(line, 'slow')} className="h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                         <Play className="w-4 h-4" /> Nghe chậm
                     </button>
-                    <button onClick={() => void sayModel(line)} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                    <button onClick={() => void sayModel(line)} className="h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                         <Play className="w-4 h-4" /> Nghe thường
                     </button>
                 </div>
@@ -495,7 +495,7 @@ function MineStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
         >
             <p className="text-sm text-muted">Câu bạn đã tự viết với từ này. Đọc to như đang kể cho bạn bè nghe.</p>
             <p className="mt-3 rounded-xl bg-surface-2 p-4 text-lg leading-relaxed text-ink">{mine}</p>
-            <button onClick={() => void sayModel(mine)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+            <button onClick={() => void sayModel(mine)} className="mt-3 h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                 <Play className="w-4 h-4" /> Nghe máy đọc
             </button>
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Đọc to'} />
@@ -538,7 +538,7 @@ function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void
                     <>
                         <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Câu mẫu</p>
                         <p className="mt-1 text-lg text-ink">{situation.model}</p>
-                        <button onClick={() => void sayModel(situation.model)} className="mt-3 h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                        <button onClick={() => void sayModel(situation.model)} className="mt-3 h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                             <Play className="w-4 h-4" /> Nghe mẫu
                         </button>
                     </>
@@ -605,7 +605,7 @@ function PitchTrace({ pitch, flags, text }: { pitch: (number | null)[]; flags: b
     // stretching can squeeze its last fall into a point or two and make it look flat.
     const modelEnding = ending(voice && voice.length >= 10 ? voice : model);
     return (
-        <div data-testid="pitch-trace" className="hidden lg:block mt-4 rounded-xl border border-line p-3">
+        <div data-testid="pitch-trace" className="hidden lg:block mt-4 lx-soft rounded-xl p-3">
             <div className="flex items-center justify-between font-mono text-[11px] text-muted">
                 <span>
                     Cao độ: <span className="text-accent">giọng bạn</span> · <span className="text-subtle">{laid ? 'giọng mẫu' : 'đường mẫu (theo trọng âm)'}</span>
@@ -714,7 +714,7 @@ function AttemptResult({
         // eslint-disable-next-line react-hooks/exhaustive-deps -- once per result
     }, [feedback]);
     const score = funScore(attempt, target, feedback?.scored ?? null);
-    const tone = attempt.level === 'clear' ? 'text-accent border-accent/50' : attempt.level === 'close' ? 'text-warning border-warning/50' : 'text-danger border-danger/50';
+    const tone = attempt.level === 'clear' ? 'text-accent border-line-strong' : attempt.level === 'close' ? 'text-warning border-warning/50' : 'text-danger border-danger/50';
     if (attempt.error === 'unsupported') return <p className="mt-3 text-sm text-warning">Trình duyệt này không nhận giọng nói.</p>;
     if (attempt.error === 'not-allowed') return <p className="mt-3 text-sm text-warning">Chưa có quyền dùng micro. Bật micro trong cài đặt trình duyệt rồi thử lại.</p>;
     return (
@@ -755,10 +755,10 @@ function AttemptResult({
             {attempt.audioUrl && (
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-muted">Nghe lại:</span>
-                    <button onClick={() => playRecording(attempt.audioUrl!)} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
+                    <button onClick={() => playRecording(attempt.audioUrl!)} className="h-9 px-3 lx-soft rounded-lg text-ink flex items-center gap-1.5 hover:border-line-strong">
                         <Play className="w-3.5 h-3.5" /> Giọng bạn
                     </button>
-                    <button onClick={() => void sayModel(target)} className="h-9 px-3 rounded-lg border border-line text-ink flex items-center gap-1.5 hover:border-line-strong">
+                    <button onClick={() => void sayModel(target)} className="h-9 px-3 lx-soft rounded-lg text-ink flex items-center gap-1.5 hover:border-line-strong">
                         <Volume2 className="w-3.5 h-3.5" /> Giọng mẫu
                     </button>
                 </div>
@@ -832,7 +832,7 @@ function Summary({ words, results, chips, onAgain, onDone }: { words: string[]; 
                             {chips[id] ? (
                                 <span className="ml-auto flex gap-0.5" aria-label="Từng âm">
                                     {chips[id].map((c, i) => (
-                                        <i key={i} className={`w-3.5 h-3.5 rounded ${c === 'ok' ? 'bg-accent/70' : c === 'warn' ? 'bg-warning' : 'bg-danger'}`} />
+                                        <i key={i} className={`w-3.5 h-3.5 rounded ${c === 'ok' ? 'bg-surface-2' : c === 'warn' ? 'bg-warning' : 'bg-danger'}`} />
                                     ))}
                                 </span>
                             ) : (
@@ -848,10 +848,10 @@ function Summary({ words, results, chips, onAgain, onDone }: { words: string[]; 
                 </button>
             ) : (
             <div className="mt-5 grid grid-cols-2 gap-2">
-                <button disabled={hard.length === 0} onClick={onAgain} className="h-11 rounded-xl border border-line text-sm text-ink disabled:opacity-40 hover:border-line-strong">
+                <button disabled={hard.length === 0} onClick={onAgain} className="h-11 lx-soft rounded-xl text-sm text-ink disabled:opacity-40 hover:border-line-strong">
                     Luyện lại từ khó{hard.length > 0 ? ` (${hard.length})` : ''}
                 </button>
-                <Link href="/" className="h-11 rounded-xl border border-line text-sm text-ink flex items-center justify-center hover:border-line-strong">
+                <Link href="/" className="h-11 lx-soft rounded-xl text-sm text-ink flex items-center justify-center hover:border-line-strong">
                     Về trang chủ
                 </Link>
             </div>

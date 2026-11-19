@@ -176,7 +176,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
                             </li>
                         ))}
                     </ul>
-                    <button onClick={() => onStart(hard.map((h) => h.cardId))} className="mt-3 h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong">
+                    <button onClick={() => onStart(hard.map((h) => h.cardId))} className="mt-3 h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong">
                         Luyện các từ này
                     </button>
                 </div>

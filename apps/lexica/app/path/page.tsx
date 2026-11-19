@@ -117,7 +117,7 @@ export default function PathPage() {
                 </section>
 
                 {path.finished && (
-                    <section className="rounded-2xl border border-accent/40 bg-accent/5 p-5 space-y-3">
+                    <section className="rounded-2xl p-5 space-y-3 lx-soft bg-surface-2">
                         <p className="text-ink font-semibold">Kiểm tra cuối: {path.finished.score}/{path.finished.total} từ</p>
                         <button
                             onClick={() => void sharePathImage({ counts: path.finished!.counts, branch: BRANCH_LABEL[path.branch], score: path.finished!.score, total: path.finished!.total })}

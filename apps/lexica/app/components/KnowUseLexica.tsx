@@ -31,7 +31,7 @@ export default function KnowUseLexica() {
                             <span key={id} className="lx-soft px-2.5 py-1 rounded-lg bg-surface text-sm text-ink lowercase">{getCard(id)?.word}</span>
                         ))}
                     </div>
-                    <Link href={`/review?ids=${practice.join(',')}`} className="mt-3 w-full h-11 rounded-xl border border-accent/40 text-accent font-semibold text-sm flex items-center justify-center">
+                    <Link href={`/review?ids=${practice.join(',')}`} className="mt-3 w-full h-11 lx-soft rounded-xl text-accent font-semibold text-sm flex items-center justify-center">
                         Ôn {practice.length} từ chưa nói lần nào
                     </Link>
                 </>

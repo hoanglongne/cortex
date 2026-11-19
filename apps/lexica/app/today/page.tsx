@@ -159,7 +159,7 @@ function StageBar({ plan, active }: { plan: ReturnType<typeof useTodayPlan>['pla
                 const on = active === stage;
                 return (
                     <li key={stage} aria-current={on ? 'step' : undefined} className="text-center">
-                        <div className={`h-1.5 rounded-full ${s.status === 'done' ? 'bg-accent' : on ? 'bg-accent/50' : s.status === 'empty' ? 'bg-surface-3/40' : 'bg-surface-3'}`} />
+                        <div className={`h-1.5 rounded-full ${s.status === 'done' ? 'bg-accent' : on ? 'bg-surface-2' : s.status === 'empty' ? 'bg-surface-3/40' : 'bg-surface-3'}`} />
                         <p className={`mt-1.5 text-xs ${on ? 'text-ink font-semibold' : s.status === 'empty' ? 'text-subtle line-through' : 'text-muted'}`}>
                             {s.status === 'done' && <Check className="inline w-3 h-3 mr-0.5" />}
                             {STAGE_LABEL[stage]}
@@ -214,7 +214,7 @@ function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; 
         const names = held.map((id) => getCard(id)?.word.toLowerCase()).filter(Boolean).join(', ');
         return (
             <div className="space-y-3">
-                <p data-testid="reading-fallback" className="lx-soft rounded-xl bg-surface-2/40 px-4 py-3 text-sm text-ink-2">
+                <p data-testid="reading-fallback" className="lx-soft rounded-xl bg-surface-2 px-4 py-3 text-sm text-ink-2">
                     Chưa viết được đoạn riêng cho bạn, nên đây là một đoạn có sẵn có {names}.
                 </p>
                 <PassageReader passage={fallback} onDone={() => onDone('ready')} />
@@ -267,7 +267,7 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
             <PledgeCard offer />
 
             {checkpoint && (
-                <Link href={`/path/checkpoint?day=${checkpoint}`} className="block rounded-2xl border border-accent/40 bg-accent/5 p-4 text-ink hover:border-accent">
+                <Link href={`/path/checkpoint?day=${checkpoint}`} className="block rounded-2xl p-4 text-ink hover:border-ink lx-soft bg-surface-2">
                     <p className="font-semibold">{checkpoint === 30 ? 'Ngày 30: bài kiểm tra về đích' : `Mốc ngày ${checkpoint}`} →</p>
                     <p className="text-sm text-muted">{checkpoint === 30 ? '30 từ ngẫu nhiên từ 30 ngày qua.' : 'Xem bạn đã đi được bao xa so với mục tiêu.'}</p>
                 </Link>

@@ -35,7 +35,7 @@ export default function EnergyBar({ currentEnergy, maxEnergy, streak = 0 }: Ener
                     <div className="flex items-center gap-3">
                         {/* Streak Badge */}
                         {streak > 0 && (
-                            <div data-tour-id="streak-badge" className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-sm font-bold ${streak >= 7 ? 'bg-accent/20 text-accent border border-accent/30' : 'bg-surface-2/60 text-ink-2 border border-line-strong/30'}`}>
+                            <div data-tour-id="streak-badge" className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-sm font-bold ${streak >= 7 ? 'lx-soft bg-surface-2' : 'bg-surface-2 text-ink-2 border border-line-strong/30'}`}>
                                 <Flame className={`w-3.5 h-3.5 ${streak >= 7 ? 'text-accent' : 'text-muted'}`} />
                                 {streak}
                             </div>

@@ -323,7 +323,7 @@ export default function SwipeDeck({
                     <Link
                         href="/read"
                         onClick={() => buttonPress()}
-                        className="w-full px-6 py-3 bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-surface-2 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
                     >
                         Đọc 2 phút
                     </Link>
@@ -332,7 +332,7 @@ export default function SwipeDeck({
                     <Link
                         href="/learned"
                         onClick={() => buttonPress()}
-                        className="w-full px-6 py-3 bg-surface-2/50 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
+                        className="w-full px-6 py-3 bg-surface-2 hover:bg-surface-2 border border-line-strong hover:border-line-strong rounded-xl font-semibold text-ink text-sm transition-all flex items-center justify-center gap-2"
                     >
                         Xem danh sách từ vựng
                     </Link>
@@ -388,7 +388,7 @@ export default function SwipeDeck({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 top-[calc(50%-277px)] rounded-2xl border border-accent/50 bg-surface px-4 py-2 text-center pointer-events-none max-w-[90%]"
+                        className="absolute z-50 top-[calc(50%-277px)] lx-soft rounded-2xl bg-surface px-4 py-2 text-center pointer-events-none max-w-[90%]"
                     >
                         <p className="flex items-center justify-center gap-2 font-mono text-sm text-accent">
                             <Sparkles className="w-4 h-4" />
@@ -410,7 +410,7 @@ export default function SwipeDeck({
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 top-[calc(50%-277px)] rounded-2xl border border-line-strong bg-surface px-4 py-2 text-center text-sm text-ink-2 pointer-events-none max-w-[90%]"
+                        className="absolute z-50 top-[calc(50%-277px)] lx-soft rounded-2xl bg-surface px-4 py-2 text-center text-sm text-ink-2 pointer-events-none max-w-[90%]"
                     >
                         {notice}
                     </motion.div>

@@ -101,7 +101,7 @@ export function TodayWordsCard({ reloadKey }: { reloadKey: number }) {
                                 </p>
                                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                                     {words.slice(0, 12).map((x) => (
-                                        <span key={x.id} lang="en" className="lx-soft rounded-lg bg-surface-2/50 px-2 py-0.5 text-sm text-ink-2">
+                                        <span key={x.id} lang="en" className="lx-soft rounded-lg bg-surface-2 px-2 py-0.5 text-sm text-ink-2">
                                             {x.w}
                                         </span>
                                     ))}
@@ -112,7 +112,7 @@ export function TodayWordsCard({ reloadKey }: { reloadKey: number }) {
                                         capture('buddy_learn_too', { words: words.length, queued: n });
                                         setMsg(n > 0 ? `Đã thêm ${n} từ vào hàng học của bạn.` : 'Bạn đã có hoặc đã biết các từ này rồi.');
                                     }}
-                                    className="mt-2 h-8 rounded-lg border border-line px-3 text-xs font-semibold text-accent hover:border-accent/50"
+                                    className="mt-2 h-8 lx-soft rounded-lg px-3 text-xs font-semibold text-accent hover:border-ink"
                                 >
                                     Mình cũng học
                                 </button>
@@ -245,7 +245,7 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
                 </button>
             </div>
             {mode && (
-                <div className="lx-soft mt-2 rounded-xl bg-surface-2/40 p-3 space-y-2">
+                <div className="lx-soft mt-2 rounded-xl bg-surface-2 p-3 space-y-2">
                     <p className="text-xs text-muted">{mode === 'gift' ? 'Chọn một từ bạn đã học để tặng.' : mode === 'ask' ? `Chọn một từ bạn muốn thấy ${buddy.nickname} đặt câu.` : `Chọn ${DUEL_MIN} đến ${DUEL_MAX - 2} từ để ra đề cho ${buddy.nickname}.`}</p>
                     {choices.length === 0 ? (
                         <p className="text-xs text-warning">Bạn chưa học từ nào. Học vài từ rồi quay lại nhé.</p>
@@ -304,7 +304,7 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
         }
     };
     return (
-        <section className={`rounded-2xl border p-4 ${quest.state === 'won' ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
+        <section className={`rounded-2xl border p-4 ${quest.state === 'won' ? 'lx-soft bg-surface-2' : 'border-line bg-surface'}`}>
             <div className="flex items-center justify-between gap-2">
                 <h2 className="font-semibold text-ink">Mục tiêu cả nhóm tuần này</h2>
                 <span className="font-mono text-xs text-muted">{Math.min(quest.damage, quest.hp)}/{quest.hp} điểm</span>
@@ -320,7 +320,7 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
                         <span className="flex-1 truncate text-ink">{m.id === meId ? `${m.name} (bạn)` : m.name}</span>
                         <span className="font-mono text-xs text-muted">{m.damage} điểm{m.shielded.length ? ` · được đỡ ${m.shielded.length} ngày` : ''}</span>
                         {m.id !== meId && quest.state === 'fighting' && (
-                            <button onClick={() => void shield(m.id)} aria-label={`Đỡ một ngày cho ${m.name}`} title="Mỗi tuần bạn đỡ được một ngày cho một bạn" className="h-7 w-7 rounded-lg border border-line text-ink-2 hover:border-accent/50 flex items-center justify-center">
+                            <button onClick={() => void shield(m.id)} aria-label={`Đỡ một ngày cho ${m.name}`} title="Mỗi tuần bạn đỡ được một ngày cho một bạn" className="h-7 w-7 lx-soft rounded-lg text-ink-2 hover:border-ink flex items-center justify-center">
                                 <Shield className="w-3.5 h-3.5" />
                             </button>
                         )}
@@ -400,7 +400,7 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                 )}
             </div>
             {adding && (
-                <div className="lx-soft mt-2 space-y-2 rounded-xl bg-surface-2/40 p-3">
+                <div className="lx-soft mt-2 space-y-2 rounded-xl bg-surface-2 p-3">
                     {adding === 'speaking' && <p className="text-xs text-muted">Cả hai vào Giờ thi của Oratio đúng giờ này, nói với người thật, rồi chấm cho nhau.</p>}
                     {buddies.length > 1 && (
                         <select value={who || buddies[0].id} onChange={(e) => setWho(e.target.value)} aria-label="Hẹn với" className="lx-soft h-9 w-full rounded-lg bg-surface px-2 text-sm text-ink">
@@ -413,7 +413,7 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                     )}
                     <div className="flex flex-wrap gap-1.5">
                         {slots.map((s) => (
-                            <button key={s.label} onClick={() => void book(s.at)} className="h-8 rounded-lg border border-line px-2.5 text-xs text-ink-2 hover:border-accent/50">
+                            <button key={s.label} onClick={() => void book(s.at)} className="h-8 lx-soft rounded-lg px-2.5 text-xs text-ink-2 hover:border-ink">
                                 {s.label}
                             </button>
                         ))}

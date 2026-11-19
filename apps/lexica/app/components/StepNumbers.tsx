@@ -16,7 +16,7 @@ export default function StepNumbers({ counts, delta, href = '/path', compact = f
         <div>
         <div data-testid="step-numbers" className="grid grid-cols-4 gap-2">
             {STEPS.map((step, i) => (
-                <div key={step} className={`rounded-xl border px-2 ${compact ? 'py-2' : 'py-3'} text-center ${i === 3 ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`} title={STEP_HINT[step]}>
+                <div key={step} className={`rounded-xl border px-2 ${compact ? 'py-2' : 'py-3'} text-center ${i === 3 ? 'lx-soft bg-surface-2' : 'border-line bg-surface'}`} title={STEP_HINT[step]}>
                     <p className={`font-mono font-bold text-ink ${compact ? 'text-lg' : 'text-2xl'}`}>{c[step]}</p>
                     <p className="text-[11px] text-muted">{STEP_LABEL[step]}</p>
                     {delta && delta[step] > 0 && <p className="font-mono text-[11px] text-accent">+{delta[step]}</p>}

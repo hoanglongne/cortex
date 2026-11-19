@@ -45,7 +45,7 @@ export default function PaceCard() {
                     return (
                         <li key={d.date} className="flex flex-col items-center gap-1">
                             <span
-                                className={`w-full aspect-square max-w-9 rounded-lg border flex items-center justify-center ${on ? 'bg-accent/80 border-accent' : d.isToday ? 'border-accent/60 border-dashed' : 'border-line bg-surface-2/40'}`}
+                                className={`w-full aspect-square max-w-9 rounded-lg border flex items-center justify-center ${on ? '!border-ink bg-ink text-bg' : d.isToday ? 'border-line-strong border-dashed' : 'border-line bg-surface-2'}`}
                                 title={on ? 'Đã học' : d.isToday ? 'Hôm nay' : 'Chưa học'}
                             />
                             <span className={`text-[10px] ${d.isToday ? 'text-ink font-semibold' : 'text-subtle'}`}>{d.label}</span>
@@ -62,7 +62,7 @@ export default function PaceCard() {
                         <ChevronRight className="w-4 h-4 text-subtle" />
                     </div>
                     <div className="mt-1.5 h-1.5 rounded-full bg-surface-3 overflow-hidden">
-                        <div className="h-full rounded-full bg-accent/70" style={{ width: `${Math.min(100, Math.round((day / PATH_DAYS) * 100))}%` }} />
+                        <div className="h-full rounded-full bg-surface-2" style={{ width: `${Math.min(100, Math.round((day / PATH_DAYS) * 100))}%` }} />
                     </div>
                 </div>
             )}

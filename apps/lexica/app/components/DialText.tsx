@@ -97,7 +97,7 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
                         {onVote && (
                             <>
                                 <span className="ml-auto text-xs text-muted">Thay chỗ này</span>
-                                <button onClick={() => { setVoted('up'); onVote(hit, 'up'); }} aria-pressed={voted === 'up'} aria-label="Thay hay" className={`${act} ${voted === 'up' ? 'border-accent text-accent' : 'border-line text-ink-2'}`}>
+                                <button onClick={() => { setVoted('up'); onVote(hit, 'up'); }} aria-pressed={voted === 'up'} aria-label="Thay hay" className={`${act} ${voted === 'up' ? '!border-ink bg-ink text-bg' : 'border-line text-ink-2'}`}>
                                     <ThumbsUp className="w-4 h-4" />
                                 </button>
                                 <button onClick={() => { setVoted('down'); onVote(hit, 'down'); }} aria-pressed={voted === 'down'} aria-label="Thay sai chỗ" className={`${act} ${voted === 'down' ? 'border-warning text-warning' : 'border-line text-ink-2'}`}>

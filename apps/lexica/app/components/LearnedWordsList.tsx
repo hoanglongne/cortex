@@ -24,9 +24,9 @@ const STATE_LABEL = { seed: 'Mầm non', sprout: 'Đang nhớ', gold: 'Thuộc t
 const LEVEL_LABEL: Record<string, string> = { beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao', expert: 'Chuyên gia' };
 const LEVEL_COLOR: Record<string, string> = {
     beginner: 'bg-surface text-muted border-line',
-    intermediate: 'bg-accent/10 text-accent border-accent/20',
-    advanced: 'bg-accent/20 text-accent border-accent/30',
-    expert: 'bg-accent/30 text-accent border-accent/40',
+    intermediate: 'lx-soft bg-surface-2',
+    advanced: 'lx-soft bg-surface-2',
+    expert: 'lx-soft bg-surface-2',
 };
 
 function formatNextReviewFull(nextReviewAt?: number, isMastered?: boolean) {
@@ -154,7 +154,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                             {card.surgeryModule && (
                                 <button
                                     onClick={() => setLabMode('surgery')}
-                                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-accent/20 border-2 border-accent/50 hover:bg-accent-strong/30 hover:border-accent transition-all group"
+                                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 hover:border-ink transition-all group lx-soft bg-surface-2"
                                 >
                                     <Scissors className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
                                     <span className="text-xs font-bold text-accent uppercase font-mono tracking-tight">Mổ xẻ từ</span>
@@ -275,7 +275,7 @@ export default function LearnedWordsList() {
                         <button
                             key={card.id}
                             onClick={() => setSelectedCard(card)}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface border border-line/60 hover:border-accent/40 hover:bg-surface-2/50 transition-all text-left cursor-pointer group"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface border border-line/60 hover:border-ink hover:bg-surface-2/50 transition-all text-left cursor-pointer group"
                         >
                             <StateIcon className={`w-3.5 h-3.5 shrink-0 ${stateColor}`} />
                             <div className="flex flex-col min-w-0 flex-1">

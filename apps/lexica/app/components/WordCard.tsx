@@ -100,7 +100,7 @@ export default function WordCard({
                                         e.stopPropagation();
                                         onSpeak();
                                     }}
-                                    className="flex h-9 items-center justify-center gap-2 rounded-lg border border-line text-sm text-ink-2 hover:text-ink"
+                                    className="flex h-9 items-center justify-center gap-2 lx-soft rounded-lg text-sm text-ink-2 hover:text-ink"
                                 >
                                     <Volume2 className="h-4 w-4" /> Nghe
                                 </button>

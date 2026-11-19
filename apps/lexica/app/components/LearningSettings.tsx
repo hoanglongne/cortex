@@ -13,7 +13,7 @@ import { saveThemePref } from './ThemeSync';
 import { parseThemePref, THEME_KEY, THEME_LABEL, THEME_PREFS, type ThemePref } from '../lib/theme';
 import { useEffect, useState } from 'react';
 
-const chip = (on: boolean) => `h-9 px-3 whitespace-nowrap rounded-lg border text-xs font-medium ${on ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
+const chip = (on: boolean) => `h-9 px-3 whitespace-nowrap rounded-lg border text-xs font-medium ${on ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2 border-line-strong/50 text-ink-2'}`;
 
 /** Learning settings: branch, pace, example style, level, device voice. Moved from "Tôi" to /settings (issue #146). */
 export default function LearningSettings() {
@@ -96,7 +96,7 @@ export default function LearningSettings() {
                         </div>
                         <p className="text-xs text-muted">Cuối phiên, thỉnh thoảng app gợi ý bạn chọn hoặc viết một câu của riêng mình cho một từ vừa nhớ. Không bắt buộc.</p>
                     </div>
-                    <button onClick={changeLevel} className="w-full h-11 rounded-xl border border-line-strong/50 bg-surface-2/50 text-ink text-sm font-medium flex items-center justify-center gap-2 hover:border-line-strong">
+                    <button onClick={changeLevel} className="w-full h-11 lx-soft rounded-xl bg-surface-2 text-ink text-sm font-medium flex items-center justify-center gap-2 hover:border-line-strong">
                         <Settings className="w-4 h-4" /> Đổi trình độ
                     </button>
                 </section>

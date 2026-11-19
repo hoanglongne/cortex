@@ -166,7 +166,7 @@ function TakeCard({ index, wav, onSaved, onNext, onBack }: { index: number; wav:
                     </button>
                 )}
                 {url && state !== 'rec' && (
-                    <button onClick={() => void new Audio(url).play()} className="h-14 px-4 rounded-2xl border border-line text-ink flex items-center gap-2">
+                    <button onClick={() => void new Audio(url).play()} className="h-14 px-4 lx-soft rounded-2xl text-ink flex items-center gap-2">
                         <Play className="w-5 h-5" /> Nghe lại
                     </button>
                 )}
@@ -174,7 +174,7 @@ function TakeCard({ index, wav, onSaved, onNext, onBack }: { index: number; wav:
             {error && <p className="text-sm text-danger">{error}</p>}
             <div className="flex gap-2 pt-2">
                 {onBack && (
-                    <button onClick={onBack} className="h-11 px-4 rounded-xl border border-line text-ink-2">
+                    <button onClick={onBack} className="h-11 px-4 lx-soft rounded-xl text-ink-2">
                         Quay lại
                     </button>
                 )}
@@ -212,7 +212,7 @@ function Finish({ meta, wavs, onBack }: { meta: Meta; wavs: (Blob | null)[]; onB
                 <button onClick={() => void download()} disabled={busy} className="lx-hard lx-press w-full h-12 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center gap-2 disabled:opacity-40">
                     <Download className="w-5 h-5" /> Tải file về
                 </button>
-                <button onClick={onBack} className="w-full h-11 rounded-xl border border-line text-ink-2">
+                <button onClick={onBack} className="w-full h-11 lx-soft rounded-xl text-ink-2">
                     Quay lại sửa
                 </button>
             </section>

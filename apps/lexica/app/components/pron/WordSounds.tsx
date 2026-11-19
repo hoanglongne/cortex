@@ -47,7 +47,7 @@ export default function WordSounds({ word, ipa, startPhone }: { word: string; ip
                         <span className="block font-mono text-[11px] text-muted">/{x.ipa}/</span>
                     </button>
                 ))}
-                <button type="button" onClick={() => void sayModel(word, 'slow')} className="ml-1 h-9 w-9 rounded-lg border border-line grid place-items-center text-ink-2" aria-label={`Nghe ${word} chậm`}>
+                <button type="button" onClick={() => void sayModel(word, 'slow')} className="ml-1 h-9 w-9 lx-soft rounded-lg grid place-items-center text-ink-2" aria-label={`Nghe ${word} chậm`}>
                     <Volume2 className="w-4 h-4" />
                 </button>
             </div>

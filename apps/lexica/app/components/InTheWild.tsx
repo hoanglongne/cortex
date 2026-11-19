@@ -53,7 +53,7 @@ function Clip({ media, title }: { media: NonNullable<CardQuote['media']>; title:
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-xs text-ink hover:bg-surface-3"
+                className="mt-2 inline-flex items-center gap-1.5 lx-soft rounded-lg px-2.5 py-1.5 text-xs text-ink hover:bg-surface-3"
             >
                 <Play className="w-3.5 h-3.5" /> Nghe đoạn này ({clock(media.start)})
             </button>

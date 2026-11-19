@@ -86,7 +86,7 @@ export default function MouthPlayer({
 
     const phase = t === null ? null : (frameAt(phone, t)?.phase ?? null);
     const btn = 'h-8 px-2 rounded-md border text-xs flex items-center gap-1';
-    const on = 'border-accent text-accent';
+    const on = '!border-ink bg-ink text-bg';
     const off = 'border-line text-ink-2 hover:border-line-strong';
 
     return (

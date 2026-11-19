@@ -11,7 +11,7 @@ import { hardWords } from '../lib/engagement/hard';
 import { hardToSay } from '../lib/pronunciation/drill';
 import { actionsByDay, calendar, DAY_LABELS, dueForecast, intensity, stepSeries, weeks } from '../lib/stats';
 
-const CELL = ['bg-surface-2', 'bg-accent/25', 'bg-accent/50', 'bg-accent/75', 'bg-accent'] as const;
+const CELL = ['bg-surface-2', 'bg-surface-2', 'bg-surface-2', 'bg-surface-2', 'bg-accent'] as const;
 const dm = (date: string) => `${Number(date.slice(8))}/${Number(date.slice(5, 7))}`;
 
 /**
@@ -119,7 +119,7 @@ export default function StatsPage() {
 
 function Week({ now, before }: { now: ReturnType<typeof weeks>['now']; before: ReturnType<typeof weeks>['before'] }) {
     return (
-        <section className="rounded-2xl border border-accent/40 bg-accent/5 p-4">
+        <section className="rounded-2xl p-4 lx-soft bg-surface-2">
             <p className="font-mono text-[11px] uppercase tracking-wider text-accent">7 ngày qua</p>
             <p className="mt-1 text-2xl font-semibold text-ink">
                 Học {now.activeDays}/7 ngày
@@ -209,7 +209,7 @@ function Due({ due }: { due: { date: string; n: number }[] }) {
                 {due.map((d, i) => (
                     <div key={d.date} className="flex flex-col items-center justify-end h-full gap-1" title={`${dm(d.date)}: ${d.n} từ`}>
                         <span className="text-[11px] text-ink-2 font-mono">{d.n > 0 ? d.n : ''}</span>
-                        <div className={`w-full max-w-8 rounded-t ${i === 0 ? 'bg-accent' : 'bg-accent/50'}`} style={{ height: `${d.n > 0 ? Math.max(6, (d.n / max) * 72) : 2}px` }} />
+                        <div className={`w-full max-w-8 rounded-t ${i === 0 ? 'bg-accent' : 'bg-surface-2'}`} style={{ height: `${d.n > 0 ? Math.max(6, (d.n / max) * 72) : 2}px` }} />
                         <span className="text-[10px] text-subtle">{i === 0 ? 'Nay' : dm(d.date)}</span>
                     </div>
                 ))}

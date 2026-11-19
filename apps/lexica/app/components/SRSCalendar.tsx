@@ -81,7 +81,7 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
                             <div
                                 key={i}
                                 className={`flex flex-col items-center gap-1 w-10 rounded-lg px-1 py-2 transition-all ${day.isToday
- ? 'bg-accent/10 border border-accent/30'
+ ? 'lx-soft bg-surface-2'
  : 'border border-transparent hover:border-line-strong'
  }`}
                             >

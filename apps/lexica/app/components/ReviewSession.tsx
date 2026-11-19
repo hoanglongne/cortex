@@ -446,7 +446,7 @@ function QuestionCard({
                         </motion.p>
                     )}
                     <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 transition-colors ${answered
- ? isCorrect ? 'border-accent/50 bg-accent/5' : close ? 'border-warning/50 bg-warning/5' : 'border-ink/30 bg-ink/[0.03]'
+ ? isCorrect ? 'lx-soft bg-surface-2' : close ? 'border-warning/50 bg-warning/5' : 'border-ink/30 bg-ink/[0.03]'
  : 'border-ink/20 bg-ink/[0.02] focus-within:border-accent'
  }`}>
                         <input
@@ -534,7 +534,7 @@ function ListenPrompt({ text, revealed }: { text: string; revealed: boolean }) {
                 type="button"
                 onClick={() => void AudioService.playText(text, 'en', 0.75)}
                 aria-label="Nghe lại"
-                className="w-12 h-12 rounded-xl border border-line-strong bg-surface-2 flex items-center justify-center text-ink hover:border-accent"
+                className="w-12 h-12 lx-soft rounded-xl bg-surface-2 flex items-center justify-center text-ink hover:border-ink"
             >
                 <Volume2 className="w-5 h-5" />
             </button>
@@ -592,7 +592,7 @@ function RiskRail({ risk, shield, lost, onBank }: { risk: RiskState; shield: boo
                 {LADDER.map((m, i) => (
                     <div
                         key={m}
-                        className={`h-8 sm:h-10 w-full rounded-md flex items-center justify-center font-mono text-[10px] transition-colors duration-300 ${lit(i) ? 'bg-accent text-on-accent' : next(i) ? 'border border-accent/60 text-accent' : 'bg-ink/[0.06] text-subtle'}`}
+                        className={`h-8 sm:h-10 w-full rounded-md flex items-center justify-center font-mono text-[10px] transition-colors duration-300 ${lit(i) ? 'bg-accent text-on-accent' : next(i) ? 'border border-line-strong text-accent' : 'bg-ink/[0.06] text-subtle'}`}
                     >
                         <span className="hidden sm:inline">x{m}</span>
                     </div>
@@ -606,7 +606,7 @@ function RiskRail({ risk, shield, lost, onBank }: { risk: RiskState; shield: boo
                 }}
                 disabled={risk.pot === 0}
                 aria-label={`Chốt ${risk.pot} điểm`}
-                className="w-full h-8 rounded-lg border border-line-strong bg-surface text-ink text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent/60 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition"
+                className="w-full h-8 lx-soft rounded-lg bg-surface text-ink text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-ink disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition"
             >
                 <Lock className="w-3 h-3 sm:hidden" />
                 <span className="hidden sm:inline">Chốt</span>
@@ -655,7 +655,7 @@ function GhostSummary({ result, rival }: { result: GhostResult; rival: Rival | n
     const diff = Math.abs(result.scoreDiff);
     const who = `bạn ${rival?.label ?? 'hôm qua'}`;
     return (
-        <div className={`rounded-xl border p-4 mb-5 text-center ${result.beat ? 'border-accent/40 bg-accent/5' : 'border-line bg-ink/[0.02]'}`}>
+        <div className={`rounded-xl border p-4 mb-5 text-center ${result.beat ? 'lx-soft bg-surface-2' : 'border-line bg-ink/[0.02]'}`}>
             <p className="text-ink font-semibold flex items-center justify-center gap-2">
                 <Ghost className="w-4 h-4" />
                 {result.beat ? `Hơn ${who} ${diff} điểm` : diff === 0 ? `Hoà với ${who}` : `Kém ${who} ${diff} điểm`}
@@ -710,7 +710,7 @@ function ResultScreen({
         >
             {/* Score */}
             <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center mx-auto mb-3">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 lx-soft bg-surface-2">
                     <Trophy className="w-8 h-8 text-accent" />
                 </div>
                 <p className="text-4xl font-bold text-ink mb-1 font-mono">{score}</p>
@@ -793,7 +793,7 @@ function ResultScreen({
                             buttonPress();
                             onRetry();
                         }}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-ink/20 bg-ink/[0.02] text-ink-2 hover:border-accent/50 hover:text-ink hover:bg-ink/[0.04] transition-all text-sm font-semibold active:scale-95"
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-ink/20 bg-ink/[0.02] text-ink-2 hover:border-ink hover:text-ink hover:bg-ink/[0.04] transition-all text-sm font-semibold active:scale-95"
                     >
                         <RotateCcw className="w-4 h-4" />
                         Ôn lại từ sai ({wrong.length})
@@ -1023,7 +1023,7 @@ export default function ReviewSession({
     if (dueCardIds.length === 0 && questions.length === 0 && !done) {
         return (
             <div className="min-h-screen bg-bg flex flex-col items-center justify-center px-4 text-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-accent/10 border border-accent/30 flex items-center justify-center mb-2">
+                <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-2 lx-soft bg-surface-2">
                     <Check className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-2xl font-bold text-ink">{emptyTitle}</h1>
