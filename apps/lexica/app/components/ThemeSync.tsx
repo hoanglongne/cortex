@@ -7,7 +7,7 @@ import { parseThemePref, resolveTheme, THEME_BAR, THEME_KEY, type ThemePref } fr
 /** Event fired when the theme choice changes in Cài đặt. */
 export const THEME_EVENT = 'lexica-theme';
 
-/** Keeps data-theme and data-branch on <html> in step with the saved choice, the system setting and the learner's branch. */
+/** Keeps data-theme (and data-branch, for styles that need the branch) on <html> in step with the saved choice, the system setting and the learner's branch. */
 export default function ThemeSync() {
     const branch = useLexicaStore((s) => s.path?.branch ?? null);
     const [pref, setPref] = useState<ThemePref>('dark');

@@ -48,7 +48,7 @@ export default function LearningSettings() {
                         </button>
                     ))}
                 </div>
-                <p className="text-xs text-muted">Màu nhấn theo nhánh học: xanh chanh cho Chứng chỉ, xanh trời cho Giao tiếp.</p>
+                <p className="text-xs text-muted">Tối là mặc định. Sáng là nền giấy kem.</p>
             </section>
                 <DeviceVoiceCard />
 
