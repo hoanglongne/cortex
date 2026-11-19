@@ -27,7 +27,7 @@ export default function RainGame({ cards, onAgain }: { cards: GameCard[]; onAgai
                 <Bar game="rain" title="Mưa từ" score={0} />
                 <p className="text-sm text-muted text-center">Nghĩa tiếng Việt rơi xuống. Gõ từ tiếng Anh để phá trước khi chạm đất.</p>
                 <div className="grid gap-3">
-                    <button onClick={() => setPractice(true)} className="rounded-3xl border border-line bg-surface p-5 text-left active:scale-[0.98]">
+                    <button onClick={() => setPractice(true)} className="lx-soft rounded-[22px] bg-surface p-5 text-left active:scale-[0.98]">
                         <span className="block text-lg font-bold text-ink">Luyện</span>
                         <span className="block text-sm text-muted">Không mất tim, để làm quen. Từ chạm đất vẫn quay lại phần ôn.</span>
                     </button>

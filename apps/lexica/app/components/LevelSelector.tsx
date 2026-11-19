@@ -138,7 +138,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
 function EloScale({ elo, tested }: { elo: number; tested: boolean }) {
     const at = scalePosition(elo);
     return (
-        <section className="rounded-2xl bg-surface border border-line p-5" aria-label="Thang ELO">
+        <section className="lx-soft rounded-[18px] bg-surface p-5" aria-label="Thang ELO">
             <div className="flex items-baseline justify-between gap-3">
                 <p className="text-sm text-ink">
                     {tested ? (

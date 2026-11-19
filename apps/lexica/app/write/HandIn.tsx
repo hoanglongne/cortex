@@ -65,7 +65,7 @@ export default function HandIn({ kind, prompt, body }: { kind: WritingKind; prom
                     <span>Cho bạn cùng lớp đọc và chấm bài này, không hiện tên bạn. (Không bắt buộc. Bạn chỉ chọn cho bài này.)</span>
                 </label>
             )}
-            <button type="button" disabled={busy || empty || sent} onClick={() => void send()} className="flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-on-accent disabled:opacity-50">
+            <button type="button" disabled={busy || empty || sent} onClick={() => void send()} className="lx-hard lx-press flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-50">
                 <Send className="h-4 w-4" aria-hidden /> {sent ? 'Đã nộp' : busy ? 'Đang nộp…' : 'Nộp bài này'}
             </button>
             {error && (

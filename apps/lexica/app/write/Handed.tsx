@@ -22,7 +22,7 @@ export default function Handed() {
 
     if (!inClass) return null;
     return (
-        <section className="space-y-3 rounded-2xl border border-line bg-surface p-4" aria-label="Bài đã nộp">
+        <section className="lx-soft space-y-3 rounded-[18px] bg-surface p-4" aria-label="Bài đã nộp">
             <h2 className="font-semibold text-ink">Bài đã nộp cho lớp</h2>
             {pieces === null ? (
                 <p className="text-sm text-muted">Đang tải…</p>

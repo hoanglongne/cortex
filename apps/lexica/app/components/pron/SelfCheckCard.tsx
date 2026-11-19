@@ -37,7 +37,7 @@ export default function SelfCheckCard({ phone }: { phone: string }) {
                             mark(check.id);
                             setOpen(false);
                         }}
-                        className="h-9 px-3 rounded-lg bg-accent text-on-accent text-sm font-semibold"
+                        className="lx-hard lx-press h-9 px-3 rounded-lg bg-accent text-on-accent text-sm font-extrabold"
                     >
                         Làm được
                     </button>

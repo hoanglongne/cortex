@@ -28,7 +28,7 @@ export default function ChainGame({ known, bank, onAgain }: { known: GameCard[];
             live = false;
         };
     }, []);
-    if (failed) return <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-2">Không tải được từ điển. Kiểm tra kết nối rồi thử lại.</p>;
+    if (failed) return <p className="lx-soft rounded-[18px] bg-surface p-4 text-sm text-ink-2">Không tải được từ điển. Kiểm tra kết nối rồi thử lại.</p>;
     if (!dict) return <p className="text-center text-sm text-muted">Đang tải từ điển...</p>;
     return <Chain dict={dict} known={known} bank={bank} onAgain={onAgain} />;
 }
@@ -167,7 +167,7 @@ function Chain({ dict, known, bank, onAgain }: { dict: Dict; known: GameCard[]; 
                 }}
                 className="flex gap-2"
             >
-                <input value={typed} onChange={(e) => setTyped(e.target.value)} autoFocus autoCapitalize="off" autoCorrect="off" spellCheck={false} aria-label="Từ của bạn" placeholder={`Một từ bắt đầu bằng "${last.slice(-1).toUpperCase()}"`} className="flex-1 h-12 px-4 rounded-xl border border-line bg-surface text-ink" />
+                <input value={typed} onChange={(e) => setTyped(e.target.value)} autoFocus autoCapitalize="off" autoCorrect="off" spellCheck={false} aria-label="Từ của bạn" placeholder={`Một từ bắt đầu bằng "${last.slice(-1).toUpperCase()}"`} className="lx-soft flex-1 h-12 px-4 rounded-xl bg-surface text-ink" />
                 <button type="submit" className="h-12 px-5 rounded-xl font-bold text-on-status" style={{ background: c }}>
                     Nối
                 </button>

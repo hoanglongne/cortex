@@ -156,7 +156,7 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
     if (sound === null || !shown) {
         return (
             <div className="min-h-screen bg-bg px-4 py-10">
-                <section className="max-w-md mx-auto rounded-3xl border border-line bg-surface p-6 space-y-4">
+                <section className="lx-soft max-w-md mx-auto rounded-[22px] bg-surface p-6 space-y-4">
                     <span className="w-11 h-11 rounded-2xl bg-accent/12 text-accent flex items-center justify-center">
                         <Headphones className="w-5 h-5" />
                     </span>
@@ -170,7 +170,7 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
                     </p>
                     {note && <p className="rounded-lg bg-bg px-3 py-2 text-xs text-ink-2">{note}</p>}
                     <div className="flex flex-col gap-2">
-                        <button disabled={busy} onClick={() => void begin(true)} className="h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold flex items-center justify-center gap-2 disabled:opacity-60">
+                        <button disabled={busy} onClick={() => void begin(true)} className="lx-hard lx-press h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold flex items-center justify-center gap-2 disabled:opacity-60">
                             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Có, có câu nghe
                         </button>
                         <button disabled={busy} onClick={() => void begin(false)} className="h-12 rounded-xl border border-line text-sm text-ink-2 hover:border-line-strong disabled:opacity-60">
@@ -203,7 +203,7 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
                     <span className="font-mono text-xs text-muted w-12 text-right">Câu {count + 1}</span>
                 </div>
 
-                <section className="rounded-3xl border border-line bg-surface p-5 sm:p-6">
+                <section className="lx-soft rounded-[22px] bg-surface p-5 sm:p-6">
                     <div className="flex items-center justify-between gap-2">
                         <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{KIND_LABEL[shown.kind]}</p>
                         <span className={`font-mono text-xs ${left <= 5 ? 'text-danger' : 'text-muted'}`}>{left}s</span>

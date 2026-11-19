@@ -58,7 +58,7 @@ export default function SoundPractice({ kind, onDone }: { kind: ErrorKind; onDon
     if (round >= rounds.length) {
         return (
             <div className="space-y-4">
-                <div className="rounded-2xl border border-line bg-surface p-5">
+                <div className="lx-soft rounded-[18px] bg-surface p-5">
                     <p className="text-ink font-semibold">
                         Nghe phân biệt: đúng {right}/{rounds.length}
                     </p>
@@ -66,7 +66,7 @@ export default function SoundPractice({ kind, onDone }: { kind: ErrorKind; onDon
                     {sayIds.length === 0 && (
                         <>
                             <p className="mt-3 text-sm text-muted">Bạn chưa học từ nào có âm này để luyện nói. Học thêm từ rồi quay lại nhé.</p>
-                            <button onClick={onDone} className="mt-4 h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
+                            <button onClick={onDone} className="lx-hard lx-press mt-4 h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold">
                                 Xong
                             </button>
                         </>
@@ -85,7 +85,7 @@ export default function SoundPractice({ kind, onDone }: { kind: ErrorKind; onDon
     const r = rounds[round];
     const done = picked !== null;
     return (
-        <div data-testid="sound-practice" className="rounded-2xl border border-line bg-surface p-5">
+        <div data-testid="sound-practice" className="lx-soft rounded-[18px] bg-surface p-5">
             <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-accent">
                 <Ear className="w-4 h-4" /> Luyện 2 phút · {SOUND_LABEL[kind]}
             </p>
@@ -97,7 +97,7 @@ export default function SoundPractice({ kind, onDone }: { kind: ErrorKind; onDon
                     setPlayed(true);
                     await speakVaried(r.answer, 3);
                 }}
-                className="mt-4 h-11 px-4 rounded-xl border border-line bg-surface-2 text-ink flex items-center gap-2 hover:border-line-strong"
+                className="lx-soft mt-4 h-11 px-4 rounded-xl bg-surface-2 text-ink flex items-center gap-2 hover:border-line-strong"
             >
                 <Volume2 className="w-4 h-4" /> {played ? 'Nghe lại' : 'Nghe'}
             </button>
@@ -130,7 +130,7 @@ export default function SoundPractice({ kind, onDone }: { kind: ErrorKind; onDon
                             setPicked(null);
                             setPlayed(false);
                         }}
-                        className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold shrink-0"
+                        className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold shrink-0"
                     >
                         Tiếp
                     </button>

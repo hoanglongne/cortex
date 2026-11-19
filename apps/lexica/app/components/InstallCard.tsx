@@ -39,7 +39,7 @@ export default function InstallCard() {
             ) : (
                 <button
                     onClick={() => void promptInstall().then((o) => o === 'accepted' && dismiss())}
-                    className="mt-3 h-10 px-4 rounded-xl bg-accent text-on-accent font-bold flex items-center gap-2"
+                    className="lx-hard lx-press mt-3 h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold flex items-center gap-2"
                 >
                     <Download className="w-4 h-4" /> Cài app
                 </button>

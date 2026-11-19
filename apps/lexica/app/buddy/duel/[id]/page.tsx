@@ -169,7 +169,7 @@ function Duel({ id }: { id: string }) {
                         const right = x.mine === x.answer;
                         const theirRight = x.theirs !== undefined && x.theirs === x.answer;
                         return (
-                            <li key={x.idx} className="flex items-start gap-3 rounded-xl border border-line bg-surface p-3 text-sm">
+                            <li key={x.idx} className="lx-soft flex items-start gap-3 rounded-xl bg-surface p-3 text-sm">
                                 {right ? <Check className="mt-0.5 h-5 w-5 shrink-0 text-accent" /> : <X className="mt-0.5 h-5 w-5 shrink-0 text-danger" />}
                                 <div className="min-w-0 flex-1">
                                     <p className="font-semibold text-ink">{x.prompt}</p>
@@ -183,7 +183,7 @@ function Duel({ id }: { id: string }) {
                     })}
                 </ol>
                 <p className="mt-4 text-xs text-muted">Từ bạn sai đã được thêm vào bài ôn của bạn.</p>
-                <Link href="/buddy" className="mt-6 h-11 rounded-xl bg-accent px-6 font-bold leading-[2.75rem] text-on-accent">
+                <Link href="/buddy" className="lx-hard lx-press mt-6 h-11 rounded-xl bg-accent px-6 font-extrabold leading-[2.75rem] text-on-accent">
                     Về Buddy
                 </Link>
             </div>

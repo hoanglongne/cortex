@@ -32,7 +32,7 @@ export default function PaceCard() {
     const day = path ? currentDay(path, daysDone, localDate(today.getTime())) : null;
 
     return (
-        <Link href="/path" aria-label="Nhịp học, xem lộ trình" className="block w-full rounded-2xl border border-line bg-surface p-4 hover:border-line-strong transition-colors">
+        <Link href="/path" aria-label="Nhịp học, xem lộ trình" className="lx-soft block w-full rounded-[18px] bg-surface p-4 hover:border-line-strong transition-colors">
             <div className="flex items-center justify-between gap-3">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Nhịp học</p>
                 <span className="flex items-center gap-1 text-sm font-semibold text-ink">

@@ -95,7 +95,7 @@ export default function JournalPage() {
                         </div>
 
                         {card && (
-                            <section key={card.id} className="rounded-3xl border border-line bg-surface overflow-hidden">
+                            <section key={card.id} className="lx-soft rounded-[22px] bg-surface overflow-hidden">
                                 {/* 2. The question, large; its settings quiet underneath */}
                                 {prompt && (
                                     <div data-testid="journal-prompt" className="bg-gradient-to-b from-accent/10 to-transparent p-5 pb-4">

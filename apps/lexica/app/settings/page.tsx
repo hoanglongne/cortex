@@ -46,7 +46,7 @@ function SettingsPageContent() {
                 <PronPackSetting />
 
                 {/* Settings Section */}
-                <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
+                <div className="lx-soft bg-surface/50 rounded-xl p-5 mb-8">
                     <h2 className="text-lg font-bold text-ink mb-4 flex items-center gap-2">
                         <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -252,7 +252,7 @@ function BackupStatus() {
     }
 
     return (
-        <div className="mb-6 rounded-2xl border border-line bg-surface/60 p-4">
+        <div className="lx-soft mb-6 rounded-[18px] bg-surface/60 p-4">
             <AuthGate
                 reason="Đăng nhập để sao lưu tiến trình học và tiếp tục trên máy khác."
                 redirectPath="/settings"
@@ -275,7 +275,7 @@ function PronPackSetting() {
     }, []);
     if (state === 'hidden') return null;
     return (
-        <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
+        <div className="lx-soft bg-surface/50 rounded-xl p-5 mb-8">
             <p className="font-semibold text-ink">Gói chấm phát âm</p>
             <p className="mt-1 text-sm text-muted">
                 {state === 'ready' ? `Đã tải (khoảng ${packMegabytes()}MB). Xoá gói thì Luyện nói không còn hiện từng âm, tải lại được ở trang Luyện nói.` : 'Chưa tải gói chấm. Tải ở trang Luyện nói.'}

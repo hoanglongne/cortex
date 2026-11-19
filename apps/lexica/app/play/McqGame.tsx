@@ -98,7 +98,7 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
                 {(mode === 'blitz' || mode === 'liar') && <p className="text-lg font-semibold text-ink">{q.prompt}</p>}
                 {(mode === 'cloze' || mode === 'upgrade') && <p lang="en" className="whitespace-pre-line text-lg text-ink">{q.prompt}</p>}
                 {mode === 'listen' && (
-                    <button onClick={() => void AudioService.play(q.cardId, 'word')} className="h-14 w-full rounded-xl border border-line bg-surface-2/40 text-ink flex items-center justify-center gap-2">
+                    <button onClick={() => void AudioService.play(q.cardId, 'word')} className="lx-soft h-14 w-full rounded-xl bg-surface-2/40 text-ink flex items-center justify-center gap-2">
                         <Volume2 className="w-5 h-5" /> Nghe lại
                     </button>
                 )}

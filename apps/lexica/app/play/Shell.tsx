@@ -97,7 +97,7 @@ export function Over({ game, score, answers, onAgain, line }: { game: GameId; sc
                     <button onClick={onAgain} className="h-12 rounded-2xl font-bold text-on-status flex items-center justify-center gap-2" style={{ background: c }}>
                         <RotateCcw className="w-4 h-4" /> Chơi lại
                     </button>
-                    <Link href="/play" className="h-12 rounded-2xl border border-line bg-surface text-ink font-medium flex items-center justify-center">
+                    <Link href="/play" className="lx-soft h-12 rounded-[18px] bg-surface text-ink font-medium flex items-center justify-center">
                         Game khác
                     </Link>
                 </div>

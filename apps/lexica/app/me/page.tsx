@@ -22,14 +22,14 @@ export default function MePage() {
             <div className="max-w-xl mx-auto space-y-5">
                 <h1 className="text-xl font-semibold text-ink">Tôi</h1>
 
-                <Link href="/stats" className="block rounded-2xl border border-line bg-surface p-4 hover:border-line-strong">
+                <Link href="/stats" className="lx-soft block rounded-[18px] bg-surface p-4 hover:border-line-strong">
                     <StepNumbers href={null} compact />
                     <p className="mt-3 flex items-center gap-2 text-sm text-accent">
                         <BarChart3 className="w-4 h-4" /> Xem thống kê <ChevronRight className="w-4 h-4 ml-auto text-subtle" />
                     </p>
                 </Link>
 
-                <section className="rounded-2xl border border-line bg-surface divide-y divide-line">
+                <section className="lx-soft rounded-[18px] bg-surface divide-y divide-line">
                     <Row href="/path" icon={<Route className="w-4 h-4" />} title="Lộ trình 30 ngày" />
                     <Row href="/score" icon={<Gauge className="w-4 h-4" />} title="Điểm từ vựng" hint={lastScore ? String(lastScore) : 'Chưa thi'} />
                     <Row href="/class" icon={<School className="w-4 h-4" />} title="Lớp học" />

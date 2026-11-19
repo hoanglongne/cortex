@@ -24,7 +24,7 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
                 <button
                     onClick={onChangeLevel}
                     title="Đổi level"
-                    className="h-8 px-3 shrink-0 whitespace-nowrap rounded-lg border border-line bg-surface text-xs font-medium text-ink-2 hover:border-line-strong"
+                    className="lx-soft h-8 px-3 shrink-0 whitespace-nowrap rounded-lg bg-surface text-xs font-medium text-ink-2 hover:border-line-strong"
                 >
                     {level && level !== 'all' ? `${levelDef(level).label} · ${levelDef(level).cefr}` : 'Tất cả level'}
                 </button>
@@ -33,7 +33,7 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
                         Ngày {currentDay(path, daysDone, localDate())}/{PATH_DAYS} · {BRANCH_LABEL[path.branch]}
                     </Link>
                 )}
-                <span className="h-8 px-3 shrink-0 whitespace-nowrap rounded-lg border border-line bg-surface text-xs font-mono text-ink-2 flex items-center gap-1.5" title="Chuỗi ngày học">
+                <span className="lx-soft h-8 px-3 shrink-0 whitespace-nowrap rounded-lg bg-surface text-xs font-mono text-ink-2 flex items-center gap-1.5" title="Chuỗi ngày học">
                     <Flame className={`w-3.5 h-3.5 ${streak > 0 ? 'text-warning' : 'text-subtle'}`} />
                     {streak} ngày
                 </span>

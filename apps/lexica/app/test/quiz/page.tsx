@@ -61,7 +61,7 @@ export default function TestQuizPage() {
     if (!gate.ok) {
         return (
             <div className="min-h-screen bg-bg px-4 py-10">
-                <section className="max-w-md mx-auto rounded-2xl border border-line bg-surface p-5 space-y-3">
+                <section className="lx-soft max-w-md mx-auto rounded-[18px] bg-surface p-5 space-y-3">
                     <p className="font-semibold text-ink">Chưa tới lúc thi lại</p>
                     <p className="text-sm text-muted">
                         Điểm mới chỉ có ý nghĩa khi bạn đã học thêm. Còn
@@ -69,7 +69,7 @@ export default function TestQuizPage() {
                         {gate.daysLeft > 0 && gate.reviewsLeft > 0 ? ' và' : ''}
                         {gate.reviewsLeft > 0 ? ` ${gate.reviewsLeft} lượt ôn` : ''} nữa.
                     </p>
-                    <Link href="/" onClick={() => useLexicaStore.setState({ isInTest: false })} className="inline-flex h-10 px-4 items-center rounded-xl bg-accent text-on-accent text-sm font-semibold">
+                    <Link href="/" onClick={() => useLexicaStore.setState({ isInTest: false })} className="lx-hard lx-press inline-flex h-10 px-4 items-center rounded-xl bg-accent text-on-accent text-sm font-extrabold">
                         Về học tiếp
                     </Link>
                 </section>

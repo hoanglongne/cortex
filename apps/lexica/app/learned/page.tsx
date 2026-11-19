@@ -76,7 +76,7 @@ export default function LearnedPage() {
 
                 {/* Progress Bar */}
                 {learnedCount > 0 && (
-                    <div className="mb-6 px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/40 rounded-xl sm:rounded-2xl border border-line/50">
+                    <div className="lx-soft mb-6 px-3 sm:px-4 py-2.5 sm:py-3 bg-surface/40 rounded-xl sm:rounded-2xl">
                         <div className="flex items-center justify-between text-[11px] font-medium uppercase font-mono text-muted mb-2">
                             <span>Tiến độ thành thạo</span>
                             <span className="text-accent">{Math.round((masteredCount / learnedCount) * 100)}%</span>
@@ -102,7 +102,7 @@ export default function LearnedPage() {
                     <p className="mt-1 text-xs text-muted">Những từ bạn hay quên. Chúng sẽ quay lại sớm hơn cho tới khi bạn nhớ chắc.</p>
                     <div className="mt-3 flex flex-wrap gap-1.5">
                         {hard.slice(0, 8).map(p => (
-                            <span key={p.cardId} className="px-2.5 py-1 rounded-lg bg-surface border border-line text-sm text-ink lowercase">
+                            <span key={p.cardId} className="lx-soft px-2.5 py-1 rounded-lg bg-surface text-sm text-ink lowercase">
                                 {getCard(p.cardId)?.word ?? p.cardId}
                                 <span className="ml-1.5 font-mono text-[10px] text-warning">×{p.wrongCount}</span>
                             </span>
@@ -135,7 +135,7 @@ export default function LearnedPage() {
                         href="/review"
                         onClick={() => buttonPress()}
                         data-testid="fading-words"
-                        className="mb-4 sm:mb-6 flex items-center justify-between gap-3 rounded-xl border border-line bg-surface/40 p-4 hover:border-line-strong"
+                        className="lx-soft mb-4 sm:mb-6 flex items-center justify-between gap-3 rounded-xl bg-surface/40 p-4 hover:border-line-strong"
                     >
                         <div>
                             <p className="text-ink font-semibold text-sm">{fading} từ sắp quên</p>

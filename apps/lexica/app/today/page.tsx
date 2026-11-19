@@ -198,7 +198,7 @@ function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; 
     }, [ids, level, branch]);
     if (!state) {
         return (
-            <div data-testid="reading-writing" className="rounded-2xl border border-line bg-surface p-6 text-center">
+            <div data-testid="reading-writing" className="lx-soft rounded-[18px] bg-surface p-6 text-center">
                 <div className="mx-auto w-7 h-7 rounded-full border-2 border-line border-t-accent animate-spin" />
                 <p className="mt-3 text-ink">Đang viết một đoạn đọc với các từ bạn vừa học…</p>
                 <p className="mt-1 text-sm text-muted lowercase">{ids.map((id) => getCard(id)?.word).filter(Boolean).join(' · ')}</p>
@@ -214,7 +214,7 @@ function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; 
         const names = held.map((id) => getCard(id)?.word.toLowerCase()).filter(Boolean).join(', ');
         return (
             <div className="space-y-3">
-                <p data-testid="reading-fallback" className="rounded-xl border border-line bg-surface-2/40 px-4 py-3 text-sm text-ink-2">
+                <p data-testid="reading-fallback" className="lx-soft rounded-xl bg-surface-2/40 px-4 py-3 text-sm text-ink-2">
                     Chưa viết được đoạn riêng cho bạn, nên đây là một đoạn có sẵn có {names}.
                 </p>
                 <PassageReader passage={fallback} onDone={() => onDone('ready')} />
@@ -227,9 +227,9 @@ function WrittenForYou({ ids, fallbackId, quoteWord, onDone }: { ids: string[]; 
 
 function Skip({ text, onDone }: { text: string; onDone: () => void }) {
     return (
-        <div className="rounded-2xl border border-line bg-surface p-5 text-center">
+        <div className="lx-soft rounded-[18px] bg-surface p-5 text-center">
             <p className="text-ink">{text}</p>
-            <button data-testid="stage-next" onClick={onDone} className="mt-4 h-11 px-5 rounded-xl bg-accent text-on-accent font-bold">
+            <button data-testid="stage-next" onClick={onDone} className="lx-hard lx-press mt-4 h-11 px-5 rounded-xl bg-accent text-on-accent font-extrabold">
                 Tiếp tục →
             </button>
         </div>
@@ -255,7 +255,7 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
 
     return (
         <motion.div data-testid="today-recap" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-            <div className="rounded-2xl border border-line bg-surface p-5">
+            <div className="lx-soft rounded-[18px] bg-surface p-5">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Xong hôm nay</p>
                 <RecapHero words={delta ? delta.hieu + delta.nho + delta.gap + delta.dung : 0} headline={headline(delta)} />
                 <div className="mt-4">
@@ -275,7 +275,7 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
 
             {firstDay && <InstallCard />}
 
-            <div className="rounded-2xl border border-line bg-surface p-4 space-y-2 text-sm">
+            <div className="lx-soft rounded-[18px] bg-surface p-4 space-y-2 text-sm">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Phần thưởng</p>
                 <p className="flex items-center gap-2 text-ink">
                     <Flame className={`w-4 h-4 ${streak > 0 ? 'text-warning' : 'text-subtle'}`} /> Chuỗi {streak} ngày
@@ -298,10 +298,10 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-                <Link href="/path" className="h-12 rounded-xl border border-line bg-surface text-ink font-medium flex items-center justify-center hover:border-line-strong">
+                <Link href="/path" className="lx-soft h-12 rounded-xl bg-surface text-ink font-medium flex items-center justify-center hover:border-line-strong">
                     Xem lộ trình
                 </Link>
-                <Link href="/" className="h-12 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center hover:bg-accent-strong">
+                <Link href="/" className="lx-hard lx-press h-12 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center hover:bg-accent-strong">
                     Về trang chủ
                 </Link>
             </div>

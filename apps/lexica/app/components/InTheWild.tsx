@@ -14,7 +14,7 @@ import type { CardQuote } from '../lib/content/pack';
 export default function InTheWild({ word, quotes }: { word: string; quotes: CardQuote[] }) {
     if (quotes.length === 0) return null;
     return (
-        <details className="group mt-3 rounded-lg border border-line bg-surface-2 px-3 py-2" onClick={e => e.stopPropagation()}>
+        <details className="lx-soft group mt-3 rounded-lg bg-surface-2 px-3 py-2" onClick={e => e.stopPropagation()}>
             <summary className="cursor-pointer list-none">
                 <span className="font-mono text-[11px] text-accent uppercase tracking-wider">
                     Ngoài đời · {quotes.length} câu thật

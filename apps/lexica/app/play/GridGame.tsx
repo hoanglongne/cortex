@@ -156,17 +156,17 @@ export default function GridGame({ cards, onAgain }: { cards: GameCard[]; onAgai
             </div>
 
             <div className="flex items-center gap-2">
-                <div className="flex h-12 flex-1 items-center justify-center rounded-2xl border border-line bg-surface font-mono text-xl uppercase tracking-[0.3em] text-ink" aria-live="polite">
+                <div className="lx-soft flex h-12 flex-1 items-center justify-center rounded-[18px] bg-surface font-mono text-xl uppercase tracking-[0.3em] text-ink" aria-live="polite">
                     <AnimatePresence mode="wait">
                         <motion.span key={spelled || 'empty'} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={flash === 'ok' ? 'text-accent' : ''}>
                             {spelled || <span className="text-subtle text-sm normal-case tracking-normal">Chạm các chữ liền kề</span>}
                         </motion.span>
                     </AnimatePresence>
                 </div>
-                <button onClick={() => setPath([])} aria-label="Xoá" className="h-12 w-12 rounded-2xl border border-line bg-surface text-muted flex items-center justify-center">
+                <button onClick={() => setPath([])} aria-label="Xoá" className="lx-soft h-12 w-12 rounded-[18px] bg-surface text-muted flex items-center justify-center">
                     <Eraser className="h-5 w-5" />
                 </button>
-                <button onClick={hint} aria-label={`Gợi ý, trừ ${HINT_COST} điểm`} className="h-12 w-12 rounded-2xl border border-line bg-surface text-warning flex items-center justify-center">
+                <button onClick={hint} aria-label={`Gợi ý, trừ ${HINT_COST} điểm`} className="lx-soft h-12 w-12 rounded-[18px] bg-surface text-warning flex items-center justify-center">
                     <Lightbulb className="h-5 w-5" />
                 </button>
             </div>

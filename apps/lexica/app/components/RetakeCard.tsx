@@ -32,7 +32,7 @@ export default function RetakeCard() {
     if (dismissed[id]) return null;
 
     return (
-        <section className="w-full rounded-2xl border border-line bg-surface p-4 flex items-start gap-3">
+        <section className="lx-soft w-full rounded-[18px] bg-surface p-4 flex items-start gap-3">
             <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
                 <Gauge className="w-4 h-4" />
             </span>

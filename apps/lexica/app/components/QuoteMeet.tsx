@@ -35,7 +35,7 @@ export default function QuoteMeet({ cardId, onDone }: { cardId: string; onDone: 
     };
 
     return (
-        <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} data-testid="quote-meet" className="rounded-2xl border border-line bg-surface p-5">
+        <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} data-testid="quote-meet" className="lx-soft rounded-[18px] bg-surface p-5">
             <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-accent">
                 <Quote className="w-4 h-4" /> Ngoài đời
             </p>
@@ -57,7 +57,7 @@ export default function QuoteMeet({ cardId, onDone }: { cardId: string; onDone: 
             {picked && (
                 <div className="mt-4">
                     {quote.translation && <p className="text-sm text-muted">{quote.translation}</p>}
-                    <button data-testid="stage-next" onClick={onDone} className="mt-4 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold">
+                    <button data-testid="stage-next" onClick={onDone} className="lx-hard lx-press mt-4 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold">
                         Tiếp tục →
                     </button>
                 </div>

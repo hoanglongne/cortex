@@ -60,7 +60,7 @@ export default function DialCheck() {
     if (i >= questions.length) {
         const right = results.filter((r) => r.right).length;
         return (
-            <section className="mb-4 rounded-xl border border-line bg-surface p-3" data-testid="dial-check-done">
+            <section className="lx-soft mb-4 rounded-xl bg-surface p-3" data-testid="dial-check-done">
                 <p className="text-sm text-ink font-semibold">Đúng {right}/{results.length}</p>
                 <p className="text-xs text-muted mt-0.5">Từ chưa nhớ đã được đưa vào lượt ôn tới.</p>
             </section>
@@ -80,7 +80,7 @@ export default function DialCheck() {
         }, 700);
     };
     return (
-        <section className="mb-4 rounded-xl border border-line bg-surface p-3" data-testid="dial-check-q">
+        <section className="lx-soft mb-4 rounded-xl bg-surface p-3" data-testid="dial-check-q">
             <div className="flex items-center justify-between text-xs text-muted"><span>Kiểm tra nhanh</span><span className="font-mono">{i + 1}/{questions.length}</span></div>
             <p className="mt-1 text-xl font-semibold text-ink">{q.word}</p>
             <div className="mt-2 grid gap-1.5">

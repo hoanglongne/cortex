@@ -99,7 +99,7 @@ export default function DialReader() {
                     />
                     {error && <p className="text-sm text-danger">{error}</p>}
                     <div className="flex gap-2">
-                        <button onClick={() => void open(input)} disabled={!input.trim() || loading} className="flex-1 rounded-xl bg-accent text-on-accent font-semibold py-3 disabled:opacity-40 flex items-center justify-center gap-2">
+                        <button onClick={() => void open(input)} disabled={!input.trim() || loading} className="lx-hard lx-press flex-1 rounded-xl bg-accent text-on-accent font-extrabold py-3 disabled:opacity-40 flex items-center justify-center gap-2">
                             {loading && <Loader2 className="w-4 h-4 animate-spin" />} Đọc
                         </button>
                         <button onClick={() => setInput(SAMPLE)} className="rounded-xl border border-line px-4 text-sm text-ink-2">Đoạn mẫu</button>

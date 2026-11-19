@@ -51,7 +51,7 @@ export default function PlacementResultView({
                 </section>
 
                 {kinds.length > 0 && (
-                    <section className="rounded-2xl border border-line bg-surface p-4 space-y-2.5">
+                    <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-2.5">
                         <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Theo dạng câu</p>
                         {kinds.map((k) => {
                             const { right, total } = result.byKind[k];
@@ -71,13 +71,13 @@ export default function PlacementResultView({
                     </section>
                 )}
 
-                <section className="rounded-2xl border border-line bg-surface p-4">
+                <section className="lx-soft rounded-[18px] bg-surface p-4">
                     <p className="text-sm text-ink">
                         Level gợi ý: <b className="text-accent">{level.label}</b> <span className="text-muted">· {level.cefr}</span>
                     </p>
                     <p className="mt-1 text-xs text-muted">{level.description}</p>
                     <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                        <button onClick={onAccept} className="h-12 flex-1 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold">
+                        <button onClick={onAccept} className="lx-hard lx-press h-12 flex-1 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold">
                             Học ở level {level.label}
                         </button>
                         <button onClick={onChoose} className="h-12 px-4 rounded-xl border border-line text-sm text-ink-2 hover:border-line-strong">

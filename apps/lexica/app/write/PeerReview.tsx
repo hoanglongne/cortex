@@ -55,7 +55,7 @@ export default function PeerReview() {
     };
 
     return (
-        <section className="space-y-3 rounded-2xl border border-line bg-surface p-4" aria-label="Chấm bài cho bạn">
+        <section className="lx-soft space-y-3 rounded-[18px] bg-surface p-4" aria-label="Chấm bài cho bạn">
             <h2 className="font-semibold text-ink">Chấm bài cho bạn cùng lớp</h2>
             <p className="text-xs text-muted">Bài ẩn danh, chỉ những bạn đồng ý mới hiện ở đây. Bạn chấm theo cảm nhận của người đọc; điểm chỉ để tác giả tham khảo, không thay điểm giáo viên.{done > 0 ? ` Bạn đã chấm ${done} bài.` : ''}</p>
             {error && (
@@ -89,7 +89,7 @@ export default function PeerReview() {
                         Một lời góp ý ngắn (không bắt buộc, hãy lịch sự)
                         <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} rows={2} className="mt-1 w-full rounded-lg border border-line-strong bg-surface p-2 text-sm text-ink" />
                     </label>
-                    <button type="button" disabled={busy} onClick={() => void send()} className="h-10 rounded-xl bg-accent px-4 text-sm font-bold text-on-accent disabled:opacity-50">
+                    <button type="button" disabled={busy} onClick={() => void send()} className="lx-hard lx-press h-10 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-50">
                         {busy ? 'Đang gửi…' : 'Gửi điểm và xem bài tiếp'}
                     </button>
                 </div>

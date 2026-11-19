@@ -34,7 +34,7 @@ export default function PublicScorePage({ params }: { params: Promise<{ code: st
                 {!state ? (
                     <div className="h-72 rounded-3xl bg-surface animate-pulse" />
                 ) : !s ? (
-                    <section className="rounded-2xl border border-line bg-surface p-5 text-center text-sm text-muted">
+                    <section className="lx-soft rounded-[18px] bg-surface p-5 text-center text-sm text-muted">
                         {state.error ? 'Chưa kiểm tra được điểm lúc này. Thử lại sau nhé.' : 'Không tìm thấy điểm với mã này.'}
                     </section>
                 ) : (

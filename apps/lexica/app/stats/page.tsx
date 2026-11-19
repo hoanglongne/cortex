@@ -67,7 +67,7 @@ export default function StatsPage() {
                     <>
                         <Week now={week.now} before={week.before} />
                         <Steps counts={counts} series={series} />
-                        <section className="rounded-2xl border border-line bg-surface p-4">
+                        <section className="lx-soft rounded-[18px] bg-surface p-4">
                             <div className="flex items-baseline justify-between gap-2">
                                 <h2 className="font-semibold text-ink">Ngày học</h2>
                                 <p className="flex items-center gap-1.5 text-sm text-ink-2">
@@ -100,7 +100,7 @@ export default function StatsPage() {
                         </section>
                         <Due due={due} />
                         {(hard.length > 0 || hardSay.length > 0) && (
-                            <section className="rounded-2xl border border-line bg-surface p-4 space-y-4">
+                            <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-4">
                                 <h2 className="font-semibold text-ink">Từ cần chú ý</h2>
                                 {hard.length > 0 && (
                                     <WordList title="Hay quên" href="/review?hard=1" action="Luyện riêng" icon={<Swords className="w-4 h-4" />} items={hard.map((p) => ({ id: p.cardId, note: `sai ${p.wrongCount ?? 0} lần` }))} />
@@ -127,7 +127,7 @@ function Week({ now, before }: { now: ReturnType<typeof weeks>['now']; before: R
             </p>
             <div className="mt-3 grid grid-cols-4 gap-2">
                 {STEPS.map((s) => (
-                    <div key={s} className="rounded-xl border border-line bg-surface px-2 py-2 text-center" title={STEP_HINT[s]}>
+                    <div key={s} className="lx-soft rounded-xl bg-surface px-2 py-2 text-center" title={STEP_HINT[s]}>
                         <p className="font-mono text-lg font-bold text-ink">+{now.reached[s]}</p>
                         <p className="text-[11px] text-muted">{STEP_LABEL[s]}</p>
                         <p className="text-[10px] text-subtle">tuần trước +{before.reached[s]}</p>
@@ -154,7 +154,7 @@ function Change({ now, before, unit }: { now: number; before: number; unit: stri
 function Steps({ counts, series }: { counts: StepCounts; series: { date: string; counts: StepCounts }[] }) {
     const [hover, setHover] = useState<number | null>(null);
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <h2 className="font-semibold text-ink">Bốn bước, 30 ngày qua</h2>
             <p className="mt-1 text-xs text-muted">Số từ đã tới mỗi bước; bên phải là số tăng thêm trong 30 ngày. Rê hoặc chạm vào đường để xem từng ngày.</p>
             <div className="mt-3 space-y-3">
@@ -199,7 +199,7 @@ function Due({ due }: { due: { date: string; n: number }[] }) {
     const max = Math.max(1, ...due.map((d) => d.n));
     const total = due.reduce((n, d) => n + d.n, 0);
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <div className="flex items-baseline justify-between gap-2">
                 <h2 className="font-semibold text-ink">Cần ôn 7 ngày tới</h2>
                 <span className="text-sm text-muted">{total} lượt</span>

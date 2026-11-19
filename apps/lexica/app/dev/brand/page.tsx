@@ -4,6 +4,7 @@ import { useState } from 'react';
 import TopicIcon from '../../components/brand/TopicIcon';
 import { Blob, Bolt, Bubble, Burst, Check, Cloud, Confetti, Crown, DoodleArrow, DotGrid, Flame, Heart, Pencil, PeekEyes, Rainbow, Ribbon, ScribbleCircle, Smiley, Sparkle, Speaker, Squiggle, Stamp, Star, Sticker, Tape, Trophy } from '../../components/brand/Decor';
 import { TOPIC_BLOCK, tiltOf } from '../../lib/brand';
+import { Button, Card, Chip, EmptyState, Eyebrow, Option, SectionTitle, Stat, Tag } from '../../components/ui';
 import { TOPICS } from '../../lib/engagement/collection';
 
 /** Direction B tokens for both themes (docs/LEXICA_DESIGN_B.md §Tokens). */
@@ -144,6 +145,27 @@ export default function BrandPage() {
                                     {o}
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section data-testid="ui-kit">
+                    <h2 className="mb-1 text-xl font-extrabold">Bộ component trong app</h2>
+                    <p className="mb-3 text-sm" style={{ color: t.muted }}>Từ components/ui, theo nền đang chọn của app (Cài đặt → Giao diện), không theo nút ở đầu trang.</p>
+                    <div className="grid grid-cols-2 gap-6 rounded-[22px] bg-bg p-5 text-ink">
+                        <div className="space-y-3">
+                            <SectionTitle hint="8 phút">Hôm nay</SectionTitle>
+                            <Button size="lg" className="w-full">Mở phiên hôm nay</Button>
+                            <div className="flex gap-2"><Button tone="secondary">Để sau</Button><Button tone="danger" size="sm">Xoá</Button></div>
+                            <div className="flex gap-2"><Chip on>Vừa</Chip><Chip>Nhẹ</Chip><Chip>Nhiều</Chip></div>
+                            <div className="grid grid-cols-3 gap-2"><Stat value={12} label="chờ ôn" on /><Stat value={128} label="đã hiểu" /><Stat value={9} label="đã dùng" /></div>
+                            <div className="flex gap-2"><Tag color="#F2C230">6 ngày</Tag><Tag>x4 liền!</Tag></div>
+                        </div>
+                        <div className="space-y-3">
+                            <Card className="p-4"><Eyebrow>Ô mềm</Eyebrow><p className="font-bold">Nội dung thường</p></Card>
+                            <Card variant="hard" color={TOPIC_BLOCK.money} className="p-4"><Eyebrow className="!text-[var(--on-block)]">Khối cứng</Eyebrow><p className="font-extrabold">Thứ quan trọng nhất màn</p></Card>
+                            <div className="grid grid-cols-2 gap-2"><Option state="right">thực hiện được</Option><Option>nhìn thấy được</Option><Option state="wrong">chịu đựng được</Option><Option state="faded">thay đổi được</Option></div>
+                            <EmptyState title="Chưa có từ nào" text="Lật thẻ đầu tiên nào!" />
                         </div>
                     </div>
                 </section>

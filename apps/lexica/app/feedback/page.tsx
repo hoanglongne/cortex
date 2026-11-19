@@ -12,7 +12,7 @@ const KINDS: { id: FeedbackKind; label: string; icon: React.ReactNode; placehold
     { id: 'other', label: 'Khác', icon: <MessageCircle className="w-4 h-4" />, placeholder: 'Bạn muốn nói gì với nhóm làm Lexica?' },
 ];
 
-const chip = (on: boolean) => `h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-1.5 ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
+const chip = (on: boolean) => `h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-1.5 ${on ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
 
 /** "Góp ý": bug reports and ideas go to the team (Supabase lexica_feedback). */
 export default function FeedbackPage() {
@@ -52,7 +52,7 @@ function FeedbackForm() {
                 </div>
 
                 {sent ? (
-                    <section className="rounded-2xl border border-line bg-surface p-5 space-y-3 text-center">
+                    <section className="lx-soft rounded-[18px] bg-surface p-5 space-y-3 text-center">
                         <div className="mx-auto w-10 h-10 rounded-full bg-accent/12 text-accent flex items-center justify-center">
                             <Check className="w-5 h-5" />
                         </div>
@@ -67,7 +67,7 @@ function FeedbackForm() {
                         </div>
                     </section>
                 ) : (
-                    <form onSubmit={submit} className="rounded-2xl border border-line bg-surface p-4 space-y-4">
+                    <form onSubmit={submit} className="lx-soft rounded-[18px] bg-surface p-4 space-y-4">
                         <div className="grid grid-cols-3 gap-1.5">
                             {KINDS.map((k) => (
                                 <button key={k.id} type="button" onClick={() => setKind(k.id)} aria-pressed={kind === k.id} className={chip(kind === k.id)}>
@@ -93,7 +93,7 @@ function FeedbackForm() {
                             className="w-full h-11 rounded-xl border border-line-strong/50 bg-surface-2/40 px-3 text-sm text-ink placeholder:text-subtle focus:outline-none focus:border-accent/60"
                         />
                         {error && <p className="text-sm text-danger">{error}</p>}
-                        <button type="submit" disabled={busy || message.trim().length === 0} className="w-full h-11 rounded-xl bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-semibold flex items-center justify-center gap-2">
+                        <button type="submit" disabled={busy || message.trim().length === 0} className="lx-hard lx-press w-full h-11 rounded-xl bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-extrabold flex items-center justify-center gap-2">
                             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Gửi
                         </button>
                         <p className="text-xs text-muted">

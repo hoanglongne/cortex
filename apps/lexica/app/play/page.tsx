@@ -113,7 +113,7 @@ export default function PlayPage() {
                 </section>
 
                 {!ready && (
-                    <p data-testid="play-locked" className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-2">
+                    <p data-testid="play-locked" className="lx-soft rounded-[18px] bg-surface p-4 text-sm text-ink-2">
                         Cần học ít nhất {MIN_WORDS} từ để chơi (bạn có {learned}). <Link href="/today" className="text-accent underline">Học tiếp</Link>
                     </p>
                 )}
@@ -153,7 +153,7 @@ export default function PlayPage() {
 
                 <h2 className="pt-2 text-sm font-semibold uppercase tracking-wide text-subtle">Tất cả game</h2>
 
-                <details className="group/fold rounded-2xl border border-line bg-surface/40 p-3" aria-label="Cơ chế mới">
+                <details className="lx-soft group/fold rounded-[18px] bg-surface/40 p-3" aria-label="Cơ chế mới">
                     <summary className="flex cursor-pointer list-none items-baseline gap-2">
                         <h3 className="shrink-0 whitespace-nowrap font-semibold text-ink">Thử thách</h3>
                         <span className="min-w-0 truncate text-xs text-subtle">Không chỉ chọn đáp án · {FEATURED.length} game</span>
@@ -192,7 +192,7 @@ export default function PlayPage() {
                 </details>
 
                 {GROUPS.map((g) => (
-                    <details key={g.title} aria-label={g.title} className="group/fold rounded-2xl border border-line bg-surface/40 p-3">
+                    <details key={g.title} aria-label={g.title} className="lx-soft group/fold rounded-[18px] bg-surface/40 p-3">
                         <summary className="flex cursor-pointer list-none items-baseline gap-2">
                             <h3 className="shrink-0 whitespace-nowrap font-semibold text-ink">{g.title}</h3>
                             <span className="min-w-0 truncate text-xs text-subtle">{g.hint} · {g.games.length} game</span>
@@ -223,7 +223,7 @@ export default function PlayPage() {
                                                     </span>
                                                 )}
                                             </span>
-                                            <span className="mt-1 text-xs leading-snug text-muted">{hint}</span>
+                                            <span data-prose className="mt-1 text-xs leading-snug text-muted">{hint}</span>
                                         </Link>
                                     </motion.div>
                                 );

@@ -134,7 +134,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                                     <Flag className="w-3 h-3" />
                                 </button>
                                 {reportOpen && (
-                                    <span role="menu" className="absolute left-0 top-6 z-20 w-52 rounded-xl border border-line bg-surface p-1.5 shadow-lg font-sans text-xs text-ink">
+                                    <span role="menu" className="lx-soft absolute left-0 top-6 z-20 w-52 rounded-xl bg-surface p-1.5 shadow-lg font-sans text-xs text-ink">
                                         <span className="block px-2 py-1 text-muted">Thẻ này có vấn đề gì?</span>
                                         {REPORT_REASONS.map(r => (
                                             <button
@@ -222,7 +222,7 @@ function WordBlock({ card, onSpeak, aid, onUseOriginal }: { card: VocabCardData;
                 <button
                     onClick={(e) => { e.stopPropagation(); onSpeak(); }}
                     aria-label={`Nghe phát âm ${card.word}`}
-                    className="w-11 h-11 shrink-0 rounded-xl border border-line bg-surface-2 text-ink flex items-center justify-center hover:bg-surface-3 transition-colors"
+                    className="lx-soft w-11 h-11 shrink-0 rounded-xl bg-surface-2 text-ink flex items-center justify-center hover:bg-surface-3 transition-colors"
                 >
                     <Volume2 className="w-4 h-4" />
                 </button>

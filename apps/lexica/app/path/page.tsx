@@ -25,7 +25,7 @@ export default function PathPage() {
         return (
             <div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-4 px-4 text-center">
                 <p className="text-ink font-semibold">Bạn chưa bắt đầu lộ trình nào.</p>
-                <Link href="/path/setup" className="h-12 px-6 rounded-xl bg-accent text-on-accent font-bold flex items-center">
+                <Link href="/path/setup" className="lx-hard lx-press h-12 px-6 rounded-xl bg-accent text-on-accent font-extrabold flex items-center">
                     Bắt đầu lộ trình 30 ngày
                 </Link>
             </div>
@@ -99,7 +99,7 @@ export default function PathPage() {
                     {CHECKPOINTS.map((c) => {
                         const reached = done.length >= c;
                         return (
-                            <div key={c} className="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 text-sm">
+                            <div key={c} className="lx-soft flex items-center gap-3 rounded-xl bg-surface px-4 py-3 text-sm">
                                 <Flag className={`w-4 h-4 ${reached ? 'text-accent' : 'text-subtle'}`} />
                                 <span className="flex-1 text-ink">{c === 30 ? 'Ngày 30: kiểm tra về đích' : `Mốc ngày ${c}`}</span>
                                 {reached ? (
@@ -119,12 +119,12 @@ export default function PathPage() {
                         <p className="text-ink font-semibold">Kiểm tra cuối: {path.finished.score}/{path.finished.total} từ</p>
                         <button
                             onClick={() => void sharePathImage({ counts: path.finished!.counts, branch: BRANCH_LABEL[path.branch], score: path.finished!.score, total: path.finished!.total })}
-                            className="h-11 px-4 rounded-xl border border-line bg-surface text-ink text-sm font-medium flex items-center gap-2"
+                            className="lx-soft h-11 px-4 rounded-xl bg-surface text-ink text-sm font-medium flex items-center gap-2"
                         >
                             <Share2 className="w-4 h-4" /> Chia sẻ kết quả
                         </button>
                         <div className="grid grid-cols-2 gap-2">
-                            <Link href="/path/setup?next=1" className="h-11 rounded-xl bg-accent text-on-accent font-bold text-sm flex items-center justify-center">
+                            <Link href="/path/setup?next=1" className="lx-hard lx-press h-11 rounded-xl bg-accent text-on-accent font-extrabold text-sm flex items-center justify-center">
                                 Lộ trình mới
                             </Link>
                             <MaintainButton />
@@ -144,7 +144,7 @@ function MaintainButton() {
     return (
         <button
             onClick={() => setPath({ ...path, pace: on ? 10 : 0 })}
-            className="h-11 rounded-xl border border-line bg-surface text-ink text-sm font-medium"
+            className="lx-soft h-11 rounded-xl bg-surface text-ink text-sm font-medium"
             title="Chỉ ôn và đọc, không thêm từ mới"
         >
             {on ? 'Đang duy trì · bật lại từ mới' : 'Chế độ duy trì'}

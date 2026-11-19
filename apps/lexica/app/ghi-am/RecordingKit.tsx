@@ -64,7 +64,7 @@ function Start({ onStart }: { onStart: (m: Meta) => void }) {
     const chip = (on: boolean) => `h-10 px-4 rounded-xl border text-sm ${on ? 'border-accent bg-accent/10 text-ink' : 'border-line text-ink-2'}`;
     return (
         <Frame>
-            <section className="rounded-2xl border border-line bg-surface p-4 space-y-3 text-sm text-ink-2">
+            <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-3 text-sm text-ink-2">
                 <p className="text-ink font-semibold">Cảm ơn bạn giúp Lexica chấm phát âm tốt hơn!</p>
                 <ul className="list-disc pl-5 space-y-1">
                     <li>Có 20 từ. Mỗi từ đọc 2 lần: một lần đọc đúng, một lần đọc sai theo hướng dẫn. Tổng 40 lượt, khoảng 10 phút.</li>
@@ -75,7 +75,7 @@ function Start({ onStart }: { onStart: (m: Meta) => void }) {
             </section>
             <label className="block space-y-1.5">
                 <span className="text-sm text-ink-2">Tên hoặc biệt danh (để phân biệt các bạn ghi)</span>
-                <input value={name} onChange={(e) => setName(e.target.value)} className="w-full h-11 rounded-xl border border-line bg-surface px-3 text-ink" placeholder="Ví dụ: Lan" />
+                <input value={name} onChange={(e) => setName(e.target.value)} className="lx-soft w-full h-11 rounded-xl bg-surface px-3 text-ink" placeholder="Ví dụ: Lan" />
             </label>
             <div className="space-y-1.5">
                 <p className="text-sm text-ink-2">Bạn ghi bằng</p>
@@ -91,7 +91,7 @@ function Start({ onStart }: { onStart: (m: Meta) => void }) {
                     </button>
                 </div>
             </div>
-            <button disabled={!name.trim()} onClick={() => onStart({ tester: testerCode(name), device, headset, date: localDate() })} className="w-full h-12 rounded-xl bg-accent text-on-accent font-bold disabled:opacity-40">
+            <button disabled={!name.trim()} onClick={() => onStart({ tester: testerCode(name), device, headset, date: localDate() })} className="lx-hard lx-press w-full h-12 rounded-xl bg-accent text-on-accent font-extrabold disabled:opacity-40">
                 Bắt đầu
             </button>
         </Frame>
@@ -140,7 +140,7 @@ function TakeCard({ index, wav, onSaved, onNext, onBack }: { index: number; wav:
     };
 
     return (
-        <section className="rounded-2xl border border-line bg-surface p-5 space-y-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-5 space-y-4">
             {take.kind === 'dung' ? (
                 <>
                     <p className="text-sm text-muted">Đọc ĐÚNG từ này:</p>
@@ -161,7 +161,7 @@ function TakeCard({ index, wav, onSaved, onNext, onBack }: { index: number; wav:
                         <Square className="w-5 h-5" /> Đang ghi… bấm để dừng
                     </button>
                 ) : (
-                    <button onClick={() => void record()} className="h-14 px-5 rounded-2xl bg-accent text-on-accent font-bold flex items-center gap-2">
+                    <button onClick={() => void record()} className="lx-hard lx-press h-14 px-5 rounded-[18px] bg-accent text-on-accent font-extrabold flex items-center gap-2">
                         {wav ? <RotateCcw className="w-5 h-5" /> : <Mic className="w-5 h-5" />} {wav ? 'Ghi lại' : 'Bấm và đọc'}
                     </button>
                 )}
@@ -204,12 +204,12 @@ function Finish({ meta, wavs, onBack }: { meta: Meta; wavs: (Blob | null)[]; onB
     };
     return (
         <Frame>
-            <section className="rounded-2xl border border-line bg-surface p-5 space-y-3">
+            <section className="lx-soft rounded-[18px] bg-surface p-5 space-y-3">
                 <p className="flex items-center gap-2 text-ink font-semibold">
                     <Check className="w-5 h-5 text-accent" /> Đã ghi {recorded.length}/{TAKES.length} lượt
                 </p>
                 <p className="text-sm text-ink-2">Bấm tải về, rồi gửi file .zip cho đội Lexica (Zalo, email hoặc Google Drive). File chỉ chứa giọng đọc 20 từ này, tên bạn nhập và loại máy.</p>
-                <button onClick={() => void download()} disabled={busy} className="w-full h-12 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2 disabled:opacity-40">
+                <button onClick={() => void download()} disabled={busy} className="lx-hard lx-press w-full h-12 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center gap-2 disabled:opacity-40">
                     <Download className="w-5 h-5" /> Tải file về
                 </button>
                 <button onClick={onBack} className="w-full h-11 rounded-xl border border-line text-ink-2">

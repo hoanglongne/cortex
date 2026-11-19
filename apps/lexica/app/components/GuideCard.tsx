@@ -66,7 +66,7 @@ export default function GuideCard() {
         const items = checklist(facts);
         const done = items.filter((i) => i.done).length;
         return (
-            <section data-testid="week-one" aria-label="Tuần đầu với Lexica" className="w-full rounded-2xl border border-line bg-surface p-4">
+            <section data-testid="week-one" aria-label="Tuần đầu với Lexica" className="lx-soft w-full rounded-[18px] bg-surface p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <p className="font-semibold text-ink">Tuần đầu với Lexica</p>
@@ -108,7 +108,7 @@ export default function GuideCard() {
                 <span>{tip.text}</span>
             </p>
             <div className="mt-3 flex items-center gap-2 pl-6">
-                <Link href={tip.href} className="h-9 px-3 inline-flex items-center rounded-xl bg-accent text-on-accent text-sm font-bold">
+                <Link href={tip.href} className="lx-hard lx-press h-9 px-3 inline-flex items-center rounded-xl bg-accent text-on-accent text-sm font-extrabold">
                     {tip.action}
                 </Link>
                 <button onClick={() => dismissTip(tip.id)} className="h-9 px-3 rounded-xl text-sm text-muted hover:text-ink">

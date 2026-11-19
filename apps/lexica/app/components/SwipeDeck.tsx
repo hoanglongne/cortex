@@ -294,7 +294,7 @@ export default function SwipeDeck({
         return (
             <div className="flex flex-col items-center justify-center h-[460px] px-8 text-center gap-4">
                 <p className="text-ink font-semibold">Hết từ mới ở level này.</p>
-                <button onClick={() => onFinish(session)} className="h-12 px-6 rounded-xl bg-accent text-on-accent font-bold">
+                <button onClick={() => onFinish(session)} className="lx-hard lx-press h-12 px-6 rounded-xl bg-accent text-on-accent font-extrabold">
                     {finishLabel}
                 </button>
             </div>
@@ -474,14 +474,14 @@ export default function SwipeDeck({
                 <div className="absolute top-[calc(50%+242px)] left-0 right-0 mx-2 sm:mx-4 grid grid-cols-2 gap-2.5">
                     <button
                         onClick={() => handleSwipe('left', topCardId)}
-                        className="h-14 rounded-xl border border-line bg-surface text-ink font-medium flex items-center justify-center gap-2 hover:bg-surface-2 active:scale-[0.98] transition"
+                        className="lx-soft h-14 rounded-xl bg-surface text-ink font-medium flex items-center justify-center gap-2 hover:bg-surface-2 active:scale-[0.98] transition"
                     >
                         <X className="w-4 h-4" />
                         Chưa nhớ
                     </button>
                     <button
                         onClick={() => handleSwipe('right', topCardId)}
-                        className="h-14 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2 hover:bg-accent-strong active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="lx-hard lx-press h-14 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center gap-2 hover:bg-accent-strong active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                         Đã nhớ
                         <Check className="w-4 h-4" />

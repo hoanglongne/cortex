@@ -57,12 +57,12 @@ export default function GuidePage() {
                     <span className="w-10" />
                 </div>
 
-                <section className="rounded-2xl border border-line bg-surface p-4">
+                <section className="lx-soft rounded-[18px] bg-surface p-4">
                     <p className="font-semibold text-ink">Bốn bước của một từ</p>
                     <p className="mt-1 text-sm text-muted">Lexica chỉ đếm một thứ: mỗi từ của bạn đi tới bước nào.</p>
                     <ol className="mt-3 grid gap-2 sm:grid-cols-2">
                         {STEPS.map((step, i) => (
-                            <li key={step} className="rounded-xl border border-line bg-bg p-3">
+                            <li key={step} className="lx-soft rounded-xl bg-bg p-3">
                                 <p className="text-sm font-semibold text-ink">
                                     {i + 1}. {STEP_LABEL[step]}
                                 </p>
@@ -79,7 +79,7 @@ export default function GuidePage() {
                     <section key={g.title}>
                         <p className="font-semibold text-ink">{g.title}</p>
                         {g.sub && <p className="text-sm text-muted">{g.sub}</p>}
-                        <ul className="mt-2 rounded-2xl border border-line bg-surface divide-y divide-line">
+                        <ul className="lx-soft mt-2 rounded-[18px] bg-surface divide-y divide-line">
                             {g.items.map((it) => (
                                 <li key={it.title}>
                                     <Link href={it.href} className="flex items-start gap-3 px-4 py-3 hover:bg-surface-2/50 first:rounded-t-2xl last:rounded-b-2xl">

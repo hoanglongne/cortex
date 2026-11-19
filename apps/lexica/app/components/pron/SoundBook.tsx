@@ -27,7 +27,7 @@ export default function SoundBook({ onPractice }: { onPractice: (kind: ErrorKind
     if (weak.length === 0 && better.length === 0) return null;
     const pair = pairs.length ? pairs[pairAt % pairs.length] : null;
     return (
-        <div data-testid="sound-book" className="rounded-2xl border border-line bg-surface p-5">
+        <div data-testid="sound-book" className="lx-soft rounded-[18px] bg-surface p-5">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Âm hay sai · 14 ngày</p>
             {better.length > 0 && <p className="mt-2 text-sm text-accent">“{SOUND_LABEL[better[0]]}” của bạn rõ hơn hẳn tuần trước. Giữ nhé!</p>}
             <ul className="mt-3 space-y-3">
@@ -47,7 +47,7 @@ export default function SoundBook({ onPractice }: { onPractice: (kind: ErrorKind
                 ))}
             </ul>
             {suggest && (
-                <button onClick={() => onPractice(suggest)} className="mt-4 h-10 px-4 rounded-xl bg-accent text-on-accent font-semibold text-sm">
+                <button onClick={() => onPractice(suggest)} className="lx-hard lx-press mt-4 h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold text-sm">
                     Luyện 2 phút: {SOUND_LABEL[suggest]}
                 </button>
             )}

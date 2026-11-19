@@ -269,7 +269,7 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                     {audioUrl && <ListenButton label="Giọng bạn" onPlay={() => playRecording(audioUrl)} icon={<Play className="w-3.5 h-3.5" />} />}
                 </div>
                 {onRetry && (
-                    <button type="button" onClick={onRetry} className="w-full h-12 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2">
+                    <button type="button" onClick={onRetry} className="lx-hard lx-press w-full h-12 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center gap-2">
                         <Mic className="w-4 h-4" /> Thử lại từ này
                     </button>
                 )}
@@ -435,7 +435,7 @@ export function PackOffer() {
                             setState('error');
                         }
                     }}
-                    className="mt-2 h-9 px-3 rounded-lg bg-accent text-on-accent font-semibold flex items-center gap-1.5"
+                    className="lx-hard lx-press mt-2 h-9 px-3 rounded-lg bg-accent text-on-accent font-extrabold flex items-center gap-1.5"
                 >
                     <Download className="w-4 h-4" /> {state === 'error' ? 'Thử tải lại' : `Tải gói chấm (${packMegabytes()}MB)`}
                 </button>

@@ -284,7 +284,7 @@ function HomeContent() {
                     setShowCortexReminder(false);
                     if (CORTEX_HUB_URL) window.open(CORTEX_HUB_URL, '_blank');
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-bold transition-colors"
+                  className="lx-hard lx-press flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-extrabold transition-colors"
                 >
                   Kết nối ngay →
                 </button>

@@ -83,7 +83,7 @@ export default function DialogueScene({
 
     if (!ready) {
         return (
-            <div className="rounded-2xl border border-line bg-surface p-5 space-y-3">
+            <div className="lx-soft rounded-[18px] bg-surface p-5 space-y-3">
                 <p className="text-ink font-semibold">Bạn muốn đóng vai ai?</p>
                 <p className="text-sm text-muted">App đọc câu của người kia. Tới lượt bạn, app chỉ hiện ý tiếng Việt: bạn nói câu tiếng Anh, rồi xem câu gốc.</p>
                 <div className="flex flex-wrap gap-2">
@@ -182,7 +182,7 @@ function Guess({ turns, index, seed, onPicked }: { turns: Turn[]; index: number;
                 const right = o === g.answer;
                 const state = pick === null ? '' : right ? 'border-accent bg-accent/10' : pick === o ? 'border-danger/50 bg-danger/5' : 'opacity-60';
                 return (
-                    <button key={o} disabled={pick !== null} onClick={() => setPick(o)} className={`w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-left text-sm text-ink ${state}`}>
+                    <button key={o} disabled={pick !== null} onClick={() => setPick(o)} className={`lx-soft w-full rounded-xl bg-surface px-3 py-2.5 text-left text-sm text-ink ${state}`}>
                         {pick !== null && right && <Check className="inline w-4 h-4 mr-1 text-accent" />}
                         {pick === o && !right && <X className="inline w-4 h-4 mr-1 text-danger" />}
                         {o}
@@ -190,7 +190,7 @@ function Guess({ turns, index, seed, onPicked }: { turns: Turn[]; index: number;
                 );
             })}
             {pick !== null && (
-                <button onClick={() => onPicked(pick)} className="w-full h-11 rounded-xl bg-accent text-on-accent font-bold">
+                <button onClick={() => onPicked(pick)} className="lx-hard lx-press w-full h-11 rounded-xl bg-accent text-on-accent font-extrabold">
                     {pick === g.answer ? 'Đúng rồi! Nghe câu đó' : 'Nghe câu thật'}
                 </button>
             )}
@@ -231,7 +231,7 @@ function MyTurn({ meaning, line, canListen, onResult }: { meaning: string; line:
                             <Square className="w-4 h-4" /> Xong
                         </button>
                     ) : (
-                        <button onClick={() => void speak()} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-semibold flex items-center gap-2">
+                        <button onClick={() => void speak()} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold flex items-center gap-2">
                             <Mic className="w-4 h-4" /> Nói
                         </button>
                     ))}

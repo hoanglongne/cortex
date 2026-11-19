@@ -92,7 +92,7 @@ export default function RecallPanel({
                     <button
                         type="submit"
                         disabled={result !== null || !typed.trim()}
-                        className="h-12 px-5 shrink-0 rounded-xl bg-accent text-on-accent font-bold disabled:opacity-40"
+                        className="lx-hard lx-press h-12 px-5 shrink-0 rounded-xl bg-accent text-on-accent font-extrabold disabled:opacity-40"
                     >
                         Kiểm tra
                     </button>

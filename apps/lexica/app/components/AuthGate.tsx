@@ -77,7 +77,7 @@ export default function AuthGate({ reason, onSent, redirectPath = '/buddy' }: Au
                     </p>
                 </>
             )}
-            <button type="submit" disabled={busy || !email.includes('@') || password.length < 6 || (repeat !== null && repeat.length < 6)} className="py-3 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-bold rounded-xl flex items-center justify-center gap-2">
+            <button type="submit" disabled={busy || !email.includes('@') || password.length < 6 || (repeat !== null && repeat.length < 6)} className="lx-hard lx-press py-3 bg-accent hover:bg-accent-strong disabled:opacity-40 text-on-accent font-extrabold rounded-xl flex items-center justify-center gap-2">
                 {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : null} {repeat === null ? 'Tiếp tục' : 'Tạo tài khoản'}
             </button>
             {error && <p className="text-danger text-xs text-center">{error}</p>}

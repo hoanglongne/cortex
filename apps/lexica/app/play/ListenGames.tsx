@@ -125,7 +125,7 @@ export function DictateGame({ rounds, onAgain }: { rounds: DictationRound[]; onA
                 spellCheck={false}
                 aria-label="Câu bạn nghe được"
                 placeholder="Gõ câu bạn nghe được"
-                className="w-full rounded-2xl border border-line bg-surface p-3 text-ink disabled:opacity-70"
+                className="lx-soft w-full rounded-[18px] bg-surface p-3 text-ink disabled:opacity-70"
             />
             {checked ? (
                 <div className="space-y-2">
@@ -209,7 +209,7 @@ export function FillGame({ rounds, onAgain }: { rounds: FillRound[]; onAgain: ()
                     </button>
                 </div>
             </div>
-            <p lang="en" className="rounded-2xl border border-line bg-surface p-4 text-[17px] leading-loose text-ink">
+            <p lang="en" className="lx-soft rounded-[18px] bg-surface p-4 text-[17px] leading-loose text-ink">
                 {q.parts.map((p, k) =>
                     'text' in p ? (
                         <span key={k}>{p.text}</span>
@@ -325,7 +325,7 @@ export function LinkedGame({ rounds, onAgain }: { rounds: LinkedRound[]; onAgain
             </div>
             {picked !== null && (
                 <div className="space-y-2">
-                    <p className="rounded-xl border border-line bg-surface-2/50 p-3 text-sm text-ink-2">
+                    <p className="lx-soft rounded-xl bg-surface-2/50 p-3 text-sm text-ink-2">
                         <span lang="en" className="font-semibold text-ink">“{q.said}”</span>
                         <br />
                         {q.note}

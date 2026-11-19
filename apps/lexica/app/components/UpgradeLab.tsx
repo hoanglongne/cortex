@@ -54,7 +54,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
   const sentenceParts = module.simpleSentence.split(module.targetSlot);
 
   return (
-    <div className="relative flex flex-col items-center justify-center gap-4 md:gap-6 p-5 md:p-8 bg-bg rounded-3xl border border-line w-full max-w-4xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
+    <div className="lx-soft relative flex flex-col items-center justify-center gap-4 md:gap-6 p-5 md:p-8 bg-bg rounded-[22px] w-full max-w-4xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
       {onClose && (
         <button
           onClick={() => {
@@ -76,7 +76,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-stretch">
           {/* Comparison View */}
           <div className="flex flex-col gap-4 md:gap-6">
-            <div className="flex-1 p-4 md:p-6 pb-6 md:pb-8 bg-surface/50 rounded-xl md:rounded-2xl border border-line relative flex flex-col">
+            <div className="lx-soft flex-1 p-4 md:p-6 pb-6 md:pb-8 bg-surface/50 rounded-xl md:rounded-2xl relative flex flex-col">
               <div className="text-[9px] md:text-[10px] font-bold text-muted uppercase font-mono mb-4 md:mb-6 flex items-center gap-2">
                 <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-surface-3"></div>
                 Câu gốc (Đơn giản)
@@ -176,7 +176,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
                       buttonPress();
                       onSuccess();
                     }}
-                    className="w-full py-4 md:py-5 rounded-xl md:rounded-2xl bg-accent text-on-accent font-bold text-xs md:text-sm tracking-[0.1em] md:tracking-[0.2em] uppercase font-mono hover:bg-accent-strong transition-colors shadow-lg "
+                    className="lx-hard lx-press w-full py-4 md:py-5 rounded-xl md:rounded-2xl bg-accent text-on-accent font-extrabold text-xs md:text-sm tracking-[0.1em] md:tracking-[0.2em] uppercase font-mono hover:bg-accent-strong transition-colors "
                   >
                     Hoàn thành
                   </motion.button>

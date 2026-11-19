@@ -96,7 +96,7 @@ export default function TryFirst({ onDone }: { onDone: () => void }) {
                     </button>
                 </div>
             ) : (
-                <button type="button" onClick={onDone} className="mt-6 h-12 w-60 rounded-2xl bg-accent font-bold text-on-accent">
+                <button type="button" onClick={onDone} className="lx-hard lx-press mt-6 h-12 w-60 rounded-[18px] bg-accent font-extrabold text-on-accent">
                     Học như vậy mỗi ngày →
                 </button>
             )}

@@ -54,7 +54,7 @@ const STEPS = [
             { icon: '1', label: 'Hiểu', desc: 'Hiểu nghĩa trong câu tiếng Việt, trả lời đúng câu hỏi nhanh', color: 'border-line bg-surface/50 text-ink' },
             { icon: '2', label: 'Nhớ', desc: 'Nhớ lại đúng ở hai ngày khác nhau, cách nhau vài ngày', color: 'border-line bg-surface/50 text-ink' },
             { icon: '3', label: 'Gặp', desc: 'Nhận ra từ trong đoạn văn tiếng Anh', color: 'border-line bg-surface/50 text-ink' },
-            { icon: '4', label: 'Dùng', desc: 'Nói ra thành tiếng, máy nghe rõ', color: 'border-accent/40 bg-accent/10 text-accent' },
+            { icon: '4', label: 'Dùng', desc: 'Nói ra thành tiếng, máy nghe rõ', color: 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' },
         ],
     },
     {
@@ -284,7 +284,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
 
                         {/* Detail */}
                         {currentStep.detail && (
-                            <p className="text-xs text-muted bg-surface-2/50 rounded-lg px-3 py-2.5 leading-relaxed border border-line">
+                            <p className="lx-soft text-xs text-muted bg-surface-2/50 rounded-lg px-3 py-2.5 leading-relaxed">
                                 {currentStep.detail}
                             </p>
                         )}
@@ -310,7 +310,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                             goNext();
                         }}
                         disabled={(isPersonaStep && !selectedPersona) || (isBranchStep && !branch)}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent-strong"
+                        className="lx-hard lx-press flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent-strong"
                     >
                         {isLast ? (firstTime ? 'Làm bài test level' : 'Đã hiểu') : 'Tiếp theo'}
                         {!isLast && <ChevronRight className="w-4 h-4" />}

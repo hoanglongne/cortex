@@ -88,7 +88,7 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                         className="w-full p-6 rounded-xl bg-ink/[0.02] border border-ink/20 hover:bg-ink/[0.04] hover:border-ink/30 transition-all group text-left"
                     >
                         <div className="flex items-start gap-4">
-                            <div className="p-3 rounded-lg bg-surface border border-line group-hover:bg-surface-2/70 transition-colors shrink-0">
+                            <div className="lx-soft p-3 rounded-lg bg-surface group-hover:bg-surface-2/70 transition-colors shrink-0">
                                 <Gamepad2 className="w-6 h-6 text-muted group-hover:text-ink-2 transition-colors" />
                             </div>
                             <div className="flex-1 space-y-1">

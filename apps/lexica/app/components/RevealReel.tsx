@@ -48,11 +48,11 @@ export function RevealModal({ children, onClose, canClose }: { children: React.R
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.92, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-sm rounded-3xl border border-line bg-surface p-6 text-center"
+                className="lx-soft relative w-full max-w-sm rounded-[22px] bg-surface p-6 text-center"
             >
                 {children}
                 {canClose && (
-                    <button onClick={onClose} className="mt-6 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm">
+                    <button onClick={onClose} className="lx-hard lx-press mt-6 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm">
                         Xong
                     </button>
                 )}

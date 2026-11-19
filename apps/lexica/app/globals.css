@@ -347,3 +347,6 @@ svg *:focus {
   .lx-reveal-sweep::after { animation: none; }
 }
 
+
+/* Direction B: icons drawn a little bolder everywhere (lucide-react adds .lucide). */
+svg.lucide { stroke-width: 2.25; }

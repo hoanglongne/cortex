@@ -76,7 +76,7 @@ export default function MySentencePanel({
                         <button type="button" onClick={() => setText(insertWord(text, card.word))} className="h-9 rounded-lg border border-line px-3 text-xs text-ink hover:bg-surface-3">
                             + chèn {word}
                         </button>
-                        <button type="button" onClick={save} className="h-9 rounded-lg bg-accent px-4 text-xs font-bold text-on-accent hover:bg-accent-strong">
+                        <button type="button" onClick={save} className="lx-hard lx-press h-9 rounded-lg bg-accent px-4 text-xs font-extrabold text-on-accent hover:bg-accent-strong">
                             Lưu câu
                         </button>
                         <span className="ml-auto flex gap-3">

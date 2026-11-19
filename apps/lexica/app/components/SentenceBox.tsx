@@ -73,7 +73,7 @@ export default function SentenceBox({
                 <button
                     onClick={() => onSave(text.trim())}
                     disabled={!optional && (!has || missing)}
-                    className="h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-bold flex items-center gap-1.5 disabled:opacity-40"
+                    className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-extrabold flex items-center gap-1.5 disabled:opacity-40"
                 >
                     <Check className="w-4 h-4" /> {saveLabel}
                 </button>

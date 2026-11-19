@@ -32,7 +32,7 @@ const wordId = (id: string) => sameWordIds(id)[0] ?? id;
 const wordOf = (id: string) => getCard(id)?.word.toLowerCase();
 
 const label = 'font-mono text-[11px] uppercase tracking-wider text-subtle';
-const chip = (on: boolean) => `h-8 px-3 shrink-0 rounded-full border text-xs ${on ? 'border-accent/40 bg-accent/12 text-accent' : 'border-line text-ink-2 hover:border-line-strong'}`;
+const chip = (on: boolean) => `h-8 px-3 shrink-0 rounded-full border text-xs ${on ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'border-line text-ink-2 hover:border-line-strong'}`;
 
 function Spot() {
     const params = useSearchParams();
@@ -61,7 +61,7 @@ function Spot() {
                         <CollectionSection />
                     </>
                 ) : (
-                    <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">Học vài từ trước đã, rồi quay lại để ý chúng ngoài đời.</p>
+                    <p className="lx-soft rounded-[18px] bg-surface p-4 text-sm text-muted">Học vài từ trước đã, rồi quay lại để ý chúng ngoài đời.</p>
                 )}
             </div>
         </div>
@@ -114,7 +114,7 @@ function HuntSection() {
                 <p className={label}>Để ý tuần này</p>
                 <p className="text-xs text-muted">còn {daysLeft} ngày</p>
             </div>
-            <div className="rounded-2xl border border-line bg-surface overflow-hidden">
+            <div className="lx-soft rounded-[18px] bg-surface overflow-hidden">
                 <div className="px-4 pt-4 pb-3 flex items-center gap-3">
                     <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
                         <Eye className="w-4 h-4" />
@@ -256,7 +256,7 @@ function ScanSection({ initial }: { initial: string }) {
     return (
         <section id="spot-scan" className="scroll-mt-4">
             <p className={`mb-2 px-1 ${label}`}>Quét một đoạn</p>
-            <div className="rounded-2xl border border-line bg-surface p-4 space-y-3">
+            <div className="lx-soft rounded-[18px] bg-surface p-4 space-y-3">
                 {!text.trim() && (
                     <p className="flex items-start gap-2 text-sm text-ink-2">
                         <ScanSearch className="w-4 h-4 mt-0.5 text-accent shrink-0" /> Đọc được gì bằng tiếng Anh? Dán vào đây, app tìm từ bạn đã học, kể cả khi đổi dạng.
@@ -321,7 +321,7 @@ function ScanSection({ initial }: { initial: string }) {
                                     Tìm được {ids.length} từ: <span className="text-ink">{words.join(', ')}</span>. Bạn gặp đoạn này ở đâu?
                                 </p>
                                 <PlaceChips value={place} onPick={setPlace} />
-                                <button onClick={save} className="h-10 px-4 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold">
+                                <button onClick={save} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-extrabold">
                                     Lưu {ids.length} từ đã gặp
                                 </button>
                             </div>
@@ -356,7 +356,7 @@ function CollectionSection() {
                 {total > 0 && <p className="text-xs text-muted">{total} từ</p>}
             </div>
             {sightings.length === 0 ? (
-                <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">Chưa có từ nào. Từ bạn gặp ngoài đời sẽ nằm ở đây, kèm câu và nơi bạn gặp.</p>
+                <p className="lx-soft rounded-[18px] bg-surface p-4 text-sm text-muted">Chưa có từ nào. Từ bạn gặp ngoài đời sẽ nằm ở đây, kèm câu và nơi bạn gặp.</p>
             ) : (
                 <>
                     {map.length > 1 && (
@@ -371,7 +371,7 @@ function CollectionSection() {
                             ))}
                         </div>
                     )}
-                    <ul data-testid="collection" className="rounded-2xl border border-line bg-surface divide-y divide-line">
+                    <ul data-testid="collection" className="lx-soft rounded-[18px] bg-surface divide-y divide-line">
                         {shown.map((c) => {
                             const card = getCard(c.cardId);
                             if (!card) return null;

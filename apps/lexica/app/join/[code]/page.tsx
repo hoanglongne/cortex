@@ -45,7 +45,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
     return (
         <div className="min-h-screen bg-bg px-4 py-10">
             <div className="max-w-md mx-auto space-y-4">
-                <section className="rounded-2xl border border-line bg-surface p-5">
+                <section className="lx-soft rounded-[18px] bg-surface p-5">
                     <p className="flex items-center gap-2 font-semibold text-ink">
                         <School className="w-4 h-4 text-accent" /> Vào lớp <span className="font-mono tracking-widest">{clean}</span>
                     </p>
@@ -58,9 +58,9 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
                                 maxLength={40}
                                 placeholder="Tên hiện trong lớp"
                                 aria-label="Tên hiện trong lớp"
-                                className="w-full h-11 rounded-xl border border-line bg-bg px-3 text-ink"
+                                className="lx-soft w-full h-11 rounded-xl bg-bg px-3 text-ink"
                             />
-                            <button onClick={() => void join()} disabled={busy || !shownName.trim()} className="w-full h-11 rounded-xl bg-accent text-on-accent font-bold disabled:opacity-40">
+                            <button onClick={() => void join()} disabled={busy || !shownName.trim()} className="lx-hard lx-press w-full h-11 rounded-xl bg-accent text-on-accent font-extrabold disabled:opacity-40">
                                 {busy ? 'Đang vào…' : 'Vào lớp và học hôm nay'}
                             </button>
                             {error && <p className="text-sm text-danger">{error}</p>}

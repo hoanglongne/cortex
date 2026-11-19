@@ -212,7 +212,7 @@ function RevealPanel({ question, picked, onContinue }: { question: Question; pic
                     buttonPress();
                     onContinue();
                 }}
-                className="sticky bottom-3 mt-3 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold transition-colors active:scale-95"
+                className="lx-hard lx-press sticky bottom-3 mt-3 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-extrabold transition-colors active:scale-95"
             >
                 Tiếp tục →
             </button>
@@ -471,7 +471,7 @@ function QuestionCard({
                         <button
                             onClick={handleTypeSubmit}
                             disabled={typedInput.trim().length === 0}
-                            className="w-full py-3 rounded-xl bg-accent hover:bg-accent-strong disabled:bg-ink/5 disabled:text-subtle disabled:cursor-not-allowed text-on-accent font-semibold text-sm transition-colors active:scale-95"
+                            className="lx-hard lx-press w-full py-3 rounded-xl bg-accent hover:bg-accent-strong disabled:bg-ink/5 disabled:text-subtle disabled:cursor-not-allowed text-on-accent font-extrabold text-sm transition-colors active:scale-95"
                         >
                             Kiểm tra →
                         </button>
@@ -513,7 +513,7 @@ function CloseAnswer({ why, typed, answer, onContinue }: { why: 'typo' | 'form';
                     {tail}
                 </span>
             </p>
-            <button onClick={onContinue} className="w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors active:scale-95">
+            <button onClick={onContinue} className="lx-hard lx-press w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95">
                 Tiếp tục →
             </button>
         </div>
@@ -805,14 +805,14 @@ function ResultScreen({
                             buttonPress();
                             onDone();
                         }}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors active:scale-95"
+                        className="lx-hard lx-press w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95"
                     >
                         Tiếp tục →
                     </button>
                 ) : (
                 <Link
                     href="/"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors active:scale-95"
+                    className="lx-hard lx-press w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95"
                 >
                     <Zap className="w-4 h-4" />
                     Học tiếp
@@ -1029,7 +1029,7 @@ export default function ReviewSession({
                 <p className="text-muted text-sm max-w-xs">{emptyText}</p>
                 <Link
                     href="/"
-                    className="mt-4 px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors"
+                    className="lx-hard lx-press mt-4 px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors"
                 >
                     Học từ mới
                 </Link>

@@ -72,7 +72,7 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
     const act = 'h-9 px-3 rounded-lg border text-sm flex items-center gap-1.5';
     return (
         <div className="fixed inset-x-0 bottom-0 z-40 p-4 max-w-2xl mx-auto" role="dialog" aria-label={`Nghĩa của ${hit.en}`}>
-            <div className="rounded-2xl bg-surface border border-line p-4 shadow-2xl">
+            <div className="lx-soft rounded-[18px] bg-surface p-4 shadow-2xl">
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <div className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
 
 /** Intensity (#161) and display mode (#162). */
 export function DialControls({ intensity, mode, onChange, total, estimate }: { intensity: DialIntensity; mode: DialMode; onChange: (p: { intensity?: DialIntensity; mode?: DialMode }) => void; total?: number; estimate?: string }) {
-    const seg = (on: boolean) => `flex-1 min-w-0 h-9 px-1 whitespace-nowrap rounded-lg border text-xs sm:text-sm ${on ? 'border-accent text-accent' : 'border-line text-ink-2'}`;
+    const seg = (on: boolean) => `flex-1 min-w-0 h-9 px-1 whitespace-nowrap rounded-lg border text-xs sm:text-sm ${on ? 'border-[var(--outline)] bg-accent text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'border-line text-ink-2'}`;
     return (
         <div className="space-y-2">
             <div className="flex items-center gap-2">

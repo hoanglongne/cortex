@@ -154,7 +154,7 @@ function Buddy() {
     if (!user) {
         return (
             <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6">
-                <div className="w-full max-w-sm bg-surface rounded-2xl p-6 border border-line space-y-6">
+                <div className="lx-soft w-full max-w-sm bg-surface rounded-[18px] p-6 space-y-6">
                     <div className="text-center space-y-2">
                         <Users className="w-10 h-10 text-accent mx-auto" />
                         <h1 className="text-xl font-bold text-ink">Bạn học</h1>
@@ -232,7 +232,7 @@ function Buddy() {
                 </section>
 
                 {/* One thing at a time: the friends, what waits in the inbox, the week */}
-                <nav className="flex gap-1 rounded-xl border border-line bg-surface p-1" role="tablist" aria-label="Buddy">
+                <nav className="lx-soft flex gap-1 rounded-xl bg-surface p-1" role="tablist" aria-label="Buddy">
                     {([['friends', 'Bạn học'], ['inbox', 'Hộp thư'], ['week', 'Tuần này']] as const).map(([id, label]) => (
                         <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`h-9 flex-1 rounded-lg text-sm font-semibold ${tab === id ? 'bg-accent/12 text-accent' : 'text-ink-2'}`}>
                             {label}
@@ -258,7 +258,7 @@ function Buddy() {
                         <QuestCard quest={quest} last={lastQuest.members.length > 1 && lastQuest.damage > 0 ? lastQuest : null} meId={user.id} today={today} days={weekDates(thisMonday)} onShield={() => void load(user.id)} />
                 {/* Weekly ranking, only with friends */}
                 {buddies.length > 0 && (
-                    <section className="rounded-2xl border border-line bg-surface p-4">
+                    <section className="lx-soft rounded-[18px] bg-surface p-4">
                         <h2 className="flex items-center gap-2 font-semibold text-ink">
                             <Trophy className="w-4 h-4 text-warning" /> Tuần này
                         </h2>
@@ -315,7 +315,7 @@ function Buddy() {
                         <div className="flex items-center gap-1.5 text-xs" role="group" aria-label="Chọn game thách đấu">
                             <span className="text-muted mr-1">Thách đấu bằng</span>
                             {DUEL_GAMES.map((g) => (
-                                <button key={g.id} onClick={() => setDuelGame(g.id)} aria-pressed={duelGame === g.id} className={`h-8 px-3 rounded-lg border font-medium ${duelGame === g.id ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}>
+                                <button key={g.id} onClick={() => setDuelGame(g.id)} aria-pressed={duelGame === g.id} className={`h-8 px-3 rounded-lg border font-medium ${duelGame === g.id ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}>
                                     {g.label}
                                 </button>
                             ))}
@@ -401,7 +401,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
     };
 
     return (
-        <div className="rounded-2xl border border-line bg-surface p-4 space-y-4">
+        <div className="lx-soft rounded-[18px] bg-surface p-4 space-y-4">
             <div className="space-y-2">
                 <p className="text-sm text-ink-2">Mời một người bạn</p>
                 {code ? (
@@ -412,7 +412,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
                                 <Copy className="w-4 h-4" />
                             </button>
                         </div>
-                        <button onClick={() => void send()} className="w-full h-11 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2">
+                        <button onClick={() => void send()} className="lx-hard lx-press w-full h-11 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center gap-2">
                             <Share2 className="w-4 h-4" /> Gửi link mời
                         </button>
                         <p className="text-xs text-muted text-center">{shared || 'Mã và link dùng được trong 48 giờ, cho một người.'}</p>
@@ -439,7 +439,7 @@ function AddBuddy({ userId, initialCode, onAdded }: { userId: string; initialCod
                         aria-label="Mã mời"
                         className="flex-1 h-11 px-4 bg-surface-2 border border-line-strong rounded-lg text-ink font-mono text-center text-lg tracking-widest outline-none focus:border-accent uppercase"
                     />
-                    <button onClick={() => void join()} disabled={joinCode.length < 6 || status === 'loading'} className="h-11 px-4 rounded-lg bg-accent text-on-accent font-bold disabled:opacity-40">
+                    <button onClick={() => void join()} disabled={joinCode.length < 6 || status === 'loading'} className="lx-hard lx-press h-11 px-4 rounded-lg bg-accent text-on-accent font-extrabold disabled:opacity-40">
                         {status === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Kết bạn'}
                     </button>
                 </div>
@@ -477,7 +477,7 @@ function BuddyCard({ buddy, days, week, today, myGoalMet, onGift, onDuel, duelBu
             <WeekDots days={days} acts={week} today={today} />
             {both && <p className="mt-3 text-center text-xs font-medium text-accent">Cả hai đều đạt mục tiêu hôm nay: chuỗi đôi +1</p>}
             <div className="mt-3 flex items-center justify-between gap-2">
-                <button onClick={onDuel} disabled={duelBusy} className="h-9 px-3 rounded-lg bg-accent text-on-accent text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
+                <button onClick={onDuel} disabled={duelBusy} className="lx-hard lx-press h-9 px-3 rounded-lg bg-accent text-on-accent text-sm font-extrabold flex items-center gap-1.5 disabled:opacity-50">
                     {duelBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Swords className="w-4 h-4" />} Thách đấu
                 </button>
                 <CheerButtons buddyId={buddy.id} sent={cheerSent} onSent={onCheer} />

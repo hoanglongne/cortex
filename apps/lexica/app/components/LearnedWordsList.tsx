@@ -84,7 +84,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
         >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div
-                className="relative w-full max-w-md bg-bg border border-line rounded-2xl p-6 shadow-2xl"
+                className="lx-soft relative w-full max-w-md bg-bg rounded-[18px] p-6 shadow-2xl"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Close */}
@@ -125,7 +125,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                 </div>
 
                 {/* Example sentence */}
-                <div className="bg-surface/60 border border-line/60 rounded-xl p-4 mb-5">
+                <div className="lx-soft bg-surface/60 rounded-xl p-4 mb-5">
                     <p className="text-xs text-muted uppercase font-mono font-medium mb-2">Ví dụ</p>
                     <p className="text-ink text-sm leading-relaxed italic">
                         &ldquo;{highlightWord(card.scenario ?? '', card.word)}&rdquo;

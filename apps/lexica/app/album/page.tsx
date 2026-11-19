@@ -154,7 +154,7 @@ export default function AlbumPage() {
                     </div>
                 )}
 
-                <div data-testid="album-next" className="mb-4 rounded-2xl border border-line bg-surface p-4">
+                <div data-testid="album-next" className="lx-soft mb-4 rounded-[18px] bg-surface p-4">
                     <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Tiếp theo</p>
                     <ul className="mt-2 space-y-1.5">
                         {goals.map((g) => (
@@ -237,7 +237,7 @@ function WalletBar({
     const w = state.wallet;
     const price = state.config.prices.ticket;
     return (
-        <div className="rounded-2xl border border-line bg-surface p-4 mb-4 space-y-3">
+        <div className="lx-soft rounded-[18px] bg-surface p-4 mb-4 space-y-3">
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
                 {walletLines(state).map((line) => (
                     <li key={line.key} className="flex items-center gap-2 text-sm">
@@ -251,7 +251,7 @@ function WalletBar({
             </ul>
             <div className="flex flex-wrap gap-2">
                 {state.ready.length > 0 && (
-                    <button disabled={busy} onClick={onMintNext} className="flex-1 min-w-36 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+                    <button disabled={busy} onClick={onMintNext} className="lx-hard lx-press flex-1 min-w-36 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-extrabold disabled:opacity-50 flex items-center justify-center gap-2">
                         <Hammer className="w-4 h-4" /> Đúc thẻ ({state.ready.length} sẵn sàng)
                     </button>
                 )}
@@ -472,7 +472,7 @@ function CardSheet({
 
                     <div className="mt-4 grid grid-cols-2 gap-2">
                         {ready && (
-                            <button disabled={busy} onClick={() => actions.mint(cardId)} className="col-span-2 py-2.5 rounded-xl bg-accent text-on-accent text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+                            <button disabled={busy} onClick={() => actions.mint(cardId)} className="lx-hard lx-press col-span-2 py-2.5 rounded-xl bg-accent text-on-accent text-sm font-extrabold disabled:opacity-50 flex items-center justify-center gap-2">
                                 <Hammer className="w-4 h-4" /> Đúc thẻ
                             </button>
                         )}
@@ -534,7 +534,7 @@ function RevealView({ reveal, onClose }: { reveal: Reveal; onClose: () => void }
                     : reveal.kind === 'mint' ? 'Đang đúc thẻ…' : reveal.kind === 'reroll' ? 'Đang quay lại…' : 'Đang mở hộp…'}
             </p>
             {isBox ? (
-                <div className="h-40 rounded-2xl border border-line bg-surface-2 flex items-center justify-center">
+                <div className="lx-soft h-40 rounded-[18px] bg-surface-2 flex items-center justify-center">
                     <p className={`text-2xl font-bold ${box.done ? 'text-accent' : 'text-ink-2'}`}>{box.current ? boxLabel(box.current) : ''}</p>
                 </div>
             ) : (
@@ -584,7 +584,7 @@ function AlbumDictionary({ onClose }: { onClose: () => void }) {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 40, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-md rounded-2xl border border-line bg-surface p-5 max-h-[85vh] overflow-y-auto"
+                className="lx-soft relative w-full max-w-md rounded-[18px] bg-surface p-5 max-h-[85vh] overflow-y-auto"
                 role="dialog"
                 aria-label="Từ điển Album"
             >

@@ -21,7 +21,7 @@ export default function LineChart({ chart }: { chart: ChartData }) {
     return (
         <figure className="w-full">
             <figcaption className="mb-2 text-sm font-semibold text-ink">{chart.title}</figcaption>
-            <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={chart.title} className="w-full rounded-xl border border-line bg-surface">
+            <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={chart.title} className="lx-soft w-full rounded-xl bg-surface">
                 {ticks.map((t) => (
                     <g key={t}>
                         <line x1={pad.l} x2={W - pad.r} y1={y(t)} y2={y(t)} stroke="currentColor" className="text-line" strokeWidth={1} />

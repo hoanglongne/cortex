@@ -58,7 +58,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
     if (loading) {
         return (
-            <div className="bg-surface/50 border border-line rounded-xl p-6 mb-8">
+            <div className="lx-soft bg-surface/50 rounded-xl p-6 mb-8">
                 <div className="flex items-center gap-3 mb-4">
                     <Brain className="w-6 h-6 text-accent animate-pulse" />
                     <h2 className="text-lg font-bold text-ink">Cortex Hub</h2>
@@ -70,7 +70,7 @@ function CortexSectionInner({ hubUrl: HUB_URL, apiUrl: API_URL }: { hubUrl: stri
 
     if (!profile) {
         return (
-            <div className="bg-surface/50 border border-line rounded-xl p-6 mb-8">
+            <div className="lx-soft bg-surface/50 rounded-xl p-6 mb-8">
                 <div className="flex items-center gap-3 mb-4">
                     <Brain className="w-6 h-6 text-muted" />
                     <h2 className="text-lg font-bold text-ink">Cortex Hub</h2>

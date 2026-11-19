@@ -54,7 +54,7 @@ export default function PledgeCard({ offer = false }: { offer?: boolean }) {
                 </p>
                 {!answer && (
                     <div className="mt-3 grid grid-cols-2 gap-2">
-                        <button onClick={() => setAnswer('used')} className="h-11 rounded-xl bg-accent text-on-accent font-bold">
+                        <button onClick={() => setAnswer('used')} className="lx-hard lx-press h-11 rounded-xl bg-accent text-on-accent font-extrabold">
                             Dùng rồi
                         </button>
                         <button onClick={() => setAnswer('not-yet')} className="h-11 rounded-xl border border-line text-ink hover:border-line-strong">
@@ -89,7 +89,7 @@ export default function PledgeCard({ offer = false }: { offer?: boolean }) {
                                     makePledge(card.id);
                                     setAnswer(null);
                                 }}
-                                className="h-11 rounded-xl bg-accent text-on-accent font-bold"
+                                className="lx-hard lx-press h-11 rounded-xl bg-accent text-on-accent font-extrabold"
                             >
                                 Thử thêm hôm nay
                             </button>
@@ -132,7 +132,7 @@ export default function PledgeCard({ offer = false }: { offer?: boolean }) {
             </p>
             <p className="mt-1 text-sm text-muted">{pledgeIdea(card.id, archetype, card.situation?.prompt)}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={() => makePledge(card.id)} className="h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-bold">
+                <button onClick={() => makePledge(card.id)} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-extrabold">
                     Mình sẽ thử
                 </button>
                 <button onClick={() => setSkipped((s) => [...s, card.id])} className="h-10 px-3 rounded-xl border border-line text-sm text-ink hover:border-line-strong">
@@ -145,7 +145,7 @@ export default function PledgeCard({ offer = false }: { offer?: boolean }) {
 
 function Shell({ children, testId }: { children: React.ReactNode; testId?: string }) {
     return (
-        <section data-testid={testId} className="rounded-2xl border border-line bg-surface p-4">
+        <section data-testid={testId} className="lx-soft rounded-[18px] bg-surface p-4">
             <p className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-subtle">
                 <Footprints className="w-3.5 h-3.5" /> Ra ngoài đời
             </p>

@@ -54,9 +54,9 @@ export default function ScorePage() {
                 </div>
 
                 {!last ? (
-                    <section className="rounded-2xl border border-line bg-surface p-5 space-y-3">
+                    <section className="lx-soft rounded-[18px] bg-surface p-5 space-y-3">
                         <p className="text-sm text-ink-2">Bạn chưa làm bài kiểm tra từ vựng. Khoảng 6 phút, ra điểm Lexica, mức tương đương IELTS và vốn từ ước lượng.</p>
-                        <Link href="/test/quiz" onClick={() => startTest()} className="inline-flex h-11 px-5 items-center rounded-xl bg-accent text-on-accent text-sm font-semibold">
+                        <Link href="/test/quiz" onClick={() => startTest()} className="lx-hard lx-press inline-flex h-11 px-5 items-center rounded-xl bg-accent text-on-accent text-sm font-extrabold">
                             Làm bài kiểm tra
                         </Link>
                     </section>
@@ -104,7 +104,7 @@ export default function ScorePage() {
 
                         {placements.length > 1 && <History list={placements} />}
 
-                        <section className="rounded-2xl border border-line bg-surface p-4 flex items-start gap-3">
+                        <section className="lx-soft rounded-[18px] bg-surface p-4 flex items-start gap-3">
                             <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
                                 <Gauge className="w-4 h-4" />
                             </span>
@@ -159,7 +159,7 @@ function History({ list }: { list: readonly Placement[] }) {
     const y = (v: number) => h - pad - ((v - lo) / Math.max(1, hi - lo)) * (h - 2 * pad);
     const line = list.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(p.score).toFixed(1)}`).join(' ');
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Qua các lần thi</p>
             <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 w-full h-auto" role="img" aria-label={`Điểm qua ${list.length} lần thi: ${list.map((p) => p.score).join(', ')}`}>
                 {list.map((p, i) => (

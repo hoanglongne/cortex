@@ -29,7 +29,7 @@ export default function TodayCard() {
     const still = useReducedMotion();
 
     return (
-        <section data-testid="today-card" className="w-full rounded-3xl border border-line bg-surface p-5 sm:p-6">
+        <section data-testid="today-card" className="lx-soft w-full rounded-[22px] bg-surface p-5 sm:p-6">
             <div className="flex items-baseline justify-between gap-3">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Hôm nay</p>
                 {!plan.complete && <p className="font-mono text-[11px] text-muted">~{plan.minutes} phút</p>}

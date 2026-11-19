@@ -84,14 +84,14 @@ function Group({ title, sub, children }: { title: string; sub: string; children:
     return (
         <section aria-label={title}>
             <GroupHead title={title} sub={sub} />
-            <div className="rounded-2xl border border-line bg-surface divide-y divide-line">{children}</div>
+            <div className="lx-soft rounded-[18px] bg-surface divide-y divide-line">{children}</div>
         </section>
     );
 }
 
 function Tile({ href, icon, title, hint }: { href: string; icon: React.ReactNode; title: string; hint: string }) {
     return (
-        <Link href={href} className="rounded-2xl border border-line bg-surface p-3 flex flex-col items-center gap-1.5 text-center hover:border-line-strong transition-colors">
+        <Link href={href} className="lx-soft rounded-[18px] bg-surface p-3 flex flex-col items-center gap-1.5 text-center hover:border-line-strong transition-colors">
             <span className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-muted">{icon}</span>
             <span className="text-sm font-medium text-ink">{title}</span>
             <span className="text-[11px] text-muted leading-tight">{hint}</span>

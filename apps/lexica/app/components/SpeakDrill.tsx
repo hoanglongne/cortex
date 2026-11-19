@@ -179,7 +179,7 @@ function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             <p className="text-sm text-muted">
                 Nghe {voices >= 2 ? `${Math.min(3, voices)} giọng khác nhau` : '3 lần, giọng khác nhau'} đọc một từ, rồi chọn đúng từ đó.
             </p>
-            <button onClick={() => void play()} className="mt-4 h-11 px-4 rounded-xl border border-line bg-surface-2 text-ink flex items-center gap-2 hover:border-line-strong">
+            <button onClick={() => void play()} className="lx-soft mt-4 h-11 px-4 rounded-xl bg-surface-2 text-ink flex items-center gap-2 hover:border-line-strong">
                 <Volume2 className="w-4 h-4" /> {played ? 'Nghe lại' : 'Nghe'}
             </button>
             <div className="mt-4 grid grid-cols-2 gap-2">
@@ -207,7 +207,7 @@ function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void })
                                 setPlayed(false);
                             } else onDone();
                         }}
-                        className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold shrink-0"
+                        className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold shrink-0"
                     >
                         Tiếp
                     </button>
@@ -306,7 +306,7 @@ function SayStep({ card, onDone, onChips, byEar = false }: { card: ContentCard; 
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói'} />
             {attempt && (
                 <div className="mt-4 flex justify-end">
-                    <button onClick={() => onDone(attempt.level)} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
+                    <button onClick={() => onDone(attempt.level)} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold">
                         Tiếp
                     </button>
                 </div>
@@ -374,7 +374,7 @@ function PhraseStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             </div>
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói cả cụm'} />
             <div className="mt-4 flex justify-end">
-                <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
+                <button onClick={onDone} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold">
                     {attempt ? 'Tiếp' : 'Bỏ qua'}
                 </button>
             </div>
@@ -507,7 +507,7 @@ function MineStep({ card, onDone }: { card: ContentCard; onDone: () => void }) {
 function StepNext({ attempted, onDone }: { attempted: boolean; onDone: () => void }) {
     return (
         <div className="mt-4 flex justify-end">
-            <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
+            <button onClick={onDone} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold">
                 {attempted ? 'Tiếp' : 'Bỏ qua'}
             </button>
         </div>
@@ -551,7 +551,7 @@ function SituationStep({ card, onDone }: { card: ContentCard; onDone: () => void
             <MicButton listening={listening} onStart={() => void start()} onStop={stop} recordingAt={recordingAt} finishing={finishing} label={attempt ? 'Nói lại' : 'Nói cả câu'} />
             {showModel && <SayModelSentence model={situation.model} />}
             <div className="mt-4 flex justify-end">
-                <button onClick={onDone} className="h-10 px-4 rounded-xl bg-accent text-on-accent font-bold">
+                <button onClick={onDone} className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold">
                     {attempt ? 'Tiếp' : 'Bỏ qua'}
                 </button>
             </div>
@@ -718,7 +718,7 @@ function AttemptResult({
     if (attempt.error === 'unsupported') return <p className="mt-3 text-sm text-warning">Trình duyệt này không nhận giọng nói.</p>;
     if (attempt.error === 'not-allowed') return <p className="mt-3 text-sm text-warning">Chưa có quyền dùng micro. Bật micro trong cài đặt trình duyệt rồi thử lại.</p>;
     return (
-        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} data-testid="attempt" className="mt-4 @3xl:mt-0 rounded-xl border border-line bg-surface p-4">
+        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} data-testid="attempt" className="lx-soft mt-4 @3xl:mt-0 rounded-xl bg-surface p-4">
             <FunScore score={score} />
             <div className="flex items-center gap-3">
                 {/* With the sound chips, the chips say how clear it was; the recognizer's label would contradict them. */}
@@ -788,7 +788,7 @@ function Panel({ icon, title, children, aside }: { icon: React.ReactNode; title:
                     transition={PANEL_SPRING}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-2xl border border-line bg-surface p-5"
+                    className="lx-soft rounded-[18px] bg-surface p-5"
                 >
                     <motion.p layout="position" className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-accent">
                         {icon} {title}
@@ -820,7 +820,7 @@ function Panel({ icon, title, children, aside }: { icon: React.ReactNode; title:
 function Summary({ words, results, chips, onAgain, onDone }: { words: string[]; results: Record<string, SpeakLevel>; chips: Record<string, ChipLevel[]>; onAgain?: () => void; onDone?: () => void }) {
     const hard = hardToSay(useLexicaStore.getState().speakMisses);
     return (
-        <div data-testid="speak-summary" className="rounded-2xl border border-line bg-surface p-5">
+        <div data-testid="speak-summary" className="lx-soft rounded-[18px] bg-surface p-5">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Xong</p>
             <ul className="mt-3 space-y-2">
                 {words.map((id) => {
@@ -843,7 +843,7 @@ function Summary({ words, results, chips, onAgain, onDone }: { words: string[]; 
                 })}
             </ul>
             {onDone ? (
-                <button data-testid="stage-next" onClick={onDone} className="mt-5 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold">
+                <button data-testid="stage-next" onClick={onDone} className="lx-hard lx-press mt-5 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold">
                     Tiếp tục →
                 </button>
             ) : (

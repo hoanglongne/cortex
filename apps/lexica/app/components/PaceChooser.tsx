@@ -25,13 +25,13 @@ export default function PaceChooser({ value, onChange, compareTo }: { value: num
         <div className="space-y-3" data-testid="pace-chooser">
             <div className="flex items-end justify-between gap-3">
                 <div className="flex items-center gap-2">
-                    <button type="button" aria-label="Bớt một từ" onClick={() => onChange(clampPace(value - 1))} className="w-10 h-10 rounded-xl border border-line bg-surface text-ink text-lg">
+                    <button type="button" aria-label="Bớt một từ" onClick={() => onChange(clampPace(value - 1))} className="lx-soft w-10 h-10 rounded-xl bg-surface text-ink text-lg">
                         −
                     </button>
                     <span data-testid="pace-value" className="min-w-[3.5ch] text-center text-3xl font-bold text-ink">
                         {value}
                     </span>
-                    <button type="button" aria-label="Thêm một từ" onClick={() => onChange(clampPace(value + 1))} className="w-10 h-10 rounded-xl border border-line bg-surface text-ink text-lg">
+                    <button type="button" aria-label="Thêm một từ" onClick={() => onChange(clampPace(value + 1))} className="lx-soft w-10 h-10 rounded-xl bg-surface text-ink text-lg">
                         +
                     </button>
                 </div>
@@ -53,13 +53,13 @@ export default function PaceChooser({ value, onChange, compareTo }: { value: num
                         type="button"
                         onClick={() => onChange(n)}
                         aria-pressed={value === n}
-                        className={`h-8 px-3 rounded-lg border text-xs font-medium ${value === n ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
+                        className={`h-8 px-3 rounded-lg border text-xs font-medium ${value === n ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
                     >
                         {n}
                     </button>
                 ))}
             </div>
-            <div className="rounded-xl border border-line bg-surface-2/40 p-3">
+            <div className="lx-soft rounded-xl bg-surface-2/40 p-3">
                 <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Sau 30 ngày khoảng ${total} từ`}>
                     {TICKS.map((t) => (
                         <g key={t}>

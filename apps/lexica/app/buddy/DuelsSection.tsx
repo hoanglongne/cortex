@@ -79,7 +79,7 @@ export default function DuelsSection({ reloadKey, startError }: { reloadKey: num
     // Nothing to play, nothing to show: the card appears when there is a duel
     if (list !== null && rows.length === 0 && !error && !startError) return null;
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <h2 className="flex items-center gap-2 font-semibold text-ink">
                 <Swords className="w-4 h-4 text-accent" /> Thách đấu
             </h2>
