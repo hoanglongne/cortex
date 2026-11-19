@@ -1,5 +1,6 @@
 'use client';
 
+import TopicTag from './brand/TopicTag';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Sprout, Leaf, Sparkles, Trophy, Swords, Eye, Volume2, Check, X as XIcon, RotateCcw, TrendingUp, Flag, Gift } from 'lucide-react';
@@ -85,7 +86,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                 className="w-full"
                 style={{ userSelect: 'none', zIndex: 100 - index }}
             >
-                <div data-testid="vocab-card" className={`relative mx-2 sm:mx-4 h-[460px] rounded-2xl bg-surface border p-5 sm:p-6 overflow-hidden flex flex-col ${lucky ? 'border-accent/60' : 'border-line'}`}>
+                <div data-testid="vocab-card" className="lx-hard relative mx-2 sm:mx-4 h-[460px] rounded-[22px] bg-surface p-5 sm:p-6 overflow-hidden flex flex-col">
                     {sessionCount !== undefined && (
                         <div className="absolute top-0 left-0 right-0 flex gap-0.5 px-4 pt-2" aria-label={`Phiên: ${sessionCount}/${SESSION_SIZE}`}>
                             {Array.from({ length: SESSION_SIZE }, (_, i) => (
@@ -95,7 +96,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                     )}
                     {/* Meta row */}
                     <div className="flex items-center gap-2 font-mono text-[11px] text-subtle">
-                        <span>Độ khó {card.elo}</span>
+                        <TopicTag scenario={card.scenario} />
                         {isBossCard && (
                             <span className="flex items-center gap-1 text-warning"><Swords className="w-3 h-3" /> BOSS</span>
                         )}
