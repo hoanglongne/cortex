@@ -14,8 +14,9 @@ export interface FanCard { id: string; word: string; scenario?: string }
 export default function WordFan({ cards, className = '' }: { cards: FanCard[]; className?: string }) {
     const shown = cards.slice(0, 3);
     if (shown.length === 0) return null;
+    // data-prose: the tilted cards make one-line words report several line boxes to the wrap scan.
     return (
-        <div aria-hidden className={`relative mx-auto h-[190px] w-full max-w-[340px] ${className}`}>
+        <div aria-hidden data-prose className={`relative mx-auto h-[190px] w-full max-w-[340px] ${className}`}>
             {shown.map((c, i) => {
                 const topic = topicOf(c);
                 const left = shown.length === 1 ? 50 : 24 + (i * 52) / (shown.length - 1);

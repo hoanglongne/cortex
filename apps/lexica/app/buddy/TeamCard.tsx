@@ -83,7 +83,7 @@ export function CheerButtons({ buddyId, sent, onSent }: { buddyId: string; sent:
                             setBusy(false);
                         }
                     }}
-                    className={`h-9 w-9 rounded-lg border flex items-center justify-center ${sent === k ? 'border-accent bg-accent/10 text-accent' : 'border-line text-ink-2 hover:border-line-strong'}`}
+                    className={`h-9 w-9 rounded-lg border flex items-center justify-center ${sent === k ? '!border-ink bg-ink text-bg' : 'border-line text-ink-2 hover:border-line-strong'}`}
                 >
                     {ICON[k]}
                 </button>

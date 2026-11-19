@@ -41,7 +41,7 @@ export default function WordSounds({ word, ipa, startPhone }: { word: string; ip
                             setTaps((n) => n + 1);
                             void sayModel(word, 'slow');
                         }}
-                        className={`min-w-9 rounded-lg border px-2 py-1 text-center ${i === at ? 'border-accent bg-accent/10' : 'border-line hover:border-line-strong'}`}
+                        className={`min-w-9 rounded-lg border px-2 py-1 text-center ${i === at ? '!border-ink bg-ink text-bg' : 'border-line hover:border-line-strong'}`}
                     >
                         <span className="block font-semibold text-lg leading-tight text-ink">{x.letters || '·'}</span>
                         <span className="block font-mono text-[11px] text-muted">/{x.ipa}/</span>

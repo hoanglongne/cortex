@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback, useState, useEffect } from 'react';
-import { HandHeart, Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
+import { Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards, getCardByWord } from '../lib/content/repository';
 import { AudioService } from '../lib/audio/AudioService';
@@ -11,6 +11,8 @@ import SurgeryLab from './SurgeryLab';
 import UpgradeLab from './UpgradeLab';
 import { AnimatePresence } from 'framer-motion';
 import { StepDots } from './StepNumbers';
+import { EmptyState } from './ui';
+import { PeekEyes } from './brand/Decor';
 
 type CardWithProgress = Omit<BaseCardData, 'state'> & { progress?: UserCardProgress };
 
@@ -84,7 +86,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
         >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div
-                className="lx-soft relative w-full max-w-md bg-bg rounded-[18px] p-6 shadow-2xl"
+                className="lx-hard relative w-full max-w-md bg-surface rounded-[22px] p-6"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Close */}
@@ -251,10 +253,7 @@ export default function LearnedWordsList() {
 
     if (learnedCards.length === 0) {
         return (
-            <div className="text-muted text-center py-8 flex flex-col items-center gap-2">
-                <HandHeart className="w-8 h-8" />
-                <p>Chưa học từ nào. Bắt đầu học thôi!</p>
-            </div>
+            <EmptyState art={<PeekEyes className="h-10 w-20" />} title="Chưa học từ nào" text="Học xong phiên đầu, từ của bạn sẽ nằm ở đây." />
         );
     }
 

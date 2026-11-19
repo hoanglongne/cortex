@@ -160,7 +160,7 @@ function SettingsPageContent() {
             {/* Reset Confirmation Dialog */}
             {showResetDialog && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowResetDialog(false)}>
-                    <div className="bg-surface border-2 border-danger/30 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                    <div className="lx-hard bg-surface rounded-[22px] p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-start gap-4 mb-6">
                             <div className="p-3 rounded-xl bg-danger/20 border border-danger/30">
                                 <Trash2 className="w-6 h-6 text-danger" />

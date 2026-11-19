@@ -28,7 +28,7 @@ export default function PlacementResultView({
     return (
         <div className="min-h-screen bg-bg px-4 py-8">
             <div className="max-w-xl mx-auto space-y-5">
-                <section className="rounded-3xl border border-accent/40 bg-gradient-to-b from-accent/10 to-accent/[0.02] p-6 text-center">
+                <section className="lx-hard rounded-[22px] bg-surface p-6 text-center">
                     <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Điểm từ vựng Lexica</p>
                     <p className="mt-3 font-mono text-6xl font-bold text-ink">{result.score}</p>
                     <p className="mt-1 text-sm text-muted">± {result.sd} điểm</p>

@@ -180,7 +180,7 @@ function Guess({ turns, index, seed, onPicked }: { turns: Turn[]; index: number;
             </p>
             {g.options.map((o) => {
                 const right = o === g.answer;
-                const state = pick === null ? '' : right ? 'border-accent bg-accent/10' : pick === o ? 'border-danger/50 bg-danger/5' : 'opacity-60';
+                const state = pick === null ? '' : right ? '!border-ink bg-accent text-on-accent' : pick === o ? 'border-danger/50 bg-danger/5' : 'opacity-60';
                 return (
                     <button key={o} disabled={pick !== null} onClick={() => setPick(o)} className={`lx-soft w-full rounded-xl bg-surface px-3 py-2.5 text-left text-sm text-ink ${state}`}>
                         {pick !== null && right && <Check className="inline w-4 h-4 mr-1 text-accent" />}

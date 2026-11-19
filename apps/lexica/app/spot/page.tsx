@@ -9,6 +9,8 @@ import { getAllCards, getCard, getPassages, getQuotes, sameWordIds, useContentVe
 import { localDate } from '../lib/engagement/ghost';
 import { spotWords } from '../lib/journey/outside';
 import { collection, huntCaught, pickHunt, placeLabel, placeMap, PLACES, snippetAround, weekOf, type PlaceId } from '../lib/journey/sightings';
+import { EmptyState } from '../components/ui';
+import { Cloud } from '../components/brand/Decor';
 
 /**
  * "Bắt gặp" (lib/journey/sightings.ts): learned words met outside the app.
@@ -149,7 +151,7 @@ function HuntSection() {
                                             type="button"
                                             onClick={() => setOpen(open === id ? null : id)}
                                             aria-expanded={open === id}
-                                            className={`h-8 px-3 shrink-0 rounded-lg border text-xs font-medium ${open === id ? 'border-accent bg-accent/12 text-accent' : 'border-accent/40 text-accent hover:bg-accent/10'}`}
+                                            className={`h-8 px-3 shrink-0 rounded-lg border text-xs font-medium ${open === id ? '!border-ink bg-ink text-bg' : 'border-accent/40 text-accent hover:bg-accent/10'}`}
                                         >
                                             Gặp rồi
                                         </button>
@@ -356,7 +358,7 @@ function CollectionSection() {
                 {total > 0 && <p className="text-xs text-muted">{total} từ</p>}
             </div>
             {sightings.length === 0 ? (
-                <p className="lx-soft rounded-[18px] bg-surface p-4 text-sm text-muted">Chưa có từ nào. Từ bạn gặp ngoài đời sẽ nằm ở đây, kèm câu và nơi bạn gặp.</p>
+                <EmptyState art={<Cloud className="h-14 w-24" />} title="Chưa có từ nào" text="Từ bạn gặp ngoài đời sẽ nằm ở đây, kèm câu và nơi bạn gặp." />
             ) : (
                 <>
                     {map.length > 1 && (

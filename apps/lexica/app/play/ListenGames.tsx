@@ -224,7 +224,7 @@ export function FillGame({ rounds, onAgain }: { rounds: FillRound[]; onAgain: ()
                                 autoCorrect="off"
                                 spellCheck={false}
                                 size={Math.max(6, q.answers[p.blank].length + 1)}
-                                className={`mx-0.5 h-8 rounded-lg border px-2 text-center text-base ${done ? (right[p.blank] ? 'border-accent bg-accent/10 text-accent' : 'border-danger bg-danger/10 text-danger') : 'border-line-strong bg-surface-2 text-ink'}`}
+                                className={`mx-0.5 h-8 rounded-lg border px-2 text-center text-base ${done ? (right[p.blank] ? '!border-ink bg-accent text-on-accent' : 'border-danger bg-danger/10 text-danger') : 'border-line-strong bg-surface-2 text-ink'}`}
                             />
                             {done && !right[p.blank] && <span className="mr-1 text-sm font-semibold text-accent">{q.answers[p.blank]}</span>}
                         </span>

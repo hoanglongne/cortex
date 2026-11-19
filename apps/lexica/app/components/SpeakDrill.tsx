@@ -185,7 +185,7 @@ function ListenStep({ card, onDone }: { card: ContentCard; onDone: () => void })
             <div className="mt-4 grid grid-cols-2 gap-2">
                 {r.options.map((o) => {
                     const done = picked !== null;
-                    const cls = done && o === r.answer ? 'border-accent bg-accent/10 text-ink' : done && o === picked ? 'border-danger/60 text-muted' : 'border-line text-ink hover:border-line-strong';
+                    const cls = done && o === r.answer ? '!border-ink bg-accent text-on-accent' : done && o === picked ? 'border-danger/60 text-muted' : 'border-line text-ink hover:border-line-strong';
                     return (
                         <button key={o} disabled={!played || done} onClick={() => setPicked(o)} className={`h-14 rounded-xl border text-lg font-semibold lowercase disabled:opacity-60 ${cls}`}>
                             {o}

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { lexicaModule } from '@cortex/classroom-lexica';
 import { readCachedClasses } from '../lib/classes';
 import { nextToRate, ratePiece, type PeerPiece, type PeerScores } from '../lib/writing/handIn';
+import { EmptyState } from '../components/ui';
+import { Pencil } from '../components/brand/Decor';
 
 const ROWS = [
     ['task', 'Đúng yêu cầu đề', 'Bài trả lời đúng điều đề hỏi, đủ ý?'],
@@ -66,7 +68,7 @@ export default function PeerReview() {
             {piece === undefined ? (
                 <p className="text-sm text-muted">Đang tìm bài…</p>
             ) : piece === null ? (
-                <p className="text-sm text-muted">Chưa có bài nào để chấm. Quay lại sau khi các bạn nộp thêm.</p>
+                <EmptyState art={<Pencil className="h-12 w-12" />} title="Chưa có bài để chấm" text="Quay lại sau khi các bạn nộp thêm." />
             ) : (
                 <div className="space-y-3">
                     {piece.prompt && <p className="text-xs text-muted">Đề: {piece.prompt}</p>}

@@ -36,11 +36,11 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
             <div className="w-full max-w-xl mx-auto pt-16 md:pt-32 space-y-8 pb-8">
                 {/* Header */}
                 <div className="text-center space-y-3">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-accent/10 border border-accent/20">
-                        <Zap className="w-8 h-8 text-accent" />
+                    <div className="lx-hard inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent text-on-accent">
+                        <Zap className="w-8 h-8" />
                     </div>
                     <div className="space-y-3">
-                        <h2 className="text-3xl md:text-4xl font-semibold text-ink tracking-tight">
+                        <h2 className="font-display text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
                             Chào mừng đến LEXICA
                         </h2>
                         <p className="text-muted max-w-md mx-auto leading-relaxed">
@@ -57,18 +57,18 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                             buttonPress();
                             onStartTest();
                         }}
-                        className="w-full p-6 rounded-xl bg-ink/[0.03] border border-ink/20 hover:bg-ink/[0.05] hover:border-accent/50 transition-all group text-left"
+                        className="lx-soft lx-press w-full p-6 rounded-[20px] bg-surface group text-left"
                     >
                         <div className="flex items-start gap-4">
-                            <div className="p-3 rounded-lg bg-accent/10 border border-accent/20 group-hover:bg-accent-strong/15 transition-colors shrink-0">
-                                <FlaskConical className="w-6 h-6 text-accent" />
+                            <div className="lx-soft p-3 rounded-xl bg-surface-2 shrink-0">
+                                <FlaskConical className="w-6 h-6 text-ink" />
                             </div>
                             <div className="flex-1 space-y-2">
                                 <div className="flex items-center gap-2">
                                     <h3 className="text-lg font-semibold text-ink">
                                         Test nhanh
                                     </h3>
-                                    <span className="text-xs px-2 py-0.5 bg-accent/10 text-accent rounded border border-accent/20">
+                                    <span className="lx-sticker whitespace-nowrap text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-surface text-ink">
                                         Khuyên dùng
                                     </span>
                                 </div>
@@ -85,10 +85,10 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                             click();
                             onSkipToManual();
                         }}
-                        className="w-full p-6 rounded-xl bg-ink/[0.02] border border-ink/20 hover:bg-ink/[0.04] hover:border-ink/30 transition-all group text-left"
+                        className="lx-soft lx-press w-full p-6 rounded-[20px] bg-surface group text-left"
                     >
                         <div className="flex items-start gap-4">
-                            <div className="lx-soft p-3 rounded-lg bg-surface group-hover:bg-surface-2/70 transition-colors shrink-0">
+                            <div className="lx-soft p-3 rounded-xl bg-surface-2 shrink-0">
                                 <Gamepad2 className="w-6 h-6 text-muted group-hover:text-ink-2 transition-colors" />
                             </div>
                             <div className="flex-1 space-y-1">

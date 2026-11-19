@@ -225,7 +225,7 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
                         {shown.options.map((o, i) => {
                             const right = i === shown.answer;
                             const mine = picked === i;
-                            const tone = picked === null ? 'border-line hover:border-accent/60 bg-bg/40' : reveal && right ? 'border-accent bg-accent/12' : reveal && mine ? 'border-danger/60 bg-danger/10' : mine ? 'border-accent/60 bg-accent/5' : 'border-line opacity-50';
+                            const tone = picked === null ? 'border-line hover:border-accent/60 bg-bg/40' : reveal && right ? '!border-ink bg-accent text-on-accent' : reveal && mine ? 'border-danger/60 bg-danger/10' : mine ? 'border-accent/60 bg-accent/5' : 'border-line opacity-50';
                             return (
                                 <button key={o} disabled={picked !== null || busy} onClick={() => void answer(i)} className={`min-h-12 px-4 py-3 rounded-xl border text-left text-sm text-ink flex items-center gap-2 transition-colors ${tone}`}>
                                     <span className="flex-1">{o}</span>

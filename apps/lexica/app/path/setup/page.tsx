@@ -60,7 +60,7 @@ function SetupContent() {
                                 type="button"
                                 onClick={() => setBranch(b)}
                                 aria-pressed={branch === b}
-                                className={`text-left rounded-2xl border p-4 transition-colors ${branch === b ? 'border-accent bg-accent/10' : 'border-line bg-surface hover:border-line-strong'}`}
+                                className={`text-left rounded-2xl border p-4 transition-colors ${branch === b ? '!border-ink bg-ink text-bg' : 'border-line bg-surface hover:border-line-strong'}`}
                             >
                                 <span className="flex items-center gap-2 font-semibold text-ink">
                                     {b === 'cert' ? <GraduationCap className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}

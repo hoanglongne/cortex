@@ -252,7 +252,7 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
                     ) : (
                         <div className="flex flex-wrap gap-1.5">
                             {choices.map((id) => (
-                                <button key={id} onClick={() => pick(id)} aria-pressed={picked.includes(id)} lang="en" className={`rounded-lg border px-2 py-1 text-sm ${picked.includes(id) ? 'border-accent bg-accent/15 text-accent' : 'border-line text-ink-2'}`}>
+                                <button key={id} onClick={() => pick(id)} aria-pressed={picked.includes(id)} lang="en" className={`rounded-lg border px-2 py-1 text-sm ${picked.includes(id) ? '!border-ink bg-ink text-bg' : 'border-line text-ink-2'}`}>
                                     {wordOf(id)}
                                 </button>
                             ))}

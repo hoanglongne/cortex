@@ -32,6 +32,8 @@ import { cheersToday, type CheerKind, type CheersToday } from '../lib/cheers';
 import { askInbox, buddyBlock, dateList, dateStatus, giftInbox, questWeek, shiftDate, shieldsTeam, weekDates, weekStart, type Quest, type Shield } from '../lib/buddySocial';
 import { capture } from '../lib/productAnalytics';
 import { AsksCard, DatesCard, GiftsCard, GivePanel, PushCard, QuestCard, TodayWordsCard } from './Social';
+import { EmptyState } from '../components/ui';
+import { Smiley } from '../components/brand/Decor';
 
 type Week = Record<string, Record<string, DailyActivity>>;
 
@@ -305,11 +307,7 @@ function Buddy() {
                         <Loader2 className="w-6 h-6 text-accent animate-spin" />
                     </div>
                 ) : buddies.length === 0 ? (
-                    <div className="rounded-2xl border border-dashed border-line-strong p-6 text-center space-y-2">
-                        <Users className="w-8 h-8 text-subtle mx-auto" />
-                        <p className="text-ink text-sm">Chưa có bạn học nào</p>
-                        <p className="text-muted text-xs">Bấm “Thêm bạn”, gửi link mời qua Zalo hoặc Messenger. Bạn ấy mở link là kết nối.</p>
-                    </div>
+                    <EmptyState art={<Smiley className="h-14 w-14" />} title="Chưa có bạn học nào" text="Bấm “Thêm bạn”, gửi link mời qua Zalo hoặc Messenger. Bạn ấy mở link là kết nối." />
                 ) : (
                     <div className="space-y-3">
                         <div className="flex items-center gap-1.5 text-xs" role="group" aria-label="Chọn game thách đấu">

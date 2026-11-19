@@ -46,7 +46,7 @@ export default function QuoteMeet({ cardId, onDone }: { cardId: string; onDone: 
             </p>
             <div className="mt-2 space-y-2">
                 {options.map((o) => {
-                    const cls = picked ? (o === card.translationHint ? 'border-accent bg-accent/10 text-ink' : o === picked ? 'border-danger/60 text-muted' : 'border-line text-subtle') : 'border-line text-ink hover:border-line-strong';
+                    const cls = picked ? (o === card.translationHint ? '!border-ink bg-accent text-on-accent' : o === picked ? 'border-danger/60 text-muted' : 'border-line text-subtle') : 'border-line text-ink hover:border-line-strong';
                     return (
                         <button key={o} disabled={!!picked} onClick={() => answer(o)} className={`w-full text-left rounded-xl border px-3 py-2.5 text-sm ${cls}`}>
                             {o}

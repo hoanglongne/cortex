@@ -61,7 +61,7 @@ function Start({ onStart }: { onStart: (m: Meta) => void }) {
     const [name, setName] = useState('');
     const [device, setDevice] = useState<'dien-thoai' | 'laptop'>('dien-thoai');
     const [headset, setHeadset] = useState(false);
-    const chip = (on: boolean) => `h-10 px-4 rounded-xl border text-sm ${on ? 'border-accent bg-accent/10 text-ink' : 'border-line text-ink-2'}`;
+    const chip = (on: boolean) => `h-10 px-4 rounded-xl border text-sm ${on ? '!border-ink bg-ink text-bg' : 'border-line text-ink-2'}`;
     return (
         <Frame>
             <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-3 text-sm text-ink-2">

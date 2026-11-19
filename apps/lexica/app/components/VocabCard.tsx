@@ -135,7 +135,7 @@ export default function VocabCard({ card, index, onSwipe, revealed: controlledRe
                                     <Flag className="w-3 h-3" />
                                 </button>
                                 {reportOpen && (
-                                    <span role="menu" className="lx-soft absolute left-0 top-6 z-20 w-52 rounded-xl bg-surface p-1.5 shadow-lg font-sans text-xs text-ink">
+                                    <span role="menu" className="lx-soft absolute left-0 top-6 z-20 w-52 rounded-xl bg-surface p-1.5 font-sans text-xs text-ink">
                                         <span className="block px-2 py-1 text-muted">Thẻ này có vấn đề gì?</span>
                                         {REPORT_REASONS.map(r => (
                                             <button

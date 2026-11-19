@@ -254,7 +254,7 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 8 }}
               transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-              className="w-full max-w-sm bg-surface border border-accent/30 rounded-2xl p-6 shadow-2xl"
+              className="lx-hard w-full max-w-sm bg-surface rounded-[22px] p-6"
             >
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2.5 rounded-xl bg-accent/20">
@@ -311,7 +311,7 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="w-full max-w-sm bg-surface border-2 border-accent/60 rounded-2xl p-6 shadow-2xl relative overflow-hidden"
+              className="lx-hard w-full max-w-sm bg-surface rounded-[22px] p-6 relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Subtle background glow effect */}
@@ -409,7 +409,7 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="w-full max-w-md bg-surface border-2 border-warning/50 rounded-2xl p-6 shadow-2xl"
+              className="lx-hard w-full max-w-md bg-surface rounded-[22px] p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center">

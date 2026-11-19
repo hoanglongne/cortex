@@ -98,7 +98,7 @@ export default function JournalPage() {
                             <section key={card.id} className="lx-soft rounded-[22px] bg-surface overflow-hidden">
                                 {/* 2. The question, large; its settings quiet underneath */}
                                 {prompt && (
-                                    <div data-testid="journal-prompt" className="bg-gradient-to-b from-accent/10 to-transparent p-5 pb-4">
+                                    <div data-testid="journal-prompt" className="border-b border-line bg-surface-2 p-5 pb-4">
                                         <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Câu hỏi cho bạn</p>
                                         <p className="mt-2 text-xl font-semibold text-ink leading-snug">{prompt.text}</p>
                                         <div className="mt-4 flex items-center gap-2">

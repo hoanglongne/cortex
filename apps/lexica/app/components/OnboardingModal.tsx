@@ -221,7 +221,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                                             setBranch(b);
                                         }}
                                         aria-pressed={branch === b}
-                                        className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all ${branch === b ? 'border-accent bg-accent/10' : 'border-line-strong bg-surface-2/30 hover:bg-surface-2/50'}`}
+                                        className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all ${branch === b ? '!border-ink bg-ink text-bg' : 'border-line-strong bg-surface-2/30 hover:bg-surface-2/50'}`}
                                     >
                                         <p className="font-semibold text-sm text-ink flex items-center gap-2">
                                             {b === 'cert' ? <GraduationCap className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}

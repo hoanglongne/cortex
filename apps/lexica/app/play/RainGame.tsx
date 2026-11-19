@@ -123,7 +123,7 @@ function Rainfall({ cards, practice, onAgain }: { cards: GameCard[]; practice: b
             </div>
 
             {/* The sky */}
-            <div className="relative h-[52vh] min-h-72 overflow-hidden rounded-3xl border" style={{ background: `linear-gradient(180deg, ${tint(sky, 4)}, ${tint(sky, 16)})`, borderColor: edge(sky, 34) }}>
+            <div className="relative h-[52vh] min-h-72 overflow-hidden lx-soft rounded-[22px]" style={{ background: tint(sky, 8) }}>
                 {Array.from({ length: LANES - 1 }, (_, i) => (
                     <span key={i} aria-hidden className="absolute top-0 bottom-0 w-px" style={{ left: `${((i + 1) / LANES) * 100}%`, background: edge(sky, 10) }} />
                 ))}

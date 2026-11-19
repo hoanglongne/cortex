@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { DoodleArrow } from '../components/brand/Decor';
 import { useMemo } from 'react';
 import { Check, Flag, Share2 } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -24,7 +25,8 @@ export default function PathPage() {
     if (!path) {
         return (
             <div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-4 px-4 text-center">
-                <p className="text-ink font-semibold">Bạn chưa bắt đầu lộ trình nào.</p>
+                <DoodleArrow className="h-12 w-16 rotate-90 text-accent" />
+                <p className="font-display text-2xl font-extrabold text-ink">Bạn chưa bắt đầu lộ trình nào.</p>
                 <Link href="/path/setup" className="lx-hard lx-press h-12 px-6 rounded-xl bg-accent text-on-accent font-extrabold flex items-center">
                     Bắt đầu lộ trình 30 ngày
                 </Link>

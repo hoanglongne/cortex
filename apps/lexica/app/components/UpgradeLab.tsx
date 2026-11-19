@@ -54,7 +54,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
   const sentenceParts = module.simpleSentence.split(module.targetSlot);
 
   return (
-    <div className="lx-soft relative flex flex-col items-center justify-center gap-4 md:gap-6 p-5 md:p-8 bg-bg rounded-[22px] w-full max-w-4xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
+    <div className="lx-hard relative flex flex-col items-center justify-center gap-4 md:gap-6 p-5 md:p-8 bg-bg rounded-[22px] w-full max-w-4xl mx-auto max-h-[95vh] overflow-y-auto sm:overflow-visible">
       {onClose && (
         <button
           onClick={() => {
@@ -143,7 +143,7 @@ export default function UpgradeLab({ word, module, onSuccess, onFail, onClose }:
                   disabled={status === 'success'}
                   className={`relative p-4 md:p-5 rounded-xl border transition-all text-left group ${selectedOption?.text === option.text
  ? status === 'success'
- ? 'border-accent bg-accent/10'
+ ? '!border-ink bg-ink text-bg'
  : 'border-danger bg-danger/10'
  : 'border-line bg-surface hover:border-line-strong disabled:opacity-50'
  }`}

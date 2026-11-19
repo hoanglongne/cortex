@@ -103,7 +103,7 @@ export default function SoundPractice({ kind, onDone }: { kind: ErrorKind; onDon
             </button>
             <div className="mt-4 grid grid-cols-2 gap-2">
                 {r.pair.map((o) => {
-                    const cls = done && o === r.answer ? 'border-accent bg-accent/10 text-ink' : done && o === picked ? 'border-danger/60 text-muted' : 'border-line text-ink hover:border-line-strong';
+                    const cls = done && o === r.answer ? '!border-ink bg-accent text-on-accent' : done && o === picked ? 'border-danger/60 text-muted' : 'border-line text-ink hover:border-line-strong';
                     return (
                         <button
                             key={o}

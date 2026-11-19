@@ -62,7 +62,7 @@ export default function ScorePage() {
                     </section>
                 ) : (
                     <>
-                        <section className="rounded-3xl border border-accent/40 bg-gradient-to-b from-accent/10 to-accent/[0.02] p-5">
+                        <section className="lx-hard rounded-[22px] bg-surface p-5">
                             <div className="flex items-start justify-between gap-3">
                                 <div>
                                     <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Điểm gần nhất</p>

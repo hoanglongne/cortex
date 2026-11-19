@@ -152,7 +152,7 @@ function FinalTest() {
             <p className="text-3xl font-bold text-ink tracking-wide">{q.word}</p>
             <div className="space-y-2">
                 {q.options.map((o) => {
-                    const cls = picked ? (o === q.answer ? 'border-accent bg-accent/10' : o === picked ? 'border-danger/60 text-muted' : 'border-line text-subtle') : 'border-line hover:border-line-strong';
+                    const cls = picked ? (o === q.answer ? '!border-ink bg-accent text-on-accent' : o === picked ? 'border-danger/60 text-muted' : 'border-line text-subtle') : 'border-line hover:border-line-strong';
                     return (
                         <button key={o} disabled={!!picked} onClick={() => answer(o)} className={`w-full text-left rounded-xl border px-4 py-3 text-ink ${cls}`}>
                             <span className="flex items-center gap-2">
