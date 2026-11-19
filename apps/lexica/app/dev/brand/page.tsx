@@ -159,12 +159,12 @@ export default function BrandPage() {
                             <div className="flex gap-2"><Button tone="secondary">Để sau</Button><Button tone="danger" size="sm">Xoá</Button></div>
                             <div className="flex gap-2"><Chip on>Vừa</Chip><Chip>Nhẹ</Chip><Chip>Nhiều</Chip></div>
                             <div className="grid grid-cols-3 gap-2"><Stat value={12} label="chờ ôn" on /><Stat value={128} label="đã hiểu" /><Stat value={9} label="đã dùng" /></div>
-                            <div className="flex gap-2"><Tag color="#F2C230">6 ngày</Tag><Tag>x4 liền!</Tag></div>
+                            <div className="flex gap-2"><Tag color="#F2C230">6 ngày</Tag><Tag>x4 liền!</Tag><Tag>3/3 nhiệm vụ</Tag></div>
                         </div>
                         <div className="space-y-3">
                             <Card className="p-4"><Eyebrow>Ô mềm</Eyebrow><p className="font-bold">Nội dung thường</p></Card>
-                            <Card variant="hard" color={TOPIC_BLOCK.money} className="p-4"><Eyebrow className="!text-[var(--on-block)]">Khối cứng</Eyebrow><p className="font-extrabold">Thứ quan trọng nhất màn</p></Card>
-                            <div className="grid grid-cols-2 gap-2"><Option state="right">thực hiện được</Option><Option>nhìn thấy được</Option><Option state="wrong">chịu đựng được</Option><Option state="faded">thay đổi được</Option></div>
+                            <Card variant="hard" className="p-4"><Eyebrow>Khối cứng</Eyebrow><p className="font-extrabold">Thứ quan trọng nhất màn</p></Card>
+                            <div className="grid grid-cols-2 gap-2"><Option state="right">thực hiện được</Option><Option>nhìn thấy được</Option><Option state="wrong">chịu đựng được</Option><Option state="picked">thay đổi được</Option></div>
                             <EmptyState title="Chưa có từ nào" text="Lật thẻ đầu tiên nào!" />
                         </div>
                     </div>

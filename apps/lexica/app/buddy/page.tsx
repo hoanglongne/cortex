@@ -315,7 +315,7 @@ function Buddy() {
                         <div className="flex items-center gap-1.5 text-xs" role="group" aria-label="Chọn game thách đấu">
                             <span className="text-muted mr-1">Thách đấu bằng</span>
                             {DUEL_GAMES.map((g) => (
-                                <button key={g.id} onClick={() => setDuelGame(g.id)} aria-pressed={duelGame === g.id} className={`h-8 px-3 rounded-lg border font-medium ${duelGame === g.id ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[1.5px_1.5px_0_var(--outline)]' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}>
+                                <button key={g.id} onClick={() => setDuelGame(g.id)} aria-pressed={duelGame === g.id} className={`h-8 px-3 rounded-lg border font-medium ${duelGame === g.id ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}>
                                     {g.label}
                                 </button>
                             ))}

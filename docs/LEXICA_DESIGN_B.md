@@ -17,6 +17,14 @@ Trang trưng bày: `/dev/brand` (bấm Tối / Sáng).
 5. **Nghiêng có chừng mực:** chỉ thẻ từ và sticker được nghiêng. Góc nghiêng lấy từ `TILTS` (−6…5°), không ngẫu nhiên mỗi lần vẽ.
 6. **Không chữ nào bị xuống dòng ở nhãn ngắn.** Kiểm bằng script quét (đã có từ #146).
 
+**Quy tắc màu (sửa ngày 19/11 sau góp ý "lố, loè loẹt"):**
+- Mỗi màn **một** khối xanh chanh: việc chính, hoặc đáp án đúng ngay lúc trả lời.
+- Trạng thái "đang chọn" dùng khối mực (đen trên nền sáng, kem trên nền tối), không dùng chanh.
+- Ô số quan trọng chỉ có một vạch chanh nhỏ.
+- Đáp án sai là ô trắng viền đỏ, gạch ngang.
+- Sticker mặc định nền trắng; chỉ chuỗi ngày được tô vàng.
+- Khối màu chủ đề chỉ cho thẻ từ và phần thưởng, tối đa một khối lớn mỗi màn.
+
 ## Biến (tokens)
 | Biến | Tối | Sáng |
 |---|---|---|

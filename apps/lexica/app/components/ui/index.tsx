@@ -3,9 +3,11 @@
  * Every screen uses these instead of hand-written border, shadow and radius
  * classes, so the app looks the same everywhere. Styling lives in the
  * .lx-hard / .lx-soft / .lx-sticker / .lx-press utilities (app/globals.css).
+ *
+ * Colour rule: one lime block per screen (the main action, or the right
+ * answer at the moment it is given). Selected states use ink, not lime.
  */
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
-import { BRAND } from '../../lib/brand';
 
 const cx = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ');
 
@@ -41,9 +43,11 @@ export function buttonClass(tone: Tone = 'primary', size: 'sm' | 'md' | 'lg' = '
 /** A number with a label (12 chờ ôn). `on` marks the one that matters most. */
 export function Stat({ value, label, on, className }: { value: ReactNode; label: string; on?: boolean; className?: string }) {
     return (
-        <div className={cx('rounded-2xl p-3', on ? 'lx-soft bg-accent text-on-accent' : 'lx-soft bg-surface', className)}>
+        <div className={cx('lx-soft relative overflow-hidden rounded-2xl bg-surface p-3', className)}>
+            {/* The one that matters gets a short lime bar, not a lime fill (one lime block per screen). */}
+            {on && <span aria-hidden className="absolute left-3 top-0 h-1.5 w-8 rounded-b-md bg-accent" />}
             <b className="block text-2xl font-extrabold leading-tight">{value}</b>
-            <span className={cx('text-xs whitespace-nowrap', on ? 'text-on-accent' : 'text-muted')}>{label}</span>
+            <span className="text-xs whitespace-nowrap text-muted">{label}</span>
         </div>
     );
 }
@@ -55,7 +59,13 @@ export function Option({ state = 'idle', className, ...rest }: ButtonHTMLAttribu
             {...rest}
             className={cx(
                 'lx-press w-full rounded-2xl px-4 py-3 text-left font-bold',
-                state === 'right' || state === 'picked' ? 'lx-hard bg-accent text-on-accent' : state === 'wrong' ? 'lx-hard bg-[var(--topic-love)] text-[var(--on-block)]' : 'lx-soft bg-surface text-ink',
+                state === 'right'
+                    ? 'lx-hard bg-accent text-on-accent'
+                    : state === 'picked'
+                      ? 'lx-soft bg-ink text-bg'
+                      : state === 'wrong'
+                        ? 'lx-soft bg-surface text-ink !border-danger line-through decoration-danger decoration-2'
+                        : 'lx-soft bg-surface text-ink',
                 state === 'faded' && 'opacity-50',
                 className,
             )}
@@ -65,7 +75,7 @@ export function Option({ state = 'idle', className, ...rest }: ButtonHTMLAttribu
 
 /** A small toggle chip (filters, segmented choices). */
 export function Chip({ on, className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { on?: boolean }) {
-    return <button {...rest} aria-pressed={on} className={cx('lx-press h-9 px-3 rounded-xl whitespace-nowrap text-sm font-bold', on ? 'lx-sticker !rounded-xl bg-accent text-on-accent' : 'lx-soft bg-surface text-ink-2', className)} />;
+    return <button {...rest} aria-pressed={on} className={cx('lx-press h-9 px-3 rounded-xl whitespace-nowrap text-sm font-bold', on ? 'lx-soft !border-ink bg-ink text-bg' : 'lx-soft bg-surface text-ink-2', className)} />;
 }
 
 /** A section title, with an optional mono hint on the right. */
@@ -83,10 +93,10 @@ export function Eyebrow({ children, className }: { children: ReactNode; classNam
     return <p className={cx('font-mono text-[11px] font-bold uppercase tracking-wider text-muted', className)}>{children}</p>;
 }
 
-/** A sticker label (streak, combo, counts). Re-exported here so screens import one place. */
-export function Tag({ children, color = BRAND.lime, className }: { children: ReactNode; color?: string; className?: string }) {
+/** A sticker label. Neutral by default; give a colour only to the one that should stand out (the streak). */
+export function Tag({ children, color, className }: { children: ReactNode; color?: string; className?: string }) {
     return (
-        <span className={cx('lx-sticker inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1 text-sm font-extrabold text-[var(--on-block)]', className)} style={{ background: color }}>
+        <span className={cx('lx-sticker inline-flex items-center gap-1.5 whitespace-nowrap px-3 py-1 text-sm font-extrabold', color ? 'text-[var(--on-block)]' : 'bg-surface text-ink', className)} style={color ? { background: color } : undefined}>
             {children}
         </span>
     );
