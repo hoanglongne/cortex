@@ -32,8 +32,15 @@ Trang trưng bày: `/dev/brand` (bấm Tối / Sáng).
 | ô (surface) | #1B1B1F, viền #2C2C33 | #FFFFFF, viền #16150F |
 | chữ | #F4F2EA | #16150F |
 | chữ phụ | #9C9AA3 | #6A665B |
+| chữ mờ nhất (subtle) | #898890 | #706B64 |
+| đỏ (lỗi, xoá) | #FF6B5B | #C83524 |
+| xanh chanh khi làm chữ/viền | #C6F432 | #3F5A00 |
 | viền / bóng của khối "cứng" | #000 | #16150F |
 | xanh chanh (chính) | #C6F432 | #C6F432 (chỉ làm nền, chữ đen) |
+
+**Tương phản:** mọi màu chữ trên nền, ô và ô phụ phải đạt WCAG AA (4.5:1). Chữ mờ nhất và màu đỏ ở bảng trên đã được chỉnh ngày 19/11 cho đạt. Chữ trên khối màu chủ đề, màu game và xanh chanh luôn là #16150F.
+
+**Giảm chuyển động:** app theo cài đặt của máy (`MotionConfig reducedMotion="user"`). Các hiệu ứng lặp (nhấp nháy, nảy) dừng. Vòng xoay "đang tải" vẫn chạy. Thẻ nghiêng là nghiêng tĩnh, không động.
 
 **Màu chủ đề** (`lib/brand.ts` `TOPIC_BLOCK`), dùng chung cho cả hai nền:
 

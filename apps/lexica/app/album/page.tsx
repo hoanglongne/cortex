@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronDown, Gift, Hammer, HelpCircle, Leaf, Lock, Shield, Snowflake, Sparkles, Sprout, Ticket, Trophy, Wand2, X } from 'lucide-react';
@@ -18,6 +18,7 @@ import { RevealModal, useReel } from '../components/RevealReel';
 import AuthGate from '../components/AuthGate';
 import { shareCardImage } from '../lib/engagement/shareCard';
 import { TOPIC_BLOCK } from '../lib/brand';
+import { capture } from '../lib/productAnalytics';
 import { topicOf } from '../lib/engagement/collection';
 
 const STATE_ICON = { seed: Sprout, sprout: Leaf, gold: Sparkles, mastered: Trophy } as const;
@@ -51,6 +52,8 @@ export default function AlbumPage() {
     const version = useContentVersion();
     const cardProgress = useLexicaStore((s) => s.cardProgress);
     const economy = useEconomy();
+    // How many learners open the Album (docs/LEXICA_UI_B_ROLLOUT.md §8).
+    useEffect(() => capture('album_open'), []);
     const [openId, setOpenId] = useState<string | null>(null);
     const [selected, setSelected] = useState<string | null>(null);
     const [reveal, setReveal] = useState<Reveal | null>(null);

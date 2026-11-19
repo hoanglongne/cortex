@@ -1,5 +1,7 @@
 # Lexica: kế hoạch đổi toàn bộ giao diện sang hướng B (11/2026)
 
+> **Trạng thái (19/11/2026): D1–D6 đã xong** (#169, #170 và PR đóng #168). Còn lại: đo trước/sau ở mục 8 (sự kiện `album_open`, `today_complete` đã có) và thử icon app trên điện thoại thật.
+
 Liên quan:
 - quy tắc thiết kế: `docs/LEXICA_DESIGN_B.md`;
 - trang trưng bày: `/dev/brand`;
