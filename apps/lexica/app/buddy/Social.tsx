@@ -234,13 +234,13 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
     return (
         <div className="mt-2">
             <div className="flex gap-2">
-                <button onClick={() => start('gift')} aria-pressed={mode === 'gift'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'gift' ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('gift')} aria-pressed={mode === 'gift'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'gift' ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[1.5px_1.5px_0_var(--outline)]' : 'border-line text-ink-2'}`}>
                     <Gift className="w-4 h-4" /> Tặng từ
                 </button>
-                <button onClick={() => start('ask')} aria-pressed={mode === 'ask'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'ask' ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('ask')} aria-pressed={mode === 'ask'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'ask' ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[1.5px_1.5px_0_var(--outline)]' : 'border-line text-ink-2'}`}>
                     <MessageCircleQuestion className="w-4 h-4" /> Nhờ đặt câu
                 </button>
-                <button onClick={() => start('quiz')} aria-pressed={mode === 'quiz'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'quiz' ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('quiz')} aria-pressed={mode === 'quiz'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'quiz' ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[1.5px_1.5px_0_var(--outline)]' : 'border-line text-ink-2'}`}>
                     <Swords className="w-4 h-4" /> Đố bạn
                 </button>
             </div>

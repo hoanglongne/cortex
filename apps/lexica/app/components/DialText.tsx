@@ -114,7 +114,7 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
 
 /** Intensity (#161) and display mode (#162). */
 export function DialControls({ intensity, mode, onChange, total, estimate }: { intensity: DialIntensity; mode: DialMode; onChange: (p: { intensity?: DialIntensity; mode?: DialMode }) => void; total?: number; estimate?: string }) {
-    const seg = (on: boolean) => `flex-1 min-w-0 h-9 px-1 whitespace-nowrap rounded-lg border text-xs sm:text-sm ${on ? 'border-[var(--outline)] bg-accent text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'border-line text-ink-2'}`;
+    const seg = (on: boolean) => `flex-1 min-w-0 h-9 px-1 whitespace-nowrap rounded-lg border text-xs sm:text-sm ${on ? 'border-[var(--outline)] bg-accent text-on-accent font-bold shadow-[1.5px_1.5px_0_var(--outline)]' : 'border-line text-ink-2'}`;
     return (
         <div className="space-y-2">
             <div className="flex items-center gap-2">

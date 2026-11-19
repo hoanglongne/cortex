@@ -53,7 +53,7 @@ export default function PaceChooser({ value, onChange, compareTo }: { value: num
                         type="button"
                         onClick={() => onChange(n)}
                         aria-pressed={value === n}
-                        className={`h-8 px-3 rounded-lg border text-xs font-medium ${value === n ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
+                        className={`h-8 px-3 rounded-lg border text-xs font-medium ${value === n ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[1.5px_1.5px_0_var(--outline)]' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`}
                     >
                         {n}
                     </button>

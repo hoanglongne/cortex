@@ -41,11 +41,12 @@ Trang trưng bày: `/dev/brand` (bấm Tối / Sáng).
 | Đời sống | #B9BDC6 |
 
 **Hình khối:**
-- Khối "cứng" (thẻ, nút chính, phần thưởng): viền 3px, bóng 5px, góc bo 18–26px.
+- Khối "cứng" (thẻ, nút chính, phần thưởng): viền 2px, bóng 3px, góc bo 18–26px.
 - Ô "mềm":
-  - nền tối: viền 2px, không bóng;
-  - nền sáng: viền 2px và bóng 3px.
-- Sticker: viền 2px, bóng 3px, bo tròn hẳn.
+  - nền tối: viền 1.5px, không bóng;
+  - nền sáng: viền 1.5px và bóng 2px.
+- Sticker: viền 1.5px, bóng 2px, bo tròn hẳn.
+- Lớp trang trí lớn (thẻ chủ đề trong bản mẫu, đồ trang trí) có thể dày hơn; giao diện thao tác thì giữ mảnh như trên để không nặng.
 
 **Chữ:**
 - Bricolage Grotesque: 800 cho tiêu đề và số, 700 cho nhãn nút, 500 cho chữ thường.

@@ -117,17 +117,17 @@
 /*
  * The three surfaces of direction B. Use these (or components/ui) instead of
  * hand-written border and shadow classes.
- * - lx-hard: the important block (main button, word card, reward): 3px
- *   outline, 5px flat shadow.
- * - lx-soft: an ordinary cell: 2px border; on light also a 3px shadow.
- * - lx-sticker: a small rounded label with a 2px outline and 3px shadow.
+ * - lx-hard: the important block (main button, word card, reward): 2px
+ *   outline, 3px flat shadow.
+ * - lx-soft: an ordinary cell: 1.5px border; on light also a 2px shadow.
+ * - lx-sticker: a small rounded label with a 1.5px outline and 2px shadow.
  */
-.lx-hard { border: 3px solid var(--outline); box-shadow: 5px 5px 0 var(--outline); }
-.lx-soft { border: 2px solid var(--color-line); }
-:root[data-theme="light"] .lx-soft { border-color: var(--outline); box-shadow: 3px 3px 0 var(--outline); }
-.lx-sticker { border: 2px solid var(--outline); box-shadow: 3px 3px 0 var(--outline); border-radius: 9999px; }
+.lx-hard { border: 2px solid var(--outline); box-shadow: 3px 3px 0 var(--outline); }
+.lx-soft { border: 1.5px solid var(--color-line); }
+:root[data-theme="light"] .lx-soft { border-color: var(--outline); box-shadow: 2px 2px 0 var(--outline); }
+.lx-sticker { border: 1.5px solid var(--outline); box-shadow: 2px 2px 0 var(--outline); border-radius: 9999px; }
 .lx-press { transition: transform .08s ease, box-shadow .08s ease; }
-.lx-press:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--outline) !important; }
+.lx-press:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--outline) !important; }
 @media (prefers-reduced-motion: reduce) { .lx-press { transition: none; } }
 
 body {

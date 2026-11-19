@@ -32,7 +32,7 @@ const wordId = (id: string) => sameWordIds(id)[0] ?? id;
 const wordOf = (id: string) => getCard(id)?.word.toLowerCase();
 
 const label = 'font-mono text-[11px] uppercase tracking-wider text-subtle';
-const chip = (on: boolean) => `h-8 px-3 shrink-0 rounded-full border text-xs ${on ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[2px_2px_0_var(--outline)]' : 'border-line text-ink-2 hover:border-line-strong'}`;
+const chip = (on: boolean) => `h-8 px-3 shrink-0 rounded-full border text-xs ${on ? 'bg-accent border-[var(--outline)] text-on-accent font-bold shadow-[1.5px_1.5px_0_var(--outline)]' : 'border-line text-ink-2 hover:border-line-strong'}`;
 
 function Spot() {
     const params = useSearchParams();
