@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import TopicIcon from '../../components/brand/TopicIcon';
-import { Blob, Burst, DoodleArrow, DotGrid, Flame, Sparkle, Squiggle, Sticker } from '../../components/brand/Decor';
+import { Blob, Bolt, Bubble, Burst, Check, Cloud, Confetti, Crown, DoodleArrow, DotGrid, Flame, Heart, Pencil, PeekEyes, Rainbow, Ribbon, ScribbleCircle, Smiley, Sparkle, Speaker, Squiggle, Stamp, Star, Sticker, Tape, Trophy } from '../../components/brand/Decor';
 import { TOPIC_BLOCK, tiltOf } from '../../lib/brand';
 import { TOPICS } from '../../lib/engagement/collection';
 
@@ -57,6 +57,55 @@ export default function BrandPage() {
                         <DoodleArrow className="h-14 w-20" color={t.ink} />
                         <Flame className="h-10 w-10" />
                         <DotGrid className="h-20 w-20" color={t.muted} />
+                    </div>
+                </section>
+
+                <section>
+                    <h2 className="mb-3 text-xl font-extrabold">Trang trí, đợt 2</h2>
+                    <div className="grid grid-cols-6 items-center justify-items-center gap-y-8 gap-x-4">
+                        <Star />
+                        <Heart />
+                        <Bolt />
+                        <Crown />
+                        <Check />
+                        <Smiley />
+                        <Bubble>Wow!</Bubble>
+                        <Cloud />
+                        <Rainbow />
+                        <Trophy />
+                        <Speaker />
+                        <Pencil />
+                        <Stamp>Đã thuộc</Stamp>
+                        <Ribbon>Đủ bộ!</Ribbon>
+                        <Tape />
+                        <Confetti />
+                        <div className="relative flex h-16 w-32 items-center justify-center font-extrabold"><ScribbleCircle className="absolute inset-0 h-full w-full" />feasible</div>
+                        <PeekEyes />
+                    </div>
+                </section>
+
+                <section>
+                    <h2 className="mb-3 text-xl font-extrabold">Ghép thử</h2>
+                    <div className="grid grid-cols-3 gap-6">
+                        <div className="relative rounded-[20px] p-5 pt-8" style={{ background: t.surface, ...hard }}>
+                            <Tape className="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 -rotate-3" color="#F2C230" />
+                            <p className="font-mono text-[11px] font-bold uppercase tracking-wider" style={{ color: t.muted }}>Chưa có từ nào</p>
+                            <p className="mt-1 text-lg font-extrabold">Lật thẻ đầu tiên nào!</p>
+                            <div className="mt-3 flex items-end justify-between"><Cloud className="h-10 w-16" /><PeekEyes className="h-8 w-14" /></div>
+                        </div>
+                        <div className="relative flex flex-col items-center rounded-[20px] p-5" style={{ background: '#A98BFF', color: '#16150F', ...hard }}>
+                            <Crown className="absolute -top-5 h-9 w-12" />
+                            <Trophy className="h-16 w-16" />
+                            <p className="mt-2 text-lg font-extrabold whitespace-nowrap">Ngày 30 xong!</p>
+                            <Confetti className="absolute bottom-2 right-2 h-10 w-14" />
+                        </div>
+                        <div className="relative rounded-[20px] p-5" style={{ background: t.surface, ...hard }}>
+                            <Stamp className="absolute -right-3 -top-4 h-20 w-20">Đã thuộc</Stamp>
+                            <p className="text-3xl font-extrabold">abundant</p>
+                            <Squiggle className="mt-1 h-3 w-28" color="#FF7BA0" />
+                            <p className="mt-3 text-sm" style={{ color: t.muted }}>dồi dào, nhiều</p>
+                            <div className="mt-3 flex gap-2"><Star className="h-7 w-7" /><Star className="h-7 w-7" /><Star className="h-7 w-7" color={mode === 'dark' ? '#2C2C33' : '#E7E1D2'} /></div>
+                        </div>
                     </div>
                 </section>
 

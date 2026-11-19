@@ -75,6 +75,19 @@ Trang trưng bày: `/dev/brand` (bấm Tối / Sáng).
   - `Blob`: khối tròn méo sau biểu tượng hoặc ở màn trống.
   - `DotGrid`: lưới chấm cho góc trống.
   - `Sticker`.
+- **Đợt 2:**
+  - `Star`, `Heart`, `Bolt`, `Crown`, `Check`, `Smiley`: đánh giá, đúng, combo, huyền thoại, màn vui;
+  - `Bubble`: bong bóng lời thoại có chữ;
+  - `Cloud`, `Rainbow`: màn trống, cột mốc. Cầu vồng là các dải màu đặc, không gradient;
+  - `Trophy`: ngày 30, cột mốc;
+  - `Speaker`: nghe, giọng mẫu;
+  - `Pencil`: Viết, câu của bạn;
+  - `Stamp`: con dấu tròn "ĐÃ THUỘC";
+  - `Ribbon`: băng rôn "ĐỦ BỘ!";
+  - `Tape`: băng dính dán thẻ hoặc ghi chú;
+  - `Confetti`: góc ăn mừng;
+  - `ScribbleCircle`: khoanh tay quanh từ hoặc đáp án;
+  - `PeekEyes`: đôi mắt ló lên ở màn trống.
 - **Cần vẽ thêm** (đợt sau):
   - minh hoạ cho màn trống (chưa có từ, chưa có bài);
   - hình cho onboarding;
