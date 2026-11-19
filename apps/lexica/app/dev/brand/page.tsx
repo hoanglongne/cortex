@@ -4,7 +4,7 @@ import { useState } from 'react';
 import TopicIcon from '../../components/brand/TopicIcon';
 import { Blob, Bolt, Bubble, Burst, Check, Cloud, Confetti, Crown, DoodleArrow, DotGrid, Flame, Heart, Pencil, PeekEyes, Rainbow, Ribbon, ScribbleCircle, Smiley, Sparkle, Speaker, Squiggle, Stamp, Star, Sticker, Tape, Trophy } from '../../components/brand/Decor';
 import { TOPIC_BLOCK, tiltOf } from '../../lib/brand';
-import { Button, Card, Chip, EmptyState, Eyebrow, Option, SectionTitle, Stat, Tag } from '../../components/ui';
+import { Button, Card, Chip, EmptyState, Eyebrow, Option, Stat, Tag } from '../../components/ui';
 import { TOPICS } from '../../lib/engagement/collection';
 
 /** Direction B tokens for both themes (docs/LEXICA_DESIGN_B.md §Tokens). */
@@ -152,21 +152,24 @@ export default function BrandPage() {
                 <section data-testid="ui-kit">
                     <h2 className="mb-1 text-xl font-extrabold">Bộ component trong app</h2>
                     <p className="mb-3 text-sm" style={{ color: t.muted }}>Từ components/ui, theo nền đang chọn của app (Cài đặt → Giao diện), không theo nút ở đầu trang.</p>
-                    <div className="grid grid-cols-2 gap-6 rounded-[22px] bg-bg p-5 text-ink">
-                        <div className="space-y-3">
-                            <SectionTitle hint="8 phút">Hôm nay</SectionTitle>
-                            <Button size="lg" className="w-full">Mở phiên hôm nay</Button>
-                            <div className="flex gap-2"><Button tone="secondary">Để sau</Button><Button tone="danger" size="sm">Xoá</Button></div>
-                            <div className="flex gap-2"><Chip on>Vừa</Chip><Chip>Nhẹ</Chip><Chip>Nhiều</Chip></div>
-                            <div className="grid grid-cols-3 gap-2"><Stat value={12} label="chờ ôn" on /><Stat value={128} label="đã hiểu" /><Stat value={9} label="đã dùng" /></div>
-                            <div className="flex gap-2"><Tag color="#F2C230">6 ngày</Tag><Tag>x4 liền!</Tag><Tag>3/3 nhiệm vụ</Tag></div>
-                        </div>
-                        <div className="space-y-3">
-                            <Card className="p-4"><Eyebrow>Ô mềm</Eyebrow><p className="font-bold">Nội dung thường</p></Card>
-                            <Card variant="hard" className="p-4"><Eyebrow>Khối cứng</Eyebrow><p className="font-extrabold">Thứ quan trọng nhất màn</p></Card>
-                            <div className="grid grid-cols-2 gap-2"><Option state="right">thực hiện được</Option><Option>nhìn thấy được</Option><Option state="wrong">chịu đựng được</Option><Option state="picked">thay đổi được</Option></div>
-                            <EmptyState title="Chưa có từ nào" text="Lật thẻ đầu tiên nào!" />
-                        </div>
+                    <div className="divide-y divide-line rounded-[22px] bg-bg px-5 text-ink">
+                        {[
+                            ['Nút', 'Một nút chanh mỗi màn. Phụ và xoá là ô trắng.', <div key="b" className="flex flex-wrap items-center gap-3"><Button size="lg">Mở phiên hôm nay</Button><Button tone="secondary">Để sau</Button><Button tone="danger">Xoá</Button></div>],
+                            ['Chọn nhanh', 'Đang chọn là khối mực, không phải chanh.', <div key="c" className="flex gap-2"><Chip on>Vừa</Chip><Chip>Nhẹ</Chip><Chip>Nhiều</Chip></div>],
+                            ['Ô số', 'Ô quan trọng nhất có vạch chanh.', <div key="s" className="grid max-w-md grid-cols-3 gap-2"><Stat value={12} label="chờ ôn" on /><Stat value={128} label="đã hiểu" /><Stat value={9} label="đã dùng" /></div>],
+                            ['Lựa chọn', 'Đúng: chanh. Sai: viền đỏ, gạch ngang. Đang chọn: mực.', <div key="o" className="grid max-w-md grid-cols-2 gap-2"><Option state="right">thực hiện được</Option><Option>nhìn thấy được</Option><Option state="wrong">chịu đựng được</Option><Option state="picked">thay đổi được</Option></div>],
+                            ['Nhãn', 'Trắng mặc định, chỉ chuỗi ngày có màu.', <div key="t" className="flex gap-2"><Tag color="#F2C230">6 ngày</Tag><Tag>x4 liền!</Tag><Tag>3/3 nhiệm vụ</Tag></div>],
+                            ['Ô nội dung', 'Ô mềm cho nội dung thường, khối cứng cho thứ quan trọng nhất màn.', <div key="k" className="grid max-w-md grid-cols-2 gap-3"><Card className="p-4"><Eyebrow>Ô mềm</Eyebrow><p className="font-bold">Nội dung thường</p></Card><Card variant="hard" className="p-4"><Eyebrow>Khối cứng</Eyebrow><p className="font-extrabold">Quan trọng nhất</p></Card></div>],
+                            ['Màn trống', '', <EmptyState key="e" className="max-w-md" title="Chưa có từ nào" text="Lật thẻ đầu tiên nào!" />],
+                        ].map(([name, note, demo]) => (
+                            <div key={name as string} className="grid grid-cols-[180px_1fr] items-center gap-6 py-5">
+                                <div>
+                                    <p className="font-extrabold">{name}</p>
+                                    {note && <p className="mt-0.5 text-xs text-muted">{note}</p>}
+                                </div>
+                                {demo}
+                            </div>
+                        ))}
                     </div>
                 </section>
 

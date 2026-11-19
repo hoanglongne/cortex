@@ -209,7 +209,7 @@ function SettingsPageContent() {
                                     // Optionally redirect to home
                                     window.location.href = '/';
                                 }}
-                                className="flex-1 py-3 px-4 bg-danger hover:bg-danger text-on-status rounded-xl font-bold text-sm transition-colors shadow-lg "
+                                className="lx-soft lx-press flex-1 py-3 px-4 !border-danger bg-surface text-danger rounded-xl font-extrabold text-sm"
                             >
                                 Xác nhận Reset
                             </button>

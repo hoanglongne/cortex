@@ -24,7 +24,7 @@ export function Card({ variant = 'soft', color, className, style, ...rest }: HTM
 
 type Tone = 'primary' | 'secondary' | 'danger';
 
-/** Buttons: primary is the lime block (one per screen), secondary a soft cell, danger red. */
+/** Buttons: primary is the lime block (one per screen), secondary a soft cell, danger a soft cell in red (never a red block). */
 export function Button({ tone = 'primary', size = 'md', className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: Tone; size?: 'sm' | 'md' | 'lg' }) {
     return <button {...rest} className={buttonClass(tone, size, className)} />;
 }
@@ -35,7 +35,7 @@ export function buttonClass(tone: Tone = 'primary', size: 'sm' | 'md' | 'lg' = '
         size === 'sm' ? 'h-9 px-3 text-sm rounded-xl' : size === 'lg' ? 'h-14 px-5 text-lg rounded-[18px]' : 'h-11 px-4 rounded-2xl',
         tone === 'primary' && 'lx-hard bg-accent text-on-accent',
         tone === 'secondary' && 'lx-soft bg-surface text-ink',
-        tone === 'danger' && 'lx-hard bg-danger text-on-status',
+        tone === 'danger' && 'lx-soft !border-danger bg-surface text-danger',
         extra,
     );
 }
