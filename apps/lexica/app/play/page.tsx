@@ -3,57 +3,58 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, ChevronDown, CloudRain, Check, Compass, Ear, Headphones, Mic, PencilLine, Grid3x3, Skull, FileText, Flame, Grid2x2, Keyboard, Link2, Search, ShieldQuestion, Zap, type LucideIcon } from 'lucide-react';
+import { ChevronDown, Check, Flame } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
 import { localDate } from '../lib/engagement/ghost';
 import { todaysPicks } from '../lib/games/picks';
 import { MIN_WORDS, usePool } from './usePool';
+import GameIcon from '../components/brand/GameIcon';
 import { GAME_COLOR, type GameId } from './theme';
 
 /** Games built on something other than picking one of four. */
-const FEATURED: { id: GameId; name: string; hint: string; icon: LucideIcon; tag: string }[] = [
-    { id: 'run', name: 'Hành trình', hint: 'Bảy tầng, mỗi tầng chọn một trong hai cánh cửa: chiến đấu, kho báu, nghỉ chân. Tim không tự hồi', icon: Compass, tag: 'Mới' },
-    { id: 'rain', name: 'Mưa từ', hint: 'Nghĩa rơi từ trên xuống, gõ từ tiếng Anh để phá trước khi chạm đất', icon: CloudRain, tag: 'Mới' },
-    { id: 'boss', name: 'Trùm cuối', hint: 'Đánh bại trùm bằng cả 12 câu: đúng nhanh gây đau, đúng liền là đòn mạnh, sai mất tim', icon: Skull, tag: 'Mới' },
-    { id: 'grid', name: 'Bẫy chữ', hint: 'Tìm 5 từ giấu trong lưới chữ 4×4 từ nghĩa của chúng. Từ dài, điểm cao', icon: Grid3x3, tag: 'Mới' },
+const FEATURED: { id: GameId; name: string; hint: string; tag: string }[] = [
+    { id: 'run', name: 'Hành trình', hint: 'Bảy tầng, mỗi tầng chọn một trong hai cánh cửa: chiến đấu, kho báu, nghỉ chân. Tim không tự hồi', tag: 'Mới' },
+    { id: 'rain', name: 'Mưa từ', hint: 'Nghĩa rơi từ trên xuống, gõ từ tiếng Anh để phá trước khi chạm đất', tag: 'Mới' },
+    { id: 'boss', name: 'Trùm cuối', hint: 'Đánh bại trùm bằng cả 12 câu: đúng nhanh gây đau, đúng liền là đòn mạnh, sai mất tim', tag: 'Mới' },
+    { id: 'grid', name: 'Bẫy chữ', hint: 'Tìm 5 từ giấu trong lưới chữ 4×4 từ nghĩa của chúng. Từ dài, điểm cao', tag: 'Mới' },
 ];
 
-const GROUPS: { title: string; hint: string; games: { id: GameId; name: string; hint: string; icon: LucideIcon; tag?: string }[] }[] = [
+const GROUPS: { title: string; hint: string; games: { id: GameId; name: string; hint: string; tag?: string }[] }[] = [
     {
         title: 'Nhanh tay',
         hint: 'Phản xạ, ít nghĩ',
         games: [
-            { id: 'blitz', name: 'Chớp', hint: '60 giây, đúng liền thì điểm nhân lên', icon: Zap },
-            { id: 'listen', name: 'Nghe và bắt từ', hint: 'Nghe một từ, chọn đúng chữ', icon: Ear },
-            { id: 'spell', name: 'Gõ', hint: 'Thấy nghĩa và chữ đầu, gõ cả từ', icon: Keyboard },
+            { id: 'blitz', name: 'Chớp', hint: '60 giây, đúng liền thì điểm nhân lên' },
+            { id: 'listen', name: 'Nghe và bắt từ', hint: 'Nghe một từ, chọn đúng chữ' },
+            { id: 'spell', name: 'Gõ', hint: 'Thấy nghĩa và chữ đầu, gõ cả từ' },
         ],
     },
     {
         title: 'Suy luận',
         hint: 'Đoán, bắt lỗi, nối',
         games: [
-            { id: 'detective', name: 'Thám tử từ', hint: 'Đoán từ qua manh mối, ít manh mối nhiều điểm', icon: Search },
-            { id: 'liar', name: 'Từ nói dối', hint: 'Bốn cụm, một cụm bị tráo từ. Bắt nó', icon: ShieldQuestion },
-            { id: 'match', name: 'Ghép', hint: 'Nối sáu cặp từ và nghĩa', icon: Grid2x2 },
-            { id: 'chain', name: 'Nối chuỗi', hint: 'Từ sau bắt đầu bằng chữ cuối từ trước, đấu với máy', icon: Link2 },
+            { id: 'detective', name: 'Thám tử từ', hint: 'Đoán từ qua manh mối, ít manh mối nhiều điểm' },
+            { id: 'liar', name: 'Từ nói dối', hint: 'Bốn cụm, một cụm bị tráo từ. Bắt nó' },
+            { id: 'match', name: 'Ghép', hint: 'Nối sáu cặp từ và nghĩa' },
+            { id: 'chain', name: 'Nối chuỗi', hint: 'Từ sau bắt đầu bằng chữ cuối từ trước, đấu với máy' },
         ],
     },
     {
         title: 'Luyện nghe',
         hint: 'Giọng tổng hợp, không thay bài thi thật',
         games: [
-            { id: 'dictate', name: 'Nghe chép', hint: 'Nghe một câu, gõ lại, thấy chỗ nghe sai. Nhanh thì điểm cao', icon: PencilLine, tag: 'Listening' },
-            { id: 'fill', name: 'Nghe và điền', hint: 'Nghe một đoạn ngắn, điền các chỗ trống như bài note completion', icon: Headphones, tag: 'Listening' },
-            { id: 'linked', name: 'Âm nối, âm rút', hint: 'Gonna, wanna, a nice day: nghe rồi chọn câu đầy đủ', icon: Mic },
+            { id: 'dictate', name: 'Nghe chép', hint: 'Nghe một câu, gõ lại, thấy chỗ nghe sai. Nhanh thì điểm cao', tag: 'Listening' },
+            { id: 'fill', name: 'Nghe và điền', hint: 'Nghe một đoạn ngắn, điền các chỗ trống như bài note completion', tag: 'Listening' },
+            { id: 'linked', name: 'Âm nối, âm rút', hint: 'Gonna, wanna, a nice day: nghe rồi chọn câu đầy đủ' },
         ],
     },
     {
         title: 'Kiểu bài thi',
         hint: 'Cho hướng Chứng chỉ',
         games: [
-            { id: 'cloze', name: 'Điền đoạn', hint: 'Câu thật trong bài đọc, điền từ còn thiếu', icon: FileText, tag: 'Reading' },
-            { id: 'upgrade', name: 'Nâng cấp câu', hint: 'Chọn cách nói trang trọng nhất cho một câu', icon: ArrowUpRight, tag: 'Writing' },
+            { id: 'cloze', name: 'Điền đoạn', hint: 'Câu thật trong bài đọc, điền từ còn thiếu', tag: 'Reading' },
+            { id: 'upgrade', name: 'Nâng cấp câu', hint: 'Chọn cách nói trang trọng nhất cho một câu', tag: 'Writing' },
         ],
     },
 ];
@@ -124,7 +125,6 @@ export default function PlayPage() {
                             const g = all.find((x) => x.id === id);
                             if (!g) return null;
                             const c = GAME_COLOR[id];
-                            const Icon = g.icon;
                             return (
                                 <Link
                                     key={id}
@@ -135,7 +135,7 @@ export default function PlayPage() {
                                 >
                                     {/* The challenge of the day is the one colour block; the others are cells with a coloured icon. */}
                                     <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${i === 0 && ready ? 'lx-soft !border-[var(--on-block)] bg-transparent' : 'lx-soft text-[var(--on-block)]'}`} style={i === 0 && ready ? undefined : { background: c }}>
-                                        <Icon className="h-6 w-6" />
+                                        <GameIcon game={id} className="h-8 w-8" />
                                     </span>
                                     <span className="min-w-0">
                                         <span data-prose className="block font-mono text-[10px] font-bold uppercase tracking-wide text-muted">{why}</span>
@@ -158,7 +158,7 @@ export default function PlayPage() {
                     </summary>
                     <div className="mt-3">
                     <div className="grid gap-3 lg:grid-cols-2">
-                        {FEATURED.map(({ id, name, hint, icon: Icon, tag }) => {
+                        {FEATURED.map(({ id, name, hint, tag }) => {
                             const c = GAME_COLOR[id];
                             return (
                                 <Link
@@ -168,7 +168,7 @@ export default function PlayPage() {
                                     className={`lx-soft lx-press relative flex items-center gap-4 overflow-hidden rounded-[20px] bg-surface p-5 ${ready ? '' : 'pointer-events-none opacity-50'}`}
                                 >
                                     <span className="lx-soft flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-[var(--on-block)]" style={{ background: c }}>
-                                        <Icon className="h-7 w-7" />
+                                        <GameIcon game={id} className="h-9 w-9" />
                                     </span>
                                     <span className="min-w-0">
                                         <span className="flex items-center gap-2 whitespace-nowrap text-lg font-extrabold text-ink">
@@ -194,7 +194,7 @@ export default function PlayPage() {
                             <ChevronDown className="ml-auto h-4 w-4 self-center text-muted transition-transform group-open/fold:rotate-180" />
                         </summary>
                         <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
-                            {g.games.map(({ id, name, hint, icon: Icon, tag }, i) => {
+                            {g.games.map(({ id, name, hint, tag }, i) => {
                                 const c = GAME_COLOR[id];
                                 return (
                                     <motion.div key={id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -204,7 +204,7 @@ export default function PlayPage() {
                                             className={`lx-soft lx-press group relative flex h-full min-h-36 flex-col overflow-hidden rounded-[20px] bg-surface p-4 ${ready ? '' : 'pointer-events-none opacity-50'}`}
                                         >
                                             <span className="lx-soft flex h-11 w-11 items-center justify-center rounded-2xl text-[var(--on-block)]" style={{ background: c }}>
-                                                <Icon className="h-5 w-5" />
+                                                <GameIcon game={id} className="h-7 w-7" />
                                             </span>
                                             <span className="mt-3 flex min-w-0 items-center gap-2 whitespace-nowrap text-[15px] font-extrabold text-ink">
                                                 {name}

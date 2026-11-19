@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import TopicIcon from '../../components/brand/TopicIcon';
+import GameIcon from '../../components/brand/GameIcon';
+import { GAME_COLOR, type GameId } from '../../play/theme';
 import { Blob, Bolt, Bubble, Burst, Check, Cloud, Confetti, Crown, DoodleArrow, DotGrid, Flame, Heart, Pencil, PeekEyes, Rainbow, Ribbon, ScribbleCircle, Smiley, Sparkle, Speaker, Squiggle, Stamp, Star, Sticker, Tape, Trophy } from '../../components/brand/Decor';
 import { TOPIC_BLOCK, tiltOf } from '../../lib/brand';
 import { Button, Card, Chip, EmptyState, Eyebrow, Option, Stat, Tag } from '../../components/ui';
@@ -43,6 +45,20 @@ export default function BrandPage() {
                                 <span className="font-mono text-[11px] font-bold uppercase tracking-wider">{tp.label}</span>
                                 <TopicIcon topic={tp.id} className="h-14 w-14" />
                                 <span className="font-mono text-[11px]">{TOPIC_BLOCK[tp.id]}</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                <section>
+                    <h2 className="mb-3 text-xl font-extrabold">Biểu tượng game</h2>
+                    <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
+                        {(Object.keys(GAME_COLOR) as GameId[]).map((g) => (
+                            <div key={g} className="flex flex-col items-center gap-1.5">
+                                <span className="lx-soft flex h-16 w-16 items-center justify-center rounded-2xl text-[#16150F]" style={{ background: GAME_COLOR[g] }}>
+                                    <GameIcon game={g} className="h-10 w-10" />
+                                </span>
+                                <span className="font-mono text-[10px] text-muted">{g}</span>
                             </div>
                         ))}
                     </div>
