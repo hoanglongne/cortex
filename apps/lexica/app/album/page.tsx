@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronDown, Gift, Hammer, HelpCircle, Leaf, Lock, Shield, Snowflake, Sparkles, Sprout, Ticket, Trophy, Wand2, X } from 'lucide-react';
@@ -18,16 +18,11 @@ import { RevealModal, useReel } from '../components/RevealReel';
 import AuthGate from '../components/AuthGate';
 import { shareCardImage } from '../lib/engagement/shareCard';
 import { TOPIC_BLOCK } from '../lib/brand';
+import { capture } from '../lib/productAnalytics';
 import { topicOf } from '../lib/engagement/collection';
 
 const STATE_ICON = { seed: Sprout, sprout: Leaf, gold: Sparkles, mastered: Trophy } as const;
 const STATE_LABEL = { seed: 'Mầm non', sprout: 'Đang nhớ', gold: 'Thuộc tốt', mastered: 'Thành thạo' } as const;
-const STATE_STYLE = {
-    seed: 'border-line-strong bg-surface text-muted',
-    sprout: 'text-ink lx-soft bg-surface-2',
-    gold: 'text-ink lx-soft bg-surface-2',
-    mastered: 'border-warning/60 bg-warning/10 text-ink',
-} as const;
 const EDITION_CLASS: Record<Edition, string> = {
     common: '',
     silver: 'lx-edition-silver',
@@ -57,6 +52,8 @@ export default function AlbumPage() {
     const version = useContentVersion();
     const cardProgress = useLexicaStore((s) => s.cardProgress);
     const economy = useEconomy();
+    // How many learners open the Album (docs/LEXICA_UI_B_ROLLOUT.md §8).
+    useEffect(() => capture('album_open'), []);
     const [openId, setOpenId] = useState<string | null>(null);
     const [selected, setSelected] = useState<string | null>(null);
     const [reveal, setReveal] = useState<Reveal | null>(null);
@@ -359,8 +356,8 @@ function SetRow({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`relative aspect-[3/4] rounded-xl p-2 flex flex-col justify-between text-left lx-press ${owned ? `lx-sticker !rounded-xl lx-onblock ${EDITION_CLASS[owned.edition]}` : `border ${STATE_STYLE[cp.state]}`}`}
-                                style={owned && card ? { background: TOPIC_BLOCK[topicOf({ scenario: card.scenario })] } : undefined}
+                                className={`relative aspect-[3/4] rounded-xl p-2 flex flex-col justify-between text-left lx-press lx-sticker !rounded-xl lx-onblock ${owned ? EDITION_CLASS[owned.edition] : ''}`}
+                                style={{ background: TOPIC_BLOCK[topicOf({ scenario: card?.scenario })] }}
                             >
 
                                 <span className="flex items-center justify-between">

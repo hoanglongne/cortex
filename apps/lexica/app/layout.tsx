@@ -1,3 +1,4 @@
+import MotionPrefs from "./components/MotionPrefs";
 import ThemeSync from './components/ThemeSync';
 import { THEME_BOOT } from './lib/theme';
 import DialTapBridge from './components/DialTapBridge';
@@ -96,9 +97,11 @@ export default function RootLayout({
           <DialTapBridge />
           <ThemeSync />
           <HydrationGate>
-            <DesktopNav />
-            {children}
-            <AppNav />
+            <MotionPrefs>
+              <DesktopNav />
+              {children}
+              <AppNav />
+            </MotionPrefs>
           </HydrationGate>
         </AuthProvider>
       </body>
