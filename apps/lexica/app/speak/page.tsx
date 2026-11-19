@@ -37,7 +37,7 @@ function SpeakingLadder() {
         { label: 'Phòng thi', hint: 'Giờ thi chung, nói với người thật. Hẹn một bạn trong Bạn học', href: '/buddy' },
     ];
     return (
-        <details className="rounded-2xl border border-line bg-surface p-4">
+        <details className="lx-soft rounded-[18px] bg-surface p-4">
             <summary className="cursor-pointer text-sm font-semibold text-ink">Thang nói: từ một từ đến phòng thi</summary>
             <ol className="mt-3 space-y-2">
                 {steps.map((s, i) => (
@@ -141,7 +141,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
     return (
         <div className="space-y-4">
             <SpeakingLadder />
-            <div className="rounded-2xl border border-line bg-surface p-5">
+            <div className="lx-soft rounded-[18px] bg-surface p-5">
                 <h1 className="text-xl font-semibold text-ink">Luyện nói 2 phút</h1>
                 <p className="mt-2 text-sm text-muted">
                     5 từ bạn đã học, mỗi lần một nhóm khác: từ chưa nói rõ và lâu chưa luyện trước. Mỗi từ 3 bước ngắn: nghe phân biệt âm gần giống, nghe mẫu rồi nói và xem máy nghe được gì, rồi một mẹo và nói trong cụm.
@@ -151,7 +151,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
                         <p className="mt-4 text-sm text-ink-2">
                             {suggested.map((id) => getCard(id)?.word.toLowerCase()).join(' · ')}
                         </p>
-                        <button onClick={() => onStart(suggested)} className="mt-4 h-12 px-6 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold">
+                        <button onClick={() => onStart(suggested)} className="lx-hard lx-press mt-4 h-12 px-6 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold">
                             Bắt đầu
                         </button>
                     </>
@@ -167,7 +167,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
                 <p className="mt-3 text-xs text-subtle">Giọng nói được gửi đi để nhận dạng (máy chủ Google trên Chrome, hoặc máy chủ Lexica); Lexica không lưu bản ghi.</p>
             </div>
             {hard.length > 0 && (
-                <div data-testid="hard-to-say" className="rounded-2xl border border-line bg-surface p-5">
+                <div data-testid="hard-to-say" className="lx-soft rounded-[18px] bg-surface p-5">
                     <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Từ khó nói</p>
                     <ul className="mt-2 flex flex-wrap gap-2">
                         {hard.slice(0, 12).map((h) => (
@@ -176,7 +176,7 @@ function Intro({ suggested, hard, onStart }: { suggested: string[]; hard: { card
                             </li>
                         ))}
                     </ul>
-                    <button onClick={() => onStart(hard.map((h) => h.cardId))} className="mt-3 h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong">
+                    <button onClick={() => onStart(hard.map((h) => h.cardId))} className="mt-3 h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong">
                         Luyện các từ này
                     </button>
                 </div>

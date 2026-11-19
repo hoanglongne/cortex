@@ -156,8 +156,8 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
     if (sound === null || !shown) {
         return (
             <div className="min-h-screen bg-bg px-4 py-10">
-                <section className="max-w-md mx-auto rounded-3xl border border-line bg-surface p-6 space-y-4">
-                    <span className="w-11 h-11 rounded-2xl bg-accent/12 text-accent flex items-center justify-center">
+                <section className="lx-soft max-w-md mx-auto rounded-[22px] bg-surface p-6 space-y-4">
+                    <span className="w-11 h-11 rounded-2xl bg-surface-2 text-accent flex items-center justify-center">
                         <Headphones className="w-5 h-5" />
                     </span>
                     <div>
@@ -170,10 +170,10 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
                     </p>
                     {note && <p className="rounded-lg bg-bg px-3 py-2 text-xs text-ink-2">{note}</p>}
                     <div className="flex flex-col gap-2">
-                        <button disabled={busy} onClick={() => void begin(true)} className="h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold flex items-center justify-center gap-2 disabled:opacity-60">
+                        <button disabled={busy} onClick={() => void begin(true)} className="lx-hard lx-press h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold flex items-center justify-center gap-2 disabled:opacity-60">
                             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Có, có câu nghe
                         </button>
-                        <button disabled={busy} onClick={() => void begin(false)} className="h-12 rounded-xl border border-line text-sm text-ink-2 hover:border-line-strong disabled:opacity-60">
+                        <button disabled={busy} onClick={() => void begin(false)} className="h-12 lx-soft rounded-xl text-sm text-ink-2 hover:border-line-strong disabled:opacity-60">
                             Không, chỉ câu đọc
                         </button>
                     </div>
@@ -192,7 +192,7 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
         <div className="min-h-screen bg-bg px-4 py-6">
             <div className="max-w-xl mx-auto space-y-6">
                 <div className="flex items-center gap-3">
-                    <button onClick={onBack} aria-label="Thoát" className="w-9 h-9 rounded-lg border border-line flex items-center justify-center text-muted hover:text-ink">
+                    <button onClick={onBack} aria-label="Thoát" className="w-9 h-9 lx-soft rounded-lg flex items-center justify-center text-muted hover:text-ink">
                         <ArrowLeft className="w-4 h-4" />
                     </button>
                     <div className="flex-1">
@@ -203,17 +203,17 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
                     <span className="font-mono text-xs text-muted w-12 text-right">Câu {count + 1}</span>
                 </div>
 
-                <section className="rounded-3xl border border-line bg-surface p-5 sm:p-6">
+                <section className="lx-soft rounded-[22px] bg-surface p-5 sm:p-6">
                     <div className="flex items-center justify-between gap-2">
                         <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{KIND_LABEL[shown.kind]}</p>
                         <span className={`font-mono text-xs ${left <= 5 ? 'text-danger' : 'text-muted'}`}>{left}s</span>
                     </div>
                     <div className="mt-1 h-0.5 rounded-full bg-surface-3 overflow-hidden">
-                        <div className="h-full bg-accent/60 transition-all duration-1000 ease-linear" style={{ width: `${(left / SECONDS) * 100}%` }} />
+                        <div className="h-full bg-surface-2 transition-all duration-1000 ease-linear" style={{ width: `${(left / SECONDS) * 100}%` }} />
                     </div>
                     {shown.kind === 'listen' ? (
                         <div className="my-6 flex justify-center">
-                            <button onClick={play} aria-label="Nghe lại" className="w-20 h-20 rounded-full bg-accent/12 border border-accent/40 text-accent flex items-center justify-center hover:bg-accent/20">
+                            <button onClick={play} aria-label="Nghe lại" className="w-20 h-20 rounded-full flex items-center justify-center lx-soft bg-surface-2">
                                 <Volume2 className="w-8 h-8" />
                             </button>
                         </div>
@@ -225,7 +225,7 @@ export default function PlacementTest({ start, verify, onDone, onBack }: { start
                         {shown.options.map((o, i) => {
                             const right = i === shown.answer;
                             const mine = picked === i;
-                            const tone = picked === null ? 'border-line hover:border-accent/60 bg-bg/40' : reveal && right ? 'border-accent bg-accent/12' : reveal && mine ? 'border-danger/60 bg-danger/10' : mine ? 'border-accent/60 bg-accent/5' : 'border-line opacity-50';
+                            const tone = picked === null ? 'border-line hover:border-ink bg-bg/40' : reveal && right ? '!border-ink bg-accent text-on-accent' : reveal && mine ? 'border-danger/60 bg-danger/10' : mine ? 'lx-soft bg-surface-2' : 'border-line opacity-50';
                             return (
                                 <button key={o} disabled={picked !== null || busy} onClick={() => void answer(i)} className={`min-h-12 px-4 py-3 rounded-xl border text-left text-sm text-ink flex items-center gap-2 transition-colors ${tone}`}>
                                     <span className="flex-1">{o}</span>

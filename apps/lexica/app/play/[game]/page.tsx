@@ -62,7 +62,7 @@ function Play({ game }: { game: string }) {
     let body: React.ReactNode;
     if (known.length < MIN_WORDS || (mcq && rounds.length === 0) || (game === 'dictate' && dictation.length === 0) || (game === 'fill' && fills.length === 0)) {
         body = (
-            <p className="rounded-2xl border border-line bg-surface p-4 text-sm text-ink-2">
+            <p className="lx-soft rounded-[18px] bg-surface p-4 text-sm text-ink-2">
                 Chưa đủ từ để chơi game này. <Link href="/play" className="text-accent underline">Chọn game khác</Link>
             </p>
         );

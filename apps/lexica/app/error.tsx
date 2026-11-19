@@ -12,10 +12,10 @@ export default function RouteError({ error, reset }: { error: Error & { digest?:
             <h1 className="text-lg font-semibold text-ink">Màn hình này gặp lỗi</h1>
             <p className="text-sm text-muted max-w-sm">Tiến trình học của bạn vẫn được giữ. Thử tải lại màn hình; nếu vẫn lỗi, bạn báo giúp nhóm ở mục Góp ý nhé.</p>
             <div className="flex gap-2">
-                <button type="button" onClick={reset} className="h-11 px-5 rounded-xl bg-accent text-on-accent font-semibold">
+                <button type="button" onClick={reset} className="lx-hard lx-press h-11 px-5 rounded-xl bg-accent text-on-accent font-extrabold">
                     Thử lại
                 </button>
-                <Link href="/feedback?from=error" className="h-11 px-5 rounded-xl border border-line-strong text-ink-2 font-semibold flex items-center">
+                <Link href="/feedback?from=error" className="h-11 px-5 lx-soft rounded-xl text-ink-2 font-semibold flex items-center">
                     Báo lỗi
                 </Link>
             </div>

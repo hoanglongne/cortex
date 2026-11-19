@@ -41,13 +41,13 @@ export default function WordSounds({ word, ipa, startPhone }: { word: string; ip
                             setTaps((n) => n + 1);
                             void sayModel(word, 'slow');
                         }}
-                        className={`min-w-9 rounded-lg border px-2 py-1 text-center ${i === at ? 'border-accent bg-accent/10' : 'border-line hover:border-line-strong'}`}
+                        className={`min-w-9 rounded-lg border px-2 py-1 text-center ${i === at ? '!border-ink bg-ink text-bg' : 'border-line hover:border-line-strong'}`}
                     >
                         <span className="block font-semibold text-lg leading-tight text-ink">{x.letters || '·'}</span>
                         <span className="block font-mono text-[11px] text-muted">/{x.ipa}/</span>
                     </button>
                 ))}
-                <button type="button" onClick={() => void sayModel(word, 'slow')} className="ml-1 h-9 w-9 rounded-lg border border-line grid place-items-center text-ink-2" aria-label={`Nghe ${word} chậm`}>
+                <button type="button" onClick={() => void sayModel(word, 'slow')} className="ml-1 h-9 w-9 lx-soft rounded-lg grid place-items-center text-ink-2" aria-label={`Nghe ${word} chậm`}>
                     <Volume2 className="w-4 h-4" />
                 </button>
             </div>

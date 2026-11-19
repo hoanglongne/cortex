@@ -80,7 +80,7 @@ export function SelfCheck({ items }: { items: readonly string[] }) {
 
 export function Panel({ title, children, hint }: { title: string; children: React.ReactNode; hint?: string }) {
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <h2 className="font-semibold text-ink">{title}</h2>
             {hint && <p className="mt-0.5 text-sm text-muted">{hint}</p>}
             <div className="mt-3 space-y-3">{children}</div>

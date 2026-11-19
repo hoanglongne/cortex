@@ -22,19 +22,19 @@ export default function MePage() {
             <div className="max-w-xl mx-auto space-y-5">
                 <h1 className="text-xl font-semibold text-ink">Tôi</h1>
 
-                <Link href="/stats" className="block rounded-2xl border border-line bg-surface p-4 hover:border-line-strong">
+                <Link href="/stats" className="lx-soft block rounded-[18px] bg-surface p-4 hover:border-line-strong">
                     <StepNumbers href={null} compact />
                     <p className="mt-3 flex items-center gap-2 text-sm text-accent">
                         <BarChart3 className="w-4 h-4" /> Xem thống kê <ChevronRight className="w-4 h-4 ml-auto text-subtle" />
                     </p>
                 </Link>
 
-                <section className="rounded-2xl border border-line bg-surface divide-y divide-line">
-                    <Row href="/path" icon={<Route className="w-4 h-4" />} title="Lộ trình 30 ngày" />
-                    <Row href="/score" icon={<Gauge className="w-4 h-4" />} title="Điểm từ vựng" hint={lastScore ? String(lastScore) : 'Chưa thi'} />
-                    <Row href="/class" icon={<School className="w-4 h-4" />} title="Lớp học" />
-                    <Row href="/buddy" icon={<Users className="w-4 h-4" />} title="Bạn học" />
-                    {hardCount > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó của bạn" hint={`${hardCount} từ`} />}
+                <section className="lx-soft rounded-[18px] bg-surface divide-y divide-line">
+                    <Row href="/path" icon={<Route className="w-4 h-4" />} title="Lộ trình 30 ngày" color="var(--color-game-mint)" />
+                    <Row href="/score" icon={<Gauge className="w-4 h-4" />} title="Điểm từ vựng" color="var(--color-game-sky)" hint={lastScore ? String(lastScore) : 'Chưa thi'} />
+                    <Row href="/class" icon={<School className="w-4 h-4" />} title="Lớp học" color="var(--color-game-violet)" />
+                    <Row href="/buddy" icon={<Users className="w-4 h-4" />} title="Bạn học" color="var(--color-game-coral)" />
+                    {hardCount > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó của bạn" color="var(--color-game-coral)" hint={`${hardCount} từ`} />}
                     <Row href="/guide" icon={<Compass className="w-4 h-4" />} title="Lexica có gì" />
                     {CORTEX_HUB_URL && <Row href={CORTEX_HUB_URL} icon={<Compass className="w-4 h-4" />} title="Về Cortex" hint="Giáo viên, trung tâm và các app khác" />}
                     <Row href="/settings" icon={<Settings className="w-4 h-4" />} title="Cài đặt" hint="Lộ trình, nhịp học, giọng, âm thanh" />
@@ -50,10 +50,10 @@ export default function MePage() {
     );
 }
 
-function Row({ href, icon, title, hint }: { href: string; icon: React.ReactNode; title: string; hint?: string }) {
+function Row({ href, icon, title, hint, color }: { href: string; icon: React.ReactNode; title: string; hint?: string; color?: string }) {
     return (
         <Link href={href} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-2/50 first:rounded-t-2xl last:rounded-b-2xl">
-            <span className="w-8 h-8 rounded-lg bg-surface-2 flex items-center justify-center text-muted shrink-0">{icon}</span>
+            <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color ? 'lx-soft text-[var(--on-block)]' : 'bg-surface-2 text-muted'}`} style={color ? { background: color } : undefined}>{icon}</span>
             <span className="shrink-0 whitespace-nowrap text-sm font-medium text-ink">{title}</span>
             <span className="flex-1 min-w-0 truncate text-right text-xs text-muted">{hint}</span>
             <ChevronRight className="w-4 h-4 text-subtle" />

@@ -68,10 +68,10 @@ export default function SpellGame({ cards, onAgain }: { cards: GameCard[]; onAga
                     autoCorrect="off"
                     spellCheck={false}
                     aria-label="Gõ từ tiếng Anh"
-                    className="flex-1 h-12 px-4 rounded-xl border border-line bg-surface text-ink"
+                    className="lx-soft flex-1 h-12 px-4 rounded-xl bg-surface text-ink"
                     disabled={reveal}
                 />
-                <button type="submit" disabled={reveal} className="h-12 px-5 rounded-xl bg-accent text-on-accent font-bold">
+                <button type="submit" disabled={reveal} className="lx-hard lx-press h-12 px-5 rounded-xl bg-accent text-on-accent font-extrabold">
                     Kiểm tra
                 </button>
             </form>

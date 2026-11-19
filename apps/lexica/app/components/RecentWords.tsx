@@ -16,7 +16,7 @@ export default function RecentWords() {
     const shown = ids.filter((id) => getCard(id)).slice(0, SHOWN);
     if (shown.length === 0) return null;
     return (
-        <section aria-label="Từ của bạn" className="w-full rounded-2xl border border-line bg-surface p-4">
+        <section aria-label="Từ của bạn" className="lx-soft w-full rounded-[18px] bg-surface p-4">
             <Link href="/learned" className="flex items-center justify-between gap-2">
                 <span className="font-mono text-[11px] uppercase tracking-wider text-subtle">Từ vừa học</span>
                 <span className="flex items-center gap-1 text-sm text-accent">

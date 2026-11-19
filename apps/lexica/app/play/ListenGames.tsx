@@ -125,7 +125,7 @@ export function DictateGame({ rounds, onAgain }: { rounds: DictationRound[]; onA
                 spellCheck={false}
                 aria-label="Câu bạn nghe được"
                 placeholder="Gõ câu bạn nghe được"
-                className="w-full rounded-2xl border border-line bg-surface p-3 text-ink disabled:opacity-70"
+                className="lx-soft w-full rounded-[18px] bg-surface p-3 text-ink disabled:opacity-70"
             />
             {checked ? (
                 <div className="space-y-2">
@@ -209,7 +209,7 @@ export function FillGame({ rounds, onAgain }: { rounds: FillRound[]; onAgain: ()
                     </button>
                 </div>
             </div>
-            <p lang="en" className="rounded-2xl border border-line bg-surface p-4 text-[17px] leading-loose text-ink">
+            <p lang="en" className="lx-soft rounded-[18px] bg-surface p-4 text-[17px] leading-loose text-ink">
                 {q.parts.map((p, k) =>
                     'text' in p ? (
                         <span key={k}>{p.text}</span>
@@ -224,7 +224,7 @@ export function FillGame({ rounds, onAgain }: { rounds: FillRound[]; onAgain: ()
                                 autoCorrect="off"
                                 spellCheck={false}
                                 size={Math.max(6, q.answers[p.blank].length + 1)}
-                                className={`mx-0.5 h-8 rounded-lg border px-2 text-center text-base ${done ? (right[p.blank] ? 'border-accent bg-accent/10 text-accent' : 'border-danger bg-danger/10 text-danger') : 'border-line-strong bg-surface-2 text-ink'}`}
+                                className={`mx-0.5 h-8 rounded-lg border px-2 text-center text-base ${done ? (right[p.blank] ? '!border-ink bg-accent text-on-accent' : 'border-danger bg-danger/10 text-danger') : 'border-line-strong bg-surface-2 text-ink'}`}
                             />
                             {done && !right[p.blank] && <span className="mr-1 text-sm font-semibold text-accent">{q.answers[p.blank]}</span>}
                         </span>
@@ -303,7 +303,7 @@ export function LinkedGame({ rounds, onAgain }: { rounds: LinkedRound[]; onAgain
             <div className="space-y-3 rounded-3xl border p-5" style={{ background: tint(c, 8), borderColor: edge(c, 30) }}>
                 <PlayBar game="linked" onPlay={() => play()} plays={plays} />
                 <div className="flex justify-center">
-                    <button onClick={() => play(true)} className="flex h-8 items-center gap-1.5 rounded-lg border border-line px-3 text-xs text-ink-2">
+                    <button onClick={() => play(true)} className="flex h-8 items-center gap-1.5 lx-soft rounded-lg px-3 text-xs text-ink-2">
                         <Turtle className="h-3.5 w-3.5" /> Nghe chậm
                     </button>
                 </div>
@@ -325,7 +325,7 @@ export function LinkedGame({ rounds, onAgain }: { rounds: LinkedRound[]; onAgain
             </div>
             {picked !== null && (
                 <div className="space-y-2">
-                    <p className="rounded-xl border border-line bg-surface-2/50 p-3 text-sm text-ink-2">
+                    <p className="lx-soft rounded-xl bg-surface-2 p-3 text-sm text-ink-2">
                         <span lang="en" className="font-semibold text-ink">“{q.said}”</span>
                         <br />
                         {q.note}

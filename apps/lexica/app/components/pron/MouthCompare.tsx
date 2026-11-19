@@ -53,7 +53,7 @@ export default function MouthCompare({ pair }: { pair: Pick<SoundPair, 'a' | 'b'
             )}
             <p className="text-sm text-ink-2">{pair.note}</p>
             {words && (
-                <button type="button" onClick={() => void play()} className="h-9 px-3 rounded-lg border border-line text-sm text-ink flex items-center gap-1.5 hover:border-line-strong">
+                <button type="button" onClick={() => void play()} className="h-9 px-3 lx-soft rounded-lg text-sm text-ink flex items-center gap-1.5 hover:border-line-strong">
                     <Volume2 className="w-3.5 h-3.5" /> Nghe xen kẽ {words[0]} / {words[1]}
                 </button>
             )}

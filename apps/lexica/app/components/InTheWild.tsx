@@ -14,7 +14,7 @@ import type { CardQuote } from '../lib/content/pack';
 export default function InTheWild({ word, quotes }: { word: string; quotes: CardQuote[] }) {
     if (quotes.length === 0) return null;
     return (
-        <details className="group mt-3 rounded-lg border border-line bg-surface-2 px-3 py-2" onClick={e => e.stopPropagation()}>
+        <details className="lx-soft group mt-3 rounded-lg bg-surface-2 px-3 py-2" onClick={e => e.stopPropagation()}>
             <summary className="cursor-pointer list-none">
                 <span className="font-mono text-[11px] text-accent uppercase tracking-wider">
                     Ngoài đời · {quotes.length} câu thật
@@ -53,7 +53,7 @@ function Clip({ media, title }: { media: NonNullable<CardQuote['media']>; title:
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-line px-2.5 py-1.5 text-xs text-ink hover:bg-surface-3"
+                className="mt-2 inline-flex items-center gap-1.5 lx-soft rounded-lg px-2.5 py-1.5 text-xs text-ink hover:bg-surface-3"
             >
                 <Play className="w-3.5 h-3.5" /> Nghe đoạn này ({clock(media.start)})
             </button>

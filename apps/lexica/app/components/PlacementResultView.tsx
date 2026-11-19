@@ -28,7 +28,7 @@ export default function PlacementResultView({
     return (
         <div className="min-h-screen bg-bg px-4 py-8">
             <div className="max-w-xl mx-auto space-y-5">
-                <section className="rounded-3xl border border-accent/40 bg-gradient-to-b from-accent/10 to-accent/[0.02] p-6 text-center">
+                <section className="lx-hard rounded-[22px] bg-surface p-6 text-center">
                     <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Điểm từ vựng Lexica</p>
                     <p className="mt-3 font-mono text-6xl font-bold text-ink">{result.score}</p>
                     <p className="mt-1 text-sm text-muted">± {result.sd} điểm</p>
@@ -51,7 +51,7 @@ export default function PlacementResultView({
                 </section>
 
                 {kinds.length > 0 && (
-                    <section className="rounded-2xl border border-line bg-surface p-4 space-y-2.5">
+                    <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-2.5">
                         <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Theo dạng câu</p>
                         {kinds.map((k) => {
                             const { right, total } = result.byKind[k];
@@ -59,7 +59,7 @@ export default function PlacementResultView({
                                 <div key={k} className="flex items-center gap-3">
                                     <span className="w-32 shrink-0 text-sm text-ink">{KIND_LABEL[k]}</span>
                                     <span className="flex-1 h-2 rounded-full bg-surface-3 overflow-hidden">
-                                        <span className="block h-full rounded-full bg-accent/80" style={{ width: `${(right / total) * 100}%` }} />
+                                        <span className="block h-full rounded-full bg-surface-2" style={{ width: `${(right / total) * 100}%` }} />
                                     </span>
                                     <span className="w-10 text-right text-xs text-muted tabular-nums">
                                         {right}/{total}
@@ -71,16 +71,16 @@ export default function PlacementResultView({
                     </section>
                 )}
 
-                <section className="rounded-2xl border border-line bg-surface p-4">
+                <section className="lx-soft rounded-[18px] bg-surface p-4">
                     <p className="text-sm text-ink">
                         Level gợi ý: <b className="text-accent">{level.label}</b> <span className="text-muted">· {level.cefr}</span>
                     </p>
                     <p className="mt-1 text-xs text-muted">{level.description}</p>
                     <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                        <button onClick={onAccept} className="h-12 flex-1 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold">
+                        <button onClick={onAccept} className="lx-hard lx-press h-12 flex-1 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold">
                             Học ở level {level.label}
                         </button>
-                        <button onClick={onChoose} className="h-12 px-4 rounded-xl border border-line text-sm text-ink-2 hover:border-line-strong">
+                        <button onClick={onChoose} className="h-12 px-4 lx-soft rounded-xl text-sm text-ink-2 hover:border-line-strong">
                             Tự chọn level
                         </button>
                     </div>

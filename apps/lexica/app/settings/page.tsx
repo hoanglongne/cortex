@@ -46,7 +46,7 @@ function SettingsPageContent() {
                 <PronPackSetting />
 
                 {/* Settings Section */}
-                <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
+                <div className="lx-soft bg-surface/50 rounded-xl p-5 mb-8">
                     <h2 className="text-lg font-bold text-ink mb-4 flex items-center gap-2">
                         <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -56,9 +56,9 @@ function SettingsPageContent() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Sound Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line">
+                        <div className="flex items-center justify-between p-4 bg-bg/50 lx-soft rounded-lg">
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${soundEnabled ? 'bg-accent/15' : 'bg-surface-2/60'
+                                <div className={`p-2 rounded-lg ${soundEnabled ? 'bg-surface-2' : 'bg-surface-2'
  }`}>
                                     {soundEnabled ? (
                                         <Volume2 className="w-5 h-5 text-accent" />
@@ -87,9 +87,9 @@ function SettingsPageContent() {
                         </div>
 
                         {/* Speaking practice (it no longer blocks swiping) */}
-                        <Link href="/speak" className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line hover:border-line-strong">
+                        <Link href="/speak" className="flex items-center justify-between p-4 bg-bg/50 lx-soft rounded-lg hover:border-line-strong">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-accent/15">
+                                <div className="p-2 rounded-lg bg-surface-2">
                                     <Mic className="w-5 h-5 text-accent" />
                                 </div>
                                 <div>
@@ -101,9 +101,9 @@ function SettingsPageContent() {
                         </Link>
 
                         {/* Auto-Review Toggle */}
-                        <div className="flex items-center justify-between p-4 bg-bg/50 rounded-lg border border-line md:col-span-2">
+                        <div className="flex items-center justify-between p-4 bg-bg/50 lx-soft rounded-lg md:col-span-2">
                             <div className="flex items-center gap-3">
-                                <div className={`p-2 rounded-lg ${autoReviewInDeck ? 'bg-warning/15' : 'bg-surface-2/60'
+                                <div className={`p-2 rounded-lg ${autoReviewInDeck ? 'bg-warning/15' : 'bg-surface-2'
  }`}>
                                     <RotateCcw className={`w-5 h-5 ${autoReviewInDeck ? 'text-warning' : 'text-muted'}`} />
                                 </div>
@@ -160,7 +160,7 @@ function SettingsPageContent() {
             {/* Reset Confirmation Dialog */}
             {showResetDialog && (
                 <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowResetDialog(false)}>
-                    <div className="bg-surface border-2 border-danger/30 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                    <div className="lx-hard bg-surface rounded-[22px] p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-start gap-4 mb-6">
                             <div className="p-3 rounded-xl bg-danger/20 border border-danger/30">
                                 <Trash2 className="w-6 h-6 text-danger" />
@@ -209,7 +209,7 @@ function SettingsPageContent() {
                                     // Optionally redirect to home
                                     window.location.href = '/';
                                 }}
-                                className="flex-1 py-3 px-4 bg-danger hover:bg-danger text-on-status rounded-xl font-bold text-sm transition-colors shadow-lg "
+                                className="lx-soft lx-press flex-1 py-3 px-4 !border-danger bg-surface text-danger rounded-xl font-extrabold text-sm"
                             >
                                 Xác nhận Reset
                             </button>
@@ -252,7 +252,7 @@ function BackupStatus() {
     }
 
     return (
-        <div className="mb-6 rounded-2xl border border-line bg-surface/60 p-4">
+        <div className="lx-soft mb-6 rounded-[18px] bg-surface/60 p-4">
             <AuthGate
                 reason="Đăng nhập để sao lưu tiến trình học và tiếp tục trên máy khác."
                 redirectPath="/settings"
@@ -275,7 +275,7 @@ function PronPackSetting() {
     }, []);
     if (state === 'hidden') return null;
     return (
-        <div className="bg-surface/50 border border-line rounded-xl p-5 mb-8">
+        <div className="lx-soft bg-surface/50 rounded-xl p-5 mb-8">
             <p className="font-semibold text-ink">Gói chấm phát âm</p>
             <p className="mt-1 text-sm text-muted">
                 {state === 'ready' ? `Đã tải (khoảng ${packMegabytes()}MB). Xoá gói thì Luyện nói không còn hiện từng âm, tải lại được ở trang Luyện nói.` : 'Chưa tải gói chấm. Tải ở trang Luyện nói.'}
@@ -288,7 +288,7 @@ function PronPackSetting() {
                             await deletePack();
                             setState('none');
                         }}
-                        className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                        className="h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong"
                     >
                         Xoá gói chấm
                     </button>
@@ -304,7 +304,7 @@ function PronPackSetting() {
                                 a.click();
                                 URL.revokeObjectURL(a.href);
                             }}
-                            className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                            className="h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong"
                         >
                             Tải sổ đo ({logCount} lần nói)
                         </button>
@@ -315,7 +315,7 @@ function PronPackSetting() {
                                 setPronBeta(false);
                                 setState('hidden');
                             }}
-                            className="h-10 px-4 rounded-xl border border-line text-sm text-ink hover:border-line-strong"
+                            className="h-10 px-4 lx-soft rounded-xl text-sm text-ink hover:border-line-strong"
                         >
                             Tắt thử nghiệm
                         </button>

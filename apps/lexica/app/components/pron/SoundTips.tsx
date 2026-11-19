@@ -90,7 +90,7 @@ export function useSoundFeedback(attempt: Attempt | null, target: string, opts: 
 export const alignmentFor = (attempt: Attempt | null, target: string) => (attempt && target.trim().includes(' ') && attempt.alternatives.length > 0 ? alignAttempt(target, attempt.alternatives) : null);
 
 const LEVEL_STYLE = {
-    ok: { box: 'border-accent/45 bg-accent/10', badge: 'bg-accent text-on-accent', mark: '✓', label: 'rõ' },
+    ok: { box: 'lx-soft bg-surface-2', badge: 'bg-accent text-on-accent', mark: '✓', label: 'rõ' },
     warn: { box: 'border-warning/70 bg-warning/10', badge: 'bg-warning text-on-status', mark: '~', label: 'có thể chưa rõ' },
     bad: { box: 'border-danger bg-danger/15', badge: 'bg-danger text-on-status', mark: '!', label: 'chưa đúng' },
 } as const;
@@ -224,7 +224,7 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                     <p id="sound-sheet-title" className="text-base font-semibold text-ink">
                         Âm /{chip.ipa}/{chip.letters ? ` (${chip.letters})` : ''} trong “{issue.word.toLowerCase()}”
                     </p>
-                    <button type="button" onClick={onClose} className="w-9 h-9 rounded-lg border border-line text-muted grid place-items-center hover:text-ink" aria-label="Đóng">
+                    <button type="button" onClick={onClose} className="w-9 h-9 lx-soft rounded-lg text-muted grid place-items-center hover:text-ink" aria-label="Đóng">
                         <X className="w-4 h-4" />
                     </button>
                 </div>
@@ -239,7 +239,7 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                     <span className="text-muted" aria-hidden>
                         →
                     </span>
-                    <div className="rounded-xl p-2 border-[1.5px] border-accent/60 bg-accent/10">
+                    <div className="rounded-xl p-2 lx-soft bg-surface-2">
                         <p className="text-[11px] text-muted">đúng là</p>
                         <p className="font-mono text-2xl leading-tight text-ink">
                             /{chip.ipa}/
@@ -269,7 +269,7 @@ function SoundSheet({ chip, issue, audioUrl, onClose, onRetry }: { chip: Chip; i
                     {audioUrl && <ListenButton label="Giọng bạn" onPlay={() => playRecording(audioUrl)} icon={<Play className="w-3.5 h-3.5" />} />}
                 </div>
                 {onRetry && (
-                    <button type="button" onClick={onRetry} className="w-full h-12 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center gap-2">
+                    <button type="button" onClick={onRetry} className="lx-hard lx-press w-full h-12 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center gap-2">
                         <Mic className="w-4 h-4" /> Thử lại từ này
                     </button>
                 )}
@@ -316,7 +316,7 @@ export function MouthHint({ phone, tip }: { phone: string; tip: string | null })
 
 function ListenButton({ label, onPlay, icon }: { label: string; onPlay: () => void; icon: React.ReactNode }) {
     return (
-        <button type="button" onClick={onPlay} className="h-10 px-3 rounded-lg border border-line text-sm text-ink flex items-center gap-1.5 hover:border-line-strong">
+        <button type="button" onClick={onPlay} className="h-10 px-3 lx-soft rounded-lg text-sm text-ink flex items-center gap-1.5 hover:border-line-strong">
             {icon} {label}
         </button>
     );
@@ -381,7 +381,7 @@ function PaceBar({ rate, model }: { rate: number; model: number }) {
         <div data-testid="pace-bar" className="rounded-xl bg-surface-2 p-3">
             <p className="text-xs font-semibold text-subtle">Tốc độ (thử nghiệm)</p>
             <div className="relative mt-3 h-2 rounded-full bg-surface-3">
-                <div className="absolute inset-y-0 rounded-full bg-accent/30" style={{ left: `${at(model * 0.6)}%`, right: `${100 - at(model * 1.4)}%` }} />
+                <div className="absolute inset-y-0 rounded-full bg-surface-2" style={{ left: `${at(model * 0.6)}%`, right: `${100 - at(model * 1.4)}%` }} />
                 <span className="absolute -top-1.5 h-5 w-1 rounded bg-ink-2" style={{ left: `${at(model)}%` }} title="Giọng mẫu" />
                 <span className="absolute -top-1.5 h-5 w-1 rounded bg-accent" style={{ left: `${at(rate)}%` }} title="Bạn" />
             </div>
@@ -435,7 +435,7 @@ export function PackOffer() {
                             setState('error');
                         }
                     }}
-                    className="mt-2 h-9 px-3 rounded-lg bg-accent text-on-accent font-semibold flex items-center gap-1.5"
+                    className="lx-hard lx-press mt-2 h-9 px-3 rounded-lg bg-accent text-on-accent font-extrabold flex items-center gap-1.5"
                 >
                     <Download className="w-4 h-4" /> {state === 'error' ? 'Thử tải lại' : `Tải gói chấm (${packMegabytes()}MB)`}
                 </button>

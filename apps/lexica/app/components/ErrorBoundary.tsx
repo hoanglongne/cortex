@@ -46,7 +46,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                     </p>
                     <button
                         onClick={this.handleReset}
-                        className="px-6 py-3 bg-accent hover:bg-accent-strong rounded-xl font-bold text-on-accent transition-colors flex items-center gap-2"
+                        className="lx-hard lx-press px-6 py-3 bg-accent hover:bg-accent-strong rounded-xl font-extrabold text-on-accent transition-colors flex items-center gap-2"
                     >
                         <RotateCcw className="w-4 h-4" />
                         Thử lại

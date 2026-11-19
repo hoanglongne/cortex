@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
 import HomeHeader from './components/HomeHeader';
+import { LexicaLogo } from './components/LexicaLogo';
 import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
 import PaceCard from './components/PaceCard';
@@ -253,10 +254,10 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 8 }}
               transition={{ type: 'spring', stiffness: 340, damping: 28 }}
-              className="w-full max-w-sm bg-surface border border-accent/30 rounded-2xl p-6 shadow-2xl"
+              className="lx-hard w-full max-w-sm bg-surface rounded-[22px] p-6"
             >
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 rounded-xl bg-accent/20">
+                <div className="p-2.5 rounded-xl bg-surface-2">
                   <Brain className="w-6 h-6 text-accent" />
                 </div>
                 <h2 className="text-lg font-bold text-ink">Kết nối Cortex Hub</h2>
@@ -274,7 +275,7 @@ function HomeContent() {
                     setShowCortexReminder(false);
                     localStorage.setItem('cortex_reminder_dismissed', new Date().toISOString());
                   }}
-                  className="flex-1 py-2.5 rounded-xl border border-line-strong text-ink-2 text-sm font-medium hover:border-line-strong hover:text-ink transition-colors"
+                  className="flex-1 py-2.5 lx-soft rounded-xl text-ink-2 text-sm font-medium hover:border-line-strong hover:text-ink transition-colors"
                 >
                   Để sau
                 </button>
@@ -284,7 +285,7 @@ function HomeContent() {
                     setShowCortexReminder(false);
                     if (CORTEX_HUB_URL) window.open(CORTEX_HUB_URL, '_blank');
                   }}
-                  className="flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-bold transition-colors"
+                  className="lx-hard lx-press flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-extrabold transition-colors"
                 >
                   Kết nối ngay →
                 </button>
@@ -310,11 +311,11 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="w-full max-w-sm bg-surface border-2 border-accent/60 rounded-2xl p-6 shadow-2xl relative overflow-hidden"
+              className="lx-hard w-full max-w-sm bg-surface rounded-[22px] p-6 relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Subtle background glow effect */}
-              <div className="absolute inset-0 bg-accent/5 pointer-events-none" />
+              <div className="absolute inset-0 bg-surface-2 pointer-events-none" />
 
               <div className="text-center relative z-10">
                 {/* Celebration Icon with bounce */}
@@ -330,7 +331,7 @@ function HomeContent() {
                     stiffness: 400,
                     damping: 10,
                   }}
-                  className="mx-auto mb-4 w-20 h-20 rounded-2xl bg-accent/20 border-2 border-accent/50 flex items-center justify-center relative"
+                  className="mx-auto mb-4 w-20 h-20 rounded-2xl border-2 flex items-center justify-center relative lx-soft bg-surface-2"
                 >
                   {/* Pulsing ring effect */}
                   <motion.div
@@ -369,7 +370,7 @@ function HomeContent() {
                   </p>
 
                   {/* Goal achievement badge */}
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/15 border border-accent/30 rounded-xl mb-3">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl mb-3 lx-soft bg-surface-2">
                     <Check className="w-5 h-5 text-accent" />
                     <span className="text-accent font-bold text-lg">{dailyGoal} từ vựng</span>
                   </div>
@@ -408,7 +409,7 @@ function HomeContent() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="w-full max-w-md bg-surface border-2 border-warning/50 rounded-2xl p-6 shadow-2xl"
+              className="lx-hard w-full max-w-md bg-surface rounded-[22px] p-6"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center">
@@ -428,7 +429,7 @@ function HomeContent() {
                   Học quá nhiều từ trong một ngày có thể làm giảm khả năng ghi nhớ từng từ.
                 </p>
 
-                <div className="bg-surface-2/50 border border-line-strong rounded-xl p-4 text-left space-y-2">
+                <div className="bg-surface-2 border border-line-strong rounded-xl p-4 text-left space-y-2">
                   <p className="text-ink-2 text-xs font-medium">Gợi ý cho bạn:</p>
                   <div className="space-y-1.5">
                     <Link
@@ -482,7 +483,7 @@ function HomeContent() {
       {/* Help Button - Desktop Only */}
       <button
         onClick={() => { click(); setShowOnboarding(true); }}
-        className="hidden lg:flex fixed bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-surface-2 border border-line-strong hover:border-accent hover:bg-surface-3 transition-colors items-center justify-center text-muted hover:text-accent text-sm font-bold"
+        className="hidden lg:flex fixed bottom-5 right-5 z-50 w-8 h-8 rounded-full bg-surface-2 border border-line-strong hover:border-ink hover:bg-surface-3 transition-colors items-center justify-center text-muted hover:text-accent text-sm font-bold"
         aria-label="Hướng dẫn"
       >
         ?
@@ -494,7 +495,7 @@ function HomeContent() {
         {sessionStarted ? (
           <div className="w-full flex flex-col items-center">
             <div className="w-full max-w-md lg:max-w-xl flex items-center gap-3 mb-3">
-              <button onClick={() => { click(); setSessionStarted(false); }} className="h-9 px-3 rounded-lg border border-line text-sm text-muted hover:text-ink flex items-center gap-1.5" aria-label="Về trang chủ">
+              <button onClick={() => { click(); setSessionStarted(false); }} className="h-9 px-3 lx-soft rounded-lg text-sm text-muted hover:text-ink flex items-center gap-1.5" aria-label="Về trang chủ">
                 <ArrowLeft className="w-4 h-4" /> Về
               </button>
               <div className="flex-1"><DailyProgress done={dailyProgress} goal={dailyGoal} /></div>
@@ -509,7 +510,7 @@ function HomeContent() {
           <div className="w-full max-w-xl mx-auto flex flex-col gap-4 lg:max-w-none">
             {/* Mobile: a greeting; the day and streak live in "Nhịp học" */}
             <div className="lg:hidden flex items-center justify-between px-1">
-              <span className="font-semibold text-ink text-base tracking-wide">LEXICA</span>
+              <LexicaLogo className="h-5 w-auto text-ink" />
               <span className="text-sm text-muted">{greeting}</span>
             </div>
             <ErrorBoundary>
@@ -519,23 +520,15 @@ function HomeContent() {
             <RetakeCard />
             <GuideCard />
             <PledgeCard />
-            <div className="lg:hidden flex flex-col gap-4">
-              <PaceCard />
-              <PaceNudge />
-              <WordSteps />
-            </div>
             <RecentWords />
-            <div className="lg:hidden">
-              <Motivation variant="strip" />
-            </div>
           </div>
         )}
 
 
 
-        {/* Desktop: the game layer, narrow and quiet */}
+        {/* The game layer: after the learning column on mobile, a narrow right column on desktop (one instance, so tests and screen readers see it once) */}
         {!sessionStarted && (
-          <div className="hidden lg:flex flex-col gap-4 self-start">
+          <div className="w-full max-w-xl mx-auto flex flex-col gap-4 lg:max-w-none lg:self-start">
             <PaceCard />
             <PaceNudge />
             <WordSteps />

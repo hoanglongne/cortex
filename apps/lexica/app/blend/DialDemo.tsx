@@ -16,7 +16,7 @@ export default function DialDemo({ text, prefs, onChange }: { text: string; pref
     const dial = useDialParagraphs(paras, INTENSITY[prefs.intensity].share, undefined, INTENSITY[prefs.intensity].cap);
     const [open, setOpen] = useState<DialHit | null>(null);
     return (
-        <section data-testid="dial-demo" className="rounded-2xl border border-line bg-surface p-4 space-y-3">
+        <section data-testid="dial-demo" className="lx-soft rounded-[18px] bg-surface p-4 space-y-3">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Thử ngay</p>
             <DialControls intensity={prefs.intensity} mode={prefs.mode} onChange={onChange} estimate={estimateLine(estimate(prefs.intensity, null, null))} />
             <p className="text-[16px] leading-[1.75] text-ink-2">

@@ -28,25 +28,25 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
     return (
         <div className="w-full space-y-5">
             <Group title="Giữ từ đã học" sub="Ôn đúng lúc sắp quên">
-                <Row href="/review" icon={<RotateCcw className="w-4 h-4" />} title="Ôn tập" hint={due > 0 ? `${due} từ đến hạn` : 'Không có từ đến hạn'} badge={due > 0 ? due : undefined} />
-                {hard > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó" hint={`${hard} từ hay quên`} />}
+                <Row href="/review" icon={<RotateCcw className="w-4 h-4" />} title="Ôn tập" color="var(--color-game-mint)" hint={due > 0 ? `${due} từ đến hạn` : 'Không có từ đến hạn'} badge={due > 0 ? due : undefined} />
+                {hard > 0 && <Row href="/review?hard=1" icon={<Swords className="w-4 h-4" />} title="Từ khó" color="var(--color-game-coral)" hint={`${hard} từ hay quên`} />}
             </Group>
 
             <section aria-label="Luyện kỹ năng">
                 <GroupHead title="Dùng từ" sub="Đọc, nói, viết với từ của bạn" />
                 <div className="grid grid-cols-3 gap-2">
-                    <Tile href="/read" icon={<BookOpen className="w-5 h-5" />} title="Đọc" hint="Đoạn ngắn" />
-                    <Tile href="/speak" icon={<Mic className="w-5 h-5" />} title="Nói" hint="Nghe và nói" />
-                    <Tile href="/write" icon={<PenLine className="w-5 h-5" />} title="Viết" hint="Câu đến bài" />
+                    <Tile href="/read" icon={<BookOpen className="w-5 h-5" />} title="Đọc" color="var(--color-game-sky)" hint="Đoạn ngắn" />
+                    <Tile href="/speak" icon={<Mic className="w-5 h-5" />} title="Nói" color="var(--color-game-coral)" hint="Nghe và nói" />
+                    <Tile href="/write" icon={<PenLine className="w-5 h-5" />} title="Viết" color="var(--color-game-violet)" hint="Câu đến bài" />
                 </div>
             </section>
 
             <Group title="Chơi" sub="Chơi cũng là ôn từ">
-                <Row href="/play" icon={<Gamepad2 className="w-4 h-4" />} title="Trò chơi từ vựng" hint="Thám tử từ, Từ nói dối, Chớp và thêm 4 game nữa" />
+                <Row href="/play" icon={<Gamepad2 className="w-4 h-4" />} title="Trò chơi từ vựng" color="var(--color-game-violet)" hint="Thám tử từ, Từ nói dối, Chớp và thêm 4 game nữa" />
             </Group>
 
             <Group title="Thêm từ mới" sub="Khi đã xong phiên hôm nay">
-                <Row href="/today?more=1" icon={<Plus className="w-4 h-4" />} title="Học thêm" hint="10 từ mới, kèm một bài đọc và luyện nói" />
+                <Row href="/today?more=1" icon={<Plus className="w-4 h-4" />} title="Học thêm" color="var(--color-warning)" hint="10 từ mới, kèm một bài đọc và luyện nói" />
                 {drop && dropFresh > 0 && (
                     <Row
                         onClick={() => {
@@ -61,7 +61,7 @@ export default function MoreList({ onLearnMore }: { onLearnMore: () => void }) {
             </Group>
 
             <Group title="Ngoài đời" sub="Gặp lại từ ngoài app">
-                <Row href="/spot" icon={<ScanSearch className="w-4 h-4" />} title="Bắt gặp" hint="Săn từ của tuần, dán đoạn đọc được, xem bộ sưu tập" />
+                <Row href="/spot" icon={<ScanSearch className="w-4 h-4" />} title="Bắt gặp" color="var(--color-game-mint)" hint="Săn từ của tuần, dán đoạn đọc được, xem bộ sưu tập" />
             </Group>
 
             <Link href="/guide" className="flex items-center justify-center gap-1.5 text-sm text-muted hover:text-ink">
@@ -84,25 +84,25 @@ function Group({ title, sub, children }: { title: string; sub: string; children:
     return (
         <section aria-label={title}>
             <GroupHead title={title} sub={sub} />
-            <div className="rounded-2xl border border-line bg-surface divide-y divide-line">{children}</div>
+            <div className="lx-soft rounded-[18px] bg-surface divide-y divide-line">{children}</div>
         </section>
     );
 }
 
-function Tile({ href, icon, title, hint }: { href: string; icon: React.ReactNode; title: string; hint: string }) {
+function Tile({ href, icon, title, hint, color }: { href: string; icon: React.ReactNode; title: string; hint: string; color: string }) {
     return (
-        <Link href={href} className="rounded-2xl border border-line bg-surface p-3 flex flex-col items-center gap-1.5 text-center hover:border-line-strong transition-colors">
-            <span className="w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-muted">{icon}</span>
+        <Link href={href} className="lx-soft rounded-[18px] bg-surface p-3 flex flex-col items-center gap-1.5 text-center hover:border-line-strong transition-colors">
+            <span className="lx-soft w-10 h-10 rounded-xl flex items-center justify-center text-[var(--on-block)]" style={{ background: color }}>{icon}</span>
             <span className="text-sm font-medium text-ink">{title}</span>
             <span className="text-[11px] text-muted leading-tight">{hint}</span>
         </Link>
     );
 }
 
-function Row({ href, onClick, icon, title, hint, badge }: { href?: string; onClick?: () => void; icon: React.ReactNode; title: string; hint: string; badge?: number }) {
+function Row({ href, onClick, icon, title, hint, badge, color }: { href?: string; onClick?: () => void; icon: React.ReactNode; title: string; hint: string; badge?: number; color?: string }) {
     const body = (
         <>
-            <span className="w-8 h-8 rounded-lg bg-surface-2 flex items-center justify-center text-muted shrink-0">{icon}</span>
+            <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color ? 'lx-soft text-[var(--on-block)]' : 'bg-surface-2 text-muted'}`} style={color ? { background: color } : undefined}>{icon}</span>
             <span className="flex-1 min-w-0 text-left">
                 <span className="block text-sm font-medium text-ink">{title}</span>
                 <span className="block text-xs text-muted truncate">{hint}</span>

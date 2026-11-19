@@ -34,11 +34,11 @@ export default function PublicScorePage({ params }: { params: Promise<{ code: st
                 {!state ? (
                     <div className="h-72 rounded-3xl bg-surface animate-pulse" />
                 ) : !s ? (
-                    <section className="rounded-2xl border border-line bg-surface p-5 text-center text-sm text-muted">
+                    <section className="lx-soft rounded-[18px] bg-surface p-5 text-center text-sm text-muted">
                         {state.error ? 'Chưa kiểm tra được điểm lúc này. Thử lại sau nhé.' : 'Không tìm thấy điểm với mã này.'}
                     </section>
                 ) : (
-                    <section className="rounded-3xl border border-accent/40 bg-gradient-to-b from-accent/10 to-accent/[0.02] p-6 text-center">
+                    <section className="lx-hard rounded-[22px] bg-surface p-6 text-center">
                         <p className="flex items-center justify-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-accent">
                             <BadgeCheck className="w-4 h-4" /> Điểm từ vựng đã xác minh
                         </p>

@@ -27,7 +27,7 @@ export default function RainGame({ cards, onAgain }: { cards: GameCard[]; onAgai
                 <Bar game="rain" title="Mưa từ" score={0} />
                 <p className="text-sm text-muted text-center">Nghĩa tiếng Việt rơi xuống. Gõ từ tiếng Anh để phá trước khi chạm đất.</p>
                 <div className="grid gap-3">
-                    <button onClick={() => setPractice(true)} className="rounded-3xl border border-line bg-surface p-5 text-left active:scale-[0.98]">
+                    <button onClick={() => setPractice(true)} className="lx-soft rounded-[22px] bg-surface p-5 text-left active:scale-[0.98]">
                         <span className="block text-lg font-bold text-ink">Luyện</span>
                         <span className="block text-sm text-muted">Không mất tim, để làm quen. Từ chạm đất vẫn quay lại phần ôn.</span>
                     </button>
@@ -98,7 +98,7 @@ function Rainfall({ cards, practice, onAgain }: { cards: GameCard[]; practice: b
             <Bar game="rain" title="Mưa từ" score={rain.score} right={<span className="mr-1 text-subtle">Lv {level(rain)}</span>} />
             <div className="flex items-center justify-between text-xs">
                 {practice ? (
-                    <button onClick={() => setStopped(true)} className="rounded-lg border border-line px-2 py-1 text-ink-2">
+                    <button onClick={() => setStopped(true)} className="lx-soft rounded-lg px-2 py-1 text-ink-2">
                         Xong, xem kết quả
                     </button>
                 ) : (
@@ -123,7 +123,7 @@ function Rainfall({ cards, practice, onAgain }: { cards: GameCard[]; practice: b
             </div>
 
             {/* The sky */}
-            <div className="relative h-[52vh] min-h-72 overflow-hidden rounded-3xl border" style={{ background: `linear-gradient(180deg, ${tint(sky, 4)}, ${tint(sky, 16)})`, borderColor: edge(sky, 34) }}>
+            <div className="relative h-[52vh] min-h-72 overflow-hidden lx-soft rounded-[22px]" style={{ background: tint(sky, 8) }}>
                 {Array.from({ length: LANES - 1 }, (_, i) => (
                     <span key={i} aria-hidden className="absolute top-0 bottom-0 w-px" style={{ left: `${((i + 1) / LANES) * 100}%`, background: edge(sky, 10) }} />
                 ))}

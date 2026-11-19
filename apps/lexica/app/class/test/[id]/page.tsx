@@ -97,7 +97,7 @@ function Take({ id }: { id: string }) {
                     {t.questions.map((q) => {
                         const right = q.choice !== undefined && q.choice === q.answer;
                         return (
-                            <li key={q.idx} className="flex items-start gap-3 rounded-xl border border-line bg-surface p-3">
+                            <li key={q.idx} className="lx-soft flex items-start gap-3 rounded-xl bg-surface p-3">
                                 {right ? <Check className="mt-0.5 h-5 w-5 shrink-0 text-accent" /> : <X className="mt-0.5 h-5 w-5 shrink-0 text-danger" />}
                                 <div className="min-w-0 text-sm">
                                     <p className="font-semibold text-ink">{q.prompt}</p>
@@ -111,7 +111,7 @@ function Take({ id }: { id: string }) {
                         );
                     })}
                 </ol>
-                <Link href="/class" className="block h-11 rounded-xl bg-accent text-center font-bold leading-[2.75rem] text-on-accent">
+                <Link href="/class" className="lx-hard lx-press block h-11 rounded-xl bg-accent text-center font-extrabold leading-[2.75rem] text-on-accent">
                     Về Lớp học
                 </Link>
             </div>
@@ -187,7 +187,7 @@ function Take({ id }: { id: string }) {
                                 setBusy(false);
                             }
                         }}
-                        className="h-11 rounded-xl bg-accent px-6 font-bold text-on-accent disabled:opacity-40"
+                        className="lx-hard lx-press h-11 rounded-xl bg-accent px-6 font-extrabold text-on-accent disabled:opacity-40"
                     >
                         {busy ? 'Đang nộp…' : `Nộp bài (${answered}/${total})`}
                     </button>

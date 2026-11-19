@@ -31,7 +31,7 @@ export default function LearnerFacets() {
 
     if (rows.length === 0) return null;
     return (
-        <section className="max-w-5xl mx-auto mb-6 sm:mb-8 rounded-xl border border-line bg-surface/40 p-4" data-testid="learner-facets">
+        <section className="lx-soft max-w-5xl mx-auto mb-6 sm:mb-8 rounded-xl bg-surface/40 p-4" data-testid="learner-facets">
             <div className="flex items-center gap-2">
                 <Layers className="w-5 h-5 text-accent" />
                 <h2 className="text-base font-bold text-ink">Bốn tầng của từ</h2>

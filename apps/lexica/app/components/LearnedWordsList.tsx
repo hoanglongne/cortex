@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback, useState, useEffect } from 'react';
-import { HandHeart, Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
+import { Sprout, Leaf, Sparkles, Trophy, Volume2, ChevronLeft, ChevronRight, X, FlaskConical, Scissors, TrendingUp } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { getAllCards, getCardByWord } from '../lib/content/repository';
 import { AudioService } from '../lib/audio/AudioService';
@@ -11,6 +11,8 @@ import SurgeryLab from './SurgeryLab';
 import UpgradeLab from './UpgradeLab';
 import { AnimatePresence } from 'framer-motion';
 import { StepDots } from './StepNumbers';
+import { EmptyState } from './ui';
+import { PeekEyes } from './brand/Decor';
 
 type CardWithProgress = Omit<BaseCardData, 'state'> & { progress?: UserCardProgress };
 
@@ -22,9 +24,9 @@ const STATE_LABEL = { seed: 'Mầm non', sprout: 'Đang nhớ', gold: 'Thuộc t
 const LEVEL_LABEL: Record<string, string> = { beginner: 'Cơ bản', intermediate: 'Trung cấp', advanced: 'Nâng cao', expert: 'Chuyên gia' };
 const LEVEL_COLOR: Record<string, string> = {
     beginner: 'bg-surface text-muted border-line',
-    intermediate: 'bg-accent/10 text-accent border-accent/20',
-    advanced: 'bg-accent/20 text-accent border-accent/30',
-    expert: 'bg-accent/30 text-accent border-accent/40',
+    intermediate: 'lx-soft bg-surface-2',
+    advanced: 'lx-soft bg-surface-2',
+    expert: 'lx-soft bg-surface-2',
 };
 
 function formatNextReviewFull(nextReviewAt?: number, isMastered?: boolean) {
@@ -84,7 +86,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
         >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
             <div
-                className="relative w-full max-w-md bg-bg border border-line rounded-2xl p-6 shadow-2xl"
+                className="lx-hard relative w-full max-w-md bg-surface rounded-[22px] p-6"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Close */}
@@ -125,7 +127,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                 </div>
 
                 {/* Example sentence */}
-                <div className="bg-surface/60 border border-line/60 rounded-xl p-4 mb-5">
+                <div className="lx-soft bg-surface/60 rounded-xl p-4 mb-5">
                     <p className="text-xs text-muted uppercase font-mono font-medium mb-2">Ví dụ</p>
                     <p className="text-ink text-sm leading-relaxed italic">
                         &ldquo;{highlightWord(card.scenario ?? '', card.word)}&rdquo;
@@ -152,7 +154,7 @@ function WordDetailModal({ card, onClose }: { card: CardWithProgress; onClose: (
                             {card.surgeryModule && (
                                 <button
                                     onClick={() => setLabMode('surgery')}
-                                    className="flex flex-col items-center gap-2 p-4 rounded-xl bg-accent/20 border-2 border-accent/50 hover:bg-accent-strong/30 hover:border-accent transition-all group"
+                                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 hover:border-ink transition-all group lx-soft bg-surface-2"
                                 >
                                     <Scissors className="w-5 h-5 text-accent group-hover:scale-110 transition-transform" />
                                     <span className="text-xs font-bold text-accent uppercase font-mono tracking-tight">Mổ xẻ từ</span>
@@ -251,10 +253,7 @@ export default function LearnedWordsList() {
 
     if (learnedCards.length === 0) {
         return (
-            <div className="text-muted text-center py-8 flex flex-col items-center gap-2">
-                <HandHeart className="w-8 h-8" />
-                <p>Chưa học từ nào. Bắt đầu học thôi!</p>
-            </div>
+            <EmptyState art={<PeekEyes className="h-10 w-20" />} title="Chưa học từ nào" text="Học xong phiên đầu, từ của bạn sẽ nằm ở đây." />
         );
     }
 
@@ -276,7 +275,7 @@ export default function LearnedWordsList() {
                         <button
                             key={card.id}
                             onClick={() => setSelectedCard(card)}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface border border-line/60 hover:border-accent/40 hover:bg-surface-2/50 transition-all text-left cursor-pointer group"
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-surface border border-line/60 hover:border-ink hover:bg-surface-2/50 transition-all text-left cursor-pointer group"
                         >
                             <StateIcon className={`w-3.5 h-3.5 shrink-0 ${stateColor}`} />
                             <div className="flex flex-col min-w-0 flex-1">

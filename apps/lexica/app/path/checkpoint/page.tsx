@@ -79,15 +79,15 @@ function Weekly({ day }: { day: number }) {
             <StepNumbers counts={counts} href={null} />
             <p className="text-xs text-muted">Chỉ tính từ học trong lộ trình này ({BRANCH_LABEL[path.branch]}).</p>
             {missed.length > 0 && (
-                <section className="rounded-2xl border border-line bg-surface p-4">
+                <section className="lx-soft rounded-[18px] bg-surface p-4">
                     <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">5 từ hay sai nhất</p>
                     <p className="mt-2 text-ink lowercase">{missed.map((id) => getCard(id)?.word).join(' · ')}</p>
-                    <Link href={`/review?ids=${missed.join(',')}`} className="mt-3 inline-flex h-10 px-4 rounded-xl bg-accent text-on-accent font-bold items-center">
+                    <Link href={`/review?ids=${missed.join(',')}`} className="lx-hard lx-press mt-3 inline-flex h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold items-center">
                         Ôn 5 từ này
                     </Link>
                 </section>
             )}
-            <Link href="/" className="block text-center h-12 leading-[3rem] rounded-xl border border-line text-ink">
+            <Link href="/" className="block text-center h-12 leading-[3rem] lx-soft rounded-xl text-ink">
                 Tiếp tục học
             </Link>
         </motion.div>
@@ -152,7 +152,7 @@ function FinalTest() {
             <p className="text-3xl font-bold text-ink tracking-wide">{q.word}</p>
             <div className="space-y-2">
                 {q.options.map((o) => {
-                    const cls = picked ? (o === q.answer ? 'border-accent bg-accent/10' : o === picked ? 'border-danger/60 text-muted' : 'border-line text-subtle') : 'border-line hover:border-line-strong';
+                    const cls = picked ? (o === q.answer ? '!border-ink bg-accent text-on-accent' : o === picked ? 'border-danger/60 text-muted' : 'border-line text-subtle') : 'border-line hover:border-line-strong';
                     return (
                         <button key={o} disabled={!!picked} onClick={() => answer(o)} className={`w-full text-left rounded-xl border px-4 py-3 text-ink ${cls}`}>
                             <span className="flex items-center gap-2">
@@ -181,15 +181,15 @@ function FinalResult() {
             <StepNumbers counts={f.counts} href={null} />
             <button
                 onClick={() => void sharePathImage({ counts: f.counts, branch: BRANCH_LABEL[path.branch], score: f.score, total: f.total })}
-                className="w-full h-12 rounded-xl border border-line bg-surface text-ink font-medium flex items-center justify-center gap-2"
+                className="lx-soft w-full h-12 rounded-xl bg-surface text-ink font-medium flex items-center justify-center gap-2"
             >
                 <Share2 className="w-4 h-4" /> Chia sẻ kết quả
             </button>
             <div className="grid grid-cols-2 gap-2">
-                <Link href="/path/setup?next=1" className="h-12 rounded-xl bg-accent text-on-accent font-bold flex items-center justify-center">
+                <Link href="/path/setup?next=1" className="lx-hard lx-press h-12 rounded-xl bg-accent text-on-accent font-extrabold flex items-center justify-center">
                     Lộ trình mới
                 </Link>
-                <Link href="/path" className="h-12 rounded-xl border border-line text-ink flex items-center justify-center">
+                <Link href="/path" className="h-12 lx-soft rounded-xl text-ink flex items-center justify-center">
                     Chế độ duy trì
                 </Link>
             </div>

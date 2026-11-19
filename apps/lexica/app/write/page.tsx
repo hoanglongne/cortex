@@ -51,10 +51,10 @@ export default function WritePage() {
                 </div>
 
                 {step === 'w1' && (
-                    <section className="space-y-3 rounded-2xl border border-line bg-surface p-4">
+                    <section className="lx-soft space-y-3 rounded-[18px] bg-surface p-4">
                         <h2 className="font-semibold text-ink">Câu của bạn</h2>
                         <p className="text-sm text-muted">Sau mỗi buổi Hôm nay, bạn viết một câu với từ vừa học và nhận phản hồi. Muốn xem lại những câu đã viết hoặc viết thêm:</p>
-                        <Link href="/journal" className="inline-flex h-10 items-center rounded-xl bg-accent px-4 text-sm font-bold text-on-accent">
+                        <Link href="/journal" className="lx-hard lx-press inline-flex h-10 items-center rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent">
                             Mở nhật ký câu của bạn
                         </Link>
                     </section>

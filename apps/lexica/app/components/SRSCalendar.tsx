@@ -53,7 +53,7 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
     const maxCount = Math.max(...days.map(d => d.count), 1);
 
     return (
-        <div className="bg-surface/30 border border-line rounded-xl p-5">
+        <div className="lx-soft bg-surface/30 rounded-xl p-5">
             <div className="flex items-center gap-2 mb-4">
                 <CalendarDays className="w-5 h-5 text-accent" />
                 <h2 className="text-base font-bold text-ink">Lịch ôn tập</h2>
@@ -81,7 +81,7 @@ export default function SRSCalendar({ cardProgress }: SRSCalendarProps) {
                             <div
                                 key={i}
                                 className={`flex flex-col items-center gap-1 w-10 rounded-lg px-1 py-2 transition-all ${day.isToday
- ? 'bg-accent/10 border border-accent/30'
+ ? 'lx-soft bg-surface-2'
  : 'border border-transparent hover:border-line-strong'
  }`}
                             >

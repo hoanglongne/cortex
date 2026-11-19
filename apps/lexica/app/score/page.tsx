@@ -54,15 +54,15 @@ export default function ScorePage() {
                 </div>
 
                 {!last ? (
-                    <section className="rounded-2xl border border-line bg-surface p-5 space-y-3">
+                    <section className="lx-soft rounded-[18px] bg-surface p-5 space-y-3">
                         <p className="text-sm text-ink-2">Bạn chưa làm bài kiểm tra từ vựng. Khoảng 6 phút, ra điểm Lexica, mức tương đương IELTS và vốn từ ước lượng.</p>
-                        <Link href="/test/quiz" onClick={() => startTest()} className="inline-flex h-11 px-5 items-center rounded-xl bg-accent text-on-accent text-sm font-semibold">
+                        <Link href="/test/quiz" onClick={() => startTest()} className="lx-hard lx-press inline-flex h-11 px-5 items-center rounded-xl bg-accent text-on-accent text-sm font-extrabold">
                             Làm bài kiểm tra
                         </Link>
                     </section>
                 ) : (
                     <>
-                        <section className="rounded-3xl border border-accent/40 bg-gradient-to-b from-accent/10 to-accent/[0.02] p-5">
+                        <section className="lx-hard rounded-[22px] bg-surface p-5">
                             <div className="flex items-start justify-between gap-3">
                                 <div>
                                     <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Điểm gần nhất</p>
@@ -72,7 +72,7 @@ export default function ScorePage() {
                                         {before ? ` · ${last.score - before.score >= 0 ? '+' : ''}${last.score - before.score} so với lần trước` : ''}
                                     </p>
                                 </div>
-                                <button onClick={() => void share()} disabled={sharing === 'busy'} className="h-10 px-3 shrink-0 whitespace-nowrap rounded-xl border border-accent/40 text-accent text-sm font-medium flex items-center gap-1.5 hover:bg-accent/10">
+                                <button onClick={() => void share()} disabled={sharing === 'busy'} className="h-10 px-3 shrink-0 whitespace-nowrap lx-soft rounded-xl text-accent text-sm font-medium flex items-center gap-1.5 hover:bg-accent/10">
                                     {sharing === 'busy' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Share2 className="w-4 h-4" />} Chia sẻ
                                 </button>
                             </div>
@@ -104,8 +104,8 @@ export default function ScorePage() {
 
                         {placements.length > 1 && <History list={placements} />}
 
-                        <section className="rounded-2xl border border-line bg-surface p-4 flex items-start gap-3">
-                            <span className="w-9 h-9 rounded-xl bg-accent/12 text-accent flex items-center justify-center shrink-0">
+                        <section className="lx-soft rounded-[18px] bg-surface p-4 flex items-start gap-3">
+                            <span className="w-9 h-9 rounded-xl bg-surface-2 text-accent flex items-center justify-center shrink-0">
                                 <Gauge className="w-4 h-4" />
                             </span>
                             <div className="flex-1">
@@ -159,7 +159,7 @@ function History({ list }: { list: readonly Placement[] }) {
     const y = (v: number) => h - pad - ((v - lo) / Math.max(1, hi - lo)) * (h - 2 * pad);
     const line = list.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(p.score).toFixed(1)}`).join(' ');
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Qua các lần thi</p>
             <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 w-full h-auto" role="img" aria-label={`Điểm qua ${list.length} lần thi: ${list.map((p) => p.score).join(', ')}`}>
                 {list.map((p, i) => (

@@ -70,7 +70,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                             onClick={() => pick(l.id)}
                             aria-pressed={selected}
                             data-testid={`level-${l.id}`}
-                            className={`relative text-left rounded-2xl bg-surface border p-5 transition-colors hover:border-line-strong ${selected ? 'border-accent' : 'border-line'}`}
+                            className={`relative text-left rounded-2xl bg-surface border p-5 transition-colors hover:border-line-strong ${selected ? 'border-2 !border-ink' : 'border-line'}`}
                         >
                             {selected && (
                                 <span className="absolute top-4 right-4 w-6 h-6 rounded-full bg-accent text-on-accent flex items-center justify-center" aria-label="Đang chọn">
@@ -81,7 +81,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                                 <Icon className={`w-5 h-5 ${selected ? 'text-accent' : 'text-muted'}`} />
                                 <span className="font-mono text-[11px] text-subtle">{l.cefr}</span>
                                 {suggested === l.id && (
-                                    <span className="rounded-md bg-accent/15 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">Đề xuất</span>
+                                    <span className="rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">Đề xuất</span>
                                 )}
                             </div>
                             <p className="mt-3 text-xl font-semibold text-ink">{l.label}</p>
@@ -117,7 +117,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                 onClick={() => pick('all')}
                 aria-pressed={currentLevel === 'all'}
                 data-testid="level-all"
-                className={`relative w-full flex items-center gap-3 rounded-2xl bg-surface border px-5 py-4 text-left transition-colors hover:border-line-strong ${currentLevel === 'all' ? 'border-accent' : 'border-line'}`}
+                className={`relative w-full flex items-center gap-3 rounded-2xl bg-surface border px-5 py-4 text-left transition-colors hover:border-line-strong ${currentLevel === 'all' ? 'border-2 !border-ink' : 'border-line'}`}
             >
                 <Target className={`w-5 h-5 shrink-0 ${currentLevel === 'all' ? 'text-accent' : 'text-muted'}`} />
                 <span className="flex-1">
@@ -138,7 +138,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
 function EloScale({ elo, tested }: { elo: number; tested: boolean }) {
     const at = scalePosition(elo);
     return (
-        <section className="rounded-2xl bg-surface border border-line p-5" aria-label="Thang ELO">
+        <section className="lx-soft rounded-[18px] bg-surface p-5" aria-label="Thang ELO">
             <div className="flex items-baseline justify-between gap-3">
                 <p className="text-sm text-ink">
                     {tested ? (

@@ -18,7 +18,7 @@ export default function DialMission() {
     const [now] = useState(() => Date.now());
     if (done && now - (m?.doneAt ?? 0) > 86_400_000) return null;
     return (
-        <section data-testid="dial-mission" className="mb-4 rounded-2xl border border-line bg-surface p-4">
+        <section data-testid="dial-mission" className="lx-soft mb-4 rounded-[18px] bg-surface p-4">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Nhiệm vụ đầu tiên</p>
             <p className="mt-1 text-sm text-ink">{done ? 'Xong! Các từ bạn chạm đã vào lượt ôn.' : 'Đọc một bài và chạm 3 từ được đổi để xem nghĩa.'}</p>
             <ol className="mt-3 flex gap-2" aria-label={`${taps}/${GOAL} từ`}>

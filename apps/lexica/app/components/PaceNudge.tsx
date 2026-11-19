@@ -31,11 +31,11 @@ export default function PaceNudge() {
                         setPath({ ...path, pace: nudge.suggested });
                         answer();
                     }}
-                    className="h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-semibold"
+                    className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-extrabold"
                 >
                     Đổi thành {nudge.suggested}
                 </button>
-                <button onClick={answer} className="h-10 px-4 rounded-xl border border-line bg-surface text-ink-2 text-sm">
+                <button onClick={answer} className="lx-soft h-10 px-4 rounded-xl bg-surface text-ink-2 text-sm">
                     Giữ {path.pace}
                 </button>
             </div>

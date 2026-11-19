@@ -131,7 +131,7 @@ function GuestJoin({ code: fromLink, onJoined }: { code: string | null; onJoined
     };
 
     return (
-        <section className="rounded-2xl border border-line bg-surface p-5">
+        <section className="lx-soft rounded-[18px] bg-surface p-5">
             <p className="font-semibold text-ink">Vào chơi, không cần tài khoản</p>
             <p className="mt-1 text-xs text-muted">Nhập mã 6 chữ số trên màn hình của giáo viên và một cái tên để cả lớp thấy. Bạn chỉ chơi ván này, không lưu gì vào việc học.</p>
             <div className="mt-3 space-y-2">
@@ -142,7 +142,7 @@ function GuestJoin({ code: fromLink, onJoined }: { code: string | null; onJoined
                     autoComplete="off"
                     placeholder="000000"
                     aria-label="Mã phòng"
-                    className="h-14 w-full rounded-xl border border-line bg-bg px-4 text-center font-mono text-2xl tracking-[0.3em] text-ink"
+                    className="lx-soft h-14 w-full rounded-xl bg-bg px-4 text-center font-mono text-2xl tracking-[0.3em] text-ink"
                 />
                 <input
                     value={name}
@@ -150,9 +150,9 @@ function GuestJoin({ code: fromLink, onJoined }: { code: string | null; onJoined
                     autoComplete="nickname"
                     placeholder="Tên của bạn"
                     aria-label="Tên của bạn"
-                    className="h-12 w-full rounded-xl border border-line bg-bg px-4 text-ink"
+                    className="lx-soft h-12 w-full rounded-xl bg-bg px-4 text-ink"
                 />
-                <button onClick={() => void go()} disabled={busy || code.length !== 6 || name.trim().length === 0} className="h-12 w-full rounded-xl bg-accent font-bold text-on-accent disabled:opacity-40">
+                <button onClick={() => void go()} disabled={busy || code.length !== 6 || name.trim().length === 0} className="lx-hard lx-press h-12 w-full rounded-xl bg-accent font-extrabold text-on-accent disabled:opacity-40">
                     {busy ? '…' : 'Vào chơi'}
                 </button>
             </div>
@@ -222,7 +222,7 @@ function Join({ code: fromLink, onJoined }: { code: string | null; onJoined: (id
                     ))}
                 </section>
             )}
-            <section className="rounded-2xl border border-line bg-surface p-5">
+            <section className="lx-soft rounded-[18px] bg-surface p-5">
                 <p className="font-semibold text-ink">Nhập mã phòng</p>
                 <p className="mt-1 text-xs text-muted">6 chữ số trên màn hình của giáo viên.</p>
                 <div className="mt-3 flex gap-2">
@@ -233,9 +233,9 @@ function Join({ code: fromLink, onJoined }: { code: string | null; onJoined: (id
                         autoComplete="off"
                         placeholder="000000"
                         aria-label="Mã phòng"
-                        className="h-14 min-w-0 flex-1 rounded-xl border border-line bg-bg px-4 text-center font-mono text-2xl tracking-[0.3em] text-ink"
+                        className="lx-soft h-14 min-w-0 flex-1 rounded-xl bg-bg px-4 text-center font-mono text-2xl tracking-[0.3em] text-ink"
                     />
-                    <button onClick={() => void join(code)} disabled={busy || code.length !== 6} className="h-14 rounded-xl bg-accent px-6 font-bold text-on-accent disabled:opacity-40">
+                    <button onClick={() => void join(code)} disabled={busy || code.length !== 6} className="lx-hard lx-press h-14 rounded-xl bg-accent px-6 font-extrabold text-on-accent disabled:opacity-40">
                         {busy ? '…' : 'Vào'}
                     </button>
                 </div>
@@ -422,7 +422,7 @@ function Play({ roomId, onLeave, asGuest = false }: { roomId: string; onLeave: (
                             ))}
                         </ol>
                     )}
-                    <Link href="/class" onClick={onLeave} className="mt-8 h-11 rounded-xl bg-accent px-6 font-bold leading-[2.75rem] text-on-accent">
+                    <Link href="/class" onClick={onLeave} className="lx-hard lx-press mt-8 h-11 rounded-xl bg-accent px-6 font-extrabold leading-[2.75rem] text-on-accent">
                         Về Lớp học
                     </Link>
                 </div>

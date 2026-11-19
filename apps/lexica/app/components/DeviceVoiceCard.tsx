@@ -39,7 +39,7 @@ export default function DeviceVoiceCard() {
                       : `Tạo giọng tự nhiên ngay trên máy: không phụ thuộc mạng và máy chủ. Tải một lần khoảng ${config.downloadMB} MB. Máy sẽ thử tốc độ ngay sau khi tải, không đủ nhanh thì tự để tắt.`;
 
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4 flex items-start justify-between gap-3">
+        <section className="lx-soft rounded-[18px] bg-surface p-4 flex items-start justify-between gap-3">
             <p className="min-w-0 text-sm text-ink-2">
                 <span className="flex items-center gap-1.5 font-semibold text-ink">
                     <Cpu className="w-4 h-4 text-accent" /> Giọng tự nhiên trên máy
@@ -57,7 +57,7 @@ export default function DeviceVoiceCard() {
                             const a = new Audio(URL.createObjectURL(blob));
                             void a.play().catch(() => undefined);
                         }}
-                        className="mt-2 h-8 rounded-lg border border-line px-3 text-xs font-semibold text-ink-2"
+                        className="mt-2 h-8 lx-soft rounded-lg px-3 text-xs font-semibold text-ink-2"
                     >
                         Nghe thử
                     </button>

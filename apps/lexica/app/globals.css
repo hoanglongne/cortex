@@ -8,32 +8,32 @@
 }
 
 /*
- * LEXICA design system ("Focus").
- * Spec and usage rules: docs/DESIGN_SYSTEM.md. Use these semantic tokens
+ * LEXICA design system, direction B ("Thẻ sưu tầm").
+ * Spec and usage rules: docs/LEXICA_DESIGN_B.md (older notes: docs/DESIGN_SYSTEM.md). Use these semantic tokens
  * (bg-surface, text-muted, border-line, bg-accent, text-danger...) instead
  * of raw Tailwind palette colors.
  */
 @theme {
   /* Surfaces: darkest to lightest */
-  --color-bg: #0E0F11;
-  --color-surface: #16171A;
-  --color-surface-2: #1E2024;
-  --color-surface-3: #26282D;
+  --color-bg: #101012;
+  --color-surface: #1B1B1F;
+  --color-surface-2: #222227;
+  --color-surface-3: #2C2C33;
 
   /* Lines */
-  --color-line: #26282D;
-  --color-line-strong: #34373D;
+  --color-line: #2C2C33;
+  --color-line-strong: #3A3A42;
 
   /* Text */
-  --color-ink: #EDEEF0;
-  --color-ink-2: #C4C6CB;
-  --color-muted: #9A9DA3;
-  --color-subtle: #6B6E75;
+  --color-ink: #F4F2EA;
+  --color-ink-2: #D4D2CA;
+  --color-muted: #9C9AA3;
+  --color-subtle: #6B6A72;
 
   /* Accent: the one brand color. Also means "correct / known". */
   --color-accent: #C6F432;
   --color-accent-strong: #DBFF6E;
-  --color-on-accent: #0E0F11;
+  --color-on-accent: #16150F;
 
   /* Status */
   /* Đấu trường (live class quiz): the four answers, same as teach, white text */
@@ -50,69 +50,85 @@
   --color-game-violet: #AE97FF;
 
   --color-danger: #FF6B5B;
-  --color-warning: #F5B83D;
-  --color-on-status: #0E0F11;
+  --color-warning: #F2C230;
+  --color-on-status: #16150F;
 
   /* Type */
-  --font-sans: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-sans: "Bricolage Grotesque", var(--font-space-grotesk), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
-  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", var(--font-space-grotesk), system-ui, sans-serif;
 
   /* Shape: Tailwind's default radius scale (see DESIGN_SYSTEM.md) */
 }
 
 /*
- * Light theme (issue #146, round 3): same tokens, light values, warm paper
- * instead of grey. Fills keep the brand lime (buttons, bars, rings); text,
- * borders and strokes in the accent switch to a deep olive (--accent-ink)
- * so they stay readable on white. Chosen in Cài đặt (Tối / Sáng / Theo máy);
- * the html element carries data-theme.
+ * Direction B extras (docs/LEXICA_DESIGN_B.md): the outline and flat shadow
+ * colour, and topic block colours. Dark is the default.
+ */
+:root {
+  --outline: #000000;
+  --topic-money: #F2C230;
+  --topic-work: #5B8DEF;
+  --topic-love: #FF7BA0;
+  --topic-study: #A98BFF;
+  --topic-social: #3FD0C9;
+  --topic-food: #FF8A4C;
+  --topic-people: #7BD389;
+  --topic-life: #B9BDC6;
+  --on-block: #16150F;
+}
+
+/*
+ * Light: cream paper, white cells, every outline near-black. Lime stays a
+ * fill with black text; accent text, borders and strokes use --accent-ink so
+ * they read on cream. Chosen in Cài đặt (Tối / Sáng / Theo máy).
  */
 :root[data-theme="light"] {
-  --color-bg: #F4F2EA;
+  --color-bg: #FBF6EA;
   --color-surface: #FFFFFF;
-  --color-surface-2: #ECE9DF;
-  --color-surface-3: #DFDBCE;
-  --color-line: #E2DED2;
-  --color-line-strong: #C9C4B5;
-  --color-ink: #17160F;
-  --color-ink-2: #3B3A33;
-  --color-muted: #66645B;
-  --color-subtle: #95928A;
+  --color-surface-2: #F4EEE0;
+  --color-surface-3: #E7E1D2;
+  --color-line: #2A2820;
+  --color-line-strong: #16150F;
+  --color-ink: #16150F;
+  --color-ink-2: #34322A;
+  --color-muted: #6A665B;
+  --color-subtle: #96918A;
   --color-accent: #C6F432;
   --color-accent-strong: #B6E61C;
-  --color-on-accent: #17160F;
-  --accent-ink: #4A6800;
+  --color-on-accent: #16150F;
+  --accent-ink: #3F5A00;
   --color-danger: #D23F2E;
-  --color-warning: #B7740A;
-  --color-on-status: #FFFFFF;
+  --color-warning: #F2C230;
+  --color-on-status: #16150F;
+  --outline: #16150F;
   color-scheme: light;
 }
 :root[data-theme="light"] .text-accent,
 :root[data-theme="light"] .hover\:text-accent:hover,
 :root[data-theme="light"] .group:hover .group-hover\:text-accent { color: var(--accent-ink); }
 :root[data-theme="light"] .border-accent,
-:root[data-theme="light"] .hover\:border-accent:hover { border-color: var(--accent-ink); }
+:root[data-theme="light"] .hover\:border-accent:hover { border-color: var(--outline); }
 :root[data-theme="light"] .stroke-accent { stroke: var(--accent-ink); }
 :root[data-theme="light"] .fill-accent { fill: var(--accent-ink); }
 :root[data-theme="light"] .decoration-accent { text-decoration-color: var(--accent-ink); }
-:root[data-theme="light"] .accent-\[var\(--color-accent\)\] { accent-color: var(--accent-ink); }
+:root[data-theme="light"] .text-warning { color: #8A5A00; }
 
 /*
- * Branch accents (issue #146, round 3): Chứng chỉ keeps the lime, Giao tiếp
- * gets a sky blue. The html element carries data-branch.
+ * The three surfaces of direction B. Use these (or components/ui) instead of
+ * hand-written border and shadow classes.
+ * - lx-hard: the important block (main button, word card, reward): 2px
+ *   outline, 3px flat shadow.
+ * - lx-soft: an ordinary cell: 1.5px border; on light also a 2px shadow.
+ * - lx-sticker: a small rounded label with a 1.5px outline and 2px shadow.
  */
-:root[data-branch="talk"] {
-  --color-accent: #5CC8FF;
-  --color-accent-strong: #8AD8FF;
-  --color-on-accent: #0E0F11;
-}
-:root[data-theme="light"][data-branch="talk"] {
-  --color-accent: #6CCDFF;
-  --color-accent-strong: #4BBDF5;
-  --color-on-accent: #0E1A22;
-  --accent-ink: #0A6596;
-}
+.lx-hard { border: 2px solid var(--outline); box-shadow: 3px 3px 0 var(--outline); }
+.lx-soft { border: 1.5px solid var(--color-line); }
+:root[data-theme="light"] .lx-soft { border-color: var(--outline); box-shadow: 2px 2px 0 var(--outline); }
+.lx-sticker { border: 1.5px solid var(--outline); box-shadow: 2px 2px 0 var(--outline); border-radius: 9999px; }
+.lx-press { transition: transform .08s ease, box-shadow .08s ease; }
+.lx-press:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--outline) !important; }
+@media (prefers-reduced-motion: reduce) { .lx-press { transition: none; } }
 
 body {
   background: var(--color-bg);
@@ -318,16 +334,26 @@ svg *:focus {
 .lx-reveal-sweep::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 18%;
   pointer-events: none;
-  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.12) 50%, transparent 60%);
-  transform: translateX(-100%);
+  /* A flat band, not a gradient (direction B is flat 2D). */
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(-120%) skewX(-15deg);
   animation: lx-sweep 1.1s ease-out 0.15s 1 forwards;
 }
 @keyframes lx-sweep {
-  to { transform: translateX(100%); }
+  to { transform: translateX(650%) skewX(-15deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .lx-reveal-sweep::after { animation: none; }
 }
 
+
+/* Direction B: icons drawn a little bolder everywhere (lucide-react adds .lucide). */
+svg.lucide { stroke-width: 2.25; }
+
+/* Text on a colour block (topic or game colour): always near-black, whatever the theme. */
+.lx-onblock, .lx-onblock .text-ink, .lx-onblock .text-ink-2, .lx-onblock .text-muted, .lx-onblock .text-subtle { color: var(--on-block); }

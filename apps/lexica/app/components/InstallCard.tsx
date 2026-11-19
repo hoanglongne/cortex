@@ -29,7 +29,7 @@ export default function InstallCard() {
         }
     };
     return (
-        <div data-testid="install-card" className="rounded-2xl border border-accent/30 bg-accent/5 p-4">
+        <div data-testid="install-card" className="rounded-2xl p-4 lx-soft bg-surface-2">
             <p className="font-semibold text-ink">Cài Lexica lên màn hình chính</p>
             <p className="mt-1 text-sm text-muted">Mở bằng một chạm mỗi ngày, chạy cả khi mạng yếu.</p>
             {isIOS ? (
@@ -39,7 +39,7 @@ export default function InstallCard() {
             ) : (
                 <button
                     onClick={() => void promptInstall().then((o) => o === 'accepted' && dismiss())}
-                    className="mt-3 h-10 px-4 rounded-xl bg-accent text-on-accent font-bold flex items-center gap-2"
+                    className="lx-hard lx-press mt-3 h-10 px-4 rounded-xl bg-accent text-on-accent font-extrabold flex items-center gap-2"
                 >
                     <Download className="w-4 h-4" /> Cài app
                 </button>

@@ -160,7 +160,7 @@ export default function RunGame({ cards, bank, sentences, onAgain }: { cards: Ga
                             {ROOM_LABEL[screen.kind].name} · {screen.i + 1}/{screen.rounds.length}
                         </span>
                         {run.relics.includes('eye') && (
-                            <button onClick={eye} disabled={eyeUsed || picked !== null} className="h-7 rounded-lg border border-line px-2 font-semibold text-ink-2 disabled:opacity-40">
+                            <button onClick={eye} disabled={eyeUsed || picked !== null} className="h-7 lx-soft rounded-lg px-2 font-semibold text-ink-2 disabled:opacity-40">
                                 50/50
                             </button>
                         )}

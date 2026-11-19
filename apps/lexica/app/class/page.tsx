@@ -139,7 +139,7 @@ function ClassTests() {
     const done = tests.filter((t) => t.status === 'submitted').slice(0, 5);
     if (todo.length + done.length === 0) return null;
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <p className="flex items-center gap-2 font-semibold text-ink">
                 <ClipboardCheck className="h-4 w-4 text-accent" /> Bài kiểm tra
             </p>
@@ -194,15 +194,15 @@ function JoinForm({ onJoined, onError }: { onJoined: () => void; onError: (e: st
         }
     };
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <p className="font-semibold text-ink flex items-center gap-2">
                 <School className="w-4 h-4 text-accent" /> Vào lớp bằng mã
             </p>
             <p className="mt-1 text-xs text-muted">Giáo viên sẽ thấy tên bạn, 4 con số Hiểu, Nhớ, Gặp, Dùng, và số lần sai theo từng nhóm âm. Không thấy gì khác: không có bản ghi giọng nói.</p>
             <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-                <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Mã lớp (6 ký tự)" maxLength={6} className="h-11 rounded-xl border border-line bg-bg px-3 font-mono tracking-widest text-ink" aria-label="Mã lớp" />
-                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên hiện trong lớp" maxLength={40} className="h-11 rounded-xl border border-line bg-bg px-3 text-ink" aria-label="Tên hiện trong lớp" />
-                <button onClick={() => void join()} disabled={busy || code.trim().length < 6 || !name.trim()} className="h-11 px-5 rounded-xl bg-accent text-on-accent font-bold disabled:opacity-40">
+                <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Mã lớp (6 ký tự)" maxLength={6} className="lx-soft h-11 rounded-xl bg-bg px-3 font-mono tracking-widest text-ink" aria-label="Mã lớp" />
+                <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Tên hiện trong lớp" maxLength={40} className="lx-soft h-11 rounded-xl bg-bg px-3 text-ink" aria-label="Tên hiện trong lớp" />
+                <button onClick={() => void join()} disabled={busy || code.trim().length < 6 || !name.trim()} className="lx-hard lx-press h-11 px-5 rounded-xl bg-accent text-on-accent font-extrabold disabled:opacity-40">
                     {busy ? 'Đang vào…' : 'Vào lớp'}
                 </button>
             </div>
@@ -232,7 +232,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
     };
 
     return (
-        <section data-testid="class-card" className="rounded-2xl border border-line bg-surface p-5 space-y-4">
+        <section data-testid="class-card" className="lx-soft rounded-[18px] bg-surface p-5 space-y-4">
             <div className="flex items-start justify-between gap-3">
                 <div>
                     <p className="text-lg font-semibold text-ink">{cls.name}</p>
@@ -268,7 +268,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                             </li>
                         ))}
                     </ul>
-                    <button onClick={learnNow} className="mt-3 h-11 px-4 rounded-xl bg-accent text-on-accent font-bold">
+                    <button onClick={learnNow} className="lx-hard lx-press mt-3 h-11 px-4 rounded-xl bg-accent text-on-accent font-extrabold">
                         Học từ của lớp trong phiên hôm nay
                     </button>
                     <p className="mt-1 text-xs text-muted">Phiên Hôm nay luôn chia từ của lớp trước.</p>
@@ -282,7 +282,7 @@ function ClassCard({ cls, onLeft }: { cls: ClassInfo; onLeft: () => void }) {
                     </p>
                     <ol className="mt-2 space-y-1">
                         {board.slice(0, 10).map((r, i) => (
-                            <li key={`${r.name}-${i}`} className={`flex items-center gap-2 rounded-lg px-2 py-1 text-sm ${r.me ? 'bg-accent/10 text-ink' : 'text-ink-2'}`}>
+                            <li key={`${r.name}-${i}`} className={`flex items-center gap-2 rounded-lg px-2 py-1 text-sm ${r.me ? 'bg-surface-2 text-ink' : 'text-ink-2'}`}>
                                 <span className="w-5 font-mono text-xs text-muted">{i + 1}</span>
                                 {i === 0 && <Crown className="w-3.5 h-3.5 text-warning" />}
                                 <span className="flex-1 truncate">

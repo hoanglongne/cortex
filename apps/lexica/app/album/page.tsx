@@ -17,13 +17,15 @@ import { EDITION_LABEL, EDITION_RANK, type BoxItem, type Edition, type EconomySt
 import { RevealModal, useReel } from '../components/RevealReel';
 import AuthGate from '../components/AuthGate';
 import { shareCardImage } from '../lib/engagement/shareCard';
+import { TOPIC_BLOCK } from '../lib/brand';
+import { topicOf } from '../lib/engagement/collection';
 
 const STATE_ICON = { seed: Sprout, sprout: Leaf, gold: Sparkles, mastered: Trophy } as const;
 const STATE_LABEL = { seed: 'Mầm non', sprout: 'Đang nhớ', gold: 'Thuộc tốt', mastered: 'Thành thạo' } as const;
 const STATE_STYLE = {
     seed: 'border-line-strong bg-surface text-muted',
-    sprout: 'border-accent/30 bg-accent/5 text-ink',
-    gold: 'border-accent/60 bg-accent/10 text-ink',
+    sprout: 'text-ink lx-soft bg-surface-2',
+    gold: 'text-ink lx-soft bg-surface-2',
     mastered: 'border-warning/60 bg-warning/10 text-ink',
 } as const;
 const EDITION_CLASS: Record<Edition, string> = {
@@ -143,8 +145,8 @@ export default function AlbumPage() {
                 </p>
 
                 {explainer && (
-                    <div data-testid="album-explainer" className="mb-3 rounded-2xl border border-accent/30 bg-surface p-4 flex items-start gap-3">
-                        <span className="font-mono text-[10px] uppercase tracking-wider text-accent bg-accent/10 rounded-md px-1.5 py-0.5 shrink-0 mt-0.5">Mới</span>
+                    <div data-testid="album-explainer" className="mb-3 lx-soft rounded-2xl bg-surface p-4 flex items-start gap-3">
+                        <span className="font-mono text-[10px] uppercase tracking-wider text-accent bg-surface-2 rounded-md px-1.5 py-0.5 shrink-0 mt-0.5">Mới</span>
                         <p className="flex-1 text-sm text-ink-2">
                             <span className="font-semibold text-ink">{explainer.name}:</span> {explainer.line}
                         </p>
@@ -154,7 +156,7 @@ export default function AlbumPage() {
                     </div>
                 )}
 
-                <div data-testid="album-next" className="mb-4 rounded-2xl border border-line bg-surface p-4">
+                <div data-testid="album-next" className="lx-soft mb-4 rounded-[18px] bg-surface p-4">
                     <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Tiếp theo</p>
                     <ul className="mt-2 space-y-1.5">
                         {goals.map((g) => (
@@ -237,7 +239,7 @@ function WalletBar({
     const w = state.wallet;
     const price = state.config.prices.ticket;
     return (
-        <div className="rounded-2xl border border-line bg-surface p-4 mb-4 space-y-3">
+        <div className="lx-soft rounded-[18px] bg-surface p-4 mb-4 space-y-3">
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
                 {walletLines(state).map((line) => (
                     <li key={line.key} className="flex items-center gap-2 text-sm">
@@ -251,17 +253,17 @@ function WalletBar({
             </ul>
             <div className="flex flex-wrap gap-2">
                 {state.ready.length > 0 && (
-                    <button disabled={busy} onClick={onMintNext} className="flex-1 min-w-36 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+                    <button disabled={busy} onClick={onMintNext} className="lx-hard lx-press flex-1 min-w-36 py-2.5 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-extrabold disabled:opacity-50 flex items-center justify-center gap-2">
                         <Hammer className="w-4 h-4" /> Đúc thẻ ({state.ready.length} sẵn sàng)
                     </button>
                 )}
                 {w.boxes > 0 && (
-                    <button disabled={busy} onClick={onOpenBox} className="flex-1 min-w-36 py-2.5 rounded-xl border border-accent/50 text-accent text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+                    <button disabled={busy} onClick={onOpenBox} className="flex-1 min-w-36 py-2.5 lx-soft rounded-xl text-accent text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
                         <Gift className="w-4 h-4" /> Mở hộp
                     </button>
                 )}
                 {w.dust >= price && (
-                    <button disabled={busy} onClick={onBuyTicket} className="flex-1 min-w-36 py-2.5 rounded-xl border border-line text-ink-2 text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                    <button disabled={busy} onClick={onBuyTicket} className="flex-1 min-w-36 py-2.5 lx-soft rounded-xl text-ink-2 text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                         <Ticket className="w-4 h-4" /> Đổi vé ({price} Bụi)
                     </button>
                 )}
@@ -312,13 +314,13 @@ function SetRow({
     const allSilver = p.complete && economy && set.cardIds.every((id) => (economy.editions[id]?.edition ?? 'common') !== 'common' && economy.editions[id]);
 
     return (
-        <div className={`rounded-2xl border bg-surface ${allSilver ? 'lx-edition-silver' : p.complete ? 'border-accent/50' : 'border-line'}`}>
+        <div className={`rounded-2xl border bg-surface ${allSilver ? 'lx-edition-silver' : p.complete ? 'border-line-strong' : 'border-line'}`}>
             <button onClick={onToggle} className="w-full flex items-center gap-3 p-4 text-left">
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                         <p className="font-bold text-ink truncate">{set.label}</p>
                         {isSeason && (
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${live ? 'bg-accent/10 text-accent' : 'bg-surface-2 text-subtle'}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono ${live ? 'bg-surface-2 text-accent' : 'bg-surface-2 text-subtle'}`}>
                                 {live ? (left !== null ? `còn ${left} ngày` : 'mùa này') : 'đã đóng'}
                             </span>
                         )}
@@ -357,7 +359,8 @@ function SetRow({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`relative aspect-[3/4] rounded-xl border p-2 flex flex-col justify-between text-left transition-transform active:scale-95 ${owned ? `border-line-strong bg-surface-2 text-ink ${EDITION_CLASS[owned.edition]}` : STATE_STYLE[cp.state]}`}
+                                className={`relative aspect-[3/4] rounded-xl p-2 flex flex-col justify-between text-left lx-press ${owned ? `lx-sticker !rounded-xl lx-onblock ${EDITION_CLASS[owned.edition]}` : `border ${STATE_STYLE[cp.state]}`}`}
+                                style={owned && card ? { background: TOPIC_BLOCK[topicOf({ scenario: card.scenario })] } : undefined}
                             >
 
                                 <span className="flex items-center justify-between">
@@ -409,7 +412,7 @@ function CardSheet({
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 40, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className={`relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl border border-line bg-surface p-5 ${owned ? EDITION_CLASS[owned.edition] : ''}`}
+                className={`relative w-full max-w-md max-h-[90vh] overflow-y-auto lx-soft rounded-2xl bg-surface p-5 ${owned ? EDITION_CLASS[owned.edition] : ''}`}
             >
                 <div>
                     <WordCard
@@ -472,7 +475,7 @@ function CardSheet({
 
                     <div className="mt-4 grid grid-cols-2 gap-2">
                         {ready && (
-                            <button disabled={busy} onClick={() => actions.mint(cardId)} className="col-span-2 py-2.5 rounded-xl bg-accent text-on-accent text-sm font-semibold disabled:opacity-50 flex items-center justify-center gap-2">
+                            <button disabled={busy} onClick={() => actions.mint(cardId)} className="lx-hard lx-press col-span-2 py-2.5 rounded-xl bg-accent text-on-accent text-sm font-extrabold disabled:opacity-50 flex items-center justify-center gap-2">
                                 <Hammer className="w-4 h-4" /> Đúc thẻ
                             </button>
                         )}
@@ -481,26 +484,26 @@ function CardSheet({
                         )}
                         {!owned && !ready && !waitingUntil && economy && <MintNeeds state={progress.state} reviews={progress.reviewCount} rules={economy.config.mint_rules} />}
                         {owned && owned.edition !== 'legendary' && economy && economy.wallet.reroll_tickets > 0 && (
-                            <button disabled={busy} onClick={() => actions.reroll(cardId)} className="py-2.5 rounded-xl border border-accent/50 text-accent text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                            <button disabled={busy} onClick={() => actions.reroll(cardId)} className="py-2.5 lx-soft rounded-xl text-accent text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                                 <Wand2 className="w-4 h-4" /> Quay lại
                             </button>
                         )}
                         {owned?.edition === 'common' && prices && economy && economy.wallet.dust >= prices.upgrade_silver && (
-                            <button disabled={busy} onClick={() => actions.upgrade(cardId)} className="py-2.5 rounded-xl border border-line text-ink-2 text-sm disabled:opacity-50">
+                            <button disabled={busy} onClick={() => actions.upgrade(cardId)} className="py-2.5 lx-soft rounded-xl text-ink-2 text-sm disabled:opacity-50">
                                 Lên Bạc ({prices.upgrade_silver} Bụi)
                             </button>
                         )}
                         {owned && (
                             <button
                                 onClick={() => void shareCardImage({ word: card.word, ipa: card.ipa, meaning: card.translationHint, scenario: card.scenario ?? '', edition: owned.edition, serial: owned.serial })}
-                                className="py-2.5 rounded-xl border border-line text-ink-2 text-sm"
+                                className="py-2.5 lx-soft rounded-xl text-ink-2 text-sm"
                             >
                                 Chia sẻ ảnh
                             </button>
                         )}
                     </div>
 
-                    <button onClick={onClose} className="mt-3 w-full py-2.5 rounded-xl border border-line text-sm text-ink-2">
+                    <button onClick={onClose} className="mt-3 w-full py-2.5 lx-soft rounded-xl text-sm text-ink-2">
                         Đóng
                     </button>
                 </div>
@@ -534,7 +537,7 @@ function RevealView({ reveal, onClose }: { reveal: Reveal; onClose: () => void }
                     : reveal.kind === 'mint' ? 'Đang đúc thẻ…' : reveal.kind === 'reroll' ? 'Đang quay lại…' : 'Đang mở hộp…'}
             </p>
             {isBox ? (
-                <div className="h-40 rounded-2xl border border-line bg-surface-2 flex items-center justify-center">
+                <div className="lx-soft h-40 rounded-[18px] bg-surface-2 flex items-center justify-center">
                     <p className={`text-2xl font-bold ${box.done ? 'text-accent' : 'text-ink-2'}`}>{box.current ? boxLabel(box.current) : ''}</p>
                 </div>
             ) : (
@@ -584,7 +587,7 @@ function AlbumDictionary({ onClose }: { onClose: () => void }) {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 40, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-md rounded-2xl border border-line bg-surface p-5 max-h-[85vh] overflow-y-auto"
+                className="lx-soft relative w-full max-w-md rounded-[18px] bg-surface p-5 max-h-[85vh] overflow-y-auto"
                 role="dialog"
                 aria-label="Từ điển Album"
             >

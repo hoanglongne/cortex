@@ -151,7 +151,7 @@ export default function BossGame({ rounds, onAgain }: { rounds: BossRound[]; onA
                             {fight.combo % SHIELD_COMBO === SHIELD_COMBO - 1 && !fight.shield && <span className="text-[10px]">khiên kế tiếp</span>}
                         </span>
                     )}
-                    <button onClick={fifty} disabled={fight.fiftyLeft <= 0 || picked !== null} className="h-7 rounded-lg border border-line px-2 font-semibold text-ink-2 disabled:opacity-40">
+                    <button onClick={fifty} disabled={fight.fiftyLeft <= 0 || picked !== null} className="h-7 lx-soft rounded-lg px-2 font-semibold text-ink-2 disabled:opacity-40">
                         50/50
                     </button>
                 </span>

@@ -60,7 +60,7 @@ function SetupContent() {
                                 type="button"
                                 onClick={() => setBranch(b)}
                                 aria-pressed={branch === b}
-                                className={`text-left rounded-2xl border p-4 transition-colors ${branch === b ? 'border-accent bg-accent/10' : 'border-line bg-surface hover:border-line-strong'}`}
+                                className={`text-left rounded-2xl border p-4 transition-colors ${branch === b ? '!border-ink bg-ink text-bg' : 'border-line bg-surface hover:border-line-strong'}`}
                             >
                                 <span className="flex items-center gap-2 font-semibold text-ink">
                                     {b === 'cert' ? <GraduationCap className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
@@ -81,7 +81,7 @@ function SetupContent() {
                     <PaceChooser value={pace} onChange={setPace} />
                 </fieldset>
 
-                <div className="rounded-2xl border border-line bg-surface p-4 text-sm text-muted">
+                <div className="lx-soft rounded-[18px] bg-surface p-4 text-sm text-muted">
                     Level: <span className="text-ink font-medium">{levelDef(level).label} · {levelDef(level).cefr}</span>
                     {!levelUp && (
                         <Link href="/level-select" className="ml-2 text-accent underline">
@@ -90,7 +90,7 @@ function SetupContent() {
                     )}
                 </div>
 
-                <button data-testid="path-start" onClick={start} className="w-full h-14 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold text-lg flex items-center justify-center gap-2">
+                <button data-testid="path-start" onClick={start} className="lx-hard lx-press w-full h-14 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-lg flex items-center justify-center gap-2">
                     {hasWords ? 'Bắt đầu lộ trình' : 'Bắt đầu phiên đầu tiên'} <ArrowRight className="w-5 h-5" />
                 </button>
             </motion.div>

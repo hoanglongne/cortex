@@ -20,7 +20,7 @@ const STEPS = [
     {
         icon: Zap,
         iconColor: 'text-accent',
-        iconBg: 'bg-accent/15 border-accent/30',
+        iconBg: 'lx-soft bg-surface-2',
         title: 'Từ câu chêm đến câu của mình',
         body: 'Người Việt vẫn chêm tiếng Anh khi nói. Lexica bắt đầu từ đúng đó: mỗi từ mới đến trong một câu tiếng Việt quen thuộc, rồi được đẩy dần sang đọc và nói tiếng Anh, cho tới khi nó thành từ của bạn.',
         detail: '10 phút mỗi ngày. Sau 30 ngày bạn thấy rõ mình đã dùng được bao nhiêu từ.',
@@ -28,7 +28,7 @@ const STEPS = [
     {
         icon: Sparkles,
         iconColor: 'text-accent',
-        iconBg: 'bg-accent/15 border-accent/30',
+        iconBg: 'lx-soft bg-surface-2',
         title: 'Bạn học tiếng Anh để làm gì?',
         body: 'Hai nhánh dùng cùng một cách học, chỉ khác nội dung. Đổi được bất cứ lúc nào.',
         detail: null,
@@ -37,7 +37,7 @@ const STEPS = [
     {
         icon: User,
         iconColor: 'text-accent',
-        iconBg: 'bg-accent/15 border-accent/30',
+        iconBg: 'lx-soft bg-surface-2',
         title: 'Câu ví dụ theo đời bạn',
         body: 'Từ mới luôn đến trong một tình huống quen. Chọn kiểu đời sống gần bạn nhất để câu ví dụ giống chuyện của bạn.',
         detail: null,
@@ -46,7 +46,7 @@ const STEPS = [
     {
         icon: Sprout,
         iconColor: 'text-accent',
-        iconBg: 'bg-accent/15 border-accent/30',
+        iconBg: 'lx-soft bg-surface-2',
         title: '4 bước của một từ',
         body: 'Lexica chỉ đếm từ bạn dùng được. Mỗi từ đi qua 4 bước, theo thứ tự:',
         detail: 'Trả lời sai khi ôn thì từ lùi về Nhớ, nhưng giữ những lần Gặp và Dùng đã có.',
@@ -54,13 +54,13 @@ const STEPS = [
             { icon: '1', label: 'Hiểu', desc: 'Hiểu nghĩa trong câu tiếng Việt, trả lời đúng câu hỏi nhanh', color: 'border-line bg-surface/50 text-ink' },
             { icon: '2', label: 'Nhớ', desc: 'Nhớ lại đúng ở hai ngày khác nhau, cách nhau vài ngày', color: 'border-line bg-surface/50 text-ink' },
             { icon: '3', label: 'Gặp', desc: 'Nhận ra từ trong đoạn văn tiếng Anh', color: 'border-line bg-surface/50 text-ink' },
-            { icon: '4', label: 'Dùng', desc: 'Nói ra thành tiếng, máy nghe rõ', color: 'border-accent/40 bg-accent/10 text-accent' },
+            { icon: '4', label: 'Dùng', desc: 'Nói ra thành tiếng, máy nghe rõ', color: 'bg-ink border-ink text-bg font-bold' },
         ],
     },
     {
         icon: BookOpen,
         iconColor: 'text-accent',
-        iconBg: 'bg-accent/15 border-accent/30',
+        iconBg: 'lx-soft bg-surface-2',
         title: 'Mỗi ngày một nút',
         body: 'Bấm "Bắt đầu hôm nay": Ôn → Học → Đọc → Nói, khoảng 10 phút. Không cần chọn làm gì.',
         detail: 'Học thẻ: đọc câu, đoán nghĩa. Bấm "Đã nhớ" thì trả lời đúng một câu hỏi nhanh mới được tính.',
@@ -89,7 +89,7 @@ const PERSONA_OPTIONS: Array<{
             label: 'Người học thường',
             description: 'Tình huống hàng ngày, giao tiếp đời sống',
             color: 'text-accent',
-            bgColor: 'border-accent/40 bg-accent/10 hover:bg-accent-strong/20',
+            bgColor: 'lx-soft bg-surface-2',
         },
         {
             type: 'tech',
@@ -97,7 +97,7 @@ const PERSONA_OPTIONS: Array<{
             label: 'Lập trình viên / Tech',
             description: 'Ngữ cảnh công nghệ, startup, lập trình',
             color: 'text-accent',
-            bgColor: 'border-accent/40 bg-accent/10 hover:bg-accent-strong/20',
+            bgColor: 'lx-soft bg-surface-2',
         },
         {
             type: 'business',
@@ -113,7 +113,7 @@ const PERSONA_OPTIONS: Array<{
             label: 'Học sinh / Sinh viên',
             description: 'Trường học, kỳ thi, học thuật',
             color: 'text-accent',
-            bgColor: 'border-accent/40 bg-accent/10 hover:bg-accent-strong/20',
+            bgColor: 'lx-soft bg-surface-2',
         },
     ];
 
@@ -221,7 +221,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                                             setBranch(b);
                                         }}
                                         aria-pressed={branch === b}
-                                        className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all ${branch === b ? 'border-accent bg-accent/10' : 'border-line-strong bg-surface-2/30 hover:bg-surface-2/50'}`}
+                                        className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all ${branch === b ? '!border-ink bg-ink text-bg' : 'border-line-strong bg-surface-2 hover:bg-surface-2/50'}`}
                                     >
                                         <p className="font-semibold text-sm text-ink flex items-center gap-2">
                                             {b === 'cert' ? <GraduationCap className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
@@ -247,7 +247,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                                                 click();
                                                 setSelectedPersona(persona.type);
                                             }}
-                                            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${isSelected ? persona.bgColor + ' ring-2 ring-offset-2 ring-offset-slate-800' : 'border-line-strong bg-surface-2/30 hover:bg-surface-2/50'}`}
+                                            className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all ${isSelected ? persona.bgColor + ' ring-2 ring-offset-2 ring-offset-slate-800' : 'border-line-strong bg-surface-2 hover:bg-surface-2/50'}`}
                                         >
                                             <div className={`w-10 h-10 rounded-lg ${isSelected ? persona.bgColor : 'bg-surface-3/50'} flex items-center justify-center shrink-0`}>
                                                 <PersonaIcon className={`w-5 h-5 ${isSelected ? persona.color : 'text-muted'}`} />
@@ -284,7 +284,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
 
                         {/* Detail */}
                         {currentStep.detail && (
-                            <p className="text-xs text-muted bg-surface-2/50 rounded-lg px-3 py-2.5 leading-relaxed border border-line">
+                            <p className="lx-soft text-xs text-muted bg-surface-2 rounded-lg px-3 py-2.5 leading-relaxed">
                                 {currentStep.detail}
                             </p>
                         )}
@@ -299,7 +299,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                             goPrev();
                         }}
                         disabled={step === 0}
-                        className="p-2.5 rounded-xl border border-line-strong text-muted hover:border-line-strong hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="p-2.5 lx-soft rounded-xl text-muted hover:border-line-strong hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                         <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -310,7 +310,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                             goNext();
                         }}
                         disabled={(isPersonaStep && !selectedPersona) || (isBranchStep && !branch)}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent-strong"
+                        className="lx-hard lx-press flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent-strong"
                     >
                         {isLast ? (firstTime ? 'Làm bài test level' : 'Đã hiểu') : 'Tiếp theo'}
                         {!isLast && <ChevronRight className="w-4 h-4" />}

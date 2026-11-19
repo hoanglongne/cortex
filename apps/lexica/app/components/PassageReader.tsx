@@ -138,7 +138,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                         setSelected(seg.cardId!);
                     }}
                     data-word={seg.cardId}
-                    className={isOwned(progress[seg.cardId]) ? 'underline decoration-ink/30 underline-offset-4 hover:decoration-ink' : 'rounded px-0.5 bg-accent/15 text-accent font-semibold hover:bg-accent/25'}
+                    className={isOwned(progress[seg.cardId]) ? 'underline decoration-ink/30 underline-offset-4 hover:decoration-ink' : 'rounded px-0.5 bg-surface-2 text-accent font-semibold hover:bg-accent/25'}
                 >
                     {seg.text}
                 </button>
@@ -199,11 +199,11 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
 
                 {whole && (
                 <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <button onClick={listen} className="h-9 px-3 rounded-lg border border-line bg-surface text-sm text-ink flex items-center gap-2 hover:border-line-strong">
+                    <button onClick={listen} className="lx-soft h-9 px-3 rounded-lg bg-surface text-sm text-ink flex items-center gap-2 hover:border-line-strong">
                         {speaking ? <Pause className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                         {speaking ? 'Dừng' : 'Nghe cả đoạn'}
                     </button>
-                    <div className="flex rounded-lg border border-line overflow-hidden text-xs" role="radiogroup" aria-label="Tốc độ đọc">
+                    <div className="flex lx-soft rounded-lg overflow-hidden text-xs" role="radiogroup" aria-label="Tốc độ đọc">
                         {(['slow', 'normal'] as const).map((r) => (
                             <button key={r} role="radio" aria-checked={rate === r} onClick={() => setRate(r)} className={`h-9 px-3 ${rate === r ? 'bg-surface-2 text-ink' : 'text-muted'}`}>
                                 {r === 'slow' ? 'Chậm' : 'Bình thường'}
@@ -213,14 +213,14 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                     <button
                         onClick={() => setShowTranslation(!showTranslation)}
                         aria-pressed={showTranslation}
-                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${showTranslation ? 'border-accent text-accent' : 'border-line text-ink hover:border-line-strong'}`}
+                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${showTranslation ? '!border-ink bg-ink text-bg' : 'border-line text-ink hover:border-line-strong'}`}
                     >
                         <Languages className="w-4 h-4" /> Xem nghĩa tiếng Việt
                     </button>
                     <button
                         onClick={() => { setDialOn(!dialOn); dialSheet.close(); }}
                         aria-pressed={dialOn}
-                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${dialOn ? 'border-accent text-accent' : 'border-line text-ink hover:border-line-strong'}`}
+                        className={`h-9 px-3 rounded-lg border text-sm flex items-center gap-2 ${dialOn ? '!border-ink bg-ink text-bg' : 'border-line text-ink hover:border-line-strong'}`}
                     >
                         <SlidersHorizontal className="w-4 h-4" /> Blend
                     </button>
@@ -233,13 +233,13 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
 
                 {whole && dialOn ? (
                 <section className="mt-4">
-                    <div className="rounded-xl border border-line bg-surface px-3 py-2.5">
+                    <div className="lx-soft rounded-xl bg-surface px-3 py-2.5">
                         <DialSlider level={dialLevel} onChange={setDialLevel} total={dialLevel < 100 ? dial.total : undefined} />
                         <p className="mt-1 text-xs text-subtle">0% là tiếng Việt, 100% là nguyên bản tiếng Anh.</p>
                     </div>
                     <article ref={dialRef} data-testid="passage-dial" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                         {paragraphs.map((para, i) => (
-                            <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
+                            <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-line-strong bg-surface-2 ml-8'}` : ''}>
                                 {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
                                 <p className="text-lg leading-relaxed text-ink-2">
                                     {dialLevel === 100 || !translation[i]
@@ -254,7 +254,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                 ) : whole ? (
                 <article data-testid="passage-text" className={`mt-4 ${dialogue ? 'space-y-3' : 'space-y-4'}`}>
                     {paragraphs.map((para, i) => (
-                        <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-accent/30 bg-accent/5 ml-8'}` : ''}>
+                        <div key={i} className={dialogue ? `rounded-2xl border px-4 py-3 ${turns[i].speaker === turns[0].speaker ? 'border-line bg-surface mr-8' : 'border-line-strong bg-surface-2 ml-8'}` : ''}>
                             {dialogue && turns[i].speaker && <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">{turns[i].speaker}</p>}
                             <p className="text-lg leading-relaxed text-ink-2">{renderLine(para)}</p>
                             {showTranslation && translation[i] && <p className="mt-1.5 text-sm leading-relaxed text-muted">{translation[i]}</p>}
@@ -280,7 +280,7 @@ export default function PassageReader({ passage, onDone }: { passage: Passage; o
                 <div ref={endRef} className="h-px" />
 
                 {!result && !whole && !sceneDone ? null : !result ? (
-                    <button onClick={finish} className="mt-8 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold flex items-center justify-center gap-2">
+                    <button onClick={finish} className="lx-hard lx-press mt-8 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold flex items-center justify-center gap-2">
                         <Check className="w-4 h-4" /> Đọc xong
                     </button>
                 ) : (
@@ -317,14 +317,14 @@ function WordSheet({ cardId, known, queued, onAdd, onClose }: { cardId: string; 
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 40, opacity: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-md rounded-2xl border border-line bg-surface p-5"
+                className="lx-soft relative w-full max-w-md rounded-[18px] bg-surface p-5"
             >
                 <button onClick={onClose} className="absolute top-4 right-4 text-muted hover:text-ink" aria-label="Đóng">
                     <X className="w-5 h-5" />
                 </button>
                 <div className="flex items-center gap-3">
                     <span className="text-2xl font-bold text-ink lowercase">{card.word}</span>
-                    <button onClick={() => void AudioService.play(card.id, 'word')} className="w-10 h-10 rounded-xl border border-line bg-surface-2 flex items-center justify-center text-ink" aria-label={`Nghe ${card.word}`}>
+                    <button onClick={() => void AudioService.play(card.id, 'word')} className="lx-soft w-10 h-10 rounded-xl bg-surface-2 flex items-center justify-center text-ink" aria-label={`Nghe ${card.word}`}>
                         <Volume2 className="w-4 h-4" />
                     </button>
                 </div>
@@ -339,7 +339,7 @@ function WordSheet({ cardId, known, queued, onAdd, onClose }: { cardId: string; 
                             <Check className="w-4 h-4" /> Đã thêm vào phiên học tới
                         </p>
                     ) : (
-                        <button onClick={onAdd} className="w-full h-11 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold flex items-center justify-center gap-2">
+                        <button onClick={onAdd} className="lx-hard lx-press w-full h-11 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold flex items-center justify-center gap-2">
                             <Plus className="w-4 h-4" /> Thêm vào phiên học
                         </button>
                     )}
@@ -351,7 +351,7 @@ function WordSheet({ cardId, known, queued, onAdd, onClose }: { cardId: string; 
 
 function FinishCard({ reviewed, added, questions, onDone }: { reviewed: number; added: number; questions: PassageQuestion[]; onDone?: () => void }) {
     return (
-        <motion.div data-testid="read-finish" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 rounded-2xl border border-line bg-surface p-5">
+        <motion.div data-testid="read-finish" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="lx-soft mt-8 rounded-[18px] bg-surface p-5">
             <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Đọc xong</p>
             <p className="mt-2 text-ink font-semibold">{finishLine(reviewed, added)}</p>
             {questions.length > 0 && (
@@ -363,15 +363,15 @@ function FinishCard({ reviewed, added, questions, onDone }: { reviewed: number; 
                 </div>
             )}
             {onDone ? (
-                <button data-testid="stage-next" onClick={onDone} className="mt-5 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold">
+                <button data-testid="stage-next" onClick={onDone} className="lx-hard lx-press mt-5 w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold">
                     Tiếp tục →
                 </button>
             ) : (
             <div className="mt-5 grid grid-cols-2 gap-2">
-                <Link href="/read" className="h-11 rounded-xl border border-line text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
+                <Link href="/read" className="h-11 lx-soft rounded-xl text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
                     Đọc đoạn khác
                 </Link>
-                <Link href="/" className="h-11 rounded-xl border border-line text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
+                <Link href="/" className="h-11 lx-soft rounded-xl text-ink text-sm font-medium flex items-center justify-center hover:border-line-strong">
                     Học tiếp
                 </Link>
             </div>
@@ -388,7 +388,7 @@ function Question({ q }: { q: PassageQuestion }) {
             <div className="mt-2 space-y-1.5">
                 {q.options.map((o, i) => {
                     const done = picked !== null;
-                    const cls = done && i === q.answer ? 'border-accent text-ink bg-accent/10' : done && i === picked ? 'border-danger/60 text-muted' : 'border-line text-ink-2 hover:border-line-strong';
+                    const cls = done && i === q.answer ? '!border-ink bg-ink text-bg' : done && i === picked ? 'border-danger/60 text-muted' : 'border-line text-ink-2 hover:border-line-strong';
                     return (
                         <button key={o} disabled={done} onClick={() => setPicked(i)} className={`w-full text-left text-sm rounded-xl border px-3 py-2 ${cls}`}>
                             {o}

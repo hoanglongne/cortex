@@ -83,7 +83,7 @@ export function TodayWordsCard({ reloadKey }: { reloadKey: number }) {
     );
     // No buddy learned anything yet: just the switch, no empty card
     if (items.length === 0) return <div className="flex justify-end px-1">{hideSwitch}</div>;
-    return (        <section className="rounded-2xl border border-line bg-surface p-4">
+    return (        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <div className="flex items-center justify-between gap-2">
                 <h2 className="font-semibold text-ink">Hôm nay bạn học gì</h2>
                 {hideSwitch}
@@ -101,7 +101,7 @@ export function TodayWordsCard({ reloadKey }: { reloadKey: number }) {
                                 </p>
                                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                                     {words.slice(0, 12).map((x) => (
-                                        <span key={x.id} lang="en" className="rounded-lg border border-line bg-surface-2/50 px-2 py-0.5 text-sm text-ink-2">
+                                        <span key={x.id} lang="en" className="lx-soft rounded-lg bg-surface-2 px-2 py-0.5 text-sm text-ink-2">
                                             {x.w}
                                         </span>
                                     ))}
@@ -112,7 +112,7 @@ export function TodayWordsCard({ reloadKey }: { reloadKey: number }) {
                                         capture('buddy_learn_too', { words: words.length, queued: n });
                                         setMsg(n > 0 ? `Đã thêm ${n} từ vào hàng học của bạn.` : 'Bạn đã có hoặc đã biết các từ này rồi.');
                                     }}
-                                    className="mt-2 h-8 rounded-lg border border-line px-3 text-xs font-semibold text-accent hover:border-accent/50"
+                                    className="mt-2 h-8 lx-soft rounded-lg px-3 text-xs font-semibold text-accent hover:border-ink"
                                 >
                                     Mình cũng học
                                 </button>
@@ -150,7 +150,7 @@ export function GiftsCard({ reloadKey }: { reloadKey: number }) {
         }
     };
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <h2 className="flex items-center gap-2 font-semibold text-ink">
                 <Gift className="w-4 h-4 text-accent" /> Quà từ vựng
             </h2>
@@ -234,25 +234,25 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
     return (
         <div className="mt-2">
             <div className="flex gap-2">
-                <button onClick={() => start('gift')} aria-pressed={mode === 'gift'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'gift' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('gift')} aria-pressed={mode === 'gift'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'gift' ? 'bg-ink border-ink text-bg font-bold' : 'border-line text-ink-2'}`}>
                     <Gift className="w-4 h-4" /> Tặng từ
                 </button>
-                <button onClick={() => start('ask')} aria-pressed={mode === 'ask'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'ask' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('ask')} aria-pressed={mode === 'ask'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'ask' ? 'bg-ink border-ink text-bg font-bold' : 'border-line text-ink-2'}`}>
                     <MessageCircleQuestion className="w-4 h-4" /> Nhờ đặt câu
                 </button>
-                <button onClick={() => start('quiz')} aria-pressed={mode === 'quiz'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'quiz' ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line text-ink-2'}`}>
+                <button onClick={() => start('quiz')} aria-pressed={mode === 'quiz'} className={`h-9 whitespace-nowrap rounded-lg border px-2.5 text-sm flex items-center gap-1.5 ${mode === 'quiz' ? 'bg-ink border-ink text-bg font-bold' : 'border-line text-ink-2'}`}>
                     <Swords className="w-4 h-4" /> Đố bạn
                 </button>
             </div>
             {mode && (
-                <div className="mt-2 rounded-xl border border-line bg-surface-2/40 p-3 space-y-2">
+                <div className="lx-soft mt-2 rounded-xl bg-surface-2 p-3 space-y-2">
                     <p className="text-xs text-muted">{mode === 'gift' ? 'Chọn một từ bạn đã học để tặng.' : mode === 'ask' ? `Chọn một từ bạn muốn thấy ${buddy.nickname} đặt câu.` : `Chọn ${DUEL_MIN} đến ${DUEL_MAX - 2} từ để ra đề cho ${buddy.nickname}.`}</p>
                     {choices.length === 0 ? (
                         <p className="text-xs text-warning">Bạn chưa học từ nào. Học vài từ rồi quay lại nhé.</p>
                     ) : (
                         <div className="flex flex-wrap gap-1.5">
                             {choices.map((id) => (
-                                <button key={id} onClick={() => pick(id)} aria-pressed={picked.includes(id)} lang="en" className={`rounded-lg border px-2 py-1 text-sm ${picked.includes(id) ? 'border-accent bg-accent/15 text-accent' : 'border-line text-ink-2'}`}>
+                                <button key={id} onClick={() => pick(id)} aria-pressed={picked.includes(id)} lang="en" className={`rounded-lg border px-2 py-1 text-sm ${picked.includes(id) ? '!border-ink bg-ink text-bg' : 'border-line text-ink-2'}`}>
                                     {wordOf(id)}
                                 </button>
                             ))}
@@ -261,11 +261,11 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
                     {mode === 'gift' && (
                         <label className="block">
                             <span className="sr-only">Lời nhắn</span>
-                            <input value={note} onChange={(e) => setNote(e.target.value.slice(0, GIFT_NOTE_MAX))} placeholder="Một dòng nhắn (không bắt buộc)" maxLength={GIFT_NOTE_MAX} className="h-9 w-full rounded-lg border border-line bg-surface px-3 text-sm text-ink" />
+                            <input value={note} onChange={(e) => setNote(e.target.value.slice(0, GIFT_NOTE_MAX))} placeholder="Một dòng nhắn (không bắt buộc)" maxLength={GIFT_NOTE_MAX} className="lx-soft h-9 w-full rounded-lg bg-surface px-3 text-sm text-ink" />
                             <span className="text-[11px] text-subtle">{note.length}/{GIFT_NOTE_MAX}. Không gửi đường dẫn hay email.</span>
                         </label>
                     )}
-                    <button onClick={() => void send()} disabled={!ready || busy} className="h-9 w-full rounded-lg bg-accent text-sm font-bold text-on-accent disabled:opacity-40 flex items-center justify-center gap-1.5">
+                    <button onClick={() => void send()} disabled={!ready || busy} className="lx-hard lx-press h-9 w-full rounded-lg bg-accent text-sm font-extrabold text-on-accent disabled:opacity-40 flex items-center justify-center gap-1.5">
                         {busy && <Loader2 className="w-4 h-4 animate-spin" />} {mode === 'gift' ? 'Tặng' : mode === 'ask' ? 'Nhờ bạn ấy' : `Ra đề (${picked.length})`}
                     </button>
                     {problem && <p className="text-xs text-danger">{problem}</p>}
@@ -304,7 +304,7 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
         }
     };
     return (
-        <section className={`rounded-2xl border p-4 ${quest.state === 'won' ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
+        <section className={`rounded-2xl border p-4 ${quest.state === 'won' ? 'lx-soft bg-surface-2' : 'border-line bg-surface'}`}>
             <div className="flex items-center justify-between gap-2">
                 <h2 className="font-semibold text-ink">Mục tiêu cả nhóm tuần này</h2>
                 <span className="font-mono text-xs text-muted">{Math.min(quest.damage, quest.hp)}/{quest.hp} điểm</span>
@@ -320,7 +320,7 @@ export function QuestCard({ quest, last, meId, today, days, onShield }: { quest:
                         <span className="flex-1 truncate text-ink">{m.id === meId ? `${m.name} (bạn)` : m.name}</span>
                         <span className="font-mono text-xs text-muted">{m.damage} điểm{m.shielded.length ? ` · được đỡ ${m.shielded.length} ngày` : ''}</span>
                         {m.id !== meId && quest.state === 'fighting' && (
-                            <button onClick={() => void shield(m.id)} aria-label={`Đỡ một ngày cho ${m.name}`} title="Mỗi tuần bạn đỡ được một ngày cho một bạn" className="h-7 w-7 rounded-lg border border-line text-ink-2 hover:border-accent/50 flex items-center justify-center">
+                            <button onClick={() => void shield(m.id)} aria-label={`Đỡ một ngày cho ${m.name}`} title="Mỗi tuần bạn đỡ được một ngày cho một bạn" className="h-7 w-7 lx-soft rounded-lg text-ink-2 hover:border-ink flex items-center justify-center">
                                 <Shield className="w-3.5 h-3.5" />
                             </button>
                         )}
@@ -381,7 +381,7 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
         URL.revokeObjectURL(url);
     };
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <div className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-semibold text-ink">
                     <CalendarClock className="w-4 h-4 text-accent" /> Giờ học chung
@@ -400,10 +400,10 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                 )}
             </div>
             {adding && (
-                <div className="mt-2 space-y-2 rounded-xl border border-line bg-surface-2/40 p-3">
+                <div className="lx-soft mt-2 space-y-2 rounded-xl bg-surface-2 p-3">
                     {adding === 'speaking' && <p className="text-xs text-muted">Cả hai vào Giờ thi của Oratio đúng giờ này, nói với người thật, rồi chấm cho nhau.</p>}
                     {buddies.length > 1 && (
-                        <select value={who || buddies[0].id} onChange={(e) => setWho(e.target.value)} aria-label="Hẹn với" className="h-9 w-full rounded-lg border border-line bg-surface px-2 text-sm text-ink">
+                        <select value={who || buddies[0].id} onChange={(e) => setWho(e.target.value)} aria-label="Hẹn với" className="lx-soft h-9 w-full rounded-lg bg-surface px-2 text-sm text-ink">
                             {buddies.map((b) => (
                                 <option key={b.id} value={b.id}>
                                     {b.nickname}
@@ -413,7 +413,7 @@ export function DatesCard({ buddies, reloadKey }: { buddies: BuddyInfo[]; reload
                     )}
                     <div className="flex flex-wrap gap-1.5">
                         {slots.map((s) => (
-                            <button key={s.label} onClick={() => void book(s.at)} className="h-8 rounded-lg border border-line px-2.5 text-xs text-ink-2 hover:border-accent/50">
+                            <button key={s.label} onClick={() => void book(s.at)} className="h-8 lx-soft rounded-lg px-2.5 text-xs text-ink-2 hover:border-ink">
                                 {s.label}
                             </button>
                         ))}
@@ -503,7 +503,7 @@ export function AsksCard({ reloadKey }: { reloadKey: number }) {
         }
     };
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4">
+        <section className="lx-soft rounded-[18px] bg-surface p-4">
             <h2 className="flex items-center gap-2 font-semibold text-ink">
                 <MessageCircleQuestion className="w-4 h-4 text-accent" /> Đặt câu cho nhau
             </h2>
@@ -514,8 +514,8 @@ export function AsksCard({ reloadKey }: { reloadKey: number }) {
                             <span className="font-semibold">{a.from_name ?? 'Bạn học'}</span> nhờ bạn đặt một câu với từ <span lang="en" className="font-semibold text-accent">{wordOf(a.card_id) ?? '...'}</span>
                         </p>
                         <div className="flex gap-2">
-                            <input value={text[a.id] ?? ''} onChange={(e) => setText({ ...text, [a.id]: e.target.value.slice(0, ASK_MAX) })} placeholder="Câu của bạn" maxLength={ASK_MAX} lang="en" aria-label="Câu của bạn" className="h-9 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-sm text-ink" />
-                            <button onClick={() => void answer(a.id)} disabled={(text[a.id] ?? '').trim().length < 3} className="h-9 rounded-lg bg-accent px-3 text-xs font-bold text-on-accent disabled:opacity-40">
+                            <input value={text[a.id] ?? ''} onChange={(e) => setText({ ...text, [a.id]: e.target.value.slice(0, ASK_MAX) })} placeholder="Câu của bạn" maxLength={ASK_MAX} lang="en" aria-label="Câu của bạn" className="lx-soft h-9 min-w-0 flex-1 rounded-lg bg-surface px-3 text-sm text-ink" />
+                            <button onClick={() => void answer(a.id)} disabled={(text[a.id] ?? '').trim().length < 3} className="lx-hard lx-press h-9 rounded-lg bg-accent px-3 text-xs font-extrabold text-on-accent disabled:opacity-40">
                                 Gửi
                             </button>
                         </div>
@@ -553,10 +553,10 @@ export function PushCard() {
     }, []);
     if (support === 'unsupported' || on === null) return null;
     if (support === 'ios-install') {
-        return <p className="rounded-2xl border border-line bg-surface p-4 text-xs text-muted">Muốn nhận nhắc trên iPhone: bấm Chia sẻ, chọn “Thêm vào Màn hình chính”, rồi mở Lexica từ biểu tượng đó (iOS 16.4 trở lên).</p>;
+        return <p className="lx-soft rounded-[18px] bg-surface p-4 text-xs text-muted">Muốn nhận nhắc trên iPhone: bấm Chia sẻ, chọn “Thêm vào Màn hình chính”, rồi mở Lexica từ biểu tượng đó (iOS 16.4 trở lên).</p>;
     }
     return (
-        <section className="rounded-2xl border border-line bg-surface p-4 flex items-center justify-between gap-3">
+        <section className="lx-soft rounded-[18px] bg-surface p-4 flex items-center justify-between gap-3">
             <p className="min-w-0 text-sm text-ink-2">
                 <span className="flex items-center gap-1.5 font-semibold text-ink">
                     {on ? <Bell className="w-4 h-4 text-accent" /> : <BellOff className="w-4 h-4 text-muted" />} {on ? 'Đang bật nhắc' : 'Nhắc mình'}

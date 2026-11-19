@@ -85,7 +85,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center gap-4 p-5 md:p-8 bg-bg rounded-3xl border border-line w-full max-w-3xl mx-auto shadow-2xl max-h-[95vh] overflow-y-auto sm:overflow-visible">
+    <div className="lx-hard relative flex flex-col items-center justify-center gap-4 p-5 md:p-8 bg-bg rounded-[22px] w-full max-w-3xl mx-auto max-h-[95vh] overflow-y-auto sm:overflow-visible">
       {onClose && (
         <button
           onClick={() => {
@@ -122,7 +122,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
                   whileTap={{ scale: 0.95 }}
                   onClick={() => togglePart(part.id)}
                   className={`relative px-3 py-3 md:px-6 md:py-5 rounded-xl md:rounded-2xl border-2 transition-all flex flex-col items-center min-w-[80px] md:min-w-[120px] ${selected.includes(part.id)
- ? 'border-accent bg-accent/10 shadow-lg'
+ ? '!border-ink bg-ink text-bg'
  : 'border-line bg-surface hover:bg-surface-2'
  }`}
                 >
@@ -177,7 +177,7 @@ export default function SurgeryLab({ word, module, onSuccess, onFail, onClose }:
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="bg-surface/50 rounded-xl md:rounded-2xl border border-line p-4 md:p-6 h-full"
+                  className="lx-soft bg-surface/50 rounded-xl md:rounded-2xl p-4 md:p-6 h-full"
                 >
                   <div className="flex items-center gap-2 text-accent font-bold text-[9px] md:text-[10px] uppercase font-mono mb-2 md:mb-3">
                     <Info className="w-3 md:w-3.5 h-3 md:h-3.5" />

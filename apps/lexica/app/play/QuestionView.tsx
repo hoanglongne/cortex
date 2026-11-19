@@ -8,7 +8,7 @@ import { ANSWER_LETTER, ANSWER_TILE } from './theme';
 export default function QuestionView({ q, picked, hidden = [], onPick }: { q: BossRound; picked: number | null; hidden?: number[]; onPick: (n: number) => void }) {
     return (
         <>
-            <div className="rounded-2xl border border-line bg-surface p-4 space-y-2">
+            <div className="lx-soft rounded-[18px] bg-surface p-4 space-y-2">
                 {q.mode === 'detective' ? (
                     // All clues but the last (the meaning), which would end the case
                     q.clues?.slice(0, -1).map((c, k) => (

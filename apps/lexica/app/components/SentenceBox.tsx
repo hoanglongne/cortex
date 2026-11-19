@@ -50,7 +50,7 @@ export default function SentenceBox({
                 maxLength={400}
                 placeholder={placeholder}
                 aria-label={placeholder}
-                className="w-full rounded-xl border border-line bg-bg px-3 py-2 text-ink outline-none focus:border-accent"
+                className="w-full lx-soft rounded-xl bg-bg px-3 py-2 text-ink outline-none focus:border-accent"
             />
             {missing && <p className="text-xs text-warning">Câu chưa có “{word}” (hoặc một dạng của nó).</p>}
             {feedback && fresh && (
@@ -66,14 +66,14 @@ export default function SentenceBox({
             )}
             <div className="flex flex-wrap gap-2">
                 {has && !missing && !fresh && (
-                    <button onClick={() => void check()} disabled={busy} className="h-10 px-3 rounded-xl border border-line text-sm text-ink flex items-center gap-1.5 hover:border-line-strong disabled:opacity-50">
+                    <button onClick={() => void check()} disabled={busy} className="h-10 px-3 lx-soft rounded-xl text-sm text-ink flex items-center gap-1.5 hover:border-line-strong disabled:opacity-50">
                         <Sparkles className="w-4 h-4" /> {busy ? 'Đang xem…' : 'Nhờ xem giúp'}
                     </button>
                 )}
                 <button
                     onClick={() => onSave(text.trim())}
                     disabled={!optional && (!has || missing)}
-                    className="h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-bold flex items-center gap-1.5 disabled:opacity-40"
+                    className="lx-hard lx-press h-10 px-4 rounded-xl bg-accent text-on-accent text-sm font-extrabold flex items-center gap-1.5 disabled:opacity-40"
                 >
                     <Check className="w-4 h-4" /> {saveLabel}
                 </button>

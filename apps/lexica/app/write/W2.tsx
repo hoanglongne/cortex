@@ -50,7 +50,7 @@ export default function W2() {
             <label className="block">
                 <span className="text-sm font-medium text-ink">Câu của bạn</span>
                 <textarea
-                    className="mt-1 w-full rounded-xl border border-line bg-bg p-3 text-sm text-ink"
+                    className="lx-soft mt-1 w-full rounded-xl bg-bg p-3 text-sm text-ink"
                     rows={3}
                     value={text}
                     onChange={(e) => {
@@ -62,10 +62,10 @@ export default function W2() {
                 />
             </label>
             <div className="flex flex-wrap gap-2">
-                <button onClick={check} disabled={text.trim().length === 0} className="h-10 rounded-xl bg-accent px-4 text-sm font-bold text-on-accent disabled:opacity-40">
+                <button onClick={check} disabled={text.trim().length === 0} className="lx-hard lx-press h-10 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-40">
                     Kiểm tra
                 </button>
-                <button onClick={() => setShown((v) => !v)} className="h-10 rounded-xl border border-line px-4 text-sm text-ink-2 hover:bg-surface-2">
+                <button onClick={() => setShown((v) => !v)} className="h-10 lx-soft rounded-xl px-4 text-sm text-ink-2 hover:bg-surface-2">
                     {shown ? 'Ẩn gợi ý' : 'Xem gợi ý'}
                 </button>
                 <button onClick={next} className="h-10 rounded-xl px-3 text-sm text-muted hover:text-ink">

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { lexicaModule } from '@cortex/classroom-lexica';
 import { readCachedClasses } from '../lib/classes';
 import { nextToRate, ratePiece, type PeerPiece, type PeerScores } from '../lib/writing/handIn';
+import { EmptyState } from '../components/ui';
+import { Pencil } from '../components/brand/Decor';
 
 const ROWS = [
     ['task', 'Đúng yêu cầu đề', 'Bài trả lời đúng điều đề hỏi, đủ ý?'],
@@ -55,7 +57,7 @@ export default function PeerReview() {
     };
 
     return (
-        <section className="space-y-3 rounded-2xl border border-line bg-surface p-4" aria-label="Chấm bài cho bạn">
+        <section className="lx-soft space-y-3 rounded-[18px] bg-surface p-4" aria-label="Chấm bài cho bạn">
             <h2 className="font-semibold text-ink">Chấm bài cho bạn cùng lớp</h2>
             <p className="text-xs text-muted">Bài ẩn danh, chỉ những bạn đồng ý mới hiện ở đây. Bạn chấm theo cảm nhận của người đọc; điểm chỉ để tác giả tham khảo, không thay điểm giáo viên.{done > 0 ? ` Bạn đã chấm ${done} bài.` : ''}</p>
             {error && (
@@ -66,7 +68,7 @@ export default function PeerReview() {
             {piece === undefined ? (
                 <p className="text-sm text-muted">Đang tìm bài…</p>
             ) : piece === null ? (
-                <p className="text-sm text-muted">Chưa có bài nào để chấm. Quay lại sau khi các bạn nộp thêm.</p>
+                <EmptyState art={<Pencil className="h-12 w-12" />} title="Chưa có bài để chấm" text="Quay lại sau khi các bạn nộp thêm." />
             ) : (
                 <div className="space-y-3">
                     {piece.prompt && <p className="text-xs text-muted">Đề: {piece.prompt}</p>}
@@ -76,7 +78,7 @@ export default function PeerReview() {
                     {ROWS.map(([key, label, hint]) => (
                         <label key={key} className="block text-sm text-ink-2">
                             <span className="font-medium text-ink">{label}</span> <span className="text-xs text-muted">· {hint}</span>
-                            <select value={scores[key]} onChange={(e) => setScores({ ...scores, [key]: Number(e.target.value) })} className="mt-1 h-10 w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink">
+                            <select value={scores[key]} onChange={(e) => setScores({ ...scores, [key]: Number(e.target.value) })} className="mt-1 h-10 w-full lx-soft rounded-lg bg-surface px-3 text-sm text-ink">
                                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                                     <option key={n} value={n}>
                                         {n}
@@ -87,9 +89,9 @@ export default function PeerReview() {
                     ))}
                     <label className="block text-sm text-ink-2">
                         Một lời góp ý ngắn (không bắt buộc, hãy lịch sự)
-                        <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} rows={2} className="mt-1 w-full rounded-lg border border-line-strong bg-surface p-2 text-sm text-ink" />
+                        <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} rows={2} className="mt-1 w-full lx-soft rounded-lg bg-surface p-2 text-sm text-ink" />
                     </label>
-                    <button type="button" disabled={busy} onClick={() => void send()} className="h-10 rounded-xl bg-accent px-4 text-sm font-bold text-on-accent disabled:opacity-50">
+                    <button type="button" disabled={busy} onClick={() => void send()} className="lx-hard lx-press h-10 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-50">
                         {busy ? 'Đang gửi…' : 'Gửi điểm và xem bài tiếp'}
                     </button>
                 </div>

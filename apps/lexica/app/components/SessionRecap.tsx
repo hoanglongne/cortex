@@ -56,7 +56,7 @@ export default function SessionRecap({
             animate={{ opacity: 1, scale: 1 }}
             className="absolute z-[200] w-full top-1/2 -translate-y-1/2 px-2 sm:px-4"
         >
-            <div className="h-[460px] rounded-2xl bg-surface border border-line p-5 sm:p-6 flex flex-col">
+            <div className="lx-soft h-[460px] rounded-[18px] bg-surface p-5 sm:p-6 flex flex-col">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Xong phiên</p>
 
                 <div className="mt-3 grid grid-cols-3 gap-2 font-mono">
@@ -77,7 +77,7 @@ export default function SessionRecap({
                         />
                     )}
                     {candidate && offer === 'idle' && (
-                        <div className="flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 px-3 py-2 mb-1">
+                        <div className="flex items-center gap-2 rounded-xl px-3 py-2 mb-1 lx-soft bg-surface-2">
                             <PenLine className="w-4 h-4 text-accent shrink-0" />
                             <p className="flex-1 text-ink">
                                 Gắn <span className="font-bold lowercase">{candidate.word}</span> với đời bạn?
@@ -168,7 +168,7 @@ export default function SessionRecap({
                     ))}
                     <button
                         onClick={onContinue}
-                        className="w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-bold flex items-center justify-center gap-2 active:scale-[0.98] transition"
+                        className="lx-hard lx-press w-full h-12 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold flex items-center justify-center gap-2 active:scale-[0.98] transition"
                     >
                         {continueLabel ?? 'Thêm 10 thẻ nữa'} <ArrowRight className="w-4 h-4" />
                     </button>

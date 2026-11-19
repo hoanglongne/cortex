@@ -13,7 +13,7 @@ import { saveThemePref } from './ThemeSync';
 import { parseThemePref, THEME_KEY, THEME_LABEL, THEME_PREFS, type ThemePref } from '../lib/theme';
 import { useEffect, useState } from 'react';
 
-const chip = (on: boolean) => `h-9 px-3 whitespace-nowrap rounded-lg border text-xs font-medium ${on ? 'bg-accent/12 border-accent/40 text-accent' : 'bg-surface-2/40 border-line-strong/50 text-ink-2'}`;
+const chip = (on: boolean) => `h-9 px-3 whitespace-nowrap rounded-lg border text-xs font-medium ${on ? 'bg-ink border-ink text-bg font-bold' : 'bg-surface-2 border-line-strong/50 text-ink-2'}`;
 
 /** Learning settings: branch, pace, example style, level, device voice. Moved from "Tôi" to /settings (issue #146). */
 export default function LearningSettings() {
@@ -39,7 +39,7 @@ export default function LearningSettings() {
 
     return (
         <div className="space-y-5 mb-8">
-            <section className="rounded-2xl border border-line bg-surface p-4 space-y-2" data-testid="theme-setting">
+            <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-2" data-testid="theme-setting">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Giao diện</p>
                 <div className="grid grid-cols-3 gap-1.5">
                     {THEME_PREFS.map((p) => (
@@ -48,12 +48,12 @@ export default function LearningSettings() {
                         </button>
                     ))}
                 </div>
-                <p className="text-xs text-muted">Màu nhấn theo nhánh học: xanh chanh cho Chứng chỉ, xanh trời cho Giao tiếp.</p>
+                <p className="text-xs text-muted">Tối là mặc định. Sáng là nền giấy kem.</p>
             </section>
                 <DeviceVoiceCard />
 
                 {path && (
-                    <section className="rounded-2xl border border-line bg-surface p-4 space-y-3">
+                    <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-3">
                         <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Lộ trình của bạn</p>
                         <div className="flex items-center justify-between gap-2">
                             <span className="text-muted text-sm">Nhánh</span>
@@ -74,7 +74,7 @@ export default function LearningSettings() {
                     </section>
                 )}
 
-                <section className="rounded-2xl border border-line bg-surface p-4 space-y-4">
+                <section className="lx-soft rounded-[18px] bg-surface p-4 space-y-4">
                     <p className="font-mono text-[11px] uppercase tracking-wider text-subtle">Cài đặt học</p>
                     <div className="space-y-2">
                         <span className="text-muted text-sm">Câu ví dụ theo kiểu</span>
@@ -96,7 +96,7 @@ export default function LearningSettings() {
                         </div>
                         <p className="text-xs text-muted">Cuối phiên, thỉnh thoảng app gợi ý bạn chọn hoặc viết một câu của riêng mình cho một từ vừa nhớ. Không bắt buộc.</p>
                     </div>
-                    <button onClick={changeLevel} className="w-full h-11 rounded-xl border border-line-strong/50 bg-surface-2/50 text-ink text-sm font-medium flex items-center justify-center gap-2 hover:border-line-strong">
+                    <button onClick={changeLevel} className="w-full h-11 lx-soft rounded-xl bg-surface-2 text-ink text-sm font-medium flex items-center justify-center gap-2 hover:border-line-strong">
                         <Settings className="w-4 h-4" /> Đổi trình độ
                     </button>
                 </section>

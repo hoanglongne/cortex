@@ -15,7 +15,7 @@ export function TeamCard({ team, me }: { team: TeamWeek; me: string }) {
     const R = 34;
     const C = 2 * Math.PI * R;
     return (
-        <section className={`rounded-2xl border p-4 ${team.reached ? 'border-accent/40 bg-accent/5' : 'border-line bg-surface'}`}>
+        <section className={`rounded-2xl border p-4 ${team.reached ? 'lx-soft bg-surface-2' : 'border-line bg-surface'}`}>
             <h2 className="font-semibold text-ink">Nhóm tuần này</h2>
             <div className="mt-3 flex items-center gap-4">
                 <svg viewBox="0 0 80 80" className="w-20 h-20 shrink-0 -rotate-90" role="img" aria-label={`${team.done} trên ${team.goal} ngày đạt mục tiêu`}>
@@ -32,7 +32,7 @@ export function TeamCard({ team, me }: { team: TeamWeek; me: string }) {
             </div>
             <ul className="mt-3 flex flex-wrap gap-1.5">
                 {team.members.map((m) => (
-                    <li key={m.id} className={`rounded-full border px-2.5 py-1 text-xs ${m.today ? 'border-accent/50 text-accent' : 'border-line text-ink-2'}`}>
+                    <li key={m.id} className={`rounded-full border px-2.5 py-1 text-xs ${m.today ? 'border-line-strong text-accent' : 'border-line text-ink-2'}`}>
                         {m.id === me ? 'Bạn' : m.name} · {Math.min(m.days, 5)}/5
                     </li>
                 ))}
@@ -45,7 +45,7 @@ export function TeamCard({ team, me }: { team: TeamWeek; me: string }) {
 export function CheersBanner({ cheers }: { cheers: CheersToday | null }) {
     if (!cheers || cheers.received.length === 0) return null;
     return (
-        <section className="rounded-2xl border border-accent/40 bg-accent/5 p-3 text-sm text-ink">
+        <section className="rounded-2xl p-3 text-sm text-ink lx-soft bg-surface-2">
             {cheers.received.map((c) => (
                 <p key={c.from_id} className="flex items-center gap-2">
                     <span className="text-accent">{ICON[c.kind]}</span>
@@ -83,7 +83,7 @@ export function CheerButtons({ buddyId, sent, onSent }: { buddyId: string; sent:
                             setBusy(false);
                         }
                     }}
-                    className={`h-9 w-9 rounded-lg border flex items-center justify-center ${sent === k ? 'border-accent bg-accent/10 text-accent' : 'border-line text-ink-2 hover:border-line-strong'}`}
+                    className={`h-9 w-9 rounded-lg border flex items-center justify-center ${sent === k ? '!border-ink bg-ink text-bg' : 'border-line text-ink-2 hover:border-line-strong'}`}
                 >
                     {ICON[k]}
                 </button>

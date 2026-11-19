@@ -45,10 +45,10 @@ export default function HandIn({ kind, prompt, body }: { kind: WritingKind; prom
     };
 
     return (
-        <div className="space-y-2 rounded-xl border border-line p-3">
+        <div className="space-y-2 lx-soft rounded-xl p-3">
             <p className="text-sm font-semibold text-ink">Nộp cho lớp</p>
             {classes.length > 1 && (
-                <select value={chosen.id} onChange={(e) => setClassId(e.target.value)} aria-label="Chọn lớp" className="h-10 w-full rounded-lg border border-line-strong bg-surface px-3 text-sm text-ink">
+                <select value={chosen.id} onChange={(e) => setClassId(e.target.value)} aria-label="Chọn lớp" className="h-10 w-full lx-soft rounded-lg bg-surface px-3 text-sm text-ink">
                     {classes.map((c) => (
                         <option key={c.id} value={c.id}>
                             {c.name}
@@ -65,7 +65,7 @@ export default function HandIn({ kind, prompt, body }: { kind: WritingKind; prom
                     <span>Cho bạn cùng lớp đọc và chấm bài này, không hiện tên bạn. (Không bắt buộc. Bạn chỉ chọn cho bài này.)</span>
                 </label>
             )}
-            <button type="button" disabled={busy || empty || sent} onClick={() => void send()} className="flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-bold text-on-accent disabled:opacity-50">
+            <button type="button" disabled={busy || empty || sent} onClick={() => void send()} className="lx-hard lx-press flex h-10 items-center gap-2 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-50">
                 <Send className="h-4 w-4" aria-hidden /> {sent ? 'Đã nộp' : busy ? 'Đang nộp…' : 'Nộp bài này'}
             </button>
             {error && (

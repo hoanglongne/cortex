@@ -4,8 +4,8 @@
     "description": "Mỗi ngày một phiên ngắn: hiểu, nhớ, gặp, dùng. Học từ vựng IELTS và giao tiếp.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#0E0F11",
-    "theme_color": "#0E0F11",
+    "background_color": "#101012",
+    "theme_color": "#101012",
     "orientation": "portrait",
     "icons": [
         {

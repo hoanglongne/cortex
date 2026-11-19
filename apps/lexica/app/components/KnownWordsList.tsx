@@ -13,7 +13,7 @@ export default function KnownWordsList() {
     const ids = Object.keys(known ?? {}).sort((a, b) => known[b] - known[a]);
     if (ids.length === 0) return null;
     return (
-        <section aria-label="Từ đã biết" className="rounded-2xl border border-line bg-surface">
+        <section aria-label="Từ đã biết" className="lx-soft rounded-[18px] bg-surface">
             <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="w-full h-12 px-4 flex items-center justify-between text-sm font-medium text-ink">
                 Từ đã biết, không học ({ids.length})
                 <ChevronDown className={`w-4 h-4 text-muted transition-transform ${open ? 'rotate-180' : ''}`} />

@@ -60,7 +60,7 @@ export default function ReadPage() {
                                 role="tab"
                                 aria-selected={topic === t}
                                 onClick={() => setTopic(t)}
-                                className={`h-8 px-3 rounded-lg border text-xs ${topic === t ? 'border-accent text-accent' : 'border-line text-muted hover:text-ink'}`}
+                                className={`h-8 px-3 rounded-lg border text-xs ${topic === t ? '!border-ink bg-ink text-bg' : 'border-line text-muted hover:text-ink'}`}
                             >
                                 {t ?? 'Tất cả'}
                             </button>
@@ -85,9 +85,9 @@ function PassageRow({ passage, progress, read, featured }: { passage: Passage; p
         <Link
             href={`/read/${passage.id}`}
             data-testid={`passage-${passage.id}`}
-            className={`flex items-center gap-3 rounded-2xl bg-surface border p-4 transition-colors hover:border-line-strong ${featured ? 'border-accent/50' : 'border-line'}`}
+            className={`flex items-center gap-3 rounded-2xl bg-surface border p-4 transition-colors hover:border-line-strong ${featured ? 'border-line-strong' : 'border-line'}`}
         >
-            <span className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${read ? 'bg-accent/10 text-accent' : 'bg-surface-2 text-muted'}`}>
+            <span className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${read ? 'bg-surface-2 text-accent' : 'bg-surface-2 text-muted'}`}>
                 {read ? <Check className="w-5 h-5" /> : <BookOpen className="w-5 h-5" />}
             </span>
             <span className="flex-1 min-w-0">

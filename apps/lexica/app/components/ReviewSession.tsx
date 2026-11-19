@@ -10,7 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, Trophy, RotateCcw, BookOpen, Zap, Flame, Lock, Ghost, Shield, Swords, Package, Volume2 } from 'lucide-react';
 import { AudioService } from '../lib/audio/AudioService';
 import { useLexicaStore } from '../store/lexicaStore';
-import { getAllCards } from '../lib/content/repository';
+import { getAllCards, getCard } from '../lib/content/repository';
+import TopicTag from './brand/TopicTag';
 import { trackCardEvent } from '../lib/content/events';
 import { updateCardProgress } from '../lib/eloAlgorithm';
 import { formatInterval } from '../lib/srs';
@@ -212,7 +213,7 @@ function RevealPanel({ question, picked, onContinue }: { question: Question; pic
                     buttonPress();
                     onContinue();
                 }}
-                className="sticky bottom-3 mt-3 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-semibold transition-colors active:scale-95"
+                className="lx-hard lx-press sticky bottom-3 mt-3 w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent text-sm font-extrabold transition-colors active:scale-95"
             >
                 Tiếp tục →
             </button>
@@ -318,9 +319,7 @@ function QuestionCard({
         }
     };
 
-    const promptBorder = answered
-        ? 'bg-ink/[0.03] border-ink/30'
-        : 'bg-ink/[0.02] border-ink/20';
+    const promptBorder = '';
 
     return (
         <motion.div
@@ -333,7 +332,7 @@ function QuestionCard({
             {/* The only bar: question progress. The timer is the ring around the number. */}
             <div className="flex items-center gap-3 mb-4">
                 <TimerRing seconds={timeLeft} total={TIMER_SECONDS} label={index + 1} />
-                <div className="flex-1 h-1 bg-ink/5 rounded-full overflow-hidden" role="progressbar" aria-valuenow={index} aria-valuemax={total} aria-label="Tiến độ">
+                <div className="lx-soft flex-1 h-2.5 bg-surface rounded-full overflow-hidden" role="progressbar" aria-valuenow={index} aria-valuemax={total} aria-label="Tiến độ">
                     <div
                         className="h-full bg-accent rounded-full transition-all duration-500"
                         style={{ width: `${(index / total) * 100}%` }}
@@ -347,9 +346,9 @@ function QuestionCard({
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0, opacity: 0 }}
-                            className="flex items-center gap-1 text-accent text-xs font-bold shrink-0"
+                            className="lx-sticker flex items-center gap-1 bg-[var(--topic-money)] px-2 py-0.5 text-[var(--on-block)] text-xs font-extrabold shrink-0 whitespace-nowrap"
                         >
-                            <Flame className="w-3 h-3" /> {streak}
+                            <Flame className="w-3 h-3" /> x{streak} liền
                         </motion.span>
                     )}
                 </AnimatePresence>
@@ -358,8 +357,9 @@ function QuestionCard({
             <div className="flex gap-2 sm:gap-3">
             <div className="flex-1 min-w-0">
             {/* Question prompt */}
-            <div className={`border rounded-xl p-5 mb-4 transition-colors duration-300 ${promptBorder}`}>
+            <div className={`lx-hard rounded-[22px] bg-surface p-5 mb-4 transition-colors duration-300 ${promptBorder}`}>
                 <p data-testid="review-type" className="text-[10px] text-muted uppercase font-mono font-semibold mb-2.5 flex items-center gap-2">
+                    <TopicTag scenario={getCard(question.cardId)?.scenario} />
                     {TYPE_LABEL[question.type]}
                     {question.hard && <span className="flex items-center gap-1 text-warning"><Swords className="w-3 h-3" /> Từ khó</span>}
                 </p>
@@ -401,10 +401,11 @@ function QuestionCard({
                         const parts = question.type === 'context-pick' ? null : optionDiff(all)[i];
                         const isSelected = selected === option;
                         const isCorrectOpt = option === question.answer;
-                        let cls = 'bg-ink/[0.02] border-ink/20 text-ink-2 hover:border-accent/50 hover:bg-ink/[0.04] active:scale-[0.99]';
-                        if (answered && isCorrectOpt) cls = 'bg-accent/10 border-accent/50 text-ink';
-                        else if (answered && isSelected && !isCorrectOpt) cls = 'bg-ink/[0.03] border-ink/30 text-muted';
-                        else if (answered) cls = 'bg-ink/[0.01] border-ink/5 text-subtle';
+                        // Direction B: idle soft cells; the right answer turns lime; a wrong pick gets a red border and strike.
+                        let cls = 'lx-soft lx-press bg-surface text-ink';
+                        if (answered && isCorrectOpt) cls = 'lx-hard bg-accent text-on-accent';
+                        else if (answered && isSelected && !isCorrectOpt) cls = 'lx-soft bg-surface !border-danger text-ink line-through decoration-danger decoration-2';
+                        else if (answered) cls = 'lx-soft bg-surface text-subtle opacity-60';
 
                         const isLong = question.type === 'context-pick';
                         return (
@@ -412,7 +413,7 @@ function QuestionCard({
                                 key={i}
                                 onClick={() => handleSelect(option)}
                                 disabled={answered}
-                                className={`w-full px-4 py-2.5 rounded-xl border text-sm text-left transition-all flex items-start gap-3 ${cls}`}
+                                className={`w-full px-4 py-3 rounded-2xl text-sm font-semibold text-left transition-all flex items-start gap-3 ${cls}`}
                             >
                                 <span className="w-5 h-5 rounded-full border border-current flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
                                     {answered && isCorrectOpt ? <Check className="w-3 h-3" /> :
@@ -445,7 +446,7 @@ function QuestionCard({
                         </motion.p>
                     )}
                     <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 transition-colors ${answered
- ? isCorrect ? 'border-accent/50 bg-accent/5' : close ? 'border-warning/50 bg-warning/5' : 'border-ink/30 bg-ink/[0.03]'
+ ? isCorrect ? 'lx-soft bg-surface-2' : close ? 'border-warning/50 bg-warning/5' : 'border-ink/30 bg-ink/[0.03]'
  : 'border-ink/20 bg-ink/[0.02] focus-within:border-accent'
  }`}>
                         <input
@@ -471,7 +472,7 @@ function QuestionCard({
                         <button
                             onClick={handleTypeSubmit}
                             disabled={typedInput.trim().length === 0}
-                            className="w-full py-3 rounded-xl bg-accent hover:bg-accent-strong disabled:bg-ink/5 disabled:text-subtle disabled:cursor-not-allowed text-on-accent font-semibold text-sm transition-colors active:scale-95"
+                            className="lx-hard lx-press w-full py-3 rounded-xl bg-accent hover:bg-accent-strong disabled:bg-ink/5 disabled:text-subtle disabled:cursor-not-allowed text-on-accent font-extrabold text-sm transition-colors active:scale-95"
                         >
                             Kiểm tra →
                         </button>
@@ -513,7 +514,7 @@ function CloseAnswer({ why, typed, answer, onContinue }: { why: 'typo' | 'form';
                     {tail}
                 </span>
             </p>
-            <button onClick={onContinue} className="w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors active:scale-95">
+            <button onClick={onContinue} className="lx-hard lx-press w-full py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95">
                 Tiếp tục →
             </button>
         </div>
@@ -533,7 +534,7 @@ function ListenPrompt({ text, revealed }: { text: string; revealed: boolean }) {
                 type="button"
                 onClick={() => void AudioService.playText(text, 'en', 0.75)}
                 aria-label="Nghe lại"
-                className="w-12 h-12 rounded-xl border border-line-strong bg-surface-2 flex items-center justify-center text-ink hover:border-accent"
+                className="w-12 h-12 lx-soft rounded-xl bg-surface-2 flex items-center justify-center text-ink hover:border-ink"
             >
                 <Volume2 className="w-5 h-5" />
             </button>
@@ -591,7 +592,7 @@ function RiskRail({ risk, shield, lost, onBank }: { risk: RiskState; shield: boo
                 {LADDER.map((m, i) => (
                     <div
                         key={m}
-                        className={`h-8 sm:h-10 w-full rounded-md flex items-center justify-center font-mono text-[10px] transition-colors duration-300 ${lit(i) ? 'bg-accent text-on-accent' : next(i) ? 'border border-accent/60 text-accent' : 'bg-ink/[0.06] text-subtle'}`}
+                        className={`h-8 sm:h-10 w-full rounded-md flex items-center justify-center font-mono text-[10px] transition-colors duration-300 ${lit(i) ? 'bg-accent text-on-accent' : next(i) ? 'border border-line-strong text-accent' : 'bg-ink/[0.06] text-subtle'}`}
                     >
                         <span className="hidden sm:inline">x{m}</span>
                     </div>
@@ -605,7 +606,7 @@ function RiskRail({ risk, shield, lost, onBank }: { risk: RiskState; shield: boo
                 }}
                 disabled={risk.pot === 0}
                 aria-label={`Chốt ${risk.pot} điểm`}
-                className="w-full h-8 rounded-lg border border-line-strong bg-surface text-ink text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-accent/60 disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition"
+                className="w-full h-8 lx-soft rounded-lg bg-surface text-ink text-[11px] font-semibold flex items-center justify-center gap-1 hover:border-ink disabled:opacity-40 disabled:cursor-not-allowed active:scale-95 transition"
             >
                 <Lock className="w-3 h-3 sm:hidden" />
                 <span className="hidden sm:inline">Chốt</span>
@@ -654,7 +655,7 @@ function GhostSummary({ result, rival }: { result: GhostResult; rival: Rival | n
     const diff = Math.abs(result.scoreDiff);
     const who = `bạn ${rival?.label ?? 'hôm qua'}`;
     return (
-        <div className={`rounded-xl border p-4 mb-5 text-center ${result.beat ? 'border-accent/40 bg-accent/5' : 'border-line bg-ink/[0.02]'}`}>
+        <div className={`rounded-xl border p-4 mb-5 text-center ${result.beat ? 'lx-soft bg-surface-2' : 'border-line bg-ink/[0.02]'}`}>
             <p className="text-ink font-semibold flex items-center justify-center gap-2">
                 <Ghost className="w-4 h-4" />
                 {result.beat ? `Hơn ${who} ${diff} điểm` : diff === 0 ? `Hoà với ${who}` : `Kém ${who} ${diff} điểm`}
@@ -709,7 +710,7 @@ function ResultScreen({
         >
             {/* Score */}
             <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center mx-auto mb-3">
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 lx-soft bg-surface-2">
                     <Trophy className="w-8 h-8 text-accent" />
                 </div>
                 <p className="text-4xl font-bold text-ink mb-1 font-mono">{score}</p>
@@ -792,7 +793,7 @@ function ResultScreen({
                             buttonPress();
                             onRetry();
                         }}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-ink/20 bg-ink/[0.02] text-ink-2 hover:border-accent/50 hover:text-ink hover:bg-ink/[0.04] transition-all text-sm font-semibold active:scale-95"
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-ink/20 bg-ink/[0.02] text-ink-2 hover:border-ink hover:text-ink hover:bg-ink/[0.04] transition-all text-sm font-semibold active:scale-95"
                     >
                         <RotateCcw className="w-4 h-4" />
                         Ôn lại từ sai ({wrong.length})
@@ -805,14 +806,14 @@ function ResultScreen({
                             buttonPress();
                             onDone();
                         }}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors active:scale-95"
+                        className="lx-hard lx-press w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95"
                     >
                         Tiếp tục →
                     </button>
                 ) : (
                 <Link
                     href="/"
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors active:scale-95"
+                    className="lx-hard lx-press w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95"
                 >
                     <Zap className="w-4 h-4" />
                     Học tiếp
@@ -1022,14 +1023,14 @@ export default function ReviewSession({
     if (dueCardIds.length === 0 && questions.length === 0 && !done) {
         return (
             <div className="min-h-screen bg-bg flex flex-col items-center justify-center px-4 text-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-accent/10 border border-accent/30 flex items-center justify-center mb-2">
+                <div className="w-16 h-16 rounded-xl flex items-center justify-center mb-2 lx-soft bg-surface-2">
                     <Check className="w-8 h-8 text-accent" />
                 </div>
                 <h1 className="text-2xl font-bold text-ink">{emptyTitle}</h1>
                 <p className="text-muted text-sm max-w-xs">{emptyText}</p>
                 <Link
                     href="/"
-                    className="mt-4 px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-semibold text-sm transition-colors"
+                    className="lx-hard lx-press mt-4 px-6 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors"
                 >
                     Học từ mới
                 </Link>

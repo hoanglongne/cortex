@@ -5,11 +5,11 @@ import { TEACH_URL } from '../lib/cortexConfig';
 export default function TeachMoved() {
     return (
         <div className="min-h-screen bg-bg px-4 py-16">
-            <div className="max-w-md mx-auto rounded-2xl border border-line bg-surface p-6 text-center space-y-3">
+            <div className="lx-soft max-w-md mx-auto rounded-[18px] bg-surface p-6 text-center space-y-3">
                 <p className="text-lg font-semibold text-ink">Trang giáo viên đã chuyển nhà</p>
                 <p className="text-sm text-muted">Lớp học, giao bài và báo cáo giờ ở ứng dụng dành riêng cho giáo viên và trung tâm. Bạn vào bằng lời mời từ trung tâm hoặc từ Lexica.</p>
                 {TEACH_URL && (
-                    <a href={TEACH_URL} className="inline-flex h-11 items-center px-5 rounded-xl bg-accent text-on-accent font-bold">
+                    <a href={TEACH_URL} className="lx-hard lx-press inline-flex h-11 items-center px-5 rounded-xl bg-accent text-on-accent font-extrabold">
                         Mở trang giáo viên
                     </a>
                 )}

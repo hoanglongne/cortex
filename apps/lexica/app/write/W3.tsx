@@ -52,7 +52,7 @@ function Order({ model }: { model: readonly string[] }) {
                 {order
                     .filter((i) => !picked.includes(i))
                     .map((i) => (
-                        <button key={i} onClick={() => setPicked((p) => [...p, i])} className="block w-full rounded-lg border border-line p-2.5 text-left text-sm text-ink-2 hover:bg-surface-2" lang="en">
+                        <button key={i} onClick={() => setPicked((p) => [...p, i])} className="block w-full lx-soft rounded-lg p-2.5 text-left text-sm text-ink-2 hover:bg-surface-2" lang="en">
                             {model[i]}
                         </button>
                     ))}
@@ -114,7 +114,7 @@ function Write({ frameId }: { frameId: string }) {
                         ))}
                     </div>
                     <textarea
-                        className="mt-1.5 w-full rounded-xl border border-line bg-bg p-3 text-sm text-ink"
+                        className="lx-soft mt-1.5 w-full rounded-xl bg-bg p-3 text-sm text-ink"
                         rows={2}
                         lang="en"
                         value={values[p.key]}
@@ -126,7 +126,7 @@ function Write({ frameId }: { frameId: string }) {
                 </label>
             ))}
             <div className="flex items-center gap-3">
-                <button onClick={check} disabled={total === 0} className="h-10 rounded-xl bg-accent px-4 text-sm font-bold text-on-accent disabled:opacity-40">
+                <button onClick={check} disabled={total === 0} className="lx-hard lx-press h-10 rounded-xl bg-accent px-4 text-sm font-extrabold text-on-accent disabled:opacity-40">
                     Kiểm tra
                 </button>
                 <span className="font-mono text-xs text-muted">{total} từ</span>

@@ -98,14 +98,14 @@ export default function McqGame({ mode, rounds, onAgain }: { mode: McqMode; roun
                 {(mode === 'blitz' || mode === 'liar') && <p className="text-lg font-semibold text-ink">{q.prompt}</p>}
                 {(mode === 'cloze' || mode === 'upgrade') && <p lang="en" className="whitespace-pre-line text-lg text-ink">{q.prompt}</p>}
                 {mode === 'listen' && (
-                    <button onClick={() => void AudioService.play(q.cardId, 'word')} className="h-14 w-full rounded-xl border border-line bg-surface-2/40 text-ink flex items-center justify-center gap-2">
+                    <button onClick={() => void AudioService.play(q.cardId, 'word')} className="lx-soft h-14 w-full rounded-xl bg-surface-2 text-ink flex items-center justify-center gap-2">
                         <Volume2 className="w-5 h-5" /> Nghe lại
                     </button>
                 )}
             </div>
 
             {mode === 'detective' && picked === null && clues < clueList.length && (
-                <button onClick={() => setClues(clues + 1)} className="w-full h-10 rounded-xl border border-line text-sm text-ink-2">
+                <button onClick={() => setClues(clues + 1)} className="w-full h-10 lx-soft rounded-xl text-sm text-ink-2">
                     Mở thêm một manh mối (điểm thấp hơn)
                 </button>
             )}

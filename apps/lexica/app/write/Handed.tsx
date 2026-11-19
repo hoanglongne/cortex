@@ -22,7 +22,7 @@ export default function Handed() {
 
     if (!inClass) return null;
     return (
-        <section className="space-y-3 rounded-2xl border border-line bg-surface p-4" aria-label="Bài đã nộp">
+        <section className="lx-soft space-y-3 rounded-[18px] bg-surface p-4" aria-label="Bài đã nộp">
             <h2 className="font-semibold text-ink">Bài đã nộp cho lớp</h2>
             {pieces === null ? (
                 <p className="text-sm text-muted">Đang tải…</p>
@@ -31,7 +31,7 @@ export default function Handed() {
             ) : (
                 <ul className="space-y-3">
                     {pieces.map((p) => (
-                        <li key={p.id} className="rounded-xl border border-line p-3">
+                        <li key={p.id} className="lx-soft rounded-xl p-3">
                             <div className="flex items-start justify-between gap-2">
                                 <p className="text-xs text-muted">
                                     {KIND[p.kind]} · {p.words} từ · {new Date(p.submitted_at).toLocaleDateString('vi-VN', { day: 'numeric', month: 'numeric' })}
@@ -60,7 +60,7 @@ export default function Handed() {
                                 <p className="mt-2 text-xs text-subtle">Giáo viên chưa chấm.</p>
                             )}
                             {p.peers_ok && (
-                                <div className="mt-2 rounded-lg border border-line p-2.5 text-sm">
+                                <div className="mt-2 lx-soft rounded-lg p-2.5 text-sm">
                                     {p.peer ? (
                                         <>
                                             <p className="font-semibold text-ink">{p.peer.raters} bạn đã chấm (ẩn danh)</p>
