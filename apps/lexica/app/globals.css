@@ -350,3 +350,6 @@ svg *:focus {
 
 /* Direction B: icons drawn a little bolder everywhere (lucide-react adds .lucide). */
 svg.lucide { stroke-width: 2.25; }
+
+/* Text on a colour block (topic or game colour): always near-black, whatever the theme. */
+.lx-onblock, .lx-onblock .text-ink, .lx-onblock .text-ink-2, .lx-onblock .text-muted, .lx-onblock .text-subtle { color: var(--on-block); }

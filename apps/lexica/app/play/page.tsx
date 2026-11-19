@@ -9,7 +9,7 @@ import { GAME_GOAL, goalMet, playsOn, weekSummary } from '../lib/games/daily';
 import { localDate } from '../lib/engagement/ghost';
 import { todaysPicks } from '../lib/games/picks';
 import { MIN_WORDS, usePool } from './usePool';
-import { edge, GAME_COLOR, tint, type GameId } from './theme';
+import { GAME_COLOR, type GameId } from './theme';
 
 /** Games built on something other than picking one of four. */
 const FEATURED: { id: GameId; name: string; hint: string; icon: LucideIcon; tag: string }[] = [
@@ -90,11 +90,8 @@ export default function PlayPage() {
                 {/* Today's goal */}
                 <section
                     data-testid="game-goal"
-                    className="relative overflow-hidden rounded-3xl border p-5"
-                    style={{ background: tint('var(--color-accent)', met ? 16 : 7), borderColor: edge('var(--color-accent)', met ? 55 : 25) }}
+                    className="lx-soft relative overflow-hidden rounded-[22px] bg-surface p-5"
                 >
-                    <span aria-hidden className="pointer-events-none absolute -right-6 -top-8 h-32 w-32 rounded-full" style={{ background: edge('var(--color-accent)', 14) }} />
-                    <span aria-hidden className="pointer-events-none absolute right-10 top-16 h-10 w-10 rounded-full" style={{ background: edge('var(--color-warning)', 22) }} />
                     <div className="relative flex items-center gap-4">
                         <div className="relative h-16 w-16 shrink-0">
                             <svg viewBox="0 0 36 36" className="h-16 w-16 -rotate-90">
@@ -123,7 +120,7 @@ export default function PlayPage() {
                         <h2 className="font-semibold text-ink">3 game hợp với bạn hôm nay</h2>
                     </div>
                     <div className="grid gap-3 lg:grid-cols-3">
-                        {picks.map(({ id, why }) => {
+                        {picks.map(({ id, why }, i) => {
                             const g = all.find((x) => x.id === id);
                             if (!g) return null;
                             const c = GAME_COLOR[id];
@@ -133,17 +130,17 @@ export default function PlayPage() {
                                     key={id}
                                     href={ready ? `/play/${id}` : '/play'}
                                     aria-disabled={!ready}
-                                    className={`relative flex items-center gap-4 overflow-hidden rounded-3xl border p-5 transition-transform active:scale-[0.98] ${ready ? 'hover:-translate-y-0.5' : 'pointer-events-none opacity-50'}`}
-                                    style={{ background: `linear-gradient(135deg, ${tint(c, 22)}, ${tint(c, 6)})`, borderColor: edge(c, 50) }}
+                                    className={`lx-press relative flex items-center gap-4 overflow-hidden p-5 ${i === 0 && ready ? 'lx-hard lx-onblock rounded-[22px] lg:-rotate-1' : 'lx-soft rounded-[20px] bg-surface'} ${ready ? '' : 'pointer-events-none opacity-50'}`}
+                                    style={i === 0 && ready ? { background: c } : undefined}
                                 >
-                                    <Icon aria-hidden className="pointer-events-none absolute -bottom-6 -right-4 h-28 w-28 -rotate-12 opacity-[0.1]" style={{ color: c }} />
-                                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-on-status" style={{ background: c }}>
+                                    {/* The challenge of the day is the one colour block; the others are cells with a coloured icon. */}
+                                    <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${i === 0 && ready ? 'lx-soft !border-[var(--on-block)] bg-transparent' : 'lx-soft text-[var(--on-block)]'}`} style={i === 0 && ready ? undefined : { background: c }}>
                                         <Icon className="h-6 w-6" />
                                     </span>
-                                    <span>
-                                        <span className="block font-mono text-[10px] uppercase tracking-wide" style={{ color: c }}>{why}</span>
-                                        <span className="block whitespace-nowrap text-lg font-bold text-ink">{g.name}</span>
-                                        <span className="mt-0.5 block text-sm leading-snug text-ink-2 line-clamp-2">{g.hint}</span>
+                                    <span className="min-w-0">
+                                        <span data-prose className="block font-mono text-[10px] font-bold uppercase tracking-wide text-muted">{why}</span>
+                                        <span className="block whitespace-nowrap text-lg font-extrabold text-ink">{g.name}</span>
+                                        <span data-prose className="mt-0.5 block text-sm leading-snug text-ink-2 line-clamp-2">{g.hint}</span>
                                     </span>
                                 </Link>
                             );
@@ -153,7 +150,7 @@ export default function PlayPage() {
 
                 <h2 className="pt-2 text-sm font-semibold uppercase tracking-wide text-subtle">Tất cả game</h2>
 
-                <details className="lx-soft group/fold rounded-[18px] bg-surface/40 p-3" aria-label="Cơ chế mới">
+                <details className="lx-soft group/fold rounded-[18px] bg-surface p-3" aria-label="Cơ chế mới">
                     <summary className="flex cursor-pointer list-none items-baseline gap-2">
                         <h3 className="shrink-0 whitespace-nowrap font-semibold text-ink">Thử thách</h3>
                         <span className="min-w-0 truncate text-xs text-subtle">Không chỉ chọn đáp án · {FEATURED.length} game</span>
@@ -168,17 +165,15 @@ export default function PlayPage() {
                                     key={id}
                                     href={ready ? `/play/${id}` : '/play'}
                                     aria-disabled={!ready}
-                                    className={`relative flex items-center gap-4 overflow-hidden rounded-3xl border p-5 transition-transform active:scale-[0.98] ${ready ? 'hover:-translate-y-0.5' : 'pointer-events-none opacity-50'}`}
-                                    style={{ background: `linear-gradient(135deg, ${tint(c, 22)}, ${tint(c, 6)})`, borderColor: edge(c, 50) }}
+                                    className={`lx-soft lx-press relative flex items-center gap-4 overflow-hidden rounded-[20px] bg-surface p-5 ${ready ? '' : 'pointer-events-none opacity-50'}`}
                                 >
-                                    <Icon aria-hidden className="pointer-events-none absolute -bottom-6 -right-4 h-32 w-32 -rotate-12 opacity-[0.1]" style={{ color: c }} />
-                                    <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-on-status" style={{ background: c }}>
+                                    <span className="lx-soft flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-[var(--on-block)]" style={{ background: c }}>
                                         <Icon className="h-7 w-7" />
                                     </span>
-                                    <span>
-                                        <span className="flex items-center gap-2 text-lg font-bold text-ink">
+                                    <span className="min-w-0">
+                                        <span className="flex items-center gap-2 whitespace-nowrap text-lg font-extrabold text-ink">
                                             {name}
-                                            <span className="rounded-md px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-on-status" style={{ background: c }}>
+                                            <span className="lx-sticker bg-surface px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-ink">
                                                 {tag}
                                             </span>
                                         </span>
@@ -192,7 +187,7 @@ export default function PlayPage() {
                 </details>
 
                 {GROUPS.map((g) => (
-                    <details key={g.title} aria-label={g.title} className="lx-soft group/fold rounded-[18px] bg-surface/40 p-3">
+                    <details key={g.title} aria-label={g.title} className="lx-soft group/fold rounded-[18px] bg-surface p-3">
                         <summary className="flex cursor-pointer list-none items-baseline gap-2">
                             <h3 className="shrink-0 whitespace-nowrap font-semibold text-ink">{g.title}</h3>
                             <span className="min-w-0 truncate text-xs text-subtle">{g.hint} · {g.games.length} game</span>
@@ -206,19 +201,15 @@ export default function PlayPage() {
                                         <Link
                                             href={ready ? `/play/${id}` : '/play'}
                                             aria-disabled={!ready}
-                                            className={`group relative flex h-full min-h-36 flex-col overflow-hidden rounded-3xl border p-4 transition-transform active:scale-[0.97] ${ready ? 'hover:-translate-y-0.5' : 'pointer-events-none opacity-50'}`}
-                                            style={{ background: tint(c, 13), borderColor: edge(c, 34) }}
+                                            className={`lx-soft lx-press group relative flex h-full min-h-36 flex-col overflow-hidden rounded-[20px] bg-surface p-4 ${ready ? '' : 'pointer-events-none opacity-50'}`}
                                         >
-                                            {/* decor: a big faded icon and a dot */}
-                                            <Icon aria-hidden className="pointer-events-none absolute -bottom-4 -right-3 h-24 w-24 -rotate-12 opacity-[0.09]" style={{ color: c }} />
-                                            <span aria-hidden className="pointer-events-none absolute right-3 top-3 h-2 w-2 rounded-full" style={{ background: c, opacity: 0.55 }} />
-                                            <span className="flex h-11 w-11 items-center justify-center rounded-2xl text-on-status" style={{ background: c }}>
+                                            <span className="lx-soft flex h-11 w-11 items-center justify-center rounded-2xl text-[var(--on-block)]" style={{ background: c }}>
                                                 <Icon className="h-5 w-5" />
                                             </span>
-                                            <span className="mt-3 flex min-w-0 items-center gap-2 whitespace-nowrap text-[15px] font-semibold text-ink">
+                                            <span className="mt-3 flex min-w-0 items-center gap-2 whitespace-nowrap text-[15px] font-extrabold text-ink">
                                                 {name}
                                                 {tag && (
-                                                    <span className="rounded-md px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide" style={{ background: edge(c, 22), color: c }}>
+                                                    <span className="lx-sticker bg-surface px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-ink">
                                                         {tag}
                                                     </span>
                                                 )}

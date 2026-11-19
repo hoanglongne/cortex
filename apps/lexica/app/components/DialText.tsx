@@ -51,7 +51,7 @@ export function DialParagraph({ text, hits, shown, onOpen, mode = 'replace' }: {
                 key={i}
                 {...(t.hiddenEn ? {} : { 'data-dial-card': h.cardId })}
                 onClick={() => onOpen(h)}
-                className={t.hiddenEn ? 'text-ink underline decoration-accent decoration-dotted decoration-2 underline-offset-4' : 'font-semibold text-accent underline decoration-accent/40 decoration-dotted underline-offset-4'}
+                className={t.hiddenEn ? 'text-ink underline decoration-accent decoration-dotted decoration-2 underline-offset-4' : 'lx-sticker mx-0.5 inline-block bg-accent px-2 py-0 font-semibold leading-snug text-on-accent [box-decoration-break:clone]'}
             >
                 {t.text}
             </button>,
@@ -72,11 +72,11 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
     const act = 'h-9 px-3 rounded-lg border text-sm flex items-center gap-1.5';
     return (
         <div className="fixed inset-x-0 bottom-0 z-40 p-4 max-w-2xl mx-auto" role="dialog" aria-label={`Nghĩa của ${hit.en}`}>
-            <div className="lx-soft rounded-[18px] bg-surface p-4 shadow-2xl">
+            <div className="lx-hard rounded-[22px] bg-surface p-4">
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="text-xl font-semibold">{hit.en}</span>
+                            <span className="font-display text-2xl font-extrabold">{hit.en}</span>
                             {card?.ipa && <span className="text-sm font-mono text-muted">/{card.ipa}/</span>}
                             <button onClick={() => void playText(hit.en, 'en')} aria-label="Nghe phát âm" className="p-1 text-accent"><Volume2 className="w-5 h-5" /></button>
                         </div>

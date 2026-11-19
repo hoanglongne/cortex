@@ -17,6 +17,8 @@ import { EDITION_LABEL, EDITION_RANK, type BoxItem, type Edition, type EconomySt
 import { RevealModal, useReel } from '../components/RevealReel';
 import AuthGate from '../components/AuthGate';
 import { shareCardImage } from '../lib/engagement/shareCard';
+import { TOPIC_BLOCK } from '../lib/brand';
+import { topicOf } from '../lib/engagement/collection';
 
 const STATE_ICON = { seed: Sprout, sprout: Leaf, gold: Sparkles, mastered: Trophy } as const;
 const STATE_LABEL = { seed: 'Mầm non', sprout: 'Đang nhớ', gold: 'Thuộc tốt', mastered: 'Thành thạo' } as const;
@@ -357,7 +359,8 @@ function SetRow({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`relative aspect-[3/4] rounded-xl border p-2 flex flex-col justify-between text-left transition-transform active:scale-95 ${owned ? `border-line-strong bg-surface-2 text-ink ${EDITION_CLASS[owned.edition]}` : STATE_STYLE[cp.state]}`}
+                                className={`relative aspect-[3/4] rounded-xl p-2 flex flex-col justify-between text-left lx-press ${owned ? `lx-sticker !rounded-xl lx-onblock ${EDITION_CLASS[owned.edition]}` : `border ${STATE_STYLE[cp.state]}`}`}
+                                style={owned && card ? { background: TOPIC_BLOCK[topicOf({ scenario: card.scenario })] } : undefined}
                             >
 
                                 <span className="flex items-center justify-between">
