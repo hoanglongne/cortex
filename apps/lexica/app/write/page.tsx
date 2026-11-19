@@ -30,21 +30,21 @@ export default function WritePage() {
             <div className="mx-auto max-w-2xl space-y-4">
                 <div className="flex items-center justify-between">
                     <BackLink fallback="/practice" />
-                    <h1 className="text-xl font-semibold text-ink">Viết</h1>
+                    <h1 className="font-display text-xl font-extrabold text-ink">Viết</h1>
                     <div className="w-12" />
                 </div>
                 <p className="text-sm text-muted">Đi từ một câu đến cả bài. Máy kiểm những gì nhìn thấy trong chữ và nhắc bạn tự kiểm phần còn lại, không cho điểm.</p>
 
-                <div className="grid grid-cols-4 gap-1 rounded-xl bg-surface-2 p-1" role="tablist" aria-label="Các bậc Viết">
+                <div className="lx-soft grid grid-cols-4 gap-1 rounded-[16px] bg-surface p-1" role="tablist" aria-label="Các bậc Viết">
                     {STEPS.map((s, i) => (
                         <button
                             key={s.id}
                             role="tab"
                             aria-selected={step === s.id}
                             onClick={() => setStep(s.id)}
-                            className={`rounded-lg px-1 py-2 text-center whitespace-nowrap text-xs sm:text-sm ${step === s.id ? 'bg-surface font-semibold text-ink shadow-sm' : 'text-muted hover:text-ink'}`}
+                            className={`rounded-xl px-1 py-2 text-center whitespace-nowrap text-xs font-bold sm:text-sm ${step === s.id ? 'bg-ink text-bg' : 'text-muted hover:text-ink'}`}
                         >
-                            <span className="block font-mono text-[10px] text-subtle">W{i + 1}</span>
+                            <span className={`block font-mono text-[10px] ${step === s.id ? 'text-bg/70' : 'text-subtle'}`}>W{i + 1}</span>
                             {s.label}
                         </button>
                     ))}
