@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import ErrorBoundary from './components/ErrorBoundary';
 import SwipeDeck from './components/SwipeDeck';
 import HomeHeader from './components/HomeHeader';
+import { LexicaLogo } from './components/LexicaLogo';
 import TodayCard from './components/TodayCard';
 import StepNumbers from './components/StepNumbers';
 import PaceCard from './components/PaceCard';
@@ -509,7 +510,7 @@ function HomeContent() {
           <div className="w-full max-w-xl mx-auto flex flex-col gap-4 lg:max-w-none">
             {/* Mobile: a greeting; the day and streak live in "Nhịp học" */}
             <div className="lg:hidden flex items-center justify-between px-1">
-              <span className="font-semibold text-ink text-base tracking-wide">LEXICA</span>
+              <LexicaLogo className="h-5 w-auto text-ink" />
               <span className="text-sm text-muted">{greeting}</span>
             </div>
             <ErrorBoundary>
@@ -519,23 +520,15 @@ function HomeContent() {
             <RetakeCard />
             <GuideCard />
             <PledgeCard />
-            <div className="lg:hidden flex flex-col gap-4">
-              <PaceCard />
-              <PaceNudge />
-              <WordSteps />
-            </div>
             <RecentWords />
-            <div className="lg:hidden">
-              <Motivation variant="strip" />
-            </div>
           </div>
         )}
 
 
 
-        {/* Desktop: the game layer, narrow and quiet */}
+        {/* The game layer: after the learning column on mobile, a narrow right column on desktop (one instance, so tests and screen readers see it once) */}
         {!sessionStarted && (
-          <div className="hidden lg:flex flex-col gap-4 self-start">
+          <div className="w-full max-w-xl mx-auto flex flex-col gap-4 lg:max-w-none lg:self-start">
             <PaceCard />
             <PaceNudge />
             <WordSteps />

@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, BookOpen, Check, Mic, Plus, RotateCcw } from 'lucide-react';
-import { ringArcs } from '../lib/journey/ring';
 import { useTodayPlan } from '../hooks/useTodayPlan';
+import { useLexicaStore } from '../store/lexicaStore';
+import { getCard } from '../lib/content/repository';
 import { planLine, STAGE_LABEL, STAGE_TITLE, type Stage } from '../lib/journey/today';
-
-const ARCS = ringArcs(4, 108, 120, 120, 18);
+import WordFan from './brand/WordFan';
+import { Burst } from './brand/Decor';
+import { buttonClass } from './ui';
 
 const STAGE_ICON: Record<Stage, React.ReactNode> = {
     review: <RotateCcw className="w-4 h-4" />,
@@ -16,94 +17,83 @@ const STAGE_ICON: Record<Stage, React.ReactNode> = {
     speak: <Mic className="w-4 h-4" />,
 };
 
+/** The big line: what is waiting today, with the key word marked. */
+function Headline({ review, learn }: { review: number; learn: number }) {
+    const mark = (t: string) => <span className="rounded-lg bg-accent px-1.5 text-on-accent">{t}</span>;
+    if (learn > 0 && review > 0) return <>{learn} thẻ mới đang chờ {mark('mở')}. {review} từ cần ôn.</>;
+    if (learn > 0) return <>{learn} thẻ mới đang chờ {mark('mở')}.</>;
+    if (review > 0) return <>{review} từ đang chờ {mark('ôn')}.</>;
+    return <>Phiên hôm nay đã {mark('sẵn sàng')}.</>;
+}
+
 /**
- * The one main button of the app (docs/LEXICA_DIRECTION.md): today's four
- * stages as a path, how long they take, and where the learner is on it.
- * Everything else on Home is secondary.
+ * The one main button of the app (docs/LEXICA_DIRECTION.md), direction B
+ * (docs/LEXICA_UI_B_ROLLOUT.md D3): a big headline, the day's cards fanned
+ * out in their topic colours, one lime button, and the four stages in a row.
  */
 export default function TodayCard() {
-    const { plan } = useTodayPlan();
+    const { plan, reviewIds, newLeft } = useTodayPlan();
+    const deck = useLexicaStore((s) => s.currentDeck);
     const doneCount = plan.stages.filter((s) => s.status === 'done').length;
     const started = doneCount > 0;
     const next = plan.stages.find((s) => s.status === 'todo')?.stage;
-    const still = useReducedMotion();
+    const reviewLeft = plan.stages.find((s) => s.stage === 'review')?.status === 'todo' ? reviewIds.length : 0;
+    const learnLeft = plan.stages.find((s) => s.stage === 'learn')?.status === 'todo' ? newLeft : 0;
+    const fan = [...deck.map((c) => ({ id: c.id, word: c.word, scenario: c.scenario })), ...reviewIds.map((id) => getCard(id)).filter(Boolean).map((c) => ({ id: c!.id, word: c!.word, scenario: c!.scenario }))].slice(0, 3);
 
     return (
-        <section data-testid="today-card" className="lx-soft w-full rounded-[22px] bg-surface p-5 sm:p-6">
-            <div className="flex items-baseline justify-between gap-3">
-                <p className="font-mono text-[11px] uppercase tracking-wider text-accent">Hôm nay</p>
-                {!plan.complete && <p className="font-mono text-[11px] text-muted">~{plan.minutes} phút</p>}
+        <section data-testid="today-card" className="w-full">
+            <div className="flex items-center justify-between gap-3">
+                <p className="font-mono text-[11px] font-bold uppercase tracking-wider text-muted">Hôm nay</p>
+                {!plan.complete && <p className="font-mono text-[11px] text-muted whitespace-nowrap">~{plan.minutes} phút</p>}
             </div>
-            <h2 className="mt-1.5 text-2xl font-semibold text-ink">{plan.complete ? 'Xong hôm nay' : started ? 'Tiếp tục phiên hôm nay' : 'Phiên học hôm nay'}</h2>
-            {next && <p className="mt-1 text-sm text-muted">Tiếp theo: {STAGE_TITLE[next].toLowerCase()}</p>}
-
-            {/* The four stages as a ring of arcs around the one button (issue #146); their names sit below, not on the ring */}
-            <div className="relative mx-auto mt-5 h-44 w-44">
-                <svg viewBox="0 0 240 240" className="absolute inset-0 h-full w-full" aria-hidden>
-                    {ARCS.map((d, i) => {
-                        const s = plan.stages[i];
-                        const isNext = s.stage === next;
-                        return (
-                            <g key={s.stage}>
-                                <path d={d} fill="none" strokeWidth="12" strokeLinecap="round" className={s.status === 'empty' ? 'stroke-surface-3/40' : 'stroke-surface-3'} />
-                                {(s.status === 'done' || isNext) && (
-                                    <motion.path
-                                        d={d}
-                                        fill="none"
-                                        strokeWidth="12"
-                                        strokeLinecap="round"
-                                        className={s.status === 'done' ? 'stroke-accent' : 'stroke-accent/40'}
-                                        initial={still ? false : { pathLength: 0 }}
-                                        animate={{ pathLength: 1 }}
-                                        transition={{ duration: 0.5, delay: i * 0.1 }}
-                                    />
-                                )}
-                            </g>
-                        );
-                    })}
-                </svg>
-                <div className="absolute inset-[22%] flex items-center justify-center">
-                    {plan.complete ? (
-                        <span className="flex h-full w-full flex-col items-center justify-center rounded-full border border-accent/40 text-accent">
-                            <Check className="h-7 w-7" />
-                            <span className="mt-0.5 text-xs font-semibold">Xong</span>
-                        </span>
-                    ) : (
-                        <Link
-                            href="/today"
-                            data-testid="today-start"
-                            className="flex h-full w-full flex-col items-center justify-center rounded-full bg-accent text-on-accent transition active:scale-95 hover:bg-accent-strong"
-                        >
-                            <ArrowRight className="h-6 w-6" />
-                            <span className="mt-0.5 text-sm font-bold">{started ? `Tiếp (${doneCount}/4)` : 'Bắt đầu'}</span>
-                        </Link>
-                    )}
-                </div>
-            </div>
-            <ol className="mt-4 grid grid-cols-4 gap-2" aria-label="Các chặng">
-                {plan.stages.map((s) => (
-                    <li key={s.stage} className="flex flex-col items-center gap-1 text-center">
-                        <span className={`flex h-7 w-7 items-center justify-center rounded-full border ${s.status === 'done' ? 'border-accent bg-accent text-on-accent' : s.stage === next ? 'border-accent text-accent' : 'border-line text-muted'}`}>
-                            {s.status === 'done' ? <Check className="w-3.5 h-3.5" /> : STAGE_ICON[s.stage]}
-                        </span>
-                        <span className={`text-xs font-semibold ${s.status === 'empty' ? 'text-subtle line-through' : 'text-ink'}`}>{STAGE_LABEL[s.stage]}</span>
-                    </li>
-                ))}
-            </ol>
 
             {plan.complete ? (
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <Link href="/today" className="h-12 px-5 rounded-xl border border-line-strong bg-surface text-ink font-semibold flex items-center gap-2 hover:border-accent">
-                        Xem kết quả hôm nay
-                    </Link>
-                    {/* Another round of the four stages: new words, a reading and speaking. */}
-                    <Link href="/today?more=1" className="h-12 px-4 rounded-xl text-sm text-muted hover:text-ink flex items-center gap-1.5">
+                <div className="mt-3 flex items-center gap-5">
+                    <Burst className="h-28 w-28 shrink-0">
+                        <Check className="h-9 w-9" strokeWidth={3} />
+                    </Burst>
+                    <div>
+                        <h2 className="text-3xl font-extrabold leading-tight tracking-tight text-ink">Xong hôm nay</h2>
+                        <p className="mt-1 text-sm text-muted">Mai quay lại, các từ sẽ chờ đúng lúc.</p>
+                    </div>
+                </div>
+            ) : (
+                <>
+                    <h2 className="mt-2 text-[34px] font-extrabold leading-[1.05] tracking-tight text-ink lg:text-5xl">
+                        <Headline review={reviewLeft} learn={learnLeft} />
+                    </h2>
+                    {next && <p className="mt-1.5 text-sm text-muted">Tiếp theo: {STAGE_TITLE[next].toLowerCase()}</p>}
+                    <WordFan cards={fan} className="mt-4" />
+                </>
+            )}
+
+            {plan.complete ? (
+                <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <Link href="/today" className={buttonClass('secondary')}>Xem kết quả hôm nay</Link>
+                    <Link href="/today?more=1" className={buttonClass('secondary', 'md', 'text-muted')}>
                         <Plus className="w-4 h-4" /> Học thêm
                     </Link>
                 </div>
             ) : (
-                <p className="mt-3 text-center font-mono text-[11px] text-muted">{planLine(plan)}</p>
+                <Link href="/today" data-testid="today-start" className={buttonClass('primary', 'lg', 'mt-4 w-full justify-between')}>
+                    <span>{started ? `Tiếp tục (${doneCount}/4)` : 'Mở phiên hôm nay'}</span>
+                    <span className="flex items-center gap-1 font-mono text-sm font-medium">{plan.minutes}′ <ArrowRight className="h-5 w-5" /></span>
+                </Link>
             )}
+
+            <ol className="mt-4 grid grid-cols-4 gap-2" aria-label="Các chặng">
+                {plan.stages.map((s) => {
+                    const isNext = s.stage === next;
+                    return (
+                        <li key={s.stage} className={`lx-soft flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 ${s.status === 'done' ? 'bg-ink text-bg' : 'bg-surface'} ${s.status === 'empty' ? 'opacity-50' : ''}`}>
+                            <span className={s.status === 'done' ? '' : isNext ? 'text-ink' : 'text-muted'}>{s.status === 'done' ? <Check className="w-4 h-4" /> : STAGE_ICON[s.stage]}</span>
+                            <span className={`text-sm font-bold whitespace-nowrap ${s.status === 'empty' ? 'line-through' : ''}`}>{STAGE_LABEL[s.stage]}</span>
+                        </li>
+                    );
+                })}
+            </ol>
+            {!plan.complete && <p className="mt-2 text-center font-mono text-[11px] text-muted">{planLine(plan)}</p>}
         </section>
     );
 }

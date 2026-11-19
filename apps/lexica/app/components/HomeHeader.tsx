@@ -29,12 +29,12 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
                     {level && level !== 'all' ? `${levelDef(level).label} · ${levelDef(level).cefr}` : 'Tất cả level'}
                 </button>
                 {path && (
-                    <Link href="/path" className="h-8 px-3 shrink-0 whitespace-nowrap rounded-lg border border-accent/40 bg-accent/5 text-xs font-mono text-ink flex items-center gap-1.5 hover:border-accent">
+                    <Link href="/path" className="lx-sticker h-8 px-3 shrink-0 whitespace-nowrap bg-surface text-xs font-bold text-ink flex items-center gap-1.5">
                         Ngày {currentDay(path, daysDone, localDate())}/{PATH_DAYS} · {BRANCH_LABEL[path.branch]}
                     </Link>
                 )}
                 <span className="lx-soft h-8 px-3 shrink-0 whitespace-nowrap rounded-lg bg-surface text-xs font-mono text-ink-2 flex items-center gap-1.5" title="Chuỗi ngày học">
-                    <Flame className={`w-3.5 h-3.5 ${streak > 0 ? 'text-warning' : 'text-subtle'}`} />
+                    <Flame className="w-3.5 h-3.5" />
                     {streak} ngày
                 </span>
                 <nav className="ml-auto flex shrink-0 items-center gap-1" aria-label="Điều hướng">

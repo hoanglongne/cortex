@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
 import { injectLexicaState, makeBypassState } from './helpers';
 
 test.describe('Core Learning Flow — Hôm nay', () => {
-  test('trang chủ: thẻ Hôm nay, 4 con số và Luyện thêm', async ({ page }) => {
+  test('trang chủ: thẻ Hôm nay và 4 con số', async ({ page }) => {
     await injectLexicaState(page, makeBypassState());
     await page.goto('/');
     await page.waitForURL('/', { timeout: 10_000 });
@@ -24,7 +24,6 @@ test.describe('Core Learning Flow — Hôm nay', () => {
     for (const stage of ['Ôn', 'Học', 'Đọc', 'Nói']) await expect(card.getByText(stage, { exact: true })).toBeVisible();
     await expect(page.getByTestId('today-start')).toBeVisible();
     await expect(page.getByTestId('step-numbers')).toBeVisible();
-    await expect(page.getByRole('button', { name: /Học thêm từ mới/ })).toBeVisible();
   });
 
   test('phiên Hôm nay: Học → Đọc → Nói → kết phiên', async ({ page }) => {
@@ -69,10 +68,9 @@ test.describe('Core Learning Flow — Hôm nay', () => {
     await expect(page.getByTestId('today-card').getByText('Xong hôm nay')).toBeVisible({ timeout: 8_000 });
   });
 
-  test('"Học thêm từ mới" mở bộ thẻ, swipe ra thẻ mới', async ({ page }) => {
+  test('phiên quẹt tự do (/?swipe=1, mở từ Drop ở Luyện): swipe ra thẻ mới', async ({ page }) => {
     await injectLexicaState(page, makeBypassState());
-    await page.goto('/');
-    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
+    await page.goto('/?swipe=1');
 
     const deck = page.locator('[data-tour-id="swipe-deck"]');
     await expect(deck).toBeVisible({ timeout: 8_000 });
