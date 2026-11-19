@@ -81,7 +81,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
                                 <Icon className={`w-5 h-5 ${selected ? 'text-accent' : 'text-muted'}`} />
                                 <span className="font-mono text-[11px] text-subtle">{l.cefr}</span>
                                 {suggested === l.id && (
-                                    <span className="rounded-md bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-accent">Đề xuất</span>
+                                    <span className="lx-sticker whitespace-nowrap bg-accent px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-on-accent">Đề xuất</span>
                                 )}
                             </div>
                             <p className="mt-3 text-xl font-semibold text-ink">{l.label}</p>

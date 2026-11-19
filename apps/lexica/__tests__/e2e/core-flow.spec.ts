@@ -28,6 +28,16 @@ test.describe('Core Learning Flow — Hôm nay', () => {
 
   test('phiên Hôm nay: Học → Đọc → Nói → kết phiên', async ({ page }) => {
     await injectLexicaState(page, makeBypassState({ dailyGoal: 10 }));
+    // The new-word deck is drawn at random; sometimes those words are all in a
+    // ready-made passage and the API is never asked. A seeded Math.random draws
+    // the same deck every run, so this test always covers the written reading.
+    await page.addInitScript(() => {
+      let s = 0x2f6e2b1;
+      Math.random = () => {
+        s = (Math.imul(s ^ (s >>> 15), 1 | s) + 0x6d2b79f5) | 0;
+        return ((s ^ (s >>> 14)) >>> 0) / 4294967296;
+      };
+    });
     // The API writes the reading around the words just learned.
     const asked: string[] = [];
     await page.route('**/v1/lexica/reading', async (route) => {

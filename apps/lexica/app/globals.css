@@ -28,7 +28,7 @@
   --color-ink: #F4F2EA;
   --color-ink-2: #D4D2CA;
   --color-muted: #9C9AA3;
-  --color-subtle: #6B6A72;
+  --color-subtle: #898890;
 
   /* Accent: the one brand color. Also means "correct / known". */
   --color-accent: #C6F432;
@@ -93,12 +93,12 @@
   --color-ink: #16150F;
   --color-ink-2: #34322A;
   --color-muted: #6A665B;
-  --color-subtle: #96918A;
+  --color-subtle: #706B64;
   --color-accent: #C6F432;
   --color-accent-strong: #B6E61C;
   --color-on-accent: #16150F;
   --accent-ink: #3F5A00;
-  --color-danger: #D23F2E;
+  --color-danger: #C83524;
   --color-warning: #F2C230;
   --color-on-status: #16150F;
   --outline: #16150F;
@@ -349,6 +349,8 @@ svg *:focus {
 }
 @media (prefers-reduced-motion: reduce) {
   .lx-reveal-sweep::after { animation: none; }
+  /* Looping attention cues stay still; spinners keep turning so loading is still visible. */
+  .animate-pulse, .animate-bounce, .animate-ping { animation: none; }
 }
 
 

@@ -22,12 +22,6 @@ import { topicOf } from '../lib/engagement/collection';
 
 const STATE_ICON = { seed: Sprout, sprout: Leaf, gold: Sparkles, mastered: Trophy } as const;
 const STATE_LABEL = { seed: 'Mầm non', sprout: 'Đang nhớ', gold: 'Thuộc tốt', mastered: 'Thành thạo' } as const;
-const STATE_STYLE = {
-    seed: 'border-line-strong bg-surface text-muted',
-    sprout: 'text-ink lx-soft bg-surface-2',
-    gold: 'text-ink lx-soft bg-surface-2',
-    mastered: 'border-warning/60 bg-warning/10 text-ink',
-} as const;
 const EDITION_CLASS: Record<Edition, string> = {
     common: '',
     silver: 'lx-edition-silver',
@@ -359,8 +353,8 @@ function SetRow({
                             <button
                                 key={id}
                                 onClick={() => onSelect(id)}
-                                className={`relative aspect-[3/4] rounded-xl p-2 flex flex-col justify-between text-left lx-press ${owned ? `lx-sticker !rounded-xl lx-onblock ${EDITION_CLASS[owned.edition]}` : `border ${STATE_STYLE[cp.state]}`}`}
-                                style={owned && card ? { background: TOPIC_BLOCK[topicOf({ scenario: card.scenario })] } : undefined}
+                                className={`relative aspect-[3/4] rounded-xl p-2 flex flex-col justify-between text-left lx-press lx-sticker !rounded-xl lx-onblock ${owned ? EDITION_CLASS[owned.edition] : ''}`}
+                                style={{ background: TOPIC_BLOCK[topicOf({ scenario: card?.scenario })] }}
                             >
 
                                 <span className="flex items-center justify-between">
