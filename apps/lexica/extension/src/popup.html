@@ -1,15 +1,17 @@
 <!doctype html><html lang="vi"><head><meta charset="utf-8"><style>
-body{margin:0;width:280px;background:#0E0F11;color:#EDEEF0;font:14px/1.45 system-ui,sans-serif;padding:14px}
-h1{font-size:15px;margin:0 0 10px}h1 span{color:#C6F432}
-.lbl{margin:12px 0 6px;color:#9AA0A8;font-size:12px}
-.seg{display:flex;gap:6px}.seg button{flex:1;padding:7px 0;border-radius:8px;border:1px solid #26282D;background:none;color:#C4C6CB;font:inherit;font-size:13px;cursor:pointer}
-.seg button.on{border-color:#C6F432;color:#C6F432}
-#toggle{width:100%;padding:9px;border-radius:10px;border:0;font:inherit;font-weight:600;cursor:pointer;background:#C6F432;color:#0E0F11}
-#toggle.off{background:#26282D;color:#EDEEF0}#toggle:disabled{opacity:.4;cursor:default}
-.muted{color:#9AA0A8;font-size:12px}.warn{color:#F5B942;font-size:12px}
-label{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:10px;color:#C4C6CB}
-ul{list-style:none;margin:4px 0 0;padding:0}li{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#C4C6CB;padding:2px 0}
-li button{background:none;border:0;color:#9AA0A8;cursor:pointer}
+body{margin:0;width:290px;background:#101012;color:#F4F2EA;font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;padding:16px}
+h1{font-size:18px;font-weight:800;letter-spacing:-.01em;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+h1 span{background:#C6F432;color:#16150F;border:1.5px solid #000;border-radius:999px;padding:0 8px;font-size:13px}
+.lbl{margin:14px 0 6px;color:#9C9AA3;font:700 11px ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}
+.seg{display:flex;gap:6px}.seg button{flex:1;padding:7px 0;border-radius:10px;border:1.5px solid #2C2C33;background:#1B1B1F;color:#D4D2CA;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.seg button.on{background:#F4F2EA;border-color:#F4F2EA;color:#101012}
+#toggle{width:100%;padding:10px;border-radius:14px;border:2px solid #000;font:inherit;font-weight:800;cursor:pointer;background:#C6F432;color:#16150F;box-shadow:3px 3px 0 #000}
+#toggle:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+#toggle.off{background:#1B1B1F;color:#F4F2EA;border-color:#2C2C33;box-shadow:none}#toggle:disabled{opacity:.4;cursor:default}
+.muted{color:#9C9AA3;font-size:12px}.warn{color:#F2C230;font-size:12px}
+label{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:12px;color:#D4D2CA}
+ul{list-style:none;margin:4px 0 0;padding:0}li{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#D4D2CA;padding:3px 0}
+li button{background:none;border:0;color:#9C9AA3;cursor:pointer}
 </style></head><body>
 <h1>Lexica <span>Blend</span></h1>
 <div class="muted" id="host"></div>

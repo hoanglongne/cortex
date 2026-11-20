@@ -1,4 +1,4 @@
-// Builds the Núm vặn Chrome extension into extension/dist (load it unpacked, or zip it).
+// Builds the Lexica Blend Chrome extension into extension/dist (load it unpacked, or zip it).
 // Usage (from apps/lexica): node extension/build.mjs
 import fs from 'node:fs';
 import ts from 'typescript';

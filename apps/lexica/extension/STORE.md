@@ -40,6 +40,7 @@ Từ bản 0.3, tiện ích **không xin quyền đọc mọi trang lúc cài**.
 - Icon 128×128: `extension/dist/icon-128.png`.
 - Ảnh chụp 1280×800: `store/screenshot-1280x800.png`. Đây là một trang demo tự viết, không phải trang báo thật, để không dùng thương hiệu của báo khác.
 - Ảnh quảng bá nhỏ 440×280: `store/promo-440x280.png`.
+- Dựng lại cả hai ảnh (sau khi đổi giao diện): trong `apps/lexica` chạy `node extension/store/make.mjs`. Ảnh dùng đúng `src/content.css` của tiện ích.
 
 ## Rủi ro khi duyệt
 - Đã dùng quyền theo từng trang nên rủi ro thấp hơn. Vẫn có thể bị hỏi vì `optional_host_permissions` rộng. Trả lời: chỉ xin khi người dùng bấm, cho đúng trang đó.

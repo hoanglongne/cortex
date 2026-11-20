@@ -1,11 +1,10 @@
-.lx-dial{color:#5a7d00;background:rgba(198,244,50,.28);border-radius:3px;padding:0 2px;cursor:pointer;font-weight:600;text-decoration:none}
-@media (prefers-color-scheme:dark){.lx-dial{color:#C6F432;background:rgba(198,244,50,.14)}}
-.lx-tip{position:absolute;z-index:2147483647;width:300px;box-sizing:border-box;background:#16171A;color:#EDEEF0;border:1px solid #26282D;border-radius:12px;padding:10px 12px;font:14px/1.45 system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-.lx-tip b{font-size:17px}.lx-tip .ipa{color:#9AA0A8;font-family:ui-monospace,monospace;margin-left:6px}.lx-tip .vi{margin-top:4px;color:#C4C6CB}.lx-tip .hint{margin-top:2px;color:#9AA0A8}
+.lx-dial{color:#16150F;background:#C6F432;border:1.5px solid #16150F;border-radius:999px;padding:0 .35em;margin:0 1px;cursor:pointer;font-weight:700;text-decoration:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.lx-dial.lx-due{box-shadow:2px 2px 0 #16150F}
+.lx-dial.lx-hl{color:inherit;background:none;border:0;border-radius:0;padding:0;margin:0;font-weight:inherit;box-shadow:none;text-decoration:underline dotted #8fb800 2px;text-underline-offset:3px}
+.lx-tip{position:absolute;z-index:2147483647;width:300px;box-sizing:border-box;background:#1B1B1F;color:#F4F2EA;border:2px solid #000;border-radius:18px;padding:12px 14px;font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:3px 3px 0 #000}
+.lx-tip b{font-size:19px;font-weight:800;letter-spacing:-.01em}.lx-tip .ipa{color:#9C9AA3;font-family:ui-monospace,monospace;margin-left:6px}.lx-tip .vi{margin-top:4px;color:#D4D2CA}.lx-tip .hint{margin-top:2px;color:#9C9AA3}
 .lx-tip button{background:none;border:0;color:#C6F432;cursor:pointer;font-size:16px;margin-left:6px}
-.lx-dial.lx-due{outline:1px dashed rgba(198,244,50,.7)}
-.lx-dial.lx-hl{color:inherit;background:none;font-weight:inherit;text-decoration:underline dotted #8fb800 2px;text-underline-offset:3px}
-.lx-tip .acts{display:flex;white-space:nowrap;align-items:center;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #26282D}
+.lx-tip .acts{display:flex;white-space:nowrap;align-items:center;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #2C2C33}
 .lx-tip .acts .sp{flex:1}.lx-tip .acts .hint{margin:0;font-size:12px}
-.lx-tip .acts button{margin:0;font-size:13px;color:#EDEEF0;border:1px solid #26282D;border-radius:8px;padding:3px 8px}
-.lx-tip .acts button.on{border-color:#C6F432}
+.lx-tip .acts button{margin:0;font-size:13px;font-weight:700;color:#F4F2EA;border:1.5px solid #2C2C33;border-radius:10px;padding:3px 9px}
+.lx-tip .acts button.on{background:#F4F2EA;color:#101012;border-color:#F4F2EA}
