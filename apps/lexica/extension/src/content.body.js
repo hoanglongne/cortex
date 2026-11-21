@@ -101,34 +101,41 @@
         closeTip();
         const c = CARDS[s.dataset.card] || {};
         const id = s.dataset.card, key = ruleKey(id, s.dataset.vi);
+        // The card lives in a shadow root: the page's own CSS cannot restyle it.
         tip = document.createElement('div');
         tip.className = 'lx-tip';
-        tip.innerHTML = `<div><b></b><span class="ipa"></span><button class="say" title="Nghe">🔊</button></div><div class="vi"></div><div class="hint"></div><div class="note hint"></div>
-<div class="acts"><button class="known">Đã thuộc</button><span class="sp"></span><span class="hint">Thay chỗ này</span><button class="up" title="Thay hay">👍</button><button class="down" title="Thay sai chỗ">👎</button></div>`;
-        tip.querySelector('b').textContent = s.dataset.en;
-        tip.querySelector('.ipa').textContent = c.ipa ? `/${c.ipa}/` : '';
-        tip.querySelector('.vi').textContent = `Trong bài: ${s.dataset.vi}`;
-        tip.querySelector('.hint').textContent = c.hint || '';
-        tip.querySelector('.note').textContent = due[id] !== undefined ? 'Lexica sẽ đưa từ này vào lượt ôn tới.' : 'Lexica sẽ thêm từ này vào bộ thẻ học.';
+        const root = tip.attachShadow({ mode: 'open' });
+        const note = due[id] !== undefined ? 'Lexica sẽ đưa từ này vào lượt ôn tới.' : 'Lexica sẽ thêm từ này vào bộ thẻ học.';
+        root.innerHTML = `<style>${TIP_CSS}</style><div class="card">${tipHtml({ en: s.dataset.en, vi: s.dataset.vi, card: c, note })}</div>`;
+        const $ = (q) => root.querySelector(q);
         pendingTap = id;
-        tip.querySelector('.say').onclick = () => { const u = new SpeechSynthesisUtterance(s.dataset.en); u.lang = 'en-US'; u.rate = 0.9; speechSynthesis.speak(u); };
-        tip.querySelector('.known').onclick = () => {
+        const say = (text) => { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 0.9; speechSynthesis.speak(u); };
+        $('.say').onclick = () => say(s.dataset.en);
+        root.querySelectorAll('.say-phrase').forEach((b) => { b.onclick = () => say(b.dataset.say); });
+        $('.known').onclick = () => {
             pendingTap = null; known[id] = Date.now();
             queue({ kind: 'known', cardId: id });
             chrome.storage.local.get({ knownLocal: {} }, ({ knownLocal }) => chrome.storage.local.set({ knownLocal: { ...knownLocal, [id]: Date.now() } }));
             removeWord(id); closeTip();
         };
-        tip.querySelector('.up').onclick = (ev) => { ev.target.classList.add('on'); queue({ kind: 'up', cardId: id, rule: key }); };
-        tip.querySelector('.down').onclick = () => {
+        $('.up').onclick = (ev) => { ev.target.classList.add('on'); queue({ kind: 'up', cardId: id, rule: key }); };
+        $('.down').onclick = () => {
             pendingTap = null; hiddenRules.add(key);
             queue({ kind: 'down', cardId: id, rule: key });
             removeWord(id, key); closeTip();
         };
-        const r = s.getBoundingClientRect();
-        tip.style.left = `${Math.max(8, Math.min(r.left, innerWidth - 316)) + scrollX}px`;
-        tip.style.top = `${r.bottom + scrollY + 6}px`;
+        // Below the word; above it when there is no room below.
+        tip.style.setProperty('left', '0px', 'important'); tip.style.setProperty('top', '0px', 'important');
         document.body.append(tip);
+        const r = s.getBoundingClientRect(), h = tip.offsetHeight;
+        let top = r.bottom + 6;
+        if (top + h > innerHeight - 8) top = r.top - h - 6 > 8 ? r.top - h - 6 : Math.max(8, innerHeight - h - 8);
+        // !important inline: the host's own rule resets every property with !important.
+        tip.style.setProperty('left', `${Math.max(8, Math.min(r.left, innerWidth - 348)) + scrollX}px`, 'important');
+        tip.style.setProperty('top', `${top + scrollY}px`, 'important');
     }, true);
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTip(); });
 
     // Pages read and words shown per day (7 days), for the popup's estimate (#161). Numbers only, on this device.
     function countPage() {

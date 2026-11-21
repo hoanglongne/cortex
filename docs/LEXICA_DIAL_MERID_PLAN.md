@@ -31,9 +31,9 @@
 - **Thay hẳn:** như hiện nay.
 - **Chỉ tô sáng:** giữ chữ tiếng Việt, gạch chân nhẹ. Chạm hoặc di chuột mới hiện từ tiếng Anh. Dành cho người mới.
 - **Cả hai:** chữ tiếng Việt, từ tiếng Anh trong ngoặc ngay sau.
-- **Mặc định:**
-  - người mới (dưới 50 từ đã học): chỉ tô sáng;
-  - còn lại: thay hẳn.
+- **Mặc định:** thay hẳn, cho mọi người (đổi ngày 20/11/2026).
+  - Trước đó người mới (dưới 50 từ đã học) mặc định chỉ tô sáng. Người dùng mới thấy gần như không có gì đổi và tưởng Blend không chạy.
+  - Chế độ tô sáng vẫn có, chọn trong popup.
 - **Tín hiệu "đã thấy":** chỉ tính ở chế độ thay hẳn và cả hai. Ở chế độ chỉ tô sáng, phải chạm mới tính.
 - **Mã:** `DialText.tsx` và `content.body.js` nhận thêm `mode`. Hàm dựng đoạn văn (`match.ts` → phần render) tách theo mode, có test.
 

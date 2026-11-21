@@ -12,11 +12,11 @@ describe('Blend prefs', () => {
         expect(intensityFromLevel(100)).toBe('heavy');
     });
 
-    it('N2: three ways to show a word, highlight first for new learners', () => {
+    it('N2: three ways to show a word, replacing by default', () => {
         expect(hitText('replace', 'khả thi', 'feasible')).toEqual({ text: 'feasible', hiddenEn: false });
         expect(hitText('highlight', 'khả thi', 'feasible')).toEqual({ text: 'khả thi', hiddenEn: true });
         expect(hitText('both', 'khả thi', 'feasible').text).toBe('khả thi (feasible)');
-        expect(defaultMode(10)).toBe('highlight');
+        expect(defaultMode(10)).toBe('replace');
         expect(defaultMode(80)).toBe('replace');
     });
 

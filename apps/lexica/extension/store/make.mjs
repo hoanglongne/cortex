@@ -6,12 +6,31 @@
 // Needs Playwright with a Chromium (the repo's e2e setup).
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
+import ts from 'typescript';
+import { tipFacts, tipHtml, TIP_CSS } from '../../app/lib/dial/tipCard.ts';
+import { topicOf, TOPICS } from '../../app/lib/engagement/collection.ts';
+import { TOPIC_BLOCK } from '../../app/lib/brand.ts';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const here = new URL('.', import.meta.url).pathname;
 const css = fs.readFileSync(`${here}../src/content.css`, 'utf8');
 const logo = fs.readFileSync(`${here}../../public/icon-192.png`).toString('base64');
+
+// The meaning card is the extension's own (app/lib/dial/tipCard.ts), built from the real card data.
+const dbJs = ts.transpileModule(fs.readFileSync(`${here}../../app/data/vocabCards.ts`, 'utf8'), {
+    compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS },
+}).outputText;
+const dbModule = { exports: {} };
+new Function('exports', 'module', 'require', dbJs)(dbModule.exports, dbModule, () => ({}));
+const feasible = dbModule.exports.VOCAB_DATABASE.find((c) => c.word.toLowerCase() === 'feasible');
+const topic = topicOf(feasible);
+const tipMarkup = tipHtml({
+    en: 'feasible',
+    vi: 'khả thi',
+    card: tipFacts(feasible, { label: TOPICS.find((t) => t.id === topic).label, color: TOPIC_BLOCK[topic] }),
+    note: 'Lexica sẽ thêm từ này vào bộ thẻ học.',
+});
 
 const w = (en, due = false) => `<span class="lx-dial${due ? ' lx-due' : ''}">${en}</span>`;
 
@@ -32,12 +51,7 @@ p{font-size:20px;line-height:1.75;margin:0 0 22px}
 <p>Điều ${w('necessary')} nhất là một lịch làm việc rõ ràng. Tôi phải thừa nhận những tuần đầu khá ${w('struggle')}: ranh giới giữa việc và nhà rất mờ, và tôi khó giữ ${w('focus')}.</p>
 <p>Sau vài tháng, tôi nhận ra ${w('benefit')} lớn nhất không nằm ở thời gian tiết kiệm được, mà ở chất lượng của những giờ làm việc ${w('focus')}. Những cuộc họp ${w('brief')}, minh bạch về mục tiêu giúp cả nhóm hợp tác ${w('effective')} hơn.</p>
 </main>
-<div class="lx-tip" style="left:600px;top:318px">
-  <div><b>feasible</b><span class="ipa">/ˈfiː.zə.bəl/</span><button>🔊</button></div>
-  <div class="vi">Trong bài: khả thi</div>
-  <div class="hint">Khả thi, có thể thực hiện được</div>
-  <div class="acts"><button>Đã thuộc</button><span class="sp"></span><span class="hint">Thay chỗ này</span><button class="on">👍</button><button>👎</button></div>
-</div>
+<div class="lx-tip" id="tip" style="left:600px!important;top:300px!important"></div>
 </body></html>`;
 
 const promo = `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -63,6 +77,12 @@ for (const [name, html, width, height] of [
 ]) {
     const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
     await page.setContent(html, { waitUntil: 'load' });
+    // The card sits in a shadow root, as on a real page.
+    await page.evaluate(([css, markup]) => {
+        const host = document.getElementById('tip');
+        if (!host) return;
+        host.attachShadow({ mode: 'open' }).innerHTML = `<style>${css}</style><div class="card">${markup}</div>`;
+    }, [TIP_CSS, tipMarkup]);
     await page.screenshot({ path: `${here}${name}` });
     await page.close();
 }

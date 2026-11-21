@@ -29,11 +29,13 @@ export const MODE_LABEL: Record<DialMode, string> = {
 };
 export const MODES: DialMode[] = ['replace', 'highlight', 'both'];
 
-/** Below this many learned words, words are only highlighted at first (easier to start). */
-export const NEW_LEARNER_WORDS = 50;
-
-export function defaultMode(learnedWords: number): DialMode {
-    return learnedWords < NEW_LEARNER_WORDS ? 'highlight' : 'replace';
+/**
+ * Words are replaced by default, for everyone (20/11/2026). Highlight-only was
+ * the default for learners under 50 words, but with it a new user saw almost
+ * nothing change and thought Blend did not work. It stays one tap away.
+ */
+export function defaultMode(_learnedWords?: number): DialMode {
+    return 'replace';
 }
 
 /** Old 0–100 % level → the nearest intensity. */
