@@ -1,7 +1,7 @@
 // Blend N7 (#165): run the English → English rules over a corpus and write every hit with its sentence, for labelling.
 // Usage: node scripts/dial-en/run.mjs <corpus.json> <set> [out.json]
 //   sets: dev (first part of each corpus, used to fix rules), test (the next part, used to find more errors)
-//   test2 (a third part, used for the first measurement) and test3 (a fourth part nobody had looked at, for the final number)
+//   test2 (a third part, used for the first measurement) and test3 (a fourth part, the first final number) and test4 (only what is left of the long CNN articles, for the final number after round 2)
 import fs from 'node:fs';
 import { compileRules, findHits } from '../../app/lib/dial/match.ts';
 import { DIAL_RULES_EN } from '../../app/lib/dial/rulesEn.ts';
@@ -15,7 +15,7 @@ const hits = [];
 let words = 0;
 for (const [name, docs] of Object.entries(corpus)) {
     const cut = Math.floor(docs.length * (SHARE[name] ?? 0.3));
-    const part = set === 'dev' ? docs.slice(0, cut) : set === 'test' ? docs.slice(cut, 2 * cut) : set === 'test2' ? docs.slice(2 * cut, 3 * cut) : set === 'test3' ? docs.slice(3 * cut, 4 * cut) : docs;
+    const part = set === 'dev' ? docs.slice(0, cut) : set === 'test' ? docs.slice(cut, 2 * cut) : set === 'test2' ? docs.slice(2 * cut, 3 * cut) : set === 'test3' ? docs.slice(3 * cut, 4 * cut) : set === 'test4' ? docs.slice(4 * cut, 8 * cut) : docs;
     for (const text of part) {
         words += text.split(/\s+/).length;
         for (const h of findHits(text, idx)) {

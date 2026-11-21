@@ -10,7 +10,7 @@ describe('English → English rules (#165)', () => {
     it('every rule points at the card with that word, in some form', () => {
         const byId = new Map(VOCAB_DATABASE.map((c) => [c.id, c.word.toLowerCase()]));
         // "eliminated", "a dearth of" and "focus on" all hold the stem of the card word.
-        const stem = (w: string) => w.replace(/(e|y)$/, '');
+        const stem = (w: string) => w.replace(/(ing|ed|es|s|e|y)$/, '');
         expect(DIAL_RULES_EN.filter((r) => !r.en.includes(stem(byId.get(r.cardId) ?? '\0')))).toEqual([]);
     });
 
@@ -52,6 +52,11 @@ describe('English → English rules (#165)', () => {
         expect(words('They are related.')).toEqual([]);
         expect(words('He is confident enough that it works.')).toEqual([]);
         expect(words('The two faced off in the final.')).toEqual([]);
+        expect(words('He had no grumbles about it.')).toEqual([]);
+        expect(words('I know what I think about the plan.')).toEqual([]);
+        expect(words('They collected five points out of six.')).toEqual([]);
+        expect(words('He was pointed out by the crowd.')).toEqual([]);
+        expect(words('He was worried by the noise.')).toEqual([]);
         expect(words('The special effects were great.')).toEqual([]);
         expect(words('We want to be clear that we agree.')).toEqual([]);
         expect(words('What do you think about the plan?')).toEqual([]);

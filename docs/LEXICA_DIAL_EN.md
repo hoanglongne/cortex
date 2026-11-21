@@ -3,11 +3,12 @@
 Thuộc `docs/LEXICA_DIAL_MERID_PLAN.md` mục N7. Câu hỏi: **bộ luật Anh → Anh có đổi đúng nghĩa trên văn bản tiếng Anh thật không, và đổi được bao nhiêu?**
 
 ## Đã làm
-- **Bộ luật mới** `apps/lexica/app/lib/dial/rulesEn.ts`: 285 luật, 333 cụm, trên 152 thẻ. Trước đó có 18 cụm, chưa đo.
+- **Bộ luật mới** `apps/lexica/app/lib/dial/rulesEn.ts`: **439 luật, 519 cụm, trên 234 thẻ** (vòng 2; vòng 1 là 285 luật, 333 cụm, 152 thẻ; trước đó 18 cụm). Bộ thẻ chỉ có 419 từ khác nhau, nên mốc "500" tính theo cụm.
   - Mỗi luật chỉ giữ cụm thông thường có nghĩa tương đương trong câu. Cụm nhiều nghĩa có điều kiện theo từ đứng cạnh (`onlyBefore`, `onlyAfter`, `notAfter`): 145 trong 285 luật có điều kiện.
   - Động từ và danh từ số nhiều khớp theo từng dạng và đổi sang cùng dạng ("got rid of" → *eliminated*, "points out" → *highlights*).
   - Ví dụ: `huge → massive`, `crucial → critical`, `a chance to → an opportunity to`, `think about → contemplate`, `put up with → tolerate`, `get around the rules → circumvent the rules`.
-- **Bộ máy khớp** (`match.ts`), ba thay đổi:
+- **Bộ máy khớp** (`match.ts`), bốn thay đổi:
+  - Luật tiếng Anh: điều kiện từ đứng cạnh chỉ tính khi hai chữ liền nhau, không vượt dấu câu ("relations worsened. The …").
   - `article`: bỏ chỗ thay khi "a" / "an" đứng trước sẽ sai ("a surprising result" không thành "a unexpected result").
   - Dấu gạch nối đơn nối hai chữ ("hard-working" khớp "hard working").
   - Chữ đầu câu giữ chữ hoa ("Huge demand" → "Massive demand"); áp dụng cho cả tiếng Việt (`hitText`).
@@ -29,8 +30,10 @@ Thuộc `docs/LEXICA_DIAL_MERID_PLAN.md` mục N7. Câu hỏi: **bộ luật Anh
 | test (sau vòng sửa 1) | 160 | 5 | 96,9% |
 | test2 (đo lần đầu) | 200 | 12 | **94,0%** |
 | test3 (sau khi sửa lỗi của test2) | 200 | 7 | **96,5%** |
+| test4, vòng 2 (519 cụm, chưa ai nhìn, CNN) | 200 | 9 | **95,5%** |
 
-- **Mật độ:** khoảng **1 chỗ thay trên 1.000 chữ** (1.170 chỗ trên 1,12 triệu chữ), tức 1–2 từ mỗi bài báo. Với tiếng Việt là 6 trên 1.000 chữ.
+- **Vòng 2:** 9 lỗi ở test4 (`grumbles` danh từ, `what I think about`, `barely 30`, `pointed out` bị động, `five points out of`, `get rid of him`, `hopeful of`, `worried by`) đã sửa và có test; chưa đo lại sau sửa. Mật độ vòng 2: 1,1–1,4 chỗ trên 1.000 chữ. Đã bỏ: `prepared to`, `tearful`, `outgoing`, `irregularity`, `impartial`, `fanatic`, `worsening`.
+- **Mật độ (vòng 1):** khoảng **1 chỗ thay trên 1.000 chữ** (1.170 chỗ trên 1,12 triệu chữ), tức 1–2 từ mỗi bài báo. Với tiếng Việt là 6 trên 1.000 chữ.
 - **Vòng đầu chưa sửa** (bộ dev, trước khi đọc kết quả): luật `related → relevant` sai 16/16, `enough → sufficient` rò sang "confident enough", `widespread → prevalent` sai ở "widespread protests".
 - Một số câu lặp trong bộ CNN (lời mời cuối bài "For a chance to be mentioned…"), nên con số đúng hơi cao hơn thực tế. Loại câu lặp thì test3 vẫn 96,4%.
 
