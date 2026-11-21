@@ -16,6 +16,9 @@ describe('Blend prefs', () => {
         expect(hitText('replace', 'khả thi', 'feasible')).toEqual({ text: 'feasible', hiddenEn: false });
         expect(hitText('highlight', 'khả thi', 'feasible')).toEqual({ text: 'khả thi', hiddenEn: true });
         expect(hitText('both', 'khả thi', 'feasible').text).toBe('khả thi (feasible)');
+        // A phrase that starts a sentence keeps its capital.
+        expect(hitText('replace', 'Khả thi', 'feasible').text).toBe('Feasible');
+        expect(hitText('replace', 'Huge', 'massive').text).toBe('Massive');
         expect(defaultMode(10)).toBe('replace');
         expect(defaultMode(80)).toBe('replace');
     });
