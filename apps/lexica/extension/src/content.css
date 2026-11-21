@@ -1,6 +1,6 @@
-.lx-dial{color:#16150F;background:#C6F432;border:1.5px solid #16150F;border-radius:999px;padding:0 .35em;margin:0 1px;cursor:pointer;font-weight:700;text-decoration:none;-webkit-box-decoration-break:clone;box-decoration-break:clone}
-.lx-dial.lx-due{box-shadow:2px 2px 0 #16150F}
-.lx-dial.lx-hl{color:inherit;background:none;border:0;border-radius:0;padding:0;margin:0;font-weight:inherit;box-shadow:none;text-decoration:underline dotted #8fb800 2px;text-underline-offset:3px}
+.lx-dial{color:#16150F!important;background:#C6F432!important;border:1.5px solid #16150F!important;border-radius:999px!important;padding:0 .35em!important;margin:0 1px;cursor:pointer;font-weight:700!important;text-decoration:none!important;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.lx-dial.lx-due{box-shadow:2px 2px 0 #16150F!important}
+.lx-dial.lx-hl{color:inherit!important;background:none!important;border:0!important;border-radius:0!important;padding:0!important;margin:0;font-weight:inherit!important;box-shadow:none!important;text-decoration:underline dotted #8fb800 2px!important;text-underline-offset:3px}
 .lx-tip{position:absolute;z-index:2147483647;width:300px;box-sizing:border-box;background:#1B1B1F;color:#F4F2EA;border:2px solid #000;border-radius:18px;padding:12px 14px;font:14px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;box-shadow:3px 3px 0 #000}
 .lx-tip b{font-size:19px;font-weight:800;letter-spacing:-.01em}.lx-tip .ipa{color:#9C9AA3;font-family:ui-monospace,monospace;margin-left:6px}.lx-tip .vi{margin-top:4px;color:#D4D2CA}.lx-tip .hint{margin-top:2px;color:#9C9AA3}
 .lx-tip button{background:none;border:0;color:#C6F432;cursor:pointer;font-size:16px;margin-left:6px}

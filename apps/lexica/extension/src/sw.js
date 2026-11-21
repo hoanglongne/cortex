@@ -42,7 +42,20 @@ async function refresh() {
 chrome.runtime.onInstalled.addListener(() => { void syncScripts(); void refresh(); });
 chrome.runtime.onStartup.addListener(() => { void syncScripts(); void refresh(); });
 chrome.storage.onChanged.addListener((ch, area) => { if (area === 'sync' && ch.sites) void syncScripts(); });
-chrome.permissions.onAdded.addListener(syncScripts);
+/** Run Blend now on open tabs of sites the learner turned on, so the page changes without a reload. */
+async function injectOpenTabs(origins) {
+    const { sites = {} } = await chrome.storage.sync.get({ sites: {} });
+    const tabs = await chrome.tabs.query({ url: origins }).catch(() => []);
+    for (const t of tabs) {
+        let host = '';
+        try { host = new URL(t.url).hostname; } catch { continue; }
+        if (!sites[host]) continue;
+        await chrome.scripting.insertCSS({ target: { tabId: t.id }, files: ['content.css'] }).catch(() => {});
+        await chrome.scripting.executeScript({ target: { tabId: t.id }, files: ['content.js'] }).catch(() => {});
+    }
+}
+// Chrome closes the popup when it shows the permission dialog, so the popup cannot finish the job: the worker does.
+chrome.permissions.onAdded.addListener(async (p) => { await syncScripts(); if (p.origins?.length) await injectOpenTabs(p.origins); });
 chrome.permissions.onRemoved.addListener(syncScripts);
 chrome.runtime.onMessage.addListener((msg) => {
     if (msg?.type === 'dial-refresh' || msg?.type === 'dial-tap') void refresh();

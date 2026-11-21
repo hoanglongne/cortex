@@ -12,7 +12,11 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
         const days = Object.values(pageStats);
         const pages = days.reduce((n, d) => n + d.pages, 0), shown = days.reduce((n, d) => n + d.shown, 0);
         const habit = days.length >= 2 && pages >= 5 ? { perDay: pages / 7, perPage: shown / pages } : null;
-        chrome.storage.sync.get({ sites: {}, level: 50, intensity: null, mode: null, en: false }, (v) => {
+        chrome.storage.sync.get({ sites: {}, level: 50, intensity: null, mode: null, en: false }, async (v) => {
+            for (const s of Object.keys(v.sites)) {
+                const has = await chrome.permissions.contains({ origins: [`https://${s}/*`, `http://${s}/*`] }).catch(() => true);
+                if (!has) { delete v.sites[s]; await chrome.storage.sync.set({ sites: v.sites }); }
+            }
             v.intensity = v.intensity || intensityFromLevel(v.level);
             v.mode = v.mode || defaultMode(learned);
             const seg = (el, keys, label, current, onPick) => {
@@ -49,12 +53,13 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
                 const origins = [`https://${host}/*`, `http://${host}/*`];
                 if (!v.sites[host]) {
                     if (blocked) return;
-                    // Ask for this site only (needs the click, so it happens here in the popup).
-                    const ok = await chrome.permissions.request({ origins });
-                    if (!ok) return;
+                    // Save the choice first: Chrome closes this popup when it shows the permission dialog,
+                    // so nothing after the request may run. The worker finishes the job when access is granted.
                     v.sites[host] = true;
                     await chrome.storage.sync.set({ sites: v.sites });
-                    // Run on the open page now; later visits use the registered script.
+                    const ok = await chrome.permissions.request({ origins });
+                    if (!ok) { delete v.sites[host]; await chrome.storage.sync.set({ sites: v.sites }); render(); return; }
+                    // Popup still open (access was already granted): run on the open page now.
                     await chrome.scripting.insertCSS({ target: { tabId: tab.id }, files: ['content.css'] }).catch(() => {});
                     await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] }).catch(() => {});
                 } else {
