@@ -36,5 +36,5 @@ for (const f of ['manifest.json', 'content.css', 'popup.html', 'popup.js', 'brid
 // The API the worker talks to (must match manifest host_permissions).
 const API = (process.env.CORTEX_API_URL || 'https://cortexapi-production-964a.up.railway.app').replace(/\/+$/, '');
 fs.writeFileSync(`${out}/sw.js`, fs.readFileSync(`${here}src/sw.js`, 'utf8').replace('__CORTEX_API_URL__', API));
-fs.copyFileSync(`${here}../public/icon-192.png`, `${out}/icon-128.png`);
+fs.copyFileSync(`${here}src/icon-128.png`, `${out}/icon-128.png`);
 console.log(`built ${out}: ${DIAL_RULES.length} rules, ${Object.keys(cards).length} cards`);
