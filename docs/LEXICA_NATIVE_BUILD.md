@@ -36,6 +36,18 @@ npx cap open ios           # chọn máy thật, đặt Team (tài khoản Apple
   4. Đặt Team cho cả hai target, bundle id của extension là `app.cortexlearn.lexica.ShareExtension`.
   - Facebook thường chỉ chia sẻ link bài viết, mà máy chủ không tải được link Facebook. Với Facebook, người dùng chọn chữ rồi chia sẻ chữ.
 
+## N3: tiện ích Safari (mới chuẩn bị, chưa thử trên Safari)
+**Đã làm:** `node extension/build.mjs --safari` (trong `apps/lexica`) tạo `extension/dist-safari/`: cùng mã với bản Chrome, chỉ khác manifest. Safari khai các trang trong `host_permissions` (Apple khuyên vậy) thay cho `optional_host_permissions`; người dùng bật từng trang trong Safari → Cài đặt → Tiện ích. Có test cho phần này.
+
+**Việc trên Mac (một lần):** trong Xcode mở `ios/App/App.xcodeproj`, File → New → Target → **Safari Extension** (iOS), đặt tên `LexicaBlend`, bundle id `app.cortexlearn.lexica.blend`. Thay nội dung thư mục Resources của target bằng nội dung `extension/dist-safari/`. Có thể thử nhanh cách khác: `xcrun safari-web-extension-converter extension/dist-safari --app-name "Lexica Blend" --bundle-identifier app.cortexlearn.lexica.blend` (kiểm tra `--help`), nó tạo một app riêng để thử. Bật tiện ích: Cài đặt iPhone → Safari → Tiện ích mở rộng.
+
+**Chưa kiểm chứng, nên mong sẽ phải sửa khi thử thật:**
+- `permissions.request` cho từng trang: Apple không ghi rõ cho Safari. Nếu popup không xin được quyền, cách sửa là bỏ bước xin quyền ở bản Safari và để Safari tự hỏi.
+- `scripting.registerContentScripts`: Safari hỗ trợ từ 16.4, có báo cáo lỗi ở 16.6 làm mất content script khai trong manifest. Cần thử trên bản Safari bạn dùng.
+- Cầu nối tài khoản (`bridge.js`) chỉ chạy khi bạn mở `lexica.cortexlearn.app` **trong Safari**, không chạy trong WebView của app. Vậy muốn nối tài khoản phải mở trang web Lexica trong Safari một lần.
+- Đồng bộ mức và trang đã bật giữa app và tiện ích (App Group, native messaging): **chưa làm**.
+- Apple xét duyệt tiện ích cùng app. Trang web trên `host_permissions` rộng có thể bị hỏi lý do: ghi trong mô tả rằng tiện ích chỉ chạy trên trang người dùng bật, không bao giờ trên trang ngân hàng, email, đăng nhập (đúng như `/privacy`).
+
 ## Chưa làm trong N1
 - Đăng nhập bằng Apple (cần bật nhà cung cấp Apple trong Supabase và khóa từ Apple Developer).
 - Thông báo đẩy (APNs, FCM): cần khóa của bạn, nối với `docs/LEXICA_PUSH_SPEC.md`.
