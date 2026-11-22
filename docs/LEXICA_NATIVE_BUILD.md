@@ -23,6 +23,15 @@ cd ios/App && pod install && cd ../..
 npx cap open ios           # chọn máy thật, đặt Team (tài khoản Apple Developer), Run
 ```
 
+## N2: nút Chia sẻ
+- **Android (đã viết, chưa thử trên máy):** `MainActivity.java` đổi lượt chia sẻ văn bản thành link `lexica://num-van?text=…`, `NativeShell` mở link đó trong Blend (cả khi app đang tắt lẫn đang chạy). Thử: trong Chrome bấm Chia sẻ một bài báo, chọn Lexica.
+- **iPhone (mã đã viết, chưa có target trong Xcode, chưa thử):** mã nằm ở `ios/ShareExtension/` (`ShareViewController.swift`, `Info.plist`). Tạo target một lần trên Mac:
+  1. Mở `ios/App/App.xcodeproj` trong Xcode, menu File → New → Target → **Share Extension**, đặt tên `ShareExtension`, ngôn ngữ Swift.
+  2. Xóa `ShareViewController.swift`, `MainInterface.storyboard` và `Info.plist` Xcode vừa tạo. Kéo các file trong `ios/ShareExtension/` vào target đó.
+  3. Trong Info.plist của extension không có `NSExtensionMainStoryboard` (đã dùng `NSExtensionPrincipalClass`).
+  4. Đặt Team cho cả hai target, bundle id của extension là `app.cortexlearn.lexica.ShareExtension`.
+  - Facebook thường chỉ chia sẻ link bài viết, mà máy chủ không tải được link Facebook. Với Facebook, người dùng chọn chữ rồi chia sẻ chữ.
+
 ## Chưa làm trong N1
 - Đăng nhập bằng Apple (cần bật nhà cung cấp Apple trong Supabase và khóa từ Apple Developer).
 - Thông báo đẩy (APNs, FCM): cần khóa của bạn, nối với `docs/LEXICA_PUSH_SPEC.md`.

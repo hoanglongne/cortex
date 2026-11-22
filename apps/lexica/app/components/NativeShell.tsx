@@ -25,10 +25,14 @@ export default function NativeShell() {
                 import('@capacitor/network'),
             ]);
             await SplashScreen.hide().catch(() => {});
-            const opened = await App.addListener('appUrlOpen', ({ url }) => {
+            const open = (url: string) => {
                 const target = deepLinkTarget(url);
                 if (target) router.push(target);
-            });
+            };
+            // The link the app was started with (a share or a lexica:// link), then the ones that arrive while it runs.
+            const launch = await App.getLaunchUrl().catch(() => undefined);
+            if (launch?.url) open(launch.url);
+            const opened = await App.addListener('appUrlOpen', ({ url }) => open(url));
             setOffline(!(await Network.getStatus()).connected);
             const net = await Network.addListener('networkStatusChange', (s) => setOffline(!s.connected));
             off = () => {
