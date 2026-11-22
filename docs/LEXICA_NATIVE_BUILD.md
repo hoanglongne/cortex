@@ -8,6 +8,10 @@ Trạng thái: khung app đã có (N1 một phần). Chưa chạy thử trên th
 - `ios/`, `android/`: dự án gốc. `resources/`: icon và màn khởi động từ logo (`pnpm native:assets` tạo lại).
 - `NativeShell`: ẩn màn khởi động, mở link `lexica://` và `https://lexica.cortexlearn.app/...` trong app, báo khi mất mạng.
 
+## Trước khi build: biến môi trường
+Giá trị `NEXT_PUBLIC_*` được ghi cứng vào app lúc build. Tạo `apps/lexica/.env.production.local` (đã nằm trong `.gitignore`) với ít nhất `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_CORTEX_API_URL`; thêm `NEXT_PUBLIC_CONTENT_MANIFEST_URL`, `NEXT_PUBLIC_POSTHOG_KEY`, `NEXT_PUBLIC_SENTRY_DSN` nếu bản web có dùng. Thiếu ba biến đầu thì `pnpm native:build` dừng lại. Đừng đưa khóa vào chat hay vào repo.
+Cortex API cần deploy lại với CORS mới cho app (`capacitor://localhost`, `https://localhost`).
+
 ## Chạy Android (Mac hoặc Linux, cần Android Studio)
 ```
 cd apps/lexica

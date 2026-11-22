@@ -5,7 +5,11 @@ Soạn từ mã và trang `/privacy` hiện tại. **Chưa nộp, chưa có tài
 ## 1. Chặn nộp (làm trước khi nộp)
 1. **Xóa tài khoản ngay trong app: đã làm (chưa chạy trên Supabase thật).** Nút "Xóa tài khoản" trong Cài đặt (và trang công khai `/xoa-tai-khoan`, địa chỉ web cho Google). Phía máy chủ là hàm `delete_my_account()` trong `apps/lexica/supabase/migration_delete_account.sql`. **Bạn phải chạy file SQL này trên Supabase SQL Editor trước**, nếu không nút báo "Chưa xóa được". Đã thử hàm trên Postgres 16 tạm (xóa theo cascade, đặt NULL cho cột không có quy tắc xóa, chạy lại được, từ chối khi chưa đăng nhập), chưa thử trên Supabase thật. Giáo viên xóa tài khoản thì các lớp họ tạo cũng bị xóa theo (app đã cảnh báo). Chưa kiểm tra các bảng của Oratio/Teach/Studio dùng chung dự án Supabase (cột `created_by`, `reviewer_id` được đặt NULL tự động).
 2. **Hỏi bạn micro (đã thêm):** `NSMicrophoneUsageDescription` (iOS) và `RECORD_AUDIO` (Android) đã có trong mã. Chưa thử xin quyền trên máy thật.
-3. **Nhận dạng giọng nói trong WebView:** mã dùng `SpeechRecognition` của trình duyệt, mà iOS WKWebView không có. Luật dự phòng là gửi âm thanh tới máy chủ Cortex. **Cần xác nhận luyện nói chạy được trong app** trước khi quảng cáo tính năng này.
+3. **Luyện nói trong app (đã đọc mã, chưa thử trên máy):** WKWebView của iPhone thiếu `SpeechRecognition`, nhưng mã đã có đường dự phòng: ghi âm bằng micro rồi gửi tới máy chủ Cortex (`/v1/lexica/transcribe`). Cả hai chỗ luyện nói (`SpeakDrill`, `DialogueScene`) đều truyền câu mẫu nên đường này dùng được. Nó chỉ chạy nếu có đủ ba điều kiện:
+   - **`NEXT_PUBLIC_CORTEX_API_URL` có trong bản build của app.** App không có máy chủ để đọc biến môi trường sau này, nên `scripts/build-native.mjs` nay **dừng và báo thiếu** nếu thiếu URL Supabase, khóa Supabase hoặc URL Cortex API (đặt trong `apps/lexica/.env.production.local`, không commit).
+   - **CORS của Cortex API cho phép app.** Đã thêm `capacitor://localhost` và `https://localhost` vào `cortex-core-api/src/main.ts`. **API phải deploy lại** thì mới có hiệu lực.
+   - **Gemini ở máy chủ còn hoạt động** (đang là điều kiện sẵn có của bản web).
+   Phần "vuốt bằng giọng" (không có câu mẫu) sẽ tự chuyển sang vuốt bằng tay trên iPhone.
 4. **Đăng nhập bằng Apple: không bắt buộc.** Lexica chỉ đăng nhập bằng email, không có đăng nhập qua Google/Facebook, nên luật 4.8 không áp dụng. Có thể bỏ mục này khỏi issue #144.
 5. **Không có mua hàng trong app.** Không nút mua, không nhắc giá (đúng quyết định đã chốt). Giữ nguyên, nếu không sẽ phải làm IAP.
 
