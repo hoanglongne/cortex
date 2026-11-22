@@ -28,7 +28,7 @@ export default function ScorePage() {
     const before = placements[placements.length - 2];
     const reviews = Object.values(progress).reduce((n, c) => n + c.reviewCount + c.wrongCount, 0);
     const gate = retake(placements, reviews, now);
-    const link = last?.code && typeof window !== 'undefined' ? `${window.location.origin}/score/${last.code}` : null;
+    const link = last?.code && typeof window !== 'undefined' ? `${window.location.origin}/score/view?code=${encodeURIComponent(last.code)}` : null;
     const [copied, setCopied] = useState(false);
 
     const share = async () => {

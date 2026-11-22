@@ -1,55 +1,79 @@
 {
-    "name": "Lexica – Học từ tiếng Anh",
-    "short_name": "Lexica",
-    "description": "Mỗi ngày một phiên ngắn: hiểu, nhớ, gặp, dùng. Học từ vựng IELTS và giao tiếp.",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#101012",
-    "theme_color": "#101012",
-    "orientation": "portrait",
-    "icons": [
-        {
-            "src": "/icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icon-maskable-512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
-    ],
-    "categories": [
-        "education",
-        "productivity"
-    ],
-    "shortcuts": [
-        {
-            "name": "Start Learning",
-            "url": "/",
-            "description": "Start swiping vocabulary cards"
-        },
-        {
-            "name": "Progress Tracker",
-            "url": "/stats",
-            "description": "View your learning progress"
-        }
-    ],
-    "share_target": {
-        "action": "/blend",
-        "method": "GET",
-        "params": {
-            "title": "title",
-            "text": "text",
-            "url": "url"
-        }
+  "name": "Lexica – Học từ tiếng Anh",
+  "short_name": "Lexica",
+  "description": "Mỗi ngày một phiên ngắn: hiểu, nhớ, gặp, dùng. Học từ vựng IELTS và giao tiếp.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101012",
+  "theme_color": "#101012",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "../icons/icon-48.webp",
+      "type": "image/png",
+      "sizes": "48x48",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-72.webp",
+      "type": "image/png",
+      "sizes": "72x72",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-96.webp",
+      "type": "image/png",
+      "sizes": "96x96",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-128.webp",
+      "type": "image/png",
+      "sizes": "128x128",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-192.webp",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-256.webp",
+      "type": "image/png",
+      "sizes": "256x256",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../icons/icon-512.webp",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
+  ],
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Learning",
+      "url": "/",
+      "description": "Start swiping vocabulary cards"
+    },
+    {
+      "name": "Progress Tracker",
+      "url": "/stats",
+      "description": "View your learning progress"
+    }
+  ],
+  "share_target": {
+    "action": "/blend",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
 }

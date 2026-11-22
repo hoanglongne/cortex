@@ -6,6 +6,7 @@ import { ArrowLeft, Volume2, VolumeX, Mic, RotateCcw, Trash2 } from 'lucide-reac
 import CortexSection from '../components/CortexSection';
 import LearningSettings from '../components/LearningSettings';
 import AuthGate from '../components/AuthGate';
+import DeleteAccount from '../components/DeleteAccount';
 import { useAuth } from '../context/AuthContext';
 import { getSupabaseClient } from '../lib/supabase';
 import { useLexicaStore } from '../store/lexicaStore';
@@ -151,6 +152,7 @@ function SettingsPageContent() {
 
                 {/* Cloud backup sign-in */}
                 <BackupStatus />
+                <DeleteAccount />
 
                 {/* Cortex Hub Section */}
                 <CortexSection />

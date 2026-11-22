@@ -114,7 +114,7 @@ export default function PrivacyPage() {
                             <p>Theo Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân, bạn có quyền xem, sửa, xoá dữ liệu và rút lại đồng ý.</p>
                             <ul>
                                 <li>Xoá dữ liệu trên máy: nút xoá tiến trình trong Cài đặt, hoặc xoá dữ liệu trang trong trình duyệt.</li>
-                                <li>Xoá tài khoản và dữ liệu trên máy chủ: gửi yêu cầu qua <Link href="/feedback" className="underline">trang Góp ý</Link>, nhóm xử lý trong 30 ngày.</li>
+                                <li>Xoá tài khoản và dữ liệu trên máy chủ: nút &quot;Xóa tài khoản&quot; trong Cài đặt, hoặc <Link href="/xoa-tai-khoan" className="underline">trang xóa tài khoản</Link>. Có hiệu lực ngay. Nếu không đăng nhập được, gửi yêu cầu qua <Link href="/feedback" className="underline">trang Góp ý</Link>, nhóm xử lý trong 30 ngày.</li>
                             </ul>
                         </>
                     ),

@@ -221,7 +221,7 @@ export function GivePanel({ buddy, onDone }: { buddy: BuddyInfo; onDone: () => v
                 if (qs.length < DUEL_MIN) throw new Error(`Chọn thêm từ: mới ra được ${qs.length} câu, cần ít nhất ${DUEL_MIN}.`);
                 const r = await duelCreate(buddy.id, qs);
                 capture('buddy_quiz_sent', { words: picked.length });
-                router.push(`/buddy/duel/${r.id}`);
+                router.push(`/buddy/duel?id=${encodeURIComponent(r.id)}`);
             }
         } catch (e) {
             setMsg(errText(e));

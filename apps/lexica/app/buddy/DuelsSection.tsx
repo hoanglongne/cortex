@@ -41,7 +41,7 @@ export function useStartDuel() {
             setBusy(buddy.id);
             try {
                 const r = await duelCreate(buddy.id, qs);
-                router.push(`/buddy/duel/${r.id}`);
+                router.push(`/buddy/duel?id=${encodeURIComponent(r.id)}`);
             } catch (e) {
                 setError(e instanceof Error ? e.message : String(e));
             } finally {
@@ -95,7 +95,7 @@ export default function DuelsSection({ reloadKey, startError }: { reloadKey: num
                         const line = duelLine(d, now);
                         return (
                             <li key={d.id} className="py-2.5">
-                                <Link href={`/buddy/duel/${d.id}`} className="flex items-center justify-between gap-3">
+                                <Link href={`/buddy/duel?id=${encodeURIComponent(d.id)}`} className="flex items-center justify-between gap-3">
                                     <span className="min-w-0">
                                         <span className="block text-sm font-semibold text-ink truncate">{d.with_name ?? 'Bạn học'}</span>
                                         <span className={`block text-xs ${line.tone === 'warn' ? 'text-warning' : line.tone === 'accent' ? 'text-accent' : 'text-muted'}`}>{line.text}</span>

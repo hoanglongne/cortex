@@ -25,6 +25,9 @@ async function bootstrap() {
         /\.vercel\.app$/,
         // Lexica capture extension (POST /capture with a capture token)
         /^chrome-extension:\/\/[a-p]{32}$/,
+        // The packaged Lexica app (Capacitor: iOS, Android)
+        'capacitor://localhost',
+        'https://localhost',
         /^moz-extension:\/\//,
         /^safari-web-extension:\/\//,
         // Extra origins (e.g. a custom Studio domain), comma-separated

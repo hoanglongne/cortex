@@ -1,11 +1,13 @@
 // Builds the Lexica Blend Chrome extension into extension/dist (load it unpacked, or zip it).
-// Usage (from apps/lexica): node extension/build.mjs
+// Usage (from apps/lexica): node extension/build.mjs            -> extension/dist (Chrome)
+//                           node extension/build.mjs --safari   -> extension/dist-safari (for the Safari converter, N3)
 import fs from 'node:fs';
 import ts from 'typescript';
 import { dedupeRules } from '../app/lib/dial/match.ts';
 import { DIAL_RULES_D0 } from '../app/lib/dial/rules.ts';
 import { DIAL_RULES_MORE } from '../app/lib/dial/rulesMore.ts';
 import { DIAL_RULES_EN } from '../app/lib/dial/rulesEn.ts';
+import { manifestFor } from './manifest.mjs';
 import { tipFacts } from '../app/lib/dial/tipCard.ts';
 import { topicOf, TOPICS } from '../app/lib/engagement/collection.ts';
 import { TOPIC_BLOCK } from '../app/lib/brand.ts';
@@ -13,7 +15,8 @@ import { TOPIC_BLOCK } from '../app/lib/brand.ts';
 const DIAL_RULES = dedupeRules([...DIAL_RULES_D0, ...DIAL_RULES_MORE]);
 
 const here = new URL('.', import.meta.url).pathname;
-const out = `${here}dist`;
+const target = process.argv.includes('--safari') ? 'safari' : 'chrome';
+const out = `${here}${target === 'safari' ? 'dist-safari' : 'dist'}`;
 fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 
@@ -43,7 +46,8 @@ for (const c of dbModule.exports.VOCAB_DATABASE) {
 const body = fs.readFileSync(`${here}src/content.body.js`, 'utf8');
 fs.writeFileSync(`${out}/content.js`, `(() => {\n${matcher}\n${prefs}\n${tipCard}\nconst RULES = ${JSON.stringify(DIAL_RULES)};\nconst RULES_EN = ${JSON.stringify(DIAL_RULES_EN)};\nconst CARDS = ${JSON.stringify(cards)};\n${body}\n})();\n`);
 fs.writeFileSync(`${out}/prefs.js`, prefs);
-for (const f of ['manifest.json', 'content.css', 'popup.html', 'popup.js', 'bridge.js']) fs.copyFileSync(`${here}src/${f}`, `${out}/${f}`);
+fs.writeFileSync(`${out}/manifest.json`, JSON.stringify(manifestFor(JSON.parse(fs.readFileSync(`${here}src/manifest.json`, 'utf8')), target), null, 2) + '\n');
+for (const f of ['content.css', 'popup.html', 'popup.js', 'bridge.js']) fs.copyFileSync(`${here}src/${f}`, `${out}/${f}`);
 // The API the worker talks to (must match manifest host_permissions).
 const API = (process.env.CORTEX_API_URL || 'https://cortexapi-production-964a.up.railway.app').replace(/\/+$/, '');
 fs.writeFileSync(`${out}/sw.js`, fs.readFileSync(`${here}src/sw.js`, 'utf8').replace('__CORTEX_API_URL__', API));
