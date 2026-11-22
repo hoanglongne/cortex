@@ -29,11 +29,13 @@ export const MODE_LABEL: Record<DialMode, string> = {
 };
 export const MODES: DialMode[] = ['replace', 'highlight', 'both'];
 
-/** Below this many learned words, words are only highlighted at first (easier to start). */
-export const NEW_LEARNER_WORDS = 50;
-
-export function defaultMode(learnedWords: number): DialMode {
-    return learnedWords < NEW_LEARNER_WORDS ? 'highlight' : 'replace';
+/**
+ * Words are replaced by default, for everyone (20/11/2026). Highlight-only was
+ * the default for learners under 50 words, but with it a new user saw almost
+ * nothing change and thought Blend did not work. It stays one tap away.
+ */
+export function defaultMode(_learnedWords?: number): DialMode {
+    return 'replace';
 }
 
 /** Old 0–100 % level → the nearest intensity. */
@@ -45,7 +47,9 @@ export function intensityFromLevel(level: number): DialIntensity {
 export function hitText(mode: DialMode, vi: string, en: string): { text: string; hiddenEn: boolean } {
     if (mode === 'highlight') return { text: vi, hiddenEn: true };
     if (mode === 'both') return { text: `${vi} (${en})`, hiddenEn: false };
-    return { text: en, hiddenEn: false };
+    // A phrase that starts a sentence keeps its capital: "Huge demand" becomes "Massive demand".
+    const capital = vi[0] !== vi[0].toLowerCase() && vi[0] === vi[0].toUpperCase();
+    return { text: capital ? en[0].toUpperCase() + en.slice(1) : en, hiddenEn: false };
 }
 
 /** One rule hit, for feedback: card and the Vietnamese phrase in lower case, NFC. */

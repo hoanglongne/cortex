@@ -31,9 +31,9 @@
 - **Thay hẳn:** như hiện nay.
 - **Chỉ tô sáng:** giữ chữ tiếng Việt, gạch chân nhẹ. Chạm hoặc di chuột mới hiện từ tiếng Anh. Dành cho người mới.
 - **Cả hai:** chữ tiếng Việt, từ tiếng Anh trong ngoặc ngay sau.
-- **Mặc định:**
-  - người mới (dưới 50 từ đã học): chỉ tô sáng;
-  - còn lại: thay hẳn.
+- **Mặc định:** thay hẳn, cho mọi người (đổi ngày 20/11/2026).
+  - Trước đó người mới (dưới 50 từ đã học) mặc định chỉ tô sáng. Người dùng mới thấy gần như không có gì đổi và tưởng Blend không chạy.
+  - Chế độ tô sáng vẫn có, chọn trong popup.
 - **Tín hiệu "đã thấy":** chỉ tính ở chế độ thay hẳn và cả hai. Ở chế độ chỉ tô sáng, phải chạm mới tính.
 - **Mã:** `DialText.tsx` và `content.body.js` nhận thêm `mode`. Hàm dựng đoạn văn (`match.ts` → phần render) tách theo mode, có test.
 
@@ -68,13 +68,14 @@ Thẻ nghĩa khi chạm vào từ có thêm ba nút:
   - tỉ lệ người cài mà chạm từ trong ngày đầu;
   - tỉ lệ vẫn bật sau 7 ngày.
 
-### N7. Chế độ tiếng Anh → tiếng Anh (sau cùng)
-- **Trên trang tiếng Anh:** đổi một số từ thường thành từ học thuật cùng nghĩa mà người học đang học. Ví dụ "a lot of" → "abundant", "show" → "demonstrate". Chỉ đổi khi chắc nghĩa.
-- **Giải nghĩa bằng tiếng Anh** cho người đã vững (bật trong Cài đặt).
-- **Cần trước:**
-  - bộ luật Anh → Anh riêng;
-  - nhận diện ngôn ngữ của trang;
-  - đo độ đúng như vòng D0 trước khi bật.
+### N7. Chế độ tiếng Anh → tiếng Anh (đã làm bản đầu, 20/11/2026)
+- **Trên trang tiếng Anh:** đổi một số cụm thông thường thành từ học thuật cùng nghĩa mà người học đang học. Ví dụ "huge" → *massive*, "get rid of" → *eliminate*, "a chance to" → *an opportunity to*. Chỉ đổi khi chắc nghĩa.
+- **Bộ luật:** 285 luật, 333 cụm, 152 thẻ (`app/lib/dial/rulesEn.ts`). Đã đo trên 1,1 triệu chữ tin tức và bách khoa: **96,5% đúng nghĩa** (bộ test3, 200 chỗ), khoảng 1 chỗ thay trên 1.000 chữ. Xem `docs/LEXICA_DIAL_EN.md`.
+- **Bật bằng ô "Đổi từ trên trang tiếng Anh (thử nghiệm)"** trong popup, mặc định tắt.
+- **Còn lại:**
+  - giải nghĩa bằng tiếng Anh cho người đã vững (bật trong Cài đặt);
+  - người thứ hai chấm lại ít nhất 100 chỗ trước khi bật mặc định;
+  - mở rộng luật cho các từ mới.
 
 ## Thứ tự và công sức (ước tính)
 | Việc | Phụ thuộc | Công |

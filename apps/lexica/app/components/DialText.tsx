@@ -7,6 +7,9 @@ import { DIAL_RULES } from '../lib/dial/allRules';
 import { pickHits } from '../lib/dial/level';
 import { hitText, INTENSITIES, INTENSITY, MODE_LABEL, MODES, ruleKey, type DialIntensity, type DialMode } from '../lib/dial/prefs';
 import { VOCAB_DATABASE } from '../data/vocabCards';
+import { exampleHtml, tipFacts } from '../lib/dial/tipCard';
+import { TOPICS, topicOf } from '../lib/engagement/collection';
+import { TOPIC_BLOCK } from '../lib/brand';
 import { playText } from '../lib/audio/AudioService';
 import { useLexicaStore } from '../store/lexicaStore';
 import { dialRank } from '../lib/dial/review';
@@ -69,21 +72,55 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
     const voted = vote?.hit === hit ? vote.v : null;
     const setVoted = (v: 'up' | 'down') => setVote({ hit, v });
     const card = CARDS.get(hit.cardId);
+    const topic = card ? topicOf(card) : null;
+    const facts = card && topic ? tipFacts(card, { label: TOPICS.find((t) => t.id === topic)!.label, color: TOPIC_BLOCK[topic] }) : null;
     const act = 'h-9 px-3 rounded-lg border text-sm flex items-center gap-1.5';
     return (
         <div className="fixed inset-x-0 bottom-0 z-40 p-4 max-w-2xl mx-auto" role="dialog" aria-label={`Nghĩa của ${hit.en}`}>
-            <div className="lx-hard rounded-[22px] bg-surface p-4">
+            <div className="lx-hard max-h-[82vh] overflow-y-auto rounded-[22px] bg-surface p-4">
                 <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0">
+                        {facts && (
+                            <div className="mb-2 flex flex-wrap gap-1.5">
+                                <span className="lx-sticker whitespace-nowrap px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--on-block)]" style={{ background: facts.tc }}>{facts.tl}</span>
+                                {facts.lv && <span className="lx-sticker whitespace-nowrap bg-surface px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink-2">{facts.lv}</span>}
+                            </div>
+                        )}
                         <div className="flex items-center gap-2">
-                            <span className="font-display text-2xl font-extrabold">{hit.en}</span>
-                            {card?.ipa && <span className="text-sm font-mono text-muted">/{card.ipa}/</span>}
-                            <button onClick={() => void playText(hit.en, 'en')} aria-label="Nghe phát âm" className="p-1 text-accent"><Volume2 className="w-5 h-5" /></button>
+                            <span className="font-display text-3xl font-extrabold leading-none lowercase">{hit.en}</span>
+                            <button onClick={() => void playText(hit.en, 'en')} aria-label="Nghe phát âm" className="lx-hard lx-press flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-on-accent"><Volume2 className="w-5 h-5" /></button>
                         </div>
-                        <p className="text-sm text-ink-2 mt-1">Trong bài: <b className="text-ink">{hit.vi}</b></p>
-                        {card && <p className="text-sm text-muted mt-1">{card.translationHint}</p>}
-                        {effect === 'due' && <p className="text-xs text-accent mt-2">Từ này sẽ vào lượt ôn tới.</p>}
-                        {effect === 'queued' && <p className="text-xs text-accent mt-2">Từ này sẽ vào bộ thẻ học tiếp theo.</p>}
+                        {facts?.ipa && <p className="mt-1 font-mono text-sm text-muted">/{facts.ipa}/</p>}
+                        <p className="mt-3 text-xs text-muted">Trong bài: <b className="text-ink">{hit.vi}</b></p>
+                        {facts && <p className="text-base font-bold text-ink">{facts.hint}</p>}
+                        {facts && facts.col.length > 0 && (
+                            <div className="mt-3">
+                                <p className="mb-1.5 whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wider text-muted">Cụm hay gặp</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {facts.col.map((p) => (
+                                        <button key={p} onClick={() => void playText(p, 'en')} className="lx-soft whitespace-nowrap rounded-full bg-surface-2 px-2.5 py-0.5 text-xs font-semibold text-ink">{p}</button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {facts?.ex && (
+                            <div className="mt-3">
+                                <p className="mb-1.5 whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wider text-muted">Ví dụ</p>
+                                <p data-prose className="text-sm leading-relaxed text-ink-2 [&_mark]:rounded-md [&_mark]:bg-accent [&_mark]:px-1 [&_mark]:font-bold [&_mark]:lowercase [&_mark]:text-on-accent" dangerouslySetInnerHTML={{ __html: exampleHtml(facts.ex, facts.w) }} />
+                            </div>
+                        )}
+                        {facts && facts.pt.length > 0 && (
+                            <div className="mt-3">
+                                <p className="mb-1.5 whitespace-nowrap font-mono text-[10px] font-bold uppercase tracking-wider text-muted">Cấu tạo từ</p>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {facts.pt.map(([t, m]) => (
+                                        <span key={t} className="inline-flex items-baseline gap-1.5 whitespace-nowrap rounded-xl bg-surface-2 px-2.5 py-1 text-xs text-muted"><b className="font-mono text-ink">{t}</b>{m}</span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                        {effect === 'due' && <p className="text-xs text-accent mt-3">Từ này sẽ vào lượt ôn tới.</p>}
+                        {effect === 'queued' && <p className="text-xs text-accent mt-3">Từ này sẽ vào bộ thẻ học tiếp theo.</p>}
                     </div>
                     <button onClick={onClose} aria-label="Đóng" className="p-1 text-muted"><X className="w-5 h-5" /></button>
                 </div>

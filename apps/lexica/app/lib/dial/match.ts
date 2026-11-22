@@ -25,6 +25,13 @@ export interface DialRule {
     notAtStart?: boolean;
     /** For ambiguous phrases: match only right before one of these phrases ("chắc chắn sẽ"). */
     onlyBefore?: string[];
+    /**
+     * English rules. Skip when the word before is "a" or "an" and the replacement
+     * needs the other one ("a surprising" must not become "a unexpected"); and
+     * the neighbour conditions above only count a word right next to the phrase,
+     * never one across a full stop or a comma ("relations worsened. The ...").
+     */
+    article?: boolean;
 }
 
 export interface DialHit {
@@ -119,12 +126,28 @@ function sentenceStart(text: string, tokens: Token[], i: number): boolean {
     return /[.!?:…\n"“”]/.test(gap);
 }
 
-/** Tokens i..j-1 must not be split by punctuation (a phrase never crosses a comma). */
+/** Tokens i..j-1 must not be split by punctuation (a phrase never crosses a comma). A bare hyphen joins ("old-fashioned"). */
 function contiguous(text: string, tokens: Token[], i: number, n: number): boolean {
     for (let k = i; k < i + n - 1; k++) {
-        if (!/^\s+$/.test(text.slice(tokens[k].end, tokens[k + 1].start))) return false;
+        if (!/^(\s+|-)$/.test(text.slice(tokens[k].end, tokens[k + 1].start))) return false;
     }
     return true;
+}
+
+/** Whether an English word is said with a vowel first, so it takes "an" ("an unexpected", "a unique", "an hour"). */
+export function takesAn(word: string): boolean {
+    const w = word.toLowerCase();
+    if (/^(hour|honest|honor|honour|heir)/.test(w)) return true;
+    if (/^(uni|use|usu|uti|eu|one|ubi)/.test(w)) return false;
+    return /^[aeiou]/.test(w);
+}
+
+/** The word before the hit is "a" or "an" and the replacement needs the other one. */
+function articleClash(text: string, tokens: Token[], i: number, en: string): boolean {
+    const prev = tokens[i - 1];
+    if (!prev || (prev.key !== 'a' && prev.key !== 'an')) return false;
+    if (!/^\s+$/.test(text.slice(prev.end, tokens[i].start))) return false;
+    return takesAn(en) !== (prev.key === 'an');
 }
 
 export function findHits(text: string, index: DialIndex): DialHit[] {
@@ -141,11 +164,16 @@ export function findHits(text: string, index: DialIndex): DialHit[] {
                 if (!seqAt(tokens, i, c.phrase) || !contiguous(src, tokens, i, n)) continue;
                 // A capital letter mid-sentence means a proper name ("Bộ Tài chính").
                 if (tokens[i].capital && !sentenceStart(src, tokens, i)) continue;
-                if (c.notBefore.some((p) => seqAt(tokens, i - p.length, p))) continue;
-                if (c.notAfter.some((p) => seqAt(tokens, i + n, p))) continue;
-                if (c.onlyAfter && !c.onlyAfter.some((p) => seqAt(tokens, i - p.length, p))) continue;
+                // English rules: a neighbour across punctuation is not a neighbour.
+                const near = c.rule.article === true;
+                const closeBefore = !near || (i > 0 && /^(\s+|-)$/.test(src.slice(tokens[i - 1].end, tokens[i].start)));
+                const closeAfter = !near || (i + n < tokens.length && /^(\s+|-)$/.test(src.slice(tokens[i + n - 1].end, tokens[i + n].start)));
+                if (closeBefore && c.notBefore.some((p) => seqAt(tokens, i - p.length, p))) continue;
+                if (closeAfter && c.notAfter.some((p) => seqAt(tokens, i + n, p))) continue;
+                if (c.onlyAfter && !(closeBefore && c.onlyAfter.some((p) => seqAt(tokens, i - p.length, p)))) continue;
                 if (c.rule.notAtStart && sentenceStart(src, tokens, i)) continue;
-                if (c.onlyBefore && !c.onlyBefore.some((p) => seqAt(tokens, i + n, p))) continue;
+                if (c.onlyBefore && !(closeAfter && c.onlyBefore.some((p) => seqAt(tokens, i + n, p)))) continue;
+                if (c.rule.article && articleClash(src, tokens, i, c.rule.en)) continue;
                 // A capital inside the phrase means a name ("cầu Kỳ Hà").
                 if (tokens.slice(i + 1, i + n).some((t) => t.capital)) continue;
                 hits.push({
