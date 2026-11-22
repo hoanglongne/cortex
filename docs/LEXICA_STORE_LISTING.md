@@ -3,7 +3,7 @@
 Soạn từ mã và trang `/privacy` hiện tại. **Chưa nộp, chưa có tài khoản cửa hàng nào.** Mọi ô khai báo dưới đây bạn phải tự đọc lại và xác nhận, vì khai sai có thể bị gỡ app. Chỗ tôi chưa chắc ghi là "cần xác nhận".
 
 ## 1. Chặn nộp (làm trước khi nộp)
-1. **Xóa tài khoản ngay trong app.** Apple (5.1.1(v)) và Google Play đều yêu cầu app cho tạo tài khoản phải cho xóa tài khoản trong app. Hiện `/privacy` nói "gửi yêu cầu qua trang Góp ý, xử lý trong 30 ngày", **không đủ**. Cần nút "Xóa tài khoản" trong Cài đặt, xóa dữ liệu Supabase của người dùng. Google còn đòi một địa chỉ web để xóa tài khoản. Đề nghị tách thành một issue riêng.
+1. **Xóa tài khoản ngay trong app: đã làm (chưa chạy trên Supabase thật).** Nút "Xóa tài khoản" trong Cài đặt (và trang công khai `/xoa-tai-khoan`, địa chỉ web cho Google). Phía máy chủ là hàm `delete_my_account()` trong `apps/lexica/supabase/migration_delete_account.sql`. **Bạn phải chạy file SQL này trên Supabase SQL Editor trước**, nếu không nút báo "Chưa xóa được". Đã thử hàm trên Postgres 16 tạm (xóa theo cascade, đặt NULL cho cột không có quy tắc xóa, chạy lại được, từ chối khi chưa đăng nhập), chưa thử trên Supabase thật. Giáo viên xóa tài khoản thì các lớp họ tạo cũng bị xóa theo (app đã cảnh báo). Chưa kiểm tra các bảng của Oratio/Teach/Studio dùng chung dự án Supabase (cột `created_by`, `reviewer_id` được đặt NULL tự động).
 2. **Hỏi bạn micro (đã thêm):** `NSMicrophoneUsageDescription` (iOS) và `RECORD_AUDIO` (Android) đã có trong mã. Chưa thử xin quyền trên máy thật.
 3. **Nhận dạng giọng nói trong WebView:** mã dùng `SpeechRecognition` của trình duyệt, mà iOS WKWebView không có. Luật dự phòng là gửi âm thanh tới máy chủ Cortex. **Cần xác nhận luyện nói chạy được trong app** trước khi quảng cáo tính năng này.
 4. **Đăng nhập bằng Apple: không bắt buộc.** Lexica chỉ đăng nhập bằng email, không có đăng nhập qua Google/Facebook, nên luật 4.8 không áp dụng. Có thể bỏ mục này khỏi issue #144.
@@ -70,11 +70,11 @@ Dựa trên `/privacy`. "Liên kết với danh tính" nghĩa là gắn với t�
 
 - **Theo dõi (tracking) xuyên app, quảng cáo, bán dữ liệu: không.** Đúng theo `/privacy`.
 - **Mã hóa khi truyền: có** (HTTPS). Google yêu cầu khai.
-- **Xóa dữ liệu:** xem mục 1.1, cần làm.
+- **Xóa dữ liệu:** có nút trong app và trang `/xoa-tai-khoan` (mục 1.1).
 - **Quyền dùng:** micro (luyện nói), mạng. Thông báo đẩy chỉ khai khi bật tính năng.
 - Trang `/privacy` hiện nói về "trình duyệt". **Cần sửa lại một vài câu cho đúng khi là app** (ví dụ "lưu trong trình duyệt" thành "lưu trên máy") và ghi rõ app iOS/Android.
 
 ## 7. Việc còn lại cho bạn
-1. Quyết định có làm nút **xóa tài khoản** (mục 1.1) trước khi nộp.
+1. Chạy `migration_delete_account.sql` trên Supabase và thử xóa một tài khoản thử.
 2. Đăng ký Apple Developer, Google Play Console (Play yêu cầu người dùng cá nhân mới phải thử nghiệm kín trước khi lên bản chính thức, **cần xác nhận điều kiện hiện hành**).
 3. Xác nhận từng ô ở mục 2 và 6, chụp ảnh trên máy thật, tạo ảnh bìa Google.

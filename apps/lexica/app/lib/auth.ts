@@ -110,3 +110,17 @@ export async function upsertProfile(userId: string, nickname: string): Promise<P
         .single();
     return inserted as Profile | null;
 }
+
+/**
+ * Deletes the signed-in player's account and the data the server holds for it
+ * (supabase/migration_delete_account.sql). Returns false when it did not go through,
+ * and the player stays signed in. Data on this device is left to the caller.
+ */
+export async function deleteMyAccount(): Promise<boolean> {
+    const supabase = getSupabaseClient();
+    if (!supabase) return false;
+    const { error } = await supabase.rpc('delete_my_account');
+    if (error) return false;
+    await supabase.auth.signOut().catch(() => {});
+    return true;
+}
