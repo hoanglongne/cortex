@@ -32,3 +32,11 @@ python openvoice_convert.py --repo OpenVoice --ckpt ckpt/ov2/converter --sample 
 ## Tiêu chí
 - **Qua:** chính chủ chấm "giống tôi" ≥ 4/5, và điểm phát âm của clip ngang clip chuẩn.
 - **Không đạt:** dừng.
+
+## Kết quả (22/11/2026): không đạt, dừng
+Ba lần thử với một người thử, chấm "giống tôi" và "tự nhiên" từ 1 đến 5:
+- kNN-VC với mẫu khoảng 1 phút, và OpenVoice v2: không đạt (lần 1 và 2, xem issue #145).
+- kNN-VC với mẫu 4 phút 13 giây (issue #173): **tệ hơn** mẫu 1 phút theo lời người thử, nên thêm mẫu không cứu được chất lượng.
+- Bản ghi 4 phút ồn nền cao hơn bản 1 phút khoảng 10 dB (−43 dB so với −53 dB) và nhiều âm cao hơn (18,6% so với 12% năng lượng trên 4 kHz). Đây chỉ là một cách giải thích có thể, chưa thử lọc ồn.
+
+Chưa thử: Chatterbox, CosyVoice 2, lọc ồn trước khi đổi giọng. Chỉ nên mở lại nếu đổi hẳn cách tiếp cận (tổng hợp theo mẫu giọng thay vì đổi màu giọng), không phải thêm mẫu cho kNN-VC.
