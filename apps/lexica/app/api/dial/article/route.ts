@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { APP_ORIGINS } from '../../../lib/apiBase';
 import { allowedUrl, extractArticle } from '../../../lib/dial/extract';
 
 /**
@@ -18,7 +19,23 @@ function limited(ip: string): boolean {
     return recent.length > PER_HOUR;
 }
 
+/** The packaged app calls this from its own origin, so it needs CORS (nothing else is allowed in). */
+function cors(req: Request): Record<string, string> {
+    const origin = req.headers.get('origin') ?? '';
+    return APP_ORIGINS.includes(origin) ? { 'access-control-allow-origin': origin, vary: 'origin' } : {};
+}
+
+export function OPTIONS(req: Request) {
+    return new Response(null, { status: 204, headers: { ...cors(req), 'access-control-allow-methods': 'GET', 'access-control-max-age': '86400' } });
+}
+
 export async function GET(req: Request) {
+    const res = await handle(req);
+    for (const [k, v] of Object.entries(cors(req))) res.headers.set(k, v);
+    return res;
+}
+
+async function handle(req: Request): Promise<Response> {
     const raw = new URL(req.url).searchParams.get('url') ?? '';
     const url = allowedUrl(raw);
     if (!url) return NextResponse.json({ error: 'site' }, { status: 400 });

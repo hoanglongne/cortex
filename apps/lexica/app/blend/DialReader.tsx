@@ -1,5 +1,6 @@
 'use client';
 
+import { apiUrl } from '../lib/apiBase';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, Loader2 } from 'lucide-react';
@@ -47,7 +48,7 @@ export default function DialReader() {
             if (!allowedUrl(link)) { setError(ERRORS.site); return; }
             setLoading(true);
             try {
-                const res = await fetch(`/api/dial/article?url=${encodeURIComponent(link)}`);
+                const res = await fetch(apiUrl(`/api/dial/article?url=${encodeURIComponent(link)}`));
                 const body = await res.json();
                 if (!res.ok) { setError(ERRORS[body.error] ?? ERRORS.fetch); return; }
                 setArticle(body);
