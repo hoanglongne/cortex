@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import base from '../../extension/src/manifest.json';
-// @ts-expect-error plain ES module without types
 import { manifestFor } from '../../extension/manifest.mjs';
 
 describe('extension manifest per browser', () => {
