@@ -12,6 +12,7 @@ import ContentLoader from "./components/ContentLoader";
 import HydrationGate from "./components/HydrationGate";
 import AppNav, { DesktopNav } from "./components/AppNav";
 import ErrorReporter from "./components/ErrorReporter";
+import NativeShell from "./components/NativeShell";
 import BuddySync from "./components/BuddySync";
 import StudyDateBanner from "./components/StudyDateBanner";
 import { DeviceVoiceBoot } from "./components/DeviceVoiceCard";
@@ -87,6 +88,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-bg text-ink overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>
           <ErrorReporter />
+          <NativeShell />
           <CloudSync />
           <ClassSync />
           <BuddySync />
