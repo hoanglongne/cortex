@@ -19,7 +19,17 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     if (NATIVE) return [];
-    return [{ source: '/challenge/:id', destination: '/play', permanent: false }];
+    // Pages whose address held a code take it as a query now (the app is a static export); old links still work.
+    return [
+      { source: '/challenge/:id', destination: '/play', permanent: false },
+      { source: '/story/:id', destination: '/read', permanent: false },
+      { source: '/read/:id((?!view$)[^/]+)', destination: '/read/view?id=:id', permanent: false },
+      { source: '/play/:game((?!game$)[^/]+)', destination: '/play/game?g=:game', permanent: false },
+      { source: '/join/:code', destination: '/join?code=:code', permanent: false },
+      { source: '/score/:code((?!view$)[^/]+)', destination: '/score/view?code=:code', permanent: false },
+      { source: '/class/test/:id', destination: '/class/test?id=:id', permanent: false },
+      { source: '/buddy/duel/:id', destination: '/buddy/duel?id=:id', permanent: false },
+    ];
   },
 };
 

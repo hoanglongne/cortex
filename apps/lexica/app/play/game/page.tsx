@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { QueryPage, useQueryParam } from '../../lib/useQueryParam';
 import { notFound } from 'next/navigation';
 import { getPassages } from '../../lib/content/repository';
 import { dictationRounds, fillRounds, linkedRounds } from '../../lib/games/listen';
@@ -30,8 +31,12 @@ const MCQ: Record<McqMode, { make: Make; n: number }> = {
 };
 const IDS = ['run', 'rain', 'boss', 'grid', 'blitz', 'detective', 'liar', 'listen', 'cloze', 'upgrade', 'match', 'spell', 'chain', 'dictate', 'fill', 'linked'];
 
-export default function GamePage({ params }: { params: Promise<{ game: string }> }) {
-    const { game } = use(params);
+export default function GameRoute() {
+    return <QueryPage><GamePage /></QueryPage>;
+}
+
+function GamePage() {
+    const game = useQueryParam('g');
     if (!IDS.includes(game)) notFound();
     return <Play game={game} />;
 }

@@ -83,7 +83,7 @@ function PassageRow({ passage, progress, read, featured }: { passage: Passage; p
     const minutes = Math.max(1, Math.round(wordCount(passage.text) / 120));
     return (
         <Link
-            href={`/read/${passage.id}`}
+            href={`/read/view?id=${encodeURIComponent(passage.id)}`}
             data-testid={`passage-${passage.id}`}
             className={`flex items-center gap-3 rounded-2xl bg-surface border p-4 transition-colors hover:border-line-strong ${featured ? 'border-line-strong' : 'border-line'}`}
         >

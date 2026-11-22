@@ -128,7 +128,7 @@ export default function PlayPage() {
                             return (
                                 <Link
                                     key={id}
-                                    href={ready ? `/play/${id}` : '/play'}
+                                    href={ready ? `/play/game?g=${id}` : '/play'}
                                     aria-disabled={!ready}
                                     className={`lx-press relative flex items-center gap-4 overflow-hidden p-5 ${i === 0 && ready ? 'lx-hard lx-onblock rounded-[22px] lg:-rotate-1' : 'lx-soft rounded-[20px] bg-surface'} ${ready ? '' : 'pointer-events-none opacity-50'}`}
                                     style={i === 0 && ready ? { background: c } : undefined}
@@ -163,7 +163,7 @@ export default function PlayPage() {
                             return (
                                 <Link
                                     key={id}
-                                    href={ready ? `/play/${id}` : '/play'}
+                                    href={ready ? `/play/game?g=${id}` : '/play'}
                                     aria-disabled={!ready}
                                     className={`lx-soft lx-press relative flex items-center gap-4 overflow-hidden rounded-[20px] bg-surface p-5 ${ready ? '' : 'pointer-events-none opacity-50'}`}
                                 >
@@ -199,7 +199,7 @@ export default function PlayPage() {
                                 return (
                                     <motion.div key={id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                                         <Link
-                                            href={ready ? `/play/${id}` : '/play'}
+                                            href={ready ? `/play/game?g=${id}` : '/play'}
                                             aria-disabled={!ready}
                                             className={`lx-soft lx-press group relative flex h-full min-h-36 flex-col overflow-hidden rounded-[20px] bg-surface p-4 ${ready ? '' : 'pointer-events-none opacity-50'}`}
                                         >

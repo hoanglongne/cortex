@@ -1,23 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { School } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import AuthGate from '../../components/AuthGate';
-import { joinClass } from '../../lib/classes';
-import { capture } from '../../lib/productAnalytics';
+import { QueryPage, useQueryParam } from '../lib/useQueryParam';
+import { useAuth } from '../context/AuthContext';
+import AuthGate from '../components/AuthGate';
+import { joinClass } from '../lib/classes';
+import { capture } from '../lib/productAnalytics';
 import { EVENTS } from '@cortex/events';
-import { refreshClasses, reportNow } from '../../lib/classSync';
+import { refreshClasses, reportNow } from '../lib/classSync';
 
 /**
  * A class link from a teacher (lexica…/join/ABC123): sign in, say the name the
  * teacher will see, then straight into today's session with the class words.
  * Typing the code in "Lớp học" does the same.
  */
-export default function JoinPage({ params }: { params: Promise<{ code: string }> }) {
-    const { code } = use(params);
+export default function JoinRoute() {
+    return <QueryPage><JoinPage /></QueryPage>;
+}
+
+function JoinPage() {
+    const code = useQueryParam('code');
     const clean = decodeURIComponent(code).toUpperCase().slice(0, 6);
     const { user, profile, loading } = useAuth();
     const router = useRouter();
@@ -67,7 +72,7 @@ export default function JoinPage({ params }: { params: Promise<{ code: string }>
                         </div>
                     )}
                 </section>
-                {!user && <AuthGate reason="Đăng nhập bằng email để vào lớp." redirectPath={`/join/${clean}`} />}
+                {!user && <AuthGate reason="Đăng nhập bằng email để vào lớp." redirectPath={`/join?code=${clean}`} />}
                 <p className="text-center">
                     <Link href="/" className="text-sm text-muted hover:text-accent">
                         ← Về Lexica

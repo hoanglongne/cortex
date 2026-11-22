@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BadgeCheck } from 'lucide-react';
+import { QueryPage, useQueryParam } from '../../lib/useQueryParam';
 import { levelDef } from '../../lib/levels';
 import { ieltsRange, vocabSize } from '../../lib/placement/engine';
 import { publicScore, type PublicScore } from '../../lib/placement/verified';
@@ -12,8 +13,12 @@ import { publicScore, type PublicScore } from '../../lib/placement/verified';
  * with: only the score, its date and what it is roughly worth; no name, no
  * answers (supabase/migration_placement.sql, lexica_score_public).
  */
-export default function PublicScorePage({ params }: { params: Promise<{ code: string }> }) {
-    const { code } = use(params);
+export default function PublicScoreRoute() {
+    return <QueryPage><PublicScorePage /></QueryPage>;
+}
+
+function PublicScorePage() {
+    const code = useQueryParam('code');
     const [state, setState] = useState<{ score: PublicScore | null; error: boolean } | null>(null);
 
     useEffect(() => {

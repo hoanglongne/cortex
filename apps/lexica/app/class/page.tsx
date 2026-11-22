@@ -146,7 +146,7 @@ function ClassTests() {
             <ul className="mt-2 space-y-1.5">
                 {todo.map((t) => (
                     <li key={t.id}>
-                        <Link href={`/class/test/${t.id}`} className="flex items-center justify-between gap-3 rounded-xl bg-accent px-3 py-2.5 text-on-accent">
+                        <Link href={`/class/test?id=${encodeURIComponent(t.id)}`} className="flex items-center justify-between gap-3 rounded-xl bg-accent px-3 py-2.5 text-on-accent">
                             <span className="min-w-0">
                                 <span className="block font-bold">{t.title}</span>
                                 <span className="block text-xs opacity-80">
@@ -159,7 +159,7 @@ function ClassTests() {
                 ))}
                 {done.map((t) => (
                     <li key={t.id}>
-                        <Link href={`/class/test/${t.id}`} className="flex items-center justify-between gap-3 px-1 py-1.5 text-sm">
+                        <Link href={`/class/test?id=${encodeURIComponent(t.id)}`} className="flex items-center justify-between gap-3 px-1 py-1.5 text-sm">
                             <span className="min-w-0 truncate text-ink-2">{t.title}</span>
                             <span className="shrink-0 font-mono text-ink">
                                 {t.correct}/{t.total}

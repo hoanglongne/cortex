@@ -1,12 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { getPassage, useContentVersion } from '../../lib/content/repository';
 import PassageReader from '../../components/PassageReader';
+import { QueryPage, useQueryParam } from '../../lib/useQueryParam';
 
-export default function ReadPassagePage() {
-    const { id } = useParams<{ id: string }>();
+export default function ReadRoute() {
+    return <QueryPage><ReadPassagePage /></QueryPage>;
+}
+
+function ReadPassagePage() {
+    const id = useQueryParam('id');
     useContentVersion();
     const passage = getPassage(id);
 

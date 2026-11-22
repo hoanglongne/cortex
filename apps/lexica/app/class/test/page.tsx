@@ -1,15 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { ARENA_SHAPES, testScoreLine, type TestTake } from '@cortex/classroom';
-import { useAuth } from '../../../context/AuthContext';
-import AuthGate from '../../../components/AuthGate';
-import { testAnswer, testSubmit, testTake } from '../../../lib/classes';
-import { capture } from '../../../lib/productAnalytics';
+import { QueryPage, useQueryParam } from '../../lib/useQueryParam';
+import { useAuth } from '../../context/AuthContext';
+import AuthGate from '../../components/AuthGate';
+import { testAnswer, testSubmit, testTake } from '../../lib/classes';
+import { capture } from '../../lib/productAnalytics';
 import { EVENTS } from '@cortex/events';
-import { useLexicaStore } from '../../../store/lexicaStore';
+import { useLexicaStore } from '../../store/lexicaStore';
 
 const TILE = ['bg-arena-1', 'bg-arena-2', 'bg-arena-3', 'bg-arena-4'];
 
@@ -19,8 +20,12 @@ const TILE = ['bg-arena-1', 'bg-arena-2', 'bg-arena-3', 'bg-arena-4'];
  * in once. Then the score, each question with the right answer, and the
  * missed words put back into review.
  */
-export default function ClassTestPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default function ClassTestRoute() {
+    return <QueryPage><ClassTestPage /></QueryPage>;
+}
+
+function ClassTestPage() {
+    const id = useQueryParam('id');
     const { user, loading } = useAuth();
     if (loading) return <div className="min-h-screen bg-bg" />;
     return (
@@ -29,7 +34,7 @@ export default function ClassTestPage({ params }: { params: Promise<{ id: string
                 <Link href="/class" className="text-sm text-muted hover:text-accent">
                     ← Lớp học
                 </Link>
-                {user ? <Take id={id} /> : <div className="mt-6"><AuthGate reason="Đăng nhập để làm bài kiểm tra của lớp." redirectPath={`/class/test/${id}`} /></div>}
+                {user ? <Take id={id} /> : <div className="mt-6"><AuthGate reason="Đăng nhập để làm bài kiểm tra của lớp." redirectPath={`/class/test?id=${encodeURIComponent(id)}`} /></div>}
             </div>
         </div>
     );

@@ -151,7 +151,7 @@ export default function SessionRecap({
                                 </Link>
                             )}
                             {passage && (
-                                <Link href={`/read/${passage.id}`} className="flex items-center gap-2 text-ink hover:text-accent">
+                                <Link href={`/read/view?id=${encodeURIComponent(passage.id)}`} className="flex items-center gap-2 text-ink hover:text-accent">
                                     <BookOpen className="w-4 h-4 text-muted" />
                                     Đọc một đoạn có từ bạn vừa học
                                 </Link>

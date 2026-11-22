@@ -1,13 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { use, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, Share2, Swords, Trophy, X } from 'lucide-react';
 import { ARENA_SHAPES } from '@cortex/classroom';
-import { useAuth } from '../../../context/AuthContext';
-import AuthGate from '../../../components/AuthGate';
-import { useLexicaStore } from '../../../store/lexicaStore';
-import { duelAnswer, duelFinish, duelKindLabel, duelInviteText, duelResult, duelReview, duelTake, type DuelResult, type DuelTake } from '../../../lib/duels';
+import { QueryPage, useQueryParam } from '../../lib/useQueryParam';
+import { useAuth } from '../../context/AuthContext';
+import AuthGate from '../../components/AuthGate';
+import { useLexicaStore } from '../../store/lexicaStore';
+import { duelAnswer, duelFinish, duelKindLabel, duelInviteText, duelResult, duelReview, duelTake, type DuelResult, type DuelTake } from '../../lib/duels';
 
 const TILE = ['bg-arena-1', 'bg-arena-2', 'bg-arena-3', 'bg-arena-4'];
 const SECONDS = 20;
@@ -18,8 +19,12 @@ const SECONDS = 20;
  * to the server as they are given; the right answers and the other's score
  * show only after handing in (and the other's only once they finished too).
  */
-export default function DuelPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params);
+export default function DuelRoute() {
+    return <QueryPage><DuelPage /></QueryPage>;
+}
+
+function DuelPage() {
+    const id = useQueryParam('id');
     const { user, loading } = useAuth();
     if (loading) return <div className="min-h-screen bg-bg" />;
     return (
@@ -34,7 +39,7 @@ export default function DuelPage({ params }: { params: Promise<{ id: string }> }
                     </p>
                     <span className="w-12" />
                 </div>
-                {user ? <Duel id={id} /> : <div className="mt-6"><AuthGate reason="Đăng nhập để chơi thách đấu." redirectPath={`/buddy/duel/${id}`} /></div>}
+                {user ? <Duel id={id} /> : <div className="mt-6"><AuthGate reason="Đăng nhập để chơi thách đấu." redirectPath={`/buddy/duel?id=${encodeURIComponent(id)}`} /></div>}
             </div>
         </div>
     );

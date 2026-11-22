@@ -1,3 +1,4 @@
+export const dynamic = "force-static";
 import type { MetadataRoute } from 'next';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL?.trim() || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000');
