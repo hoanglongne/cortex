@@ -9,15 +9,15 @@ export default function PrivacyPage() {
         <LegalPage
             title="Chính sách riêng tư"
             updated="11/2026"
-            intro={<p>Lexica giữ ít dữ liệu nhất có thể. Phần lớn việc học của bạn nằm ngay trên máy bạn. Trang này nói rõ app lưu gì, gửi gì đi đâu, và bạn làm gì được với dữ liệu của mình.</p>}
+            intro={<p>Lexica (trang web và app trên iPhone, Android) giữ ít dữ liệu nhất có thể. Phần lớn việc học của bạn nằm ngay trên máy bạn. Trang này nói rõ Lexica lưu gì, gửi gì đi đâu, và bạn làm gì được với dữ liệu của mình.</p>}
             sections={[
                 {
                     title: 'Dữ liệu nằm trên máy bạn',
                     body: (
                         <ul>
-                            <li>Tiến độ học (từ đã học, lịch ôn, chuỗi ngày, câu bạn viết, nơi bạn bắt gặp từ) lưu trong trình duyệt của bạn.</li>
+                            <li>Tiến độ học (từ đã học, lịch ôn, chuỗi ngày, câu bạn viết, nơi bạn bắt gặp từ) lưu trên máy bạn: trong trình duyệt nếu bạn dùng web, trong app nếu bạn dùng app.</li>
                             <li>Chấm phát âm bằng gói chấm tải về chạy ngay trên máy, giọng bạn không rời máy.</li>
-                            <li>Xoá dữ liệu trình duyệt là xoá phần này, trừ khi bạn đã đăng nhập và sao lưu.</li>
+                            <li>Xoá dữ liệu trình duyệt hoặc gỡ app là xoá phần này, trừ khi bạn đã đăng nhập và sao lưu.</li>
                         </ul>
                     ),
                 },
@@ -39,9 +39,10 @@ export default function PrivacyPage() {
                             <p>Để biết bạn nói gì, app dùng một trong các cách sau, tuỳ máy:</p>
                             <ul>
                                 <li><b>Nhận dạng của trình duyệt</b> (Chrome, Safari…): trình duyệt có thể gửi đoạn âm thanh tới máy chủ của hãng (Google, Apple) theo chính sách của họ.</li>
-                                <li><b>Máy chủ Cortex</b>: đoạn ghi âm được gửi tới dịch vụ nhận dạng giọng nói (ví dụ Google Gemini) để chuyển thành chữ, rồi bỏ đi. Lexica không lưu bản ghi âm.</li>
+                                <li><b>Máy chủ Cortex</b>: đoạn ghi âm được gửi tới dịch vụ nhận dạng giọng nói (ví dụ Google Gemini) để chuyển thành chữ, rồi bỏ đi. Lexica không lưu bản ghi âm. Trong app trên iPhone, đây là cách dùng chính, vì app không có nhận dạng của trình duyệt.</li>
                             </ul>
-                            <p>Bản ghi &quot;Giọng bạn&quot; để nghe lại chỉ nằm trong bộ nhớ của trang, mất khi đóng trang.</p>
+                            <p>Bản ghi &quot;Giọng bạn&quot; để nghe lại chỉ nằm trong bộ nhớ của trang hoặc app, mất khi đóng.</p>
+                            <p>Trên điện thoại, app xin quyền dùng micro. Chỉ phần Luyện nói dùng micro, và micro tự đóng sau một phút không dùng. Bạn tắt quyền này trong Cài đặt của điện thoại bất cứ lúc nào; học các phần khác vẫn được.</p>
                         </>
                     ),
                 },
@@ -70,10 +71,11 @@ export default function PrivacyPage() {
                     ),
                 },
                 {
-                    title: 'Blend: đọc bài và tiện ích Chrome',
+                    title: 'Blend: đọc bài, nút Chia sẻ và tiện ích Chrome',
                     body: (
                         <ul>
                             <li>Khi bạn dán chữ vào Blend, việc đổi từ chạy ngay trên máy bạn. Khi bạn dán link báo, máy chủ Lexica tải bài đó một lần để lấy phần chữ, không lưu lại.</li>
+                            <li>Trong app, nút Chia sẻ của điện thoại gửi link hoặc chữ bạn chọn sang Blend, và được xử lý giống như bạn dán vào. App chỉ nhận thứ bạn chủ động chia sẻ.</li>
                             <li>Tiện ích Chrome &quot;Lexica Blend&quot; chỉ chạy trên trang bạn bật. Nó đọc chữ trên trang <b>ngay trong trình duyệt</b> để đổi từ, không gửi nội dung trang hay địa chỉ trang đi đâu.</li>
                             <li>Khi bạn mở Lexica trên cùng trình duyệt, tiện ích đọc lịch ôn của bạn (mã từ và ngày ôn tới) và chuyển cho Lexica những từ bạn đã chạm xem nghĩa. Nếu chưa đăng nhập, việc này chỉ diễn ra trên máy bạn.</li>
                             <li>Nếu bạn đã đăng nhập, Lexica cấp cho tiện ích một mã riêng chỉ làm được hai việc: đọc lịch ôn (mã từ và ngày ôn tới) và gửi các từ bạn đã chạm (mã từ và thời điểm), để dùng được trên mọi máy. Mã không đọc được gì khác trong tài khoản. Đăng nhập lại trên máy khác sẽ cấp mã mới và mã cũ hết hiệu lực.</li>
@@ -113,7 +115,7 @@ export default function PrivacyPage() {
                         <>
                             <p>Theo Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân, bạn có quyền xem, sửa, xoá dữ liệu và rút lại đồng ý.</p>
                             <ul>
-                                <li>Xoá dữ liệu trên máy: nút xoá tiến trình trong Cài đặt, hoặc xoá dữ liệu trang trong trình duyệt.</li>
+                                <li>Xoá dữ liệu trên máy: nút xoá tiến trình trong Cài đặt, xoá dữ liệu trang trong trình duyệt, hoặc gỡ app.</li>
                                 <li>Xoá tài khoản và dữ liệu trên máy chủ: nút &quot;Xóa tài khoản&quot; trong Cài đặt, hoặc <Link href="/xoa-tai-khoan" className="underline">trang xóa tài khoản</Link>. Có hiệu lực ngay. Nếu không đăng nhập được, gửi yêu cầu qua <Link href="/feedback" className="underline">trang Góp ý</Link>, nhóm xử lý trong 30 ngày.</li>
                             </ul>
                         </>
