@@ -26,5 +26,5 @@ npx cap open ios           # chọn máy thật, đặt Team (tài khoản Apple
 ## Chưa làm trong N1
 - Đăng nhập bằng Apple (cần bật nhà cung cấp Apple trong Supabase và khóa từ Apple Developer).
 - Thông báo đẩy (APNs, FCM): cần khóa của bạn, nối với `docs/LEXICA_PUSH_SPEC.md`.
-- Deep link `lexica://` đã xử lý trong mã, nhưng chưa khai báo scheme trong `Info.plist` và `AndroidManifest.xml`, và chưa có Universal Links.
+- Deep link `lexica://` đã khai báo scheme trong `Info.plist` và `AndroidManifest.xml`, chưa thử trên máy. Chưa có Universal Links (link `https://lexica.cortexlearn.app` mở thẳng app): cần file `apple-app-site-association` và `assetlinks.json` trên web, và Team ID của bạn.
 - TestFlight, Play Internal Testing.
