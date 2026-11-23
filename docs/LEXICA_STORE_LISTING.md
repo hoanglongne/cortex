@@ -76,7 +76,7 @@ Dựa trên `/privacy`. "Liên kết với danh tính" nghĩa là gắn với t�
 - **Mã hóa khi truyền: có** (HTTPS). Google yêu cầu khai.
 - **Xóa dữ liệu:** có nút trong app và trang `/xoa-tai-khoan` (mục 1.1).
 - **Quyền dùng:** micro (luyện nói), mạng. Thông báo đẩy chỉ khai khi bật tính năng.
-- Trang `/privacy` hiện nói về "trình duyệt". **Cần sửa lại một vài câu cho đúng khi là app** (ví dụ "lưu trong trình duyệt" thành "lưu trên máy") và ghi rõ app iOS/Android.
+- Trang `/privacy` đã sửa cho đúng khi là app (lưu trên máy, micro trong app, nút Chia sẻ, gỡ app). Chưa nhắc thông báo đẩy và tiện ích Safari vì chúng chưa có: thêm khi làm.
 
 ## 7. Việc còn lại cho bạn
 1. Chạy `migration_delete_account.sql` trên Supabase và thử xóa một tài khoản thử.
