@@ -3,7 +3,8 @@
 Làm trước khi quyết có đi vào mảng LMS cho trung tâm hay không. Thay cho phần "đối thủ" còn sơ sài trong `TEACH_LMS_PLAN.md`.
 
 **Giới hạn của nghiên cứu này, đọc trước:**
-- Phiên làm việc không mở trực tiếp được trang web của đối thủ (mạng bị giới hạn), nên mọi thông tin đi qua kết quả tìm kiếm có trích nội dung. Chưa dùng thử sản phẩm nào.
+- Ngày 24/11/2026 đã đọc trực tiếp trang chủ, trang giá và nhật ký cập nhật của Selfomy, Ai4Ielts, Prep for Business, DotB, Easy Edu, ELSA (đánh dấu **[đã đọc]**). Phần còn lại đi qua kết quả tìm kiếm có trích nội dung.
+- **Chưa tạo tài khoản dùng thử nào.** Giá của Selfomy nằm sau một form đòi tên, số điện thoại và tên trung tâm; không điền thông tin giả hay thông tin của chủ dự án vào đó.
 - Phần lớn số liệu (số khách hàng, độ chính xác AI) là **đối thủ tự công bố**, chưa ai kiểm chứng.
 - Giá của các bên làm cho trung tâm gần như đều "liên hệ báo giá". Các con số dưới đây lấy từ bài viết tổng hợp, có chỗ mâu thuẫn và có thể đã cũ.
 
@@ -25,10 +26,10 @@ Làm trước khi quyết có đi vào mảng LMS cho trung tâm hay không. Tha
 
 | Sản phẩm | Điểm chính | Giá tìm được | Quy mô tự công bố |
 |---|---|---|---|
-| **Easy Edu** (EMSO) | Học viên, lớp, học phí, báo cáo, OKR/KPI, app phụ huynh và giáo viên, tự động marketing/sales, nhiều chi nhánh | "Từ 2.000đ/ngày/người dùng"; bài khác ghi gói Standard 700.000đ/tháng dưới 200 học viên. Không thống nhất | Hơn 1.400 trung tâm, hơn 5 triệu người dùng |
-| **DotB EMS** | CRM tuyển sinh, chăm sóc học viên tự động, giáo vụ, doanh thu; LMS chỉ là tích hợp, "chưa phải thế mạnh" | Theo **học viên hoạt động/tháng**: 5.000 / 9.000 / 15.000đ (bài 7/2026) hoặc 7.000–39.000đ (bài cũ). Tối thiểu 100 học viên, ký 1 năm | Không rõ |
+| **Easy Edu** (EMSO) **[đã đọc]** | CRM, đào tạo, tài chính và kế toán, nhân sự (KPI, hoa hồng, chấm công, lương), **EasyExam** (làm bài, thi online, chấm tự động), **Easy Games** (hơn 30 trò chơi giáo dục), Omnichannel (Zalo, Facebook), marketing SMS/email, app phụ huynh | "Chỉ 2.000đ/ngày/người dùng" (khoảng 60.000đ/tháng mỗi tài khoản); bảng giá chi tiết không công khai | Hơn 1.400 trung tâm và doanh nghiệp giáo dục, hơn 5 triệu người dùng; 8 năm |
+| **DotB EMS** **[đã đọc]** | Standard: CRM, hồ sơ học sinh (SIS), thanh toán. Pro: thêm app học viên, phụ huynh, giáo viên. Enterprise: app mang thương hiệu riêng (từ 300 học viên), tuỳ chỉnh. Nhiều chi nhánh, phân quyền theo phạm vi dữ liệu, nhật ký thao tác. LMS chỉ là tích hợp | **5.000 / 9.000 / 15.000đ mỗi học viên hoạt động mỗi tháng** (Standard / Professional / Enterprise), không giới hạn quản trị viên; tối thiểu 100 học viên, ký 1 năm | Không rõ |
 | **CloudEMS** (CloudGO) | Vận hành, nhiều chi nhánh | Không công bố | Không rõ |
-| **Bado** | Quản lý trung tâm cơ bản | 170.000đ/tháng, 5 nhân viên | Không rõ |
+| **Bado** **[đã đọc]** | Phần mềm bán hàng chung, có trang cho ngoại ngữ | 135.000–599.000đ/tháng theo số nhân viên và cửa hàng | Không rõ; ít liên quan |
 | **Getfly CRM** | CRM chung | 200.000–600.000đ/tháng | Không rõ |
 | **NextCRM** | Điểm danh, chuyển lớp, bảo lưu, thu chi | Có bản miễn phí | Không rõ |
 | **MISA AMIS giáo dục** | Học viên, phụ huynh, lớp, khoá; mạnh kế toán | Không công bố | MISA là hãng lớn |
@@ -39,15 +40,15 @@ Làm trước khi quyết có đi vào mảng LMS cho trung tâm hay không. Tha
 
 | Sản phẩm | Điểm chính | Giá | Ghi chú |
 |---|---|---|---|
-| **Selfomy One** | "All-in-one" cho trung tâm IELTS/TOEIC/SAT: **website thi thử mang thương hiệu trung tâm**, ngân hàng đề, AI chấm Speaking (4 tiêu chí, tô lỗi phát âm từng từ) và Writing, flashcard, shadowing, theo dõi tiến độ, quản lý lớp **và tài chính** | Liên hệ báo giá; dùng thử 15 ngày; giảm 20% khi mua năm | Tự nhận hơn 50 trung tâm dùng phòng thi ảo, AI "chính xác trên 85%". **Gần với hướng của Teach nhất** |
-| **Prep for Business** | Khoá học IELTS/TOEIC/HSK, hơn 500 bộ đề, AI chấm 4 kỹ năng, bảng theo dõi theo thời gian thực | Từ khoảng 7 USD/tháng (khoá học) và 12 USD/tháng (luyện thi AI), mỗi người học | Prep gọi được hơn 6 triệu EUR (5/2024); nhắm cả trung tâm "giảm chi phí chấm chữa" |
-| **Ai4Ielts LMS** | Giao đề, AI chấm 4 kỹ năng, **giáo viên duyệt điểm trước khi trả**, phân quyền admin/giáo viên, báo cáo trung tâm | Giáo viên lẻ: dùng thử 30 ngày rồi trả theo tháng; trung tâm: theo hợp đồng | Trùng với thiết kế Writing (#64) mình định làm |
+| **Selfomy One** **[đã đọc]** | Cho trung tâm IELTS/TOEIC/SAT: **phòng thi ảo giống thi máy tính thật**, **website tự học mang logo và tên miền trung tâm**, kho đề IELTS/TOEIC/SAT có đáp án, AI chấm Writing/Speaking (AI chấm hết hoặc AI hỗ trợ, giáo viên nhận xét kiểu Google Docs), 11 dạng bài tập, báo cáo tiến độ cho giám đốc. **Bản v10 (9–11/2026):** bài luyện nói với AI, lộ trình học, **báo cáo học tập cho học viên và phụ huynh**, trợ giảng AI, chấm TOEIC Speaking/Writing, giám sát thi trên trình duyệt, **trung tâm bán gói tự học** | Dùng thử 15 ngày, không cần thẻ. Tính theo học viên chính thức, tài khoản hoạt động, dung lượng (gói cơ bản 20GB), số nhân viên; giảm 5% / 10% / 22% cho 3 tháng / 6 tháng / 1 năm. Con số giá nằm sau form thu thông tin | **Hơn 100 trung tâm**, hơn 100.000 bài đã chấm bằng AI, AI "chính xác 85%" (tự công bố). Khách: Ms. Chin IELTS, Wellspring Saigon. Top 10 UNIVENTURES 2025. Cập nhật gần như hằng tuần. **Đối thủ gần nhất, và đang chạy nhanh** |
+| **Prep for Business** **[đã đọc]** | Khoá học IELTS/TOEIC/HSK và giao tiếp (hơn 2.000 video), phòng luyện ảo AI, trợ lý "Teacher Bee AI", bảng theo dõi, đề thi 4 kỹ năng có chống gian lận | **Từ 7 USD/tháng** (khoá học) và **từ 12 USD/tháng** (luyện thi AI) | Gọi được hơn 6 triệu EUR (5/2024). **Prep tự vận hành một trung tâm ngoại ngữ** (giấy phép Sở GD Hà Nội 2022), tức là **đối thủ trực tiếp của trung tâm**: trung tâm có lý do để ngại dùng |
+| **Ai4Ielts LMS** **[đã đọc]** | Ngân hàng câu hỏi 4 kỹ năng, ghép đề full-test, giao đề có hạn nộp và số lượt, Listening/Reading chấm ngay, Writing/Speaking AI chấm trong 30–90 giây, **giáo viên duyệt điểm trước khi trả**, band trung bình theo kỹ năng, phân quyền | **Giáo viên cá nhân 399.000đ/tháng** (thanh toán PayOS, thử 30 ngày); trung tâm theo hợp đồng (số giáo viên, hạn mức AI) | Không có phần vận hành hay phụ huynh. Trùng thiết kế Writing (#64) của mình |
 | **Edmicro** | App IELTS AI cho người học (7 nhóm kỹ năng, chấm Speaking/Writing); công ty còn có Onluyen.vn cho trường | Không rõ gói trung tâm | Chủ yếu B2C và trường phổ thông |
-| **ELSA (Schools/Business)** | Phát âm và nói bằng AI | Khoảng 18 USD/người/tháng, hoặc 342 USD/người/năm (gói Team) | Đối thủ của phần chấm phát âm trên máy của Lexica |
+| **ELSA (Schools/Business)** **[đã đọc]** | Luyện nói và phát âm bằng AI, shadowing, luyện thi IELTS/TOEFL, báo cáo | **342 USD/người/năm** (gói Team, 2–49 người); từ 50 người báo giá riêng | Đối thủ của phần chấm phát âm trên máy của Lexica |
 | **IELTS International (cho khoa, trung tâm)**, **ECE** | AI chấm nháp, giáo viên duyệt; LMS ôn IELTS | Không rõ | |
 | Công cụ miễn phí | Quizlet (từ vựng), Kahoot/Quizizz (quiz trực tiếp), Google Classroom (giao bài) | Miễn phí hoặc rẻ | Cạnh tranh trực tiếp với Đấu trường và giao bài |
 
-**Điều đáng chú ý:** giá phần học (Prep 7–12 USD, khoảng 175.000–300.000đ mỗi người học mỗi tháng; ELSA 18 USD) **cao hơn nhiều** giá phần vận hành (DotB 5.000–15.000đ mỗi học viên). Trung tâm trả tiền cho thứ giúp học viên học, không trả nhiều cho phần mềm quản lý. Đây là lý do thêm để không đi vào vận hành.
+**Điều đáng chú ý:** giá phần học (Prep 7–12 USD, khoảng 175.000–300.000đ mỗi người học mỗi tháng; ELSA 342 USD/năm, khoảng 700.000đ/tháng; Ai4Ielts 399.000đ/tháng cho một giáo viên) **cao hơn nhiều** giá phần vận hành (DotB 5.000–15.000đ mỗi học viên). Trung tâm trả tiền cho thứ giúp học viên học, không trả nhiều cho phần mềm quản lý. Đây là lý do thêm để không đi vào vận hành.
 
 ---
 
@@ -74,14 +75,14 @@ Làm trước khi quyết có đi vào mảng LMS cho trung tâm hay không. Tha
 |---|---|---|
 | Từ vựng có lịch ôn 4 bước (Hiểu, Nhớ, Gặp, Dùng), báo số thật về lớp | Selfomy có flashcard và theo dõi; Quizlet miễn phí | Hơn ở chiều sâu (lịch ôn, 4 bước), không phải độc nhất |
 | **Blend**: đọc báo tiếng Việt, từ đang học hiện bằng tiếng Anh; tiện ích Chrome | **Không thấy ai làm** | Khác biệt thật, chưa có người dùng |
-| **Cảnh báo sớm**: em sắp nghỉ, sắp quên, điểm cuối khoá dạng khoảng | Không thấy phần mềm trung tâm nào làm; chỉ có vài trường đại học thí điểm | Khác biệt, nhưng chưa có dữ liệu thật để chứng minh đúng |
-| Báo cáo phụ huynh về việc học, viết cho người không rành tiếng Anh | Easy Edu có app phụ huynh (lịch, học phí) | Khác về nội dung, không khác về kênh |
+| **Cảnh báo sớm**: em sắp nghỉ, sắp quên, điểm cuối khoá dạng khoảng | Không thấy trên trang của Selfomy, Ai4Ielts, DotB, Easy Edu, Prep; chỉ có vài trường đại học thí điểm | Khác biệt, nhưng chưa có dữ liệu thật để chứng minh đúng |
+| Báo cáo phụ huynh về việc học, viết cho người không rành tiếng Anh | **Selfomy v10 đã có báo cáo học tập cho phụ huynh**; DotB, Easy Edu có app phụ huynh | **Không còn là khác biệt** |
 | Chấm phát âm trên máy, lỗi riêng của người Việt | ELSA mạnh, có tiền; Selfomy tô lỗi phát âm | Không đủ để thắng ELSA |
-| Đấu trường (quiz trực tiếp) | Kahoot, Quizizz miễn phí | Không phải lý do để mua |
+| Đấu trường (quiz trực tiếp) | Kahoot, Quizizz miễn phí; Easy Edu có hơn 30 trò chơi | Không phải lý do để mua |
 | Oratio (luyện nói với bạn) | Không thấy bên nào cho trung tâm | Khác biệt, chưa kiểm |
 | **Thiếu:** ngân hàng đề, thi thử 4 kỹ năng, AI chấm Writing, học phí, CRM, thương hiệu, khách hàng | Đối thủ nhóm B đã có | Thua ở mọi phần "luyện thi" |
 
-**Tóm lại:** Teach không có lợi thế ở cả vận hành lẫn luyện thi IELTS. Thứ duy nhất có vẻ chưa ai làm là **việc học từ hằng ngày ngoài lớp và cảnh báo sớm cho trung tâm**, tức phần giữ học viên. Đó là chỗ đáng kiểm.
+**Tóm lại:** Teach không có lợi thế ở cả vận hành lẫn luyện thi IELTS. Sau khi đọc trực tiếp, danh sách khác biệt còn **ngắn hơn** mình nghĩ: báo cáo phụ huynh và trò chơi lớp học đối thủ đã có. Còn lại: **Blend**, **chiều sâu học từ có lịch ôn**, **cảnh báo sớm** và **Oratio**. Phần giữ học viên vẫn là chỗ đáng kiểm, nhưng cửa sổ đang hẹp lại vì Selfomy ra tính năng gần như mỗi tuần.
 
 ---
 
