@@ -1,5 +1,7 @@
 # Teach thay LMS của trung tâm: phân tích và kế hoạch (issue #77, 24/11/2026)
 
+> **Tạm dừng (24/11/2026):** sau khi nghiên cứu đối thủ (`TEACH_MARKET_RESEARCH.md`), không làm theo lộ trình L0–L6 dưới đây cho tới khi kiểm chứng xong. Giữ lại phần kiểm kê hiện trạng (mục 1) và thiết kế bật tắt (mục 3) để dùng sau.
+
 Bản để bàn. Viết từ mã hiện có (`packages/classroom`, `apps/teach`) và các tài liệu `TEACH_PLAN.md`, `ECOSYSTEM_STRATEGY.md`, `BUSINESS_MODEL.md`, `CLASSROOM.md`. **Chưa có trung tâm nào dùng thật**, nên mọi thứ về nhu cầu và giá là giả thuyết.
 
 ---
