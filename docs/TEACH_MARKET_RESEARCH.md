@@ -158,11 +158,11 @@ Nguồn giá AI: [Google, bảng giá Gemini API](https://ai.google.dev/gemini-a
 
 ---
 
-## 9. Làm lại với ba điều kiện của chủ dự án (24/11/2026)
+## 8. Làm lại với ba điều kiện của chủ dự án (24/11/2026)
 
 Ba điều kiện: **(1)** giữ mô hình một người vận hành lâu dài; **(2)** phần lớn tính năng mạnh của Cortex không tốn AI; **(3)** khách là **trung tâm mới mở, vừa và nhỏ**, không đi giành trung tâm đang dùng hệ thống khác.
 
-### 9.1 Tính năng không tốn AI đang có (kiểm trong mã)
+### 8.1 Tính năng không tốn AI đang có (kiểm trong mã)
 AI chỉ nằm ở 4 chỗ: giọng đọc câu tự do (có cache), nhận xét câu viết, tạo bài đọc, nhận dạng giọng dự phòng (`/v1/lexica/tts`, `sentence`, `reading`, `transcribe`). Còn lại đều chạy bằng luật, dữ liệu soạn sẵn hoặc chạy trên máy:
 
 | Nhóm | Tính năng | Đối thủ làm bằng gì |
@@ -180,12 +180,12 @@ AI chỉ nằm ở 4 chỗ: giọng đọc câu tự do (có cache), nhận xét
 | Nói | Oratio: luyện nói với bạn, chấm chéo bằng câu hỏi bằng chứng | Không thấy cho trung tâm |
 | Viết | Nộp bài cho lớp, giáo viên chấm 4 band, bạn chấm chéo ẩn danh | Ai4Ielts, Selfomy: AI chấm |
 
-### 9.2 Điều kiện (2): không tốn AI thì được gì, và không được gì
+### 8.2 Điều kiện (2): không tốn AI thì được gì, và không được gì
 - **Được:** chi phí gần như cố định nên **bán được một mức giá phẳng rất rẻ, hoặc miễn phí một phần**, mà không sợ một trung tâm dùng nhiều làm lỗ. Chạy không cần mạng (app đóng gói), không bị giới hạn lượt, giọng người học không rời máy (bán được câu "riêng tư"). Ít phụ thuộc bên ngoài, hợp với một người.
 - **Không được nhiều về tiền:** chi phí AI vốn đã nhỏ (mục 7.1: vài nghìn đến khoảng 15.000đ mỗi học viên mỗi tháng nếu dùng nhiều). Lợi thế thật của nhóm này là **khác biệt về cách học**, không phải tiết kiệm AI.
 - **Chỗ yếu:** việc chấm Writing/Speaking là thứ giáo viên mệt nhất, và đối thủ bán đúng chỗ đó bằng AI. Bản không AI (giáo viên chấm, bạn chấm chéo) không giảm việc cho giáo viên. Chấm phát âm trên máy còn là bản thử.
 
-### 9.3 Điều kiện (3): trung tâm mới, vừa và nhỏ
+### 8.3 Điều kiện (3): trung tâm mới, vừa và nhỏ
 **Hợp với Cortex hơn nhóm cũ:**
 - **Không có dữ liệu cũ để chuyển, không có thói quen cũ.** Rào cản lớn nhất của việc đổi hệ thống biến mất.
 - **Phần mềm chiếm rất ít trong chi phí của họ.** Một trung tâm nhỏ thường cần khoảng 40 học viên để hoà vốn, với học phí khoảng 1,5 triệu/tháng và chi phí cố định khoảng 60 triệu/tháng (bài của công ty tư vấn, chưa kiểm). 40 học viên × 30.000đ = 1,2 triệu, khoảng 2% chi phí. Họ không chọn vì rẻ, họ chọn vì **giúp có học viên và giữ học viên**.
@@ -198,7 +198,7 @@ AI chỉ nằm ở 4 chỗ: giọng đọc câu tự do (có cache), nhận xét
 
 **Rủi ro riêng:** trung tâm mới đóng cửa nhiều (chưa tìm được số liệu), nên khách sẽ rời nhiều. Cần nhiều khách nhỏ thay vì vài khách lớn.
 
-### 9.4 Điều kiện (1): một người thì cần bao nhiêu khách
+### 8.4 Điều kiện (1): một người thì cần bao nhiêu khách
 Chi phí cố định khoảng 2,5 triệu/tháng (ước tính), thu nhập mục tiêu giả định 25 triệu/tháng, chi phí AI coi như bằng 0 với gói không AI:
 
 | Giá | Học viên cần | Tương đương (trung tâm 40 học viên) |
@@ -212,7 +212,7 @@ Con số khả thi, **với điều kiện mỗi trung tâm gần như không c�
 - **Không làm phần vận hành nặng hỗ trợ:** học phí, công nợ, hoá đơn, CRM là chỗ sai một số là khách gọi ngay. Giữ ở mức xuất Excel.
 - **Giá đơn giản, một hai gói**, không báo giá riêng.
 
-### 9.5 Kết luận sửa lại
+### 8.5 Kết luận sửa lại
 Với ba điều kiện này, có một hướng **hợp lý hơn hẳn** kế hoạch "thay LMS":
 
 > **"Bộ công cụ tuyển sinh và giữ học viên cho trung tâm tiếng Anh mới mở"**: tự đăng ký trong 5 phút, giá phẳng rẻ, không tốn AI. Gồm lớp và điểm danh (đã có), bài kiểm tra xếp lớp và trang điểm để tuyển sinh, Đấu trường cho buổi học thử, học từ hằng ngày và Blend cho học viên, dự báo em sắp nghỉ, báo cáo tuần cho phụ huynh. Không làm học phí, CRM, AI chấm bài.
@@ -226,7 +226,7 @@ Việc cần làm cho hướng này đều nhỏ và dùng lại thứ đã có:
 
 ---
 
-## 10. Nguồn
+## 9. Nguồn
 
 **Đối thủ vận hành**
 - [Easy Edu, trang chủ](https://easyedu.vn/) · [tính năng](https://easyedu.vn/tinh-nang/)
