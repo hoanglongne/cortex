@@ -116,11 +116,11 @@ Mình biết bạn không muốn bị giao việc tìm lớp thí điểm (`TASK
 
 ---
 
-## 8. Kiểm chứng: Cortex làm được tính năng của đối thủ với giá rẻ hơn nhiều?
+## 7. Kiểm chứng: Cortex làm được tính năng của đối thủ với giá rẻ hơn nhiều?
 
 **Kết luận: đúng một nửa.** Chi phí chạy của mình thật sự rất thấp, nhưng **chi phí chạy của đối thủ cũng thấp y như vậy**. Phần đắt không nằm ở AI.
 
-### 8.1 Chi phí AI để chấm bài (tính từ giá Gemini, chưa đo thật)
+### 7.1 Chi phí AI để chấm bài (tính từ giá Gemini, chưa đo thật)
 Giả định: Writing Task 2 gửi khoảng 6.000 token (hướng dẫn chấm, band descriptor, bài viết) và nhận khoảng 3.500 token (nhận xét và phần suy luận). Speaking 2 phút là 3.840 token âm thanh (32 token/giây) cộng 4.000 token chữ, nhận 3.500 token. Tỉ giá 26.000đ/USD. Cortex đang dùng `gemini-3.8-flash`; các nguồn ghi giá khác nhau và có nguồn nói giá tăng gấp đôi từ 1/1/2027, nên tính ba mức:
 
 | Mức giá | 1 bài Writing | 1 bài Speaking | 4 + 4 bài/tháng | 8 + 8 bài/tháng |
@@ -133,7 +133,7 @@ Cộng chi phí cố định khoảng 1,5–2,5 triệu đồng/tháng (ước t
 
 **So với giá bán của đối thủ:** Prep khoảng 180.000–310.000đ mỗi người học mỗi tháng, ELSA khoảng 740.000đ, Ai4Ielts 399.000đ mỗi giáo viên. Chi phí AI chỉ vài nghìn đến vài chục nghìn đồng mỗi học viên. Vậy **về chi phí, mình bán ở 30.000–50.000đ/học viên vẫn lãi gộp cao**.
 
-### 8.2 Vì sao đó không phải lợi thế riêng
+### 7.2 Vì sao đó không phải lợi thế riêng
 1. **Đối thủ dùng cùng loại AI, cùng mức chi phí.** Giá họ bán là do bán hàng, hỗ trợ, nội dung, thương hiệu và lợi nhuận, không phải do AI đắt. Khi bị ép, họ hạ giá được ngay.
 2. **Không phải đối thủ nào cũng đắt.** Ai4Ielts 399.000đ/tháng cho một giáo viên: với lớp 20 em là khoảng 20.000đ mỗi em, ngang hoặc thấp hơn mức mình định. DotB chỉ 5.000–15.000đ mỗi học viên (vận hành). "Rẻ hơn rất nhiều" chỉ đúng khi so với Prep và ELSA.
 3. **Phần đắt là phần mình chưa có:**
@@ -147,7 +147,7 @@ Cộng chi phí cố định khoảng 1,5–2,5 triệu đồng/tháng (ước t
    Selfomy có hơn 100 trung tâm; mình chưa có trung tâm nào.
 5. **Trong bán cho tổ chức giáo dục, giá rẻ ít khi là lý do chính để đổi.** Chuyển hệ thống tốn công (dữ liệu, đào tạo giáo viên), nên trung tâm cần lý do mạnh hơn giá. Giá quá rẻ đôi khi còn bị hiểu là kém tin cậy. Đây là nhận định chung, chưa có số liệu cho thị trường Việt Nam.
 
-### 8.3 Giá rẻ dùng được ở đâu
+### 7.3 Giá rẻ dùng được ở đâu
 - **Giáo viên tự mở lớp và lớp nhỏ:** 399.000đ/tháng là đáng kể với gia sư có 5–10 em. Một gói rẻ (ví dụ theo học viên, không theo giáo viên) có thể là cửa vào.
 - **Trung tâm ở tỉnh, đô thị cấp hai:** EY ghi đây là nơi thị trường đang mở rộng, ngân sách thấp hơn.
 - **Gộp với phần giữ học viên** (mục 5, hướng 2): giá rẻ để vào, Blend và cảnh báo sớm để ở lại.
@@ -158,7 +158,7 @@ Nguồn giá AI: [Google, bảng giá Gemini API](https://ai.google.dev/gemini-a
 
 ---
 
-## 7. Nguồn
+## 8. Nguồn
 
 **Đối thủ vận hành**
 - [Easy Edu, trang chủ](https://easyedu.vn/) · [tính năng](https://easyedu.vn/tinh-nang/)
