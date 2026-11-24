@@ -158,7 +158,75 @@ Nguồn giá AI: [Google, bảng giá Gemini API](https://ai.google.dev/gemini-a
 
 ---
 
-## 8. Nguồn
+## 9. Làm lại với ba điều kiện của chủ dự án (24/11/2026)
+
+Ba điều kiện: **(1)** giữ mô hình một người vận hành lâu dài; **(2)** phần lớn tính năng mạnh của Cortex không tốn AI; **(3)** khách là **trung tâm mới mở, vừa và nhỏ**, không đi giành trung tâm đang dùng hệ thống khác.
+
+### 9.1 Tính năng không tốn AI đang có (kiểm trong mã)
+AI chỉ nằm ở 4 chỗ: giọng đọc câu tự do (có cache), nhận xét câu viết, tạo bài đọc, nhận dạng giọng dự phòng (`/v1/lexica/tts`, `sentence`, `reading`, `transcribe`). Còn lại đều chạy bằng luật, dữ liệu soạn sẵn hoặc chạy trên máy:
+
+| Nhóm | Tính năng | Đối thủ làm bằng gì |
+|---|---|---|
+| Học từ | Phiên Hôm nay, lịch ôn 4 bước Hiểu/Nhớ/Gặp/Dùng, lộ trình 30 ngày, thẻ có câu tiếng Việt, cụm từ, cấu tạo từ | Selfomy: flashcard; Quizlet |
+| Giọng | Giọng đọc Kokoro tạo sẵn | Thường gọi dịch vụ giọng nói mỗi lần |
+| Phát âm | Chấm phát âm **trên máy**, 11 nhóm âm người Việt hay sai. **Đang là bản thử, chỉ bật cho người thử** (`pronBeta`) | ELSA, Selfomy, Prep: AI trên máy chủ |
+| Gặp từ ngoài lớp | **Blend** (đọc web tiếng Việt, từ đang học hiện bằng tiếng Anh) và tiện ích Chrome | Không ai làm |
+| Luyện | 16 trò chơi, Đọc có từ tô màu, Viết | Easy Edu: hơn 30 trò chơi |
+| Kiểm tra | Bài kiểm tra xếp lớp do máy chủ chấm, **trang điểm công khai có mã xác minh** (`/score`) | Selfomy: thi thử |
+| Trên lớp | Trình chiếu từ, gọi tên, chia nhóm, **Đấu trường** (có chế độ Sống sót, đội, mã QR, **khách không cần tài khoản**) | Kahoot, Quizizz |
+| Theo dõi | **Dự báo**: sắp quên, sắp nghỉ, nhớ kém, tiến nhanh, điểm cuối khoá (luật, không AI) | Không thấy ai làm |
+| Phụ huynh | Link riêng có PIN, báo cáo tuần viết dễ hiểu, giáo viên duyệt | Selfomy v10, DotB, Easy Edu có app phụ huynh |
+| Lớp | Lớp, mã vào lớp, bài giao, buổi học, điểm danh, kiểm tra lớp | Có ở hầu hết |
+| Nói | Oratio: luyện nói với bạn, chấm chéo bằng câu hỏi bằng chứng | Không thấy cho trung tâm |
+| Viết | Nộp bài cho lớp, giáo viên chấm 4 band, bạn chấm chéo ẩn danh | Ai4Ielts, Selfomy: AI chấm |
+
+### 9.2 Điều kiện (2): không tốn AI thì được gì, và không được gì
+- **Được:** chi phí gần như cố định nên **bán được một mức giá phẳng rất rẻ, hoặc miễn phí một phần**, mà không sợ một trung tâm dùng nhiều làm lỗ. Chạy không cần mạng (app đóng gói), không bị giới hạn lượt, giọng người học không rời máy (bán được câu "riêng tư"). Ít phụ thuộc bên ngoài, hợp với một người.
+- **Không được nhiều về tiền:** chi phí AI vốn đã nhỏ (mục 7.1: vài nghìn đến khoảng 15.000đ mỗi học viên mỗi tháng nếu dùng nhiều). Lợi thế thật của nhóm này là **khác biệt về cách học**, không phải tiết kiệm AI.
+- **Chỗ yếu:** việc chấm Writing/Speaking là thứ giáo viên mệt nhất, và đối thủ bán đúng chỗ đó bằng AI. Bản không AI (giáo viên chấm, bạn chấm chéo) không giảm việc cho giáo viên. Chấm phát âm trên máy còn là bản thử.
+
+### 9.3 Điều kiện (3): trung tâm mới, vừa và nhỏ
+**Hợp với Cortex hơn nhóm cũ:**
+- **Không có dữ liệu cũ để chuyển, không có thói quen cũ.** Rào cản lớn nhất của việc đổi hệ thống biến mất.
+- **Phần mềm chiếm rất ít trong chi phí của họ.** Một trung tâm nhỏ thường cần khoảng 40 học viên để hoà vốn, với học phí khoảng 1,5 triệu/tháng và chi phí cố định khoảng 60 triệu/tháng (bài của công ty tư vấn, chưa kiểm). 40 học viên × 30.000đ = 1,2 triệu, khoảng 2% chi phí. Họ không chọn vì rẻ, họ chọn vì **giúp có học viên và giữ học viên**.
+- **Nỗi lo số một của trung tâm mới là tuyển sinh**, rồi tới giữ học viên và tạo niềm tin với phụ huynh. Cortex có sẵn công cụ cho cả ba mà không tốn AI:
+  - tuyển sinh: bài kiểm tra xếp lớp và **trang điểm công khai** để chia sẻ, Đấu trường cho **buổi học thử** (khách vào bằng mã QR, không cần tài khoản);
+  - giữ học viên: Hôm nay, lịch ôn, Blend, **dự báo em sắp nghỉ**;
+  - niềm tin: **báo cáo tuần cho phụ huynh** gửi qua Zalo.
+
+**Vẫn có người tranh:** Selfomy viết hẳn bài "kinh nghiệm mở trung tâm tiếng Anh" và quảng cáo "5 phút có LMS như trung tâm lớn"; Ai4Ielts nhắm trung tâm nhỏ và giáo viên lẻ; Easy Edu có bản miễn phí. Nhóm này không trống, nhưng nhạy với giá hơn, nên giá thấp của mình có tác dụng hơn ở đây.
+
+**Rủi ro riêng:** trung tâm mới đóng cửa nhiều (chưa tìm được số liệu), nên khách sẽ rời nhiều. Cần nhiều khách nhỏ thay vì vài khách lớn.
+
+### 9.4 Điều kiện (1): một người thì cần bao nhiêu khách
+Chi phí cố định khoảng 2,5 triệu/tháng (ước tính), thu nhập mục tiêu giả định 25 triệu/tháng, chi phí AI coi như bằng 0 với gói không AI:
+
+| Giá | Học viên cần | Tương đương (trung tâm 40 học viên) |
+|---|---|---|
+| 20.000đ/học viên/tháng | ~1.400 | ~35 trung tâm |
+| 30.000đ | ~920 | ~23 trung tâm |
+| 50.000đ | ~550 | ~14 trung tâm |
+
+Con số khả thi, **với điều kiện mỗi trung tâm gần như không cần hỗ trợ**. Một người không thể ngồi gọi điện, tư vấn, cài đặt cho 20–35 trung tâm. Nên:
+- **Tự phục vụ hoàn toàn:** tự đăng ký, tự tạo trung tâm, dùng thử, trả tiền qua PayOS/VietQR, hướng dẫn trong app. **Hiện Teach chưa có:** chỉ vào được bằng lời mời, chưa có thanh toán, chưa có giới hạn theo gói.
+- **Không làm phần vận hành nặng hỗ trợ:** học phí, công nợ, hoá đơn, CRM là chỗ sai một số là khách gọi ngay. Giữ ở mức xuất Excel.
+- **Giá đơn giản, một hai gói**, không báo giá riêng.
+
+### 9.5 Kết luận sửa lại
+Với ba điều kiện này, có một hướng **hợp lý hơn hẳn** kế hoạch "thay LMS":
+
+> **"Bộ công cụ tuyển sinh và giữ học viên cho trung tâm tiếng Anh mới mở"**: tự đăng ký trong 5 phút, giá phẳng rẻ, không tốn AI. Gồm lớp và điểm danh (đã có), bài kiểm tra xếp lớp và trang điểm để tuyển sinh, Đấu trường cho buổi học thử, học từ hằng ngày và Blend cho học viên, dự báo em sắp nghỉ, báo cáo tuần cho phụ huynh. Không làm học phí, CRM, AI chấm bài.
+
+Việc cần làm cho hướng này đều nhỏ và dùng lại thứ đã có: đăng ký tự do cho Teach, thanh toán và giới hạn theo gói, hướng dẫn trong app, xuất Excel. Ước tính của mình: **3–5 tuần**.
+
+**Còn phải kiểm (không có số liệu nào trên mạng thay được):**
+1. Trung tâm mới có thật sự coi "tuyển sinh, giữ học viên, phụ huynh tin" là lý do để chọn không, hay họ chỉ cần chỗ điểm danh và thu tiền?
+2. Dự báo "em sắp nghỉ" có đúng không, khi chưa có dữ liệu thật?
+3. Một trung tâm cần bao nhiêu hỗ trợ khi tự đăng ký? Cách đo rẻ nhất: mở đăng ký tự do, để 2–3 trung tâm dùng thử, đếm số lần họ phải hỏi.
+
+---
+
+## 10. Nguồn
 
 **Đối thủ vận hành**
 - [Easy Edu, trang chủ](https://easyedu.vn/) · [tính năng](https://easyedu.vn/tinh-nang/)
@@ -171,6 +239,9 @@ Nguồn giá AI: [Google, bảng giá Gemini API](https://ai.google.dev/gemini-a
 - [Prep for Business](https://business.prepedu.com/en/) · [Prep Edu (Wikipedia)](https://en.wikipedia.org/wiki/Prep_Edu)
 - [Ai4Ielts LMS](https://ai4ielts.center/) · [Edmicro](https://edmicro.edu.vn/edmicro/) · [ELSA cho tổ chức](https://elsaspeak.com/en/enterprise/pricing)
 - [IELTS International cho khoa, trung tâm](https://www.ielts.international/vi/for-colleges) · [ECE IELTS LMS](https://ece.edu.vn/en/ece-launches-ai-powered-online-ielts-prep-lms-study-anytime-anywhere/)
+
+**Trung tâm mới mở**
+- [Kế toán Apolo: chi phí mở trung tâm 2026](https://ketoanapolo.vn/chi-phi-mo-trung-tam-tieng-anh/) · [Pareto: mở trung tâm cần bao nhiêu vốn](https://pareto.vn/mo-trung-tam-ngoai-ngu-can-bao-nhieu-von) · [Selfomy: kinh nghiệm mở trung tâm](https://selfomy.com/blog/kinh-nghiem-mo-trung-tam-tieng-anh/)
 
 **Thị trường và chính sách**
 - [EY-Parthenon: thị trường đào tạo tiếng Anh](https://www.ey.com/vi_vn/insights/strategy/thi-truong-dao-tao-tieng-anh-tai-viet-nam-cuoc-dua-chuan-hoa-va-mo-rong-tang-truong)
