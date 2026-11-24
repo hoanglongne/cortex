@@ -116,6 +116,48 @@ Mình biết bạn không muốn bị giao việc tìm lớp thí điểm (`TASK
 
 ---
 
+## 8. Kiểm chứng: Cortex làm được tính năng của đối thủ với giá rẻ hơn nhiều?
+
+**Kết luận: đúng một nửa.** Chi phí chạy của mình thật sự rất thấp, nhưng **chi phí chạy của đối thủ cũng thấp y như vậy**. Phần đắt không nằm ở AI.
+
+### 8.1 Chi phí AI để chấm bài (tính từ giá Gemini, chưa đo thật)
+Giả định: Writing Task 2 gửi khoảng 6.000 token (hướng dẫn chấm, band descriptor, bài viết) và nhận khoảng 3.500 token (nhận xét và phần suy luận). Speaking 2 phút là 3.840 token âm thanh (32 token/giây) cộng 4.000 token chữ, nhận 3.500 token. Tỉ giá 26.000đ/USD. Cortex đang dùng `gemini-3.8-flash`; các nguồn ghi giá khác nhau và có nguồn nói giá tăng gấp đôi từ 1/1/2027, nên tính ba mức:
+
+| Mức giá | 1 bài Writing | 1 bài Speaking | 4 + 4 bài/tháng | 8 + 8 bài/tháng |
+|---|---|---|---|---|
+| Thấp (0,225 / 1,125 USD mỗi triệu token) | ~140đ | ~230đ | ~1.500đ | ~2.900đ |
+| Cao (0,75 / 3,75 USD) | ~460đ | ~520đ | ~3.900đ | ~7.800đ |
+| Cao, gấp đôi từ 2027 | ~920đ | ~1.040đ | ~7.800đ | ~15.600đ |
+
+Cộng chi phí cố định khoảng 1,5–2,5 triệu đồng/tháng (ước tính của `BUSINESS_MODEL.md`, chưa kiểm). Giọng đọc tạo sẵn và chấm phát âm trên máy giúp giảm thêm.
+
+**So với giá bán của đối thủ:** Prep khoảng 180.000–310.000đ mỗi người học mỗi tháng, ELSA khoảng 740.000đ, Ai4Ielts 399.000đ mỗi giáo viên. Chi phí AI chỉ vài nghìn đến vài chục nghìn đồng mỗi học viên. Vậy **về chi phí, mình bán ở 30.000–50.000đ/học viên vẫn lãi gộp cao**.
+
+### 8.2 Vì sao đó không phải lợi thế riêng
+1. **Đối thủ dùng cùng loại AI, cùng mức chi phí.** Giá họ bán là do bán hàng, hỗ trợ, nội dung, thương hiệu và lợi nhuận, không phải do AI đắt. Khi bị ép, họ hạ giá được ngay.
+2. **Không phải đối thủ nào cũng đắt.** Ai4Ielts 399.000đ/tháng cho một giáo viên: với lớp 20 em là khoảng 20.000đ mỗi em, ngang hoặc thấp hơn mức mình định. DotB chỉ 5.000–15.000đ mỗi học viên (vận hành). "Rẻ hơn rất nhiều" chỉ đúng khi so với Prep và ELSA.
+3. **Phần đắt là phần mình chưa có:**
+   - **Kho đề 4 kỹ năng:** Listening cần thu âm, Reading cần bài đọc gốc. Dùng đề từ sách Cambridge là vi phạm bản quyền. Viết đề gốc tốn người và thời gian (chưa có số ước tính).
+   - **Độ đúng của AI chấm:** đối thủ công bố 85–90% (tự công bố). Muốn nói được một con số, mình cần bộ bài có giám khảo chấm sẵn để đối chiếu; hiện chưa có.
+   - **Hỗ trợ và bán hàng:** trung tâm cần người trả lời Zalo trong giờ làm, hướng dẫn giáo viên, chuyển dữ liệu. Chi phí này tăng theo số khách, không rẻ đi vì AI rẻ.
+   - **Giấy tờ:** công ty, hợp đồng, hoá đơn điện tử (Selfomy đều có).
+4. **Mình rẻ một phần vì chưa trả lương.** Tính cả một người làm (~25 triệu/tháng) và hạ tầng (~2,5 triệu), sau chi phí AI khoảng 8.000đ/học viên:
+   - bán 30.000đ/học viên: cần khoảng **1.250 học viên** để hoà vốn;
+   - bán 50.000đ/học viên: cần khoảng **650 học viên**.
+   Selfomy có hơn 100 trung tâm; mình chưa có trung tâm nào.
+5. **Trong bán cho tổ chức giáo dục, giá rẻ ít khi là lý do chính để đổi.** Chuyển hệ thống tốn công (dữ liệu, đào tạo giáo viên), nên trung tâm cần lý do mạnh hơn giá. Giá quá rẻ đôi khi còn bị hiểu là kém tin cậy. Đây là nhận định chung, chưa có số liệu cho thị trường Việt Nam.
+
+### 8.3 Giá rẻ dùng được ở đâu
+- **Giáo viên tự mở lớp và lớp nhỏ:** 399.000đ/tháng là đáng kể với gia sư có 5–10 em. Một gói rẻ (ví dụ theo học viên, không theo giáo viên) có thể là cửa vào.
+- **Trung tâm ở tỉnh, đô thị cấp hai:** EY ghi đây là nơi thị trường đang mở rộng, ngân sách thấp hơn.
+- **Gộp với phần giữ học viên** (mục 5, hướng 2): giá rẻ để vào, Blend và cảnh báo sớm để ở lại.
+
+Tóm lại: giá rẻ là **lợi thế khi bắt đầu** (mình gọn nhẹ), không phải **hào bảo vệ** (đối thủ làm theo được). Nó giúp bước vào, không giúp thắng.
+
+Nguồn giá AI: [Google, bảng giá Gemini API](https://ai.google.dev/gemini-api/docs/pricing) · [MorphLLM, giá Gemini 11/2026](https://www.morphllm.com/gemini-api-pricing) · [Google, cách đếm token (âm thanh 32 token/giây)](https://ai.google.dev/gemini-api/docs/tokens?hl=en).
+
+---
+
 ## 7. Nguồn
 
 **Đối thủ vận hành**
