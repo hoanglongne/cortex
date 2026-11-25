@@ -130,6 +130,8 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         updateOrg: (orgId: string, patch: { name?: string; seats?: number }) => rpc<{ ok: boolean }>('classroom_org_update', { p_org: orgId, p_name: patch.name ?? null, p_seats: patch.seats ?? null }),
         removeMember: (orgId: string, userId: string) => rpc<{ ok: boolean }>('classroom_org_remove_member', { p_org: orgId, p_user: userId }),
         createOrg: (name: string) => rpc<{ id: string }>('classroom_org_create', { p_name: name }),
+        /** A new teacher or center makes its own workspace, no invitation (free plan). Idempotent. */
+        selfSignup: (name: string) => rpc<{ org_id: string | null; created: boolean }>('classroom_self_signup', { p_name: name }),
         adminOverview: () => rpc<AdminOverview>('classroom_admin_overview'),
         revokeIndie: (userId: string) => rpc<{ ok: boolean }>('classroom_indie_revoke', { p_user: userId }),
         createInvite: (kind: InviteKind, orgId: string | null, note?: string) => rpc<{ token: string }>('classroom_invite_create', { p_kind: kind, p_org: orgId, p_note: note ?? null }),

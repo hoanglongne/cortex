@@ -42,6 +42,7 @@ FILES=(
   apps/lexica/supabase/migration_engagement_review_dust.sql
   apps/lexica/supabase/migration_feedback.sql
   packages/classroom/sql/classroom_core.sql
+  packages/classroom/sql/classroom_signup.sql
   packages/classroom/sql/classroom_parents.sql
   packages/classroom/sql/classroom_attendance.sql
   packages/classroom/sql/classroom_arena.sql
@@ -89,6 +90,7 @@ echo "Wrote $OUT"
 # Lexica's verified scores). Safe to re-run; no seed data.
 TEACH=(
   packages/classroom/sql/classroom_core.sql
+  packages/classroom/sql/classroom_signup.sql
   packages/classroom/sql/classroom_parents.sql
   packages/classroom/sql/classroom_attendance.sql
   packages/classroom/sql/classroom_arena.sql

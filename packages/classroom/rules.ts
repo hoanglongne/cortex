@@ -39,6 +39,8 @@ const MESSAGES: Record<string, string> = {
     'no guests': 'Phòng này chỉ dành cho học viên của lớp. Hãy đăng nhập, hoặc nhờ giáo viên cho khách vào.',
     'room full': 'Phòng đã đủ khách.',
     'bad name': 'Nhập một tên (chữ hoặc số, tối đa 20 ký tự).',
+    'bad center name': 'Nhập tên từ 2 đến 80 ký tự.',
+    'try later': 'Hôm nay có quá nhiều lượt đăng ký. Thử lại sau nhé.',
 };
 
 export function classMessage(raw: string): string {

@@ -84,9 +84,13 @@ function NoAccess({ email, onSignOut }: { email: string; onSignOut: () => void }
             <div className="max-w-md rounded-[var(--radius-card)] bg-surface p-8 text-center shadow-[var(--shadow-card)]">
                 <p className="font-serif text-2xl font-semibold text-ink">Trang này dành cho giáo viên và trung tâm</p>
                 <p className="mt-2 text-sm text-muted">
-                    Tài khoản <b className="text-ink-2">{email}</b> chưa có lời mời. Nếu trung tâm của bạn dùng Lexica, nhờ quản lý gửi link mời; nếu muốn đưa Lexica vào lớp của mình, hãy liên hệ đội Lexica.
+                    Tài khoản <b className="text-ink-2">{email}</b> chưa thuộc trung tâm nào. Nếu trung tâm của bạn đã dùng Cortex, nhờ quản lý gửi link mời. Nếu bạn muốn mở lớp của riêng mình thì tạo ngay, miễn phí.
                 </p>
-                <button onClick={onSignOut} className="mt-5 text-sm text-accent hover:underline">
+                <Link href="/dang-ky" className="mt-5 inline-flex h-11 items-center rounded-[10px] bg-accent px-5 font-semibold text-on-accent">
+                    Tạo lớp của tôi
+                </Link>
+                <br />
+                <button onClick={onSignOut} className="mt-3 text-sm text-accent hover:underline">
                     Đăng nhập bằng tài khoản khác
                 </button>
             </div>
