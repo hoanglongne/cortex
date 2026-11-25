@@ -3,6 +3,7 @@
  * each question, keeps the right answer, times the answer and scores the
  * test. The page only shows what it is sent.
  */
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '../supabase';
 import type { DifficultyLevel } from '../../types/vocab';
 import type { ItemKind, PlacementResult } from './engine';
@@ -41,8 +42,14 @@ function explain(raw: string): VerifiedError {
     return new VerifiedError(raw, /function|schema cache|fetch|network|Failed/i.test(raw));
 }
 
+/** A page that runs the test for someone without an account (the trial session, /thu) hands in the guest's client. */
+let override: SupabaseClient | null = null;
+export function setVerifiedClient(client: SupabaseClient | null) {
+    override = client;
+}
+
 async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T> {
-    const client = getSupabaseClient();
+    const client = override ?? getSupabaseClient();
     if (!client) throw new VerifiedError('no client', true);
     const { data: session } = await client.auth.getSession();
     if (!session.session) throw new VerifiedError('Đăng nhập để có điểm đã xác minh.', true);

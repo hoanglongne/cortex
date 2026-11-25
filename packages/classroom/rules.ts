@@ -39,6 +39,12 @@ const MESSAGES: Record<string, string> = {
     'no guests': 'Phòng này chỉ dành cho học viên của lớp. Hãy đăng nhập, hoặc nhờ giáo viên cho khách vào.',
     'room full': 'Phòng đã đủ khách.',
     'bad name': 'Nhập một tên (chữ hoặc số, tối đa 20 ký tự).',
+    'trial closed': 'Buổi học thử này đã đóng. Hỏi giáo viên nhé.',
+    'trial full': 'Buổi học thử đã đủ người.',
+    'bad guest name': 'Nhập tên của bạn.',
+    'bad trial title': 'Tên buổi học thử từ 2 đến 80 ký tự.',
+    'too many trials': 'Đang mở quá nhiều buổi học thử. Đóng bớt một buổi.',
+    'no such placement': 'Không tìm thấy bài xếp lớp này.',
     'bad center name': 'Nhập tên từ 2 đến 80 ký tự.',
     'try later': 'Hôm nay có quá nhiều lượt đăng ký. Thử lại sau nhé.',
 };

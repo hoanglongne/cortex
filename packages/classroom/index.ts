@@ -11,3 +11,4 @@ export * from './parents';
 export * from './attendance';
 export * from './arena';
 export * from './tests';
+export * from './trials';

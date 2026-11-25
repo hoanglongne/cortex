@@ -7,7 +7,7 @@ const base = /^https?:\/\//i.test(SITE) ? SITE : `https://${SITE}`;
 /** Search engines may read the public pages; the study screens hold only the learner's own data. */
 export default function robots(): MetadataRoute.Robots {
     return {
-        rules: [{ userAgent: '*', allow: ['/', '/guide', '/privacy', '/terms'], disallow: ['/api/', '/me', '/class', '/join', '/buddy', '/settings', '/stats'] }],
+        rules: [{ userAgent: '*', allow: ['/', '/guide', '/privacy', '/terms'], disallow: ['/api/', '/me', '/class', '/join', '/thu', '/buddy', '/settings', '/stats'] }],
         sitemap: `${base}/sitemap.xml`,
     };
 }

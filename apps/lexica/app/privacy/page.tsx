@@ -71,6 +71,17 @@ export default function PrivacyPage() {
                     ),
                 },
                 {
+                    title: 'Buổi học thử',
+                    body: (
+                        <ul>
+                            <li>Khi bạn mở link học thử của một trung tâm, bạn làm bài xếp lớp mà không cần tài khoản. Lexica tạo một phiên khách ẩn danh, không có hồ sơ, không sao lưu, không đồng bộ.</li>
+                            <li>Trung tâm thấy tên bạn, kết quả bài xếp lớp, và số điện thoại <b>chỉ khi bạn tự nhập và tích đồng ý</b>. Không tích thì số không được lưu.</li>
+                            <li>Em dưới 16 tuổi: phụ huynh nhập số điện thoại.</li>
+                            <li>Người chưa ghi danh bị xoá khỏi danh sách sau 90 ngày. Trung tâm xoá được ngay. Bạn cũng xin xoá được qua trang Góp ý.</li>
+                        </ul>
+                    ),
+                },
+                {
                     title: 'Blend: đọc bài, nút Chia sẻ và tiện ích Chrome',
                     body: (
                         <ul>

@@ -4,6 +4,7 @@ import type { AdminOverview, AppId, Assignment, Board, ClassInfo, InviteKind, Le
 import type { ClassParents, ParentView, ReportContent, WeekMetrics } from './parents';
 import type { AttendanceByClass, Mark, Session, Slot } from './attendance';
 import type { ClassTest, MyTest, TestResults, TestTake } from './tests';
+import type { Trial, TrialGuestStatus, TrialInfo } from './trials';
 import type { ArenaHistoryRow, ArenaHost, ArenaMode, ArenaPlayerView, ArenaQuestionInput, ArenaResult, ArenaRoomOpen, ArenaState } from './arena';
 
 export class ClassError extends Error {}
@@ -139,6 +140,16 @@ export function classroomApi(getClient: () => SupabaseClient | null) {
         acceptInvite: (token: string) => rpc<{ kind: InviteKind; org_id: string | null }>('classroom_invite_accept', { p_token: token }),
         openInvites: (orgId: string | null) => rpc<OpenInvite[]>('classroom_invites_open', { p_org: orgId }),
         revokeInvite: (token: string) => rpc<{ ok: boolean }>('classroom_invite_revoke', { p_token: token }),
+
+        // Trial sessions (sql/classroom_trials.sql)
+        trialCreate: (orgId: string, title: string, classId?: string | null, days?: number) => rpc<{ id: string; code: string }>('classroom_trial_create', { p_org: orgId, p_title: title, p_class: classId ?? null, p_days: days ?? 7 }),
+        trialClose: (trialId: string) => rpc<{ ok: boolean }>('classroom_trial_close', { p_trial: trialId }),
+        trialsList: (orgId: string) => rpc<Trial[]>('classroom_trials_list', { p_org: orgId }),
+        trialGuestUpdate: (guestId: string, patch: { status?: TrialGuestStatus; remove?: boolean }) => rpc<{ ok: boolean }>('classroom_trial_guest_update', { p_guest: guestId, p_status: patch.status ?? null, p_delete: patch.remove ?? false }),
+        /** A guest's side: what the code is for, then leaving a name (and a phone only with consent), then tying the finished test. */
+        trialInfo: (code: string) => rpc<TrialInfo>('classroom_trial_info', { p_code: code }),
+        trialRegister: (code: string, name: string, phone: string | null, consent: boolean) => rpc<{ guest: string; title: string }>('classroom_trial_register', { p_code: code, p_name: name, p_phone: phone, p_consent: consent }),
+        trialAttach: (code: string, scoreCode: string) => rpc<{ ok: boolean }>('classroom_trial_attach', { p_code: code, p_score: scoreCode }),
     };
 }
 

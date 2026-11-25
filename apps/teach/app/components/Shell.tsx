@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { BarChart3, Building2, CalendarCheck, GraduationCap, KeyRound, LogOut, ShieldCheck, Users } from 'lucide-react';
+import { DoorOpen, BarChart3, Building2, CalendarCheck, GraduationCap, KeyRound, LogOut, ShieldCheck, Users } from 'lucide-react';
 import { hasAccess, useSession } from '../lib/session';
 import { setPassword } from '../lib/auth';
 import ThemeToggle from './ThemeToggle';
@@ -28,6 +28,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     const nav = [
         { href: '/', label: 'Hôm nay', icon: CalendarCheck },
         { href: '/classes', label: 'Lớp của tôi', icon: GraduationCap },
+        ...(me!.orgs.length > 0 ? [{ href: '/trials', label: 'Buổi học thử', icon: DoorOpen }] : []),
         { href: '/students', label: 'Học viên', icon: Users },
         { href: '/reports', label: 'Báo cáo', icon: BarChart3 },
         ...(orgAdmin && me!.orgs.length > 0 ? [{ href: '/center', label: 'Trung tâm', icon: Building2 }] : []),

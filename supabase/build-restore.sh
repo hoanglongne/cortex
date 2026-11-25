@@ -56,6 +56,7 @@ FILES=(
   packages/classroom-lexica/sql/classroom_writing.sql
   apps/lexica/supabase/migration_placement.sql
   apps/lexica/supabase/placement_bank.sql
+  packages/classroom/sql/classroom_trials.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
   packages/classroom-synapse/sql/classroom_synapse.sql
   apps/oratio/supabase/migration_2026_10_answers.sql
@@ -103,6 +104,7 @@ TEACH=(
   packages/classroom-lexica/sql/classroom_lexica.sql
   packages/classroom-lexica/sql/classroom_writing.sql
   apps/lexica/supabase/migration_placement.sql
+  packages/classroom/sql/classroom_trials.sql
   packages/classroom-oratio/sql/classroom_oratio.sql
   packages/classroom-synapse/sql/classroom_synapse.sql
   # Synapse: the story rounds of the Arena read it, and the player's progress and reports
