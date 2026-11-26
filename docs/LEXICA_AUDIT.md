@@ -61,3 +61,21 @@ Kho thẻ tách ra một gói riêng (552 KB), tải song song; `HydrationGate` 
 **LCP chỉ giảm khoảng 0,4 giây**, vì nội dung đầu tiên vẫn phải đợi kho thẻ, và vì phần vỏ app (khoảng 1 MB JavaScript ngoài kho thẻ) mới là phần nặng. Đổi kho sang JSON không đáng: phân tích kho chỉ mất ~4 ms trên máy bàn.
 
 **Bước tiếp theo nếu muốn LCP dưới 4 giây:** tìm xem 1 MB vỏ app gồm gì (framer-motion, supabase-js, PostHog, biểu tượng...) và tải sau những gì không cần cho màn đầu.
+
+## Kết quả giảm vỏ app (26/11/2026)
+**Lưu ý về cách đo:** lệnh build thật là `next build --webpack` (Vercel chạy `pnpm build`). Các số ở mục trên đo bằng Turbopack nên không dùng để so. Bảng dưới đo cả hai bản bằng webpack, 4G chậm + CPU chậm 4 lần, trang đầu, mỗi bản 4 lần.
+
+| | Trước (commit 230258b) | Sau |
+|---|---|---|
+| JavaScript tải (đã giải nén) | 1,54–1,78 MB | 0,84–1,01 MB |
+| LCP | 4,41–4,85 giây (giữa ~4,56) | 3,98–4,10 giây (giữa ~4,03) |
+| Sự kiện `load` | ~3,9 giây | ~5,4 giây |
+
+**Đã làm:** kho thẻ và bài đọc rời gói chính; kho thẻ thành tệp `public/deck/core.json` (192 KB nén), trang tải trước ngay khi đọc HTML nên tải song song với JavaScript chính (trước đây nó chỉ bắt đầu sau khi JavaScript chính tải xong, mất thêm ~2 giây).
+
+**Đánh đổi:** sự kiện `load` muộn hơn vì trình duyệt tải luôn tệp kho thẻ trước khi báo xong; người dùng không thấy sự kiện này, LCP mới là lúc nội dung hiện ra.
+
+**Còn lại trong vỏ app** (phân tích bằng source map): Next.js + React khoảng 520 KB (cố định), Supabase ~160 KB (gồm realtime và lưu tệp mà trang đầu không dùng), framer-motion ~145 KB. Hai việc tiếp theo nếu cần nhanh hơn:
+- **Người mới vào `/` bị chuyển sang `/onboarding` sau khi app dựng xong**, tải thêm mã trang đó (~1 giây trên mạng chậm). Chuyển hướng sớm hơn hoặc dựng onboarding ngay ở `/`.
+- **Next tải trước 6 trang khác** (`/me`, `/album`...) lúc mở app, giành băng thông trên mạng chậm.
+- Supabase và framer-motion tải sau: thay đổi lớn, rủi ro (hiệu ứng ở màn đầu có thể nháy).
