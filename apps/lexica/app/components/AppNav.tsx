@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, Dumbbell, Gamepad2, Home, LayoutGrid, RotateCcw, UserRound, Users } from 'lucide-react';
+import { useLexicaStore } from '../store/lexicaStore';
 
 type TabId = 'home' | 'practice' | 'words' | 'album' | 'me';
 
@@ -86,7 +87,10 @@ export function DesktopNav() {
 export default function AppNav() {
     const path = usePathname();
     const active = tabOf(path);
-    if (!active) return null;
+    // Not during the first minutes: the onboarding fills the screen at /, and the bar's
+    // links would prefetch five pages on a slow phone (issue #178).
+    const onboarded = useLexicaStore((state) => state.hasSeenOnboarding);
+    if (!active || !onboarded) return null;
     return (
         <>
             {/* Room at the end of every page, so the bar never covers the last row */}

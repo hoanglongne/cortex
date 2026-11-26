@@ -79,3 +79,16 @@ Kho thẻ tách ra một gói riêng (552 KB), tải song song; `HydrationGate` 
 - **Người mới vào `/` bị chuyển sang `/onboarding` sau khi app dựng xong**, tải thêm mã trang đó (~1 giây trên mạng chậm). Chuyển hướng sớm hơn hoặc dựng onboarding ngay ở `/`.
 - **Next tải trước 6 trang khác** (`/me`, `/album`...) lúc mở app, giành băng thông trên mạng chậm.
 - Supabase và framer-motion tải sau: thay đổi lớn, rủi ro (hiệu ứng ở màn đầu có thể nháy).
+
+## Người mới thấy thẻ đầu tiên nhanh hơn (26/11/2026)
+LCP ở trên chưa nói hết: với người mới, LCP được ghi ở trang `/`, nhưng thẻ đầu tiên chỉ hiện sau khi chuyển sang `/onboarding` (tải thêm trang đó, và thanh điều hướng tải trước 5 trang khác cùng lúc). Đo "thẻ đầu tiên hiện ra" (webpack, 4G chậm + CPU chậm 4 lần, 4 lần mỗi bản):
+
+| | Bản gốc (230258b) | Giờ |
+|---|---|---|
+| Thẻ đầu tiên hiện ra | 5,79–5,97 giây | 3,65–3,71 giây |
+| LCP | 4,25–4,41 giây | 3,62–3,69 giây |
+| Yêu cầu tải trước trang khác | 11–12 | 0 |
+
+**Đã làm:** người mới thấy onboarding ngay ở `/` (không chuyển trang); thanh điều hướng ẩn cho tới khi xong onboarding, nên không tải trước gì. `/onboarding` vẫn còn cho liên kết cũ.
+
+**Chưa đo:** người đã học (trang Hôm nay) khi quay lại. Kho thẻ tải song song nên dự kiến cũng nhanh hơn, nhưng chưa có số.

@@ -3,7 +3,7 @@
  *
  * Kịch bản: Người dùng mở app lần đầu (localStorage trống).
  * Mục tiêu:
- *  1. App tự động redirect vào /onboarding
+ *  1. Người mới vào / thấy onboarding ngay tại chỗ (không chuyển trang)
  *  2. Người dùng điều hướng qua các bước, chọn archetype 'tech'
  *  3. Sau khi hoàn thành onboarding, được chuyển đi khỏi /onboarding
  *     (về /test theo logic thực tế của app)
@@ -24,13 +24,13 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
   // -------------------------------------------------------------------------
   // Test 1: Redirect tự động vào /onboarding
   // -------------------------------------------------------------------------
-  test('app redirect vào /onboarding khi localStorage trống', async ({ page }) => {
+  test('người mới vào / thấy onboarding ngay tại chỗ, không có thanh điều hướng', async ({ page }) => {
     await page.goto('/');
 
-    // Đợi redirect hoàn thành
-    await page.waitForURL(/\/onboarding/, { timeout: 10_000 });
-
-    expect(page.url()).toContain('/onboarding');
+    // The first card is shown at /, without a redirect to /onboarding (#178)
+    await expect(page.getByTestId('try-card')).toBeVisible({ timeout: 10_000 });
+    expect(new URL(page.url()).pathname).toBe('/');
+    await expect(page.getByRole('navigation', { name: 'Điều hướng' })).toHaveCount(0);
   });
 
   // -------------------------------------------------------------------------

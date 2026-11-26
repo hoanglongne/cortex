@@ -28,6 +28,7 @@ import { getProgressStats } from './lib/eloAlgorithm';
 import { useSoundEffects } from './hooks/useSoundEffects';
 import { CORTEX_HUB_URL } from './lib/cortexConfig';
 import { analytics } from './lib/analytics';
+import OnboardingFlow from './components/OnboardingFlow';
 
 /** Home's "four numbers" with a heading, so a new learner knows what they count. */
 function WordSteps() {
@@ -554,6 +555,10 @@ function HomePageFallback() {
 }
 
 export default function Home() {
+  // Someone new gets the onboarding right here, not after a redirect to /onboarding
+  // that loaded another page on slow phones (~1 s, issue #178).
+  const hasSeenOnboarding = useLexicaStore(state => state.hasSeenOnboarding);
+  if (!hasSeenOnboarding) return <OnboardingFlow />;
   return (
     <Suspense fallback={<HomePageFallback />}>
       <HomeContent />
