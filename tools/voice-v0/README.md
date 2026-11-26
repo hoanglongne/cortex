@@ -15,7 +15,7 @@ không. Kế hoạch: `docs/LEXICA_WOW_PLAN.md` mục 3.
 Tránh XTTS-v2 và F5-TTS (giấy phép cấm thương mại).
 
 ## Chạy
-1. Người thử ghi mẫu giọng ở `/giong-thu` của Lexica (khoảng 60 giây, có câu kiểm tra ngẫu nhiên) và gửi file WAV.
+1. Người thử ghi mẫu giọng (trang `/giong-thu` của Lexica đã gỡ ngày 26/11/2026 sau khi dừng thử; lấy lại từ lịch sử git nếu cần) và gửi file WAV.
 2. Lấy 20 clip giọng mẫu từ API của app (`/v1/lexica/tts?text=…`) vào một thư mục `ref/`.
 3. Chạy hai bộ đổi giọng (CPU, khoảng 1 giây mỗi clip):
 

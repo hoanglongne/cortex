@@ -24,6 +24,7 @@ import QuoteMeet from '../components/QuoteMeet';
 import SpeakDrill from '../components/SpeakDrill';
 import StepNumbers from '../components/StepNumbers';
 import InstallCard from '../components/InstallCard';
+import SaveProgressCard from '../components/SaveProgressCard';
 import PledgeCard from '../components/PledgeCard';
 import RecapHero from '../components/RecapHero';
 import { classWordsToQueue } from '../lib/classes';
@@ -272,6 +273,8 @@ function Recap({ lucky, firstDay }: { lucky: LuckyReward[]; firstDay: boolean })
                     <p className="text-sm text-muted">{checkpoint === 30 ? '30 từ ngẫu nhiên từ 30 ngày qua.' : 'Xem bạn đã đi được bao xa so với mục tiêu.'}</p>
                 </Link>
             )}
+
+            <SaveProgressCard />
 
             {firstDay && <InstallCard />}
 

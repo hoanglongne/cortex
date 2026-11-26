@@ -53,7 +53,7 @@ export default function LevelSelector({ onSelect, currentLevel }: LevelSelectorP
         <div className="w-full max-w-5xl mx-auto px-4 pt-20 md:pt-24 pb-10 space-y-6">
             <header className="space-y-1">
                 <h1 className="text-3xl md:text-4xl font-semibold text-ink tracking-tight">Chọn độ khó</h1>
-                <p className="text-muted text-sm">Đổi lúc nào cũng được. Khi bạn nhớ từ quá dễ hoặc quá khó, trang chủ sẽ gợi ý đổi level.</p>
+                <p className="text-muted text-sm">Đổi lúc nào cũng được. Khi bạn nhớ từ quá dễ hoặc quá khó, trang chủ sẽ gợi ý đổi trình độ.</p>
             </header>
 
             <EloScale elo={elo} tested={testScore !== null} />

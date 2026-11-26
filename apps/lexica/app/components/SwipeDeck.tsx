@@ -450,6 +450,10 @@ export default function SwipeDeck({
                             }}
                             className="absolute w-full top-1/2 -translate-y-1/2"
                             style={{ zIndex: cards.length - index }}
+                            // Only the top card is live: the ones under it must not take keyboard
+                            // focus or be read out (issue #178).
+                            inert={index !== 0}
+                            aria-hidden={index !== 0 || undefined}
                         >
                             <VocabCard
                                 card={card}

@@ -13,6 +13,7 @@ import HydrationGate from "./components/HydrationGate";
 import AppNav, { DesktopNav } from "./components/AppNav";
 import ErrorReporter from "./components/ErrorReporter";
 import NativeShell from "./components/NativeShell";
+import PersistStorage from "./components/PersistStorage";
 import BuddySync from "./components/BuddySync";
 import StudyDateBanner from "./components/StudyDateBanner";
 import { DeviceVoiceBoot } from "./components/DeviceVoiceCard";
@@ -89,6 +90,7 @@ export default function RootLayout({
         <AuthProvider>
           <ErrorReporter />
           <NativeShell />
+          <PersistStorage />
           <CloudSync />
           <ClassSync />
           <BuddySync />

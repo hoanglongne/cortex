@@ -118,7 +118,12 @@ const PERSONA_OPTIONS: Array<{
     ];
 
 export default function OnboardingModal({ onComplete, firstTime = false }: OnboardingModalProps) {
-    const steps = STEPS.filter(st => firstTime || !('isBranchSelection' in st));
+    // First time: only the two choices that change what is learned (branch, example sentences),
+    // then straight on; the explanations (4 steps, one button a day, 30-day path) stay in the
+    // help this modal also is, and each screen explains itself when reached (issue #178).
+    const steps = firstTime
+        ? STEPS.filter(st => 'isBranchSelection' in st || 'isPersonaSelection' in st)
+        : STEPS.filter(st => !('isBranchSelection' in st));
     const [step, setStep] = useState(0);
     const [branch, setBranch] = useState<Branch | null>(() => readBranchPick());
     const [direction, setDirection] = useState(1);
@@ -223,11 +228,11 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                                         aria-pressed={branch === b}
                                         className={`w-full text-left px-4 py-3.5 rounded-xl border transition-all ${branch === b ? '!border-ink bg-ink text-bg' : 'border-line-strong bg-surface-2 hover:bg-surface-2/50'}`}
                                     >
-                                        <p className="font-semibold text-sm text-ink flex items-center gap-2">
+                                        <p className={`font-semibold text-sm flex items-center gap-2 ${branch === b ? 'text-bg' : 'text-ink'}`}>
                                             {b === 'cert' ? <GraduationCap className="w-4 h-4" /> : <Briefcase className="w-4 h-4" />}
                                             {BRANCH_LABEL[b]}
                                         </p>
-                                        <p className="text-xs mt-0.5 text-muted">{BRANCH_HINT[b]}</p>
+                                        <p className={`text-xs mt-0.5 ${branch === b ? 'text-bg/70' : 'text-muted'}`}>{BRANCH_HINT[b]}</p>
                                     </button>
                                 ))}
                                 <BranchCompare />
@@ -312,7 +317,7 @@ export default function OnboardingModal({ onComplete, firstTime = false }: Onboa
                         disabled={(isPersonaStep && !selectedPersona) || (isBranchStep && !branch)}
                         className="lx-hard lx-press flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-accent hover:bg-accent-strong text-on-accent font-extrabold text-sm transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-accent-strong"
                     >
-                        {isLast ? (firstTime ? 'Làm bài test level' : 'Đã hiểu') : 'Tiếp theo'}
+                        {isLast ? (firstTime ? 'Chọn trình độ' : 'Đã hiểu') : 'Tiếp theo'}
                         {!isLast && <ChevronRight className="w-4 h-4" />}
                     </button>
                 </div>

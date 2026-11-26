@@ -43,11 +43,8 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // -------------------------------------------------------------------------
   test('swipe hết tất cả thẻ → hiển thị màn hình "Hoàn thành bộ bài!"', async ({ page }) => {
     await injectLexicaState(page, exhaustedState());
-    await page.goto('/');
-    await page.waitForURL('/', { timeout: 10_000 });
-
-    // Bắt đầu phiên học
-    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
+    // The free swipe deck (from Luyện); the home page is the Today session now.
+    await page.goto('/?swipe=1');
 
     const swipeDeck = page.locator('[data-tour-id="swipe-deck"]');
     await expect(swipeDeck).toBeVisible({ timeout: 8_000 });
@@ -61,10 +58,7 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // -------------------------------------------------------------------------
   test('dead-end: không còn thẻ nào trong SwipeDeck', async ({ page }) => {
     await injectLexicaState(page, exhaustedState());
-    await page.goto('/');
-    await page.waitForURL('/', { timeout: 10_000 });
-
-    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
+    await page.goto('/?swipe=1');
 
     const swipeDeck = page.locator('[data-tour-id="swipe-deck"]');
     await expect(swipeDeck).toBeVisible({ timeout: 8_000 });
@@ -84,10 +78,7 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // -------------------------------------------------------------------------
   test('nút "Đọc 2 phút" xuất hiện và click được', async ({ page }) => {
     await injectLexicaState(page, exhaustedState());
-    await page.goto('/');
-    await page.waitForURL('/', { timeout: 10_000 });
-
-    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
+    await page.goto('/?swipe=1');
 
     await expect(page.locator('[data-tour-id="swipe-deck"]')).toBeVisible({ timeout: 8_000 });
 
@@ -107,10 +98,7 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
   // -------------------------------------------------------------------------
   test('nút "Xem danh sách từ vựng" xuất hiện và click được', async ({ page }) => {
     await injectLexicaState(page, exhaustedState());
-    await page.goto('/');
-    await page.waitForURL('/', { timeout: 10_000 });
-
-    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
+    await page.goto('/?swipe=1');
 
     await expect(page.locator('[data-tour-id="swipe-deck"]')).toBeVisible({ timeout: 8_000 });
 
@@ -143,11 +131,8 @@ test.describe('Dead-End States — hết bộ thẻ', () => {
       })
     );
 
-    await page.goto('/');
-    await page.waitForURL('/', { timeout: 10_000 });
-
-    // "Luyện thêm" → "Học thêm từ mới" mở bộ thẻ ngay trên Home
-    await page.getByRole('button', { name: /Học thêm từ mới/ }).click();
+    // The free swipe deck (from Luyện)
+    await page.goto('/?swipe=1');
 
     const swipeDeck = page.locator('[data-tour-id="swipe-deck"]');
     await expect(swipeDeck).toBeVisible({ timeout: 8_000 });

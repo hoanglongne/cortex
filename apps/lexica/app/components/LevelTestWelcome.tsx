@@ -41,10 +41,10 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                     </div>
                     <div className="space-y-3">
                         <h2 className="font-display text-3xl md:text-4xl font-extrabold text-ink tracking-tight">
-                            Chào mừng đến LEXICA
+                            Bắt đầu từ đúng trình độ của bạn
                         </h2>
                         <p className="text-muted max-w-md mx-auto leading-relaxed">
-                            Để trải nghiệm tốt nhất, hãy cho chúng tôi biết trình độ của bạn
+                            Làm bài kiểm tra ngắn, hoặc tự chọn. Đổi lúc nào cũng được.
                         </p>
                     </div>
                 </div>
@@ -66,14 +66,14 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                             <div className="flex-1 space-y-2">
                                 <div className="flex items-center gap-2">
                                     <h3 className="text-lg font-semibold text-ink">
-                                        Test nhanh
+                                        Làm bài kiểm tra
                                     </h3>
                                     <span className="lx-sticker whitespace-nowrap text-[10px] font-mono font-bold uppercase px-2 py-0.5 bg-surface text-ink">
                                         Khuyên dùng
                                     </span>
                                 </div>
                                 <p className="text-sm text-muted leading-relaxed">
-                                    15–30 câu, khoảng 6 phút. Câu hỏi khó dần hoặc dễ dần theo câu trả lời của bạn
+                                    15–30 câu, khoảng 6 phút. Câu hỏi khó hay dễ dần theo câu trả lời của bạn.
                                 </p>
                             </div>
                         </div>
@@ -93,10 +93,10 @@ export default function LevelTestWelcome({ onStartTest, onSkipToManual }: LevelT
                             </div>
                             <div className="flex-1 space-y-1">
                                 <h3 className="text-lg font-semibold text-ink">
-                                    Tự chọn level
+                                    Tự chọn trình độ
                                 </h3>
                                 <p className="text-sm text-muted leading-relaxed">
-                                    Chọn level phù hợp với trình độ của bạn. Hệ thống sẽ tự động điều chỉnh độ khó theo performance của bạn.
+                                    Chọn Cơ bản, Trung cấp, Nâng cao hoặc Chuyên gia. Lexica sẽ gợi ý đổi nếu từ quá dễ hay quá khó.
                                 </p>
                             </div>
                         </div>

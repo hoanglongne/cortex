@@ -42,7 +42,7 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     await page.getByRole('button', { name: 'Để sau' }).click();
 
     // Modal phải xuất hiện với tiêu đề chào mừng
-    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Bạn học tiếng Anh để làm gì?')).toBeVisible({ timeout: 8_000 });
   });
 
   // -------------------------------------------------------------------------
@@ -54,12 +54,9 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     await page.getByRole('button', { name: 'Để sau' }).click();
 
     // Đợi modal xuất hiện
-    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Bạn học tiếng Anh để làm gì?')).toBeVisible({ timeout: 8_000 });
 
-    // Bước 1 → Bước 2 (chọn nhánh) → Bước 3 (Persona Selection)
-    const nextButton = page.getByRole('button', { name: /tiếp theo/i });
-    await nextButton.click();
-    await expect(page.getByText('Bạn học tiếng Anh để làm gì?')).toBeVisible({ timeout: 5_000 });
+    // First time: two steps only, the branch then the persona (issue #178)
     await page.getByTestId('branch-talk').click();
     await page.getByRole('button', { name: /tiếp theo/i }).click();
 
@@ -73,32 +70,8 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     // Đảm bảo option được chọn (có thể kiểm tra via aria-pressed hoặc visual state)
     await expect(techOption).toBeVisible();
 
-    // Tiếp tục qua các bước còn lại bằng cách click "Tiếp theo" nhiều lần
-    // Số bước = 6 (STEPS.length trong OnboardingModal.tsx)
-    // Đã ở bước 3, cần đến bước cuối
-    const REMAINING_STEPS = 3;
-    for (let i = 0; i < REMAINING_STEPS; i++) {
-      const btn = page.getByRole('button', { name: /tiếp theo/i });
-      if (await btn.isVisible()) {
-        await btn.click();
-        await page.waitForTimeout(300); // đợi animation
-      } else {
-        // Bước cuối cùng: nút "Bắt đầu" hoặc tương đương
-        break;
-      }
-    }
-
-    // Bước cuối — nút có thể là "Bắt đầu" hoặc tương tự
-    const startButton = page.getByRole('button', { name: /làm bài test level/i });
-    if (await startButton.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await startButton.click();
-    } else {
-      // Thử nút tiếp theo một lần nữa (nếu còn bước)
-      const lastNext = page.getByRole('button', { name: /tiếp theo/i });
-      if (await lastNext.isVisible({ timeout: 2_000 }).catch(() => false)) {
-        await lastNext.click();
-      }
-    }
+    // The persona is the last first-time step: its button leads to choosing a level
+    await page.getByRole('button', { name: /Chọn trình độ/ }).click();
 
     // Sau khi hoàn thành onboarding:
     // - completeOnboarding() sets hasSeenOnboarding = true
@@ -119,7 +92,7 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     await page.getByRole('button', { name: 'Biết rồi' }).click();
     await expect(page.getByTestId('try-meaning')).toBeVisible();
     await page.getByRole('button', { name: /Học như vậy mỗi ngày/ }).click();
-    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Bạn học tiếng Anh để làm gì?')).toBeVisible({ timeout: 8_000 });
   });
 
   // -------------------------------------------------------------------------
@@ -130,7 +103,7 @@ test.describe('Onboarding Flow — lần đầu sử dụng', () => {
     // Thử một thẻ trước (#146): bỏ qua để tới màn chào mừng.
     await page.getByRole('button', { name: 'Để sau' }).click();
 
-    await expect(page.getByText('Từ câu chêm đến câu của mình')).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText('Bạn học tiếng Anh để làm gì?')).toBeVisible({ timeout: 8_000 });
 
     // Click nút X (Skip)
     await page.getByRole('button', { name: 'Bỏ qua' }).click();

@@ -23,10 +23,10 @@ export default function HomeHeader({ due, onChangeLevel }: { due: number; onChan
                 <LexicaLogo className="h-6 w-auto text-ink mr-2" />
                 <button
                     onClick={onChangeLevel}
-                    title="Đổi level"
+                    title="Đổi trình độ"
                     className="lx-soft h-8 px-3 shrink-0 whitespace-nowrap rounded-lg bg-surface text-xs font-medium text-ink-2 hover:border-line-strong"
                 >
-                    {level && level !== 'all' ? `${levelDef(level).label} · ${levelDef(level).cefr}` : 'Tất cả level'}
+                    {level && level !== 'all' ? `${levelDef(level).label} · ${levelDef(level).cefr}` : 'Mọi trình độ'}
                 </button>
                 {path && (
                     <Link href="/path" className="lx-sticker h-8 px-3 shrink-0 whitespace-nowrap bg-surface text-xs font-bold text-ink flex items-center gap-1.5">
