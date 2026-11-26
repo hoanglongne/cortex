@@ -2,7 +2,6 @@ import { useSyncExternalStore } from 'react';
 import { TALK_CARDS } from '../../data/talkCards';
 import type { CardQuote, CardQuotes, CardVariants, ContentCard, ContentPack, VariantArchetype } from './pack';
 import { deckWordsIn, type Passage } from './passages';
-import { CORE_PASSAGES } from '../../data/passages';
 
 /**
  * Single source of vocabulary cards for the whole app.
@@ -39,12 +38,16 @@ let version = 0;
 const listeners = new Set<() => void>();
 
 let CORE_IDS = new Set(CORE.map(c => c.id));
+let corePassages: readonly Passage[] = [];
+/** The deck file; the layout preloads the same address. */
+export const DECK_URL = '/deck/core.json';
 let deckReady = false;
 let deckLoading: Promise<void> | null = null;
 
 /** Puts the IELTS deck in place (the loader below; tests call it directly). */
-export function setCoreDeck(cards: readonly ContentCard[]) {
+export function setCoreDeck(cards: readonly ContentCard[], passages: readonly Passage[] = corePassages) {
     vocab = cards;
+    corePassages = passages;
     CORE = [...cards, ...TALK_CARDS];
     CORE_IDS = new Set(CORE.map(c => c.id));
     // A pack that arrived first may hold an id the core deck has: core wins, as in applyRemoteContent.
@@ -56,13 +59,28 @@ export function setCoreDeck(cards: readonly ContentCard[]) {
 /** Loads the IELTS deck's chunk once; resolves when cards are readable. */
 export function loadCoreDeck(): Promise<void> {
     if (deckReady) return Promise.resolve();
-    deckLoading ??= import('../../data/vocabCards').then(
-        (m) => setCoreDeck(m.VOCAB_DATABASE as unknown as ContentCard[]),
-        (e) => {
-            deckLoading = null; // a later call tries again (offline, chunk not cached yet)
-            throw e;
-        },
-    );
+    // public/deck/core.json (scripts/build-deck.mjs), preloaded by the layout so it downloads
+    // alongside the main JavaScript. Without it (a dev server that skipped the script), the same
+    // data comes from chunks of their own. The core passages (~100 KB) travel with the deck.
+    deckLoading ??= fetch(DECK_URL)
+        .then((r) => (r.ok ? (r.json() as Promise<{ cards: ContentCard[]; passages: Passage[] }>) : Promise.reject(new Error(`deck ${r.status}`))))
+        .then((d) => {
+            if (!Array.isArray(d?.cards) || d.cards.length === 0 || !Array.isArray(d.passages)) throw new Error('deck shape');
+            return d;
+        })
+        .catch(() =>
+            Promise.all([import('../../data/vocabCards'), import('../../data/passages')]).then(([m, p]) => ({
+                cards: m.VOCAB_DATABASE as unknown as ContentCard[],
+                passages: p.CORE_PASSAGES,
+            })),
+        )
+        .then(
+            ({ cards, passages }) => setCoreDeck(cards, passages),
+            (e) => {
+                deckLoading = null; // a later call tries again (offline, chunk not cached yet)
+                throw e;
+            },
+        );
     return deckLoading;
 }
 
@@ -180,7 +198,7 @@ export function getPassages(): readonly Passage[] {
     const talkDeck = [...byWord.values()].map(c => ({ id: c.id, word: c.word }));
     const seen = new Set<string>();
     passageCache = [];
-    for (const p of [...CORE_PASSAGES, ...remotePassages]) {
+    for (const p of [...corePassages, ...remotePassages]) {
         if (seen.has(p.id)) continue;
         seen.add(p.id);
         const words = p.words.length > 0 ? p.words : deckWordsIn(p.text, p.kind === 'dialogue' ? talkDeck : deck).filter(id => !p.newWords.includes(id));

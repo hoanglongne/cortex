@@ -85,6 +85,8 @@ export default function RootLayout({
       <head>
         {/* Light theme and branch accent before first paint (lib/theme.ts). */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        {/* The card deck (lib/content/repository.ts): start downloading it with the page, not after the app's code (#178). */}
+        <link rel="preload" href="/deck/core.json" as="fetch" crossOrigin="anonymous" />
       </head>
       <body className="min-h-full flex flex-col bg-bg text-ink overflow-x-hidden" suppressHydrationWarning>
         <AuthProvider>

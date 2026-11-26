@@ -32,6 +32,7 @@ fs.renameSync(api, aside);
 let status = 1;
 try {
     fs.rmSync(`${root}out`, { recursive: true, force: true });
+    if (spawnSync('node', ['scripts/build-deck.mjs'], { cwd: root, stdio: 'inherit' }).status !== 0) throw new Error('deck build failed');
     const res = spawnSync('npx', ['next', 'build'], {
         cwd: root,
         stdio: 'inherit',

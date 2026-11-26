@@ -5,6 +5,10 @@ import { loadCoreDeck, useDeckReady } from '../lib/content/repository';
 
 const noopSubscribe = () => () => {};
 
+// Start fetching the deck as soon as this code runs in the browser, not after React has
+// hydrated the page (a useEffect would wait for that): the two then happen side by side.
+if (typeof window !== 'undefined') void loadCoreDeck().catch(() => {});
+
 /**
  * Lexica's state lives in localStorage (zustand persist), which the server
  * can't read. Server HTML was rendered from an empty store and then

@@ -15,7 +15,10 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "native:build": "node scripts/build-native.mjs && cap sync",
-    "native:assets": "capacitor-assets generate --iconBackgroundColor \"#101012\" --iconBackgroundColorDark \"#101012\" --splashBackgroundColor \"#101012\" --splashBackgroundColorDark \"#101012\""
+    "native:assets": "capacitor-assets generate --iconBackgroundColor \"#101012\" --iconBackgroundColorDark \"#101012\" --splashBackgroundColor \"#101012\" --splashBackgroundColorDark \"#101012\"",
+    "deck": "node scripts/build-deck.mjs",
+    "predev": "node scripts/build-deck.mjs",
+    "prebuild": "node scripts/build-deck.mjs"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.2",
