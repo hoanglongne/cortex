@@ -42,3 +42,45 @@ Teach là một **công cụ dạy tốt cho giáo viên có học viên đang d
 4. **Nhật ký dự báo** để kiểm ngưỡng bằng dữ liệu thật (việc 4); trong lúc chưa có, ghi rõ "đang thử" trên giao diện.
 5. **Quy trình SQL an toàn hơn** (việc 6): ít nhất một dự án Supabase thử.
 6. Sửa lỗi của tôi (việc 11, 12), rồi mới tới thanh toán (việc 3).
+
+---
+
+## Giải pháp (tổng hợp, 26/11/2026)
+
+Công sức là ước tính của tôi cho một người, chưa tính thời gian thử với khách.
+
+### Nhóm A: nhỏ, làm ngay (khoảng 1 tuần cộng lại)
+| # | Việc | Giải pháp | Công sức |
+|---|---|---|---|
+| 12 | `?welcome=1` không ai đọc | Trang Hôm nay đọc tham số, hiện lời chào và 3 bước: tạo lớp, mở buổi học thử, mời học viên | 2–3 giờ |
+| 11 | Phanh 200/ngày toàn cục | Bỏ phanh toàn cục; đổi sang giới hạn theo người (một email một trung tâm đã có) và để Supabase giới hạn đăng ký (CAPTCHA, giới hạn email) | 1–2 giờ |
+| 8 | Không có điều khoản và riêng tư của Teach | Thêm 2 trang `/terms`, `/privacy` cho Teach (trung tâm là bên kiểm soát dữ liệu, Teach là bên xử lý), link ở chân trang và ở `/dang-ky` | 1 ngày (nháp), cần người đọc lại |
+| 5 | Không giám sát lỗi | Lấy `app/lib/errorReport.ts` của Lexica (gửi tới Sentry, không SDK) dùng cho Teach | 3–4 giờ |
+| 14 | 11 chỗ `window.confirm` | Một component xác nhận chung | 3–4 giờ |
+| 4 (tạm) | Dự báo chưa kiểm | Gắn nhãn "Đang thử, có thể chưa đúng" cạnh khung dự báo, nút "Dự báo này sai" để ghi lại | 3–4 giờ |
+
+### Nhóm B: vừa, rủi ro thật, làm trước khi mời khách (khoảng 2–3 tuần)
+| # | Việc | Giải pháp | Công sức |
+|---|---|---|---|
+| 7 | Không test SQL | Đưa vào repo bộ test chạy trên Postgres tạm (cách tôi đã thử tay): dựng `auth.uid()`, nạp lõi, rồi kiểm từng hàm theo vai trò (giáo viên, học viên, người ngoài, khách). **Mỗi hàm `security definer` phải có ít nhất một test "người ngoài bị từ chối"**; chạy trong CI | 3–4 ngày để dựng, rồi thêm dần |
+| 6 | SQL dán tay vào Supabase dùng chung | (a) Tạo một **dự án Supabase thử**, chạy SQL ở đó trước; (b) đánh số phiên bản file, mỗi thay đổi là một file `Nxx_*.sql` chạy một lần, có ghi vào bảng `cortex_migrations`; (c) sao lưu trước khi chạy. Chưa cần công cụ lớn | 2–3 ngày |
+| 2 | Học viên do trung tâm tạo | Bảng `cortex_students` (tên, điện thoại phụ huynh, ngày sinh, ghi chú) gắn với trung tâm; ghi danh vào lớp **không cần tài khoản**; điểm danh và báo cáo phụ huynh chạy với em chưa có app; tài khoản Lexica chỉ là liên kết tuỳ chọn (mã mời riêng từng em). Mọi bảng mới trỏ tới hồ sơ này, không trỏ thẳng tài khoản | 1–1,5 tuần |
+| 9 | Không xuất/nhập Excel | Nhập theo mẫu `.xlsx`/CSV (kiểm lỗi từng dòng, chạy thử không ghi, nhập lại không trùng); xuất danh sách học viên, điểm danh, kết quả | 3–4 ngày (làm cùng việc 2) |
+
+### Nhóm C: sau khi có khách thử
+| # | Việc | Giải pháp | Công sức |
+|---|---|---|---|
+| 4 | Dự báo chưa kiểm | Bảng `forecast_log`: lưu mỗi dự báo đã hiện (loại, ngày, ngưỡng) và 14–30 ngày sau ghi kết quả thật (em có nghỉ không, từ có quên không); chỉnh `THRESHOLDS` bằng số đo | 3–4 ngày + chờ 4–6 tuần dữ liệu |
+| 3 | Không thu tiền | Cột `plan` và hạn mức theo gói; thanh toán PayOS/VietQR; khoá khi hết hạn. Chỉ làm khi có trung tâm đòi trả | 1–2 tuần |
+| 10 | Mọi thứ cần mở app | Email nhắc giáo viên hằng tuần (ai sắp nghỉ, ai chưa điểm danh); báo cáo phụ huynh tự soạn tối Chủ nhật bằng `pg_cron` (đã ghi trong kế hoạch) | 1 tuần |
+| 13 | Tải mọi lớp cùng lúc | Chỉ tải bảng của lớp đang xem; trang Hôm nay lấy số tóm tắt từ một hàm nhẹ. Chỉ làm khi đo thấy chậm | 2–3 ngày |
+| 15 | Truy cập và e2e | Bộ chụp ảnh Playwright cho Teach như Lexica; kiểm a11y bằng công cụ | 3–4 ngày |
+
+### Việc không có giải pháp kỹ thuật
+- **#1, giá trị phụ thuộc việc học viên dùng Lexica.** Làm việc 2 giúp nửa chừng (điểm danh và báo cáo hoạt động không cần app). Phần còn lại là bài toán sản phẩm: học viên phải thật sự thấy Lexica hữu ích. Chỉ khách thật mới cho biết.
+
+### Đề nghị thứ tự
+1. **Nhóm A** (1 tuần).
+2. **Việc 7 và 6** (test SQL, dự án thử): làm trước việc 2 vì việc 2 thêm nhiều bảng và hàm mới, không có lưới an toàn thì rủi ro cộng dồn.
+3. **Việc 2 và 9** (học viên do trung tâm tạo, Excel).
+4. Mời 2–3 trung tâm thử; nhóm C làm theo điều họ nói.
