@@ -1,6 +1,7 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { loadCoreDeck, useDeckReady } from '../lib/content/repository';
 
 const noopSubscribe = () => () => {};
 
@@ -10,10 +11,40 @@ const noopSubscribe = () => () => {};
  * mismatched the client ("Hydration failed" on /learned and similar).
  * Render the app only on the client, after the store is hydrated, so the
  * first paint is already the user's real data.
+ *
+ * It also waits for the IELTS deck, which loads in a chunk of its own
+ * (lib/content/repository.ts, issue #178), so everything inside can read
+ * cards synchronously as before.
  */
 export default function HydrationGate({ children }: { children: React.ReactNode }) {
     // false during SSR and the hydration pass, true right after on the client
     const isClient = useSyncExternalStore(noopSubscribe, () => true, () => false);
-    if (!isClient) return <div className="min-h-dvh bg-bg" aria-busy="true" />;
+    const deckReady = useDeckReady();
+    const [failed, setFailed] = useState(false);
+
+    useEffect(() => {
+        loadCoreDeck().catch(() => setFailed(true));
+    }, []);
+
+    if (isClient && failed && !deckReady) {
+        return (
+            <div className="min-h-dvh bg-bg flex items-center justify-center px-6 text-center">
+                <div className="space-y-3">
+                    <p className="text-ink font-semibold">Chưa tải được bộ thẻ</p>
+                    <p className="text-sm text-muted">Kiểm tra mạng rồi thử lại.</p>
+                    <button
+                        className="lx-hard lx-press h-11 px-5 rounded-xl bg-accent text-on-accent font-bold"
+                        onClick={() => {
+                            setFailed(false);
+                            loadCoreDeck().catch(() => setFailed(true));
+                        }}
+                    >
+                        Thử lại
+                    </button>
+                </div>
+            </div>
+        );
+    }
+    if (!isClient || !deckReady) return <div className="min-h-dvh bg-bg" aria-busy="true" />;
     return <>{children}</>;
 }

@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from 'react';
-import { VOCAB_DATABASE } from '../../data/vocabCards';
 import { TALK_CARDS } from '../../data/talkCards';
 import type { CardQuote, CardQuotes, CardVariants, ContentCard, ContentPack, VariantArchetype } from './pack';
 import { deckWordsIn, type Passage } from './passages';
@@ -8,7 +7,11 @@ import { CORE_PASSAGES } from '../../data/passages';
 /**
  * Single source of vocabulary cards for the whole app.
  *
- * Core cards (VOCAB_DATABASE) are bundled and always available, offline too.
+ * Core cards (VOCAB_DATABASE, about 700 KB of source) are bundled in a chunk of
+ * their own, loaded once at start (loadCoreDeck); the app waits for them in
+ * HydrationGate, so components still read cards synchronously. Before that only
+ * the small Giao tiếp deck is here. Issue #178: every page used to parse the whole
+ * deck in its main bundle.
  * Packs published from Lexica Studio are layered on top once the content
  * loader has fetched them. Retired cards stay resolvable by id, so learned
  * words and reviews keep working, but they are no longer dealt as new cards.
@@ -24,8 +27,9 @@ let quotes: CardQuotes = {};
 let remotePassages: Passage[] = [];
 let passageCache: Passage[] | null = null;
 
-/** Bundled cards: the IELTS deck and the first Giao tiếp deck. */
-const CORE: readonly ContentCard[] = [...VOCAB_DATABASE, ...TALK_CARDS];
+/** Bundled cards: the IELTS deck (once loaded) and the first Giao tiếp deck. */
+let vocab: readonly ContentCard[] = [];
+let CORE: readonly ContentCard[] = [...TALK_CARDS];
 
 let all: readonly ContentCard[] = CORE;
 let byId = new Map<string, ContentCard>(CORE.map(c => [c.id, c]));
@@ -34,7 +38,40 @@ let byWord = new Map<string, ContentCard>(CORE.map(c => [c.word.trim().toLowerCa
 let version = 0;
 const listeners = new Set<() => void>();
 
-const CORE_IDS = new Set(CORE.map(c => c.id));
+let CORE_IDS = new Set(CORE.map(c => c.id));
+let deckReady = false;
+let deckLoading: Promise<void> | null = null;
+
+/** Puts the IELTS deck in place (the loader below; tests call it directly). */
+export function setCoreDeck(cards: readonly ContentCard[]) {
+    vocab = cards;
+    CORE = [...cards, ...TALK_CARDS];
+    CORE_IDS = new Set(CORE.map(c => c.id));
+    // A pack that arrived first may hold an id the core deck has: core wins, as in applyRemoteContent.
+    remote = remote.filter(c => !CORE_IDS.has(c.id));
+    deckReady = true;
+    rebuild();
+}
+
+/** Loads the IELTS deck's chunk once; resolves when cards are readable. */
+export function loadCoreDeck(): Promise<void> {
+    if (deckReady) return Promise.resolve();
+    deckLoading ??= import('../../data/vocabCards').then(
+        (m) => setCoreDeck(m.VOCAB_DATABASE as unknown as ContentCard[]),
+        (e) => {
+            deckLoading = null; // a later call tries again (offline, chunk not cached yet)
+            throw e;
+        },
+    );
+    return deckLoading;
+}
+
+export const isDeckReady = () => deckReady;
+
+/** The IELTS deck only (no Giao tiếp, no Studio packs): Blend's own word list. */
+export function getCoreVocab(): readonly ContentCard[] {
+    return vocab;
+}
 
 function rebuild() {
     all = [...CORE, ...remote].map(c => withVariants(c, variants[c.id]));
@@ -175,9 +212,14 @@ function subscribe(listener: () => void) {
 
 const getVersion = () => version;
 
-/** Re-renders the caller when remote content changes. */
+/** Re-renders the caller when the deck loads or remote content changes. */
 export function useContentVersion(): number {
     return useSyncExternalStore(subscribe, getVersion, getVersion);
+}
+
+/** Whether the IELTS deck is loaded; false on the server. */
+export function useDeckReady(): boolean {
+    return useSyncExternalStore(subscribe, isDeckReady, () => false);
 }
 
 /**

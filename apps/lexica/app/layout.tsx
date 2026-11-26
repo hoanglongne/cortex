@@ -91,16 +91,17 @@ export default function RootLayout({
           <ErrorReporter />
           <NativeShell />
           <PersistStorage />
-          <CloudSync />
-          <ClassSync />
-          <BuddySync />
-          <StudyDateBanner />
-          <DeviceVoiceBoot />
-          <EngagementSync />
           <ContentLoader />
-          <DialTapBridge />
           <ThemeSync />
           <HydrationGate>
+            {/* Inside the gate: these read cards (sync, class reports, rewards), so they wait for the deck (#178). */}
+            <CloudSync />
+            <ClassSync />
+            <BuddySync />
+            <StudyDateBanner />
+            <DeviceVoiceBoot />
+            <EngagementSync />
+            <DialTapBridge />
             <MotionPrefs>
               <DesktopNav />
               {children}

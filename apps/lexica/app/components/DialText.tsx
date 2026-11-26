@@ -6,7 +6,6 @@ import { compileRules, findHits, type DialHit } from '../lib/dial/match';
 import { DIAL_RULES } from '../lib/dial/allRules';
 import { pickHits } from '../lib/dial/level';
 import { hitText, INTENSITIES, INTENSITY, MODE_LABEL, MODES, ruleKey, type DialIntensity, type DialMode } from '../lib/dial/prefs';
-import { VOCAB_DATABASE } from '../data/vocabCards';
 import { exampleHtml, tipFacts } from '../lib/dial/tipCard';
 import { TOPICS, topicOf } from '../lib/engagement/collection';
 import { TOPIC_BLOCK } from '../lib/brand';
@@ -14,9 +13,9 @@ import { playText } from '../lib/audio/AudioService';
 import { useLexicaStore } from '../store/lexicaStore';
 import { dialRank } from '../lib/dial/review';
 import { SEEN_MIN_MS, seenWeight } from '../lib/learner/dialSignal';
+import { getCard } from '../lib/content/repository';
 
 const INDEX = compileRules(DIAL_RULES);
-const CARDS = new Map(VOCAB_DATABASE.map((c) => [c.id, c]));
 
 /**
  * Hits of every paragraph, and which to show, with one density across the
@@ -71,7 +70,7 @@ export function DialSheet({ hit, onClose, effect = 'none', onKnown, onVote }: { 
     if (!hit) return null;
     const voted = vote?.hit === hit ? vote.v : null;
     const setVoted = (v: 'up' | 'down') => setVote({ hit, v });
-    const card = CARDS.get(hit.cardId);
+    const card = getCard(hit.cardId);
     const topic = card ? topicOf(card) : null;
     const facts = card && topic ? tipFacts(card, { label: TOPICS.find((t) => t.id === topic)!.label, color: TOPIC_BLOCK[topic] }) : null;
     const act = 'h-9 px-3 rounded-lg border text-sm flex items-center gap-1.5';

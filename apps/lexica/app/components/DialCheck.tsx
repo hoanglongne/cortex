@@ -4,9 +4,8 @@ import { useMemo, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { useLexicaStore } from '../store/lexicaStore';
 import { checkCandidates, checkDue } from '../lib/learner/dialSignal';
-import { VOCAB_DATABASE } from '../data/vocabCards';
+import { getCard, getCoreVocab } from '../lib/content/repository';
 
-const CARDS = new Map(VOCAB_DATABASE.map((c) => [c.id, c]));
 
 function shuffle<T>(a: T[], seed: number): T[] {
     const out = [...a];
@@ -28,15 +27,18 @@ export default function DialCheck() {
     const learner = useLexicaStore((s) => s.learner);
     const finish = useLexicaStore((s) => s.finishDialCheck);
     const [now] = useState(() => Date.now());
-    const ids = useMemo(() => checkCandidates(learner?.log ?? [], now).filter((id) => CARDS.has(id)), [learner?.log, now]);
+    const ids = useMemo(() => {
+        const core = new Set(getCoreVocab().map((c) => c.id));
+        return checkCandidates(learner?.log ?? [], now).filter((id) => core.has(id));
+    }, [learner?.log, now]);
     const [started, setStarted] = useState(false);
     const [i, setI] = useState(0);
     const [results, setResults] = useState<{ cardId: string; right: boolean }[]>([]);
     const [picked, setPicked] = useState<number | null>(null);
 
     const fresh = useMemo(() => ids.map((id, k) => {
-        const card = CARDS.get(id)!;
-        const others = shuffle(VOCAB_DATABASE.filter((c) => c.id !== id && c.translationHint !== card.translationHint), now + k).slice(0, 3);
+        const card = getCard(id)!;
+        const others = shuffle(getCoreVocab().filter((c) => c.id !== id && c.translationHint !== card.translationHint), now + k).slice(0, 3);
         const options = shuffle([card.translationHint, ...others.map((o) => o.translationHint)], now * 7 + k);
         return { id, word: card.word.toLowerCase(), options, answer: options.indexOf(card.translationHint) };
     }), [ids, now]);

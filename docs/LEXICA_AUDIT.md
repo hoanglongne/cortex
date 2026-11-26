@@ -45,3 +45,19 @@ Lexica có **ý tưởng học rõ và khác** (từ mới đến trong câu ti�
 | 1 | Kho từ mỏng | Đây là việc lớn nhất: dùng Studio để tăng lên ít nhất 1.500–2.000 từ Chứng chỉ có kiểm duyệt; ưu tiên Trung cấp–Nâng cao (nhóm học IELTS cần nhất). Trong lúc đó, nói rõ trong app số từ hiện có | nhiều tuần, chủ yếu là nội dung |
 | 6, 13 | Dàn trải | Chọn lõi (Hôm nay, Ôn, Đọc, Nói, Blend); ẩn các phần chưa chứng minh sau một mục "Thêm"; tạm ẩn nhánh Giao tiếp cho tới khi đủ nội dung | 1–2 ngày (ẩn), quyết định là của bạn |
 | 5 | Chưa có bằng chứng | Đo giữ chân ngày 1/7/30 bằng PostHog (đã cài) với 20–50 người học thật; đó là số duy nhất trả lời "Lexica có giữ người học không" | phụ thuộc có người dùng |
+
+---
+
+## Kết quả sửa việc 2 (tải dần kho thẻ, 26/11/2026)
+Kho thẻ tách ra một gói riêng (552 KB), tải song song; `HydrationGate` chờ nó, nên mã còn lại vẫn đọc thẻ đồng bộ như cũ. Trang đầu, trang 404 và các trang khác không còn chứa kho thẻ trong gói chính. 25 test e2e qua.
+
+Đo trên bản build thật, 4G chậm + CPU chậm 4 lần, trang đầu (3 lần, lấy 2 lần sau):
+
+| | Trước | Sau |
+|---|---|---|
+| Thời điểm `load` | 4,05 giây | ~2,95 giây |
+| LCP | 5,3 giây | ~4,9 giây |
+
+**LCP chỉ giảm khoảng 0,4 giây**, vì nội dung đầu tiên vẫn phải đợi kho thẻ, và vì phần vỏ app (khoảng 1 MB JavaScript ngoài kho thẻ) mới là phần nặng. Đổi kho sang JSON không đáng: phân tích kho chỉ mất ~4 ms trên máy bàn.
+
+**Bước tiếp theo nếu muốn LCP dưới 4 giây:** tìm xem 1 MB vỏ app gồm gì (framer-motion, supabase-js, PostHog, biểu tượng...) và tải sau những gì không cần cho màn đầu.
