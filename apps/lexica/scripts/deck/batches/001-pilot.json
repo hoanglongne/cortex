@@ -1,0 +1,1342 @@
+[
+  {
+    "id": "v541",
+    "word": "DETERMINE",
+    "ipa": "dɪˈtɜː(r)mɪn",
+    "elo": 900,
+    "level": "beginner",
+    "scenario": "Kết quả bài kiểm tra đầu vào sẽ DETERMINE bạn được xếp vào lớp nào trong khoá học mùa hè.",
+    "translationHint": "Quyết định, xác định",
+    "collocations": [
+      "determine the cause",
+      "be determined to"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Doctors are trying to find out why the patient is ill.",
+      "targetSlot": "find out",
+      "academicOptions": [
+        {
+          "text": "determine",
+          "nuance": "Xác định rõ ràng sau khi xem xét.",
+          "formalityScore": 8
+        },
+        {
+          "text": "ascertain",
+          "nuance": "Tìm cho chắc chắn (rất trang trọng).",
+          "formalityScore": 10
+        },
+        {
+          "text": "establish",
+          "nuance": "Xác lập bằng chứng cứ, dùng nhiều trong báo cáo.",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "de-",
+        "meaning": "hoàn toàn",
+        "relatedWords": [
+          {
+            "word": "declare",
+            "meaning": "tuyên bố"
+          },
+          {
+            "word": "describe",
+            "meaning": "mô tả"
+          }
+        ]
+      },
+      "root": {
+        "text": "termin-",
+        "meaning": "giới hạn, ranh giới (limit)",
+        "relatedWords": [
+          {
+            "word": "terminal",
+            "meaning": "nhà ga cuối, điểm cuối"
+          },
+          {
+            "word": "terminate",
+            "meaning": "chấm dứt"
+          },
+          {
+            "word": "term",
+            "meaning": "kỳ hạn, thuật ngữ"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v542",
+    "word": "PURPOSE",
+    "ipa": "ˈpɜːpəs",
+    "elo": 870,
+    "level": "beginner",
+    "scenario": "Trước khi viết đoạn mở bài, bạn nên tự hỏi PURPOSE của bài luận này là thuyết phục hay chỉ giải thích.",
+    "translationHint": "Mục đích",
+    "collocations": [
+      "the main purpose",
+      "on purpose"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "The goal of this study is to help poor families.",
+      "targetSlot": "The goal",
+      "academicOptions": [
+        {
+          "text": "The primary purpose",
+          "nuance": "Mục đích chính, nghe chuẩn mực trong bài viết.",
+          "formalityScore": 8
+        },
+        {
+          "text": "The objective",
+          "nuance": "Mục tiêu cụ thể, đo được.",
+          "formalityScore": 9
+        },
+        {
+          "text": "The aim",
+          "nuance": "Đích hướng tới, gọn và phổ biến trong học thuật.",
+          "formalityScore": 7
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "pur-/pro-",
+        "meaning": "về phía trước",
+        "relatedWords": [
+          {
+            "word": "pursue",
+            "meaning": "theo đuổi"
+          },
+          {
+            "word": "propose",
+            "meaning": "đề xuất"
+          }
+        ]
+      },
+      "root": {
+        "text": "pos-",
+        "meaning": "đặt, để (to put)",
+        "relatedWords": [
+          {
+            "word": "position",
+            "meaning": "vị trí"
+          },
+          {
+            "word": "compose",
+            "meaning": "soạn, sáng tác"
+          },
+          {
+            "word": "deposit",
+            "meaning": "đặt cọc, gửi tiền"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v543",
+    "word": "GAIN",
+    "ipa": "ɡeɪn",
+    "elo": 860,
+    "level": "beginner",
+    "scenario": "Sau ba tháng thực tập ở công ty du lịch, Linh GAIN được rất nhiều kinh nghiệm làm việc với khách nước ngoài.",
+    "translationHint": "Đạt được, thu được",
+    "collocations": [
+      "gain experience",
+      "gain weight"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "She got a lot of skills from her part-time job.",
+      "targetSlot": "got",
+      "academicOptions": [
+        {
+          "text": "gained",
+          "nuance": "Thu được dần qua thời gian, tự nhiên hơn 'got'.",
+          "formalityScore": 7
+        },
+        {
+          "text": "acquired",
+          "nuance": "Tiếp thu, có được (trang trọng, hay dùng với kỹ năng).",
+          "formalityScore": 9
+        },
+        {
+          "text": "developed",
+          "nuance": "Phát triển dần lên, nhấn vào quá trình.",
+          "formalityScore": 8
+        }
+      ]
+    },
+    "surgeryModule": {
+      "root": {
+        "text": "gain",
+        "meaning": "kiếm được, giành được (tiếng Pháp cổ gaaignier)",
+        "relatedWords": [
+          {
+            "word": "regain",
+            "meaning": "lấy lại"
+          },
+          {
+            "word": "gainful",
+            "meaning": "có lợi, có thu nhập"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v544",
+    "word": "OCCUR",
+    "ipa": "əˈkɜː",
+    "elo": 900,
+    "level": "beginner",
+    "scenario": "Tai nạn giao thông thường OCCUR vào giờ cao điểm buổi chiều, khi ai cũng vội về nhà.",
+    "translationHint": "Xảy ra",
+    "collocations": [
+      "occur naturally",
+      "it occurred to me"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Floods happen often in this area.",
+      "targetSlot": "happen often",
+      "academicOptions": [
+        {
+          "text": "occur frequently",
+          "nuance": "Xảy ra thường xuyên, chuẩn văn viết.",
+          "formalityScore": 8
+        },
+        {
+          "text": "are a recurrent problem",
+          "nuance": "Là vấn đề lặp đi lặp lại.",
+          "formalityScore": 9
+        },
+        {
+          "text": "are commonplace",
+          "nuance": "Là chuyện thường gặp.",
+          "formalityScore": 8
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "oc-/ob-",
+        "meaning": "về phía, hướng tới",
+        "relatedWords": [
+          {
+            "word": "occasion",
+            "meaning": "dịp"
+          },
+          {
+            "word": "oppose",
+            "meaning": "phản đối"
+          }
+        ]
+      },
+      "root": {
+        "text": "cur-",
+        "meaning": "chạy (to run)",
+        "relatedWords": [
+          {
+            "word": "current",
+            "meaning": "dòng chảy, hiện tại"
+          },
+          {
+            "word": "recur",
+            "meaning": "lặp lại"
+          },
+          {
+            "word": "excursion",
+            "meaning": "chuyến tham quan"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v545",
+    "word": "DEPEND",
+    "ipa": "dɪˈpend",
+    "elo": 880,
+    "level": "beginner",
+    "scenario": "Mình chưa chắc cuối tuần có đi biển không, còn DEPEND vào việc trời có mưa hay không.",
+    "translationHint": "Phụ thuộc, tuỳ vào",
+    "collocations": [
+      "depend on",
+      "it depends"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Many families need tourism to make money.",
+      "targetSlot": "need",
+      "academicOptions": [
+        {
+          "text": "depend on",
+          "nuance": "Phụ thuộc vào, trung tính.",
+          "formalityScore": 7
+        },
+        {
+          "text": "rely heavily on",
+          "nuance": "Dựa nhiều vào, nhấn mức độ.",
+          "formalityScore": 8
+        },
+        {
+          "text": "are reliant on",
+          "nuance": "Lệ thuộc vào (văn viết).",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "de-",
+        "meaning": "xuống, từ trên",
+        "relatedWords": [
+          {
+            "word": "descend",
+            "meaning": "đi xuống"
+          },
+          {
+            "word": "decline",
+            "meaning": "suy giảm"
+          }
+        ]
+      },
+      "root": {
+        "text": "pend-",
+        "meaning": "treo (to hang)",
+        "relatedWords": [
+          {
+            "word": "pendant",
+            "meaning": "mặt dây chuyền"
+          },
+          {
+            "word": "suspend",
+            "meaning": "treo, đình chỉ"
+          },
+          {
+            "word": "pendulum",
+            "meaning": "con lắc"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v546",
+    "word": "MAJORITY",
+    "ipa": "məˈdʒɒrɪti",
+    "elo": 890,
+    "level": "beginner",
+    "scenario": "Trong cuộc khảo sát của lớp, MAJORITY sinh viên nói rằng họ thích học nhóm hơn học một mình.",
+    "translationHint": "Đa số, phần lớn",
+    "collocations": [
+      "the vast majority",
+      "majority of people"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Most people in the city use motorbikes.",
+      "targetSlot": "Most people",
+      "academicOptions": [
+        {
+          "text": "The majority of residents",
+          "nuance": "Đa số cư dân, chuẩn văn viết.",
+          "formalityScore": 8
+        },
+        {
+          "text": "The vast majority of inhabitants",
+          "nuance": "Tuyệt đại đa số, nhấn mạnh tỉ lệ rất lớn.",
+          "formalityScore": 9
+        },
+        {
+          "text": "A large proportion of the population",
+          "nuance": "Một tỉ lệ lớn dân số, hợp với mô tả số liệu.",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "root": {
+        "text": "major",
+        "meaning": "lớn hơn (greater)",
+        "relatedWords": [
+          {
+            "word": "major",
+            "meaning": "chính, lớn"
+          },
+          {
+            "word": "majesty",
+            "meaning": "uy nghi, bệ hạ"
+          }
+        ]
+      },
+      "suffix": {
+        "text": "-ity",
+        "meaning": "tính chất, trạng thái (danh từ)",
+        "relatedWords": [
+          {
+            "word": "minority",
+            "meaning": "thiểu số"
+          },
+          {
+            "word": "quality",
+            "meaning": "chất lượng"
+          },
+          {
+            "word": "ability",
+            "meaning": "khả năng"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v547",
+    "word": "RECOMMEND",
+    "ipa": "ˌrekəˈmend",
+    "elo": 880,
+    "level": "beginner",
+    "scenario": "Cô giáo RECOMMEND cả lớp đọc báo tiếng Anh mỗi sáng để quen với từ vựng học thuật.",
+    "translationHint": "Khuyên, giới thiệu",
+    "collocations": [
+      "highly recommend",
+      "recommend a book"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "The report says the city should build more parks.",
+      "targetSlot": "says",
+      "academicOptions": [
+        {
+          "text": "recommends that",
+          "nuance": "Khuyến nghị rằng, dùng chuẩn trong báo cáo.",
+          "formalityScore": 8
+        },
+        {
+          "text": "advocates",
+          "nuance": "Ủng hộ, kêu gọi một cách mạnh mẽ.",
+          "formalityScore": 9
+        },
+        {
+          "text": "proposes that",
+          "nuance": "Đề xuất rằng, trung tính.",
+          "formalityScore": 8
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "re-",
+        "meaning": "nhấn mạnh",
+        "relatedWords": [
+          {
+            "word": "remind",
+            "meaning": "nhắc nhở"
+          },
+          {
+            "word": "reveal",
+            "meaning": "tiết lộ"
+          }
+        ]
+      },
+      "root": {
+        "text": "mend-/mand-",
+        "meaning": "giao phó (to entrust)",
+        "relatedWords": [
+          {
+            "word": "commend",
+            "meaning": "khen ngợi"
+          },
+          {
+            "word": "command",
+            "meaning": "ra lệnh"
+          },
+          {
+            "word": "mandate",
+            "meaning": "uỷ nhiệm"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v548",
+    "word": "REQUEST",
+    "ipa": "rɪˈkwest",
+    "elo": 890,
+    "level": "beginner",
+    "scenario": "Nếu muốn đổi phòng ký túc xá, bạn phải gửi REQUEST cho văn phòng trước ngày mười lăm.",
+    "translationHint": "Yêu cầu, lời đề nghị",
+    "collocations": [
+      "make a request",
+      "on request"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "I am writing to ask for more information about the course.",
+      "targetSlot": "ask for",
+      "academicOptions": [
+        {
+          "text": "request",
+          "nuance": "Đề nghị một cách lịch sự, hợp thư trang trọng.",
+          "formalityScore": 8
+        },
+        {
+          "text": "enquire about",
+          "nuance": "Hỏi thăm thông tin (thư trang trọng).",
+          "formalityScore": 9
+        },
+        {
+          "text": "seek",
+          "nuance": "Tìm kiếm, xin (văn viết).",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "re-",
+        "meaning": "lại, lần nữa",
+        "relatedWords": [
+          {
+            "word": "repeat",
+            "meaning": "lặp lại"
+          },
+          {
+            "word": "return",
+            "meaning": "trở lại"
+          }
+        ]
+      },
+      "root": {
+        "text": "quest-/quer-",
+        "meaning": "tìm, hỏi (to seek, to ask)",
+        "relatedWords": [
+          {
+            "word": "question",
+            "meaning": "câu hỏi"
+          },
+          {
+            "word": "inquire",
+            "meaning": "hỏi han"
+          },
+          {
+            "word": "conquest",
+            "meaning": "cuộc chinh phục"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v549",
+    "word": "BUDGET",
+    "ipa": "ˈbʌdʒɪt",
+    "elo": 870,
+    "level": "beginner",
+    "scenario": "Tháng này mình đặt BUDGET chỉ hai triệu cho tiền ăn, nên phải nấu cơm ở nhà nhiều hơn.",
+    "translationHint": "Ngân sách, khoản chi dự tính",
+    "collocations": [
+      "a tight budget",
+      "budget cuts"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "The school does not have enough money for new computers.",
+      "targetSlot": "does not have enough money",
+      "academicOptions": [
+        {
+          "text": "lacks the budget",
+          "nuance": "Thiếu ngân sách, gọn và trang trọng.",
+          "formalityScore": 8
+        },
+        {
+          "text": "has insufficient funding",
+          "nuance": "Không đủ kinh phí, văn viết.",
+          "formalityScore": 9
+        },
+        {
+          "text": "faces financial constraints",
+          "nuance": "Gặp hạn chế về tài chính.",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "root": {
+        "text": "budg-",
+        "meaning": "túi da nhỏ (tiếng Pháp cổ bougette)",
+        "relatedWords": [
+          {
+            "word": "bulge",
+            "meaning": "chỗ phình ra (cùng gốc Latin bulga)"
+          },
+          {
+            "word": "budgetary",
+            "meaning": "thuộc về ngân sách"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v550",
+    "word": "PREVENT",
+    "ipa": "prɪˈvent",
+    "elo": 880,
+    "level": "beginner",
+    "scenario": "Rửa tay thường xuyên là cách đơn giản nhất để PREVENT cảm cúm lây lan trong văn phòng.",
+    "translationHint": "Ngăn chặn, phòng ngừa",
+    "collocations": [
+      "prevent disease",
+      "prevent someone from"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "We must stop pollution from getting worse.",
+      "targetSlot": "stop",
+      "academicOptions": [
+        {
+          "text": "prevent",
+          "nuance": "Ngăn không cho xảy ra, chuẩn văn viết.",
+          "formalityScore": 8
+        },
+        {
+          "text": "curb",
+          "nuance": "Kiềm chế, hạn chế đà tăng.",
+          "formalityScore": 9
+        },
+        {
+          "text": "avert",
+          "nuance": "Ngăn chặn kịp thời một điều xấu (trang trọng).",
+          "formalityScore": 10
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "pre-",
+        "meaning": "trước",
+        "relatedWords": [
+          {
+            "word": "predict",
+            "meaning": "dự đoán"
+          },
+          {
+            "word": "prepare",
+            "meaning": "chuẩn bị"
+          }
+        ]
+      },
+      "root": {
+        "text": "vent-/ven-",
+        "meaning": "đến (to come)",
+        "relatedWords": [
+          {
+            "word": "event",
+            "meaning": "sự kiện"
+          },
+          {
+            "word": "convention",
+            "meaning": "hội nghị, quy ước"
+          },
+          {
+            "word": "intervene",
+            "meaning": "can thiệp"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v551",
+    "word": "AWARE",
+    "ipa": "əˈweə",
+    "elo": 880,
+    "level": "beginner",
+    "scenario": "Nhiều người không AWARE rằng uống nước ngọt mỗi ngày có thể gây hại cho răng và cân nặng.",
+    "translationHint": "Nhận thức được, biết rõ",
+    "collocations": [
+      "be aware of",
+      "environmentally aware"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Young people know more about climate change now.",
+      "targetSlot": "know more about",
+      "academicOptions": [
+        {
+          "text": "are more aware of",
+          "nuance": "Nhận thức rõ hơn, chuẩn văn viết.",
+          "formalityScore": 8
+        },
+        {
+          "text": "are increasingly conscious of",
+          "nuance": "Ngày càng ý thức về, nhấn xu hướng.",
+          "formalityScore": 9
+        },
+        {
+          "text": "have a greater understanding of",
+          "nuance": "Hiểu biết sâu hơn về.",
+          "formalityScore": 8
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "a-",
+        "meaning": "nhấn mạnh",
+        "relatedWords": [
+          {
+            "word": "awake",
+            "meaning": "thức tỉnh"
+          },
+          {
+            "word": "arise",
+            "meaning": "nảy sinh"
+          }
+        ]
+      },
+      "root": {
+        "text": "ware",
+        "meaning": "cẩn trọng, để ý (tiếng Anh cổ)",
+        "relatedWords": [
+          {
+            "word": "beware",
+            "meaning": "coi chừng"
+          },
+          {
+            "word": "wary",
+            "meaning": "thận trọng, dè chừng"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v552",
+    "word": "EXCHANGE",
+    "ipa": "eksˈtʃeɪndʒ",
+    "elo": 870,
+    "level": "beginner",
+    "scenario": "Trong chuyến đi Nhật, nhóm sinh viên được EXCHANGE ý tưởng với bạn bè cùng tuổi ở Osaka.",
+    "translationHint": "Trao đổi",
+    "collocations": [
+      "exchange ideas",
+      "exchange rate"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Students from different countries share their cultures.",
+      "targetSlot": "share",
+      "academicOptions": [
+        {
+          "text": "exchange",
+          "nuance": "Trao đổi qua lại hai chiều.",
+          "formalityScore": 7
+        },
+        {
+          "text": "engage in cultural exchange about",
+          "nuance": "Tham gia giao lưu văn hoá (văn viết).",
+          "formalityScore": 9
+        },
+        {
+          "text": "gain exposure to each other's",
+          "nuance": "Được tiếp xúc với văn hoá của nhau.",
+          "formalityScore": 8
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "ex-",
+        "meaning": "ra ngoài, hoàn toàn",
+        "relatedWords": [
+          {
+            "word": "export",
+            "meaning": "xuất khẩu"
+          },
+          {
+            "word": "exit",
+            "meaning": "lối ra"
+          }
+        ]
+      },
+      "root": {
+        "text": "change",
+        "meaning": "thay đổi, đổi",
+        "relatedWords": [
+          {
+            "word": "interchange",
+            "meaning": "sự trao đổi qua lại, nút giao"
+          },
+          {
+            "word": "changeable",
+            "meaning": "hay thay đổi"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v553",
+    "word": "INDEPENDENT",
+    "ipa": "ˌɪndɪˈpendənt",
+    "elo": 900,
+    "level": "beginner",
+    "scenario": "Đi du học một mình giúp Huy trở nên INDEPENDENT hơn, từ nấu ăn đến tự quản lý tiền bạc.",
+    "translationHint": "Độc lập, tự lập",
+    "collocations": [
+      "financially independent",
+      "independent study"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Living alone helps young people do things by themselves.",
+      "targetSlot": "do things by themselves",
+      "academicOptions": [
+        {
+          "text": "become more independent",
+          "nuance": "Trở nên độc lập hơn, trung tính.",
+          "formalityScore": 7
+        },
+        {
+          "text": "develop self-reliance",
+          "nuance": "Phát triển tính tự lực (văn viết).",
+          "formalityScore": 9
+        },
+        {
+          "text": "gain autonomy",
+          "nuance": "Có được quyền tự chủ.",
+          "formalityScore": 10
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "in-",
+        "meaning": "không",
+        "relatedWords": [
+          {
+            "word": "invisible",
+            "meaning": "vô hình"
+          },
+          {
+            "word": "incorrect",
+            "meaning": "sai"
+          }
+        ]
+      },
+      "root": {
+        "text": "pend-",
+        "meaning": "treo (to hang)",
+        "relatedWords": [
+          {
+            "word": "depend",
+            "meaning": "phụ thuộc"
+          },
+          {
+            "word": "suspend",
+            "meaning": "treo, đình chỉ"
+          }
+        ]
+      },
+      "suffix": {
+        "text": "-ent",
+        "meaning": "có tính chất (tính từ)",
+        "relatedWords": [
+          {
+            "word": "different",
+            "meaning": "khác biệt"
+          },
+          {
+            "word": "patient",
+            "meaning": "kiên nhẫn"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v554",
+    "word": "ANNOUNCE",
+    "ipa": "əˈnaʊns",
+    "elo": 890,
+    "level": "beginner",
+    "scenario": "Sáng nay nhà trường vừa ANNOUNCE rằng học sinh sẽ được nghỉ thêm một ngày vì bão.",
+    "translationHint": "Thông báo, công bố",
+    "collocations": [
+      "announce a decision",
+      "officially announced"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "The government said it will raise taxes next year.",
+      "targetSlot": "said",
+      "academicOptions": [
+        {
+          "text": "announced",
+          "nuance": "Công bố chính thức.",
+          "formalityScore": 8
+        },
+        {
+          "text": "declared",
+          "nuance": "Tuyên bố, mạnh và dứt khoát.",
+          "formalityScore": 9
+        },
+        {
+          "text": "made public its plan",
+          "nuance": "Công khai kế hoạch.",
+          "formalityScore": 8
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "an-/ad-",
+        "meaning": "đến, hướng tới",
+        "relatedWords": [
+          {
+            "word": "attract",
+            "meaning": "thu hút"
+          },
+          {
+            "word": "admit",
+            "meaning": "thừa nhận"
+          }
+        ]
+      },
+      "root": {
+        "text": "nounce-/nunci-",
+        "meaning": "báo tin (to report)",
+        "relatedWords": [
+          {
+            "word": "pronounce",
+            "meaning": "phát âm"
+          },
+          {
+            "word": "denounce",
+            "meaning": "tố cáo, lên án"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v555",
+    "word": "DIFFICULTY",
+    "ipa": "ˈdɪfɪkəlti",
+    "elo": 870,
+    "level": "beginner",
+    "scenario": "Tuần đầu đi làm, Mai gặp DIFFICULTY khi phải nghe đồng nghiệp người Úc nói rất nhanh.",
+    "translationHint": "Sự khó khăn",
+    "collocations": [
+      "have difficulty",
+      "financial difficulty"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Many old people find it hard to use smartphones.",
+      "targetSlot": "find it hard",
+      "academicOptions": [
+        {
+          "text": "have difficulty",
+          "nuance": "Gặp khó khăn (đi với V-ing), chuẩn văn viết.",
+          "formalityScore": 8
+        },
+        {
+          "text": "struggle",
+          "nuance": "Vật lộn, cố gắng mà vẫn khó.",
+          "formalityScore": 7
+        },
+        {
+          "text": "encounter obstacles",
+          "nuance": "Gặp trở ngại (trang trọng).",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "dif-/dis-",
+        "meaning": "không, ngược lại",
+        "relatedWords": [
+          {
+            "word": "dislike",
+            "meaning": "không thích"
+          },
+          {
+            "word": "dishonest",
+            "meaning": "không trung thực"
+          }
+        ]
+      },
+      "root": {
+        "text": "fic-/fac-",
+        "meaning": "làm (to do, to make)",
+        "relatedWords": [
+          {
+            "word": "efficient",
+            "meaning": "hiệu quả"
+          },
+          {
+            "word": "factory",
+            "meaning": "nhà máy"
+          },
+          {
+            "word": "facility",
+            "meaning": "cơ sở vật chất"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v556",
+    "word": "COMMITMENT",
+    "ipa": "kəˈmɪtmənt",
+    "elo": 920,
+    "level": "beginner",
+    "scenario": "Học đàn piano cần COMMITMENT thật sự, vì bạn phải tập ít nhất ba mươi phút mỗi ngày.",
+    "translationHint": "Sự cam kết, tận tâm",
+    "collocations": [
+      "make a commitment",
+      "long-term commitment"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "The company promised to cut plastic waste.",
+      "targetSlot": "promised",
+      "academicOptions": [
+        {
+          "text": "made a commitment",
+          "nuance": "Đưa ra cam kết, nghe nghiêm túc hơn 'promise'.",
+          "formalityScore": 8
+        },
+        {
+          "text": "pledged",
+          "nuance": "Cam kết công khai, long trọng.",
+          "formalityScore": 9
+        },
+        {
+          "text": "undertook",
+          "nuance": "Nhận trách nhiệm làm (rất trang trọng).",
+          "formalityScore": 10
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "com-",
+        "meaning": "cùng, hoàn toàn",
+        "relatedWords": [
+          {
+            "word": "combine",
+            "meaning": "kết hợp"
+          },
+          {
+            "word": "compare",
+            "meaning": "so sánh"
+          }
+        ]
+      },
+      "root": {
+        "text": "mit-/miss-",
+        "meaning": "gửi (to send)",
+        "relatedWords": [
+          {
+            "word": "submit",
+            "meaning": "nộp"
+          },
+          {
+            "word": "transmit",
+            "meaning": "truyền đi"
+          },
+          {
+            "word": "mission",
+            "meaning": "nhiệm vụ"
+          }
+        ]
+      },
+      "suffix": {
+        "text": "-ment",
+        "meaning": "hành động, kết quả (danh từ)",
+        "relatedWords": [
+          {
+            "word": "agreement",
+            "meaning": "sự đồng ý"
+          },
+          {
+            "word": "payment",
+            "meaning": "khoản thanh toán"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v557",
+    "word": "EXPLORE",
+    "ipa": "ɪkˈsplɔː",
+    "elo": 880,
+    "level": "beginner",
+    "scenario": "Cuối tuần này cả nhóm định thuê xe máy để EXPLORE những con đường nhỏ quanh Đà Lạt.",
+    "translationHint": "Khám phá, tìm hiểu",
+    "collocations": [
+      "explore the city",
+      "explore options"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "This essay will look at the causes of stress.",
+      "targetSlot": "look at",
+      "academicOptions": [
+        {
+          "text": "explore",
+          "nuance": "Tìm hiểu kỹ nhiều khía cạnh.",
+          "formalityScore": 8
+        },
+        {
+          "text": "examine",
+          "nuance": "Xem xét cẩn thận.",
+          "formalityScore": 8
+        },
+        {
+          "text": "investigate",
+          "nuance": "Điều tra, nghiên cứu có hệ thống.",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "ex-",
+        "meaning": "ra ngoài",
+        "relatedWords": [
+          {
+            "word": "exit",
+            "meaning": "lối ra"
+          },
+          {
+            "word": "expand",
+            "meaning": "mở rộng"
+          }
+        ]
+      },
+      "root": {
+        "text": "plor-",
+        "meaning": "kêu to (to cry out)",
+        "relatedWords": [
+          {
+            "word": "implore",
+            "meaning": "khẩn cầu"
+          },
+          {
+            "word": "deplore",
+            "meaning": "lấy làm tiếc, phản đối"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v558",
+    "word": "INVESTIGATE",
+    "ipa": "ɪnˈvestəɡeɪt",
+    "elo": 930,
+    "level": "beginner",
+    "scenario": "Công an đang INVESTIGATE nguyên nhân vụ cháy ở chợ đêm hôm qua, chưa ai bị thương.",
+    "translationHint": "Điều tra, nghiên cứu",
+    "collocations": [
+      "investigate the cause",
+      "investigate a claim"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "Scientists are checking how sleep affects memory.",
+      "targetSlot": "checking",
+      "academicOptions": [
+        {
+          "text": "investigating",
+          "nuance": "Nghiên cứu có hệ thống.",
+          "formalityScore": 9
+        },
+        {
+          "text": "examining",
+          "nuance": "Xem xét kỹ lưỡng.",
+          "formalityScore": 8
+        },
+        {
+          "text": "looking into",
+          "nuance": "Tìm hiểu, đỡ trang trọng hơn.",
+          "formalityScore": 6
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "in-",
+        "meaning": "vào trong",
+        "relatedWords": [
+          {
+            "word": "include",
+            "meaning": "bao gồm"
+          },
+          {
+            "word": "insert",
+            "meaning": "chèn vào"
+          }
+        ]
+      },
+      "root": {
+        "text": "vestig-",
+        "meaning": "dấu vết, dấu chân (track)",
+        "relatedWords": [
+          {
+            "word": "vestige",
+            "meaning": "dấu tích còn sót lại"
+          }
+        ]
+      },
+      "suffix": {
+        "text": "-ate",
+        "meaning": "làm cho, thực hiện (động từ)",
+        "relatedWords": [
+          {
+            "word": "activate",
+            "meaning": "kích hoạt"
+          },
+          {
+            "word": "calculate",
+            "meaning": "tính toán"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v559",
+    "word": "NEGOTIATE",
+    "ipa": "nɪˈɡəʊʃieɪt",
+    "elo": 990,
+    "level": "intermediate",
+    "scenario": "Trước khi ký hợp đồng, bạn nên NEGOTIATE lại mức lương vì công việc này nhiều trách nhiệm hơn.",
+    "translationHint": "Đàm phán, thương lượng",
+    "collocations": [
+      "negotiate a deal",
+      "negotiate with"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "The two countries talked to reach an agreement.",
+      "targetSlot": "talked",
+      "academicOptions": [
+        {
+          "text": "negotiated",
+          "nuance": "Đàm phán để đi tới thoả thuận.",
+          "formalityScore": 8
+        },
+        {
+          "text": "held talks",
+          "nuance": "Tổ chức hội đàm (ngôn ngữ báo chí).",
+          "formalityScore": 8
+        },
+        {
+          "text": "entered into dialogue",
+          "nuance": "Bắt đầu đối thoại chính thức.",
+          "formalityScore": 9
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "neg-",
+        "meaning": "không",
+        "relatedWords": [
+          {
+            "word": "negative",
+            "meaning": "tiêu cực"
+          },
+          {
+            "word": "neglect",
+            "meaning": "sao nhãng"
+          }
+        ]
+      },
+      "root": {
+        "text": "oti-",
+        "meaning": "thảnh thơi (Latin otium)",
+        "relatedWords": [
+          {
+            "word": "otiose",
+            "meaning": "vô ích, thừa (rất trang trọng)"
+          }
+        ]
+      },
+      "suffix": {
+        "text": "-ate",
+        "meaning": "làm cho, thực hiện (động từ)",
+        "relatedWords": [
+          {
+            "word": "participate",
+            "meaning": "tham gia"
+          },
+          {
+            "word": "create",
+            "meaning": "tạo ra"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "v560",
+    "word": "UNDERTAKE",
+    "ipa": "ˌʌndəˈteɪk",
+    "elo": 1000,
+    "level": "intermediate",
+    "scenario": "Năm nay khoa sẽ UNDERTAKE một dự án lớn về rác thải nhựa cùng các trường ở miền Trung.",
+    "translationHint": "Đảm nhận, tiến hành",
+    "collocations": [
+      "undertake research",
+      "undertake a task"
+    ],
+    "upgradeModule": {
+      "simpleSentence": "The students did a survey of local shops.",
+      "targetSlot": "did",
+      "academicOptions": [
+        {
+          "text": "undertook",
+          "nuance": "Tiến hành, nhận làm (trang trọng).",
+          "formalityScore": 9
+        },
+        {
+          "text": "conducted",
+          "nuance": "Thực hiện (khảo sát, nghiên cứu).",
+          "formalityScore": 9
+        },
+        {
+          "text": "carried out",
+          "nuance": "Thực hiện, trung tính.",
+          "formalityScore": 7
+        }
+      ]
+    },
+    "surgeryModule": {
+      "prefix": {
+        "text": "under-",
+        "meaning": "dưới, gánh lấy",
+        "relatedWords": [
+          {
+            "word": "undergo",
+            "meaning": "trải qua"
+          },
+          {
+            "word": "understand",
+            "meaning": "hiểu"
+          }
+        ]
+      },
+      "root": {
+        "text": "take",
+        "meaning": "nhận, lấy",
+        "relatedWords": [
+          {
+            "word": "overtake",
+            "meaning": "vượt lên"
+          },
+          {
+            "word": "intake",
+            "meaning": "lượng tiếp nhận"
+          }
+        ]
+      }
+    }
+  }
+]
